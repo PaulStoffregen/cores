@@ -108,8 +108,6 @@ public:
 			cpu_cycles = 0;
 			cpu_cycles_max = 0;
 		}
-	void connect(AudioStream &dest, unsigned char dest_index = 0, unsigned int src_index = 0);
-	void disconnect(void);
 	static void initialize_memory(audio_block_t *data, unsigned int num);
 	int processorUsage(void) { return CYCLE_COUNTER_APPROX_PERCENT(cpu_cycles); }
 	int processorUsageMax(void) { return CYCLE_COUNTER_APPROX_PERCENT(cpu_cycles_max); }

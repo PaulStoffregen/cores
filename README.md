@@ -5,5 +5,4 @@ The latest stable version of Teensy's core library is always available in the Te
 http://www.pjrc.com/teensy/td_download.html
 
 
-This github repository contains work-in-progress code, which may not be stable.  It is not recommended for use in actual projects.
 

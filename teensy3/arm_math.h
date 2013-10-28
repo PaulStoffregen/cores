@@ -5326,7 +5326,10 @@ extern "C"
 #else
 
     /* acc += A1 * x[n-1] + A2 * x[n-2]  */
-    acc = __SMLALD(S->A1, (q31_t) __SIMD32(S->state), acc);
+    // TODO: this single-instruction version causes a gcc strict-aliasing warning
+    //acc = __SMLALD(S->A1, (q31_t) __SIMD32(S->state), acc);
+    uint32_t state = (uint32_t)S->state[0] | ((uint32_t)S->state[1] << 16);
+    acc = __SMLALD(S->A1, state, acc);
 
 #endif
 
@@ -5900,7 +5903,7 @@ extern "C"
       /* Iniatilize output for below specified range as least output value of table */
       y = pYData[0];
     }
-    else if(i >= S->nValues)
+    else if((uint32_t)i >= S->nValues)
     {
       /* Iniatilize output for above specified range as last output value of table */
       y = pYData[S->nValues - 1];
@@ -5954,13 +5957,13 @@ extern "C"
     /* Index value calculation */
     index = ((x & 0xFFF00000) >> 20);
 
-    if(index >= (nValues - 1))
-    {
-      return (pYData[nValues - 1]);
-    }
-    else if(index < 0)
+    if(index < 0)
     {
       return (pYData[0]);
+    }
+    else if((uint32_t)index >= (nValues - 1))
+    {
+      return (pYData[nValues - 1]);
     }
     else
     {
@@ -6016,13 +6019,13 @@ extern "C"
     /* Index value calculation */
     index = ((x & 0xFFF00000) >> 20u);
 
-    if(index >= (nValues - 1))
-    {
-      return (pYData[nValues - 1]);
-    }
-    else if(index < 0)
+    if(index < 0)
     {
       return (pYData[0]);
+    }
+    else if((uint32_t)index >= (nValues - 1))
+    {
+      return (pYData[nValues - 1]);
     }
     else
     {
@@ -6077,13 +6080,13 @@ extern "C"
     index = ((x & 0xFFF00000) >> 20u);
 
 
-    if(index >= (nValues - 1))
-    {
-      return (pYData[nValues - 1]);
-    }
-    else if(index < 0)
+    if(index < 0)
     {
       return (pYData[0]);
+    }
+    else if((uint32_t)index >= (nValues - 1))
+    {
+      return (pYData[nValues - 1]);
     }
     else
     {
