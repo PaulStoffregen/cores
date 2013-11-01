@@ -63,6 +63,8 @@ const static uint8_t SCL = 19;
 #define analogInputToDigitalPin(p) (((p) < 10) ? (p) + 14 : -1)
 #define digitalPinHasPWM(p) (((p) >= 3 && (p) <= 6) || (p) == 9 || (p) == 10 || ((p) >= 20 && (p) <= 23))
 
+#define NOT_AN_INTERRUPT -1
+#define digitalPinToInterrupt(p)  ((p) < NUM_DIGITAL_PINS ? (p) : -1)
 
 struct digital_pin_bitband_and_config_table_struct {
         volatile uint32_t *reg;

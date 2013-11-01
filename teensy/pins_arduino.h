@@ -41,6 +41,7 @@ const static uint8_t SCL  = CORE_SCL0_PIN;
 // depend on these to be zero?
 #define NOT_A_PORT 127
 #define NOT_A_PIN 127
+#define NOT_AN_INTERRUPT -1
 
 #define digitalPinToPort(P) (P)
 #define portInputRegister(P) ((volatile uint8_t *)((int)pgm_read_byte(digital_pin_table_PGM+(P)*2+1)))
@@ -52,12 +53,15 @@ extern const uint8_t PROGMEM digital_pin_table_PGM[];
 #if defined(__AVR_AT90USB162__)
 #define analogInputToDigitalPin(ch)	(-1)
 #define digitalPinHasPWM(p)		((p) == 0 || (p) == 15 || (p) == 17 || (p) == 18)
+#define digitalPinToInterrupt(p)	(((p) <= 3 || (p) == 6 || (p) == 8) ? (p) : ((p) == 4 ? 5 : ((p) == 16 ? 4 : -1)))
 #elif defined(__AVR_ATmega32U4__)
 #define analogInputToDigitalPin(ch)	((ch) <= 10 ? 21 - (ch) : ((ch) == 11 ? 22 : -1))
 #define digitalPinHasPWM(p)		((p) == 4 || (p) == 5 || (p) == 9 || (p) == 10 || (p) == 12 || (p) == 14 || (p) == 15)
+#define digitalPinToInterrupt(p)	(((p) >= 5 && (p) <= 8) ? (p) - 5 : -1)
 #elif defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB1286__)
 #define analogInputToDigitalPin(ch)	((ch) <= 7 ? (ch) + 38 : -1)
 #define digitalPinHasPWM(p)		(((p) >= 14 && (p) <= 16) || ((p) >= 24 && (p) <= 27) || (p) == 0 || (p) == 1)
+#define digitalPinToInterrupt(p)	((p) <= 3 ? (p) : (((p) == 36 || (p) == 37) ? (p) - 32 : (((p) == 18 || (p) == 19) ? (p) - 12 : -1)))
 #endif
 
 #if defined(__AVR_AT90USB162__)
