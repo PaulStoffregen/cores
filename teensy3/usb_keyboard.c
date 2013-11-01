@@ -395,6 +395,8 @@ void usb_keyboard_release_all(void)
 
 	anybits = keyboard_modifier_keys;
 	keyboard_modifier_keys = 0;
+	anybits |= keyboard_media_keys;
+	keyboard_media_keys = 0;
 	for (i=0; i < 6; i++) {
 		anybits |= keyboard_keys[i];
 		keyboard_keys[i] = 0;

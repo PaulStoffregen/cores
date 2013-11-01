@@ -87,7 +87,7 @@ public:
 	void send_now(void) { usb_keyboard_send(); }
 	void press(uint16_t n) { usb_keyboard_press_keycode(n); }
 	void release(uint16_t n) { usb_keyboard_release_keycode(n); }
-	void releaseAll(void);
+	void releaseAll(void) { usb_keyboard_release_all(); }
 };
 
 extern usb_keyboard_class Keyboard;
