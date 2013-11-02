@@ -73,7 +73,7 @@ public:
 	inline void setHandleAfterTouch(void (*fptr)(uint8_t channel, uint8_t pressure)) {
 		handleAfterTouch = fptr;
 	};
-	inline void setHandlePitchChange(void (*fptr)(uint8_t channel, uint16_t pitch)) {
+	inline void setHandlePitchChange(void (*fptr)(uint8_t channel, int pitch)) {
 		handlePitchChange = fptr;
 	};
 	inline void setHandleRealTimeSystem(void (*fptr)(uint8_t realtimebyte)) {
@@ -94,7 +94,7 @@ private:
 	void (*handleControlChange)(uint8_t ch, uint8_t, uint8_t);
 	void (*handleProgramChange)(uint8_t ch, uint8_t);
 	void (*handleAfterTouch)(uint8_t ch, uint8_t);
-	void (*handlePitchChange)(uint8_t ch, uint16_t);
+	void (*handlePitchChange)(uint8_t ch, int pitch);
 	void (*handleRealTimeSystem)(uint8_t rtb);
 };
 
