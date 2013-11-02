@@ -1193,6 +1193,14 @@ extern "C" {
 #define SPI_SR_RFOF			(uint32_t)0x00080000		// Receive FIFO Overflow Flag
 #define SPI_SR_RFDF			(uint32_t)0x00020000		// Receive FIFO Drain Flag
 #define SPI0_RSER               *(volatile uint32_t *)0x4002C030 // DSPI DMA/Interrupt Request Select and Enable Register
+#define SPI_RSER_TCF_RE			(uint32_t)0x80000000		// Transmission Complete Request Enable
+#define SPI_RSER_EOQF_RE		(uint32_t)0x10000000		// DSPI Finished Request Request Enable
+#define SPI_RSER_TFUF_RE		(uint32_t)0x08000000		// Transmit FIFO Underflow Request Enable
+#define SPI_RSER_TFFF_RE		(uint32_t)0x02000000		// Transmit FIFO Fill Request Enable
+#define SPI_RSER_TFFF_DIRS		(uint32_t)0x01000000		// Transmit FIFO FIll Dma or Interrupt Request Select
+#define SPI_RSER_RFOF_RE		(uint32_t)0x00080000		// Receive FIFO Overflow Request Enable
+#define SPI_RSER_RFDF_RE		(uint32_t)0x00020000		// Receive FIFO Drain Request Enable
+#define SPI_RSER_RFDF_DIRS		(uint32_t)0x00010000		// Receive FIFO Drain DMA or Interrupt Request Select
 #define SPI0_PUSHR              *(volatile uint32_t *)0x4002C034 // DSPI PUSH TX FIFO Register In Master Mode
 #define SPI_PUSHR_CONT			(uint32_t)0x80000000		// 
 #define SPI_PUSHR_CTAS(n)		(((n) & 7) << 28)		// 
