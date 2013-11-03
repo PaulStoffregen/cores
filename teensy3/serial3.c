@@ -35,8 +35,16 @@
 // UART0 and UART1 are clocked by F_CPU, UART2 is clocked by F_BUS
 // UART0 has 8 byte fifo, UART1 and UART2 have 1 byte buffer
 
+#ifdef SERIAL_9BIT_SUPPORT
+static uint8_t use9Bits = 0;
+#define BUFTYPE uint16_t
+#else
+#define BUFTYPE uint8_t
+#define use9Bits 0
+#endif
+
 #define TX_BUFFER_SIZE 40
-static volatile uint8_t tx_buffer[TX_BUFFER_SIZE];
+static volatile BUFTYPE tx_buffer[TX_BUFFER_SIZE];
 static volatile uint8_t transmitting = 0;
 #if TX_BUFFER_SIZE > 255
 static volatile uint16_t tx_buffer_head = 0;
@@ -47,7 +55,7 @@ static volatile uint8_t tx_buffer_tail = 0;
 #endif
 
 #define RX_BUFFER_SIZE 64
-static volatile uint8_t rx_buffer[RX_BUFFER_SIZE];
+static volatile BUFTYPE rx_buffer[RX_BUFFER_SIZE];
 static volatile uint8_t rx_buffer_head = 0;
 static volatile uint8_t rx_buffer_tail = 0;
 
@@ -76,6 +84,29 @@ void serial3_begin(uint32_t divisor)
 	NVIC_ENABLE_IRQ(IRQ_UART2_STATUS);
 }
 
+void serial3_format(uint32_t format)
+{
+        uint8_t c;
+
+        c = UART2_C1;
+        c = (c & ~0x13) | (format & 0x03);      // configure parity
+        if (format & 0x04) c |= 0x10;           // 9 bits (might include parity)
+        UART2_C1 = c;
+        if ((format & 0x0F) == 0x04) UART2_C3 |= 0x40; // 8N2 is 9 bit with 9th bit always 1
+        c = UART2_S2 & ~0x10;
+        if (format & 0x10) c |= 0x10;           // rx invert
+        UART2_S2 = c;
+        c = UART2_C3 & ~0x10;
+        if (format & 0x20) c |= 0x10;           // tx invert
+        UART2_C3 = c;
+#ifdef SERIAL_9BIT_SUPPORT
+        c = UART2_C4 & 0x1F;
+        if (format & 0x08) c |= 0x20;           // 9 bit mode with parity (requires 10 bits)
+        UART2_C4 = c;
+        use9Bits = format & 0x80;
+#endif
+}
+
 void serial3_end(void)
 {
 	if (!(SIM_SCGC4 & SIM_SCGC4_UART2)) return;
@@ -88,7 +119,7 @@ void serial3_end(void)
 	rx_buffer_tail = 0;
 }
 
-void serial3_putchar(uint8_t c)
+void serial3_putchar(uint32_t c)
 {
 	uint32_t head;
 
@@ -165,17 +196,18 @@ void serial3_clear(void)
 
 void uart2_status_isr(void)
 {
-	uint32_t head, tail;
+	uint32_t head, tail, n;
 	uint8_t c;
 
 	//digitalWriteFast(4, HIGH);
 	if (UART2_S1 & UART_S1_RDRF) {
 		//digitalWriteFast(5, HIGH);
-		c = UART2_D;
+		n = UART2_D;
+		if (use9Bits && (UART2_C3 & 0x80)) n |= 0x100;
 		head = rx_buffer_head + 1;
 		if (head >= RX_BUFFER_SIZE) head = 0;
 		if (head != rx_buffer_tail) {
-			rx_buffer[head] = c;
+			rx_buffer[head] = n;
 			rx_buffer_head = head; 
 		}
 		//digitalWriteFast(5, LOW);
@@ -189,7 +221,9 @@ void uart2_status_isr(void)
 			UART2_C2 = C2_TX_COMPLETING;
 		} else {
 			if (++tail >= TX_BUFFER_SIZE) tail = 0;
-			UART2_D = tx_buffer[tail];
+			n = tx_buffer[tail];
+			if (use9Bits) UART2_C3 = (UART2_C3 & ~0x40) | ((n & 0x100) >> 2);
+			UART2_D = n;
 			tx_buffer_tail = tail;
 		}
 		//digitalWriteFast(5, LOW);

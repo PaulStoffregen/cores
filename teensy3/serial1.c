@@ -45,8 +45,16 @@
 // changes not recommended below this point....
 ////////////////////////////////////////////////////////////////
 
-static volatile uint8_t tx_buffer[TX_BUFFER_SIZE];
-static volatile uint8_t rx_buffer[RX_BUFFER_SIZE];
+#ifdef SERIAL_9BIT_SUPPORT
+static uint8_t use9Bits = 0;
+#define BUFTYPE uint16_t
+#else
+#define BUFTYPE uint8_t
+#define use9Bits 0
+#endif
+
+static volatile BUFTYPE tx_buffer[TX_BUFFER_SIZE];
+static volatile BUFTYPE rx_buffer[RX_BUFFER_SIZE];
 static volatile uint8_t transmitting = 0;
 #if TX_BUFFER_SIZE > 255
 static volatile uint16_t tx_buffer_head = 0;
@@ -94,6 +102,29 @@ void serial_begin(uint32_t divisor)
 	NVIC_ENABLE_IRQ(IRQ_UART0_STATUS);
 }
 
+void serial_format(uint32_t format)
+{
+        uint8_t c;
+
+        c = UART0_C1;
+        c = (c & ~0x13) | (format & 0x03);      // configure parity
+        if (format & 0x04) c |= 0x10;           // 9 bits (might include parity)
+        UART0_C1 = c;
+        if ((format & 0x0F) == 0x04) UART0_C3 |= 0x40; // 8N2 is 9 bit with 9th bit always 1
+        c = UART0_S2 & ~0x10;
+        if (format & 0x10) c |= 0x10;           // rx invert
+        UART0_S2 = c;
+        c = UART0_C3 & ~0x10;
+        if (format & 0x20) c |= 0x10;           // tx invert
+        UART0_C3 = c;
+#ifdef SERIAL_9BIT_SUPPORT
+        c = UART0_C4 & 0x1F;
+        if (format & 0x08) c |= 0x20;           // 9 bit mode with parity (requires 10 bits)
+        UART0_C4 = c;
+        use9Bits = format & 0x80;
+#endif
+}
+
 void serial_end(void)
 {
 	if (!(SIM_SCGC4 & SIM_SCGC4_UART0)) return;
@@ -129,7 +160,7 @@ static int get_nvic_execution_priority(void)
 }
 
 
-void serial_putchar(uint8_t c)
+void serial_putchar(uint32_t c)
 {
 	uint32_t head;
 
@@ -245,7 +276,7 @@ void serial_clear(void)
 
 void uart0_status_isr(void)
 {
-	uint32_t head, newhead, tail;
+	uint32_t head, newhead, tail, n;
 	uint8_t avail, c;
 
 	if (UART0_S1 & (UART_S1_RDRF | UART_S1_IDLE)) {
@@ -275,12 +306,13 @@ void uart0_status_isr(void)
 			head = rx_buffer_head;
 			tail = rx_buffer_tail;
 			do {
-				c = UART0_D;
+				n = UART0_D;
+				if (use9Bits && (UART0_C3 & 0x80)) n |= 0x100;
 				newhead = head + 1;
 				if (newhead >= RX_BUFFER_SIZE) newhead = 0;
 				if (newhead != tail) {
 					head = newhead;
-					rx_buffer[head] = c;
+					rx_buffer[head] = n;
 				}
 			} while (--avail > 0);
 			rx_buffer_head = head;
@@ -294,7 +326,9 @@ void uart0_status_isr(void)
 			if (tail == head) break;
 			if (++tail >= TX_BUFFER_SIZE) tail = 0;
 			avail = UART0_S1;
-			UART0_D = tx_buffer[tail];
+			n = tx_buffer[tail];
+			if (use9Bits) UART0_C3 = (UART0_C3 & ~0x40) | ((n & 0x100) >> 2);
+			UART0_D = n;
 		} while (UART0_TCFIFO < 8);
 		tx_buffer_tail = tail;
 		if (UART0_S1 & UART_S1_TDRE) UART0_C2 = C2_TX_COMPLETING;
