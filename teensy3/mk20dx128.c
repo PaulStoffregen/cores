@@ -380,3 +380,24 @@ void __cxa_guard_release(int *g)
 {
 }
 
+int nvic_execution_priority(void)
+{
+	int priority=256;
+	uint32_t primask, faultmask, basepri, ipsr;
+
+	// full algorithm in ARM DDI0403D, page B1-639
+	// this isn't quite complete, but hopefully good enough
+	asm volatile("mrs %0, faultmask\n" : "=r" (faultmask)::);
+	if (faultmask) return -1;
+	asm volatile("mrs %0, primask\n" : "=r" (primask)::);
+	if (primask) return 0;
+	asm volatile("mrs %0, ipsr\n" : "=r" (ipsr)::);
+	if (ipsr) {
+		if (ipsr < 16) priority = 0; // could be non-zero
+		else priority = NVIC_GET_PRIORITY(ipsr - 16);
+	}
+	asm volatile("mrs %0, basepri\n" : "=r" (basepri)::);
+	if (basepri > 0 && basepri < priority) priority = basepri;
+	return priority;
+}
+

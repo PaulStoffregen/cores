@@ -1711,6 +1711,7 @@ extern "C" {
 #define ARM_DWT_CTRL_CYCCNTENA          (1 << 0)                // Enable cycle count
 #define ARM_DWT_CYCCNT          *(volatile uint32_t *)0xE0001004 // Cycle count register
 
+extern int nvic_execution_priority(void);
 
 extern void nmi_isr(void);
 extern void hard_fault_isr(void);

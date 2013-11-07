@@ -32,8 +32,18 @@
 #include "core_pins.h"
 #include "HardwareSerial.h"
 
-// UART0 and UART1 are clocked by F_CPU, UART2 is clocked by F_BUS
-// UART0 has 8 byte fifo, UART1 and UART2 have 1 byte buffer
+////////////////////////////////////////////////////////////////
+// Tunable parameters (relatively safe to edit these numbers)
+////////////////////////////////////////////////////////////////
+
+#define TX_BUFFER_SIZE 40
+#define RX_BUFFER_SIZE 64
+#define IRQ_PRIORITY  64  // 0 = highest priority, 255 = lowest
+
+
+////////////////////////////////////////////////////////////////
+// changes not recommended below this point....
+////////////////////////////////////////////////////////////////
 
 #ifdef SERIAL_9BIT_SUPPORT
 static uint8_t use9Bits = 0;
@@ -43,8 +53,8 @@ static uint8_t use9Bits = 0;
 #define use9Bits 0
 #endif
 
-#define TX_BUFFER_SIZE 40
 static volatile BUFTYPE tx_buffer[TX_BUFFER_SIZE];
+static volatile BUFTYPE rx_buffer[RX_BUFFER_SIZE];
 static volatile uint8_t transmitting = 0;
 #if TX_BUFFER_SIZE > 255
 static volatile uint16_t tx_buffer_head = 0;
@@ -53,11 +63,16 @@ static volatile uint16_t tx_buffer_tail = 0;
 static volatile uint8_t tx_buffer_head = 0;
 static volatile uint8_t tx_buffer_tail = 0;
 #endif
-
-#define RX_BUFFER_SIZE 64
-static volatile BUFTYPE rx_buffer[RX_BUFFER_SIZE];
+#if RX_BUFFER_SIZE > 255
+static volatile uint16_t rx_buffer_head = 0;
+static volatile uint16_t rx_buffer_tail = 0;
+#else
 static volatile uint8_t rx_buffer_head = 0;
 static volatile uint8_t rx_buffer_tail = 0;
+#endif
+
+// UART0 and UART1 are clocked by F_CPU, UART2 is clocked by F_BUS
+// UART0 has 8 byte fifo, UART1 and UART2 have 1 byte buffer
 
 #define C2_ENABLE		UART_C2_TE | UART_C2_RE | UART_C2_RIE
 #define C2_TX_ACTIVE		C2_ENABLE | UART_C2_TIE
@@ -80,7 +95,7 @@ void serial2_begin(uint32_t divisor)
 	UART1_C1 = 0;
 	UART1_PFIFO = 0;
 	UART1_C2 = C2_TX_INACTIVE;
-	NVIC_SET_PRIORITY(IRQ_UART1_STATUS, 64);
+	NVIC_SET_PRIORITY(IRQ_UART1_STATUS, IRQ_PRIORITY);
 	NVIC_ENABLE_IRQ(IRQ_UART1_STATUS);
 }
 
@@ -133,7 +148,17 @@ void serial2_putchar(uint32_t c)
 	head = tx_buffer_head;
 	if (++head >= TX_BUFFER_SIZE) head = 0;
 	while (tx_buffer_tail == head) {
-		yield(); // wait
+		int priority = nvic_execution_priority();
+		if (priority <= IRQ_PRIORITY) {
+			if ((UART1_S1 & UART_S1_TDRE)) {
+				uint32_t tail = tx_buffer_tail;
+				if (++tail >= TX_BUFFER_SIZE) tail = 0;
+				UART1_D = tx_buffer[tail];
+				tx_buffer_tail = tail;
+			}
+		} else if (priority >= 256) {
+			yield(); // wait
+		}
 	}
 	tx_buffer[head] = c;
 	transmitting = 1;

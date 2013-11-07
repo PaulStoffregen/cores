@@ -137,29 +137,6 @@ void serial_end(void)
 	rx_buffer_tail = 0;
 }
 
-
-static int get_nvic_execution_priority(void)
-{
-	int priority=256;
-	uint32_t primask, faultmask, basepri, ipsr;
-
-	// full algorithm in ARM DDI0403D, page B1-639
-	// this isn't quite complete, but hopefully good enough
-	asm volatile("mrs %0, faultmask\n" : "=r" (faultmask)::);
-	if (faultmask) return -1;
-	asm volatile("mrs %0, primask\n" : "=r" (primask)::);
-	if (primask) return 0;
-	asm volatile("mrs %0, ipsr\n" : "=r" (ipsr)::);
-	if (ipsr) {
-		if (ipsr < 16) priority = 0; // could be non-zero
-		else priority = NVIC_GET_PRIORITY(ipsr - 16);
-	}
-	asm volatile("mrs %0, basepri\n" : "=r" (basepri)::);
-	if (basepri > 0 && basepri < priority) priority = basepri;
-	return priority;
-}
-
-
 void serial_putchar(uint32_t c)
 {
 	uint32_t head;
@@ -168,14 +145,15 @@ void serial_putchar(uint32_t c)
 	head = tx_buffer_head;
 	if (++head >= TX_BUFFER_SIZE) head = 0;
 	while (tx_buffer_tail == head) {
-		if (get_nvic_execution_priority() <= IRQ_PRIORITY) {
+		int priority = nvic_execution_priority();
+		if (priority <= IRQ_PRIORITY) {
 			if ((UART0_S1 & UART_S1_TDRE)) {
 				uint32_t tail = tx_buffer_tail;
 				if (++tail >= TX_BUFFER_SIZE) tail = 0;
 				UART0_D = tx_buffer[tail];
 				tx_buffer_tail = tail;
 			}
-		} else {
+		} else if (priority >= 256) {
 			yield();
 		}
 	}
@@ -198,14 +176,15 @@ void serial_write(const void *buf, unsigned int count)
 		if (tx_buffer_tail == head) {
         		UART0_C2 = C2_TX_ACTIVE;
 			do {
-				if (get_nvic_execution_priority() <= IRQ_PRIORITY) {
+				int priority = nvic_execution_priority();
+				if (priority <= IRQ_PRIORITY) {
 					if ((UART0_S1 & UART_S1_TDRE)) {
 						uint32_t tail = tx_buffer_tail;
 						if (++tail >= TX_BUFFER_SIZE) tail = 0;
 						UART0_D = tx_buffer[tail];
 						tx_buffer_tail = tail;
 					}
-				} else {
+				} else if (priority >= 256) {
 					yield();
 				}
 			} while (tx_buffer_tail == head);
