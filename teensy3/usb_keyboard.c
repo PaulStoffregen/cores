@@ -139,34 +139,37 @@ static KEYCODE_TYPE unicode_to_keycode(uint16_t cpoint)
 	//if (cpoint == 0x20AC) return UNICODE_20AC & 0x3FFF;
 	//#endif
 	#ifdef KEYCODE_EXTRA00
-	if (cpoint == UNICODE_EXTRA00) return KEYCODE_EXTRA00 & 0x3FFF;
+	if (cpoint == UNICODE_EXTRA00) return (KEYCODE_EXTRA00) & 0x3FFF;
 	#endif
 	#ifdef KEYCODE_EXTRA01
-	if (cpoint == UNICODE_EXTRA01) return KEYCODE_EXTRA01 & 0x3FFF;
+	if (cpoint == UNICODE_EXTRA01) return (KEYCODE_EXTRA01) & 0x3FFF;
 	#endif
 	#ifdef KEYCODE_EXTRA02
-	if (cpoint == UNICODE_EXTRA02) return KEYCODE_EXTRA02 & 0x3FFF;
+	if (cpoint == UNICODE_EXTRA02) return (KEYCODE_EXTRA02) & 0x3FFF;
 	#endif
 	#ifdef KEYCODE_EXTRA03
-	if (cpoint == UNICODE_EXTRA03) return KEYCODE_EXTRA03 & 0x3FFF;
+	if (cpoint == UNICODE_EXTRA03) return (KEYCODE_EXTRA03) & 0x3FFF;
 	#endif
 	#ifdef KEYCODE_EXTRA04
-	if (cpoint == UNICODE_EXTRA04) return KEYCODE_EXTRA04 & 0x3FFF;
+	if (cpoint == UNICODE_EXTRA04) return (KEYCODE_EXTRA04) & 0x3FFF;
 	#endif
 	#ifdef KEYCODE_EXTRA05
-	if (cpoint == UNICODE_EXTRA05) return KEYCODE_EXTRA05 & 0x3FFF;
+	if (cpoint == UNICODE_EXTRA05) return (KEYCODE_EXTRA05) & 0x3FFF;
 	#endif
 	#ifdef KEYCODE_EXTRA06
-	if (cpoint == UNICODE_EXTRA06) return KEYCODE_EXTRA06 & 0x3FFF;
+	if (cpoint == UNICODE_EXTRA06) return (KEYCODE_EXTRA06) & 0x3FFF;
 	#endif
 	#ifdef KEYCODE_EXTRA07
-	if (cpoint == UNICODE_EXTRA07) return KEYCODE_EXTRA07 & 0x3FFF;
+	if (cpoint == UNICODE_EXTRA07) return (KEYCODE_EXTRA07) & 0x3FFF;
 	#endif
 	#ifdef KEYCODE_EXTRA08
-	if (cpoint == UNICODE_EXTRA08) return KEYCODE_EXTRA08 & 0x3FFF;
+	if (cpoint == UNICODE_EXTRA08) return (KEYCODE_EXTRA08) & 0x3FFF;
 	#endif
 	#ifdef KEYCODE_EXTRA09
-	if (cpoint == UNICODE_EXTRA09) return KEYCODE_EXTRA09 & 0x3FFF;
+	if (cpoint == UNICODE_EXTRA09) return (KEYCODE_EXTRA09) & 0x3FFF;
+	#endif
+	#ifdef KEYCODE_EXTRA0A
+	if (cpoint == UNICODE_EXTRA0A) return (KEYCODE_EXTRA0A) & 0x3FFF;
 	#endif
 	return 0;
 }
@@ -199,6 +202,24 @@ static KEYCODE_TYPE deadkey_to_keycode(KEYCODE_TYPE keycode)
 	#ifdef RING_ABOVE_BITS
 	if (keycode == RING_ABOVE_BITS) return DEADKEY_RING_ABOVE;
 	#endif
+	#ifdef DEGREE_SIGN_BITS
+	if (keycode == DEGREE_SIGN_BITS) return DEADKEY_DEGREE_SIGN;
+	#endif
+	#ifdef CARON_BITS
+	if (keycode == CARON_BITS) return DEADKEY_CARON;
+	#endif
+	#ifdef BREVE_BITS
+	if (keycode == BREVE_BITS) return DEADKEY_BREVE;
+	#endif
+	#ifdef OGONEK_BITS
+	if (keycode == OGONEK_BITS) return DEADKEY_OGONEK;
+	#endif
+	#ifdef DOT_ABOVE_BITS
+	if (keycode == DOT_ABOVE_BITS) return DEADKEY_DOT_ABOVE;
+	#endif
+	#ifdef DOUBLE_ACUTE_BITS
+	if (keycode == DOUBLE_ACUTE_BITS) return DEADKEY_DOUBLE_ACUTE;
+	#endif
 	return 0;
 }
 #endif
@@ -206,9 +227,6 @@ static KEYCODE_TYPE deadkey_to_keycode(KEYCODE_TYPE keycode)
 void usb_keyboard_write_unicode(uint16_t cpoint)
 {
 	KEYCODE_TYPE keycode;
-	#ifdef DEADKEYS_MASK
-	KEYCODE_TYPE deadkeycode;
-	#endif
 
 	keycode = unicode_to_keycode(cpoint);
 	if (keycode) {
@@ -301,7 +319,7 @@ void usb_keyboard_press_keycode(uint16_t n)
 		modrestore = keyboard_modifier_keys;
 		if (modrestore) {
 			keyboard_modifier_keys = 0;
-			send_now();
+			usb_keyboard_send();
 		}
 		// TODO: test if operating systems recognize
 		// deadkey sequences when other keys are held
