@@ -5163,25 +5163,25 @@ extern "C"{
 #define SHIFT_MASK		0x0040
 #define ALTGR_MASK		0x0080
 #define DEADKEYS_MASK		0x0F00
-#define ACUTE_ACCENT_BITS	0x0100
-#define DEGREE_SIGN_BITS	0x0200
+#define ACUTE_ACCENT_BITS	0x0100  // TODO: the Czech might not support some
+#define DEGREE_SIGN_BITS	0x0200  // of these deadkeys, perhaps not any???
 #define CARON_BITS		0x0300
-#define	CIRCUMFLEX_BITS		0x0400
+//#define CIRCUMFLEX_BITS	0x0400
 #define BREVE_BITS		0x0500
 #define OGONEK_BITS		0x0600
-#define GRAVE_ACCENT_BITS	0x0700
+//#define GRAVE_ACCENT_BITS	0x0700
 #define DOT_ABOVE_BITS		0x0800
 #define DOUBLE_ACUTE_BITS	0x0900
-#define DIAERESIS_BITS		0x0A00
+//#define DIAERESIS_BITS	0x0A00
 #define CEDILLA_BITS		0x0B00
 #define KEYCODE_TYPE		uint16_t
 #define DEADKEY_ACUTE_ACCENT	KEY_EQUAL  // TODO: is it KEY_9 + ALTGR_MASK
 #define DEADKEY_DEGREE_SIGN	KEY_TILDE + SHIFT_MASK // TODO: is it KEY_5 + ALTGR_MASK
 #define DEADKEY_CARON		KEY_EQUAL + SHIFT_MASK // TODO: is it KEY_2 + ALTGR_MASK
-#define DEADKEY_CIRCUMFLEX	KEY_3 + ALTGR_MASK
+//#define DEADKEY_CIRCUMFLEX	KEY_3 + ALTGR_MASK
 #define DEADKEY_BREVE		KEY_4 + ALTGR_MASK
 #define DEADKEY_OGONEK		KEY_6 + ALTGR_MASK
-#define DEADKEY_GRAVE_ACCENT	KEY_7 + ALTGR_MASK
+//#define DEADKEY_GRAVE_ACCENT	KEY_7 + ALTGR_MASK
 #define DEADKEY_DOT_ABOVE	KEY_8 + ALTGR_MASK
 #define DEADKEY_DOUBLE_ACUTE	KEY_0 + ALTGR_MASK
 #define DEADKEY_DIAERESIS	KEY_MINUS + ALTGR_MASK
@@ -5189,7 +5189,7 @@ extern "C"{
 #define KEY_NON_US_100		63
 #define ASCII_20	KEY_SPACE				// 32  
 #define ASCII_21	KEY_QUOTE + SHIFT_MASK			// 33 !
-#define ASCII_22	KEY_QUOTE				// 34 "
+#define ASCII_22	KEY_SEMICOLON + SHIFT_MASK		// 34 "
 #define ASCII_23	KEY_X + ALTGR_MASK			// 35 #
 #define ASCII_24	KEY_SEMICOLON + ALTGR_MASK		// 36 $
 #define ASCII_25	KEY_MINUS + SHIFT_MASK			// 37 %
@@ -5197,10 +5197,10 @@ extern "C"{
 #define ASCII_27	KEY_BACKSLASH + SHIFT_MASK		// 39 '  
 #define ASCII_28	KEY_RIGHT_BRACE + SHIFT_MASK		// 40 ( 
 #define ASCII_29	KEY_RIGHT_BRACE				// 41 )
-#define ASCII_2A	KEY_SLASH + ALTGR_MASK			// 42 *  TODO: verify
+#define ASCII_2A	KEY_SLASH + ALTGR_MASK			// 42 *
 #define ASCII_2B	KEY_1					// 43 +
 #define ASCII_2C	KEY_COMMA				// 44 ,
-#define ASCII_2D	KEY_SLASH				// 45 -  TODO: verify
+#define ASCII_2D	KEY_SLASH				// 45 -
 #define ASCII_2E	KEY_PERIOD				// 46 .
 #define ASCII_2F	KEY_LEFT_BRACE + SHIFT_MASK		// 47 /
 #define ASCII_30	KEY_0 + SHIFT_MASK			// 48 0
@@ -5249,9 +5249,9 @@ extern "C"{
 #define ASCII_5B	KEY_F + ALTGR_MASK			// 91 [
 #define ASCII_5C	KEY_NON_US_100				// 92 
 #define ASCII_5D	KEY_G + ALTGR_MASK			// 93 ]
-#define ASCII_5E	CIRCUMFLEX_BITS + KEY_SPACE		// 94 ^  TODO: verify
-#define ASCII_5F	KEY_SLASH + SHIFT_MASK			// 95 _  TODO: verify
-#define ASCII_60	GRAVE_ACCENT_BITS + KEY_SPACE		// 96 `  TODO: verify
+#define ASCII_5E	KEY_3 + ALTGR_MASK			// 94 ^  TODO: testme
+#define ASCII_5F	KEY_SLASH + SHIFT_MASK			// 95 _
+#define ASCII_60	KEY_7 + ALTGR_MASK			// 96 `  TODO: testme
 #define ASCII_61	KEY_A					// 97 a
 #define ASCII_62	KEY_B					// 98 b
 #define ASCII_63	KEY_C					// 99 c
@@ -5281,7 +5281,7 @@ extern "C"{
 #define ASCII_7B	KEY_B + ALTGR_MASK			// 123 {
 #define ASCII_7C	KEY_NON_US_100 + SHIFT_MASK		// 124 |
 #define ASCII_7D	KEY_N + ALTGR_MASK			// 125 }
-#define ASCII_7E	KEY_1 + ALTGR_MASK			// 126 ~  TODO: verify
+#define ASCII_7E	KEY_1 + ALTGR_MASK			// 126 ~  TODO: fixme
 #define ASCII_7F	KEY_BACKSPACE				// 127
 #define ISO_8859_1_A0	KEY_SPACE				// 160       Nonbreakng Space
 #define ISO_8859_1_A1	0					// 161 ¡     Inverted Exclamation
@@ -5291,7 +5291,7 @@ extern "C"{
 #define ISO_8859_1_A5	0					// 165 ¥     YEN SIGN
 #define ISO_8859_1_A6	0					// 166 ¦     BROKEN BAR
 #define ISO_8859_1_A7	KEY_QUOTE				// 167 §     SECTION SIGN
-#define ISO_8859_1_A8	DIAERESIS_BITS + KEY_SPACE		// 168 ¨     DIAERESIS
+#define ISO_8859_1_A8	0					// 168 ¨     DIAERESIS
 #define ISO_8859_1_A9	0					// 169 ©     COPYRIGHT SIGN
 #define ISO_8859_1_AA	0					// 170 ª     FEMININE ORDINAL
 #define ISO_8859_1_AB	0					// 171 «     LEFT DOUBLE ANGLE QUOTE
@@ -5315,70 +5315,70 @@ extern "C"{
 #define ISO_8859_1_BD	0					// 189 ½     FRACTION ONE HALF
 #define ISO_8859_1_BE	0					// 190 ¾     FRACTION THREE QUARTERS
 #define ISO_8859_1_BF	0					// 191 ¿     INVERTED QUESTION MARK
-#define ISO_8859_1_C0	GRAVE_ACCENT_BITS + KEY_A + SHIFT_MASK	// 192 À     A GRAVE
+#define ISO_8859_1_C0	0					// 192 À     A GRAVE
 #define ISO_8859_1_C1	ACUTE_ACCENT_BITS + KEY_A + SHIFT_MASK	// 193 Á     A ACUTE
-#define ISO_8859_1_C2	CIRCUMFLEX_BITS	+ KEY_A + SHIFT_MASK	// 194 Â     A CIRCUMFLEX
+#define ISO_8859_1_C2	0					// 194 Â     A CIRCUMFLEX
 #define ISO_8859_1_C3	0					// 195 Ã     A TILDE
-#define ISO_8859_1_C4	DIAERESIS_BITS + KEY_A + SHIFT_MASK	// 196 Ä     A DIAERESIS
+#define ISO_8859_1_C4	0					// 196 Ä     A DIAERESIS
 #define ISO_8859_1_C5	0					// 197 Å     A RING ABOVE
 #define ISO_8859_1_C6	0					// 198 Æ     AE
 #define ISO_8859_1_C7	CEDILLA_BITS + KEY_C + SHIFT_MASK	// 199 Ç     C CEDILLA
-#define ISO_8859_1_C8	GRAVE_ACCENT_BITS + KEY_E + SHIFT_MASK	// 200 È     E GRAVE
+#define ISO_8859_1_C8	0					// 200 È     E GRAVE
 #define ISO_8859_1_C9	ACUTE_ACCENT_BITS + KEY_E + SHIFT_MASK	// 201 É     E ACUTE
-#define ISO_8859_1_CA	CIRCUMFLEX_BITS + KEY_E + SHIFT_MASK	// 202 Ê     E CIRCUMFLEX
-#define ISO_8859_1_CB	DIAERESIS_BITS + KEY_E + SHIFT_MASK	// 203 Ë     E DIAERESIS
-#define ISO_8859_1_CC	GRAVE_ACCENT_BITS + KEY_I + SHIFT_MASK	// 204 Ì     I GRAVE
+#define ISO_8859_1_CA	0					// 202 Ê     E CIRCUMFLEX
+#define ISO_8859_1_CB	0					// 203 Ë     E DIAERESIS
+#define ISO_8859_1_CC	0					// 204 Ì     I GRAVE
 #define ISO_8859_1_CD	ACUTE_ACCENT_BITS + KEY_I + SHIFT_MASK	// 205 Í     I ACUTE
-#define ISO_8859_1_CE	CIRCUMFLEX_BITS + KEY_I + SHIFT_MASK	// 206 Î     I CIRCUMFLEX
-#define ISO_8859_1_CF	DIAERESIS_BITS + KEY_I + SHIFT_MASK	// 207 Ï     I DIAERESIS
+#define ISO_8859_1_CE	0					// 206 Î     I CIRCUMFLEX
+#define ISO_8859_1_CF	0					// 207 Ï     I DIAERESIS
 #define ISO_8859_1_D0	0					// 208 Ð     ETH
 #define ISO_8859_1_D1	0					// 209 Ñ     N TILDE
-#define ISO_8859_1_D2	GRAVE_ACCENT_BITS + KEY_O + SHIFT_MASK	// 210 Ò     O GRAVE
+#define ISO_8859_1_D2	0					// 210 Ò     O GRAVE
 #define ISO_8859_1_D3	ACUTE_ACCENT_BITS + KEY_O + SHIFT_MASK	// 211 Ó     O ACUTE
-#define ISO_8859_1_D4	CIRCUMFLEX_BITS + KEY_O + SHIFT_MASK	// 212 Ô     O CIRCUMFLEX
+#define ISO_8859_1_D4	0					// 212 Ô     O CIRCUMFLEX
 #define ISO_8859_1_D5	0					// 213 Õ     O TILDE
-#define ISO_8859_1_D6	DIAERESIS_BITS + KEY_O + SHIFT_MASK	// 214 Ö     O DIAERESIS
+#define ISO_8859_1_D6	0					// 214 Ö     O DIAERESIS
 #define ISO_8859_1_D7	KEY_RIGHT_BRACE + ALTGR_MASK		// 215 ×     MULTIPLICATION
 #define ISO_8859_1_D8	0					// 216 Ø     O STROKE
-#define ISO_8859_1_D9	GRAVE_ACCENT_BITS + KEY_U + SHIFT_MASK	// 217 Ù     U GRAVE
+#define ISO_8859_1_D9	0					// 217 Ù     U GRAVE
 #define ISO_8859_1_DA	ACUTE_ACCENT_BITS + KEY_U + SHIFT_MASK	// 218 Ú     U ACUTE
-#define ISO_8859_1_DB	CIRCUMFLEX_BITS + KEY_U + SHIFT_MASK	// 219 Û     U CIRCUMFLEX
-#define ISO_8859_1_DC	DIAERESIS_BITS + KEY_U + SHIFT_MASK	// 220 Ü     U DIAERESIS
+#define ISO_8859_1_DB	0					// 219 Û     U CIRCUMFLEX
+#define ISO_8859_1_DC	0					// 220 Ü     U DIAERESIS
 #define ISO_8859_1_DD	ACUTE_ACCENT_BITS + KEY_Z + SHIFT_MASK	// 221 Ý     Y ACUTE
 #define ISO_8859_1_DE	0					// 222 Þ     THORN
-#define ISO_8859_1_DF	KEY_QUOTE + ALTGR_MASK			// 223 ß     SHARP S
-#define ISO_8859_1_E0	GRAVE_ACCENT_BITS + KEY_A		// 224 à     a GRAVE
+#define ISO_8859_1_DF	KEY_QUOTE + ALTGR_MASK			// 223 ß     SHARP S  TODO: testme
+#define ISO_8859_1_E0	0					// 224 à     a GRAVE
 #define ISO_8859_1_E1	KEY_8					// 225 á     a ACUTE
-#define ISO_8859_1_E2	CIRCUMFLEX_BITS + KEY_A			// 226 â     a CIRCUMFLEX
+#define ISO_8859_1_E2	0					// 226 â     a CIRCUMFLEX
 #define ISO_8859_1_E3	0					// 227 ã     a TILDE
-#define ISO_8859_1_E4	DIAERESIS_BITS + KEY_A			// 228 ä     a DIAERESIS
+#define ISO_8859_1_E4	0					// 228 ä     a DIAERESIS
 #define ISO_8859_1_E5	0					// 229 å     a RING ABOVE
 #define ISO_8859_1_E6	0					// 230 æ     ae
 #define ISO_8859_1_E7	CEDILLA_BITS + KEY_C			// 231 ç     c CEDILLA
-#define ISO_8859_1_E8	GRAVE_ACCENT_BITS + KEY_E		// 232 è     e GRAVE
+#define ISO_8859_1_E8	0					// 232 è     e GRAVE
 #define ISO_8859_1_E9	KEY_0					// 233 é     e ACUTE
-#define ISO_8859_1_EA	CIRCUMFLEX_BITS + KEY_E			// 234 ê     e CIRCUMFLEX
-#define ISO_8859_1_EB	DIAERESIS_BITS + KEY_E			// 235 ë     e DIAERESIS
-#define ISO_8859_1_EC	GRAVE_ACCENT_BITS + KEY_I		// 236 ì     i GRAVE
+#define ISO_8859_1_EA	0					// 234 ê     e CIRCUMFLEX
+#define ISO_8859_1_EB	0					// 235 ë     e DIAERESIS
+#define ISO_8859_1_EC	0					// 236 ì     i GRAVE
 #define ISO_8859_1_ED	KEY_9					// 237 í     i ACUTE
-#define ISO_8859_1_EE	CIRCUMFLEX_BITS + KEY_I			// 238 î     i CIRCUMFLEX
-#define ISO_8859_1_EF	DIAERESIS_BITS + KEY_I			// 239 ï     i DIAERESIS
+#define ISO_8859_1_EE	0					// 238 î     i CIRCUMFLEX
+#define ISO_8859_1_EF	0					// 239 ï     i DIAERESIS
 #define ISO_8859_1_F0	0					// 240 ð     ETH
 #define ISO_8859_1_F1	0					// 241 ñ     n TILDE
-#define ISO_8859_1_F2	GRAVE_ACCENT_BITS + KEY_O		// 242 ò     o GRAVE
+#define ISO_8859_1_F2	0					// 242 ò     o GRAVE
 #define ISO_8859_1_F3	ACUTE_ACCENT_BITS + KEY_O		// 243 ó     o ACUTE
-#define ISO_8859_1_F4	CIRCUMFLEX_BITS + KEY_O			// 244 ô     o CIRCUMFLEX
+#define ISO_8859_1_F4	0					// 244 ô     o CIRCUMFLEX
 #define ISO_8859_1_F5	0					// 245 õ     o TILDE
-#define ISO_8859_1_F6	DIAERESIS_BITS + KEY_O			// 246 ö     o DIAERESIS
+#define ISO_8859_1_F6	0					// 246 ö     o DIAERESIS
 #define ISO_8859_1_F7	KEY_LEFT_BRACE + ALTGR_MASK		// 247 ÷     DIVISION
 #define ISO_8859_1_F8	0					// 248 ø     o STROKE
-#define ISO_8859_1_F9	GRAVE_ACCENT_BITS + KEY_U		// 249 ù     u GRAVE
-#define ISO_8859_1_FA	ACUTE_ACCENT_BITS + KEY_U		// 250 ú     u ACUTE
-#define ISO_8859_1_FB	CIRCUMFLEX_BITS + KEY_U			// 251 û     u CIRCUMFLEX
-#define ISO_8859_1_FC	DIAERESIS_BITS + KEY_U			// 252 ü     u DIAERESIS
+#define ISO_8859_1_F9	0					// 249 ù     u GRAVE
+#define ISO_8859_1_FA	KEY_LEFT_BRACE				// 250 ú     u ACUTE
+#define ISO_8859_1_FB	0					// 251 û     u CIRCUMFLEX
+#define ISO_8859_1_FC	0					// 252 ü     u DIAERESIS
 #define ISO_8859_1_FD	KEY_7					// 253 ý     y ACUTE
 #define ISO_8859_1_FE	0					// 254 þ     THORN
-#define ISO_8859_1_FF	DIAERESIS_BITS + KEY_Z			// 255 ÿ     y DIAERESIS
+#define ISO_8859_1_FF	0					// 255 ÿ     y DIAERESIS
 #define UNICODE_20AC	KEY_E + ALTGR_MASK			//     €     Euro Sign
 
 #define UNICODE_EXTRA00	0x011B	// ě  Small Letter E with caron
