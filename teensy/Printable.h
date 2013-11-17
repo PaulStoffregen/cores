@@ -21,6 +21,8 @@
 #ifndef Printable_h
 #define Printable_h
 
+#ifdef __cplusplus
+
 #include "new.h"
 
 class Print;
@@ -36,5 +38,6 @@ class Printable
     virtual size_t printTo(Print& p) const = 0;
 };
 
+#endif
 #endif
 #endif
