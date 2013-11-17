@@ -356,6 +356,19 @@ int _close(int fd)
 	return -1;
 }
 
+#include <sys/stat.h>
+
+int _fstat(int fd, struct stat *st)
+{
+	st->st_mode = S_IFCHR;
+	return 0;
+}
+
+int _isatty(int fd)
+{
+	return 1;
+}
+
 int _lseek(int fd, long long offset, int whence)
 {
 	return -1;
