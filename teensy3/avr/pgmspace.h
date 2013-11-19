@@ -45,6 +45,12 @@ typedef uint32_t prog_uint32_t;
 #define strspn_P(str, chrs) strspn((str), (chrs))
 #define strstr_P(a, b) strstr((a), (b))
 #define sprintf_P(s, f, ...) sprintf((s), (f), __VA_ARGS__)
+#define vfprintf_P(s, f, ...) vfprintf((s), (f), __VA_ARGS__)
+#define printf_P(f, ...) printf((f), __VA_ARGS__)
+#define snprintf_P(s, n, f, ...) ((s), (n), (f), __VA_ARGS__)
+#define vsprintf_P(s, f, ...) ((s), (f),__VA_ARGS__)
+#define vsnprintf_P(s, n, f, ...) ((s), (n), (f),__VA_ARGS__)
+#define fprintf_P(s, f, ...) ((s), (f),__VA_ARGS__)
 
 #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
 #define pgm_read_word(addr) (*(const unsigned short *)(addr))
