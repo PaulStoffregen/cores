@@ -341,16 +341,19 @@ void * _sbrk(int incr)
 	return prev;
 }
 
+__attribute__((weak)) 
 int _read(int file, char *ptr, int len)
 {
 	return 0;
 }
 
+__attribute__((weak)) 
 int _write(int file, char *ptr, int len)
 {
 	return 0;
 }
 
+__attribute__((weak)) 
 int _close(int fd)
 {
 	return -1;
@@ -358,37 +361,44 @@ int _close(int fd)
 
 #include <sys/stat.h>
 
+__attribute__((weak)) 
 int _fstat(int fd, struct stat *st)
 {
 	st->st_mode = S_IFCHR;
 	return 0;
 }
 
+__attribute__((weak)) 
 int _isatty(int fd)
 {
 	return 1;
 }
 
+__attribute__((weak)) 
 int _lseek(int fd, long long offset, int whence)
 {
 	return -1;
 }
 
+__attribute__((weak)) 
 void _exit(int status)
 {
 	while (1);
 }
 
+__attribute__((weak)) 
 void __cxa_pure_virtual()
 {
 	while (1);
 }
 
+__attribute__((weak)) 
 int __cxa_guard_acquire (int *g) 
 {
 	return 1;
 }
 
+__attribute__((weak)) 
 void __cxa_guard_release(int *g)
 {
 }
