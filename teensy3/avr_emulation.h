@@ -990,6 +990,7 @@ public:
 		if (pin == 14) pinout |= 4;
 	}
 	friend class SPSRemulation;
+	friend class SPIFIFOclass;
 private:
 	static inline void update_ctar(uint32_t ctar) __attribute__((always_inline)) {
 		if (SPI0_CTAR0 == ctar) return;
