@@ -1217,6 +1217,26 @@ extern "C" {
 #define SPI0_RXFR1              *(volatile uint32_t *)0x4002C080 // DSPI Receive FIFO Registers
 #define SPI0_RXFR2              *(volatile uint32_t *)0x4002C084 // DSPI Receive FIFO Registers
 #define SPI0_RXFR3              *(volatile uint32_t *)0x4002C088 // DSPI Receive FIFO Registers
+typedef struct {
+	volatile uint32_t	MCR;	// 0
+	volatile uint32_t	unused1;// 4
+	volatile uint32_t	TCR;	// 8
+	volatile uint32_t	CTAR0;	// c
+	volatile uint32_t	CTAR1;	// 10
+	volatile uint32_t	CTAR2;	// 14
+	volatile uint32_t	CTAR3;	// 18
+	volatile uint32_t	CTAR4;	// 1c
+	volatile uint32_t	CTAR5;	// 20
+	volatile uint32_t	CTAR6;	// 24
+	volatile uint32_t	CTAR7;	// 28
+	volatile uint32_t	SR;	// 2c
+	volatile uint32_t	RSER;	// 30
+	volatile uint32_t	PUSHR;	// 34
+	volatile uint32_t	POPR;	// 38
+	volatile uint32_t	TXFR[16]; // 3c
+	volatile uint32_t	RXFR[16]; // 7c
+} SPI_t;
+#define SPI0		(*(SPI_t *)0x4002C000)
 
 // Chapter 44: Inter-Integrated Circuit (I2C)
 #define I2C0_A1                 *(volatile uint8_t  *)0x40066000 // I2C Address Register 1

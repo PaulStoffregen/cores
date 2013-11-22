@@ -35,16 +35,17 @@
 
 #define SPI_CONTINUE 1
 
-static uint8_t pcs=0;
+static uint8_t pcs = 0;
+static volatile uint8_t *reg = 0;
 
 class SPIFIFOclass
 {
 public:
-	inline bool begin(uint8_t pin, uint32_t speed, uint32_t mode=SPI_MODE0) __attribute__((always_inline)) {
+	inline void begin(uint8_t pin, uint32_t speed, uint32_t mode=SPI_MODE0) __attribute__((always_inline)) {
 		uint32_t p, ctar = speed;
 		SIM_SCGC6 |= SIM_SCGC6_SPI0;
 
-		SPI0_MCR = SPI_MCR_MSTR | SPI_MCR_MDIS | SPI_MCR_HALT | SPI_MCR_PCSIS(0x1F);
+		SPI0.MCR = SPI_MCR_MSTR | SPI_MCR_MDIS | SPI_MCR_HALT | SPI_MCR_PCSIS(0x1F);
 		if (mode & 0x08) ctar |= SPI_CTAR_CPOL;
 		if (mode & 0x04) {
 			ctar |= SPI_CTAR_CPHA;
@@ -52,8 +53,8 @@ public:
 		} else {
 			ctar |= (ctar & 0x0F) << 12;
 		}
-		SPI0_CTAR0 = ctar | SPI_CTAR_FMSZ(7);
-		SPI0_CTAR1 = ctar | SPI_CTAR_FMSZ(15);
+		SPI0.CTAR0 = ctar | SPI_CTAR_FMSZ(7);
+		SPI0.CTAR1 = ctar | SPI_CTAR_FMSZ(15);
 		if (pin == 10) {         // PTC4
 			CORE_PIN10_CONFIG = PORT_PCR_MUX(2);
 			p = 0x01;
@@ -82,27 +83,56 @@ public:
 			CORE_PIN15_CONFIG = PORT_PCR_MUX(2);
 			p = 0x10;
 		} else {
-			return false;
+			reg = portOutputRegister(pin);
+			*reg = 1;
+			pinMode(pin, OUTPUT);
+			p = 0;
 		}
 		pcs = p;
 		clear();
 		SPCR.enable_pins();
-		return true;
 	}
 	inline void write(uint32_t b, uint32_t cont=0) __attribute__((always_inline)) {
-		while (((SPI0_SR) & (15 << 12)) > (3 << 12)) ; // wait for space in the TX fifo
-		SPI0_PUSHR = (b & 0xFF) | (pcs << 16) | (cont ? SPI_PUSHR_CONT : 0);
+		uint32_t pcsbits = pcs << 16;
+		if (pcsbits) {
+			SPI0.PUSHR = (b & 0xFF) | pcsbits | (cont ? SPI_PUSHR_CONT : 0);
+			while (((SPI0.SR) & (15 << 12)) > (3 << 12)) ; // wait if FIFO full
+		} else {
+			*reg = 0;
+			SPI0.SR = SPI_SR_EOQF;
+			SPI0.PUSHR = (b & 0xFF) | (cont ? 0 : SPI_PUSHR_EOQ);
+			if (cont) {
+				while (((SPI0.SR) & (15 << 12)) > (3 << 12)) ;
+			} else {
+				while (!(SPI0.SR & SPI_SR_EOQF)) ;
+				*reg = 1;
+			}
+		}
 	}
 	inline void write16(uint32_t b, uint32_t cont=0) __attribute__((always_inline)) {
-		while (((SPI0_SR) & (15 << 12)) > (3 << 12)) ; // wait for space in the TX fifo
-		SPI0_PUSHR = (b & 0xFFFF) | (pcs << 16) | (cont ? SPI_PUSHR_CONT : 0) | SPI_PUSHR_CTAS(1);
+		uint32_t pcsbits = pcs << 16;
+		if (pcsbits) {
+			SPI0.PUSHR = (b & 0xFFFF) | (pcs << 16) |
+				(cont ? SPI_PUSHR_CONT : 0) | SPI_PUSHR_CTAS(1);
+			while (((SPI0.SR) & (15 << 12)) > (3 << 12)) ;
+		} else {
+			*reg = 0;
+			SPI0.SR = SPI_SR_EOQF;
+			SPI0.PUSHR = (b & 0xFFFF) | (cont ? 0 : SPI_PUSHR_EOQ) | SPI_PUSHR_CTAS(1);
+			if (cont) {
+				while (((SPI0.SR) & (15 << 12)) > (3 << 12)) ;
+			} else {
+				while (!(SPI0.SR & SPI_SR_EOQF)) ;
+				*reg = 1;
+			}
+		}
 	}
 	inline uint32_t read(void) __attribute__((always_inline)) {
-		while ((SPI0_SR & (15 << 4)) == 0) ;  // TODO, could wait forever
-		return SPI0_POPR;
+		while ((SPI0.SR & (15 << 4)) == 0) ;  // TODO, could wait forever
+		return SPI0.POPR;
 	}
 	inline void clear(void) __attribute__((always_inline)) {
-		SPI0_MCR = SPI_MCR_MSTR | SPI_MCR_PCSIS(0x1F) | SPI_MCR_CLR_TXF | SPI_MCR_CLR_RXF;
+		SPI0.MCR = SPI_MCR_MSTR | SPI_MCR_PCSIS(0x1F) | SPI_MCR_CLR_TXF | SPI_MCR_CLR_RXF;
 	}
 };
 extern SPIFIFOclass SPIFIFO;
