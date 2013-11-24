@@ -33,6 +33,7 @@
 
 #include <inttypes.h>
 #include <stdio.h> // for size_t - gives sprintf and other stuff to all sketches & libs
+#include <stdarg.h>
 #include "core_id.h"
 #include "WString.h"
 #include "Printable.h"
@@ -93,12 +94,14 @@ class Print
 	size_t println(const Printable &obj)		{ return obj.printTo(*this) + println(); }
 	int getWriteError() { return write_error; }
 	void clearWriteError() { setWriteError(0); }
-	size_t printNumber(unsigned long n, uint8_t base, uint8_t sign);
+	int printf(const char *format, ...);
+	int printf(const __FlashStringHelper *format, ...);
   protected:
 	void setWriteError(int err = 1) { write_error = err; }
   private:
 	char write_error;
 	size_t printFloat(double n, uint8_t digits);
+	size_t printNumber(unsigned long n, uint8_t base, uint8_t sign);
 };
 
 
