@@ -152,6 +152,37 @@ void Print::println(void)
 #endif
 
 
+#if ARDUINO >= 100
+static int printf_putchar(char c, FILE *fp)
+{
+	((class Print *)(fdev_get_udata(fp)))->write((uint8_t)c);
+	return 0;
+}
+
+int Print::printf(const char *format, ...)
+{
+	FILE f;
+	va_list ap;
+
+	fdev_setup_stream(&f, printf_putchar, NULL, _FDEV_SETUP_WRITE);
+	fdev_set_udata(&f, this);
+	va_start(ap, format);
+	return vfprintf(&f, format, ap);
+}
+
+int Print::printf(const __FlashStringHelper *format, ...)
+{
+	FILE f;
+	va_list ap;
+
+	fdev_setup_stream(&f, printf_putchar, NULL, _FDEV_SETUP_WRITE);
+	fdev_set_udata(&f, this);
+	va_start(ap, format);
+	return vfprintf_P(&f, (const char *)format, ap);
+}
+#endif
+
+
 //#define USE_HACKER_DELIGHT_OPTIMIZATION
 #define USE_STIMMER_OPTIMIZATION
 //#define USE_BENCHMARK_CODE
