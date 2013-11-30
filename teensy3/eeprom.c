@@ -137,6 +137,11 @@ void eeprom_read_block(void *buf, const void *addr, uint32_t len)
 	}
 }
 
+int eeprom_is_ready(void)
+{
+	return (FTFL_FCNFG & FTFL_FCNFG_EEERDY) ? 1 : 0;
+}
+
 static void flexram_wait(void)
 {
 	while (!(FTFL_FCNFG & FTFL_FCNFG_EEERDY)) {

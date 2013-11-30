@@ -46,6 +46,8 @@ void eeprom_write_byte(uint8_t *addr, uint8_t value);
 void eeprom_write_word(uint16_t *addr, uint16_t value);
 void eeprom_write_dword(uint32_t *addr, uint32_t value);
 void eeprom_write_block(const void *buf, void *addr, uint32_t len);
+int eeprom_is_ready(void);
+#define eeprom_busy_wait() do {} while (!eeprom_is_ready())
 
 static inline float eeprom_read_float(const float *addr) __attribute__((pure, always_inline, unused));
 static inline float eeprom_read_float(const float *addr)
