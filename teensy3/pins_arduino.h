@@ -47,6 +47,14 @@ const static uint8_t A10 = 34;
 const static uint8_t A11 = 35;
 const static uint8_t A12 = 36;
 const static uint8_t A13 = 37;
+const static uint8_t A14 = 40;
+
+const static uint8_t A15 = 26;
+const static uint8_t A16 = 27;
+const static uint8_t A17 = 28;
+const static uint8_t A18 = 29;
+const static uint8_t A19 = 30;
+const static uint8_t A20 = 31;
 
 const static uint8_t SS = 10;
 const static uint8_t MOSI = 11;
@@ -65,6 +73,7 @@ const static uint8_t SCL = 19;
 
 #define NOT_AN_INTERRUPT -1
 #define digitalPinToInterrupt(p)  ((p) < NUM_DIGITAL_PINS ? (p) : -1)
+
 
 struct digital_pin_bitband_and_config_table_struct {
         volatile uint32_t *reg;

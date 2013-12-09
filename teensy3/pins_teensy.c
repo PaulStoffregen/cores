@@ -351,6 +351,13 @@ void _init_Teensyduino_internal_(void)
 	FTM1_C0SC = 0x28;
 	FTM1_C1SC = 0x28;
 	FTM1_SC = FTM_SC_CLKS(1) | FTM_SC_PS(DEFAULT_FTM_PRESCALE);
+#if defined(__MK20DX256__)
+	FTM2_CNT = 0;
+	FTM2_MOD = DEFAULT_FTM_MOD;
+	FTM2_C0SC = 0x28;
+	FTM2_C1SC = 0x28;
+	FTM2_SC = FTM_SC_CLKS(1) | FTM_SC_PS(DEFAULT_FTM_PRESCALE);
+#endif
 
 	analog_init();
 	//delay(100); // TODO: this is not necessary, right?
@@ -359,16 +366,29 @@ void _init_Teensyduino_internal_(void)
 
 
 
+static uint8_t analog_write_res = 8;
+
 // SOPT4 is SIM select clocks?
 // FTM is clocked by the bus clock, either 24 or 48 MHz
 // input capture can be FTM1_CH0, CMP0 or CMP1 or USB start of frame
 // 24 MHz with reload 49152 to match Arduino's speed = 488.28125 Hz
 
-static uint8_t analog_write_res = 8;
-
 void analogWrite(uint8_t pin, int val)
 {
 	uint32_t cval, max;
+
+#if defined(__MK20DX256__)
+	if (pin == A14) {
+		uint8_t res = analog_write_res;
+		if (res < 12) {
+			val <<= 12 - res;
+		} else if (res > 12) {
+			val >>= res - 12;
+		}
+		analogWriteDAC0(val);
+		return;
+	}
+#endif
 
 	max = 1 << analog_write_res;
 	if (val <= 0) {
@@ -390,14 +410,12 @@ void analogWrite(uint8_t pin, int val)
 	//serial_print("\n");
 	if (pin == 3 || pin == 4) {
 		cval = ((uint32_t)val * (uint32_t)(FTM1_MOD + 1)) >> analog_write_res;
-		//serial_print("FTM1_MOD = ");
-		//serial_phex32(FTM1_MOD);
-		//serial_print("\n");
+#if defined(__MK20DX256__)
+	} else if (pin == 25 || pin == 32) {
+		cval = ((uint32_t)val * (uint32_t)(FTM2_MOD + 1)) >> analog_write_res;
+#endif
 	} else {
 		cval = ((uint32_t)val * (uint32_t)(FTM0_MOD + 1)) >> analog_write_res;
-		//serial_print("FTM0_MOD = ");
-		//serial_phex32(FTM0_MOD);
-		//serial_print("\n");
 	}
 	//serial_print("cval = ");
 	//serial_phex32(cval);
@@ -443,6 +461,16 @@ void analogWrite(uint8_t pin, int val)
 		FTM0_C1V = cval;
 		CORE_PIN23_CONFIG = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
 		break;
+#if defined(__MK20DX256__)
+	  case 32: // PTB18, FTM2_CH0
+		FTM2_C0V = cval;
+		CORE_PIN32_CONFIG = PORT_PCR_MUX(3) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+	  case 25: // PTB19, FTM1_CH1
+		FTM2_C1V = cval;
+		CORE_PIN25_CONFIG = PORT_PCR_MUX(3) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
 	  default:
 		digitalWrite(pin, (val > 127) ? HIGH : LOW);
 		pinMode(pin, OUTPUT);

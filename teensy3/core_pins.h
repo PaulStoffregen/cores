@@ -95,9 +95,14 @@
 
 #define CORE_NUM_TOTAL_PINS     34
 #define CORE_NUM_DIGITAL        34
+#define CORE_NUM_INTERRUPT      34
+#if defined(__MK20DX128__)
 #define CORE_NUM_ANALOG         14
 #define CORE_NUM_PWM            10
-#define CORE_NUM_INTERRUPT      34
+#elif defined(__MK20DX256__)
+#define CORE_NUM_ANALOG         21
+#define CORE_NUM_PWM            12
+#endif
 
 #define CORE_PIN0_BIT		16
 #define CORE_PIN1_BIT		17
@@ -687,6 +692,7 @@ void analogWrite(uint8_t pin, int val);
 void analogWriteRes(uint32_t bits);
 static inline void analogWriteResolution(uint32_t bits) { analogWriteRes(bits); }
 void analogWriteFrequency(uint8_t pin, uint32_t frequency);
+void analogWriteDAC0(int val);
 void attachInterrupt(uint8_t pin, void (*function)(void), int mode);
 void detachInterrupt(uint8_t pin);
 void _init_Teensyduino_internal_(void);

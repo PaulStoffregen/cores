@@ -42,13 +42,13 @@ static uint8_t analog_reference_internal = 0;
 // datasheet says ADC clock should be 1 to 18 MHz for 8-12 bit mode
 
 #if F_BUS == 48000000
-  #define ADC0_CFG1_6MHZ   ADC_CFG1_ADIV(2) + ADC_CFG1_ADICLK(1)
-  #define ADC0_CFG1_12MHZ  ADC_CFG1_ADIV(1) + ADC_CFG1_ADICLK(1)
-  #define ADC0_CFG1_24MHZ  ADC_CFG1_ADIV(0) + ADC_CFG1_ADICLK(1)
+  #define ADC_CFG1_6MHZ   ADC_CFG1_ADIV(2) + ADC_CFG1_ADICLK(1)
+  #define ADC_CFG1_12MHZ  ADC_CFG1_ADIV(1) + ADC_CFG1_ADICLK(1)
+  #define ADC_CFG1_24MHZ  ADC_CFG1_ADIV(0) + ADC_CFG1_ADICLK(1)
 #elif F_BUS == 24000000
-  #define ADC0_CFG1_6MHZ   ADC_CFG1_ADIV(2) + ADC_CFG1_ADICLK(0)
-  #define ADC0_CFG1_12MHZ  ADC_CFG1_ADIV(1) + ADC_CFG1_ADICLK(0)
-  #define ADC0_CFG1_24MHZ  ADC_CFG1_ADIV(0) + ADC_CFG1_ADICLK(0)
+  #define ADC_CFG1_6MHZ   ADC_CFG1_ADIV(2) + ADC_CFG1_ADICLK(0)
+  #define ADC_CFG1_12MHZ  ADC_CFG1_ADIV(1) + ADC_CFG1_ADICLK(0)
+  #define ADC_CFG1_24MHZ  ADC_CFG1_ADIV(0) + ADC_CFG1_ADICLK(0)
 #else
 #error
 #endif
@@ -61,36 +61,73 @@ void analog_init(void)
 	VREF_SC = 0xE1;		// enable 1.2 volt ref
 
 	if (analog_config_bits == 8) {
-		ADC0_CFG1 = ADC0_CFG1_24MHZ + ADC_CFG1_MODE(0);
+		ADC0_CFG1 = ADC_CFG1_24MHZ + ADC_CFG1_MODE(0);
 		ADC0_CFG2 = ADC_CFG2_MUXSEL + ADC_CFG2_ADLSTS(3);
+		#if defined(__MK20DX256__)
+		ADC1_CFG1 = ADC_CFG1_24MHZ + ADC_CFG1_MODE(0);
+		ADC1_CFG2 = ADC_CFG2_MUXSEL + ADC_CFG2_ADLSTS(3);
+		#endif
 	} else if (analog_config_bits == 10) {
-		ADC0_CFG1 = ADC0_CFG1_12MHZ + ADC_CFG1_MODE(2) + ADC_CFG1_ADLSMP;
+		ADC0_CFG1 = ADC_CFG1_12MHZ + ADC_CFG1_MODE(2) + ADC_CFG1_ADLSMP;
 		ADC0_CFG2 = ADC_CFG2_MUXSEL + ADC_CFG2_ADLSTS(3);
+		#if defined(__MK20DX256__)
+		ADC1_CFG1 = ADC_CFG1_12MHZ + ADC_CFG1_MODE(2) + ADC_CFG1_ADLSMP;
+		ADC1_CFG2 = ADC_CFG2_MUXSEL + ADC_CFG2_ADLSTS(3);
+		#endif
 	} else if (analog_config_bits == 12) {
-		ADC0_CFG1 = ADC0_CFG1_12MHZ + ADC_CFG1_MODE(1) + ADC_CFG1_ADLSMP;
+		ADC0_CFG1 = ADC_CFG1_12MHZ + ADC_CFG1_MODE(1) + ADC_CFG1_ADLSMP;
 		ADC0_CFG2 = ADC_CFG2_MUXSEL + ADC_CFG2_ADLSTS(2);
+		#if defined(__MK20DX256__)
+		ADC1_CFG1 = ADC_CFG1_12MHZ + ADC_CFG1_MODE(1) + ADC_CFG1_ADLSMP;
+		ADC1_CFG2 = ADC_CFG2_MUXSEL + ADC_CFG2_ADLSTS(2);
+		#endif
 	} else {
-		ADC0_CFG1 = ADC0_CFG1_12MHZ + ADC_CFG1_MODE(3) + ADC_CFG1_ADLSMP;
+		ADC0_CFG1 = ADC_CFG1_12MHZ + ADC_CFG1_MODE(3) + ADC_CFG1_ADLSMP;
 		ADC0_CFG2 = ADC_CFG2_MUXSEL + ADC_CFG2_ADLSTS(2);
+		#if defined(__MK20DX256__)
+		ADC1_CFG1 = ADC_CFG1_12MHZ + ADC_CFG1_MODE(3) + ADC_CFG1_ADLSMP;
+		ADC1_CFG2 = ADC_CFG2_MUXSEL + ADC_CFG2_ADLSTS(2);
+		#endif
 	}
 
 	if (analog_reference_internal) {
 		ADC0_SC2 = ADC_SC2_REFSEL(1); // 1.2V ref
+		#if defined(__MK20DX256__)
+		ADC1_SC2 = ADC_SC2_REFSEL(1); // 1.2V ref
+		#endif
 	} else {
 		ADC0_SC2 = ADC_SC2_REFSEL(0); // vcc/ext ref
+		#if defined(__MK20DX256__)
+		ADC1_SC2 = ADC_SC2_REFSEL(0); // vcc/ext ref
+		#endif
 	}
 
 	num = analog_num_average;
 	if (num <= 1) {
 		ADC0_SC3 = ADC_SC3_CAL;  // begin cal
+		#if defined(__MK20DX256__)
+		ADC1_SC3 = ADC_SC3_CAL;  // begin cal
+		#endif
 	} else if (num <= 4) {
 		ADC0_SC3 = ADC_SC3_CAL + ADC_SC3_AVGE + ADC_SC3_AVGS(0);
+		#if defined(__MK20DX256__)
+		ADC1_SC3 = ADC_SC3_CAL + ADC_SC3_AVGE + ADC_SC3_AVGS(0);
+		#endif
 	} else if (num <= 8) {
 		ADC0_SC3 = ADC_SC3_CAL + ADC_SC3_AVGE + ADC_SC3_AVGS(1);
+		#if defined(__MK20DX256__)
+		ADC1_SC3 = ADC_SC3_CAL + ADC_SC3_AVGE + ADC_SC3_AVGS(1);
+		#endif
 	} else if (num <= 16) {
 		ADC0_SC3 = ADC_SC3_CAL + ADC_SC3_AVGE + ADC_SC3_AVGS(2);
+		#if defined(__MK20DX256__)
+		ADC1_SC3 = ADC_SC3_CAL + ADC_SC3_AVGE + ADC_SC3_AVGS(2);
+		#endif
 	} else {
 		ADC0_SC3 = ADC_SC3_CAL + ADC_SC3_AVGE + ADC_SC3_AVGS(3);
+		#if defined(__MK20DX256__)
+		ADC1_SC3 = ADC_SC3_CAL + ADC_SC3_AVGE + ADC_SC3_AVGS(3);
+		#endif
 	}
 	calibrating = 1;
 }
@@ -100,10 +137,15 @@ static void wait_for_cal(void)
 	uint16_t sum;
 
 	//serial_print("wait_for_cal\n");
+#if defined(__MK20DX128__)
 	while (ADC0_SC3 & ADC_SC3_CAL) {
 		// wait
-		//serial_print(".");
 	}
+#elif defined(__MK20DX256__)
+	while ((ADC0_SC3 & ADC_SC3_CAL) || (ADC1_SC3 & ADC_SC3_CAL)) {
+		// wait
+	}
+#endif
 	__disable_irq();
 	if (calibrating) {
 		//serial_print("\n");
@@ -119,6 +161,14 @@ static void wait_for_cal(void)
 		//serial_print("ADC0_MG = ");
 		//serial_phex16(sum);
 		//serial_print("\n");
+#if defined(__MK20DX256__)
+		sum = ADC1_CLPS + ADC1_CLP4 + ADC1_CLP3 + ADC1_CLP2 + ADC1_CLP1 + ADC1_CLP0;
+		sum = (sum / 2) | 0x8000;
+		ADC1_PG = sum;
+		sum = ADC1_CLMS + ADC1_CLM4 + ADC1_CLM3 + ADC1_CLM2 + ADC1_CLM1 + ADC1_CLM0;
+		sum = (sum / 2) | 0x8000;
+		ADC1_MG = sum;
+#endif
 		calibrating = 0;
 	}
 	__enable_irq();
@@ -141,14 +191,24 @@ void analogReference(uint8_t type)
 		// internal reference requested
 		if (!analog_reference_internal) {
 			analog_reference_internal = 1;
-			if (calibrating) ADC0_SC3 = 0; // cancel cal
+			if (calibrating) {
+				ADC0_SC3 = 0; // cancel cal
+#if defined(__MK20DX256__)
+				ADC1_SC3 = 0; // cancel cal
+#endif
+			}
 			analog_init();
 		}
 	} else {
 		// vcc or external reference requested
 		if (analog_reference_internal) {
 			analog_reference_internal = 0;
-			if (calibrating) ADC0_SC3 = 0; // cancel cal
+			if (calibrating) {
+				ADC0_SC3 = 0; // cancel cal
+#if defined(__MK20DX256__)
+				ADC1_SC3 = 0; // cancel cal
+#endif
+			}
 			analog_init();
 		}
 	}
@@ -202,42 +262,83 @@ void analogReadAveraging(unsigned int num)
 
 // The SC1A register is used for both software and hardware trigger modes of operation.
 
-
+#if defined(__MK20DX128__)
 static const uint8_t channel2sc1a[] = {
 	5, 14, 8, 9, 13, 12, 6, 7, 15, 4,
-	0, 19, 3, 21, 26, 22
+	0, 19, 3, 21, 26, 22, 23
 };
+#elif defined(__MK20DX256__)
+static const uint8_t channel2sc1a[] = {
+	5, 14, 8, 9, 13, 12, 6, 7, 15, 4,
+	0, 19, 3, 19+128, 26, 22, 23,
+	5+192, 5+128, 4+128, 6+128, 7+128, 4+192
+// A15  26   E1   ADC1_SE5a  5+64
+// A16  27   C9   ADC1_SE5b  5
+// A17  28   C8   ADC1_SE4b  4
+// A18  29   C10  ADC1_SE6b  6
+// A19  30   C11  ADC1_SE7b  7
+// A20  31   E0   ADC1_SE4a  4+64
+};
+#endif
+
+
 
 // TODO: perhaps this should store the NVIC priority, so it works recursively?
-static volatile uint8_t analogReadBusy = 0;
+static volatile uint8_t analogReadBusyADC0 = 0;
+#if defined(__MK20DX256__)
+static volatile uint8_t analogReadBusyADC1 = 0;
+#endif
 
 int analogRead(uint8_t pin)
 {
 	int result;
+	uint8_t index, channel;
 
-	if (pin >= 14) {
-		if (pin <= 23) {
-			pin -= 14;  // 14-23 are A0-A9
-		} else if (pin >= 34 && pin <= 39) {
-			pin -= 24;  // 34-37 are A10-A13, 38 is temp sensor, 39 is vref
-		} else {
-			return 0;   // all others are invalid
-		}
+	//serial_phex(pin);
+	//serial_print(" ");
+
+	if (pin <= 13) {
+		index = pin;      // 0-13 refer to A0-A13
+	} else if (pin <= 23) {
+		index = pin - 14; // 14-23 are A0-A9
+#if defined(__MK20DX256__)
+	} else if (pin >= 26 && pin <= 31) {
+		index = pin - 9;  // 26-31 are A15-A20
+#endif
+	} else if (pin >= 34 && pin <= 40) {
+		index = pin - 24;  // 34-37 are A10-A13, 38 is temp sensor,
+			    // 39 is vref, 40 is unused (A14 on Teensy 3.1)
+	} else {
+		return 0;   // all others are invalid
 	}
+
+	//serial_phex(index);
+	//serial_print(" ");
+
+	channel = channel2sc1a[index];
+	//serial_phex(channel);
+	//serial_print(" ");
+
 	//serial_print("analogRead");
 	//return 0;
 	if (calibrating) wait_for_cal();
 	//pin = 5; // PTD1/SE5b, pin 14, analog 0
 
+#if defined(__MK20DX256__)
+	if (channel & 0x80) goto beginADC1;
+#endif
+
 	__disable_irq();
-start:	ADC0_SC1A = channel2sc1a[pin];
-	analogReadBusy = 1;
+startADC0:
+	//serial_print("startADC0\n");
+	ADC0_SC1A = channel;
+	analogReadBusyADC0 = 1;
 	__enable_irq();
 	while (1) {
 		__disable_irq();
 		if ((ADC0_SC1A & ADC_SC1_COCO)) {
 			result = ADC0_RA;
-			analogReadBusy = 0;
+			analogReadBusyADC0 = 0;
 			__enable_irq();
 			result >>= analog_right_shift;
 			return result;
@@ -245,27 +346,60 @@ start:	ADC0_SC1A = channel2sc1a[pin];
 		// detect if analogRead was used from an interrupt
 		// if so, our analogRead got canceled, so it must
 		// be restarted.
-		if (!analogReadBusy) goto start;
+		if (!analogReadBusyADC0) goto startADC0;
 		__enable_irq();
 		yield();
 	}
-#if 0
-	ADC0_SC1A = channel2sc1a[pin];
-	while ((ADC0_SC1A & ADC_SC1_COCO) == 0) {
-		yield();
-		// wait
-		//serial_print(".");
+
+#if defined(__MK20DX256__)
+beginADC1:
+	__disable_irq();
+startADC1:
+	//serial_print("startADC0\n");
+	// ADC1_CFG2[MUXSEL] bit selects between ADCx_SEn channels a and b.
+	if (channel & 0x40) {
+		ADC1_CFG2 &= ~ADC_CFG2_MUXSEL;
+	} else {
+		ADC1_CFG2 |= ADC_CFG2_MUXSEL;
 	}
-	//serial_print("\n");
-	result = ADC0_RA >> analog_right_shift;
-	//serial_phex16(result >> 3);
-	//serial_print("\n");
-	return result;
+	ADC1_SC1A = channel & 0x3F;
+	analogReadBusyADC1 = 1;
+	__enable_irq();
+	while (1) {
+		__disable_irq();
+		if ((ADC1_SC1A & ADC_SC1_COCO)) {
+			result = ADC1_RA;
+			analogReadBusyADC1 = 0;
+			__enable_irq();
+			result >>= analog_right_shift;
+			return result;
+		}
+		// detect if analogRead was used from an interrupt
+		// if so, our analogRead got canceled, so it must
+		// be restarted.
+		if (!analogReadBusyADC1) goto startADC1;
+		__enable_irq();
+		yield();
+	}
 #endif
 }
 
 
 
+void analogWriteDAC0(int val)
+{
+#if defined(__MK20DX256__)
+	SIM_SCGC2 |= SIM_SCGC2_DAC0;
+	if (analog_reference_internal) {
+		DAC0_C0 = DAC_C0_DACEN;  // 1.2V ref is DACREF_1
+	} else {
+		DAC0_C0 = DAC_C0_DACEN | DAC_C0_DACRFS; // 3.3V VDDA is DACREF_2
+	}
+	if (val < 0) val = 0;  // TODO: saturate instruction?
+	else if (val > 4095) val = 4095;
+	*(int16_t *)&(DAC0_DAT0L) = val;
+#endif
+}
 
 
 
