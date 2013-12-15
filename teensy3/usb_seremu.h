@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -80,7 +80,7 @@ public:
         uint8_t numbits(void) { return 8; }
         uint8_t dtr(void) { return 1; }
         uint8_t rts(void) { return 1; }
-        operator bool() { return usb_configuration; }
+        operator bool() { delay(10); return usb_configuration; }
 };
 
 extern usb_seremu_class Serial;
