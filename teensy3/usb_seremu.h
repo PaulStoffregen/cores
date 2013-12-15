@@ -48,7 +48,7 @@ int usb_seremu_write(const void *buffer, uint32_t size);
 void usb_seremu_flush_output(void);
 void usb_seremu_flush_callback(void);
 extern volatile uint8_t usb_seremu_transmit_flush_timer;
-extern volatile uint8_t usb_configuration;
+extern volatile uint16_t usb_configuration;
 #ifdef __cplusplus
 }
 #endif
