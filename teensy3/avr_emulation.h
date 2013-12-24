@@ -1004,6 +1004,7 @@ private:
 		}
 	}
 	static uint8_t pinout;
+public:
 	inline void enable_pins(void) __attribute__((always_inline)) {
 		//serial_print("enable_pins\n");
 		if ((pinout & 1) == 0) {
