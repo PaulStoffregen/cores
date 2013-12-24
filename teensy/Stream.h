@@ -34,15 +34,21 @@ class Stream : public Print
 
 	void setTimeout(unsigned long timeout);
 	bool find(char *target);
+	bool find(uint8_t *target) { return find ((char *)target); }
 	bool find(char *target, size_t length);
+	bool find(uint8_t *target, size_t length) { return find ((char *)target, length); }
 	bool findUntil(char *target, char *terminator);
+	bool findUntil(uint8_t *target, char *terminator) { return findUntil((char *)target, terminator); }
 	bool findUntil(char *target, size_t targetLen, char *terminate, size_t termLen);
+	bool findUntil(uint8_t *target, size_t targetLen, char *terminate, size_t termLen) {return findUntil((char *)target, targetLen, terminate, termLen); }
 	long parseInt();
 	long parseInt(char skipChar);
 	float parseFloat();
 	float parseFloat(char skipChar);
 	size_t readBytes(char *buffer, size_t length);
+	size_t readBytes( uint8_t *buffer, size_t length) { return readBytes((char *)buffer, length); }
 	size_t readBytesUntil(char terminator, char *buffer, size_t length);
+	size_t readBytesUntil(char terminator, uint8_t *buffer, size_t length) { return readBytesUntil(terminator, (char *)buffer, length); }
 	String readString(size_t max = 120);
 	String readStringUntil(char terminator, size_t max = 120);
 	int getReadError() { return read_error; }
