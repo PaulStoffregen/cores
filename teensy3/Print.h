@@ -53,6 +53,7 @@ class Print
 	virtual size_t write(uint8_t b) = 0;
 	size_t write(const char *str)			{ return write((const uint8_t *)str, strlen(str)); }
 	virtual size_t write(const uint8_t *buffer, size_t size);
+	size_t write(const char *buffer, size_t size)	{ return write((const uint8_t *)buffer, size); }
 	size_t print(const String &s);
 	size_t print(char c)				{ return write((uint8_t)c); }
 	size_t print(const char s[])			{ return write(s); }
