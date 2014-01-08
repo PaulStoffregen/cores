@@ -77,10 +77,11 @@ extern void usb_seremu_flush_callback(void);
 
 #ifdef KEYBOARD_INTERFACE
 extern uint8_t keyboard_modifier_keys;
-extern uint8_t keyboard_keys[6];
+extern uint8_t keyboard_keys[5];
 extern uint8_t keyboard_protocol;
 extern uint8_t keyboard_idle_config;
 extern uint8_t keyboard_idle_count;
+extern uint16_t keyboard_consumer_keys;
 extern volatile uint8_t keyboard_leds;
 #endif
 

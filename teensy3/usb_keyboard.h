@@ -49,8 +49,8 @@ void usb_keyboard_release_all(void);
 int usb_keyboard_press(uint8_t key, uint8_t modifier);
 int usb_keyboard_send(void);
 extern uint8_t keyboard_modifier_keys;
-extern uint8_t keyboard_media_keys;
-extern uint8_t keyboard_keys[6];
+extern uint16_t keyboard_consumer_keys;
+extern uint8_t keyboard_keys[5];
 extern uint8_t keyboard_protocol;
 extern uint8_t keyboard_idle_config;
 extern uint8_t keyboard_idle_count;
@@ -82,8 +82,8 @@ public:
 	void set_key3(uint8_t c) { keyboard_keys[2] = c; }
 	void set_key4(uint8_t c) { keyboard_keys[3] = c; }
 	void set_key5(uint8_t c) { keyboard_keys[4] = c; }
-	void set_key6(uint8_t c) { keyboard_keys[5] = c; }
-	void set_media(uint8_t c) { keyboard_media_keys = c; }
+	void set_media(uint8_t c) { set_consumer(c); }
+	void set_consumer(uint16_t c) { keyboard_consumer_keys = c; }
 	void send_now(void) { usb_keyboard_send(); }
 	void press(uint16_t n) { usb_keyboard_press_keycode(n); }
 	void release(uint16_t n) { usb_keyboard_release_keycode(n); }

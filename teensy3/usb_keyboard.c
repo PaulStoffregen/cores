@@ -43,11 +43,12 @@
 // 16=right ctrl, 32=right shift, 64=right alt, 128=right gui
 uint8_t keyboard_modifier_keys=0;
 
-// which media keys are currently pressed
-uint8_t keyboard_media_keys=0;
+// UsageID for the currently pressed consumer key (0x0C page) is
+// currently pressed, only one at once
+uint16_t keyboard_consumer_keys=0;
 
 // which keys are currently pressed, up to 6 keys may be down at once
-uint8_t keyboard_keys[6]={0,0,0,0,0,0};
+uint8_t keyboard_keys[5]={0,0,0,0,0};
 
 // protocol setting from the host.  We use exactly the same report
 // either way, so this variable only stores the setting since we
@@ -370,10 +371,10 @@ static void usb_keyboard_press_key(uint8_t key, uint8_t modifier)
 		}
 	}
 	if (key) {
-		for (i=0; i < 6; i++) {
+		for (i=0; i < 5; i++) {
 			if (keyboard_keys[i] == key) goto end;
 		}
-		for (i=0; i < 6; i++) {
+		for (i=0; i < 5; i++) {
 			if (keyboard_keys[i] == 0) {
 				keyboard_keys[i] = key;
 				send_required = 1;
@@ -397,7 +398,7 @@ static void usb_keyboard_release_key(uint8_t key, uint8_t modifier)
 		}
 	}
 	if (key) {
-		for (i=0; i < 6; i++) {
+		for (i=0; i < 5; i++) {
 			if (keyboard_keys[i] == key) {
 				keyboard_keys[i] = 0;
 				send_required = 1;
@@ -413,9 +414,10 @@ void usb_keyboard_release_all(void)
 
 	anybits = keyboard_modifier_keys;
 	keyboard_modifier_keys = 0;
-	anybits |= keyboard_media_keys;
-	keyboard_media_keys = 0;
-	for (i=0; i < 6; i++) {
+	anybits |= keyboard_consumer_keys;
+	anybits |= keyboard_consumer_keys >> 8;
+	keyboard_consumer_keys = 0;
+	for (i=0; i < 5; i++) {
 		anybits |= keyboard_keys[i];
 		keyboard_keys[i] = 0;
 	}
@@ -432,7 +434,6 @@ int usb_keyboard_press(uint8_t key, uint8_t modifier)
 	keyboard_keys[2] = 0;
 	keyboard_keys[3] = 0;
 	keyboard_keys[4] = 0;
-	keyboard_keys[5] = 0;
 	r = usb_keyboard_send();
 	if (r) return r;
 	keyboard_modifier_keys = 0;
@@ -464,12 +465,12 @@ int usb_keyboard_send(void)
 #if 0
 	serial_print("Send:");
 	serial_phex(keyboard_modifier_keys);
+	serial_phex16(keyboard_consumer_keys);
 	serial_phex(keyboard_keys[0]);
 	serial_phex(keyboard_keys[1]);
 	serial_phex(keyboard_keys[2]);
 	serial_phex(keyboard_keys[3]);
 	serial_phex(keyboard_keys[4]);
-	serial_phex(keyboard_keys[5]);
 	serial_print("\n");
 #endif
 #if 1
@@ -491,8 +492,14 @@ int usb_keyboard_send(void)
 		yield();
 	}
 	*(tx_packet->buf) = keyboard_modifier_keys;
-	*(tx_packet->buf + 1) = keyboard_media_keys;
-	memcpy(tx_packet->buf + 2, keyboard_keys, 6);
+
+	uint8_t consumer_lsb = keyboard_consumer_keys & 255;
+	uint8_t consumer_msb = keyboard_consumer_keys >> 8 & 255;
+
+	*(tx_packet->buf + 1) = consumer_lsb;
+	*(tx_packet->buf + 2) = consumer_msb;
+
+	memcpy(tx_packet->buf + 3, keyboard_keys, 5);
 	tx_packet->len = 8;
 	usb_tx(KEYBOARD_ENDPOINT, tx_packet);
 #endif

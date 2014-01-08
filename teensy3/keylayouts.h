@@ -80,14 +80,14 @@ extern "C"{
 #define MODIFIERKEY_RIGHT_ALT   ( 0x40 | 0x8000 )
 #define MODIFIERKEY_RIGHT_GUI   ( 0x80 | 0x8000 )
 
-#define KEY_MEDIA_VOLUME_INC    0x01
-#define KEY_MEDIA_VOLUME_DEC    0x02
-#define KEY_MEDIA_MUTE          0x04
-#define KEY_MEDIA_PLAY_PAUSE    0x08
-#define KEY_MEDIA_NEXT_TRACK    0x10
-#define KEY_MEDIA_PREV_TRACK    0x20
-#define KEY_MEDIA_STOP          0x40
-#define KEY_MEDIA_EJECT         0x80
+#define KEY_MEDIA_VOLUME_INC    0xE9
+#define KEY_MEDIA_VOLUME_DEC    0xEA
+#define KEY_MEDIA_MUTE          0xE2
+#define KEY_MEDIA_PLAY_PAUSE    0xCD
+#define KEY_MEDIA_NEXT_TRACK    0xB5
+#define KEY_MEDIA_PREV_TRACK    0xB6
+#define KEY_MEDIA_STOP          0xB7
+#define KEY_MEDIA_EJECT         0xB8
 
 #define KEY_A           ( 4   | 0x4000 )
 #define KEY_B           ( 5   | 0x4000 )
