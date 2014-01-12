@@ -662,6 +662,199 @@ extern "C" {
 #define DMA_TCD3_BITER_ELINKYES *(volatile uint16_t *)0x4000907E // TCD Beginning Minor Loop Link, Major Loop Count ,Channel Linking Enabled
 #define DMA_TCD3_BITER_ELINKNO	*(volatile uint16_t *)0x4000907E // TCD Beginning Minor Loop Link, Major Loop Count ,Channel Linking Disabled
 
+#define DMA_TCD4_SADDR		*(volatile const void * volatile *)0x40009080 // TCD Source Addr
+#define DMA_TCD4_SOFF		*(volatile int16_t *)0x40009084	 // TCD Signed Source Address Offset
+#define DMA_TCD4_ATTR		*(volatile uint16_t *)0x40009086 // TCD Transfer Attributes
+#define DMA_TCD4_NBYTES_MLNO	*(volatile uint32_t *)0x40009088 // TCD Minor Byte Count
+#define DMA_TCD4_NBYTES_MLOFFNO *(volatile uint32_t *)0x40009088 // TCD Signed Minor Loop Offset
+#define DMA_TCD4_NBYTES_MLOFFYES *(volatile uint32_t *)0x40009088 // TCD Signed Minor Loop Offset
+#define DMA_TCD4_SLAST		*(volatile int32_t *)0x4000908C	 // TCD Last Source Addr Adj.
+#define DMA_TCD4_DADDR		*(volatile void * volatile *)0x40009090 // TCD Destination Address
+#define DMA_TCD4_DOFF		*(volatile int16_t *)0x40009094	 // TCD Signed Dest Address Offset
+#define DMA_TCD4_CITER_ELINKYES *(volatile uint16_t *)0x40009096 // TCD Current Minor Loop Link
+#define DMA_TCD4_CITER_ELINKNO	*(volatile uint16_t *)0x40009096 // ??
+#define DMA_TCD4_DLASTSGA	*(volatile int32_t *)0x40009098	 // TCD Last Destination Addr Adj
+#define DMA_TCD4_CSR		*(volatile uint16_t *)0x4000909C // TCD Control and Status
+#define DMA_TCD4_BITER_ELINKYES *(volatile uint16_t *)0x4000909E // TCD Beginning Minor Loop Link
+#define DMA_TCD4_BITER_ELINKNO	*(volatile uint16_t *)0x4000909E // TCD Beginning Minor Loop Link
+
+#define DMA_TCD5_SADDR		*(volatile const void * volatile *)0x400090A0 // TCD Source Addr
+#define DMA_TCD5_SOFF		*(volatile int16_t *)0x400090A4	 // TCD Signed Source Address Offset
+#define DMA_TCD5_ATTR		*(volatile uint16_t *)0x400090A6 // TCD Transfer Attributes
+#define DMA_TCD5_NBYTES_MLNO	*(volatile uint32_t *)0x400090A8 // TCD Minor Byte Count
+#define DMA_TCD5_NBYTES_MLOFFNO *(volatile uint32_t *)0x400090A8 // TCD Signed Minor Loop Offset
+#define DMA_TCD5_NBYTES_MLOFFYES *(volatile uint32_t *)0x400090A8 // TCD Signed Minor Loop Offset
+#define DMA_TCD5_SLAST		*(volatile int32_t *)0x400090AC	 // TCD Last Source Addr Adj.
+#define DMA_TCD5_DADDR		*(volatile void * volatile *)0x400090B0 // TCD Destination Address
+#define DMA_TCD5_DOFF		*(volatile int16_t *)0x400090B4	 // TCD Signed Dest Address Offset
+#define DMA_TCD5_CITER_ELINKYES *(volatile uint16_t *)0x400090B6 // TCD Current Minor Loop Link
+#define DMA_TCD5_CITER_ELINKNO	*(volatile uint16_t *)0x400090B6 // ??
+#define DMA_TCD5_DLASTSGA	*(volatile int32_t *)0x400090B8	 // TCD Last Destination Addr Adj
+#define DMA_TCD5_CSR		*(volatile uint16_t *)0x400090BC // TCD Control and Status
+#define DMA_TCD5_BITER_ELINKYES *(volatile uint16_t *)0x400090BE // TCD Beginning Minor Loop Link
+#define DMA_TCD5_BITER_ELINKNO	*(volatile uint16_t *)0x400090BE // TCD Beginning Minor Loop Link
+
+#define DMA_TCD6_SADDR		*(volatile const void * volatile *)0x400090C0 // TCD Source Addr
+#define DMA_TCD6_SOFF		*(volatile int16_t *)0x400090C4	 // TCD Signed Source Address Offset
+#define DMA_TCD6_ATTR		*(volatile uint16_t *)0x400090C6 // TCD Transfer Attributes
+#define DMA_TCD6_NBYTES_MLNO	*(volatile uint32_t *)0x400090C8 // TCD Minor Byte Count
+#define DMA_TCD6_NBYTES_MLOFFNO *(volatile uint32_t *)0x400090C8 // TCD Signed Minor Loop Offset
+#define DMA_TCD6_NBYTES_MLOFFYES *(volatile uint32_t *)0x400090C8 // TCD Signed Minor Loop Offset
+#define DMA_TCD6_SLAST		*(volatile int32_t *)0x400090CC	 // TCD Last Source Addr Adj.
+#define DMA_TCD6_DADDR		*(volatile void * volatile *)0x400090D0 // TCD Destination Address
+#define DMA_TCD6_DOFF		*(volatile int16_t *)0x400090D4	 // TCD Signed Dest Address Offset
+#define DMA_TCD6_CITER_ELINKYES *(volatile uint16_t *)0x400090D6 // TCD Current Minor Loop Link
+#define DMA_TCD6_CITER_ELINKNO	*(volatile uint16_t *)0x400090D6 // ??
+#define DMA_TCD6_DLASTSGA	*(volatile int32_t *)0x400090D8	 // TCD Last Destination Addr Adj
+#define DMA_TCD6_CSR		*(volatile uint16_t *)0x400090DC // TCD Control and Status
+#define DMA_TCD6_BITER_ELINKYES *(volatile uint16_t *)0x400090DE // TCD Beginning Minor Loop Link
+#define DMA_TCD6_BITER_ELINKNO	*(volatile uint16_t *)0x400090DE // TCD Beginning Minor Loop Link
+
+#define DMA_TCD7_SADDR		*(volatile const void * volatile *)0x400090E0 // TCD Source Addr
+#define DMA_TCD7_SOFF		*(volatile int16_t *)0x400090E4	 // TCD Signed Source Address Offset
+#define DMA_TCD7_ATTR		*(volatile uint16_t *)0x400090E6 // TCD Transfer Attributes
+#define DMA_TCD7_NBYTES_MLNO	*(volatile uint32_t *)0x400090E8 // TCD Minor Byte Count
+#define DMA_TCD7_NBYTES_MLOFFNO *(volatile uint32_t *)0x400090E8 // TCD Signed Minor Loop Offset
+#define DMA_TCD7_NBYTES_MLOFFYES *(volatile uint32_t *)0x400090E8 // TCD Signed Minor Loop Offset
+#define DMA_TCD7_SLAST		*(volatile int32_t *)0x400090EC	 // TCD Last Source Addr Adj.
+#define DMA_TCD7_DADDR		*(volatile void * volatile *)0x400090F0 // TCD Destination Address
+#define DMA_TCD7_DOFF		*(volatile int16_t *)0x400090F4	 // TCD Signed Dest Address Offset
+#define DMA_TCD7_CITER_ELINKYES *(volatile uint16_t *)0x400090F6 // TCD Current Minor Loop Link
+#define DMA_TCD7_CITER_ELINKNO	*(volatile uint16_t *)0x400090F6 // ??
+#define DMA_TCD7_DLASTSGA	*(volatile int32_t *)0x400090F8	 // TCD Last Destination Addr Adj
+#define DMA_TCD7_CSR		*(volatile uint16_t *)0x400090FC // TCD Control and Status
+#define DMA_TCD7_BITER_ELINKYES *(volatile uint16_t *)0x400090FE // TCD Beginning Minor Loop Link
+#define DMA_TCD7_BITER_ELINKNO	*(volatile uint16_t *)0x400090FE // TCD Beginning Minor Loop Link
+
+#define DMA_TCD8_SADDR		*(volatile const void * volatile *)0x40009100 // TCD Source Addr
+#define DMA_TCD8_SOFF		*(volatile int16_t *)0x40009104	 // TCD Signed Source Address Offset
+#define DMA_TCD8_ATTR		*(volatile uint16_t *)0x40009106 // TCD Transfer Attributes
+#define DMA_TCD8_NBYTES_MLNO	*(volatile uint32_t *)0x40009108 // TCD Minor Byte Count
+#define DMA_TCD8_NBYTES_MLOFFNO *(volatile uint32_t *)0x40009108 // TCD Signed Minor Loop Offset
+#define DMA_TCD8_NBYTES_MLOFFYES *(volatile uint32_t *)0x40009108 // TCD Signed Minor Loop Offset
+#define DMA_TCD8_SLAST		*(volatile int32_t *)0x4000910C	 // TCD Last Source Addr Adj.
+#define DMA_TCD8_DADDR		*(volatile void * volatile *)0x40009110 // TCD Destination Address
+#define DMA_TCD8_DOFF		*(volatile int16_t *)0x40009114	 // TCD Signed Dest Address Offset
+#define DMA_TCD8_CITER_ELINKYES *(volatile uint16_t *)0x40009116 // TCD Current Minor Loop Link
+#define DMA_TCD8_CITER_ELINKNO	*(volatile uint16_t *)0x40009116 // ??
+#define DMA_TCD8_DLASTSGA	*(volatile int32_t *)0x40009118	 // TCD Last Destination Addr Adj
+#define DMA_TCD8_CSR		*(volatile uint16_t *)0x4000911C // TCD Control and Status
+#define DMA_TCD8_BITER_ELINKYES *(volatile uint16_t *)0x4000911E // TCD Beginning Minor Loop Link
+#define DMA_TCD8_BITER_ELINKNO	*(volatile uint16_t *)0x4000911E // TCD Beginning Minor Loop Link
+
+#define DMA_TCD9_SADDR		*(volatile const void * volatile *)0x40009120 // TCD Source Addr
+#define DMA_TCD9_SOFF		*(volatile int16_t *)0x40009124	 // TCD Signed Source Address Offset
+#define DMA_TCD9_ATTR		*(volatile uint16_t *)0x40009126 // TCD Transfer Attributes
+#define DMA_TCD9_NBYTES_MLNO	*(volatile uint32_t *)0x40009128 // TCD Minor Byte Count
+#define DMA_TCD9_NBYTES_MLOFFNO *(volatile uint32_t *)0x40009128 // TCD Signed Minor Loop Offset
+#define DMA_TCD9_NBYTES_MLOFFYES *(volatile uint32_t *)0x40009128 // TCD Signed Minor Loop Offset
+#define DMA_TCD9_SLAST		*(volatile int32_t *)0x4000912C	 // TCD Last Source Addr Adj.
+#define DMA_TCD9_DADDR		*(volatile void * volatile *)0x40009130 // TCD Destination Address
+#define DMA_TCD9_DOFF		*(volatile int16_t *)0x40009134	 // TCD Signed Dest Address Offset
+#define DMA_TCD9_CITER_ELINKYES *(volatile uint16_t *)0x40009136 // TCD Current Minor Loop Link
+#define DMA_TCD9_CITER_ELINKNO	*(volatile uint16_t *)0x40009136 // ??
+#define DMA_TCD9_DLASTSGA	*(volatile int32_t *)0x40009138	 // TCD Last Destination Addr Adj
+#define DMA_TCD9_CSR		*(volatile uint16_t *)0x4000913C // TCD Control and Status
+#define DMA_TCD9_BITER_ELINKYES *(volatile uint16_t *)0x4000913E // TCD Beginning Minor Loop Link
+#define DMA_TCD9_BITER_ELINKNO	*(volatile uint16_t *)0x4000913E // TCD Beginning Minor Loop Link
+
+#define DMA_TCD10_SADDR		*(volatile const void * volatile *)0x40009140 // TCD Source Addr
+#define DMA_TCD10_SOFF		*(volatile int16_t *)0x40009144	 // TCD Signed Source Address Offset
+#define DMA_TCD10_ATTR		*(volatile uint16_t *)0x40009146 // TCD Transfer Attributes
+#define DMA_TCD10_NBYTES_MLNO	*(volatile uint32_t *)0x40009148 // TCD Minor Byte Count
+#define DMA_TCD10_NBYTES_MLOFFNO *(volatile uint32_t *)0x40009148 // TCD Signed Minor Loop Offset
+#define DMA_TCD10_NBYTES_MLOFFYES *(volatile uint32_t *)0x40009148 // TCD Signed Minor Loop Offset
+#define DMA_TCD10_SLAST		*(volatile int32_t *)0x4000914C	 // TCD Last Source Addr Adj.
+#define DMA_TCD10_DADDR		*(volatile void * volatile *)0x40009150 // TCD Destination Address
+#define DMA_TCD10_DOFF		*(volatile int16_t *)0x40009154	 // TCD Signed Dest Address Offset
+#define DMA_TCD10_CITER_ELINKYES *(volatile uint16_t *)0x40009156 // TCD Current Minor Loop Link
+#define DMA_TCD10_CITER_ELINKNO	*(volatile uint16_t *)0x40009156 // ??
+#define DMA_TCD10_DLASTSGA	*(volatile int32_t *)0x40009158	 // TCD Last Destination Addr Adj
+#define DMA_TCD10_CSR		*(volatile uint16_t *)0x4000915C // TCD Control and Status
+#define DMA_TCD10_BITER_ELINKYES *(volatile uint16_t *)0x4000915E // TCD Beginning Minor Loop Link
+#define DMA_TCD10_BITER_ELINKNO	*(volatile uint16_t *)0x4000915E // TCD Beginning Minor Loop Link
+
+#define DMA_TCD11_SADDR		*(volatile const void * volatile *)0x40009160 // TCD Source Addr
+#define DMA_TCD11_SOFF		*(volatile int16_t *)0x40009164	 // TCD Signed Source Address Offset
+#define DMA_TCD11_ATTR		*(volatile uint16_t *)0x40009166 // TCD Transfer Attributes
+#define DMA_TCD11_NBYTES_MLNO	*(volatile uint32_t *)0x40009168 // TCD Minor Byte Count
+#define DMA_TCD11_NBYTES_MLOFFNO *(volatile uint32_t *)0x40009168 // TCD Signed Minor Loop Offset
+#define DMA_TCD11_NBYTES_MLOFFYES *(volatile uint32_t *)0x40009168 // TCD Signed Minor Loop Offset
+#define DMA_TCD11_SLAST		*(volatile int32_t *)0x4000916C	 // TCD Last Source Addr Adj.
+#define DMA_TCD11_DADDR		*(volatile void * volatile *)0x40009170 // TCD Destination Address
+#define DMA_TCD11_DOFF		*(volatile int16_t *)0x40009174	 // TCD Signed Dest Address Offset
+#define DMA_TCD11_CITER_ELINKYES *(volatile uint16_t *)0x40009176 // TCD Current Minor Loop Link
+#define DMA_TCD11_CITER_ELINKNO	*(volatile uint16_t *)0x40009176 // ??
+#define DMA_TCD11_DLASTSGA	*(volatile int32_t *)0x40009178	 // TCD Last Destination Addr Adj
+#define DMA_TCD11_CSR		*(volatile uint16_t *)0x4000917C // TCD Control and Status
+#define DMA_TCD11_BITER_ELINKYES *(volatile uint16_t *)0x4000917E // TCD Beginning Minor Loop Link
+#define DMA_TCD11_BITER_ELINKNO	*(volatile uint16_t *)0x4000917E // TCD Beginning Minor Loop Link
+
+#define DMA_TCD12_SADDR		*(volatile const void * volatile *)0x40009180 // TCD Source Addr
+#define DMA_TCD12_SOFF		*(volatile int16_t *)0x40009184	 // TCD Signed Source Address Offset
+#define DMA_TCD12_ATTR		*(volatile uint16_t *)0x40009186 // TCD Transfer Attributes
+#define DMA_TCD12_NBYTES_MLNO	*(volatile uint32_t *)0x40009188 // TCD Minor Byte Count
+#define DMA_TCD12_NBYTES_MLOFFNO *(volatile uint32_t *)0x40009188 // TCD Signed Minor Loop Offset
+#define DMA_TCD12_NBYTES_MLOFFYES *(volatile uint32_t *)0x40009188 // TCD Signed Minor Loop Offset
+#define DMA_TCD12_SLAST		*(volatile int32_t *)0x4000918C	 // TCD Last Source Addr Adj.
+#define DMA_TCD12_DADDR		*(volatile void * volatile *)0x40009190 // TCD Destination Address
+#define DMA_TCD12_DOFF		*(volatile int16_t *)0x40009194	 // TCD Signed Dest Address Offset
+#define DMA_TCD12_CITER_ELINKYES *(volatile uint16_t *)0x40009196 // TCD Current Minor Loop Link
+#define DMA_TCD12_CITER_ELINKNO	*(volatile uint16_t *)0x40009196 // ??
+#define DMA_TCD12_DLASTSGA	*(volatile int32_t *)0x40009198	 // TCD Last Destination Addr Adj
+#define DMA_TCD12_CSR		*(volatile uint16_t *)0x4000919C // TCD Control and Status
+#define DMA_TCD12_BITER_ELINKYES *(volatile uint16_t *)0x4000919E // TCD Beginning Minor Loop Link
+#define DMA_TCD12_BITER_ELINKNO	*(volatile uint16_t *)0x4000919E // TCD Beginning Minor Loop Link
+
+#define DMA_TCD13_SADDR		*(volatile const void * volatile *)0x400091A0 // TCD Source Addr
+#define DMA_TCD13_SOFF		*(volatile int16_t *)0x400091A4	 // TCD Signed Source Address Offset
+#define DMA_TCD13_ATTR		*(volatile uint16_t *)0x400091A6 // TCD Transfer Attributes
+#define DMA_TCD13_NBYTES_MLNO	*(volatile uint32_t *)0x400091A8 // TCD Minor Byte Count
+#define DMA_TCD13_NBYTES_MLOFFNO *(volatile uint32_t *)0x400091A8 // TCD Signed Minor Loop Offset
+#define DMA_TCD13_NBYTES_MLOFFYES *(volatile uint32_t *)0x400091A8 // TCD Signed Minor Loop Offset
+#define DMA_TCD13_SLAST		*(volatile int32_t *)0x400091AC	 // TCD Last Source Addr Adj.
+#define DMA_TCD13_DADDR		*(volatile void * volatile *)0x400091B0 // TCD Destination Address
+#define DMA_TCD13_DOFF		*(volatile int16_t *)0x400091B4	 // TCD Signed Dest Address Offset
+#define DMA_TCD13_CITER_ELINKYES *(volatile uint16_t *)0x400091B6 // TCD Current Minor Loop Link
+#define DMA_TCD13_CITER_ELINKNO	*(volatile uint16_t *)0x400091B6 // ??
+#define DMA_TCD13_DLASTSGA	*(volatile int32_t *)0x400091B8	 // TCD Last Destination Addr Adj
+#define DMA_TCD13_CSR		*(volatile uint16_t *)0x400091BC // TCD Control and Status
+#define DMA_TCD13_BITER_ELINKYES *(volatile uint16_t *)0x400091BE // TCD Beginning Minor Loop Link
+#define DMA_TCD13_BITER_ELINKNO	*(volatile uint16_t *)0x400091BE // TCD Beginning Minor Loop Link
+
+#define DMA_TCD14_SADDR		*(volatile const void * volatile *)0x400091C0 // TCD Source Addr
+#define DMA_TCD14_SOFF		*(volatile int16_t *)0x400091C4	 // TCD Signed Source Address Offset
+#define DMA_TCD14_ATTR		*(volatile uint16_t *)0x400091C6 // TCD Transfer Attributes
+#define DMA_TCD14_NBYTES_MLNO	*(volatile uint32_t *)0x400091C8 // TCD Minor Byte Count
+#define DMA_TCD14_NBYTES_MLOFFNO *(volatile uint32_t *)0x400091C8 // TCD Signed Minor Loop Offset
+#define DMA_TCD14_NBYTES_MLOFFYES *(volatile uint32_t *)0x400091C8 // TCD Signed Minor Loop Offset
+#define DMA_TCD14_SLAST		*(volatile int32_t *)0x400091CC	 // TCD Last Source Addr Adj.
+#define DMA_TCD14_DADDR		*(volatile void * volatile *)0x400091D0 // TCD Destination Address
+#define DMA_TCD14_DOFF		*(volatile int16_t *)0x400091D4	 // TCD Signed Dest Address Offset
+#define DMA_TCD14_CITER_ELINKYES *(volatile uint16_t *)0x400091D6 // TCD Current Minor Loop Link
+#define DMA_TCD14_CITER_ELINKNO	*(volatile uint16_t *)0x400091D6 // ??
+#define DMA_TCD14_DLASTSGA	*(volatile int32_t *)0x400091D8	 // TCD Last Destination Addr Adj
+#define DMA_TCD14_CSR		*(volatile uint16_t *)0x400091DC // TCD Control and Status
+#define DMA_TCD14_BITER_ELINKYES *(volatile uint16_t *)0x400091DE // TCD Beginning Minor Loop Link
+#define DMA_TCD14_BITER_ELINKNO	*(volatile uint16_t *)0x400091DE // TCD Beginning Minor Loop Link
+
+#define DMA_TCD15_SADDR		*(volatile const void * volatile *)0x400091E0 // TCD Source Addr
+#define DMA_TCD15_SOFF		*(volatile int16_t *)0x400091E4	 // TCD Signed Source Address Offset
+#define DMA_TCD15_ATTR		*(volatile uint16_t *)0x400091E6 // TCD Transfer Attributes
+#define DMA_TCD15_NBYTES_MLNO	*(volatile uint32_t *)0x400091E8 // TCD Minor Byte Count
+#define DMA_TCD15_NBYTES_MLOFFNO *(volatile uint32_t *)0x400091E8 // TCD Signed Minor Loop Offset
+#define DMA_TCD15_NBYTES_MLOFFYES *(volatile uint32_t *)0x400091E8 // TCD Signed Minor Loop Offset
+#define DMA_TCD15_SLAST		*(volatile int32_t *)0x400091EC	 // TCD Last Source Addr Adj.
+#define DMA_TCD15_DADDR		*(volatile void * volatile *)0x400091F0 // TCD Destination Address
+#define DMA_TCD15_DOFF		*(volatile int16_t *)0x400091F4	 // TCD Signed Dest Address Offset
+#define DMA_TCD15_CITER_ELINKYES *(volatile uint16_t *)0x400091F6 // TCD Current Minor Loop Link
+#define DMA_TCD15_CITER_ELINKNO	*(volatile uint16_t *)0x400091F6 // ??
+#define DMA_TCD15_DLASTSGA	*(volatile int32_t *)0x400091F8	 // TCD Last Destination Addr Adj
+#define DMA_TCD15_CSR		*(volatile uint16_t *)0x400091FC // TCD Control and Status
+#define DMA_TCD15_BITER_ELINKYES *(volatile uint16_t *)0x400091FE // TCD Beginning Minor Loop Link
+#define DMA_TCD15_BITER_ELINKNO	*(volatile uint16_t *)0x400091FE // TCD Beginning Minor Loop Link
+
+
 // Chapter 22: External Watchdog Monitor (EWM)
 #define EWM_CTRL		*(volatile uint8_t  *)0x40061000 // Control Register
 #define EWM_SERV		*(volatile uint8_t  *)0x40061001 // Service Register
