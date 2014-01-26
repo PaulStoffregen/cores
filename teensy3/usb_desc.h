@@ -44,6 +44,73 @@
 #define ENDPOINT_RECEIVE_ONLY		0x19
 #define ENDPOINT_TRANSMIT_AND_RECEIVE	0x1D
 
+/* 
+ * Note: This works when using the Make system available at
+ *       https://github.com/xxxajk/Arduino_Makefile_master
+ *       because it can include the sketch directory for these settings.
+ *       I hope the Arduino IDE team takes a clue from this.
+ *
+ *       Since this option is NOT available in the IDE, no harm can
+ *       come to anyone who is only using the IDE. They simply won't be
+ *       able to easily define a custom interface, until they use better
+ *       tools, or the Arduino IDE team gets a clue.
+ *
+ * What follows is an example and recipe for using sketch_settings.h 
+ * which provides a modified version USB Serial. 
+ * All parameters are changable but for simplicity, only the 
+ * MANUFACTURER_NAME has been altered. 
+ *
+[settings_demo.ino]
+#include <Arduino.h>
+
+// Pull in the usb_serial code headers from teensyduino
+#define USB_SERIAL
+#include <usb_serial.h>
+
+void setup() {
+	while(!Serial);
+	Serial.println("It works!");
+}
+
+void loop() {}
+
+[sketch_settings.h]
+ #ifdef _usb_desc_h_
+ #ifndef _usb_desc_h_seen_us
+ #define _usb_desc_h_seen_us
+ #define VENDOR_ID		0x16C0
+ #define PRODUCT_ID		0x0483
+ #define DEVICE_CLASS		2	// 2 = Communication Class
+ #define MANUFACTURER_NAME	{'T','3','3','n','5','y','d','u','1','n','0'}
+ #define MANUFACTURER_NAME_LEN	11
+ #define PRODUCT_NAME		{'U','S','B',' ','S','e','r','i','a','l'}
+ #define PRODUCT_NAME_LEN	10
+ #define EP0_SIZE		64
+ #define NUM_ENDPOINTS		4
+ #define NUM_USB_BUFFERS	12
+ #define NUM_INTERFACE		2
+ #define CDC_STATUS_INTERFACE	0
+ #define CDC_DATA_INTERFACE	1
+ #define CDC_ACM_ENDPOINT	2
+ #define CDC_RX_ENDPOINT       3
+ #define CDC_TX_ENDPOINT       4
+ #define CDC_ACM_SIZE          16
+ #define CDC_RX_SIZE           64
+ #define CDC_TX_SIZE           64
+ #define CONFIG_DESC_SIZE	(9+9+5+5+4+5+7+9+7+7)
+ #define ENDPOINT2_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+ #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_ONLY
+ #define ENDPOINT4_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+ #endif // _usb_desc_h_seen_us
+ #endif // _usb_desc_h_
+ * 
+ *
+ */
+#if defined(USB_CUSTOM)
+#include <sketch_settings.h>
+#else
+
+
 /*
 To modify a USB Type to have different interfaces, start in this
 file.  Delete the XYZ_INTERFACE lines for any interfaces you
@@ -293,6 +360,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #endif
 
+#endif
 // NUM_ENDPOINTS = number of non-zero endpoints (0 to 15)
 extern const uint8_t usb_endpoint_config_table[NUM_ENDPOINTS];
 
