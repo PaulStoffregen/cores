@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -28,14 +28,14 @@
  * SOFTWARE.
  */
 
-#include "usb_dev.h"
 #include "usb_keyboard.h"
+#ifdef NUM_ENDPOINTS
+
+#ifdef KEYBOARD_INTERFACE // defined by usb_dev.h -> usb_desc.h
 #include "core_pins.h" // for yield()
 #include "keylayouts.h"
 //#include "HardwareSerial.h"
 #include <string.h> // for memcpy()
-
-#ifdef KEYBOARD_INTERFACE // defined by usb_dev.h -> usb_desc.h
 
 
 // which modifier keys are currently pressed
@@ -499,5 +499,5 @@ int usb_keyboard_send(void)
 	return 0;
 }
 
-
+#endif
 #endif // KEYBOARD_INTERFACE

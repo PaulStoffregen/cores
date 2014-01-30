@@ -36,8 +36,21 @@
 // provided by usb_dev.c are meant to be called only by
 // code which provides higher-level interfaces to the user.
 
-#include "usb_mem.h"
+#ifndef _usb_desc_h_
 #include "usb_desc.h"
+#endif
+#ifdef NUM_ENDPOINTS
+#ifndef _INTTYPES_H
+#include <inttypes.h>
+#endif
+#ifdef __cplusplus
+#ifndef Stream_h
+#include "Stream.h"
+#endif
+#endif
+#ifndef _usb_mem_h_
+#include "usb_mem.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -100,6 +113,6 @@ extern void usb_flightsim_flush_callback(void);
 }
 #endif
 
-
+#endif
 
 #endif

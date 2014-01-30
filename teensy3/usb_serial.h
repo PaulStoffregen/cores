@@ -30,10 +30,13 @@
 
 #ifndef USBserial_h_
 #define USBserial_h_
+#ifndef _usb_dev_h_
+#include "usb_dev.h"
+#endif
+#ifdef NUM_ENDPOINTS
 
 #if defined(USB_SERIAL) || defined(USB_SERIAL_HID)
 
-#include <inttypes.h>
 
 // C language implementation
 #ifdef __cplusplus
@@ -61,7 +64,6 @@ extern volatile uint16_t usb_configuration;
 
 // C++ interface
 #ifdef __cplusplus
-#include "Stream.h"
 class usb_serial_class : public Stream
 {
 public:
@@ -104,4 +106,5 @@ extern usb_serial_class Serial;
 #endif // __cplusplus
 
 #endif // USB_SERIAL || USB_SERIAL_HID
+#endif
 #endif // USBserial_h_

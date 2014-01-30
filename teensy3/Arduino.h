@@ -1,2 +1,6 @@
+#ifndef Arduino_h
+#define Arduino_h
+#ifndef WProgram_h
 #include "WProgram.h"
-#include "pins_arduino.h"
+#endif
+#endif

@@ -1,25 +1,42 @@
 #ifndef WProgram_h
 #define WProgram_h
 
+#ifndef _STDLIB_H_
 #include <stdlib.h>
+#endif
+#ifndef _STRING_H_
 #include <string.h>
+#endif
+#ifndef  _MATH_H_
 #include <math.h>
+#endif
 
 // some libraries and sketches depend on this
 // AVR stuff, assuming Arduino.h or WProgram.h
 // automatically includes it...
+#ifndef __PGMSPACE_H_
 #include <avr/pgmspace.h>
-#include <avr/interrupt.h>
+#endif
+//#include <avr/interrupt.h> //This file is blank?
 
+#ifndef _avr_functions_h_
 #include "avr_functions.h"
+#endif
+
+#ifndef Wiring_h
 #include "wiring.h"
+#endif
+
+#ifndef HardwareSerial_h
 #include "HardwareSerial.h"
+#endif
 
 #define DMAMEM __attribute__ ((section(".dmabuffers"), used))
 
 #ifdef __cplusplus
 
 #include "avr_emulation.h"
+
 #include "usb_serial.h"
 #include "usb_seremu.h"
 #include "usb_keyboard.h"
@@ -30,9 +47,15 @@
 #include "usb_flightsim.h"
 
 //#include "WCharacter.h"
+#ifndef String_class_h
 #include "WString.h"
+#endif
+#ifndef elapsedMillis_h
 #include "elapsedMillis.h"
+#endif
+#ifndef __INTERVALTIMER_H__
 #include "IntervalTimer.h"
+#endif
 
 uint16_t makeWord(uint16_t w);
 uint16_t makeWord(byte h, byte l);
@@ -51,8 +74,6 @@ int32_t random(int32_t howsmall, int32_t howbig);
 void randomSeed(uint32_t newseed);
 void srandom(uint32_t newseed);
 long map(long, long, long, long, long);
-
-#include "pins_arduino.h"
 
 #endif // __cplusplus
 

@@ -1,10 +1,18 @@
-#if ARDUINO >= 100
-
 #ifndef client_h
 #define client_h
+#ifdef __cplusplus
+
+#if ARDUINO >= 100
+
+#ifndef Print_h
 #include "Print.h"
+#endif
+#ifndef Stream_h
 #include "Stream.h"
+#endif
+#ifndef IPAddress_h
 #include "IPAddress.h"
+#endif
 
 class Client : public Stream {
 
@@ -25,5 +33,6 @@ protected:
   uint8_t* rawIPAddress(IPAddress& addr) { return addr.raw_address(); };
 };
 
+#endif
 #endif
 #endif

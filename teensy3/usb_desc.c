@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -29,6 +29,8 @@
  */
 
 #include "usb_desc.h"
+#ifdef NUM_ENDPOINTS
+
 #include "usb_names.h"
 #include "mk20dx128.h"
 #include "avr_functions.h"
@@ -150,6 +152,9 @@ static uint8_t keyboard_report_desc[] = {
         0x81, 0x00,             //  Input (Data, Array),                ;Normal keys
         0xc0                    // End Collection
 };
+#define keyboard_report_desc_size sizeof(keyboard_report_desc)
+#else
+#define keyboard_report_desc_size 0
 #endif
 
 #ifdef MOUSE_INTERFACE
@@ -185,6 +190,9 @@ static uint8_t mouse_report_desc[] = {
         0x81, 0x06,                     //   Input (Data, Variable, Relative)
         0xC0                            // End Collection
 };
+#define mouse_report_desc_size sizeof(mouse_report_desc)
+#else
+#define mouse_report_desc_size 0
 #endif
 
 #ifdef JOYSTICK_INTERFACE
@@ -232,6 +240,9 @@ static uint8_t joystick_report_desc[] = {
         0x81, 0x02,                     // Input (variable,absolute)
         0xC0                            // End Collection
 };
+#define joystick_report_desc_size sizeof(joystick_report_desc)
+#else
+#define joystick_report_desc_size 0
 #endif
 
 #ifdef SEREMU_INTERFACE
@@ -253,6 +264,9 @@ static uint8_t seremu_report_desc[] = {
         0xB1, 0x02,                             // Feature
         0xC0                                    // end collection
 };
+#define seremu_report_desc_size sizeof(seremu_report_desc)
+#else
+#define seremu_report_desc_size 0
 #endif
 
 #ifdef RAWHID_INTERFACE
@@ -271,6 +285,9 @@ static uint8_t rawhid_report_desc[] = {
         0x91, 0x02,                             // Output (array)
         0xC0                                    // end collection
 };
+#define rawhid_report_desc_size sizeof(rawhid_report_desc)
+#else
+#define rawhid_report_desc_size 0
 #endif
 
 #ifdef FLIGHTSIM_INTERFACE
@@ -289,8 +306,14 @@ static uint8_t flightsim_report_desc[] = {
         0x91, 0x02,                             // Output (array)
         0xC0                                    // end collection
 };
+#define flightsim_report_desc_size sizeof(flightsim_report_desc)
+#else
+#define flightsim_report_desc_size 0
 #endif
 
+#define DESCRIPTORS_SIZE keyboard_report_desc_size + mouse_report_desc_size + \
+        joystick_report_desc_size + seremu_report_desc_size + \
+        rawhid_report_desc_size + flightsim_report_desc_size
 
 
 // **************************************************************
@@ -310,7 +333,7 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         0,                                      // iConfiguration
         0xC0,                                   // bmAttributes
         50,                                     // bMaxPower
-
+        // 9
 #ifdef CDC_IAD_DESCRIPTOR
         // interface association descriptor, USB ECN, Table 9-Z
         8,                                      // bLength
@@ -321,6 +344,7 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         0x02,                                   // bFunctionSubClass
         0x01,                                   // bFunctionProtocol
         4,                                      // iFunction
+        // 8
 #endif
 
 #ifdef CDC_DATA_INTERFACE
@@ -378,14 +402,16 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         5,                                      // bDescriptorType
         CDC_RX_ENDPOINT,                        // bEndpointAddress
         0x02,                                   // bmAttributes (0x02=bulk)
-        CDC_RX_SIZE, 0,                         // wMaxPacketSize
+        LSB(CDC_RX_SIZE),                       // wMaxPacketSize
+        MSB(CDC_RX_SIZE),
         0,                                      // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         7,                                      // bLength
         5,                                      // bDescriptorType
         CDC_TX_ENDPOINT | 0x80,                 // bEndpointAddress
         0x02,                                   // bmAttributes (0x02=bulk)
-        CDC_TX_SIZE, 0,                         // wMaxPacketSize
+        LSB(CDC_TX_SIZE),                       // wMaxPacketSize
+        MSB(CDC_TX_SIZE),
         0,                                      // bInterval
 #endif // CDC_DATA_INTERFACE
 
@@ -403,7 +429,7 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         // MIDI MS Interface Header, USB MIDI 6.1.2.1, page 21, Table 6-2
         7,                                      // bLength
         0x24,                                   // bDescriptorType = CS_INTERFACE
-        0x01,                                   // bDescriptorSubtype = MS_HEADER 
+        0x01,                                   // bDescriptorSubtype = MS_HEADER
         0x00, 0x01,                             // bcdMSC = revision 01.00
         0x41, 0x00,                             // wTotalLength
         // MIDI IN Jack Descriptor, B.4.3, Table B-7 (embedded), page 40
@@ -442,10 +468,11 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         0,                                      // iJack
         // Standard Bulk OUT Endpoint Descriptor, B.5.1, Table B-11, pae 42
         9,                                      // bLength
-        5,                                      // bDescriptorType = ENDPOINT 
+        5,                                      // bDescriptorType = ENDPOINT
         MIDI_RX_ENDPOINT,                       // bEndpointAddress
         0x02,                                   // bmAttributes (0x02=bulk)
-        MIDI_RX_SIZE, 0,                        // wMaxPacketSize
+        LSB(MIDI_RX_SIZE),                      // wMaxPacketSize
+        MSB(MIDI_RX_SIZE),
         0,                                      // bInterval
         0,                                      // bRefresh
         0,                                      // bSynchAddress
@@ -457,10 +484,11 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         1,                                      // BaAssocJackID(1) = jack ID #1
         // Standard Bulk IN Endpoint Descriptor, B.5.1, Table B-11, pae 42
         9,                                      // bLength
-        5,                                      // bDescriptorType = ENDPOINT 
+        5,                                      // bDescriptorType = ENDPOINT
         MIDI_TX_ENDPOINT | 0x80,                // bEndpointAddress
         0x02,                                   // bmAttributes (0x02=bulk)
-        MIDI_TX_SIZE, 0,                        // wMaxPacketSize
+        LSB(MIDI_TX_SIZE),                      // wMaxPacketSize
+        MSB(MIDI_TX_SIZE),
         0,                                      // bInterval
         0,                                      // bRefresh
         0,                                      // bSynchAddress
@@ -490,8 +518,8 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         0,                                      // bCountryCode
         1,                                      // bNumDescriptors
         0x22,                                   // bDescriptorType
-        LSB(sizeof(keyboard_report_desc)),      // wDescriptorLength
-        MSB(sizeof(keyboard_report_desc)),
+        LSB(keyboard_report_desc_size),         // wDescriptorLength
+        MSB(keyboard_report_desc_size),
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         7,                                      // bLength
         5,                                      // bDescriptorType
@@ -519,8 +547,8 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         0,                                      // bCountryCode
         1,                                      // bNumDescriptors
         0x22,                                   // bDescriptorType
-        LSB(sizeof(mouse_report_desc)),         // wDescriptorLength
-        MSB(sizeof(mouse_report_desc)),
+        LSB(mouse_report_desc_size),            // wDescriptorLength
+        MSB(mouse_report_desc_size),
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         7,                                      // bLength
         5,                                      // bDescriptorType
@@ -548,8 +576,8 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         0,                                      // bCountryCode
         1,                                      // bNumDescriptors
         0x22,                                   // bDescriptorType
-        LSB(sizeof(rawhid_report_desc)),        // wDescriptorLength
-        MSB(sizeof(rawhid_report_desc)),
+        LSB(rawhid_report_desc_size),           // wDescriptorLength
+        MSB(rawhid_report_desc_size),
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         7,                                      // bLength
         5,                                      // bDescriptorType
@@ -584,8 +612,8 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         0,                                      // bCountryCode
         1,                                      // bNumDescriptors
         0x22,                                   // bDescriptorType
-        LSB(sizeof(flightsim_report_desc)),     // wDescriptorLength
-        MSB(sizeof(flightsim_report_desc)),
+        LSB(flightsim_report_desc_size),        // wDescriptorLength
+        MSB(flightsim_report_desc_size),
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         7,                                      // bLength
         5,                                      // bDescriptorType
@@ -620,21 +648,23 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         0,                                      // bCountryCode
         1,                                      // bNumDescriptors
         0x22,                                   // bDescriptorType
-        LSB(sizeof(seremu_report_desc)),        // wDescriptorLength
-        MSB(sizeof(seremu_report_desc)),
+        LSB(seremu_report_desc_size),        // wDescriptorLength
+        MSB(seremu_report_desc_size),
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         7,                                      // bLength
         5,                                      // bDescriptorType
         SEREMU_TX_ENDPOINT | 0x80,              // bEndpointAddress
         0x03,                                   // bmAttributes (0x03=intr)
-        SEREMU_TX_SIZE, 0,                      // wMaxPacketSize
+        LSB(SEREMU_TX_SIZE),                    // wMaxPacketSize
+        MSB(SEREMU_TX_SIZE),
         SEREMU_TX_INTERVAL,                     // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         7,                                      // bLength
         5,                                      // bDescriptorType
         SEREMU_RX_ENDPOINT,                     // bEndpointAddress
         0x03,                                   // bmAttributes (0x03=intr)
-        SEREMU_RX_SIZE, 0,                      // wMaxPacketSize
+        LSB(SEREMU_RX_SIZE),                    // wMaxPacketSize
+        MSB(SEREMU_RX_SIZE),
         SEREMU_RX_INTERVAL,			// bInterval
 #endif // SEREMU_INTERFACE
 
@@ -656,8 +686,8 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         0,                                      // bCountryCode
         1,                                      // bNumDescriptors
         0x22,                                   // bDescriptorType
-        LSB(sizeof(joystick_report_desc)),      // wDescriptorLength
-        MSB(sizeof(joystick_report_desc)),
+        LSB(joystick_report_desc_size),         // wDescriptorLength
+        MSB(joystick_report_desc_size),
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         7,                                      // bLength
         5,                                      // bDescriptorType
@@ -666,7 +696,9 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         JOYSTICK_SIZE, 0,                       // wMaxPacketSize
         JOYSTICK_INTERVAL,                      // bInterval
 #endif // JOYSTICK_INTERFACE
-
+#ifdef USB_CUSTOM_DESCRIPTORS
+        USB_CUSTOM_DESCRIPTORS
+#endif
 };
 
 
@@ -741,7 +773,6 @@ void usb_init_serialnumber(void)
 // **************************************************************
 //   Descriptors List
 // **************************************************************
-
 // This table provides access to all the descriptor data above.
 
 const usb_descriptor_list_t usb_descriptor_list[] = {
@@ -772,6 +803,10 @@ const usb_descriptor_list_t usb_descriptor_list[] = {
 	{0x2200, FLIGHTSIM_INTERFACE, flightsim_report_desc, sizeof(flightsim_report_desc)},
 	{0x2100, FLIGHTSIM_INTERFACE, config_descriptor+FLIGHTSIM_DESC_OFFSET, 9},
 #endif
+#ifdef USB_CUSTOM_INTERFACE
+        {0x2200, USB_CUSTOM_INTERFACE, usb_custom_report_desc, sizeof(usb_custom_report_desc)},
+        {0x2100, USB_CUSTOM_INTERFACE, config_descriptor+USB_CUSTOM_DESC_OFFSET, 9},
+#endif
         {0x0300, 0x0000, (const uint8_t *)&string0, 0},
         {0x0301, 0x0409, (const uint8_t *)&usb_string_manufacturer_name, 0},
         {0x0302, 0x0409, (const uint8_t *)&usb_string_product_name, 0},
@@ -786,100 +821,14 @@ const usb_descriptor_list_t usb_descriptor_list[] = {
 // **************************************************************
 //   Endpoint Configuration
 // **************************************************************
-
-#if 0
-// 0x00 = not used
-// 0x19 = Recieve only
-// 0x15 = Transmit only
-// 0x1D = Transmit & Recieve
-// 
-const uint8_t usb_endpoint_config_table[NUM_ENDPOINTS] = 
+const uint8_t usb_endpoint_config_table[NUM_ENDPOINTS] =
 {
-	0x00, 0x15, 0x19, 0x15, 0x00, 0x00, 0x00, 0x00, 
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-};
-#endif
-
-
-const uint8_t usb_endpoint_config_table[NUM_ENDPOINTS] = 
-{
-#if (defined(ENDPOINT1_CONFIG) && NUM_ENDPOINTS >= 1)
-	ENDPOINT1_CONFIG,
-#elif (NUM_ENDPOINTS >= 1)
-	ENDPOINT_UNUSED,
-#endif
-#if (defined(ENDPOINT2_CONFIG) && NUM_ENDPOINTS >= 2)
-	ENDPOINT2_CONFIG,
-#elif (NUM_ENDPOINTS >= 2)
-	ENDPOINT_UNUSED,
-#endif
-#if (defined(ENDPOINT3_CONFIG) && NUM_ENDPOINTS >= 3)
-	ENDPOINT3_CONFIG,
-#elif (NUM_ENDPOINTS >= 3)
-	ENDPOINT_UNUSED,
-#endif
-#if (defined(ENDPOINT4_CONFIG) && NUM_ENDPOINTS >= 4)
-	ENDPOINT4_CONFIG,
-#elif (NUM_ENDPOINTS >= 4)
-	ENDPOINT_UNUSED,
-#endif
-#if (defined(ENDPOINT5_CONFIG) && NUM_ENDPOINTS >= 5)
-	ENDPOINT5_CONFIG,
-#elif (NUM_ENDPOINTS >= 5)
-	ENDPOINT_UNUSED,
-#endif
-#if (defined(ENDPOINT6_CONFIG) && NUM_ENDPOINTS >= 6)
-	ENDPOINT6_CONFIG,
-#elif (NUM_ENDPOINTS >= 6)
-	ENDPOINT_UNUSED,
-#endif
-#if (defined(ENDPOINT7_CONFIG) && NUM_ENDPOINTS >= 7)
-	ENDPOINT7_CONFIG,
-#elif (NUM_ENDPOINTS >= 7)
-	ENDPOINT_UNUSED,
-#endif
-#if (defined(ENDPOINT8_CONFIG) && NUM_ENDPOINTS >= 8)
-	ENDPOINT8_CONFIG,
-#elif (NUM_ENDPOINTS >= 8)
-	ENDPOINT_UNUSED,
-#endif
-#if (defined(ENDPOINT9_CONFIG) && NUM_ENDPOINTS >= 9)
-	ENDPOINT9_CONFIG,
-#elif (NUM_ENDPOINTS >= 9)
-	ENDPOINT_UNUSED,
-#endif
-#if (defined(ENDPOINT10_CONFIG) && NUM_ENDPOINTS >= 10)
-	ENDPOINT10_CONFIG,
-#elif (NUM_ENDPOINTS >= 10)
-	ENDPOINT_UNUSED,
-#endif
-#if (defined(ENDPOINT11_CONFIG) && NUM_ENDPOINTS >= 11)
-	ENDPOINT11_CONFIG,
-#elif (NUM_ENDPOINTS >= 11)
-	ENDPOINT_UNUSED,
-#endif
-#if (defined(ENDPOINT12_CONFIG) && NUM_ENDPOINTS >= 12)
-	ENDPOINT12_CONFIG,
-#elif (NUM_ENDPOINTS >= 12)
-	ENDPOINT_UNUSED,
-#endif
-#if (defined(ENDPOINT13_CONFIG) && NUM_ENDPOINTS >= 13)
-	ENDPOINT13_CONFIG,
-#elif (NUM_ENDPOINTS >= 13)
-	ENDPOINT_UNUSED,
-#endif
-#if (defined(ENDPOINT14_CONFIG) && NUM_ENDPOINTS >= 14)
-	ENDPOINT14_CONFIG,
-#elif (NUM_ENDPOINTS >= 14)
-	ENDPOINT_UNUSED,
-#endif
-#if (defined(ENDPOINT15_CONFIG) && NUM_ENDPOINTS >= 15)
-	ENDPOINT15_CONFIG,
-#elif (NUM_ENDPOINTS >= 15)
-	ENDPOINT_UNUSED,
-#endif
+        USB_INTERFACE_EPCF,
 };
 
+const uint16_t usb_endpoint_size_table[NUM_ENDPOINTS] =
+{
+        USB_INTERFACE_EPSZ,
+};
 
-
-
+#endif

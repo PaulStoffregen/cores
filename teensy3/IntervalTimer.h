@@ -21,8 +21,12 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 #ifndef __INTERVALTIMER_H__
 #define __INTERVALTIMER_H__
 
+#ifndef _STDINT_H
 #include <stdint.h>
+#endif
+#ifndef _mk20dx128_h_
 #include "mk20dx128.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,7 +53,7 @@ class IntervalTimer {
     uint8_t IRQ_PIT_CH;
     ISR myISR;
     bool beginCycles(ISR newISR, uint32_t cycles);
-  public: 
+  public:
     IntervalTimer() { status = TIMER_OFF; }
     ~IntervalTimer() { end(); }
     bool begin(ISR newISR, unsigned int newPeriod) {

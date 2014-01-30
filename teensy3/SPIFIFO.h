@@ -1,8 +1,8 @@
 #ifndef _SPIFIFO_h_
 #define _SPIFIFO_h_
-
+#ifndef _avr_emulation_h_
 #include "avr_emulation.h"
-
+#endif
 
 #if F_BUS == 48000000
 

@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -30,12 +30,14 @@
 
 #ifndef USBkeyboard_h_
 #define USBkeyboard_h_
+#ifndef _usb_dev_h_
+#include "usb_dev.h"
+#endif
 
-#include "keylayouts.h"
+#ifdef NUM_ENDPOINTS
 
 #if defined(USB_HID) || defined(USB_SERIAL_HID)
-
-#include <inttypes.h>
+#include "keylayouts.h"
 
 // C language implementation
 #ifdef __cplusplus
@@ -63,7 +65,6 @@ extern volatile uint8_t keyboard_leds;
 
 // C++ interface
 #ifdef __cplusplus
-#include "Stream.h"
 class usb_keyboard_class : public Print
 {
 public:
@@ -95,4 +96,5 @@ extern usb_keyboard_class Keyboard;
 #endif // __cplusplus
 
 #endif // USB_HID || USB_SERIAL_HID
+#endif
 #endif // USBkeyboard_h_

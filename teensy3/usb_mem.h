@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -30,14 +30,17 @@
 
 #ifndef _usb_mem_h_
 #define _usb_mem_h_
-
+#include "usb_desc.h"
+#ifdef NUM_ENDPOINTS
+#ifndef _STDINT_H
 #include <stdint.h>
+#endif
 
 typedef struct usb_packet_struct {
 	uint16_t len;
 	uint16_t index;
 	struct usb_packet_struct *next;
-	uint8_t buf[64];
+	uint8_t buf[MAX_USB_IO_SIZE];
 } usb_packet_t;
 
 #ifdef __cplusplus
@@ -51,5 +54,6 @@ void usb_free(usb_packet_t *p);
 }
 #endif
 
+#endif
 
 #endif
