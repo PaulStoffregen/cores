@@ -156,7 +156,7 @@ int usb_midi_read(uint32_t channel)
 		}
 	}
 	index = rx_packet->index;
-	n = *(uint32_t *)(rx_packet->buf + index);
+	n = *(((uint32_t *)(rx_packet->buf)) + index);
 	//serial_print("midi rx, n=");
 	//serial_phex32(n);
 	//serial_print("\n");
