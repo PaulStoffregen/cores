@@ -1056,6 +1056,10 @@ extern "C" {
 #define ADC0_CLP2		*(volatile uint32_t *)0x4003B044 // ADC plus-side general calibration value register
 #define ADC0_CLP1		*(volatile uint32_t *)0x4003B048 // ADC plus-side general calibration value register
 #define ADC0_CLP0		*(volatile uint32_t *)0x4003B04C // ADC plus-side general calibration value register
+#define ADC0_PGA		*(volatile uint32_t *)0x4003B050 // ADC Programmable Gain Amplifier
+#define ADC0_PGA_PGAEN			(uint32_t)0x00800000		// Enable
+#define ADC0_PGA_PGALPB			(uint32_t)0x00100000		// Low-Power Mode Control, 0=low power, 1=normal
+#define ADC0_PGA_PGAG(n)		(uint32_t)(((n) & 15) << 16)	// Gain, 0=1X, 1=2X, 2=4X, 3=8X, 4=16X, 5=32X, 6=64X
 #define ADC0_CLMD		*(volatile uint32_t *)0x4003B054 // ADC minus-side general calibration value register
 #define ADC0_CLMS		*(volatile uint32_t *)0x4003B058 // ADC minus-side general calibration value register
 #define ADC0_CLM4		*(volatile uint32_t *)0x4003B05C // ADC minus-side general calibration value register
@@ -1084,6 +1088,7 @@ extern "C" {
 #define ADC1_CLP2		*(volatile uint32_t *)0x400BB044 // ADC plus-side general calibration value register
 #define ADC1_CLP1		*(volatile uint32_t *)0x400BB048 // ADC plus-side general calibration value register
 #define ADC1_CLP0		*(volatile uint32_t *)0x400BB04C // ADC plus-side general calibration value register
+#define ADC1_PGA		*(volatile uint32_t *)0x400BB050 // ADC Programmable Gain Amplifier
 #define ADC1_CLMD		*(volatile uint32_t *)0x400BB054 // ADC minus-side general calibration value register
 #define ADC1_CLMS		*(volatile uint32_t *)0x400BB058 // ADC minus-side general calibration value register
 #define ADC1_CLM4		*(volatile uint32_t *)0x400BB05C // ADC minus-side general calibration value register
