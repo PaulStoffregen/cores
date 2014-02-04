@@ -40,6 +40,7 @@ typedef struct {
         void * addr;
 } bdt_t;
 
+// This must be aligned @ 512 bytes, and is done in the ld file
 __attribute__((section(".usbdescriptortable"), used))
 static bdt_t table[(NUM_ENDPOINTS + 1)*4];
 
@@ -125,7 +126,7 @@ static uint8_t ep0_tx_bdt_bank = 0;
 static uint8_t ep0_tx_data_toggle = 0;
 uint8_t usb_rx_memory_needed = 0;
 
-volatile uint16_t usb_configuration = 0;
+volatile uint8_t usb_configuration = 0;
 volatile uint8_t usb_reboot_timer = 0;
 
 static void endpoint0_stall(void) {
@@ -165,7 +166,7 @@ static void usb_setup(void) {
                         break;
                 case 0x0900: // SET_CONFIGURATION
                         //serial_print("configure\n");
-                        usb_configuration = setup.wValue;
+                        usb_configuration = (setup.wValue & 0xff);
                         reg = &USB0_ENDPT1;
                         cfg = usb_endpoint_config_table;
                         // clear all BDT entries, free any allocated memory...
@@ -213,7 +214,7 @@ static void usb_setup(void) {
                                 *reg = epconf;
                                 reg += 4;
                                 if(epconf & USB_ENDPT_EPRXEN) {
-                                        epsz = usb_endpoint_size_table[i-1];
+                                        epsz = usb_endpoint_size_table[i - 1];
                                         if(!epsz) epsz = 64; // default
                                         usb_packet_t *p;
                                         p = usb_malloc();
@@ -322,7 +323,7 @@ static void usb_setup(void) {
                         return;
 #if defined(CDC_STATUS_INTERFACE)
                 case 0x2221: // CDC_SET_CONTROL_LINE_STATE
-                        usb_cdc_line_rtsdtr = setup.wValue;
+                        usb_cdc_line_rtsdtr = (setup.wValue & 0xff);
                         //serial_print("set control line state\n");
                         break;
                 case 0x2021: // CDC_SET_LINE_CODING
@@ -506,7 +507,7 @@ static void usb_control(uint32_t stat) {
                                 //serial_print("set address: ");
                                 //serial_phex16(setup.wValue);
                                 //serial_print("\n");
-                                USB0_ADDR = setup.wValue;
+                                USB0_ADDR = (setup.wValue & 0xff);
                         }
 
                         break;
@@ -596,7 +597,7 @@ void usb_rx_memory(usb_packet_t *packet) {
         __disable_irq();
         for(i = 1; i <= NUM_ENDPOINTS; i++) {
                 if(*cfg++ & USB_ENDPT_EPRXEN) {
-                        epsz = usb_endpoint_size_table[i-1];
+                        epsz = usb_endpoint_size_table[i - 1];
                         if(!epsz) epsz = 64; // default
 
                         if(table[index(i, RX, EVEN)].desc == 0) {
@@ -639,8 +640,11 @@ void usb_tx(uint32_t endpoint, usb_packet_t *packet) {
         if(endpoint >= NUM_ENDPOINTS) return;
         __disable_irq();
 #if 0
-        serial_print("txstate=");
+        serial_print("***usb_tx() txstate=");
         serial_phex(tx_state[endpoint]);
+        serial_print(" length=");
+        serial_phex(packet->len);
+
         serial_print("\n");
 #endif
         switch(tx_state[endpoint]) {
@@ -798,8 +802,8 @@ restart:
                                         }
                                 }
                         } else { // receive
-                        epsz = usb_endpoint_size_table[endpoint];
-                        if(!epsz) epsz = 64; // default
+                                epsz = usb_endpoint_size_table[endpoint];
+                                if(!epsz) epsz = 64; // default
 
                                 packet->len = b->desc >> 16;
                                 if(packet->len > 0) {
@@ -937,7 +941,7 @@ void usb_init(void) {
         while((USB0_USBTRC0 & USB_USBTRC_USBRESET) != 0); // wait for reset to end
 
         // set desc table base addr
-        USB0_BDTPAGE1 = ((uint32_t) table) >> 8;
+        USB0_BDTPAGE1 = (((uint32_t) table) >> 8) & 0xfe; // must be @ 512byte offset
         USB0_BDTPAGE2 = ((uint32_t) table) >> 16;
         USB0_BDTPAGE3 = ((uint32_t) table) >> 24;
 
@@ -946,6 +950,10 @@ void usb_init(void) {
         USB0_ERRSTAT = 0xFF;
         USB0_OTGISTAT = 0xFF;
 
+        // According to Freescale drivers this should be
+        // Asynchronous Resume Interrupt Enable,
+        // or it connects the module to the CPU.
+        // In any case it is required.
         USB0_USBTRC0 |= 0x40; // undocumented bit
 
         // enable USB

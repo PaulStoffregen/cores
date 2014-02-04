@@ -53,7 +53,7 @@ void usb_serial_flush_output(void);
 extern uint32_t usb_cdc_line_coding[2];
 extern volatile uint8_t usb_cdc_line_rtsdtr;
 extern volatile uint8_t usb_cdc_transmit_flush_timer;
-extern volatile uint16_t usb_configuration;
+extern volatile uint8_t usb_configuration;
 #ifdef __cplusplus
 }
 #endif

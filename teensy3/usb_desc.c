@@ -311,9 +311,18 @@ static uint8_t flightsim_report_desc[] = {
 #define flightsim_report_desc_size 0
 #endif
 
-#define DESCRIPTORS_SIZE keyboard_report_desc_size + mouse_report_desc_size + \
-        joystick_report_desc_size + seremu_report_desc_size + \
-        rawhid_report_desc_size + flightsim_report_desc_size
+#ifdef USB_CUSTOM_INTERFACE
+#ifdef USB_CUSTOM_INTERFACE_REPORT_DESC
+static uint8_t usb_custom_report_desc[] = {
+        USB_CUSTOM_INTERFACE_REPORT_DESC
+};
+#define usb_custom_report_desc_size sizeof(usb_custom_report_desc)
+#else
+#define usb_custom_report_desc_size 0
+#endif
+#else
+#define usb_custom_report_desc_size 0
+#endif
 
 
 // **************************************************************
@@ -803,7 +812,7 @@ const usb_descriptor_list_t usb_descriptor_list[] = {
 	{0x2200, FLIGHTSIM_INTERFACE, flightsim_report_desc, sizeof(flightsim_report_desc)},
 	{0x2100, FLIGHTSIM_INTERFACE, config_descriptor+FLIGHTSIM_DESC_OFFSET, 9},
 #endif
-#ifdef USB_CUSTOM_INTERFACE
+#if defined(USB_CUSTOM_INTERFACE_REPORT_DESC) && defined(USB_CUSTOM_INTERFACE)
         {0x2200, USB_CUSTOM_INTERFACE, usb_custom_report_desc, sizeof(usb_custom_report_desc)},
         {0x2100, USB_CUSTOM_INTERFACE, config_descriptor+USB_CUSTOM_DESC_OFFSET, 9},
 #endif

@@ -145,7 +145,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_ID                            0x0483
   #define DEVICE_CLASS                          2	// 2 = Communication Class
   #define PRODUCT_NAME                          {'U','S','B',' ','S','e','r','i','a','l'}
-  #define PRODUCT_NAME_LEN                      10
   #define NUM_USB_BUFFERS                       12
   #define NUM_INTERFACE                         2
   #define CDC_STATUS_INTERFACE                  0
@@ -154,7 +153,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 #elif defined(USB_HID)
   #define PRODUCT_ID                            0x0482
   #define PRODUCT_NAME                          {'K','e','y','b','o','a','r','d','/','M','o','u','s','e','/','J','o','y','s','t','i','c','k'}
-  #define PRODUCT_NAME_LEN                      23
   #define NUM_USB_BUFFERS                       24
   #define NUM_INTERFACE                         4
   #define KEYBOARD_INTERFACE                    0	// Keyboard
@@ -168,7 +166,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define DEVICE_SUBCLASS                       0x02
   #define DEVICE_PROTOCOL                       0x01
   #define PRODUCT_NAME                          {'S','e','r','i','a','l','/','K','e','y','b','o','a','r','d','/','M','o','u','s','e','/','J','o','y','s','t','i','c','k'}
-  #define PRODUCT_NAME_LEN                      30
   #define NUM_USB_BUFFERS                       30
   #define NUM_INTERFACE                         5
   #define CDC_IAD_DESCRIPTOR                    1
@@ -181,7 +178,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 #elif defined(USB_MIDI)
   #define PRODUCT_ID                            0x0485
   #define PRODUCT_NAME                          {'T','e','e','n','s','y',' ','M','I','D','I'}
-  #define PRODUCT_NAME_LEN                      11
   #define NUM_USB_BUFFERS                       16
   #define NUM_INTERFACE                         2
   #define MIDI_INTERFACE                        0	// MIDI
@@ -192,7 +188,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define RAWHID_USAGE_PAGE                     0xFFAB  // recommended: 0xFF00 to 0xFFFF
   #define RAWHID_USAGE                          0x0200  // recommended: 0x0100 to 0xFFFF
   #define PRODUCT_NAME                          {'T','e','e','n','s','y','d','u','i','n','o',' ','R','a','w','H','I','D'}
-  #define PRODUCT_NAME_LEN                      18
   #define NUM_USB_BUFFERS                       12
   #define NUM_INTERFACE                         2
   #define RAWHID_INTERFACE                      0	// RawHID
@@ -201,7 +196,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 #elif defined(USB_FLIGHTSIM)
   #define PRODUCT_ID                            0x0488
   #define PRODUCT_NAME                          {'T','e','e','n','s','y',' ','F','l','i','g','h','t',' ','S','i','m',' ','C','o','n','t','r','o','l','s'}
-  #define PRODUCT_NAME_LEN                      26
   #define NUM_USB_BUFFERS                       20
   #define NUM_INTERFACE                         2
   #define FLIGHTSIM_INTERFACE                   0	// Flight Sim Control
@@ -224,8 +218,8 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #ifndef MANUFACTURER_NAME
         #define MANUFACTURER_NAME               {'T','e','e','n','s','y','d','u','i','n','o'}
-        #define MANUFACTURER_NAME_LEN           11
 #endif
+
 
 // ############################################################################
 #ifndef CDC_ACM_SIZE
@@ -557,18 +551,17 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
                         #define USB_INTERFACE_EPCF JOYSTICK_INTERFACE_EPCF, USB_CUSTOM_INTERFACE_EPCFG
                         #define USB_INTERFACE_EPSZ JOYSTICK_INTERFACE_EPSZ, USB_CUSTOM_INTERFACE_EPSZ
                 #else
-                        #define USB_INTERFACE_EPCF USB_CUSTOM_INTERFACE_EPCF
-                        #define USB_INTERFACE_EPSZ JOYSTICK_INTERFACE_EPSZ
+                        #define USB_INTERFACE_EPCF USB_CUSTOM_INTERFACE_EPCFG
+                        #define USB_INTERFACE_EPSZ USB_CUSTOM_INTERFACE_EPSZ
                 #endif
         #else
                 #ifdef JOYSTICK_INTERFACE_EPCF
-                #define USB_INTERFACE_EPCF JOYSTICK_INTERFACE_EPCF
-                #define USB_INTERFACE_EPSZ JOYSTICK_INTERFACE_EPSZ
+                        #define USB_INTERFACE_EPCF JOYSTICK_INTERFACE_EPCF
+                        #define USB_INTERFACE_EPSZ JOYSTICK_INTERFACE_EPSZ
                 #else
-                #define USB_INTERFACE_EPCF
-                #define USB_INTERFACE_EPSZ
+                        #define USB_INTERFACE_EPCF
+                        #define USB_INTERFACE_EPSZ
                 #endif
-
         #endif
 #else
         #define USB_CUSTOM_INTERFACE_LEN 0
@@ -599,6 +592,9 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #ifdef NUM_ENDPOINTS
 
+// Why count manually when compiler can do this for us!
+#define MANUFACTURER_NAME_LEN sizeof((char [])MANUFACTURER_NAME)
+#define PRODUCT_NAME_LEN sizeof((char [])PRODUCT_NAME)
 #define MAIN_DEVICE_DESCRIPTOR_LEN              9
 
 // Let GCC calculate Descriptor offsets for us.
