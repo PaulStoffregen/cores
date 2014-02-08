@@ -361,6 +361,7 @@ void _init_Teensyduino_internal_(void)
 
 	analog_init();
 	//delay(100); // TODO: this is not necessary, right?
+	delay(4);
 	usb_init();
 }
 
