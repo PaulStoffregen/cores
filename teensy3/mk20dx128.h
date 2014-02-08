@@ -1862,7 +1862,9 @@ typedef struct {
 #define I2S_TCR5_W0W(n)			((uint32_t)(n & 0x1f)<<16)    // Word 0 Width
 #define I2S_TCR5_WNW(n)			((uint32_t)(n & 0x1f)<<24)    // Word N Width
 #define I2S0_TDR0		*(volatile uint32_t *)0x4002F020 // SAI Transmit Data Register
+#define I2S0_TDR1		*(volatile uint32_t *)0x4002F024 // SAI Transmit Data Register
 #define I2S0_TFR0		*(volatile uint32_t *)0x4002F040 // SAI Transmit FIFO Register
+#define I2S0_TFR1		*(volatile uint32_t *)0x4002F044 // SAI Transmit FIFO Register
 #define I2S_TFR_RFP(n)			((uint32_t)n & 7)	      // read FIFO pointer
 #define I2S_TFR_WFP(n)			((uint32_t)(n & 7)<<16)	      // write FIFO pointer
 #define I2S0_TMR		*(volatile uint32_t *)0x4002F060 // SAI Transmit Mask Register
@@ -1911,7 +1913,9 @@ typedef struct {
 #define I2S_RCR5_W0W(n)			((uint32_t)(n & 0x1f)<<16)    // Word 0 Width
 #define I2S_RCR5_WNW(n)			((uint32_t)(n & 0x1f)<<24)    // Word N Width
 #define I2S0_RDR0		*(volatile uint32_t *)0x4002F0A0 // SAI Receive Data Register
+#define I2S0_RDR1		*(volatile uint32_t *)0x4002F0A4 // SAI Receive Data Register
 #define I2S0_RFR0		*(volatile uint32_t *)0x4002F0C0 // SAI Receive FIFO Register
+#define I2S0_RFR1		*(volatile uint32_t *)0x4002F0C4 // SAI Receive FIFO Register
 #define I2S_RFR_RFP(n)			((uint32_t)n & 7)	      // read FIFO pointer
 #define I2S_RFR_WFP(n)			((uint32_t)(n & 7)<<16)	      // write FIFO pointer
 #define I2S0_RMR		*(volatile uint32_t *)0x4002F0E0 // SAI Receive Mask Register
