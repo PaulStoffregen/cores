@@ -1622,6 +1622,19 @@ typedef struct {
 #define I2C0_SLTH		*(volatile uint8_t  *)0x4006600A // I2C SCL Low Timeout Register High
 #define I2C0_SLTL		*(volatile uint8_t  *)0x4006600B // I2C SCL Low Timeout Register Low
 
+#define I2C1_A1			*(volatile uint8_t  *)0x40067000 // I2C Address Register 1
+#define I2C1_F			*(volatile uint8_t  *)0x40067001 // I2C Frequency Divider register
+#define I2C1_C1			*(volatile uint8_t  *)0x40067002 // I2C Control Register 1
+#define I2C1_S			*(volatile uint8_t  *)0x40067003 // I2C Status register
+#define I2C1_D			*(volatile uint8_t  *)0x40067004 // I2C Data I/O register
+#define I2C1_C2			*(volatile uint8_t  *)0x40067005 // I2C Control Register 2
+#define I2C1_FLT		*(volatile uint8_t  *)0x40067006 // I2C Programmable Input Glitch Filter register
+#define I2C1_RA			*(volatile uint8_t  *)0x40067007 // I2C Range Address register
+#define I2C1_SMB		*(volatile uint8_t  *)0x40067008 // I2C SMBus Control and Status register
+#define I2C1_A2			*(volatile uint8_t  *)0x40067009 // I2C Address Register 2
+#define I2C1_SLTH		*(volatile uint8_t  *)0x4006700A // I2C SCL Low Timeout Register High
+#define I2C1_SLTL		*(volatile uint8_t  *)0x4006700B // I2C SCL Low Timeout Register Low
+
 // Chapter 45: Universal Asynchronous Receiver/Transmitter (UART)
 #define UART0_BDH		*(volatile uint8_t  *)0x4006A000 // UART Baud Rate Registers: High
 #define UART0_BDL		*(volatile uint8_t  *)0x4006A001 // UART Baud Rate Registers: Low
