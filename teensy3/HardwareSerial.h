@@ -97,6 +97,7 @@ extern "C" {
 void serial_begin(uint32_t divisor);
 void serial_format(uint32_t format);
 void serial_end(void);
+void serial_set_transmit_pin(uint8_t pin);
 void serial_putchar(uint32_t c);
 void serial_write(const void *buf, unsigned int count);
 void serial_flush(void);
@@ -148,11 +149,12 @@ public:
 					  serial_begin(BAUD2DIV(baud));
 					  serial_format(format); }
 	virtual void end(void)		{ serial_end(); }
+	virtual void transmitterEnable(uint8_t pin) { serial_set_transmit_pin(pin); }
 	virtual int available(void)     { return serial_available(); }
 	virtual int peek(void)          { return serial_peek(); }
 	virtual int read(void)          { return serial_getchar(); }
 	virtual void flush(void)        { serial_flush(); }
-	virtual void clear(void)                { serial_clear(); }
+	virtual void clear(void)	{ serial_clear(); }
 	virtual size_t write(uint8_t c) { serial_putchar(c); return 1; }
 	size_t write(unsigned long n)   { return write((uint8_t)n); }
 	size_t write(long n)            { return write((uint8_t)n); }
@@ -179,7 +181,7 @@ public:
 	virtual int peek(void)          { return serial2_peek(); }
 	virtual int read(void)          { return serial2_getchar(); }
 	virtual void flush(void)        { serial2_flush(); }
-	virtual void clear(void)                { serial2_clear(); }
+	virtual void clear(void)	{ serial2_clear(); }
 	virtual size_t write(uint8_t c) { serial2_putchar(c); return 1; }
 	size_t write(unsigned long n)   { return write((uint8_t)n); }
 	size_t write(long n)            { return write((uint8_t)n); }
@@ -206,7 +208,7 @@ public:
 	virtual int peek(void)          { return serial3_peek(); }
 	virtual int read(void)          { return serial3_getchar(); }
 	virtual void flush(void)        { serial3_flush(); }
-	virtual void clear(void)                { serial3_clear(); }
+	virtual void clear(void)	{ serial3_clear(); }
 	virtual size_t write(uint8_t c) { serial3_putchar(c); return 1; }
 	size_t write(unsigned long n)   { return write((uint8_t)n); }
 	size_t write(long n)            { return write((uint8_t)n); }

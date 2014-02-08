@@ -73,6 +73,14 @@ void HardwareSerial::end(void)
 	rx_buffer_tail = 0;
 }
 
+void HardwareSerial::transmitterEnable(uint8_t pin)
+{
+	while (transmitting) ;
+	pinMode(pin, OUTPUT);
+	digitalWrite(pin, LOW);
+	tx_enable_pin = pin;
+}
+
 int HardwareSerial::available(void)
 {
 	uint8_t head, tail;
