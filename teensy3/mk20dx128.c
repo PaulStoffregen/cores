@@ -366,8 +366,8 @@ void ResetHandler(void)
 	asm volatile ("nop");
 	asm volatile ("nop");
 	// programs using the watchdog timer or needing to initialize hardware as
-	// early as possible can implement startup_default_early_hook()
-	startup_default_early_hook();
+	// early as possible can implement startup_early_hook()
+	startup_early_hook();
 
 	// enable clocks to always-used peripherals
 #if defined(__MK20DX128__)
