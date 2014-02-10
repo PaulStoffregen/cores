@@ -183,6 +183,12 @@ bool AudioStream::update_setup(void)
 	return true;
 }
 
+void AudioStream::update_stop(void)
+{
+	NVIC_DISABLE_IRQ(IRQ_SOFTWARE);
+	update_scheduled = false;
+}
+
 AudioStream * AudioStream::first_update = NULL;
 
 void software_isr(void) // AudioStream::update_all()

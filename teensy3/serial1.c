@@ -56,6 +56,7 @@ static uint8_t use9Bits = 0;
 static volatile BUFTYPE tx_buffer[TX_BUFFER_SIZE];
 static volatile BUFTYPE rx_buffer[RX_BUFFER_SIZE];
 static volatile uint8_t transmitting = 0;
+static volatile uint8_t *transmit_pin=NULL;
 #if TX_BUFFER_SIZE > 255
 static volatile uint16_t tx_buffer_head = 0;
 static volatile uint16_t tx_buffer_tail = 0;
@@ -137,11 +138,20 @@ void serial_end(void)
 	rx_buffer_tail = 0;
 }
 
+void serial_set_transmit_pin(uint8_t pin)
+{
+	while (transmitting) ;
+	pinMode(pin, OUTPUT);
+	digitalWrite(pin, LOW);
+	transmit_pin = portOutputRegister(pin);
+}
+
 void serial_putchar(uint32_t c)
 {
-	uint32_t head;
+	uint32_t head, n;
 
 	if (!(SIM_SCGC4 & SIM_SCGC4_UART0)) return;
+	if (transmit_pin) *transmit_pin = 1;
 	head = tx_buffer_head;
 	if (++head >= TX_BUFFER_SIZE) head = 0;
 	while (tx_buffer_tail == head) {
@@ -150,7 +160,9 @@ void serial_putchar(uint32_t c)
 			if ((UART0_S1 & UART_S1_TDRE)) {
 				uint32_t tail = tx_buffer_tail;
 				if (++tail >= TX_BUFFER_SIZE) tail = 0;
-				UART0_D = tx_buffer[tail];
+				n = tx_buffer[tail];
+				if (use9Bits) UART0_C3 = (UART0_C3 & ~0x40) | ((n & 0x100) >> 2);
+				UART0_D = n;
 				tx_buffer_tail = tail;
 			}
 		} else if (priority >= 256) {
@@ -167,9 +179,10 @@ void serial_write(const void *buf, unsigned int count)
 {
 	const uint8_t *p = (const uint8_t *)buf;
 	const uint8_t *end = p + count;
-        uint32_t head;
+        uint32_t head, n;
 
         if (!(SIM_SCGC4 & SIM_SCGC4_UART0)) return;
+	if (transmit_pin) *transmit_pin = 1;
 	while (p < end) {
         	head = tx_buffer_head;
         	if (++head >= TX_BUFFER_SIZE) head = 0;
@@ -181,7 +194,9 @@ void serial_write(const void *buf, unsigned int count)
 					if ((UART0_S1 & UART_S1_TDRE)) {
 						uint32_t tail = tx_buffer_tail;
 						if (++tail >= TX_BUFFER_SIZE) tail = 0;
-						UART0_D = tx_buffer[tail];
+						n = tx_buffer[tail];
+						if (use9Bits) UART0_C3 = (UART0_C3 & ~0x40) | ((n & 0x100) >> 2);
+						UART0_D = n;
 						tx_buffer_tail = tail;
 					}
 				} else if (priority >= 256) {
@@ -314,6 +329,7 @@ void uart0_status_isr(void)
 	}
 	if ((c & UART_C2_TCIE) && (UART0_S1 & UART_S1_TC)) {
 		transmitting = 0;
+		if (transmit_pin) *transmit_pin = 0;
 		UART0_C2 = C2_TX_INACTIVE;
 	}
 }

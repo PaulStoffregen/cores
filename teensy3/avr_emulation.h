@@ -838,7 +838,7 @@ public:
 		}
 		ctar |= (SPI0_CTAR0 & SPI_CTAR_DBR);
 		update_ctar(ctar);
-		mcr = SPI_MCR_DCONF(0);
+		mcr = SPI_MCR_DCONF(0) | SPI_MCR_PCSIS(0x1F);
 		if (val & (1<<MSTR)) mcr |= SPI_MCR_MSTR;
 		if (val & (1<<SPE)) {
 			mcr &= ~(SPI_MCR_MDIS | SPI_MCR_HALT);
@@ -1004,6 +1004,7 @@ private:
 		}
 	}
 	static uint8_t pinout;
+public:
 	inline void enable_pins(void) __attribute__((always_inline)) {
 		//serial_print("enable_pins\n");
 		if ((pinout & 1) == 0) {

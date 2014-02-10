@@ -12,6 +12,7 @@ public:
 	}
 	void _begin(uint16_t baud_count, uint8_t pin);
 	void end(void);
+	void transmitterEnable(uint8_t pin);
 	virtual int available(void);
 	virtual int peek(void);
 	virtual int read(void);
