@@ -270,7 +270,7 @@ static const uint8_t channel2sc1a[] = {
 #elif defined(__MK20DX256__)
 static const uint8_t channel2sc1a[] = {
 	5, 14, 8, 9, 13, 12, 6, 7, 15, 4,
-	0, 19, 3, 19+128, 26, 22, 23,
+	0, 19, 3, 19+128, 26, 18+128, 23,
 	5+192, 5+128, 4+128, 6+128, 7+128, 4+192
 // A15  26   E1   ADC1_SE5a  5+64
 // A16  27   C9   ADC1_SE5b  5
