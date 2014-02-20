@@ -1,7 +1,6 @@
 #include <WProgram.h>
 
 //int main(void) __attribute__((noreturn));
-int main(void) __attribute__((weak));
 int main(void)
 {
 	_init_Teensyduino_internal_();
