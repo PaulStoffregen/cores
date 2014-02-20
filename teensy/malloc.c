@@ -32,7 +32,7 @@
   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
   POSSIBILITY OF SUCH DAMAGE.
 */
- 
+
 
 #include <stdlib.h>
 #include <inttypes.h>
@@ -58,10 +58,10 @@ struct __freelist {
  * calls must not require more stack space, or they'll risk to collide
  * with the data segment.
  */
- 
-size_t __malloc_margin = 128;
-char *__malloc_heap_start = &__heap_start;
-char *__malloc_heap_end = &__heap_end;
+
+__attribute__ ((weak)) size_t __malloc_margin = 128;
+__attribute__ ((weak)) char *__malloc_heap_start = &__heap_start;
+__attribute__ ((weak)) char *__malloc_heap_end = &__heap_end;
 
 char *__brkval = NULL;	// first location not yet allocated
 struct __freelist *__flp;	// freelist pointer (head of freelist)
@@ -69,7 +69,7 @@ struct __freelist *__flp;	// freelist pointer (head of freelist)
 // this is useful for tracking the worst case memory allocation
 //char *__brkval_maximum = 0;
 
-
+__attribute__ ((section (".text.avr-libc"), weak))
 void *
 malloc(size_t len)
 {
@@ -191,7 +191,7 @@ malloc(size_t len)
 	return 0;
 }
 
-
+__attribute__ ((section (".text.avr-libc"), weak))
 void
 free(void *p)
 {
@@ -276,7 +276,8 @@ free(void *p)
 }
 
 
-
+//void *realloc(void *ptr, size_t len) __attribute__((weak));
+__attribute__ ((section (".text.avr-libc"), weak))
 void *
 realloc(void *ptr, size_t len)
 {
