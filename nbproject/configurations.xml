@@ -47,6 +47,8 @@
         <in>wiring.h</in>
         <in>wiring_private.h</in>
       </df>
+      <df name="teensy">
+      </df>
       <df name="teensy3">
         <df name="avr">
           <in>eeprom.h</in>
@@ -143,6 +145,12 @@
         <in>wiring_private.h</in>
         <in>yield.c</in>
       </df>
+      <df name="teensy3">
+        <df name="avr">
+        </df>
+        <df name="util">
+        </df>
+      </df>
       <df name="usb_disk">
         <in>core_id.h</in>
         <in>media_internal.c</in>
@@ -153,12 +161,16 @@
         <in>usb_api.h</in>
         <in>usb_private.h</in>
       </df>
+      <df name="usb_disk">
+      </df>
       <df name="usb_flightsim">
         <in>core_id.h</in>
         <in>usb.c</in>
         <in>usb_api.cpp</in>
         <in>usb_api.h</in>
         <in>usb_private.h</in>
+      </df>
+      <df name="usb_flightsim">
       </df>
       <df name="usb_hid">
         <in>core_id.h</in>
@@ -167,12 +179,16 @@
         <in>usb_api.h</in>
         <in>usb_private.h</in>
       </df>
+      <df name="usb_hid">
+      </df>
       <df name="usb_midi">
         <in>core_id.h</in>
         <in>usb.c</in>
         <in>usb_api.cpp</in>
         <in>usb_api.h</in>
         <in>usb_private.h</in>
+      </df>
+      <df name="usb_midi">
       </df>
       <df name="usb_rawhid">
         <in>core_id.h</in>
@@ -181,6 +197,8 @@
         <in>usb_api.h</in>
         <in>usb_private.h</in>
       </df>
+      <df name="usb_rawhid">
+      </df>
       <df name="usb_serial">
         <in>core_id.h</in>
         <in>usb.c</in>
@@ -188,12 +206,16 @@
         <in>usb_api.h</in>
         <in>usb_private.h</in>
       </df>
+      <df name="usb_serial">
+      </df>
       <df name="usb_serial_hid">
         <in>core_id.h</in>
         <in>usb.c</in>
         <in>usb_api.cpp</in>
         <in>usb_api.h</in>
         <in>usb_private.h</in>
+      </df>
+      <df name="usb_serial_hid">
       </df>
     </df>
     <logicalFolder name="ExternalFiles"
