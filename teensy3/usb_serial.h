@@ -67,7 +67,22 @@ extern volatile uint8_t usb_configuration;
 class usb_serial_class : public Stream
 {
 public:
-        void begin(long) { /* TODO: call a function that tries to wait for enumeration */ };
+        void begin(long) {
+                /* Delay here, instead of in the bool, 'till we can wait on our own.
+                 * This is a lot more code. :-)
+                 */
+                uint16_t begin_wait = (uint16_t)millis();
+                while(1) {
+                        if (usb_configuration) {
+                                // Just like the AVR Teensys do,
+                                // wait a little time for host to load a driver.
+                                delay(200);
+                                break;
+                        }
+                        if ((uint16_t)millis() - begin_wait > 2500) break;
+                }
+                /* TODO: call a function that tries to wait for enumeration */
+        };
         void end() { /* TODO: flush output and shut down USB port */ };
         virtual int available() { return usb_serial_available(); }
         virtual int read() { return usb_serial_getchar(); }
@@ -87,7 +102,7 @@ public:
         uint8_t numbits(void) { return usb_cdc_line_coding[1] >> 16; }
         uint8_t dtr(void) { return (usb_cdc_line_rtsdtr & USB_SERIAL_DTR) ? 1 : 0; }
         uint8_t rts(void) { return (usb_cdc_line_rtsdtr & USB_SERIAL_RTS) ? 1 : 0; }
-        operator bool() { delay(10); return usb_configuration && (usb_cdc_line_rtsdtr & (USB_SERIAL_DTR | USB_SERIAL_RTS)); }
+        operator bool() { return usb_configuration && (usb_cdc_line_rtsdtr & (USB_SERIAL_DTR | USB_SERIAL_RTS)); }
 	size_t readBytes(char *buffer, size_t length) {
 		size_t count=0;
 		unsigned long startMillis = millis();
