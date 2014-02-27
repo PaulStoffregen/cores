@@ -529,8 +529,10 @@ usb_packet_t *usb_rx(uint32_t endpoint)
 	if (endpoint >= NUM_ENDPOINTS) return NULL;
 	__disable_irq();
 	ret = rx_first[endpoint];
-	if (ret) rx_first[endpoint] = ret->next;
-	usb_rx_byte_count_data[endpoint] -= ret->len;
+	if (ret) {
+		rx_first[endpoint] = ret->next;
+		usb_rx_byte_count_data[endpoint] -= ret->len;
+	}
 	__enable_irq();
 	//serial_print("rx, epidx=");
 	//serial_phex(endpoint);
