@@ -519,21 +519,24 @@ static void usb_control(uint32_t stat) {
         USB0_CTL = USB_CTL_USBENSOFEN; // clear TXSUSPENDTOKENBUSY bit
 }
 
-usb_packet_t *usb_rx(uint32_t endpoint) {
-        usb_packet_t *ret;
-        endpoint--;
-        if(endpoint >= NUM_ENDPOINTS) return NULL;
-        __disable_irq();
-        ret = rx_first[endpoint];
-        if(ret) rx_first[endpoint] = ret->next;
-        usb_rx_byte_count_data[endpoint] -= ret->len;
-        __enable_irq();
-        //serial_print("rx, epidx=");
-        //serial_phex(endpoint);
-        //serial_print(", packet=");
-        //serial_phex32(ret);
-        //serial_print("\n");
-        return ret;
+usb_packet_t *usb_rx(uint32_t endpoint)
+{
+	usb_packet_t *ret;
+	endpoint--;
+	if (endpoint >= NUM_ENDPOINTS) return NULL;
+	__disable_irq();
+	ret = rx_first[endpoint];
+	if (ret) {
+		rx_first[endpoint] = ret->next;
+		usb_rx_byte_count_data[endpoint] -= ret->len;
+	}
+	__enable_irq();
+	//serial_print("rx, epidx=");
+	//serial_phex(endpoint);
+	//serial_print(", packet=");
+	//serial_phex32(ret);
+	//serial_print("\n");
+	return ret;
 }
 
 static uint32_t usb_queue_byte_count(const usb_packet_t *p) {
