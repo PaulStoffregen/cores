@@ -538,14 +538,15 @@ void __cxa_pure_virtual()
 }
 
 __attribute__((weak)) 
-int __cxa_guard_acquire (int *g) 
+int __cxa_guard_acquire (char *g) 
 {
-	return 1;
+	return !(*g);
 }
 
 __attribute__((weak)) 
-void __cxa_guard_release(int *g)
+void __cxa_guard_release(char *g)
 {
+	*g = 1;
 }
 
 int nvic_execution_priority(void)
