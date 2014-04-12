@@ -728,6 +728,8 @@ void usb_init_serialnumber(void)
 	while (!(FTFL_FSTAT & FTFL_FSTAT_CCIF)) ; // wait
 	num = *(uint32_t *)&FTFL_FCCOB7;
 	__enable_irq();
+	// add extra zero to work around OS-X CDC-ACM driver bug
+	if (num < 10000000) num = num * 10;
 	ultoa(num, buf, 10);
 	for (i=0; i<10; i++) {
 		char c = buf[i];
