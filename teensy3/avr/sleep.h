@@ -16,8 +16,9 @@
 #define sleep_mode()		sleep_cpu()
 
 // workaround for early versions of Nordic's BLE library
-#if defined(HAL_ACI_TL_H__) && defined(PLATFORM_H__)
-#define EIMSK uint8_t EIMSKworkaround=0; EIMSKworkaround
-#endif
+// EIMSK moved to a dummy byte in avr_emulation...
+//#if defined(HAL_ACI_TL_H__) && defined(PLATFORM_H__)
+//#define EIMSK uint8_t EIMSKworkaround=0; EIMSKworkaround
+//#endif
 
 #endif

@@ -1141,6 +1141,9 @@ public:
 };
 extern SREGemulation SREG;
 
+
+extern uint8_t EIMSK;
+
 // these are not intended for public consumption...
 #undef GPIO_BITBAND_ADDR
 #undef GPIO_BITBAND
