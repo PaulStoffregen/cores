@@ -6,7 +6,14 @@ TARGET = main
 OPTIONS = -DF_CPU=48000000 -DUSB_SERIAL -DLAYOUT_US_ENGLISH
 
 # options needed by many Arduino libraries to configure for Teensy 3.0
-OPTIONS += -D__MK20DX128__ -DARDUIO=104
+OPTIONS += -D__MK20DX128__ -DARDUIO=105 -DTEENSYDUINO=118
+
+
+# Other Makefiles and project templates for Teensy 3.x:
+#
+# https://github.com/apmorton/teensy-template
+# https://github.com/xxxajk/Arduino_Makefile_master
+# https://github.com/JonHylands/uCee
 
 
 #************************************************************************

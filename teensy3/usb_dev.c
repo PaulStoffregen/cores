@@ -326,6 +326,8 @@ static void usb_setup(void) {
                         usb_cdc_line_rtsdtr = (setup.wValue & 0xff);
                         //serial_print("set control line state\n");
                         break;
+                case 0x2321: // CDC_SEND_BREAK
+                        break;
                 case 0x2021: // CDC_SET_LINE_CODING
                         //serial_print("set coding, waiting...\n");
                         return;
