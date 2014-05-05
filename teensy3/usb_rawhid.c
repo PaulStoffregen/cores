@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -28,13 +28,13 @@
  * SOFTWARE.
  */
 
-#include "usb_dev.h"
 #include "usb_rawhid.h"
+#ifdef NUM_ENDPOINTS
+
+#ifdef RAWHID_INTERFACE // defined by usb_dev.h -> usb_desc.h
 #include "core_pins.h" // for yield(), millis()
 #include <string.h>    // for memcpy()
 //#include "HardwareSerial.h"
-
-#ifdef RAWHID_INTERFACE // defined by usb_dev.h -> usb_desc.h
 
 int usb_rawhid_recv(void *buffer, uint32_t timeout)
 {
@@ -86,3 +86,4 @@ int usb_rawhid_send(const void *buffer, uint32_t timeout)
 }
 
 #endif // RAWHID_INTERFACE
+#endif

@@ -24,13 +24,23 @@
 
 #ifndef Wiring_h
 #define Wiring_h
-
-//#include <avr/io.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include "binary.h"
 #include "core_id.h"
+
+#ifndef _STDINT_H
+#include <stdint.h>
+#endif
+#ifndef _INTTYPES_H
+#include <inttypes.h>
+#endif
+#ifndef _STDLIB_H_
+#include <stdlib.h>
+#endif
+#ifndef Binary_h
+#include "binary.h"
+#endif
+#ifndef _core_pins_h_
 #include "core_pins.h"
+#endif
 
 #ifdef __cplusplus
 extern "C"{

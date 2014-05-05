@@ -1,7 +1,9 @@
 #ifndef __PGMSPACE_H_
 #define __PGMSPACE_H_ 1
 
+#ifndef _INTTYPES_H
 #include <inttypes.h>
+#endif
 
 #define PROGMEM
 #define PGM_P  const char *

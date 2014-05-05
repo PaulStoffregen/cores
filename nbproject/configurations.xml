@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="80">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <df name="cores" root=".">
+      <df name="teensy">
+        <in>Arduino.h</in>
+        <in>Client.h</in>
+        <in>HardwareSerial.cpp</in>
+        <in>HardwareSerial.h</in>
+        <in>IPAddress.cpp</in>
+        <in>IPAddress.h</in>
+        <in>Print.cpp</in>
+        <in>Print.h</in>
+        <in>Printable.h</in>
+        <in>SPIFIFO.h</in>
+        <in>Server.h</in>
+        <in>Stream.cpp</in>
+        <in>Stream.h</in>
+        <in>Tone.cpp</in>
+        <in>Udp.h</in>
+        <in>WCharacter.h</in>
+        <in>WConstants.h</in>
+        <in>WInterrupts.c</in>
+        <in>WMath.cpp</in>
+        <in>WProgram.h</in>
+        <in>WString.cpp</in>
+        <in>WString.h</in>
+        <in>binary.h</in>
+        <in>core_id.h</in>
+        <in>core_pins.h</in>
+        <in>elapsedMillis.h</in>
+        <in>keylayouts.c</in>
+        <in>keylayouts.h</in>
+        <in>main.cpp</in>
+        <in>main.cxx</in>
+        <in>malloc.c</in>
+        <in>new.cpp</in>
+        <in>new.h</in>
+        <in>pins_arduino.h</in>
+        <in>pins_teensy.c</in>
+        <in>usb.c</in>
+        <in>usb_api.cpp</in>
+        <in>usb_api.h</in>
+        <in>usb_common.h</in>
+        <in>usb_private.h</in>
+        <in>wiring.c</in>
+        <in>wiring.h</in>
+        <in>wiring_private.h</in>
+      </df>
+      <df name="teensy">
+      </df>
+      <df name="teensy3">
+        <df name="avr">
+          <in>eeprom.h</in>
+          <in>interrupt.h</in>
+          <in>io.h</in>
+          <in>pgmspace.h</in>
+        </df>
+        <df name="util">
+          <in>atomic.h</in>
+          <in>delay.h</in>
+        </df>
+        <in>Arduino.h</in>
+        <in>AudioStream.cpp</in>
+        <in>AudioStream.h</in>
+        <in>Client.h</in>
+        <in>HardwareSerial.h</in>
+        <in>HardwareSerial1.cpp</in>
+        <in>HardwareSerial2.cpp</in>
+        <in>HardwareSerial3.cpp</in>
+        <in>IPAddress.cpp</in>
+        <in>IPAddress.h</in>
+        <in>IntervalTimer.cpp</in>
+        <in>IntervalTimer.h</in>
+        <in>Print.cpp</in>
+        <in>Print.h</in>
+        <in>Printable.h</in>
+        <in>SPIFIFO.h</in>
+        <in>Server.h</in>
+        <in>Stream.cpp</in>
+        <in>Stream.h</in>
+        <in>Tone.cpp</in>
+        <in>Udp.h</in>
+        <in>WCharacter.h</in>
+        <in>WConstants.h</in>
+        <in>WMath.cpp</in>
+        <in>WProgram.h</in>
+        <in>WString.cpp</in>
+        <in>WString.h</in>
+        <in>analog.c</in>
+        <in>arm_common_tables.h</in>
+        <in>arm_math.h</in>
+        <in>avr_emulation.cpp</in>
+        <in>avr_emulation.h</in>
+        <in>avr_functions.h</in>
+        <in>binary.h</in>
+        <in>core_cm4.h</in>
+        <in>core_cm4_simd.h</in>
+        <in>core_cmInstr.h</in>
+        <in>core_id.h</in>
+        <in>core_pins.h</in>
+        <in>eeprom.c</in>
+        <in>elapsedMillis.h</in>
+        <in>keylayouts.c</in>
+        <in>keylayouts.h</in>
+        <in>main.cpp</in>
+        <in>math_helper.c</in>
+        <in>math_helper.h</in>
+        <in>mk20dx128.c</in>
+        <in>mk20dx128.h</in>
+        <in>new.cpp</in>
+        <in>new.h</in>
+        <in>nonstd.c</in>
+        <in>pins_arduino.h</in>
+        <in>pins_teensy.c</in>
+        <in>serial1.c</in>
+        <in>serial2.c</in>
+        <in>serial3.c</in>
+        <in>touch.c</in>
+        <in>usb_desc.c</in>
+        <in>usb_desc.h</in>
+        <in>usb_dev.c</in>
+        <in>usb_dev.h</in>
+        <in>usb_flightsim.cpp</in>
+        <in>usb_flightsim.h</in>
+        <in>usb_inst.cpp</in>
+        <in>usb_joystick.c</in>
+        <in>usb_joystick.h</in>
+        <in>usb_keyboard.c</in>
+        <in>usb_keyboard.h</in>
+        <in>usb_mem.c</in>
+        <in>usb_mem.h</in>
+        <in>usb_midi.c</in>
+        <in>usb_midi.h</in>
+        <in>usb_mouse.c</in>
+        <in>usb_mouse.h</in>
+        <in>usb_names.h</in>
+        <in>usb_rawhid.c</in>
+        <in>usb_rawhid.h</in>
+        <in>usb_seremu.c</in>
+        <in>usb_seremu.h</in>
+        <in>usb_serial.c</in>
+        <in>usb_serial.h</in>
+        <in>wiring.h</in>
+        <in>wiring_private.h</in>
+        <in>yield.c</in>
+      </df>
+      <df name="teensy3">
+        <df name="avr">
+        </df>
+        <df name="util">
+        </df>
+      </df>
+      <df name="usb_disk">
+        <in>core_id.h</in>
+        <in>media_internal.c</in>
+        <in>media_sdcard.c</in>
+        <in>pauls_ugly_debug.h</in>
+        <in>usb.c</in>
+        <in>usb_api.cpp</in>
+        <in>usb_api.h</in>
+        <in>usb_private.h</in>
+      </df>
+      <df name="usb_disk">
+      </df>
+      <df name="usb_flightsim">
+        <in>core_id.h</in>
+        <in>usb.c</in>
+        <in>usb_api.cpp</in>
+        <in>usb_api.h</in>
+        <in>usb_private.h</in>
+      </df>
+      <df name="usb_flightsim">
+      </df>
+      <df name="usb_hid">
+        <in>core_id.h</in>
+        <in>usb.c</in>
+        <in>usb_api.cpp</in>
+        <in>usb_api.h</in>
+        <in>usb_private.h</in>
+      </df>
+      <df name="usb_hid">
+      </df>
+      <df name="usb_midi">
+        <in>core_id.h</in>
+        <in>usb.c</in>
+        <in>usb_api.cpp</in>
+        <in>usb_api.h</in>
+        <in>usb_private.h</in>
+      </df>
+      <df name="usb_midi">
+      </df>
+      <df name="usb_rawhid">
+        <in>core_id.h</in>
+        <in>usb.c</in>
+        <in>usb_api.cpp</in>
+        <in>usb_api.h</in>
+        <in>usb_private.h</in>
+      </df>
+      <df name="usb_rawhid">
+      </df>
+      <df name="usb_serial">
+        <in>core_id.h</in>
+        <in>usb.c</in>
+        <in>usb_api.cpp</in>
+        <in>usb_api.h</in>
+        <in>usb_private.h</in>
+      </df>
+      <df name="usb_serial">
+      </df>
+      <df name="usb_serial_hid">
+        <in>core_id.h</in>
+        <in>usb.c</in>
+        <in>usb_api.cpp</in>
+        <in>usb_api.h</in>
+        <in>usb_private.h</in>
+      </df>
+      <df name="usb_serial_hid">
+      </df>
+    </df>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+    </logicalFolder>
+  </logicalFolder>
+  <sourceFolderFilter>^(nbproject)$</sourceFolderFilter>
+  <sourceRootList>
+    <Elem>.</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Default" type="0">
+      <toolsSet>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>GNU-arm-none-eabi|GNU</compilerSet>
+      </toolsSet>
+      <makefileType>
+        <makeTool>
+          <buildCommandWorkingDir>.</buildCommandWorkingDir>
+          <buildCommand>${MAKE} -f Makefile</buildCommand>
+          <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
+          <executablePath></executablePath>
+        </makeTool>
+      </makefileType>
+    </conf>
+  </confs>
+</configurationDescriptor>

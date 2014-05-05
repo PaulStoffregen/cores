@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -54,7 +54,9 @@
 #define NULL ((void *)0)
 #endif
 
+#ifndef _STDINT_H
 #include <stdint.h>
+#endif
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -252,7 +254,7 @@ extern "C" {
 #define SIM_SOPT1		*(volatile uint32_t *)0x40047000 // System Options Register 1
 #define SIM_SOPT1CFG		*(volatile uint32_t *)0x40047004 // SOPT1 Configuration Register
 #define SIM_SOPT2		*(volatile uint32_t *)0x40048004 // System Options Register 2
-#define SIM_SOPT2_USBSRC		(uint32_t)0x00040000		// 0=USB_CLKIN, 1=FFL/PLL 
+#define SIM_SOPT2_USBSRC		(uint32_t)0x00040000		// 0=USB_CLKIN, 1=FFL/PLL
 #define SIM_SOPT2_PLLFLLSEL		(uint32_t)0x00010000		// 0=FLL, 1=PLL
 #define SIM_SOPT2_TRACECLKSEL		(uint32_t)0x00001000		// 0=MCGOUTCLK, 1=CPU
 #define SIM_SOPT2_PTD7PAD		(uint32_t)0x00000800		// 0=normal, 1=double drive PTD7
@@ -596,7 +598,7 @@ extern "C" {
 #define DMA_TCD_NBYTES_DMLOE		    ((uint32_t)1<<30)		    // Destination Minor Loop Offset Enable
 #define DMA_TCD_NBYTES_MLOFFNO_NBYTES(n)    ((uint32_t)(n))		    // NBytes transfer count when minor loop disabled
 #define DMA_TCD_NBYTES_MLOFFYES_NBYTES(n)   ((uint32_t)(n & 0x1F))	    // NBytes transfer count when minor loop enabled
-#define DMA_TCD_NBYTES_MLOFFYES_MLOFF(n)    ((uint32_t)(n & 0xFFFFF)<<10)   // Offset 
+#define DMA_TCD_NBYTES_MLOFFYES_MLOFF(n)    ((uint32_t)(n & 0xFFFFF)<<10)   // Offset
 
 #define DMA_TCD0_SADDR		*(volatile const void * volatile *)0x40009000 // TCD Source Address
 #define DMA_TCD0_SOFF		*(volatile int16_t *)0x40009004	 // TCD Signed Source Address Offset
@@ -899,10 +901,10 @@ extern "C" {
 #define MCG_C2			*(volatile uint8_t  *)0x40064001 // MCG Control 2 Register
 #define MCG_C2_IRCS			(uint8_t)0x01			// Internal Reference Clock Select, Selects between the fast or slow internal reference clock source.
 #define MCG_C2_LP			(uint8_t)0x02			// Low Power Select, Controls whether the FLL or PLL is disabled in BLPI and BLPE modes.
-#define MCG_C2_EREFS			(uint8_t)0x04			// External Reference Select, Selects the source for the external reference clock. 
+#define MCG_C2_EREFS			(uint8_t)0x04			// External Reference Select, Selects the source for the external reference clock.
 #define MCG_C2_HGO0			(uint8_t)0x08			// High Gain Oscillator Select, Controls the crystal oscillator mode of operation
 #define MCG_C2_RANGE0(n)		(uint8_t)(((n) & 0x03) << 4)	// Frequency Range Select, Selects the frequency range for the crystal oscillator
-#define MCG_C2_LOCRE0			(uint8_t)0x80			// Loss of Clock Reset Enable, Determines whether an interrupt or a reset request is made following a loss of OSC0 
+#define MCG_C2_LOCRE0			(uint8_t)0x80			// Loss of Clock Reset Enable, Determines whether an interrupt or a reset request is made following a loss of OSC0
 #define MCG_C3			*(volatile uint8_t  *)0x40064002 // MCG Control 3 Register
 #define MCG_C3_SCTRIM(n)		(uint8_t)(n)			// Slow Internal Reference Clock Trim Setting
 #define MCG_C4			*(volatile uint8_t  *)0x40064003 // MCG Control 4 Register
@@ -917,7 +919,7 @@ extern "C" {
 #define MCG_C6			*(volatile uint8_t  *)0x40064005 // MCG Control 6 Register
 #define MCG_C6_VDIV0(n)			(uint8_t)((n) & 0x1F)		// VCO 0 Divider
 #define MCG_C6_CME0			(uint8_t)0x20			// Clock Monitor Enable
-#define MCG_C6_PLLS			(uint8_t)0x40			// PLL Select, Controls whether the PLL or FLL output is selected as the MCG source when CLKS[1:0]=00. 
+#define MCG_C6_PLLS			(uint8_t)0x40			// PLL Select, Controls whether the PLL or FLL output is selected as the MCG source when CLKS[1:0]=00.
 #define MCG_C6_LOLIE0			(uint8_t)0x80			// Loss of Lock Interrrupt Enable
 #define MCG_S			*(volatile uint8_t  *)0x40064006 // MCG Status Register
 #define MCG_S_IRCST			(uint8_t)0x01			// Internal Reference Clock Status
@@ -1097,25 +1099,25 @@ extern "C" {
 #define ADC1_CLM1		*(volatile uint32_t *)0x400BB068 // ADC minus-side general calibration value register
 #define ADC1_CLM0		*(volatile uint32_t *)0x400BB06C // ADC minus-side general calibration value register
 
-#define DAC0_DAT0L		*(volatile uint8_t  *)0x400CC000 // DAC Data Low Register 
-#define DAC0_DATH		*(volatile uint8_t  *)0x400CC001 // DAC Data High Register 
-#define DAC0_DAT1L		*(volatile uint8_t  *)0x400CC002 // DAC Data Low Register 
-#define DAC0_DAT2L		*(volatile uint8_t  *)0x400CC004 // DAC Data Low Register 
-#define DAC0_DAT3L		*(volatile uint8_t  *)0x400CC006 // DAC Data Low Register 
-#define DAC0_DAT4L		*(volatile uint8_t  *)0x400CC008 // DAC Data Low Register 
-#define DAC0_DAT5L		*(volatile uint8_t  *)0x400CC00A // DAC Data Low Register 
-#define DAC0_DAT6L		*(volatile uint8_t  *)0x400CC00C // DAC Data Low Register 
-#define DAC0_DAT7L		*(volatile uint8_t  *)0x400CC00E // DAC Data Low Register 
-#define DAC0_DAT8L		*(volatile uint8_t  *)0x400CC010 // DAC Data Low Register 
-#define DAC0_DAT9L		*(volatile uint8_t  *)0x400CC012 // DAC Data Low Register 
-#define DAC0_DAT10L		*(volatile uint8_t  *)0x400CC014 // DAC Data Low Register 
-#define DAC0_DAT11L		*(volatile uint8_t  *)0x400CC016 // DAC Data Low Register 
-#define DAC0_DAT12L		*(volatile uint8_t  *)0x400CC018 // DAC Data Low Register 
-#define DAC0_DAT13L		*(volatile uint8_t  *)0x400CC01A // DAC Data Low Register 
-#define DAC0_DAT14L		*(volatile uint8_t  *)0x400CC01C // DAC Data Low Register 
-#define DAC0_DAT15L		*(volatile uint8_t  *)0x400CC01E // DAC Data Low Register 
-#define DAC0_SR			*(volatile uint8_t  *)0x400CC020 // DAC Status Register 
-#define DAC0_C0			*(volatile uint8_t  *)0x400CC021 // DAC Control Register 
+#define DAC0_DAT0L		*(volatile uint8_t  *)0x400CC000 // DAC Data Low Register
+#define DAC0_DATH		*(volatile uint8_t  *)0x400CC001 // DAC Data High Register
+#define DAC0_DAT1L		*(volatile uint8_t  *)0x400CC002 // DAC Data Low Register
+#define DAC0_DAT2L		*(volatile uint8_t  *)0x400CC004 // DAC Data Low Register
+#define DAC0_DAT3L		*(volatile uint8_t  *)0x400CC006 // DAC Data Low Register
+#define DAC0_DAT4L		*(volatile uint8_t  *)0x400CC008 // DAC Data Low Register
+#define DAC0_DAT5L		*(volatile uint8_t  *)0x400CC00A // DAC Data Low Register
+#define DAC0_DAT6L		*(volatile uint8_t  *)0x400CC00C // DAC Data Low Register
+#define DAC0_DAT7L		*(volatile uint8_t  *)0x400CC00E // DAC Data Low Register
+#define DAC0_DAT8L		*(volatile uint8_t  *)0x400CC010 // DAC Data Low Register
+#define DAC0_DAT9L		*(volatile uint8_t  *)0x400CC012 // DAC Data Low Register
+#define DAC0_DAT10L		*(volatile uint8_t  *)0x400CC014 // DAC Data Low Register
+#define DAC0_DAT11L		*(volatile uint8_t  *)0x400CC016 // DAC Data Low Register
+#define DAC0_DAT12L		*(volatile uint8_t  *)0x400CC018 // DAC Data Low Register
+#define DAC0_DAT13L		*(volatile uint8_t  *)0x400CC01A // DAC Data Low Register
+#define DAC0_DAT14L		*(volatile uint8_t  *)0x400CC01C // DAC Data Low Register
+#define DAC0_DAT15L		*(volatile uint8_t  *)0x400CC01E // DAC Data Low Register
+#define DAC0_SR			*(volatile uint8_t  *)0x400CC020 // DAC Status Register
+#define DAC0_C0			*(volatile uint8_t  *)0x400CC021 // DAC Control Register
 #define DAC_C0_DACEN			0x80				// DAC Enable
 #define DAC_C0_DACRFS			0x40				// DAC Reference Select
 #define DAC_C0_DACTRGSEL		0x20				// DAC Trigger Select
@@ -1124,19 +1126,19 @@ extern "C" {
 #define DAC_C0_DACBWIEN			0x04				// DAC Buffer Watermark Interrupt Enable
 #define DAC_C0_DACBTIEN			0x02				// DAC Buffer Read Pointer Top Flag Interrupt Enable
 #define DAC_C0_DACBBIEN			0x01				// DAC Buffer Read Pointer Bottom Flag Interrupt Enable
-#define DAC0_C1			*(volatile uint8_t  *)0x400CC022 // DAC Control Register 1 
+#define DAC0_C1			*(volatile uint8_t  *)0x400CC022 // DAC Control Register 1
 #define DAC_C1_DMAEN			0x80				// DMA Enable Select
 #define DAC_C1_DACBFWM(n)		(((n) & 3) << 3)		// DAC Buffer Watermark Select
 #define DAC_C1_DACBFMD(n)		(((n) & 3) << 0)		// DAC Buffer Work Mode Select
 #define DAC_C1_DACBFEN			0x00				// DAC Buffer Enable
 
-#define DAC0_C2			*(volatile uint8_t  *)0x400CC023 // DAC Control Register 2 
+#define DAC0_C2			*(volatile uint8_t  *)0x400CC023 // DAC Control Register 2
 #define DAC_C2_DACBFRP(n)		(((n) & 15) << 4)		// DAC Buffer Read Pointer
 #define DAC_C2_DACBFUP(n)		(((n) & 15) << 0)		// DAC Buffer Upper Limit
 
 
 //#define MCG_C2_RANGE0(n)		(uint8_t)(((n) & 0x03) << 4)	// Frequency Range Select, Selects the frequency range for the crystal oscillator
-//#define MCG_C2_LOCRE0			(uint8_t)0x80			// Loss of Clock Reset Enable, Determines whether an interrupt or a reset request is made following a loss of OSC0 
+//#define MCG_C2_LOCRE0			(uint8_t)0x80			// Loss of Clock Reset Enable, Determines whether an interrupt or a reset request is made following a loss of OSC0
 
 // Chapter 32: Comparator (CMP)
 #define CMP0_CR0		*(volatile uint8_t  *)0x40073000 // CMP Control Register 0
@@ -1217,14 +1219,14 @@ extern "C" {
 #define FTM_MODE_INIT			0x02				// Initialize The Channels Output
 #define FTM_MODE_FTMEN			0x01				// FTM Enable
 #define FTM0_SYNC		*(volatile uint32_t *)0x40038058 // Synchronization
-#define FTM_SYNC_SWSYNC			0x80				// 
-#define FTM_SYNC_TRIG2			0x40				// 
-#define FTM_SYNC_TRIG1			0x20				// 
-#define FTM_SYNC_TRIG0			0x10				// 
-#define FTM_SYNC_SYNCHOM		0x08				// 
-#define FTM_SYNC_REINIT			0x04				// 
-#define FTM_SYNC_CNTMAX			0x02				// 
-#define FTM_SYNC_CNTMIN			0x01				// 
+#define FTM_SYNC_SWSYNC			0x80				//
+#define FTM_SYNC_TRIG2			0x40				//
+#define FTM_SYNC_TRIG1			0x20				//
+#define FTM_SYNC_TRIG0			0x10				//
+#define FTM_SYNC_SYNCHOM		0x08				//
+#define FTM_SYNC_REINIT			0x04				//
+#define FTM_SYNC_CNTMAX			0x02				//
+#define FTM_SYNC_CNTMIN			0x01				//
 #define FTM0_OUTINIT		*(volatile uint32_t *)0x4003805C // Initial State For Channels Output
 #define FTM0_OUTMASK		*(volatile uint32_t *)0x40038060 // Output Mask
 #define FTM0_COMBINE		*(volatile uint32_t *)0x40038064 // Function For Linked Channels
@@ -1345,21 +1347,21 @@ extern "C" {
 #define RTC_TCR_CIR(n)			(((n) & 255) << 8)		// Compensation Interval Register
 #define RTC_TCR_TCR(n)			(((n) & 255) << 0)		// Time Compensation Register
 #define RTC_CR			*(volatile uint32_t *)0x4003D010 // RTC Control Register
-#define RTC_CR_SC2P			(uint32_t)0x00002000		// 
-#define RTC_CR_SC4P			(uint32_t)0x00001000		// 
-#define RTC_CR_SC8P			(uint32_t)0x00000800		// 
-#define RTC_CR_SC16P			(uint32_t)0x00000400		// 
-#define RTC_CR_CLKO			(uint32_t)0x00000200		// 
-#define RTC_CR_OSCE			(uint32_t)0x00000100		// 
-#define RTC_CR_UM			(uint32_t)0x00000008		// 
-#define RTC_CR_SUP			(uint32_t)0x00000004		// 
-#define RTC_CR_WPE			(uint32_t)0x00000002		// 
-#define RTC_CR_SWR			(uint32_t)0x00000001		// 
+#define RTC_CR_SC2P			(uint32_t)0x00002000		//
+#define RTC_CR_SC4P			(uint32_t)0x00001000		//
+#define RTC_CR_SC8P			(uint32_t)0x00000800		//
+#define RTC_CR_SC16P			(uint32_t)0x00000400		//
+#define RTC_CR_CLKO			(uint32_t)0x00000200		//
+#define RTC_CR_OSCE			(uint32_t)0x00000100		//
+#define RTC_CR_UM			(uint32_t)0x00000008		//
+#define RTC_CR_SUP			(uint32_t)0x00000004		//
+#define RTC_CR_WPE			(uint32_t)0x00000002		//
+#define RTC_CR_SWR			(uint32_t)0x00000001		//
 #define RTC_SR			*(volatile uint32_t *)0x4003D014 // RTC Status Register
-#define RTC_SR_TCE			(uint32_t)0x00000010		// 
-#define RTC_SR_TAF			(uint32_t)0x00000004		// 
-#define RTC_SR_TOF			(uint32_t)0x00000002		// 
-#define RTC_SR_TIF			(uint32_t)0x00000001		// 
+#define RTC_SR_TCE			(uint32_t)0x00000010		//
+#define RTC_SR_TAF			(uint32_t)0x00000004		//
+#define RTC_SR_TOF			(uint32_t)0x00000002		//
+#define RTC_SR_TIF			(uint32_t)0x00000001		//
 #define RTC_LR			*(volatile uint32_t *)0x4003D018 // RTC Lock Register
 #define RTC_IER			*(volatile uint32_t *)0x4003D01C // RTC Interrupt Enable Register
 #define RTC_WAR			*(volatile uint32_t *)0x4003D800 // RTC Write Access Register
@@ -1378,71 +1380,71 @@ extern "C" {
 #define USB_OTGISTAT_B_SESS_CHG		(uint8_t)0x04			//
 #define USB_OTGISTAT_AVBUSCHG		(uint8_t)0x01			//
 #define USB0_OTGICR		*(volatile uint8_t  *)0x40072014 // OTG Interrupt Control Register
-#define USB_OTGICR_IDEN			(uint8_t)0x80			// 
-#define USB_OTGICR_ONEMSECEN		(uint8_t)0x40			// 
-#define USB_OTGICR_LINESTATEEN		(uint8_t)0x20			// 
-#define USB_OTGICR_SESSVLDEN		(uint8_t)0x08			// 
-#define USB_OTGICR_BSESSEN		(uint8_t)0x04			// 
-#define USB_OTGICR_AVBUSEN		(uint8_t)0x01			// 
+#define USB_OTGICR_IDEN			(uint8_t)0x80			//
+#define USB_OTGICR_ONEMSECEN		(uint8_t)0x40			//
+#define USB_OTGICR_LINESTATEEN		(uint8_t)0x20			//
+#define USB_OTGICR_SESSVLDEN		(uint8_t)0x08			//
+#define USB_OTGICR_BSESSEN		(uint8_t)0x04			//
+#define USB_OTGICR_AVBUSEN		(uint8_t)0x01			//
 #define USB0_OTGSTAT		*(volatile uint8_t  *)0x40072018 // OTG Status register
-#define USB_OTGSTAT_ID			(uint8_t)0x80			// 
-#define USB_OTGSTAT_ONEMSECEN		(uint8_t)0x40			// 
-#define USB_OTGSTAT_LINESTATESTABLE	(uint8_t)0x20			// 
-#define USB_OTGSTAT_SESS_VLD		(uint8_t)0x08			// 
-#define USB_OTGSTAT_BSESSEND		(uint8_t)0x04			// 
-#define USB_OTGSTAT_AVBUSVLD		(uint8_t)0x01			// 
+#define USB_OTGSTAT_ID			(uint8_t)0x80			//
+#define USB_OTGSTAT_ONEMSECEN		(uint8_t)0x40			//
+#define USB_OTGSTAT_LINESTATESTABLE	(uint8_t)0x20			//
+#define USB_OTGSTAT_SESS_VLD		(uint8_t)0x08			//
+#define USB_OTGSTAT_BSESSEND		(uint8_t)0x04			//
+#define USB_OTGSTAT_AVBUSVLD		(uint8_t)0x01			//
 #define USB0_OTGCTL		*(volatile uint8_t  *)0x4007201C // OTG Control Register
-#define USB_OTGCTL_DPHIGH		(uint8_t)0x80			// 
-#define USB_OTGCTL_DPLOW		(uint8_t)0x20			// 
-#define USB_OTGCTL_DMLOW		(uint8_t)0x10			// 
-#define USB_OTGCTL_OTGEN		(uint8_t)0x04			// 
+#define USB_OTGCTL_DPHIGH		(uint8_t)0x80			//
+#define USB_OTGCTL_DPLOW		(uint8_t)0x20			//
+#define USB_OTGCTL_DMLOW		(uint8_t)0x10			//
+#define USB_OTGCTL_OTGEN		(uint8_t)0x04			//
 #define USB0_ISTAT		*(volatile uint8_t  *)0x40072080 // Interrupt Status Register
-#define USB_ISTAT_STALL			(uint8_t)0x80			// 
-#define USB_ISTAT_ATTACH		(uint8_t)0x40			// 
-#define USB_ISTAT_RESUME		(uint8_t)0x20			// 
-#define USB_ISTAT_SLEEP			(uint8_t)0x10			// 
-#define USB_ISTAT_TOKDNE		(uint8_t)0x08			// 
-#define USB_ISTAT_SOFTOK		(uint8_t)0x04			// 
-#define USB_ISTAT_ERROR			(uint8_t)0x02			// 
-#define USB_ISTAT_USBRST		(uint8_t)0x01			// 
+#define USB_ISTAT_STALL			(uint8_t)0x80			//
+#define USB_ISTAT_ATTACH		(uint8_t)0x40			//
+#define USB_ISTAT_RESUME		(uint8_t)0x20			//
+#define USB_ISTAT_SLEEP			(uint8_t)0x10			//
+#define USB_ISTAT_TOKDNE		(uint8_t)0x08			//
+#define USB_ISTAT_SOFTOK		(uint8_t)0x04			//
+#define USB_ISTAT_ERROR			(uint8_t)0x02			//
+#define USB_ISTAT_USBRST		(uint8_t)0x01			//
 #define USB0_INTEN		*(volatile uint8_t  *)0x40072084 // Interrupt Enable Register
-#define USB_INTEN_STALLEN		(uint8_t)0x80			// 
-#define USB_INTEN_ATTACHEN		(uint8_t)0x40			// 
-#define USB_INTEN_RESUMEEN		(uint8_t)0x20			// 
-#define USB_INTEN_SLEEPEN		(uint8_t)0x10			// 
-#define USB_INTEN_TOKDNEEN		(uint8_t)0x08			// 
-#define USB_INTEN_SOFTOKEN		(uint8_t)0x04			// 
-#define USB_INTEN_ERROREN		(uint8_t)0x02			// 
-#define USB_INTEN_USBRSTEN		(uint8_t)0x01			// 
+#define USB_INTEN_STALLEN		(uint8_t)0x80			//
+#define USB_INTEN_ATTACHEN		(uint8_t)0x40			//
+#define USB_INTEN_RESUMEEN		(uint8_t)0x20			//
+#define USB_INTEN_SLEEPEN		(uint8_t)0x10			//
+#define USB_INTEN_TOKDNEEN		(uint8_t)0x08			//
+#define USB_INTEN_SOFTOKEN		(uint8_t)0x04			//
+#define USB_INTEN_ERROREN		(uint8_t)0x02			//
+#define USB_INTEN_USBRSTEN		(uint8_t)0x01			//
 #define USB0_ERRSTAT		*(volatile uint8_t  *)0x40072088 // Error Interrupt Status Register
-#define USB_ERRSTAT_BTSERR		(uint8_t)0x80			// 
-#define USB_ERRSTAT_DMAERR		(uint8_t)0x20			// 
-#define USB_ERRSTAT_BTOERR		(uint8_t)0x10			// 
-#define USB_ERRSTAT_DFN8		(uint8_t)0x08			// 
-#define USB_ERRSTAT_CRC16		(uint8_t)0x04			// 
-#define USB_ERRSTAT_CRC5EOF		(uint8_t)0x02			// 
-#define USB_ERRSTAT_PIDERR		(uint8_t)0x01			// 
+#define USB_ERRSTAT_BTSERR		(uint8_t)0x80			//
+#define USB_ERRSTAT_DMAERR		(uint8_t)0x20			//
+#define USB_ERRSTAT_BTOERR		(uint8_t)0x10			//
+#define USB_ERRSTAT_DFN8		(uint8_t)0x08			//
+#define USB_ERRSTAT_CRC16		(uint8_t)0x04			//
+#define USB_ERRSTAT_CRC5EOF		(uint8_t)0x02			//
+#define USB_ERRSTAT_PIDERR		(uint8_t)0x01			//
 #define USB0_ERREN		*(volatile uint8_t  *)0x4007208C // Error Interrupt Enable Register
-#define USB_ERREN_BTSERREN		(uint8_t)0x80			// 
-#define USB_ERREN_DMAERREN		(uint8_t)0x20			// 
-#define USB_ERREN_BTOERREN		(uint8_t)0x10			// 
-#define USB_ERREN_DFN8EN		(uint8_t)0x08			// 
-#define USB_ERREN_CRC16EN		(uint8_t)0x04			// 
-#define USB_ERREN_CRC5EOFEN		(uint8_t)0x02			// 
-#define USB_ERREN_PIDERREN		(uint8_t)0x01			// 
+#define USB_ERREN_BTSERREN		(uint8_t)0x80			//
+#define USB_ERREN_DMAERREN		(uint8_t)0x20			//
+#define USB_ERREN_BTOERREN		(uint8_t)0x10			//
+#define USB_ERREN_DFN8EN		(uint8_t)0x08			//
+#define USB_ERREN_CRC16EN		(uint8_t)0x04			//
+#define USB_ERREN_CRC5EOFEN		(uint8_t)0x02			//
+#define USB_ERREN_PIDERREN		(uint8_t)0x01			//
 #define USB0_STAT		*(volatile uint8_t  *)0x40072090 // Status Register
-#define USB_STAT_TX			(uint8_t)0x08			// 
-#define USB_STAT_ODD			(uint8_t)0x04			// 
-#define USB_STAT_ENDP(n)		(uint8_t)((n) >> 4)		// 
+#define USB_STAT_TX			(uint8_t)0x08			//
+#define USB_STAT_ODD			(uint8_t)0x04			//
+#define USB_STAT_ENDP(n)		(uint8_t)((n) >> 4)		//
 #define USB0_CTL		*(volatile uint8_t  *)0x40072094 // Control Register
-#define USB_CTL_JSTATE			(uint8_t)0x80			// 
-#define USB_CTL_SE0			(uint8_t)0x40			// 
-#define USB_CTL_TXSUSPENDTOKENBUSY	(uint8_t)0x20			// 
-#define USB_CTL_RESET			(uint8_t)0x10			// 
-#define USB_CTL_HOSTMODEEN		(uint8_t)0x08			// 
-#define USB_CTL_RESUME			(uint8_t)0x04			// 
-#define USB_CTL_ODDRST			(uint8_t)0x02			// 
-#define USB_CTL_USBENSOFEN		(uint8_t)0x01			// 
+#define USB_CTL_JSTATE			(uint8_t)0x80			//
+#define USB_CTL_SE0			(uint8_t)0x40			//
+#define USB_CTL_TXSUSPENDTOKENBUSY	(uint8_t)0x20			//
+#define USB_CTL_RESET			(uint8_t)0x10			//
+#define USB_CTL_HOSTMODEEN		(uint8_t)0x08			//
+#define USB_CTL_RESUME			(uint8_t)0x04			//
+#define USB_CTL_ODDRST			(uint8_t)0x02			//
+#define USB_CTL_USBENSOFEN		(uint8_t)0x01			//
 #define USB0_ADDR		*(volatile uint8_t  *)0x40072098 // Address Register
 #define USB0_BDTPAGE1		*(volatile uint8_t  *)0x4007209C // BDT Page Register 1
 #define USB0_FRMNUML		*(volatile uint8_t  *)0x400720A0 // Frame Number Register Low
@@ -1478,9 +1480,9 @@ extern "C" {
 #define USB_USBCTRL_SUSP		(uint8_t)0x80			// Places the USB transceiver into the suspend state.
 #define USB_USBCTRL_PDE			(uint8_t)0x40			// Enables the weak pulldowns on the USB transceiver.
 #define USB0_OBSERVE		*(volatile uint8_t  *)0x40072104 // USB OTG Observe Register
-#define USB_OBSERVE_DPPU		(uint8_t)0x80			// 
-#define USB_OBSERVE_DPPD		(uint8_t)0x40			// 
-#define USB_OBSERVE_DMPD		(uint8_t)0x10			// 
+#define USB_OBSERVE_DPPU		(uint8_t)0x80			//
+#define USB_OBSERVE_DPPD		(uint8_t)0x40			//
+#define USB_OBSERVE_DMPD		(uint8_t)0x10			//
 #define USB0_CONTROL		*(volatile uint8_t  *)0x40072108 // USB OTG Control Register
 #define USB_CONTROL_DPPULLUPNONOTG	(uint8_t)0x10			//  Provides control of the DP PULLUP in the USB OTG module, if USB is configured in non-OTG device mode.
 #define USB0_USBTRC0		*(volatile uint8_t  *)0x4007210C // USB Transceiver Control Register 0
@@ -1501,20 +1503,20 @@ extern "C" {
 // Chapter 43: SPI (DSPI)
 #define SPI0_MCR		*(volatile uint32_t *)0x4002C000 // DSPI Module Configuration Register
 #define SPI_MCR_MSTR			(uint32_t)0x80000000		// Master/Slave Mode Select
-#define SPI_MCR_CONT_SCKE		(uint32_t)0x40000000		// 
-#define SPI_MCR_DCONF(n)		(((n) & 3) << 28)		// 
-#define SPI_MCR_FRZ			(uint32_t)0x08000000		// 
-#define SPI_MCR_MTFE			(uint32_t)0x04000000		// 
-#define SPI_MCR_ROOE			(uint32_t)0x01000000		// 
+#define SPI_MCR_CONT_SCKE		(uint32_t)0x40000000		//
+#define SPI_MCR_DCONF(n)		(((n) & 3) << 28)		//
+#define SPI_MCR_FRZ			(uint32_t)0x08000000		//
+#define SPI_MCR_MTFE			(uint32_t)0x04000000		//
+#define SPI_MCR_ROOE			(uint32_t)0x01000000		//
 #define SPI_MCR_PCSIS(n)		(((n) & 0x1F) << 16)		//
-#define SPI_MCR_DOZE			(uint32_t)0x00008000		// 
-#define SPI_MCR_MDIS			(uint32_t)0x00004000		// 
-#define SPI_MCR_DIS_TXF			(uint32_t)0x00002000		// 
-#define SPI_MCR_DIS_RXF			(uint32_t)0x00001000		// 
-#define SPI_MCR_CLR_TXF			(uint32_t)0x00000800		// 
-#define SPI_MCR_CLR_RXF			(uint32_t)0x00000400		// 
+#define SPI_MCR_DOZE			(uint32_t)0x00008000		//
+#define SPI_MCR_MDIS			(uint32_t)0x00004000		//
+#define SPI_MCR_DIS_TXF			(uint32_t)0x00002000		//
+#define SPI_MCR_DIS_RXF			(uint32_t)0x00001000		//
+#define SPI_MCR_CLR_TXF			(uint32_t)0x00000800		//
+#define SPI_MCR_CLR_RXF			(uint32_t)0x00000400		//
 #define SPI_MCR_SMPL_PT(n)		(((n) & 3) << 8)		//
-#define SPI_MCR_HALT			(uint32_t)0x00000001		// 
+#define SPI_MCR_HALT			(uint32_t)0x00000001		//
 #define SPI0_TCR		*(volatile uint32_t *)0x4002C008 // DSPI Transfer Count Register
 #define SPI0_CTAR0		*(volatile uint32_t *)0x4002C00C // DSPI Clock and Transfer Attributes Register, In Master Mode
 #define SPI_CTAR_DBR			(uint32_t)0x80000000		// Double Baud Rate
@@ -1550,10 +1552,10 @@ extern "C" {
 #define SPI_RSER_RFDF_RE		(uint32_t)0x00020000		// Receive FIFO Drain Request Enable
 #define SPI_RSER_RFDF_DIRS		(uint32_t)0x00010000		// Receive FIFO Drain DMA or Interrupt Request Select
 #define SPI0_PUSHR		*(volatile uint32_t *)0x4002C034 // DSPI PUSH TX FIFO Register In Master Mode
-#define SPI_PUSHR_CONT			(uint32_t)0x80000000		// 
-#define SPI_PUSHR_CTAS(n)		(((n) & 7) << 28)		// 
-#define SPI_PUSHR_EOQ			(uint32_t)0x08000000		// 
-#define SPI_PUSHR_CTCNT			(uint32_t)0x04000000		// 
+#define SPI_PUSHR_CONT			(uint32_t)0x80000000		//
+#define SPI_PUSHR_CTAS(n)		(((n) & 7) << 28)		//
+#define SPI_PUSHR_EOQ			(uint32_t)0x08000000		//
+#define SPI_PUSHR_CTCNT			(uint32_t)0x04000000		//
 #define SPI_PUSHR_PCS(n)		(((n) & 31) << 16)		//
 #define SPI0_PUSHR_SLAVE	*(volatile uint32_t *)0x4002C034 // DSPI PUSH TX FIFO Register In Slave Mode
 #define SPI0_POPR		*(volatile uint32_t *)0x4002C038 // DSPI POP RX FIFO Register
@@ -1679,11 +1681,11 @@ typedef struct {
 #define UART_PFIFO_TXFE			(uint8_t)0x80
 #define UART_PFIFO_RXFE			(uint8_t)0x08
 #define UART0_CFIFO		*(volatile uint8_t  *)0x4006A011 // UART FIFO Control Register
-#define UART_CFIFO_TXFLUSH		(uint8_t)0x80			// 
-#define UART_CFIFO_RXFLUSH		(uint8_t)0x40			// 
-#define UART_CFIFO_RXOFE		(uint8_t)0x04			// 
-#define UART_CFIFO_TXOFE		(uint8_t)0x02			// 
-#define UART_CFIFO_RXUFE		(uint8_t)0x01			// 
+#define UART_CFIFO_TXFLUSH		(uint8_t)0x80			//
+#define UART_CFIFO_RXFLUSH		(uint8_t)0x40			//
+#define UART_CFIFO_RXOFE		(uint8_t)0x04			//
+#define UART_CFIFO_TXOFE		(uint8_t)0x02			//
+#define UART_CFIFO_RXUFE		(uint8_t)0x01			//
 #define UART0_SFIFO		*(volatile uint8_t  *)0x4006A012 // UART FIFO Status Register
 #define UART_SFIFO_TXEMPT		(uint8_t)0x80
 #define UART_SFIFO_RXEMPT		(uint8_t)0x40
@@ -1962,28 +1964,28 @@ typedef struct {
 
 // Chapter 48: Touch sense input (TSI)
 #define TSI0_GENCS		*(volatile uint32_t *)0x40045000 // General Control and Status Register
-#define TSI_GENCS_LPCLKS		(uint32_t)0x10000000		// 
-#define TSI_GENCS_LPSCNITV(n)		(((n) & 15) << 24)		// 
-#define TSI_GENCS_NSCN(n)		(((n) & 31) << 19)		// 
-#define TSI_GENCS_PS(n)			(((n) & 7) << 16)		// 
-#define TSI_GENCS_EOSF			(uint32_t)0x00008000		// 
-#define TSI_GENCS_OUTRGF		(uint32_t)0x00004000		// 
-#define TSI_GENCS_EXTERF		(uint32_t)0x00002000		// 
-#define TSI_GENCS_OVRF			(uint32_t)0x00001000		// 
-#define TSI_GENCS_SCNIP			(uint32_t)0x00000200		// 
-#define TSI_GENCS_SWTS			(uint32_t)0x00000100		// 
-#define TSI_GENCS_TSIEN			(uint32_t)0x00000080		// 
-#define TSI_GENCS_TSIIE			(uint32_t)0x00000040		// 
-#define TSI_GENCS_ERIE			(uint32_t)0x00000020		// 
-#define TSI_GENCS_ESOR			(uint32_t)0x00000010		// 
-#define TSI_GENCS_STM			(uint32_t)0x00000002		// 
-#define TSI_GENCS_STPE			(uint32_t)0x00000001		// 
+#define TSI_GENCS_LPCLKS		(uint32_t)0x10000000		//
+#define TSI_GENCS_LPSCNITV(n)		(((n) & 15) << 24)		//
+#define TSI_GENCS_NSCN(n)		(((n) & 31) << 19)		//
+#define TSI_GENCS_PS(n)			(((n) & 7) << 16)		//
+#define TSI_GENCS_EOSF			(uint32_t)0x00008000		//
+#define TSI_GENCS_OUTRGF		(uint32_t)0x00004000		//
+#define TSI_GENCS_EXTERF		(uint32_t)0x00002000		//
+#define TSI_GENCS_OVRF			(uint32_t)0x00001000		//
+#define TSI_GENCS_SCNIP			(uint32_t)0x00000200		//
+#define TSI_GENCS_SWTS			(uint32_t)0x00000100		//
+#define TSI_GENCS_TSIEN			(uint32_t)0x00000080		//
+#define TSI_GENCS_TSIIE			(uint32_t)0x00000040		//
+#define TSI_GENCS_ERIE			(uint32_t)0x00000020		//
+#define TSI_GENCS_ESOR			(uint32_t)0x00000010		//
+#define TSI_GENCS_STM			(uint32_t)0x00000002		//
+#define TSI_GENCS_STPE			(uint32_t)0x00000001		//
 #define TSI0_SCANC		*(volatile uint32_t *)0x40045004 // SCAN Control Register
-#define TSI_SCANC_REFCHRG(n)		(((n) & 15) << 24)		// 
-#define TSI_SCANC_EXTCHRG(n)		(((n) & 7) << 16)		// 
-#define TSI_SCANC_SMOD(n)		(((n) & 255) << 8)		// 
-#define TSI_SCANC_AMCLKS(n)		(((n) & 3) << 3)		// 
-#define TSI_SCANC_AMPSC(n)		(((n) & 7) << 0)		// 
+#define TSI_SCANC_REFCHRG(n)		(((n) & 15) << 24)		//
+#define TSI_SCANC_EXTCHRG(n)		(((n) & 7) << 16)		//
+#define TSI_SCANC_SMOD(n)		(((n) & 255) << 8)		//
+#define TSI_SCANC_AMCLKS(n)		(((n) & 3) << 3)		//
+#define TSI_SCANC_AMPSC(n)		(((n) & 7) << 0)		//
 #define TSI0_PEN		*(volatile uint32_t *)0x40045008 // Pin Enable Register
 #define TSI0_WUCNTR		*(volatile uint32_t *)0x4004500C // Wake-Up Channel Counter Register
 #define TSI0_CNTR1		*(volatile uint32_t *)0x40045100 // Counter Register

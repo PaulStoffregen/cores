@@ -21,8 +21,9 @@
 #define Printable_h
 
 #ifdef __cplusplus
-
+#ifndef NEW_H
 #include "new.h"
+#endif
 
 class Print;
 

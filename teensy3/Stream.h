@@ -20,8 +20,12 @@
 #ifndef Stream_h
 #define Stream_h
 
+#ifndef _INTTYPES_H
 #include <inttypes.h>
+#endif
+#ifndef Print_h
 #include "Print.h"
+#endif
 
 class Stream : public Print
 {
@@ -63,4 +67,4 @@ class Stream : public Print
 	int peekNextDigit();
 };
 
-#endif	
+#endif

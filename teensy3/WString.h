@@ -23,10 +23,18 @@
 #define String_class_h
 #ifdef __cplusplus
 
+#ifndef _STDLIB_H_
 #include <stdlib.h>
+#endif
+#ifndef _STRING_H_
 #include <string.h>
+#endif
+#ifndef _CTYPE_H_
 #include <ctype.h>
+#endif
+#ifndef _avr_functions_h_
 #include "avr_functions.h"
+#endif
 
 // When compiling programs with this class, the following gcc parameters
 // dramatically increase performance and memory (RAM) efficiency, typically
@@ -178,7 +186,7 @@ public:
 	String & replace(char find, char replace);
 	String & replace(const String& find, const String& replace);
 	String & remove(unsigned int index);
-	String & remove(unsigned int index, unsigned int count); 
+	String & remove(unsigned int index, unsigned int count);
 	String & toLowerCase(void);
 	String & toUpperCase(void);
 	String & trim(void);

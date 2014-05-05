@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -31,12 +31,22 @@
 #ifndef Print_h
 #define Print_h
 
-#include <inttypes.h>
+#ifndef _STDINT_H
+#include <stdint.h>
+#endif
+#ifndef _STDIO_H_
 #include <stdio.h> // for size_t - gives sprintf and other stuff to all sketches & libs
+#endif
+#ifndef _STDARG_H
 #include <stdarg.h>
+#endif
 #include "core_id.h"
+#ifndef String_class_h
 #include "WString.h"
+#endif
+#ifndef Printable_h
 #include "Printable.h"
+#endif
 
 #define DEC 10
 #define HEX 16

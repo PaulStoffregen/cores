@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -30,15 +30,31 @@
 
 #ifndef USBseremu_h_
 #define USBseremu_h_
+#ifndef _usb_dev_h_
+#include "usb_dev.h"
+#endif
+#ifdef NUM_ENDPOINTS
 
-#if defined(USB_HID) || defined(USB_MIDI) || defined(USB_RAWHID) || defined(USB_FLIGHTSIM)
+//#if defined(USB_HID) || defined(USB_MIDI) || defined(USB_RAWHID) || defined(USB_FLIGHTSIM)
+#ifdef SEREMU_INTERFACE
+// Maximum number of transmit packets to queue so we don't starve other endpoints for memory
+#ifndef SEREMU_TX_PACKET_LIMIT
+#define SEREMU_TX_PACKET_LIMIT 6
+#endif
 
-#include <inttypes.h>
+// When the PC isn't listening, how long do we wait before discarding data?  If this is
+// too short, we risk losing data during the stalls that are common with ordinary desktop
+// software.  If it's too long, we stall the user's program when no software is running.
+#ifndef SEREMU_TX_TIMEOUT_MSEC
+#define SEREMU_TX_TIMEOUT_MSEC 30
+#endif
+
 
 // C language implementation
 #ifdef __cplusplus
 extern "C" {
 #endif
+int usb_seremu_read(void *buffer, uint32_t size);
 int usb_seremu_getchar(void);
 int usb_seremu_peekchar(void);
 int usb_seremu_available(void);
@@ -56,7 +72,6 @@ extern volatile uint8_t usb_configuration;
 
 // C++ interface
 #ifdef __cplusplus
-#include "Stream.h"
 class usb_seremu_class : public Stream
 {
 public:
@@ -80,7 +95,7 @@ public:
         uint8_t numbits(void) { return 8; }
         uint8_t dtr(void) { return 1; }
         uint8_t rts(void) { return 1; }
-        operator bool() { return usb_configuration; }
+        operator bool() { delay(10); return usb_configuration; }
 };
 
 extern usb_seremu_class Serial;
@@ -88,4 +103,5 @@ extern usb_seremu_class Serial;
 #endif // __cplusplus
 
 #endif // USB_HID
+#endif
 #endif // USBseremu_h_

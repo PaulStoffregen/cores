@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -30,10 +30,13 @@
 
 #ifndef USBserial_h_
 #define USBserial_h_
+#ifndef _usb_dev_h_
+#include "usb_dev.h"
+#endif
+#ifdef NUM_ENDPOINTS
 
 #if defined(USB_SERIAL) || defined(USB_SERIAL_HID)
 
-#include <inttypes.h>
 
 // C language implementation
 #ifdef __cplusplus
@@ -61,11 +64,25 @@ extern volatile uint8_t usb_configuration;
 
 // C++ interface
 #ifdef __cplusplus
-#include "Stream.h"
 class usb_serial_class : public Stream
 {
 public:
-        void begin(long) { /* TODO: call a function that tries to wait for enumeration */ };
+        void begin(long) {
+                /* Delay here, instead of in the bool, 'till we can wait on our own.
+                 * This is a lot more code. :-)
+                 */
+                uint16_t begin_wait = (uint16_t)millis();
+                while(1) {
+                        if (usb_configuration) {
+                                // Just like the AVR Teensys do,
+                                // wait a little time for host to load a driver.
+                                delay(200);
+                                break;
+                        }
+                        if ((uint16_t)millis() - begin_wait > 2500) break;
+                }
+                /* TODO: call a function that tries to wait for enumeration */
+        };
         void end() { /* TODO: flush output and shut down USB port */ };
         virtual int available() { return usb_serial_available(); }
         virtual int read() { return usb_serial_getchar(); }
@@ -104,4 +121,5 @@ extern usb_serial_class Serial;
 #endif // __cplusplus
 
 #endif // USB_SERIAL || USB_SERIAL_HID
+#endif
 #endif // USBserial_h_
