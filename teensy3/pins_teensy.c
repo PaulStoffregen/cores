@@ -684,7 +684,15 @@ void delay(uint32_t ms)
 		}
 	}
 }
-#if F_CPU == 120000000
+#if F_CPU == 216000000
+#define PULSEIN_LOOPS_PER_USEC 31  //Is this correct ?
+#elif F_CPU == 192000000
+#define PULSEIN_LOOPS_PER_USEC 28  //Is this correct ?
+#elif F_CPU == 168000000
+#define PULSEIN_LOOPS_PER_USEC 24  //Is this correct ?
+#elif F_CPU == 144000000
+#define PULSEIN_LOOPS_PER_USEC 21  //Is this correct ?
+#elif F_CPU == 120000000
 #define PULSEIN_LOOPS_PER_USEC 19  //Is this correct ?
 #elif F_CPU == 96000000
 #define PULSEIN_LOOPS_PER_USEC 14

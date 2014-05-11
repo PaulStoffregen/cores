@@ -417,7 +417,11 @@ void ResetHandler(void)
 	// config PLL input for 16 MHz Crystal / 4 = 4 MHz
 	MCG_C5 = MCG_C5_PRDIV0(3);
 	
-#if F_CPU == 120000000	
+#if F_CPU == 168000000	
+	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(18); // config PLL for 168 MHz output
+#elif F_CPU == 144000000	
+	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(12); // config PLL for 144 MHz output
+#elif F_CPU == 120000000	
 	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(6); // config PLL for 120 MHz output
 #else
     MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(0); // config PLL for 96 MHz output
@@ -428,9 +432,15 @@ void ResetHandler(void)
 	while (!(MCG_S & MCG_S_LOCK0)) ;
 	// now we're in PBE mode
 
-#if F_CPU == 120000000
+#if F_CPU == 168000000
+	// config divisors: 168 MHz core, 42 MHz bus, 28 MHz flash
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(3) |	 SIM_CLKDIV1_OUTDIV4(5);
+#elif F_CPU == 144000000
+	// config divisors: 144 MHz core, 48 MHz bus, 24 MHz flash
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(2) |	 SIM_CLKDIV1_OUTDIV4(5); 
+#elif F_CPU == 120000000
 	// config divisors: 120 MHz core, 40 MHz bus, 30 MHz flash
-	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(3) |	 SIM_CLKDIV1_OUTDIV4(4);
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(2) |	 SIM_CLKDIV1_OUTDIV4(3);
 #elif F_CPU == 96000000
 	// config divisors: 96 MHz core, 48 MHz bus, 24 MHz flash
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) |	 SIM_CLKDIV1_OUTDIV4(3);
@@ -441,7 +451,7 @@ void ResetHandler(void)
 	// config divisors: 24 MHz core, 24 MHz bus, 24 MHz flash
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(3) | SIM_CLKDIV1_OUTDIV2(3) |	 SIM_CLKDIV1_OUTDIV4(3);
 #else
-#error "Error, F_CPU must be 120000000, 96000000, 48000000, or 24000000"
+#error "Error, F_CPU must be  168000000, 144000000, 120000000, 96000000, 48000000, or 24000000"
 #endif
 	// switch to PLL as clock source, FLL input = 16 MHz / 512
 	MCG_C1 = MCG_C1_CLKS(0) | MCG_C1_FRDIV(4);
@@ -449,7 +459,11 @@ void ResetHandler(void)
 	while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(3)) ;
 	// now we're in PEE mode
 	// configure USB for 48 MHz clock
-#if F_CPU == 120000000
+#if F_CPU == 168000000
+	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(6) | SIM_CLKDIV2_USBFRAC; // USB = 168 MHz PLL / 3.5
+#elif F_CPU == 144000000
+	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(2); // USB = 144 MHz PLL / 3
+#elif F_CPU == 120000000
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(4) | SIM_CLKDIV2_USBFRAC; // USB = 120 MHz PLL / 2.5
 #else
     SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(1); // USB = 96 MHz PLL / 2
