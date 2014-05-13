@@ -323,9 +323,17 @@ extern void usb_init(void);
 #if F_BUS == 48000000
 #define DEFAULT_FTM_MOD (49152 - 1)
 #define DEFAULT_FTM_PRESCALE 1
-#else
+#elif F_BUS == 42000000
+#define DEFAULT_FTM_MOD (43008 - 1)
+#define DEFAULT_FTM_PRESCALE 1
+#elif F_BUS == 40000000
+#define DEFAULT_FTM_MOD (40960 - 1)
+#define DEFAULT_FTM_PRESCALE 1
+#elif F_BUS == 24000000
 #define DEFAULT_FTM_MOD (49152 - 1)
 #define DEFAULT_FTM_PRESCALE 0
+#else 
+ #error
 #endif
 
 //void init_pins(void)
