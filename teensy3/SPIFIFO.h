@@ -4,7 +4,9 @@
 #include "avr_emulation.h"
 
 
-#if F_BUS == 48000000
+#if F_BUS == 48000000 
+
+// SCK baud rate = (fSYS/PBR) x [(1+DBR)/BR]
 
 #define HAS_SPIFIFO
 #define SPI_CLOCK_24MHz   (SPI_CTAR_PBR(0) | SPI_CTAR_BR(0) | SPI_CTAR_DBR) //(48 / 2) * ((1+1)/2)
@@ -13,6 +15,26 @@
 #define SPI_CLOCK_8MHz    (SPI_CTAR_PBR(1) | SPI_CTAR_BR(0)) //(48 / 3) * ((1+0)/2)
 #define SPI_CLOCK_6MHz    (SPI_CTAR_PBR(0) | SPI_CTAR_BR(1)) //(48 / 2) * ((1+0)/4)
 #define SPI_CLOCK_4MHz    (SPI_CTAR_PBR(1) | SPI_CTAR_BR(1)) //(48 / 3) * ((1+0)/4)
+
+#elif F_BUS == 42000000
+
+#define HAS_SPIFIFO
+#define SPI_CLOCK_24MHz   (SPI_CTAR_PBR(0) | SPI_CTAR_BR(0) | SPI_CTAR_DBR) //(42 / 2) * ((1+1)/2)  21 MHz
+#define SPI_CLOCK_16MHz   (SPI_CTAR_PBR(1) | SPI_CTAR_BR(0) | SPI_CTAR_DBR) //(42 / 3) * ((1+1)/2)  33% duty cycle 14 MHz
+#define SPI_CLOCK_12MHz   (SPI_CTAR_PBR(0) | SPI_CTAR_BR(0)) //(42 / 2) * ((1+0)/2) 10.5 MHz
+#define SPI_CLOCK_8MHz    (SPI_CTAR_PBR(1) | SPI_CTAR_BR(0)) //(42 / 3) * ((1+0)/2)  7.5 MHz
+#define SPI_CLOCK_6MHz    (SPI_CTAR_PBR(3) | SPI_CTAR_BR(0) | SPI_CTAR_DBR) //(42 / 7) * ((1+1)/2)  33% duty cycle
+#define SPI_CLOCK_4MHz    (SPI_CTAR_PBR(1) | SPI_CTAR_BR(1)) //(42 / 3) * ((1+0)/4)  3.5 MHz
+
+#elif  F_BUS == 40000000
+
+#define HAS_SPIFIFO
+#define SPI_CLOCK_24MHz   (SPI_CTAR_PBR(0) | SPI_CTAR_BR(0) | SPI_CTAR_DBR) //(40 / 2) * ((1+1)/2)  20 MHz
+#define SPI_CLOCK_16MHz   (SPI_CTAR_PBR(1) | SPI_CTAR_BR(0) | SPI_CTAR_DBR) //(40 / 3) * ((1+1)/2)  33% duty cycle 13.3 MHz 
+#define SPI_CLOCK_12MHz   (SPI_CTAR_PBR(1) | SPI_CTAR_BR(0)) //(40 / 2) * ((1+0)/2) 10 MHz
+#define SPI_CLOCK_8MHz    (SPI_CTAR_PBR(2) | SPI_CTAR_BR(0) | SPI_CTAR_DBR) //(40 / 5) * ((1+1)/2) 40% duty cycle
+#define SPI_CLOCK_6MHz    (SPI_CTAR_PBR(3) | SPI_CTAR_BR(0) | SPI_CTAR_DBR) //(40 / 7) * ((1+0)/2) 57% duty cycle 5.7 MHz
+#define SPI_CLOCK_4MHz    (SPI_CTAR_PBR(2) | SPI_CTAR_BR(0)) //(40 / 5) * ((1+0)/2)
 
 #elif F_BUS == 24000000
 
@@ -23,6 +45,9 @@
 #define SPI_CLOCK_8MHz    (SPI_CTAR_PBR(1) | SPI_CTAR_BR(0) | SPI_CTAR_DBR) //(24 / 3) * ((1+1)/2)  33% duty cycle
 #define SPI_CLOCK_6MHz    (SPI_CTAR_PBR(0) | SPI_CTAR_BR(0)) //(24 / 2) * ((1+0)/2)
 #define SPI_CLOCK_4MHz    (SPI_CTAR_PBR(1) | SPI_CTAR_BR(0)) //(24 / 3) * ((1+0)/2)
+
+#else 
+ #error
 
 #endif
 
