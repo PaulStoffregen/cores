@@ -771,7 +771,7 @@ static inline void delayMicroseconds(uint32_t) __attribute__((always_inline, unu
 static inline void delayMicroseconds(uint32_t usec)
 {
 #if F_CPU == 144000000
-	uint32_t n = usec << 6; 
+	uint32_t n = usec * 48; 
 #elif F_CPU == 96000000
 	uint32_t n = usec << 5;
 #elif F_CPU == 48000000
