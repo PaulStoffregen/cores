@@ -441,7 +441,7 @@ void ResetHandler(void)
 	// config divisors: 24 MHz core, 24 MHz bus, 24 MHz flash
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(3) | SIM_CLKDIV1_OUTDIV2(3) |	 SIM_CLKDIV1_OUTDIV4(3);
 #else
-#error "Error, F_CPU must be  144000000, 120000000, 96000000, 48000000, or 24000000"
+#error "Error, F_CPU must be  144000000, 96000000, 48000000, or 24000000"
 #endif
 	// switch to PLL as clock source, FLL input = 16 MHz / 512
 	MCG_C1 = MCG_C1_CLKS(0) | MCG_C1_FRDIV(4);
