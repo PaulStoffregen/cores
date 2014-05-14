@@ -41,7 +41,7 @@ static uint8_t analog_reference_internal = 0;
 // datasheet says ADC clock should be 2 to 12 MHz for 16 bit mode
 // datasheet says ADC clock should be 1 to 18 MHz for 8-12 bit mode
 
-#if F_BUS == 48000000 | F_BUS == 42000000 | F_BUS == 40000000 
+#if F_BUS == 48000000
   #define ADC_CFG1_6MHZ   ADC_CFG1_ADIV(2) + ADC_CFG1_ADICLK(1)
   #define ADC_CFG1_12MHZ  ADC_CFG1_ADIV(1) + ADC_CFG1_ADICLK(1)
   #define ADC_CFG1_24MHZ  ADC_CFG1_ADIV(0) + ADC_CFG1_ADICLK(1)
