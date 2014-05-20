@@ -49,6 +49,7 @@ void (*usb_midi_handleControlChange)(uint8_t ch, uint8_t control, uint8_t value)
 void (*usb_midi_handleProgramChange)(uint8_t ch, uint8_t program) = NULL;
 void (*usb_midi_handleAfterTouch)(uint8_t ch, uint8_t pressure) = NULL;
 void (*usb_midi_handlePitchChange)(uint8_t ch, int pitch) = NULL;
+void (*usb_midi_handleSysEx)(uint8_t length, const uint8_t *data, uint8_t complete) = NULL;
 void (*usb_midi_handleRealTimeSystem)(uint8_t rtb) = NULL;
 
 // Maximum number of transmit packets to queue so we don't starve other endpoints for memory
@@ -135,6 +136,13 @@ void usb_midi_flush_output(void)
 
 void static sysex_byte(uint8_t b)
 {
+	// when buffer is full, send another chunk to handler.
+	if (usb_midi_msg_sysex_len == USB_MIDI_SYSEX_MAX) {
+		if (usb_midi_handleSysEx) {
+			(*usb_midi_handleSysEx)(usb_midi_msg_sysex_len, usb_midi_msg_sysex, 0);
+			usb_midi_msg_sysex_len = 0;
+		}
+	}
 	if (usb_midi_msg_sysex_len < USB_MIDI_SYSEX_MAX) {
 		usb_midi_msg_sysex[usb_midi_msg_sysex_len++] = b;
 	}
@@ -238,6 +246,8 @@ int usb_midi_read(uint32_t channel)
 		usb_midi_msg_data1 = usb_midi_msg_sysex_len;
 		usb_midi_msg_sysex_len = 0;
 		usb_midi_msg_type = 7;				// 7 = Sys Ex
+		if (usb_midi_handleSysEx)
+			(*usb_midi_handleSysEx)(usb_midi_msg_data1, usb_midi_msg_sysex, 1);
 		return 1;
 	}
 	if (type1 == 0x0F) {
