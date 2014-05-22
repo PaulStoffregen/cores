@@ -323,7 +323,7 @@ extern void usb_init(void);
 #if F_BUS == 48000000
 #define DEFAULT_FTM_MOD (49152 - 1)
 #define DEFAULT_FTM_PRESCALE 1
-#else
+#elif F_BUS == 24000000
 #define DEFAULT_FTM_MOD (49152 - 1)
 #define DEFAULT_FTM_PRESCALE 0
 #endif
@@ -685,7 +685,9 @@ void delay(uint32_t ms)
 	}
 }
 
-#if F_CPU == 96000000
+#if F_CPU == 144000000
+#define PULSEIN_LOOPS_PER_USEC 21  
+#elif F_CPU == 96000000
 #define PULSEIN_LOOPS_PER_USEC 14
 #elif F_CPU == 48000000
 #define PULSEIN_LOOPS_PER_USEC 7

@@ -40,6 +40,9 @@ extern unsigned long _ebss;
 extern unsigned long _estack;
 //extern void __init_array_start(void);
 //extern void __init_array_end(void);
+
+
+
 extern int main (void);
 void ResetHandler(void);
 void _init_Teensyduino_internal_(void);
@@ -413,14 +416,22 @@ void ResetHandler(void)
 	// now we're in FBE mode
 	// config PLL input for 16 MHz Crystal / 4 = 4 MHz
 	MCG_C5 = MCG_C5_PRDIV0(3);
-	// config PLL for 96 MHz output
-	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(0);
+	
+#if F_CPU == 144000000	
+	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(12); // config PLL for 144 MHz output
+#else
+	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(0); // config PLL for 96 MHz output
+#endif
 	// wait for PLL to start using xtal as its input
 	while (!(MCG_S & MCG_S_PLLST)) ;
 	// wait for PLL to lock
 	while (!(MCG_S & MCG_S_LOCK0)) ;
 	// now we're in PBE mode
-#if F_CPU == 96000000
+
+#if F_CPU == 144000000
+	// config divisors: 144 MHz core, 48 MHz bus, 24 MHz flash
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(2) |	 SIM_CLKDIV1_OUTDIV4(5); 
+#elif F_CPU == 96000000
 	// config divisors: 96 MHz core, 48 MHz bus, 24 MHz flash
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) |	 SIM_CLKDIV1_OUTDIV4(3);
 #elif F_CPU == 48000000
@@ -430,7 +441,7 @@ void ResetHandler(void)
 	// config divisors: 24 MHz core, 24 MHz bus, 24 MHz flash
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(3) | SIM_CLKDIV1_OUTDIV2(3) |	 SIM_CLKDIV1_OUTDIV4(3);
 #else
-#error "Error, F_CPU must be 96000000, 48000000, or 24000000"
+#error "Error, F_CPU must be  144000000, 96000000, 48000000, or 24000000"
 #endif
 	// switch to PLL as clock source, FLL input = 16 MHz / 512
 	MCG_C1 = MCG_C1_CLKS(0) | MCG_C1_FRDIV(4);
@@ -438,7 +449,11 @@ void ResetHandler(void)
 	while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(3)) ;
 	// now we're in PEE mode
 	// configure USB for 48 MHz clock
+#if F_CPU == 144000000
+	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(2); // USB = 144 MHz PLL / 3
+#else
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(1); // USB = 96 MHz PLL / 2
+#endif	
 	// USB uses PLL clock, trace is CPU clock, CLKOUT=OSCERCLK0
 	SIM_SOPT2 = SIM_SOPT2_USBSRC | SIM_SOPT2_PLLFLLSEL | SIM_SOPT2_TRACECLKSEL | SIM_SOPT2_CLKOUTSEL(6);
 
