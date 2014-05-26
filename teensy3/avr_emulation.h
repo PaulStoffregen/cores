@@ -930,6 +930,7 @@ public:
 		//serial_print("SPCR & ");
 		//serial_phex(val);
 		//serial_print("\n");
+		SIM_SCGC6 |= SIM_SCGC6_SPI0;
 		if ((val & (1<<DORD)) && (SPI0_CTAR0 & SPI_CTAR_LSBFE)) ret |= (1<<DORD);
 		if ((val & (1<<CPOL)) && (SPI0_CTAR0 & SPI_CTAR_CPOL)) ret |= (1<<CPOL);
 		if ((val & (1<<CPHA)) && (SPI0_CTAR0 & SPI_CTAR_CPHA)) ret |= (1<<CPHA);
