@@ -511,41 +511,65 @@ extern "C" {
 #define DMA_ERQ_ERQ1			((uint32_t)1<<1)	// Enable DMA Request 1
 #define DMA_ERQ_ERQ2			((uint32_t)1<<2)	// Enable DMA Request 2
 #define DMA_ERQ_ERQ3			((uint32_t)1<<3)	// Enable DMA Request 3
+#define DMA_ERQ_ERQ4			((uint32_t)1<<4)	// Enable DMA Request 4
+#define DMA_ERQ_ERQ5			((uint32_t)1<<5)	// Enable DMA Request 5
+#define DMA_ERQ_ERQ6			((uint32_t)1<<6)	// Enable DMA Request 6
+#define DMA_ERQ_ERQ7			((uint32_t)1<<7)	// Enable DMA Request 7
+#define DMA_ERQ_ERQ8			((uint32_t)1<<8)	// Enable DMA Request 8
+#define DMA_ERQ_ERQ9			((uint32_t)1<<9)	// Enable DMA Request 9
+#define DMA_ERQ_ERQ10			((uint32_t)1<<10)	// Enable DMA Request 10
+#define DMA_ERQ_ERQ11			((uint32_t)1<<11)	// Enable DMA Request 11
+#define DMA_ERQ_ERQ12			((uint32_t)1<<12)	// Enable DMA Request 12
+#define DMA_ERQ_ERQ13			((uint32_t)1<<13)	// Enable DMA Request 13
+#define DMA_ERQ_ERQ14			((uint32_t)1<<14)	// Enable DMA Request 14
+#define DMA_ERQ_ERQ15			((uint32_t)1<<15)	// Enable DMA Request 15
 #define DMA_EEI			*(volatile uint32_t *)0x40008014 // Enable Error Interrupt Register
 #define DMA_EEI_EEI0			((uint32_t)1<<0)	// Enable Error Interrupt 0
 #define DMA_EEI_EEI1			((uint32_t)1<<1)	// Enable Error Interrupt 1
 #define DMA_EEI_EEI2			((uint32_t)1<<2)	// Enable Error Interrupt 2
 #define DMA_EEI_EEI3			((uint32_t)1<<3)	// Enable Error Interrupt 3
+#define DMA_EEI_EEI4			((uint32_t)1<<4)	// Enable Error Interrupt 4
+#define DMA_EEI_EEI5			((uint32_t)1<<5)	// Enable Error Interrupt 5
+#define DMA_EEI_EEI6			((uint32_t)1<<6)	// Enable Error Interrupt 6
+#define DMA_EEI_EEI7			((uint32_t)1<<7)	// Enable Error Interrupt 7
+#define DMA_EEI_EEI8			((uint32_t)1<<8)	// Enable Error Interrupt 8
+#define DMA_EEI_EEI9			((uint32_t)1<<9)	// Enable Error Interrupt 9
+#define DMA_EEI_EEI10			((uint32_t)1<<10)	// Enable Error Interrupt 10
+#define DMA_EEI_EEI11			((uint32_t)1<<11)	// Enable Error Interrupt 11
+#define DMA_EEI_EEI12			((uint32_t)1<<12)	// Enable Error Interrupt 12
+#define DMA_EEI_EEI13			((uint32_t)1<<13)	// Enable Error Interrupt 13
+#define DMA_EEI_EEI14			((uint32_t)1<<14)	// Enable Error Interrupt 14
+#define DMA_EEI_EEI15			((uint32_t)1<<15)	// Enable Error Interrupt 15
 #define DMA_CEEI		*(volatile uint8_t  *)0x40008018 // Clear Enable Error Interrupt Register
-#define DMA_CEEI_CEEI(n)		((uint8_t)(n & 3)<<0)	// Clear Enable Error Interrupt
+#define DMA_CEEI_CEEI(n)		((uint8_t)(n & 15)<<0)	// Clear Enable Error Interrupt
 #define DMA_CEEI_CAEE			((uint8_t)1<<6)		// Clear All Enable Error Interrupts
 #define DMA_CEEI_NOP			((uint8_t)1<<7)		// NOP
 #define DMA_SEEI		*(volatile uint8_t  *)0x40008019 // Set Enable Error Interrupt Register
-#define DMA_SEEI_SEEI(n)		((uint8_t)(n & 3)<<0)	// Set Enable Error Interrupt
+#define DMA_SEEI_SEEI(n)		((uint8_t)(n & 15)<<0)	// Set Enable Error Interrupt
 #define DMA_SEEI_SAEE			((uint8_t)1<<6)		// Set All Enable Error Interrupts
 #define DMA_SEEI_NOP			((uint8_t)1<<7)		// NOP
 #define DMA_CERQ		*(volatile uint8_t  *)0x4000801A // Clear Enable Request Register
-#define DMA_CERQ_CERQ(n)		((uint8_t)(n & 3)<<0)	// Clear Enable Request
+#define DMA_CERQ_CERQ(n)		((uint8_t)(n & 15)<<0)	// Clear Enable Request
 #define DMA_CERQ_CAER			((uint8_t)1<<6)		// Clear All Enable Requests
 #define DMA_CERQ_NOP			((uint8_t)1<<7)		// NOP
 #define DMA_SERQ		*(volatile uint8_t  *)0x4000801B // Set Enable Request Register
-#define DMA_SERQ_SERQ(n)		((uint8_t)(n & 3)<<0)	// Set Enable Request
+#define DMA_SERQ_SERQ(n)		((uint8_t)(n & 15)<<0)	// Set Enable Request
 #define DMA_SERQ_SAER			((uint8_t)1<<6)		// Set All Enable Requests
 #define DMA_SERQ_NOP			((uint8_t)1<<7)		// NOP
 #define DMA_CDNE		*(volatile uint8_t  *)0x4000801C // Clear DONE Status Bit Register
-#define DMA_CDNE_CDNE(n)		((uint8_t)(n & 3)<<0)	// Clear Done Bit
+#define DMA_CDNE_CDNE(n)		((uint8_t)(n & 15)<<0)	// Clear Done Bit
 #define DMA_CDNE_CADN			((uint8_t)1<<6)		// Clear All Done Bits
 #define DMA_CDNE_NOP			((uint8_t)1<<7)		// NOP
 #define DMA_SSRT		*(volatile uint8_t  *)0x4000801D // Set START Bit Register
-#define DMA_SSRT_SSRT(n)		((uint8_t)(n & 3)<<0)	// Set Start Bit
+#define DMA_SSRT_SSRT(n)		((uint8_t)(n & 15)<<0)	// Set Start Bit
 #define DMA_SSRT_SAST			((uint8_t)1<<6)		// Set All Start Bits
 #define DMA_SSRT_NOP			((uint8_t)1<<7)		// NOP
 #define DMA_CERR		*(volatile uint8_t  *)0x4000801E // Clear Error Register
-#define DMA_CERR_CERR(n)		((uint8_t)(n & 3)<<0)	// Clear Error Indicator
+#define DMA_CERR_CERR(n)		((uint8_t)(n & 15)<<0)	// Clear Error Indicator
 #define DMA_CERR_CAEI			((uint8_t)1<<6)		// Clear All Error Indicators
 #define DMA_CERR_NOP			((uint8_t)1<<7)		// NOP
 #define DMA_CINT		*(volatile uint8_t  *)0x4000801F // Clear Interrupt Request Register
-#define DMA_CINT_CINT(n)		((uint8_t)(n & 3)<<0)	// Clear Interrupt Request
+#define DMA_CINT_CINT(n)		((uint8_t)(n & 15)<<0)	// Clear Interrupt Request
 #define DMA_CINT_CAIR			((uint8_t)1<<6)		// Clear All Interrupt Requests
 #define DMA_CINT_NOP			((uint8_t)1<<7)		// NOP
 #define DMA_INT			*(volatile uint32_t *)0x40008024 // Interrupt Request Register
@@ -553,16 +577,52 @@ extern "C" {
 #define DMA_INT_INT1			((uint32_t)1<<1)	// Interrupt Request 1
 #define DMA_INT_INT2			((uint32_t)1<<2)	// Interrupt Request 2
 #define DMA_INT_INT3			((uint32_t)1<<3)	// Interrupt Request 3
+#define DMA_INT_INT4			((uint32_t)1<<4)	// Interrupt Request 4
+#define DMA_INT_INT5			((uint32_t)1<<5)	// Interrupt Request 5
+#define DMA_INT_INT6			((uint32_t)1<<6)	// Interrupt Request 6
+#define DMA_INT_INT7			((uint32_t)1<<7)	// Interrupt Request 7
+#define DMA_INT_INT8			((uint32_t)1<<8)	// Interrupt Request 8
+#define DMA_INT_INT9			((uint32_t)1<<9)	// Interrupt Request 9
+#define DMA_INT_INT10			((uint32_t)1<<10)	// Interrupt Request 10
+#define DMA_INT_INT11			((uint32_t)1<<11)	// Interrupt Request 11
+#define DMA_INT_INT12			((uint32_t)1<<12)	// Interrupt Request 12
+#define DMA_INT_INT13			((uint32_t)1<<13)	// Interrupt Request 13
+#define DMA_INT_INT14			((uint32_t)1<<14)	// Interrupt Request 14
+#define DMA_INT_INT15			((uint32_t)1<<15)	// Interrupt Request 15
 #define DMA_ERR			*(volatile uint32_t *)0x4000802C // Error Register
 #define DMA_ERR_ERR0			((uint32_t)1<<0)	// Error in Channel 0
 #define DMA_ERR_ERR1			((uint32_t)1<<1)	// Error in Channel 1
 #define DMA_ERR_ERR2			((uint32_t)1<<2)	// Error in Channel 2
 #define DMA_ERR_ERR3			((uint32_t)1<<3)	// Error in Channel 3
+#define DMA_ERR_ERR4			((uint32_t)1<<4)	// Error in Channel 4
+#define DMA_ERR_ERR5			((uint32_t)1<<5)	// Error in Channel 5
+#define DMA_ERR_ERR6			((uint32_t)1<<6)	// Error in Channel 6
+#define DMA_ERR_ERR7			((uint32_t)1<<7)	// Error in Channel 7
+#define DMA_ERR_ERR8			((uint32_t)1<<8)	// Error in Channel 8
+#define DMA_ERR_ERR9			((uint32_t)1<<9)	// Error in Channel 9
+#define DMA_ERR_ERR10			((uint32_t)1<<10)	// Error in Channel 10
+#define DMA_ERR_ERR11			((uint32_t)1<<11)	// Error in Channel 11
+#define DMA_ERR_ERR12			((uint32_t)1<<12)	// Error in Channel 12
+#define DMA_ERR_ERR13			((uint32_t)1<<13)	// Error in Channel 13
+#define DMA_ERR_ERR14			((uint32_t)1<<14)	// Error in Channel 14
+#define DMA_ERR_ERR15			((uint32_t)1<<15)	// Error in Channel 15
 #define DMA_HRS			*(volatile uint32_t *)0x40008034 // Hardware Request Status Register
 #define DMA_HRS_HRS0			((uint32_t)1<<0)	// Hardware Request Status Channel 0
 #define DMA_HRS_HRS1			((uint32_t)1<<1)	// Hardware Request Status Channel 1
 #define DMA_HRS_HRS2			((uint32_t)1<<2)	// Hardware Request Status Channel 2
 #define DMA_HRS_HRS3			((uint32_t)1<<3)	// Hardware Request Status Channel 3
+#define DMA_HRS_HRS4			((uint32_t)1<<4)	// Hardware Request Status Channel 4
+#define DMA_HRS_HRS5			((uint32_t)1<<5)	// Hardware Request Status Channel 5
+#define DMA_HRS_HRS6			((uint32_t)1<<6)	// Hardware Request Status Channel 6
+#define DMA_HRS_HRS7			((uint32_t)1<<7)	// Hardware Request Status Channel 7
+#define DMA_HRS_HRS8			((uint32_t)1<<8)	// Hardware Request Status Channel 8
+#define DMA_HRS_HRS9			((uint32_t)1<<9)	// Hardware Request Status Channel 9
+#define DMA_HRS_HRS10			((uint32_t)1<<10)	// Hardware Request Status Channel 10
+#define DMA_HRS_HRS11			((uint32_t)1<<11)	// Hardware Request Status Channel 11
+#define DMA_HRS_HRS12			((uint32_t)1<<12)	// Hardware Request Status Channel 12
+#define DMA_HRS_HRS13			((uint32_t)1<<13)	// Hardware Request Status Channel 13
+#define DMA_HRS_HRS14			((uint32_t)1<<14)	// Hardware Request Status Channel 14
+#define DMA_HRS_HRS15			((uint32_t)1<<15)	// Hardware Request Status Channel 15
 #define DMA_DCHPRI3		*(volatile uint8_t  *)0x40008100 // Channel n Priority Register
 #define DMA_DCHPRI2		*(volatile uint8_t  *)0x40008101 // Channel n Priority Register
 #define DMA_DCHPRI1		*(volatile uint8_t  *)0x40008102 // Channel n Priority Register
