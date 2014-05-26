@@ -126,31 +126,50 @@ static uint8_t transmit_previous_timeout=0;
 // Move the mouse.  x, y and wheel are -127 to 127.  Use 0 for no movement.
 int usb_mouse_move(int8_t x, int8_t y, int8_t wheel)
 {
-        uint32_t wait_count=0, val32;
+        uint32_t wait_count=0;
         usb_packet_t *tx_packet;
-	uint16_t newval;
 
+        //serial_print("move");
+        //serial_print("\n");
         if (x == -128) x = -127;
         if (y == -128) y = -127;
         if (wheel == -128) wheel = -127;
-	if (x > 0) {
-		newval = usb_mouse_position_x + x;
-		if (newval >= usb_mouse_resolution_x) newval = usb_mouse_resolution_x - 1;
-		usb_mouse_position_x = newval;
-	} else if (x < 0) {
-		newval = usb_mouse_position_x + x;
-		if (newval & 0x8000) newval = 0;
-		usb_mouse_position_x = newval;
-	}
-	if (y > 0) {
-		newval = usb_mouse_position_y + y;
-		if (newval >= usb_mouse_resolution_y) newval = usb_mouse_resolution_y - 1;
-		usb_mouse_position_y = newval;
-	} else if (y < 0) {
-		newval = usb_mouse_position_y + y;
-		if (newval & 0x8000) newval = 0;
-		usb_mouse_position_y = newval;
-	}
+
+        while (1) {
+                if (!usb_configuration) {
+                        return -1;
+                }
+                if (usb_tx_packet_count(MOUSE_ENDPOINT) < TX_PACKET_LIMIT) {
+                        tx_packet = usb_malloc();
+                        if (tx_packet) break;
+                }
+                if (++wait_count > TX_TIMEOUT || transmit_previous_timeout) {
+                        transmit_previous_timeout = 1;
+                        return -1;
+                }
+                yield();
+        }
+        transmit_previous_timeout = 0;
+        *(tx_packet->buf + 0) = 1;
+        *(tx_packet->buf + 1) = usb_mouse_buttons_state;
+        *(tx_packet->buf + 2) = x;
+        *(tx_packet->buf + 3) = y;
+        *(tx_packet->buf + 4) = wheel;
+        tx_packet->len = 5;
+        usb_tx(MOUSE_ENDPOINT, tx_packet);
+        return 0;
+}
+
+int usb_mouse_position(uint16_t x, uint16_t y)
+{
+        uint32_t wait_count=0, val32;
+        usb_packet_t *tx_packet;
+
+	if (x >= usb_mouse_resolution_x) x = usb_mouse_resolution_x - 1;
+	usb_mouse_position_x = x;
+	if (y >= usb_mouse_resolution_y) y = usb_mouse_resolution_y - 1;
+	usb_mouse_position_y = y;
+
         while (1) {
                 if (!usb_configuration) {
                         return -1;
@@ -166,9 +185,9 @@ int usb_mouse_move(int8_t x, int8_t y, int8_t wheel)
                 yield();
         }
 	transmit_previous_timeout = 0;
-	*(tx_packet->buf) = usb_mouse_buttons_state;
+	*(tx_packet->buf + 0) = 2;
 	val32 = usb_mouse_position_x * usb_mouse_scale_x + usb_mouse_offset_x;
-	 //serial_print("move:");
+	 //serial_print("position:");
 	 //serial_phex16(usb_mouse_position_x);
 	 //serial_print("->");
 	 //serial_phex32(val32);
@@ -182,19 +201,9 @@ int usb_mouse_move(int8_t x, int8_t y, int8_t wheel)
 	 //serial_print("\n");
 	*(tx_packet->buf + 3) = val32 >> 16;
 	*(tx_packet->buf + 4) = val32 >> 24;
-	*(tx_packet->buf + 5) = wheel;
-	tx_packet->len = 6;
+	tx_packet->len = 5;
 	usb_tx(MOUSE_ENDPOINT, tx_packet);
         return 0;
-}
-
-int usb_mouse_position(uint16_t x, uint16_t y)
-{
-	if (x >= usb_mouse_resolution_x) x = usb_mouse_resolution_x - 1;
-	usb_mouse_position_x = x;
-	if (y >= usb_mouse_resolution_y) y = usb_mouse_resolution_y - 1;
-	usb_mouse_position_y = y;
-	return usb_mouse_move(0, 0, 0);
 }
 
 void usb_mouse_screen_size(uint16_t width, uint16_t height, uint8_t mac)
