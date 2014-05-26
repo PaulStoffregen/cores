@@ -1060,9 +1060,9 @@ extern "C" {
 #define ADC0_CLP1		*(volatile uint32_t *)0x4003B048 // ADC plus-side general calibration value register
 #define ADC0_CLP0		*(volatile uint32_t *)0x4003B04C // ADC plus-side general calibration value register
 #define ADC0_PGA		*(volatile uint32_t *)0x4003B050 // ADC Programmable Gain Amplifier
-#define ADC0_PGA_PGAEN			(uint32_t)0x00800000		// Enable
-#define ADC0_PGA_PGALPB			(uint32_t)0x00100000		// Low-Power Mode Control, 0=low power, 1=normal
-#define ADC0_PGA_PGAG(n)		(uint32_t)(((n) & 15) << 16)	// Gain, 0=1X, 1=2X, 2=4X, 3=8X, 4=16X, 5=32X, 6=64X
+#define ADC_PGA_PGAEN			(uint32_t)0x00800000		// Enable
+#define ADC_PGA_PGALPB			(uint32_t)0x00100000		// Low-Power Mode Control, 0=low power, 1=normal
+#define ADC_PGA_PGAG(n)			(uint32_t)(((n) & 15) << 16)	// Gain, 0=1X, 1=2X, 2=4X, 3=8X, 4=16X, 5=32X, 6=64X
 #define ADC0_CLMD		*(volatile uint32_t *)0x4003B054 // ADC minus-side general calibration value register
 #define ADC0_CLMS		*(volatile uint32_t *)0x4003B058 // ADC minus-side general calibration value register
 #define ADC0_CLM4		*(volatile uint32_t *)0x4003B05C // ADC minus-side general calibration value register
@@ -1157,7 +1157,16 @@ extern "C" {
 
 // Chapter 33: Voltage Reference (VREFV1)
 #define VREF_TRM		*(volatile uint8_t  *)0x40074000 // VREF Trim Register
+#define VREF_TRM_CHOPEN			(uint8_t)0x40			// Chop oscillator enable
+#define VREF_TRM_TRIM(n)		((n) & 0x3F)			// Trim bits
 #define VREF_SC			*(volatile uint8_t  *)0x40074001 // VREF Status and Control Register
+#define VREF_SC_VREFEN			(uint8_t)0x80			// Internal Voltage Reference enable
+#define VREF_SC_REGEN			(uint8_t)0x40			// Regulator enable
+#define VREF_SC_ICOMPEN			(uint8_t)0x20			// Second order curvature compensation enable
+#define VREF_SC_VREFST			(uint8_t)0x04			// Internal Voltage Reference stable flag
+#define VREF_SC_MODE_LV(n)		(uint8_t)(((n) & 3) << 0)	// Buffer Mode selection: 0=Bandgap on only
+									//  1=High power buffer mode,
+									//  2=Low-power buffer mode
 
 // Chapter 34: Programmable Delay Block (PDB)
 #define PDB0_SC			*(volatile uint32_t *)0x40036000 // Status and Control Register
