@@ -770,18 +770,29 @@ uint32_t micros(void);
 static inline void delayMicroseconds(uint32_t) __attribute__((always_inline, unused));
 static inline void delayMicroseconds(uint32_t usec)
 {
-#if F_CPU == 144000000
+#if F_CPU == 168000000
+	uint32_t n = usec * 56;
+#elif F_CPU == 144000000
 	uint32_t n = usec * 48; 
+#elif F_CPU == 120000000
+	uint32_t n = usec * 40;
 #elif F_CPU == 96000000
 	uint32_t n = usec << 5;
 #elif F_CPU == 48000000
 	uint32_t n = usec << 4;
 #elif F_CPU == 24000000
 	uint32_t n = usec << 3;
+#elif F_CPU == 4000000
+	uint32_t n = usec;
+#elif F_CPU == 2000000
+	uint32_t n = usec >> 1;
 #endif
 	if (usec == 0) return;
 	asm volatile(
 		"L_%=_delayMicroseconds:"		"\n\t"
+#if F_CPU < 10000000
+		"nop"					"\n\t"
+#endif
 		"subs   %0, #1"				"\n\t"
 		"bne    L_%=_delayMicroseconds"		"\n"
 		: "+r" (n) :

@@ -320,11 +320,30 @@ extern void usb_init(void);
 
 
 // create a default PWM at the same 488.28 Hz as Arduino Uno
-#if F_BUS == 48000000
+
+#if F_BUS == 60000000
+#define DEFAULT_FTM_MOD (61440 - 1)
+#define DEFAULT_FTM_PRESCALE 1
+#elif F_BUS == 56000000
+#define DEFAULT_FTM_MOD (57344 - 1)
+#define DEFAULT_FTM_PRESCALE 1
+#elif F_BUS == 48000000
 #define DEFAULT_FTM_MOD (49152 - 1)
+#define DEFAULT_FTM_PRESCALE 1
+#elif F_BUS == 40000000
+#define DEFAULT_FTM_MOD (40960 - 1)
+#define DEFAULT_FTM_PRESCALE 1
+#elif F_BUS == 36000000
+#define DEFAULT_FTM_MOD (36864 - 1)
 #define DEFAULT_FTM_PRESCALE 1
 #elif F_BUS == 24000000
 #define DEFAULT_FTM_MOD (49152 - 1)
+#define DEFAULT_FTM_PRESCALE 0
+#elif F_BUS == 4000000
+#define DEFAULT_FTM_MOD (8192 - 1)
+#define DEFAULT_FTM_PRESCALE 0
+#elif F_BUS == 2000000
+#define DEFAULT_FTM_MOD (4096 - 1)
 #define DEFAULT_FTM_PRESCALE 0
 #endif
 
@@ -685,14 +704,25 @@ void delay(uint32_t ms)
 	}
 }
 
-#if F_CPU == 144000000
-#define PULSEIN_LOOPS_PER_USEC 21  
+// TODO: verify these result in correct timeouts...
+#if F_CPU == 168000000
+#define PULSEIN_LOOPS_PER_USEC 25
+#elif F_CPU == 144000000
+#define PULSEIN_LOOPS_PER_USEC 21
+#elif F_CPU == 120000000
+#define PULSEIN_LOOPS_PER_USEC 18
 #elif F_CPU == 96000000
 #define PULSEIN_LOOPS_PER_USEC 14
+#elif F_CPU == 72000000
+#define PULSEIN_LOOPS_PER_USEC 10
 #elif F_CPU == 48000000
 #define PULSEIN_LOOPS_PER_USEC 7
 #elif F_CPU == 24000000
 #define PULSEIN_LOOPS_PER_USEC 4
+#elif F_CPU == 4000000
+#define PULSEIN_LOOPS_PER_USEC 1
+#elif F_CPU == 2000000
+#define PULSEIN_LOOPS_PER_USEC 1
 #endif
 
 

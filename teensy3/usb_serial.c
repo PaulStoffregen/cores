@@ -147,10 +147,16 @@ void usb_serial_flush_input(void)
 // software.  If it's too long, we stall the user's program when no software is running.
 #define TX_TIMEOUT_MSEC 70
 
-#if F_CPU == 144000000
-  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 932) 
+#if F_CPU == 168000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1100)
+#elif F_CPU == 144000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 932)
+#elif F_CPU == 120000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 764)
 #elif F_CPU == 96000000
   #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 596)
+#elif F_CPU == 72000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 512)
 #elif F_CPU == 48000000
   #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 428)
 #elif F_CPU == 24000000
