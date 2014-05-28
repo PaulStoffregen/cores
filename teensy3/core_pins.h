@@ -778,6 +778,8 @@ static inline void delayMicroseconds(uint32_t usec)
 	uint32_t n = usec * 40;
 #elif F_CPU == 96000000
 	uint32_t n = usec << 5;
+#elif F_CPU == 72000000
+	uint32_t n = usec * 24;
 #elif F_CPU == 48000000
 	uint32_t n = usec << 4;
 #elif F_CPU == 24000000
