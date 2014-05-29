@@ -2,6 +2,9 @@
 # The name of your project (used to name the compiled .hex file)
 TARGET = main
 
+# Path to your arduino installation
+ARDUINOPATH ?= ../../../..
+
 # configurable options
 OPTIONS = -DF_CPU=48000000 -DUSB_SERIAL -DLAYOUT_US_ENGLISH
 
@@ -23,14 +26,14 @@ OPTIONS += -D__MK20DX128__ -DARDUIO=105 -DTEENSYDUINO=118
 #************************************************************************
 
 # path location for Teensy Loader, teensy_post_compile and teensy_reboot
-TOOLSPATH = ../../../tools   # on Linux
-#TOOLSPATH = ../../../tools/avr/bin   # on Mac or Windows
+TOOLSPATH = $(ARDUINOPATH)/hardware/tools   # on Linux
+#TOOLSPATH = $(ARDUINOPATH)/hardware/tools/tools/avr/bin   # on Mac or Windows
 
 # path location for Arduino libraries (currently not used)
-LIBRARYPATH = ../../../../libraries
+LIBRARYPATH = $(ARDUINOPATH)/libraries
 
 # path location for the arm-none-eabi compiler
-COMPILERPATH = ../../../tools/arm-none-eabi/bin
+COMPILERPATH = $(ARDUINOPATH)/hardware/tools/arm-none-eabi/bin
 
 #************************************************************************
 # Settings below this point usually do not need to be edited

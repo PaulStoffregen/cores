@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -409,7 +409,7 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         // MIDI MS Interface Header, USB MIDI 6.1.2.1, page 21, Table 6-2
         7,                                      // bLength
         0x24,                                   // bDescriptorType = CS_INTERFACE
-        0x01,                                   // bDescriptorSubtype = MS_HEADER 
+        0x01,                                   // bDescriptorSubtype = MS_HEADER
         0x00, 0x01,                             // bcdMSC = revision 01.00
         0x41, 0x00,                             // wTotalLength
         // MIDI IN Jack Descriptor, B.4.3, Table B-7 (embedded), page 40
@@ -448,7 +448,7 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         0,                                      // iJack
         // Standard Bulk OUT Endpoint Descriptor, B.5.1, Table B-11, pae 42
         9,                                      // bLength
-        5,                                      // bDescriptorType = ENDPOINT 
+        5,                                      // bDescriptorType = ENDPOINT
         MIDI_RX_ENDPOINT,                       // bEndpointAddress
         0x02,                                   // bmAttributes (0x02=bulk)
         MIDI_RX_SIZE, 0,                        // wMaxPacketSize
@@ -463,7 +463,7 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         1,                                      // BaAssocJackID(1) = jack ID #1
         // Standard Bulk IN Endpoint Descriptor, B.5.1, Table B-11, pae 42
         9,                                      // bLength
-        5,                                      // bDescriptorType = ENDPOINT 
+        5,                                      // bDescriptorType = ENDPOINT
         MIDI_TX_ENDPOINT | 0x80,                // bEndpointAddress
         0x02,                                   // bmAttributes (0x02=bulk)
         MIDI_TX_SIZE, 0,                        // wMaxPacketSize
@@ -800,16 +800,16 @@ const usb_descriptor_list_t usb_descriptor_list[] = {
 // 0x19 = Recieve only
 // 0x15 = Transmit only
 // 0x1D = Transmit & Recieve
-// 
-const uint8_t usb_endpoint_config_table[NUM_ENDPOINTS] = 
+//
+const uint8_t usb_endpoint_config_table[NUM_ENDPOINTS] =
 {
-	0x00, 0x15, 0x19, 0x15, 0x00, 0x00, 0x00, 0x00, 
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x15, 0x19, 0x15, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 #endif
 
 
-const uint8_t usb_endpoint_config_table[NUM_ENDPOINTS] = 
+const uint8_t usb_endpoint_config_table[NUM_ENDPOINTS] =
 {
 #if (defined(ENDPOINT1_CONFIG) && NUM_ENDPOINTS >= 1)
 	ENDPOINT1_CONFIG,

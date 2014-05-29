@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -233,8 +233,8 @@ extern "C"{
 #define ASCII_24	KEY_4 + SHIFT_MASK			// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_7 + SHIFT_MASK			// 38 &
-#define ASCII_27	KEY_QUOTE				// 39 '  
-#define ASCII_28	KEY_9 + SHIFT_MASK			// 40 ( 
+#define ASCII_27	KEY_QUOTE				// 39 '
+#define ASCII_28	KEY_9 + SHIFT_MASK			// 40 (
 #define ASCII_29	KEY_0 + SHIFT_MASK			// 41 )
 #define ASCII_2A	KEY_8 + SHIFT_MASK			// 42 *
 #define ASCII_2B	KEY_EQUAL + SHIFT_MASK			// 43 +
@@ -286,7 +286,7 @@ extern "C"{
 #define ASCII_59	KEY_Y + SHIFT_MASK			// 89 Y
 #define ASCII_5A	KEY_Z + SHIFT_MASK			// 90 Z
 #define ASCII_5B	KEY_LEFT_BRACE				// 91 [
-#define ASCII_5C	KEY_BACKSLASH				// 92 
+#define ASCII_5C	KEY_BACKSLASH				// 92
 #define ASCII_5D	KEY_RIGHT_BRACE				// 93 ]
 #define ASCII_5E	KEY_6 + SHIFT_MASK			// 94 ^
 #define ASCII_5F	KEY_MINUS + SHIFT_MASK			// 95 _
@@ -352,8 +352,8 @@ extern "C"{
 #define ASCII_24	KEY_4 + SHIFT_MASK			// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_7 + SHIFT_MASK			// 38 &
-#define ASCII_27	ACUTE_ACCENT_BITS + KEY_SPACE		// 39 '  
-#define ASCII_28	KEY_9 + SHIFT_MASK			// 40 ( 
+#define ASCII_27	ACUTE_ACCENT_BITS + KEY_SPACE		// 39 '
+#define ASCII_28	KEY_9 + SHIFT_MASK			// 40 (
 #define ASCII_29	KEY_0 + SHIFT_MASK			// 41 )
 #define ASCII_2A	KEY_8 + SHIFT_MASK			// 42 *
 #define ASCII_2B	KEY_EQUAL + SHIFT_MASK			// 43 +
@@ -405,7 +405,7 @@ extern "C"{
 #define ASCII_59	KEY_Y + SHIFT_MASK			// 89 Y
 #define ASCII_5A	KEY_Z + SHIFT_MASK			// 90 Z
 #define ASCII_5B	KEY_LEFT_BRACE				// 91 [
-#define ASCII_5C	KEY_BACKSLASH				// 92 
+#define ASCII_5C	KEY_BACKSLASH				// 92
 #define ASCII_5D	KEY_RIGHT_BRACE				// 93 ]
 #define ASCII_5E	CIRCUMFLEX_BITS + KEY_SPACE		// 94 ^
 #define ASCII_5F	KEY_MINUS + SHIFT_MASK			// 95 _
@@ -570,8 +570,8 @@ extern "C"{
 #define ASCII_24	KEY_4 + SHIFT_MASK			// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_6 + SHIFT_MASK			// 38 &
-#define ASCII_27	KEY_BACKSLASH + SHIFT_MASK		// 39 '  
-#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 ( 
+#define ASCII_27	KEY_BACKSLASH + SHIFT_MASK		// 39 '
+#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 (
 #define ASCII_29	KEY_9 + SHIFT_MASK			// 41 )
 #define ASCII_2A	KEY_RIGHT_BRACE + SHIFT_MASK		// 42 *
 #define ASCII_2B	KEY_RIGHT_BRACE				// 43 +
@@ -623,7 +623,7 @@ extern "C"{
 #define ASCII_59	KEY_Z + SHIFT_MASK			// 89 Y
 #define ASCII_5A	KEY_Y + SHIFT_MASK			// 90 Z
 #define ASCII_5B	KEY_8 + ALTGR_MASK			// 91 [
-#define ASCII_5C	KEY_MINUS + ALTGR_MASK			// 92 
+#define ASCII_5C	KEY_MINUS + ALTGR_MASK			// 92
 #define ASCII_5D	KEY_9 + ALTGR_MASK			// 93 ]
 #define ASCII_5E	CIRCUMFLEX_BITS + KEY_SPACE		// 94 ^
 #define ASCII_5F	KEY_SLASH + SHIFT_MASK			// 95 _
@@ -789,8 +789,8 @@ extern "C"{
 #define ASCII_24	KEY_4 + SHIFT_MASK			// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_6 + SHIFT_MASK			// 38 &
-#define ASCII_27	KEY_BACKSLASH + SHIFT_MASK		// 39 '  
-#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 ( 
+#define ASCII_27	KEY_BACKSLASH + SHIFT_MASK		// 39 '
+#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 (
 #define ASCII_29	KEY_9 + SHIFT_MASK			// 41 )
 #define ASCII_2A	KEY_RIGHT_BRACE + SHIFT_MASK		// 42 *
 #define ASCII_2B	KEY_RIGHT_BRACE				// 43 +
@@ -842,7 +842,7 @@ extern "C"{
 #define ASCII_59	KEY_Z + SHIFT_MASK			// 89 Y
 #define ASCII_5A	KEY_Y + SHIFT_MASK			// 90 Z
 #define ASCII_5B	KEY_5 + ALTGR_MASK			// 91 [
-#define ASCII_5C	KEY_7 + ALTGR_MASK + SHIFT_MASK		// 92 
+#define ASCII_5C	KEY_7 + ALTGR_MASK + SHIFT_MASK		// 92
 #define ASCII_5D	KEY_6 + ALTGR_MASK			// 93 ]
 #define ASCII_5E	CIRCUMFLEX_BITS + KEY_SPACE		// 94 ^
 #define ASCII_5F	KEY_SLASH + SHIFT_MASK			// 95 _
@@ -1012,9 +1012,9 @@ extern "C"{
 #define ASCII_24	KEY_4 + SHIFT_MASK			// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_7 + SHIFT_MASK			// 38 &
-#define ASCII_27	KEY_COMMA + SHIFT_MASK			// 39 '  
-//#define ASCII_27	ACUTE_ACCENT_BITS + KEY_SPACE		// 39 '  
-#define ASCII_28	KEY_9 + SHIFT_MASK			// 40 ( 
+#define ASCII_27	KEY_COMMA + SHIFT_MASK			// 39 '
+//#define ASCII_27	ACUTE_ACCENT_BITS + KEY_SPACE		// 39 '
+#define ASCII_28	KEY_9 + SHIFT_MASK			// 40 (
 #define ASCII_29	KEY_0 + SHIFT_MASK			// 41 )
 #define ASCII_2A	KEY_8 + SHIFT_MASK			// 42 *
 #define ASCII_2B	KEY_EQUAL + SHIFT_MASK			// 43 +
@@ -1066,7 +1066,7 @@ extern "C"{
 #define ASCII_59	KEY_Y + SHIFT_MASK			// 89 Y
 #define ASCII_5A	KEY_Z + SHIFT_MASK			// 90 Z
 #define ASCII_5B	KEY_LEFT_BRACE + ALTGR_MASK		// 91 [
-#define ASCII_5C	KEY_TILDE + ALTGR_MASK			// 92 
+#define ASCII_5C	KEY_TILDE + ALTGR_MASK			// 92
 #define ASCII_5D	KEY_RIGHT_BRACE + ALTGR_MASK		// 93 ]
 #define ASCII_5E	CIRCUMFLEX_BITS + KEY_SPACE		// 94 ^
 #define ASCII_5F	KEY_MINUS + SHIFT_MASK			// 95 _
@@ -1233,8 +1233,8 @@ extern "C"{
 #define ASCII_24	KEY_4 + SHIFT_MASK			// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_7 + SHIFT_MASK			// 38 &
-#define ASCII_27	KEY_COMMA + SHIFT_MASK			// 39 '  
-#define ASCII_28	KEY_9 + SHIFT_MASK			// 40 ( 
+#define ASCII_27	KEY_COMMA + SHIFT_MASK			// 39 '
+#define ASCII_28	KEY_9 + SHIFT_MASK			// 40 (
 #define ASCII_29	KEY_0 + SHIFT_MASK			// 41 )
 #define ASCII_2A	KEY_8 + SHIFT_MASK			// 42 *
 #define ASCII_2B	KEY_EQUAL + SHIFT_MASK			// 43 +
@@ -1286,7 +1286,7 @@ extern "C"{
 #define ASCII_59	KEY_Y + SHIFT_MASK			// 89 Y
 #define ASCII_5A	KEY_Z + SHIFT_MASK			// 90 Z
 #define ASCII_5B	KEY_9 + ALTGR_MASK			// 91 [
-#define ASCII_5C	KEY_TILDE + SHIFT_MASK			// 92 
+#define ASCII_5C	KEY_TILDE + SHIFT_MASK			// 92
 #define ASCII_5D	KEY_0 + ALTGR_MASK			// 93 ]
 #define ASCII_5E	CIRCUMFLEX_BITS + KEY_SPACE		// 94 ^
 #define ASCII_5F	KEY_MINUS + SHIFT_MASK			// 95 _
@@ -1440,8 +1440,8 @@ extern "C"{
 #define ASCII_24	KEY_4 + SHIFT_MASK			// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_7 + SHIFT_MASK			// 38 &
-#define ASCII_27	KEY_QUOTE				// 39 '  
-#define ASCII_28	KEY_9 + SHIFT_MASK			// 40 ( 
+#define ASCII_27	KEY_QUOTE				// 39 '
+#define ASCII_28	KEY_9 + SHIFT_MASK			// 40 (
 #define ASCII_29	KEY_0 + SHIFT_MASK			// 41 )
 #define ASCII_2A	KEY_8 + SHIFT_MASK			// 42 *
 #define ASCII_2B	KEY_EQUAL + SHIFT_MASK			// 43 +
@@ -1493,7 +1493,7 @@ extern "C"{
 #define ASCII_59	KEY_Y + SHIFT_MASK			// 89 Y
 #define ASCII_5A	KEY_Z + SHIFT_MASK			// 90 Z
 #define ASCII_5B	KEY_LEFT_BRACE				// 91 [
-#define ASCII_5C	KEY_NON_US_100				// 92 
+#define ASCII_5C	KEY_NON_US_100				// 92
 #define ASCII_5D	KEY_RIGHT_BRACE				// 93 ]
 #define ASCII_5E	KEY_6 + SHIFT_MASK			// 94 ^
 #define ASCII_5F	KEY_MINUS + SHIFT_MASK			// 95 _
@@ -1660,8 +1660,8 @@ extern "C"{
 #define ASCII_24	KEY_4 + ALTGR_MASK			// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_6 + SHIFT_MASK			// 38 &
-#define ASCII_27	KEY_BACKSLASH				// 39 '  
-#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 ( 
+#define ASCII_27	KEY_BACKSLASH				// 39 '
+#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 (
 #define ASCII_29	KEY_9 + SHIFT_MASK			// 41 )
 #define ASCII_2A	KEY_BACKSLASH + SHIFT_MASK		// 42 *
 #define ASCII_2B	KEY_MINUS				// 43 +
@@ -1713,7 +1713,7 @@ extern "C"{
 #define ASCII_59	KEY_Y + SHIFT_MASK			// 89 Y
 #define ASCII_5A	KEY_Z + SHIFT_MASK			// 90 Z
 #define ASCII_5B	KEY_8 + ALTGR_MASK			// 91 [
-#define ASCII_5C	KEY_MINUS + ALTGR_MASK			// 92 
+#define ASCII_5C	KEY_MINUS + ALTGR_MASK			// 92
 #define ASCII_5D	KEY_9 + ALTGR_MASK			// 93 ]
 #define ASCII_5E	CIRCUMFLEX_BITS + KEY_SPACE		// 94 ^
 #define ASCII_5F	KEY_SLASH + SHIFT_MASK			// 95 _
@@ -1883,8 +1883,8 @@ extern "C"{
 #define ASCII_24	KEY_RIGHT_BRACE				// 36 $
 #define ASCII_25	KEY_QUOTE + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_1					// 38 &
-#define ASCII_27	KEY_4					// 39 '  
-#define ASCII_28	KEY_5					// 40 ( 
+#define ASCII_27	KEY_4					// 39 '
+#define ASCII_28	KEY_5					// 40 (
 #define ASCII_29	KEY_MINUS				// 41 )
 #define ASCII_2A	KEY_BACKSLASH				// 42 *
 #define ASCII_2B	KEY_EQUAL + SHIFT_MASK			// 43 +
@@ -1936,7 +1936,7 @@ extern "C"{
 #define ASCII_59	KEY_Y + SHIFT_MASK			// 89 Y
 #define ASCII_5A	KEY_W + SHIFT_MASK			// 90 Z
 #define ASCII_5B	KEY_5 + ALTGR_MASK			// 91 [
-#define ASCII_5C	KEY_8 + ALTGR_MASK			// 92 
+#define ASCII_5C	KEY_8 + ALTGR_MASK			// 92
 #define ASCII_5D	KEY_MINUS + ALTGR_MASK			// 93 ]
 #define ASCII_5E	KEY_9 + ALTGR_MASK			// 94 ^
 #define ASCII_5F	KEY_8					// 95 _
@@ -2104,8 +2104,8 @@ extern "C"{
 #define ASCII_24	KEY_4 + ALTGR_MASK			// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_6 + SHIFT_MASK			// 38 &
-#define ASCII_27	KEY_BACKSLASH				// 39 '  
-#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 ( 
+#define ASCII_27	KEY_BACKSLASH				// 39 '
+#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 (
 #define ASCII_29	KEY_9 + SHIFT_MASK			// 41 )
 #define ASCII_2A	KEY_BACKSLASH + SHIFT_MASK		// 42 *
 #define ASCII_2B	KEY_MINUS				// 43 +
@@ -2157,7 +2157,7 @@ extern "C"{
 #define ASCII_59	KEY_Y + SHIFT_MASK			// 89 Y
 #define ASCII_5A	KEY_Z + SHIFT_MASK			// 90 Z
 #define ASCII_5B	KEY_8 + ALTGR_MASK			// 91 [
-#define ASCII_5C	KEY_NON_US_100 + ALTGR_MASK		// 92 
+#define ASCII_5C	KEY_NON_US_100 + ALTGR_MASK		// 92
 #define ASCII_5D	KEY_9 + ALTGR_MASK			// 93 ]
 #define ASCII_5E	CIRCUMFLEX_BITS + KEY_SPACE		// 94 ^
 #define ASCII_5F	KEY_SLASH + SHIFT_MASK			// 95 _
@@ -2326,8 +2326,8 @@ extern "C"{
 #define ASCII_24	KEY_4 + ALTGR_MASK			// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_6 + SHIFT_MASK			// 38 &
-#define ASCII_27	KEY_BACKSLASH				// 39 '  
-#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 ( 
+#define ASCII_27	KEY_BACKSLASH				// 39 '
+#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 (
 #define ASCII_29	KEY_9 + SHIFT_MASK			// 41 )
 #define ASCII_2A	KEY_BACKSLASH + SHIFT_MASK		// 42 *
 #define ASCII_2B	KEY_MINUS				// 43 +
@@ -2379,7 +2379,7 @@ extern "C"{
 #define ASCII_59	KEY_Y + SHIFT_MASK			// 89 Y
 #define ASCII_5A	KEY_Z + SHIFT_MASK			// 90 Z
 #define ASCII_5B	KEY_8 + ALTGR_MASK			// 91 [
-#define ASCII_5C	KEY_EQUAL				// 92 
+#define ASCII_5C	KEY_EQUAL				// 92
 #define ASCII_5D	KEY_9 + ALTGR_MASK			// 93 ]
 #define ASCII_5E	CIRCUMFLEX_BITS + KEY_SPACE		// 94 ^
 #define ASCII_5F	KEY_SLASH + SHIFT_MASK			// 95 _
@@ -2549,8 +2549,8 @@ extern "C"{
 #define ASCII_24	KEY_4 + ALTGR_MASK			// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_6 + SHIFT_MASK			// 38 &
-#define ASCII_27	KEY_BACKSLASH				// 39 '  
-#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 ( 
+#define ASCII_27	KEY_BACKSLASH				// 39 '
+#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 (
 #define ASCII_29	KEY_9 + SHIFT_MASK			// 41 )
 #define ASCII_2A	KEY_BACKSLASH + SHIFT_MASK		// 42 *
 #define ASCII_2B	KEY_MINUS				// 43 +
@@ -2602,7 +2602,7 @@ extern "C"{
 #define ASCII_59	KEY_Y + SHIFT_MASK			// 89 Y
 #define ASCII_5A	KEY_Z + SHIFT_MASK			// 90 Z
 #define ASCII_5B	KEY_8 + ALTGR_MASK			// 91 [
-#define ASCII_5C	KEY_MINUS + ALTGR_MASK			// 92 
+#define ASCII_5C	KEY_MINUS + ALTGR_MASK			// 92
 #define ASCII_5D	KEY_9 + ALTGR_MASK			// 93 ]
 #define ASCII_5E	CIRCUMFLEX_BITS + KEY_SPACE		// 94 ^
 #define ASCII_5F	KEY_SLASH + SHIFT_MASK			// 95 _
@@ -2772,8 +2772,8 @@ extern "C"{
 #define ASCII_24	KEY_4 + SHIFT_MASK			// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_6 + SHIFT_MASK			// 38 &
-#define ASCII_27	KEY_MINUS				// 39 '  
-#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 ( 
+#define ASCII_27	KEY_MINUS				// 39 '
+#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 (
 #define ASCII_29	KEY_9 + SHIFT_MASK			// 41 )
 #define ASCII_2A	KEY_RIGHT_BRACE + SHIFT_MASK		// 42 *
 #define ASCII_2B	KEY_RIGHT_BRACE				// 43 +
@@ -2825,7 +2825,7 @@ extern "C"{
 #define ASCII_59	KEY_Y + SHIFT_MASK			// 89 Y
 #define ASCII_5A	KEY_Z + SHIFT_MASK			// 90 Z
 #define ASCII_5B	KEY_LEFT_BRACE + ALTGR_MASK		// 91 [
-#define ASCII_5C	KEY_TILDE + ALTGR_MASK			// 92 
+#define ASCII_5C	KEY_TILDE + ALTGR_MASK			// 92
 #define ASCII_5D	KEY_RIGHT_BRACE + ALTGR_MASK		// 93 ]
 #define ASCII_5E	CIRCUMFLEX_BITS + KEY_SPACE		// 94 ^
 #define ASCII_5F	KEY_SLASH + SHIFT_MASK			// 95 _
@@ -3046,7 +3046,7 @@ extern "C"{
 #define ASCII_59	KEY_Y + SHIFT_MASK			// 89 Y
 #define ASCII_5A	KEY_Z + SHIFT_MASK			// 90 Z
 #define ASCII_5B	KEY_8 + ALTGR_MASK			// 91 [
-#define ASCII_5C	KEY_TILDE + ALTGR_MASK			// 92 
+#define ASCII_5C	KEY_TILDE + ALTGR_MASK			// 92
 #define ASCII_5D	KEY_9 + ALTGR_MASK			// 93 ]
 #define ASCII_5E	CIRCUMFLEX_BITS + KEY_SPACE		// 94 ^
 #define ASCII_5F	KEY_SLASH + SHIFT_MASK			// 95 _
@@ -3206,8 +3206,8 @@ extern "C"{
 #define ASCII_24	KEY_4 + SHIFT_MASK			// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_6 + SHIFT_MASK			// 38 &
-#define ASCII_27	KEY_MINUS				// 39 '  
-#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 ( 
+#define ASCII_27	KEY_MINUS				// 39 '
+#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 (
 #define ASCII_29	KEY_9 + SHIFT_MASK			// 41 )
 #define ASCII_2A	KEY_RIGHT_BRACE + SHIFT_MASK		// 42 *
 #define ASCII_2B	KEY_RIGHT_BRACE				// 43 +
@@ -3259,7 +3259,7 @@ extern "C"{
 #define ASCII_59	KEY_Y + SHIFT_MASK			// 89 Y
 #define ASCII_5A	KEY_Z + SHIFT_MASK			// 90 Z
 #define ASCII_5B	KEY_LEFT_BRACE + ALTGR_MASK		// 91 [
-#define ASCII_5C	KEY_TILDE				// 92 
+#define ASCII_5C	KEY_TILDE				// 92
 #define ASCII_5D	KEY_RIGHT_BRACE + ALTGR_MASK		// 93 ]
 #define ASCII_5E	KEY_EQUAL + SHIFT_MASK			// 94 ^
 #define ASCII_5F	KEY_SLASH + SHIFT_MASK			// 95 _
@@ -3639,8 +3639,8 @@ extern "C"{
 #define ASCII_24	KEY_RIGHT_BRACE				// 36 $
 #define ASCII_25	KEY_QUOTE + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_1					// 38 &
-#define ASCII_27	KEY_4					// 39 '  
-#define ASCII_28	KEY_5					// 40 ( 
+#define ASCII_27	KEY_4					// 39 '
+#define ASCII_28	KEY_5					// 40 (
 #define ASCII_29	KEY_MINUS				// 41 )
 #define ASCII_2A	KEY_RIGHT_BRACE + SHIFT_MASK		// 42 *
 #define ASCII_2B	KEY_SLASH + SHIFT_MASK			// 43 +
@@ -3692,7 +3692,7 @@ extern "C"{
 #define ASCII_59	KEY_Y + SHIFT_MASK			// 89 Y
 #define ASCII_5A	KEY_W + SHIFT_MASK			// 90 Z
 #define ASCII_5B	KEY_RIGHT_BRACE + ALTGR_MASK		// 91 [
-#define ASCII_5C	KEY_NON_US_100 + ALTGR_MASK		// 92 
+#define ASCII_5C	KEY_NON_US_100 + ALTGR_MASK		// 92
 #define ASCII_5D	KEY_LEFT_BRACE + ALTGR_MASK		// 93 ]
 #define ASCII_5E	KEY_6 + ALTGR_MASK			// 94 ^
 #define ASCII_5F	KEY_EQUAL + SHIFT_MASK			// 95 _
@@ -3859,8 +3859,8 @@ extern "C"{
 #define ASCII_24	KEY_BACKSLASH				// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_6 + SHIFT_MASK			// 38 &
-#define ASCII_27	KEY_MINUS				// 39 '  
-#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 ( 
+#define ASCII_27	KEY_MINUS				// 39 '
+#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 (
 #define ASCII_29	KEY_9 + SHIFT_MASK			// 41 )
 #define ASCII_2A	KEY_3 + SHIFT_MASK			// 42 *
 #define ASCII_2B	KEY_1 + SHIFT_MASK			// 43 +
@@ -3912,7 +3912,7 @@ extern "C"{
 #define ASCII_59	KEY_Z + SHIFT_MASK			// 89 Y
 #define ASCII_5A	KEY_Y + SHIFT_MASK			// 90 Z
 #define ASCII_5B	KEY_LEFT_BRACE + ALTGR_MASK		// 91 [
-#define ASCII_5C	KEY_NON_US_100 + ALTGR_MASK		// 92 
+#define ASCII_5C	KEY_NON_US_100 + ALTGR_MASK		// 92
 #define ASCII_5D	KEY_RIGHT_BRACE + ALTGR_MASK		// 93 ]
 #define ASCII_5E	CIRCUMFLEX_BITS + KEY_SPACE		// 94 ^
 #define ASCII_5F	KEY_SLASH + SHIFT_MASK			// 95 _
@@ -4079,8 +4079,8 @@ extern "C"{
 #define ASCII_24	KEY_BACKSLASH				// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_6 + SHIFT_MASK			// 38 &
-#define ASCII_27	KEY_MINUS				// 39 '  
-#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 ( 
+#define ASCII_27	KEY_MINUS				// 39 '
+#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 (
 #define ASCII_29	KEY_9 + SHIFT_MASK			// 41 )
 #define ASCII_2A	KEY_3 + SHIFT_MASK			// 42 *
 #define ASCII_2B	KEY_1 + SHIFT_MASK			// 43 +
@@ -4132,7 +4132,7 @@ extern "C"{
 #define ASCII_59	KEY_Z + SHIFT_MASK			// 89 Y
 #define ASCII_5A	KEY_Y + SHIFT_MASK			// 90 Z
 #define ASCII_5B	KEY_LEFT_BRACE + ALTGR_MASK		// 91 [
-#define ASCII_5C	KEY_NON_US_100 + ALTGR_MASK		// 92 
+#define ASCII_5C	KEY_NON_US_100 + ALTGR_MASK		// 92
 #define ASCII_5D	KEY_RIGHT_BRACE + ALTGR_MASK		// 93 ]
 #define ASCII_5E	CIRCUMFLEX_BITS + KEY_SPACE		// 94 ^
 #define ASCII_5F	KEY_SLASH + SHIFT_MASK			// 95 _
@@ -4298,8 +4298,8 @@ extern "C"{
 #define ASCII_24	KEY_4 + SHIFT_MASK			// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_6 + SHIFT_MASK			// 38 &
-#define ASCII_27	KEY_MINUS				// 39 '  
-#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 ( 
+#define ASCII_27	KEY_MINUS				// 39 '
+#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 (
 #define ASCII_29	KEY_9 + SHIFT_MASK			// 41 )
 #define ASCII_2A	KEY_RIGHT_BRACE + SHIFT_MASK		// 42 *
 #define ASCII_2B	KEY_RIGHT_BRACE				// 43 +
@@ -4351,7 +4351,7 @@ extern "C"{
 #define ASCII_59	KEY_Y + SHIFT_MASK			// 89 Y
 #define ASCII_5A	KEY_Z + SHIFT_MASK			// 90 Z
 #define ASCII_5B	KEY_QUOTE + SHIFT_MASK			// 91 [
-#define ASCII_5C	KEY_MINUS + ALTGR_MASK			// 92 
+#define ASCII_5C	KEY_MINUS + ALTGR_MASK			// 92
 #define ASCII_5D	KEY_BACKSLASH + SHIFT_MASK		// 93 ]
 #define ASCII_5E	CIRCUMFLEX_BITS + KEY_SPACE		// 94 ^
 #define ASCII_5F	KEY_SLASH + SHIFT_MASK			// 95 _
@@ -4508,8 +4508,8 @@ extern "C"{
 #define ASCII_24	KEY_4 + SHIFT_MASK			// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_7 + SHIFT_MASK			// 38 &
-#define ASCII_27	KEY_QUOTE				// 39 '  
-#define ASCII_28	KEY_9 + SHIFT_MASK			// 40 ( 
+#define ASCII_27	KEY_QUOTE				// 39 '
+#define ASCII_28	KEY_9 + SHIFT_MASK			// 40 (
 #define ASCII_29	KEY_0 + SHIFT_MASK			// 41 )
 #define ASCII_2A	KEY_8 + SHIFT_MASK			// 42 *
 #define ASCII_2B	KEY_EQUAL + SHIFT_MASK			// 43 +
@@ -4561,7 +4561,7 @@ extern "C"{
 #define ASCII_59	KEY_Y + SHIFT_MASK			// 89 Y
 #define ASCII_5A	KEY_Z + SHIFT_MASK			// 90 Z
 #define ASCII_5B	KEY_LEFT_BRACE				// 91 [
-#define ASCII_5C	KEY_NON_US_100				// 92 
+#define ASCII_5C	KEY_NON_US_100				// 92
 #define ASCII_5D	KEY_RIGHT_BRACE				// 93 ]
 #define ASCII_5E	KEY_6 + SHIFT_MASK			// 94 ^
 #define ASCII_5F	KEY_MINUS + SHIFT_MASK			// 95 _
@@ -4729,8 +4729,8 @@ extern "C"{
 #define ASCII_24	KEY_4 + SHIFT_MASK			// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_6 + SHIFT_MASK			// 38 &
-#define ASCII_27	KEY_QUOTE + SHIFT_MASK			// 39 '  
-#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 ( 
+#define ASCII_27	KEY_QUOTE + SHIFT_MASK			// 39 '
+#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 (
 #define ASCII_29	KEY_9 + SHIFT_MASK			// 41 )
 #define ASCII_2A	KEY_BACKSLASH + SHIFT_MASK		// 42 *
 #define ASCII_2B	KEY_BACKSLASH				// 43 +
@@ -4782,7 +4782,7 @@ extern "C"{
 #define ASCII_59	KEY_Y + SHIFT_MASK			// 89 Y
 #define ASCII_5A	KEY_Z + SHIFT_MASK			// 90 Z
 #define ASCII_5B	KEY_8 + ALTGR_MASK			// 91 [
-#define ASCII_5C	KEY_MINUS + ALTGR_MASK			// 92 
+#define ASCII_5C	KEY_MINUS + ALTGR_MASK			// 92
 #define ASCII_5D	KEY_9 + ALTGR_MASK			// 93 ]
 #define ASCII_5E	CIRCUMFLEX_BITS + KEY_SPACE		// 94 ^
 #define ASCII_5F	KEY_EQUAL + SHIFT_MASK			// 95 _
@@ -4949,8 +4949,8 @@ extern "C"{
 #define ASCII_24	KEY_4 + ALTGR_MASK			// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_6 + SHIFT_MASK			// 38 &
-#define ASCII_27	KEY_2 + SHIFT_MASK			// 39 '  
-#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 ( 
+#define ASCII_27	KEY_2 + SHIFT_MASK			// 39 '
+#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 (
 #define ASCII_29	KEY_9 + SHIFT_MASK			// 41 )
 #define ASCII_2A	KEY_MINUS				// 42 *
 #define ASCII_2B	KEY_4 + SHIFT_MASK			// 43 +
@@ -5002,7 +5002,7 @@ extern "C"{
 #define ASCII_59	KEY_Y + SHIFT_MASK			// 89 Y
 #define ASCII_5A	KEY_Z + SHIFT_MASK			// 90 Z
 #define ASCII_5B	KEY_8 + ALTGR_MASK			// 91 [
-#define ASCII_5C	KEY_MINUS + ALTGR_MASK			// 92 
+#define ASCII_5C	KEY_MINUS + ALTGR_MASK			// 92
 #define ASCII_5D	KEY_9 + ALTGR_MASK			// 93 ]
 #define ASCII_5E	CIRCUMFLEX_BITS + KEY_SPACE		// 94 ^
 #define ASCII_5F	KEY_EQUAL + SHIFT_MASK			// 95 _
@@ -5194,8 +5194,8 @@ extern "C"{
 #define ASCII_24	KEY_SEMICOLON + ALTGR_MASK		// 36 $
 #define ASCII_25	KEY_MINUS + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_C + ALTGR_MASK			// 38 &
-#define ASCII_27	KEY_BACKSLASH + SHIFT_MASK		// 39 '  
-#define ASCII_28	KEY_RIGHT_BRACE + SHIFT_MASK		// 40 ( 
+#define ASCII_27	KEY_BACKSLASH + SHIFT_MASK		// 39 '
+#define ASCII_28	KEY_RIGHT_BRACE + SHIFT_MASK		// 40 (
 #define ASCII_29	KEY_RIGHT_BRACE				// 41 )
 #define ASCII_2A	KEY_SLASH + ALTGR_MASK			// 42 *
 #define ASCII_2B	KEY_1					// 43 +
@@ -5247,7 +5247,7 @@ extern "C"{
 #define ASCII_59	KEY_Z + SHIFT_MASK			// 89 Y
 #define ASCII_5A	KEY_Y + SHIFT_MASK			// 90 Z
 #define ASCII_5B	KEY_F + ALTGR_MASK			// 91 [
-#define ASCII_5C	KEY_NON_US_100				// 92 
+#define ASCII_5C	KEY_NON_US_100				// 92
 #define ASCII_5D	KEY_G + ALTGR_MASK			// 93 ]
 #define ASCII_5E	KEY_3 + ALTGR_MASK			// 94 ^  TODO: testme
 #define ASCII_5F	KEY_SLASH + SHIFT_MASK			// 95 _

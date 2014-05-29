@@ -455,9 +455,9 @@ void Print::printNumberAny(unsigned long n, uint8_t base)
 
 
 #if ARDUINO >= 100
-size_t Print::printFloat(double number, uint8_t digits) 
+size_t Print::printFloat(double number, uint8_t digits)
 #else
-void Print::printFloat(double number, uint8_t digits) 
+void Print::printFloat(double number, uint8_t digits)
 #endif
 {
 	uint8_t sign=0;
@@ -499,7 +499,7 @@ void Print::printFloat(double number, uint8_t digits)
 			remainder *= 10.0;
 			n = (uint8_t)(remainder);
 			buf[count++] = '0' + n;
-			remainder -= n; 
+			remainder -= n;
 		}
 #if ARDUINO >= 100
 		count += write(buf, count);
