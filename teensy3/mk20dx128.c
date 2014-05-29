@@ -458,15 +458,66 @@ void ResetHandler(void)
 #elif F_CPU == 24000000
 	// config divisors: 24 MHz core, 24 MHz bus, 24 MHz flash
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(3) | SIM_CLKDIV1_OUTDIV2(3) |	 SIM_CLKDIV1_OUTDIV4(3);
+#elif F_CPU == 16000000
+	// config divisors: 16 MHz core (FLL), 16 MHz bus, 16 MHz flash
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(0) |	 SIM_CLKDIV1_OUTDIV4(0);
+#elif F_CPU == 8000000
+	// config divisors: 8 MHz core (FLL), 8 MHz bus, 8 MHz flash
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(1) | SIM_CLKDIV1_OUTDIV2(1) |	 SIM_CLKDIV1_OUTDIV4(1);
+#elif F_CPU == 4000000
+	// config divisors: 4 MHz core (FLL), 4 MHz bus, 4 MHz flash
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(3) | SIM_CLKDIV1_OUTDIV2(3) |	 SIM_CLKDIV1_OUTDIV4(15);
+#elif F_CPU == 2000000
+	// config divisors: 2 MHz core (FLL), 2 MHz bus, 2 MHz flash
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(0) |	 SIM_CLKDIV1_OUTDIV4(1);
 #else
-#error "Error, F_CPU must be 168, 144, 120, 96, 72, 48, or 24 MHz"
+#error "Error, F_CPU must be 168, 144, 120, 96, 72, 48, 24, 16, 8, 4 or 2 MHz"
 #endif
+    
+#if F_CPU == 2000000
+    // select external reference clock as MCG_OUT
+    MCG_C1 |= MCG_C1_CLKS(2);
+    // wait for FLL clock to be used
+    while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(2)) ;
+    // now move to FBE mode
+    // make sure the FRDIV is configured to keep the FLL reference within spec.
+    MCG_C1 &= ~0x38; // clear FRDIV field
+    MCG_C1 |= MCG_C1_FRDIV(4); // set FLL ref divider to 512
+    MCG_C6 &= ~MCG_C6_PLLS; // clear PLLS to select the FLL
+    while (MCG_S & MCG_S_PLLST){} // Wait for PLLST status bit to clear to
+    // indicate switch to FLL output
+    // now move to FBI mode
+    MCG_C2 |= MCG_C2_IRCS; // set the IRCS bit to select the fast IRC
+    // set CLKS to 1 to select the internal reference clock
+    // keep FRDIV at existing value to keep FLL ref clock in spec.
+    // set IREFS to 1 to select internal reference clock
+    MCG_C1 = MCG_C1_CLKS(1) | MCG_C1_FRDIV(4) | MCG_C1_IREFS;
+    // wait for internal reference to be selected
+    while (!(MCG_S & MCG_S_IREFST)){}
+    // wait for fast internal reference to be selected
+    while (!(MCG_S & MCG_S_IRCST)){}
+    // wait for clock to switch to IRC
+    while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(1)) ;
+    // now move to BLPI
+    MCG_C2 |= MCG_C2_LP;
+    // now we're in BLPI mode
+#elif F_CPU == 16000000 || F_CPU == 8000000 || F_CPU == 4000000
+    // select external reference clock as MCG_OUT
+    MCG_C1 = MCG_C1_CLKS(2);
+    // wait for external clock to be used
+    while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(2)) ;
+    // set the LP bit to enter BLPE
+    MCG_C2 |= MCG_C2_LP;
+    // now we're in BLPE mode
+#else
 	// switch to PLL as clock source, FLL input = 16 MHz / 512
 	MCG_C1 = MCG_C1_CLKS(0) | MCG_C1_FRDIV(4);
 	// wait for PLL clock to be used
 	while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(3)) ;
 	// now we're in PEE mode
 	// configure USB for 48 MHz clock
+#endif
+    
 #if F_CPU == 168000000
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(6) | SIM_CLKDIV2_USBFRAC; // USB = 168 MHz PLL * 2 / 7
 #elif F_CPU == 144000000

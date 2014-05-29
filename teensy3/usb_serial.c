@@ -161,6 +161,8 @@ void usb_serial_flush_input(void)
   #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 428)
 #elif F_CPU == 24000000
   #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 262)
+#elif F_CPU == 16000000 | 8000000 | 4000000 | 2000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC)
 #endif
 
 // When we've suffered the transmit timeout, don't wait again until the computer
