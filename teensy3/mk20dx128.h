@@ -44,7 +44,7 @@
 
 #if (F_CPU == 168000000)
  #define F_BUS 56000000
- #define F_MEM 28000000
+ #define F_MEM 33600000
 #elif (F_CPU == 144000000)
  #define F_BUS 48000000
  #define F_MEM 28800000

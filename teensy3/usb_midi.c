@@ -62,8 +62,16 @@ static uint8_t tx_noautoflush=0;
 // When the PC isn't listening, how long do we wait before discarding data?
 #define TX_TIMEOUT_MSEC 40
 
-#if F_CPU == 96000000
+#if F_CPU == 168000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1100)
+#elif F_CPU == 144000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 932)
+#elif F_CPU == 120000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 764)
+#elif F_CPU == 96000000
   #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 596)
+#elif F_CPU == 72000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 512)
 #elif F_CPU == 48000000
   #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 428)
 #elif F_CPU == 24000000
