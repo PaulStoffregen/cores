@@ -790,7 +790,7 @@ static inline void delayMicroseconds(uint32_t usec)
 	uint32_t n = usec >> 1;
 #endif
 	if (usec == 0) return;
-	asm volatile(
+	__asm__ volatile(
 		"L_%=_delayMicroseconds:"		"\n\t"
 #if F_CPU < 10000000
 		"nop"					"\n\t"

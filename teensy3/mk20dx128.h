@@ -2224,8 +2224,8 @@ typedef struct {
 
 
 
-#define __disable_irq() asm volatile("CPSID i");
-#define __enable_irq()	asm volatile("CPSIE i");
+#define __disable_irq() __asm__ volatile("CPSID i");
+#define __enable_irq()	__asm__ volatile("CPSIE i");
 
 // System Control Space (SCS), ARMv7 ref manual, B3.2, page 708
 #define SCB_CPUID		*(const	   uint32_t *)0xE000ED00 // CPUID Base Register
