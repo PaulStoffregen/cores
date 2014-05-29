@@ -63,4 +63,4 @@ class Stream : public Print
 	int peekNextDigit();
 };
 
-#endif	
+#endif

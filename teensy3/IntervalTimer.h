@@ -49,7 +49,7 @@ class IntervalTimer {
     uint8_t IRQ_PIT_CH;
     ISR myISR;
     bool beginCycles(ISR newISR, uint32_t cycles);
-  public: 
+  public:
     IntervalTimer() { status = TIMER_OFF; }
     ~IntervalTimer() { end(); }
     bool begin(ISR newISR, unsigned int newPeriod) {

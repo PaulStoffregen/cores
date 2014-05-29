@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -50,29 +50,29 @@
 // Pin				Arduino
 //  0	B16			RXD
 //  1	B17			TXD
-//  2	D0			
-//  3	A12	FTM1_CH0	
-//  4	A13	FTM1_CH1	
+//  2	D0
+//  3	A12	FTM1_CH0
+//  4	A13	FTM1_CH1
 //  5	D7	FTM0_CH7	OC0B/T1
 //  6	D4	FTM0_CH4	OC0A
-//  7	D2			
+//  7	D2
 //  8	D3			ICP1
 //  9	C3	FTM0_CH2	OC1A
 // 10	C4	FTM0_CH3	SS/OC1B
 // 11	C6			MOSI/OC2A
 // 12	C7			MISO
-// 13	C5			SCK	
-// 14	D1			
-// 15	C0			
-// 16	B0	(FTM1_CH0)	
-// 17	B1	(FTM1_CH1)	
+// 13	C5			SCK
+// 14	D1
+// 15	C0
+// 16	B0	(FTM1_CH0)
+// 17	B1	(FTM1_CH1)
 // 18	B3			SDA
 // 19	B2			SCL
-// 20	D5	FTM0_CH5	
-// 21	D6	FTM0_CH6	
-// 22	C1	FTM0_CH0	
-// 23	C2	FTM0_CH1	
-// 24	A5	(FTM0_CH2)	
+// 20	D5	FTM0_CH5
+// 21	D6	FTM0_CH6
+// 22	C1	FTM0_CH0
+// 23	C2	FTM0_CH1
+// 24	A5	(FTM0_CH2)
 // 25	B19
 // 26	E1
 // 27	C9
@@ -773,7 +773,7 @@ static inline void delayMicroseconds(uint32_t usec)
 #if F_CPU == 168000000
 	uint32_t n = usec * 56;
 #elif F_CPU == 144000000
-	uint32_t n = usec * 48; 
+	uint32_t n = usec * 48;
 #elif F_CPU == 120000000
 	uint32_t n = usec * 40;
 #elif F_CPU == 96000000

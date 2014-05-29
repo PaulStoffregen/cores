@@ -178,7 +178,7 @@ public:
 	String & replace(char find, char replace);
 	String & replace(const String& find, const String& replace);
 	String & remove(unsigned int index);
-	String & remove(unsigned int index, unsigned int count); 
+	String & remove(unsigned int index, unsigned int count);
 	String & toLowerCase(void);
 	String & toUpperCase(void);
 	String & trim(void);

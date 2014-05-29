@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -47,28 +47,28 @@ class PORTDemulation
 public:
 	inline PORTDemulation & operator = (int val) __attribute__((always_inline)) {
 		digitalWriteFast(0, (val & (1<<0)));
-		if (!(CORE_PIN0_DDRREG & CORE_PIN0_BIT)) 
+		if (!(CORE_PIN0_DDRREG & CORE_PIN0_BIT))
 			CORE_PIN0_CONFIG = ((val & (1<<0)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		digitalWriteFast(1, (val & (1<<1)));
-		if (!(CORE_PIN1_DDRREG & CORE_PIN1_BIT)) 
+		if (!(CORE_PIN1_DDRREG & CORE_PIN1_BIT))
 			CORE_PIN1_CONFIG = ((val & (1<<1)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		digitalWriteFast(2, (val & (1<<2)));
-		if (!(CORE_PIN2_DDRREG & CORE_PIN2_BIT)) 
+		if (!(CORE_PIN2_DDRREG & CORE_PIN2_BIT))
 			CORE_PIN2_CONFIG = ((val & (1<<2)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		digitalWriteFast(3, (val & (1<<3)));
-		if (!(CORE_PIN3_DDRREG & CORE_PIN3_BIT)) 
+		if (!(CORE_PIN3_DDRREG & CORE_PIN3_BIT))
 			CORE_PIN3_CONFIG = ((val & (1<<3)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		digitalWriteFast(4, (val & (1<<4)));
-		if (!(CORE_PIN4_DDRREG & CORE_PIN4_BIT)) 
+		if (!(CORE_PIN4_DDRREG & CORE_PIN4_BIT))
 			CORE_PIN4_CONFIG = ((val & (1<<4)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		digitalWriteFast(5, (val & (1<<5)));
-		if (!(CORE_PIN5_DDRREG & CORE_PIN5_BIT)) 
+		if (!(CORE_PIN5_DDRREG & CORE_PIN5_BIT))
 			CORE_PIN5_CONFIG = ((val & (1<<5)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		digitalWriteFast(6, (val & (1<<6)));
-		if (!(CORE_PIN6_DDRREG & CORE_PIN6_BIT)) 
+		if (!(CORE_PIN6_DDRREG & CORE_PIN6_BIT))
 			CORE_PIN6_CONFIG = ((val & (1<<6)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		digitalWriteFast(7, (val & (1<<7)));
-		if (!(CORE_PIN7_DDRREG & CORE_PIN7_BIT)) 
+		if (!(CORE_PIN7_DDRREG & CORE_PIN7_BIT))
 			CORE_PIN7_CONFIG = ((val & (1<<7)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		return *this;
 	}
@@ -298,22 +298,22 @@ class PORTBemulation
 public:
 	inline PORTBemulation & operator = (int val) __attribute__((always_inline)) {
 		digitalWriteFast(8, (val & (1<<0)));
-		if (!(CORE_PIN8_DDRREG & CORE_PIN8_BIT)) 
+		if (!(CORE_PIN8_DDRREG & CORE_PIN8_BIT))
 			CORE_PIN8_CONFIG = ((val & (1<<0)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		digitalWriteFast(9, (val & (1<<1)));
-		if (!(CORE_PIN9_DDRREG & CORE_PIN9_BIT)) 
+		if (!(CORE_PIN9_DDRREG & CORE_PIN9_BIT))
 			CORE_PIN9_CONFIG = ((val & (1<<1)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		digitalWriteFast(10, (val & (1<<2)));
-		if (!(CORE_PIN10_DDRREG & CORE_PIN10_BIT)) 
+		if (!(CORE_PIN10_DDRREG & CORE_PIN10_BIT))
 			CORE_PIN10_CONFIG = ((val & (1<<2)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		digitalWriteFast(11, (val & (1<<3)));
-		if (!(CORE_PIN11_DDRREG & CORE_PIN11_BIT)) 
+		if (!(CORE_PIN11_DDRREG & CORE_PIN11_BIT))
 			CORE_PIN11_CONFIG = ((val & (1<<3)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		digitalWriteFast(12, (val & (1<<4)));
-		if (!(CORE_PIN12_DDRREG & CORE_PIN12_BIT)) 
+		if (!(CORE_PIN12_DDRREG & CORE_PIN12_BIT))
 			CORE_PIN12_CONFIG = ((val & (1<<4)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		digitalWriteFast(13, (val & (1<<5)));
-		if (!(CORE_PIN13_DDRREG & CORE_PIN13_BIT)) 
+		if (!(CORE_PIN13_DDRREG & CORE_PIN13_BIT))
 			CORE_PIN13_CONFIG = ((val & (1<<5)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		return *this;
 	}
@@ -499,22 +499,22 @@ class PORTCemulation
 public:
 	inline PORTCemulation & operator = (int val) __attribute__((always_inline)) {
 		digitalWriteFast(14, (val & (1<<0)));
-		if (!(CORE_PIN14_DDRREG & CORE_PIN14_BIT)) 
+		if (!(CORE_PIN14_DDRREG & CORE_PIN14_BIT))
 			CORE_PIN14_CONFIG = ((val & (1<<0)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		digitalWriteFast(15, (val & (1<<1)));
-		if (!(CORE_PIN15_DDRREG & CORE_PIN15_BIT)) 
+		if (!(CORE_PIN15_DDRREG & CORE_PIN15_BIT))
 			CORE_PIN15_CONFIG = ((val & (1<<1)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		digitalWriteFast(16, (val & (1<<2)));
-		if (!(CORE_PIN16_DDRREG & CORE_PIN16_BIT)) 
+		if (!(CORE_PIN16_DDRREG & CORE_PIN16_BIT))
 			CORE_PIN16_CONFIG = ((val & (1<<2)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		digitalWriteFast(17, (val & (1<<3)));
-		if (!(CORE_PIN17_DDRREG & CORE_PIN17_BIT)) 
+		if (!(CORE_PIN17_DDRREG & CORE_PIN17_BIT))
 			CORE_PIN17_CONFIG = ((val & (1<<3)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		digitalWriteFast(18, (val & (1<<4)));
-		if (!(CORE_PIN18_DDRREG & CORE_PIN18_BIT)) 
+		if (!(CORE_PIN18_DDRREG & CORE_PIN18_BIT))
 			CORE_PIN18_CONFIG = ((val & (1<<4)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		digitalWriteFast(19, (val & (1<<5)));
-		if (!(CORE_PIN19_DDRREG & CORE_PIN19_BIT)) 
+		if (!(CORE_PIN19_DDRREG & CORE_PIN19_BIT))
 			CORE_PIN19_CONFIG = ((val & (1<<5)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		return *this;
 	}

@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -50,12 +50,12 @@ typedef struct audio_block_struct {
 class AudioConnection
 {
 public:
-	AudioConnection(AudioStream &source, AudioStream &destination) : 
+	AudioConnection(AudioStream &source, AudioStream &destination) :
 		src(source), dst(destination), src_index(0), dest_index(0),
 		next_dest(NULL)
 		{ connect(); }
 	AudioConnection(AudioStream &source, unsigned char sourceOutput,
-		AudioStream &destination, unsigned char destinationInput) : 
+		AudioStream &destination, unsigned char destinationInput) :
 		src(source), dst(destination),
 		src_index(sourceOutput), dest_index(destinationInput),
 		next_dest(NULL)
