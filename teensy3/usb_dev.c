@@ -688,7 +688,7 @@ void usb_tx(uint32_t endpoint, usb_packet_t *packet)
 void _reboot_Teensyduino_(void)
 {
 	// TODO: initialize R0 with a code....
-	asm volatile("bkpt");
+	__asm__ volatile("bkpt");
 }
 
 

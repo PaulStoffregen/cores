@@ -366,8 +366,8 @@ void ResetHandler(void)
 
 	WDOG_UNLOCK = WDOG_UNLOCK_SEQ1;
 	WDOG_UNLOCK = WDOG_UNLOCK_SEQ2;
-	asm volatile ("nop");
-	asm volatile ("nop");
+	__asm__ volatile ("nop");
+	__asm__ volatile ("nop");
 	// programs using the watchdog timer or needing to initialize hardware as
 	// early as possible can implement startup_early_hook()
 	startup_early_hook();
@@ -595,16 +595,16 @@ int nvic_execution_priority(void)
 
 	// full algorithm in ARM DDI0403D, page B1-639
 	// this isn't quite complete, but hopefully good enough
-	asm volatile("mrs %0, faultmask\n" : "=r" (faultmask)::);
+	__asm__ volatile("mrs %0, faultmask\n" : "=r" (faultmask)::);
 	if (faultmask) return -1;
-	asm volatile("mrs %0, primask\n" : "=r" (primask)::);
+	__asm__ volatile("mrs %0, primask\n" : "=r" (primask)::);
 	if (primask) return 0;
-	asm volatile("mrs %0, ipsr\n" : "=r" (ipsr)::);
+	__asm__ volatile("mrs %0, ipsr\n" : "=r" (ipsr)::);
 	if (ipsr) {
 		if (ipsr < 16) priority = 0; // could be non-zero
 		else priority = NVIC_GET_PRIORITY(ipsr - 16);
 	}
-	asm volatile("mrs %0, basepri\n" : "=r" (basepri)::);
+	__asm__ volatile("mrs %0, basepri\n" : "=r" (basepri)::);
 	if (basepri > 0 && basepri < priority) priority = basepri;
 	return priority;
 }
