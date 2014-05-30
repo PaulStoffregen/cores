@@ -391,6 +391,10 @@ void ResetHandler(void)
 	// release I/O pins hold, if we woke up from VLLS mode
 	if (PMC_REGSC & PMC_REGSC_ACKISO) PMC_REGSC |= PMC_REGSC_ACKISO;
 
+    // since this is a write once register, make it visible to all F_CPU's
+    // so we can into other sleep modes in the future at any speed
+	SMC_PMPROT = SMC_PMPROT_AVLP | SMC_PMPROT_ALLS | SMC_PMPROT_AVLLS;
+    
 	// TODO: do this while the PLL is waiting to lock....
 	while (dest < &_edata) *dest++ = *src++;
 	dest = &_sbss;
@@ -542,9 +546,8 @@ void ResetHandler(void)
 #endif
 
 #if F_CPU <= 2000000
-	// switch to VLPR mode....
-	SMC_PMPROT = SMC_PMPROT_AVLP | SMC_PMPROT_ALLS | SMC_PMPROT_AVLLS;
-	SMC_PMCTRL = SMC_PMCTRL_RUNM(2) | SMC_PMCTRL_STOPM(2); // VLPR mode :-)
+    // since we are not going into "stop mode" i removed it
+	SMC_PMCTRL = SMC_PMCTRL_RUNM(2); // VLPR mode :-)
 #endif
 
 	// initialize the SysTick counter
