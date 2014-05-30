@@ -405,7 +405,9 @@ void ResetHandler(void)
 	//  C1[CLKS] bits are written to 00
 	//  C1[IREFS] bit is written to 1
 	//  C6[PLLS] bit is written to 0
-#if F_CPU <= 4000000
+// MCG_SC[FCDIV] defaults to divide by two for internal ref clock
+// I tried changing MSG_SC to divide by 1, it didn't work for me
+#if F_CPU <= 2000000
 	// use the internal oscillator
 	MCG_C1 = MCG_C1_CLKS(1) | MCG_C2_IRCS;
 	// wait for MCGOUT to use oscillator
@@ -510,11 +512,18 @@ void ResetHandler(void)
 	// config divisors: 8 MHz core, 8 MHz bus, 8 MHz flash
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(1) | SIM_CLKDIV1_OUTDIV2(1) |	 SIM_CLKDIV1_OUTDIV4(1);
 #elif F_CPU == 4000000
-	// config divisors: 4 MHz core, 4 MHz bus, 2 MHz flash
-	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(0) |	 SIM_CLKDIV1_OUTDIV4(1);
+    // config divisors: 4 MHz core, 4 MHz bus, 2 MHz flash
+    // since we are running from external clock 16MHz
+    // fix outdiv too -> cpu 16/4, bus 16/4, flash 16/4
+    // here we can go into vlpr?
+	// config divisors: 4 MHz core, 4 MHz bus, 4 MHz flash
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(3) | SIM_CLKDIV1_OUTDIV2(3) |	 SIM_CLKDIV1_OUTDIV4(3);
 #elif F_CPU == 2000000
+    // since we are running from the fast internal reference clock 4MHz
+    // but is divided down by 2 so we actually have a 2MHz, MCG_SC[FCDIV] default is 2
+    // fix outdiv -> cpu 2/1, bus 2/1, flash 2/2
 	// config divisors: 2 MHz core, 2 MHz bus, 1 MHz flash
-	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(1) | SIM_CLKDIV1_OUTDIV2(1) |	 SIM_CLKDIV1_OUTDIV4(3);
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(0) |	 SIM_CLKDIV1_OUTDIV4(1);
 #else
 #error "Error, F_CPU must be 168, 144, 120, 96, 72, 48, 24, 16, 8, 4, or 2 MHz"
 #endif
