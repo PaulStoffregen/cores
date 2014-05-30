@@ -31,6 +31,8 @@
 #ifndef _usb_desc_h_
 #define _usb_desc_h_
 
+#if F_CPU >= 20000000
+
 // This header is NOT meant to be included when compiling
 // user sketches in Arduino.  The low-level functions
 // provided by usb_dev.c are meant to be called only by
@@ -305,5 +307,7 @@ typedef struct {
 
 extern const usb_descriptor_list_t usb_descriptor_list[];
 
+
+#endif // F_CPU >= 20 MHz
 
 #endif

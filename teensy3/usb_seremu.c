@@ -28,6 +28,8 @@
  * SOFTWARE.
  */
 
+#if F_CPU >= 20000000
+
 //#include "mk20dx128.h"
 #include "usb_dev.h"
 #include "usb_seremu.h"
@@ -256,3 +258,5 @@ void usb_seremu_flush_callback(void)
 }
 
 #endif // SEREMU_INTERFACE
+
+#endif // F_CPU >= 20 MHz

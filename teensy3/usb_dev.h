@@ -31,6 +31,8 @@
 #ifndef _usb_dev_h_
 #define _usb_dev_h_
 
+#if F_CPU >= 20000000
+
 // This header is NOT meant to be included when compiling
 // user sketches in Arduino.  The low-level functions
 // provided by usb_dev.c are meant to be called only by
@@ -101,5 +103,6 @@ extern void usb_flightsim_flush_callback(void);
 #endif
 
 
+#endif // F_CPU >= 20 MHz
 
 #endif
