@@ -30,6 +30,8 @@
 
 #include "WProgram.h"
 
+#if F_CPU >= 20000000
+
 #ifdef USB_SERIAL
 usb_serial_class Serial;
 #endif
@@ -65,3 +67,13 @@ FlightSimClass FlightSim;
 usb_seremu_class Serial;
 #endif
 
+
+#else // F_CPU < 20 MHz
+
+#if defined(USB_SERIAL) || defined(USB_SERIAL_HID)
+usb_serial_class Serial;
+#else
+usb_seremu_class Serial;
+#endif
+
+#endif // F_CPU

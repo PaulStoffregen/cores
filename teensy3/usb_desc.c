@@ -28,6 +28,8 @@
  * SOFTWARE.
  */
 
+#if F_CPU >= 20000000
+
 #include "usb_desc.h"
 #include "usb_names.h"
 #include "mk20dx128.h"
@@ -890,4 +892,4 @@ const uint8_t usb_endpoint_config_table[NUM_ENDPOINTS] =
 
 
 
-
+#endif // F_CPU >= 20 MHz

@@ -63,6 +63,18 @@
 #elif (F_CPU == 24000000)
  #define F_BUS 24000000
  #define F_MEM 24000000
+#elif (F_CPU == 16000000)
+ #define F_BUS 16000000
+ #define F_MEM 16000000
+#elif (F_CPU == 8000000)
+ #define F_BUS 8000000
+ #define F_MEM 8000000
+#elif (F_CPU == 4000000)
+ #define F_BUS 4000000
+ #define F_MEM 4000000
+#elif (F_CPU == 2000000)
+ #define F_BUS 2000000
+ #define F_MEM 1000000
 #endif
 
 
@@ -640,9 +652,21 @@ extern "C" {
 #define DMA_DCHPRI2		*(volatile uint8_t  *)0x40008101 // Channel n Priority Register
 #define DMA_DCHPRI1		*(volatile uint8_t  *)0x40008102 // Channel n Priority Register
 #define DMA_DCHPRI0		*(volatile uint8_t  *)0x40008103 // Channel n Priority Register
-#define DMA_DCHPRI_CHPRI(n)		((uint8_t)(n & 3)<<0)	// Channel Arbitration Priority
+#define DMA_DCHPRI_CHPRI(n)		((uint8_t)(n & 15)<<0)	// Channel Arbitration Priority
 #define DMA_DCHPRI_DPA			((uint8_t)1<<6)		// Disable PreEmpt Ability
 #define DMA_DCHPRI_ECP			((uint8_t)1<<7)		// Enable PreEmption
+#define DMA_DCHPRI7		*(volatile uint8_t  *)0x40008104 // Channel n Priority Register
+#define DMA_DCHPRI6		*(volatile uint8_t  *)0x40008105 // Channel n Priority Register
+#define DMA_DCHPRI5		*(volatile uint8_t  *)0x40008106 // Channel n Priority Register
+#define DMA_DCHPRI4		*(volatile uint8_t  *)0x40008107 // Channel n Priority Register
+#define DMA_DCHPRI11		*(volatile uint8_t  *)0x40008108 // Channel n Priority Register
+#define DMA_DCHPRI10		*(volatile uint8_t  *)0x40008109 // Channel n Priority Register
+#define DMA_DCHPRI9		*(volatile uint8_t  *)0x4000810A // Channel n Priority Register
+#define DMA_DCHPRI8		*(volatile uint8_t  *)0x4000810B // Channel n Priority Register
+#define DMA_DCHPRI15		*(volatile uint8_t  *)0x4000810C // Channel n Priority Register
+#define DMA_DCHPRI14		*(volatile uint8_t  *)0x4000810D // Channel n Priority Register
+#define DMA_DCHPRI13		*(volatile uint8_t  *)0x4000810E // Channel n Priority Register
+#define DMA_DCHPRI12		*(volatile uint8_t  *)0x4000810F // Channel n Priority Register
 
 
 #define DMA_TCD_ATTR_SMOD(n)		(((n) & 0x1F) << 11)

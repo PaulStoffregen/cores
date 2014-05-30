@@ -28,6 +28,8 @@
  * SOFTWARE.
  */
 
+#if F_CPU >= 20000000
+
 #include "mk20dx128.h"
 //#include "HardwareSerial.h"
 #include "usb_dev.h"
@@ -104,3 +106,4 @@ void usb_free(usb_packet_t *p)
 	//serial_print("\n");
 }
 
+#endif // F_CPU >= 20 MHz

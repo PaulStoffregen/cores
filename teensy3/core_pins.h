@@ -784,6 +784,10 @@ static inline void delayMicroseconds(uint32_t usec)
 	uint32_t n = usec << 4;
 #elif F_CPU == 24000000
 	uint32_t n = usec << 3;
+#elif F_CPU == 16000000
+	uint32_t n = usec << 2;
+#elif F_CPU == 8000000
+	uint32_t n = usec << 1;
 #elif F_CPU == 4000000
 	uint32_t n = usec;
 #elif F_CPU == 2000000
@@ -792,7 +796,7 @@ static inline void delayMicroseconds(uint32_t usec)
 	if (usec == 0) return;
 	__asm__ volatile(
 		"L_%=_delayMicroseconds:"		"\n\t"
-#if F_CPU < 10000000
+#if F_CPU < 24000000
 		"nop"					"\n\t"
 #endif
 		"subs   %0, #1"				"\n\t"
