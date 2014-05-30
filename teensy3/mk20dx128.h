@@ -74,7 +74,7 @@
  #define F_MEM 4000000
 #elif (F_CPU == 2000000)
  #define F_BUS 2000000
- #define F_MEM 2000000
+ #define F_MEM 1000000
 #endif
 
 
