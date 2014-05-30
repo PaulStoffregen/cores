@@ -363,6 +363,7 @@ void ResetHandler(void)
 	uint32_t *src = &_etext;
 	uint32_t *dest = &_sdata;
 	unsigned int i;
+	volatile int n;
 
 	WDOG_UNLOCK = WDOG_UNLOCK_SEQ1;
 	WDOG_UNLOCK = WDOG_UNLOCK_SEQ2;
@@ -381,7 +382,6 @@ void ResetHandler(void)
 	SIM_SCGC5 = 0x00043F82;		// clocks active to all GPIO
 	SIM_SCGC6 = SIM_SCGC6_RTC | SIM_SCGC6_FTM0 | SIM_SCGC6_FTM1 | SIM_SCGC6_ADC0 | SIM_SCGC6_FTFL;
 #endif
-
 	// if the RTC oscillator isn't enabled, get it started early
 	if (!(RTC_CR & RTC_CR_OSCE)) {
 		RTC_SR = 0;
@@ -400,7 +400,6 @@ void ResetHandler(void)
 	// default all interrupts to medium priority level
 	for (i=0; i < NVIC_NUM_INTERRUPTS; i++) NVIC_SET_PRIORITY(i, 128);
 
-
 	// hardware always starts in FEI mode
 	//  C1[CLKS] bits are written to 00
 	//  C1[IREFS] bit is written to 1
@@ -409,10 +408,12 @@ void ResetHandler(void)
 // I tried changing MSG_SC to divide by 1, it didn't work for me
 #if F_CPU <= 2000000
 	// use the internal oscillator
-	MCG_C1 = MCG_C1_CLKS(1) | MCG_C2_IRCS;
+	MCG_C1 = MCG_C1_CLKS(1) | MCG_C1_IREFS;
 	// wait for MCGOUT to use oscillator
 	while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(1)) ;
+	for (n=0; n<10; n++) ; // TODO: why do we get 2 mA extra without this delay?
 	MCG_C2 = MCG_C2_IRCS;
+	while (!(MCG_S & MCG_S_IRCST)) ;
 	// now in FBI mode:
 	//  C1[CLKS] bits are written to 01
 	//  C1[IREFS] bit is written to 1
@@ -540,59 +541,10 @@ void ResetHandler(void)
 	SIM_SOPT2 = SIM_SOPT2_TRACECLKSEL | SIM_SOPT2_CLKOUTSEL(3);
 #endif
 
-
 #if F_CPU <= 2000000
-	// TODO: switch to VLPR mode....
+	// switch to VLPR mode....
 	SMC_PMPROT = SMC_PMPROT_AVLP | SMC_PMPROT_ALLS | SMC_PMPROT_AVLLS;
 	SMC_PMCTRL = SMC_PMCTRL_RUNM(2) | SMC_PMCTRL_STOPM(2); // VLPR mode :-)
-#endif
-
-
-
-#if 0
-#if F_CPU == 2000000
-	// select external reference clock as MCG_OUT
-	MCG_C1 |= MCG_C1_CLKS(2);
-	// wait for FLL clock to be used
-	while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(2)) ;
-	// now move to FBE mode
-	// make sure the FRDIV is configured to keep the FLL reference within spec.
-	MCG_C1 &= ~0x38; // clear FRDIV field
-	MCG_C1 |= MCG_C1_FRDIV(4); // set FLL ref divider to 512
-	MCG_C6 &= ~MCG_C6_PLLS; // clear PLLS to select the FLL
-	while (MCG_S & MCG_S_PLLST){} // Wait for PLLST status bit to clear to
-	// indicate switch to FLL output
-	// now move to FBI mode
-	MCG_C2 |= MCG_C2_IRCS; // set the IRCS bit to select the fast IRC
-	// set CLKS to 1 to select the internal reference clock
-	// keep FRDIV at existing value to keep FLL ref clock in spec.
-	// set IREFS to 1 to select internal reference clock
-	MCG_C1 = MCG_C1_CLKS(1) | MCG_C1_FRDIV(4) | MCG_C1_IREFS;
-	// wait for internal reference to be selected
-	while (!(MCG_S & MCG_S_IREFST)){}
-	// wait for fast internal reference to be selected
-	while (!(MCG_S & MCG_S_IRCST)){}
-	// wait for clock to switch to IRC
-	while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(1)) ;
-	// now move to BLPI
-	MCG_C2 |= MCG_C2_LP;
-	// now we're in BLPI mode
-#elif F_CPU == 16000000 || F_CPU == 8000000 || F_CPU == 4000000
-	// select external reference clock as MCG_OUT
-	MCG_C1 = MCG_C1_CLKS(2);
-	// wait for external clock to be used
-	while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(2)) ;
-	// set the LP bit to enter BLPE
-	MCG_C2 |= MCG_C2_LP;
-	// now we're in BLPE mode
-#else
-	// switch to PLL as clock source, FLL input = 16 MHz / 512
-	MCG_C1 = MCG_C1_CLKS(0) | MCG_C1_FRDIV(4);
-	// wait for PLL clock to be used
-	while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(3)) ;
-	// now we're in PEE mode
-	// configure USB for 48 MHz clock
-#endif
 #endif
 
 	// initialize the SysTick counter
@@ -607,11 +559,6 @@ void ResetHandler(void)
 
 	__libc_init_array();
 
-/*
-	for (ptr = &__init_array_start; ptr < &__init_array_end; ptr++) {
-		(*ptr)();
-	}
-*/
 	startup_late_hook();
 	main();
 	while (1) ;
