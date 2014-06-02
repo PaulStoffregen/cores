@@ -363,7 +363,9 @@ void ResetHandler(void)
 	uint32_t *src = &_etext;
 	uint32_t *dest = &_sdata;
 	unsigned int i;
+#if F_CPU <= 2000000
 	volatile int n;
+#endif
 
 	WDOG_UNLOCK = WDOG_UNLOCK_SEQ1;
 	WDOG_UNLOCK = WDOG_UNLOCK_SEQ2;
