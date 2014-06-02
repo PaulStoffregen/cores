@@ -560,7 +560,11 @@ void ResetHandler(void)
 	__enable_irq();
 
 	_init_Teensyduino_internal_();
-	if (RTC_SR & RTC_SR_TIF) rtc_set(TIME_T);
+	if (RTC_SR & RTC_SR_TIF) {
+		// TODO: this should probably set the time more agressively, if
+		// we could reliably detect the first reboot after programming.
+		rtc_set(TIME_T);
+	}
 
 	__libc_init_array();
 
@@ -569,21 +573,10 @@ void ResetHandler(void)
 	while (1) ;
 }
 
-// TODO: is this needed for c++ and where does it come from?
-/*
-void _init(void)
-{
-}
-*/
-
 char *__brkval = (char *)&_ebss;
 
 void * _sbrk(int incr)
 {
-	//static char *heap_end = (char *)&_ebss;
-	//char *prev = heap_end;
-	//heap_end += incr;
-
 	char *prev = __brkval;
 	__brkval += incr;
 	return prev;
@@ -594,14 +587,6 @@ int _read(int file, char *ptr, int len)
 {
 	return 0;
 }
-
-/*  moved to Print.cpp, to support Print::printf()
-__attribute__((weak)) 
-int _write(int file, char *ptr, int len)
-{
-	return 0;
-}
-*/
 
 __attribute__((weak)) 
 int _close(int fd)
