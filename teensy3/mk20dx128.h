@@ -1426,7 +1426,17 @@ extern "C" {
 
 // Chapter 37: Low-Power Timer (LPTMR)
 #define LPTMR0_CSR		*(volatile uint32_t *)0x40040000 // Low Power Timer Control Status Register
+#define LPTMR_CSR_TCF			0x80				// Compare Flag
+#define LPTMR_CSR_TIE			0x40				// Interrupt Enable
+#define LPTMR_CSR_TPS(n)		(((n) & 3) << 4)		// Pin: 0=CMP0, 1=xtal, 2=pin13
+#define LPTMR_CSR_TPP			0x08				// Pin Polarity
+#define LPTMR_CSR_TFC			0x04				// Free-Running Counter
+#define LPTMR_CSR_TMS			0x02				// Mode Select, 0=timer, 1=counter
+#define LPTMR_CSR_TEN			0x01				// Enable
 #define LPTMR0_PSR		*(volatile uint32_t *)0x40040004 // Low Power Timer Prescale Register
+#define LPTMR_PSR_PRESCALE(n)		(((n) & 15) << 3)		// Prescaler value
+#define LPTMR_PSR_PBYP			0x04				// Prescaler bypass
+#define LPTMR_PSR_PCS(n)		(((n) & 3) << 0)		// Clock: 0=MCGIRCLK, 1=LPO(1kHz), 2=ERCLK32K, 3=OSCERCLK
 #define LPTMR0_CMR		*(volatile uint32_t *)0x40040008 // Low Power Timer Compare Register
 #define LPTMR0_CNR		*(volatile uint32_t *)0x4004000C // Low Power Timer Counter Register
 
