@@ -1300,6 +1300,13 @@ extern "C" {
 #define FTM0_CNT		*(volatile uint32_t *)0x40038004 // Counter
 #define FTM0_MOD		*(volatile uint32_t *)0x40038008 // Modulo
 #define FTM0_C0SC		*(volatile uint32_t *)0x4003800C // Channel 0 Status And Control
+#define FTM_CSC_CHF			0x80				// Channel Flag
+#define FTM_CSC_CHIE			0x40				// Channel Interrupt Enable
+#define FTM_CSC_MSB			0x20				// Channel Mode Select
+#define FTM_CSC_MSA			0x10				// Channel Mode Select
+#define FTM_CSC_ELSB			0x08				// Edge or Level Select
+#define FTM_CSC_ELSA			0x04				// Edge or Level Select
+#define FTM_CSC_DMA			0x01				// DMA Enable
 #define FTM0_C0V		*(volatile uint32_t *)0x40038010 // Channel 0 Value
 #define FTM0_C1SC		*(volatile uint32_t *)0x40038014 // Channel 1 Status And Control
 #define FTM0_C1V		*(volatile uint32_t *)0x40038018 // Channel 1 Value
