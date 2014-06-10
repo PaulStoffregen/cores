@@ -28,11 +28,11 @@
  * SOFTWARE.
  */
 
-#if F_CPU >= 20000000
+#include "usb_dev.h"
+#if F_CPU >= 20000000 && defined(NUM_ENDPOINTS)
 
 #include "mk20dx128.h"
 //#include "HardwareSerial.h"
-#include "usb_dev.h"
 #include "usb_mem.h"
 
 // buffer descriptor table
@@ -971,10 +971,10 @@ void usb_init(void)
 }
 
 
-#else // F_CPU < 20 MHz
+#else // F_CPU < 20 MHz && defined(NUM_ENDPOINTS)
 
 void usb_init(void)
 {
 }
 
-#endif // F_CPU >= 20 MHz
+#endif // F_CPU >= 20 MHz && defined(NUM_ENDPOINTS)
