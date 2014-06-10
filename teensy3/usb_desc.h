@@ -295,6 +295,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #endif
 
+#ifdef NUM_ENDPOINTS
 // NUM_ENDPOINTS = number of non-zero endpoints (0 to 15)
 extern const uint8_t usb_endpoint_config_table[NUM_ENDPOINTS];
 
@@ -306,7 +307,7 @@ typedef struct {
 } usb_descriptor_list_t;
 
 extern const usb_descriptor_list_t usb_descriptor_list[];
-
+#endif // NUM_ENDPOINTS
 
 #endif // F_CPU >= 20 MHz
 
