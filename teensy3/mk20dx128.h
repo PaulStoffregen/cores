@@ -2264,7 +2264,6 @@ typedef struct {
 
 
 
-
 #define __disable_irq() __asm__ volatile("CPSID i");
 #define __enable_irq()	__asm__ volatile("CPSIE i");
 
@@ -2395,6 +2394,8 @@ extern void porte_isr(void);
 extern void software_isr(void);
 
 
+extern void (* _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
+extern void (* const _VectorsFlash[NVIC_NUM_INTERRUPTS+16])(void);
 
 #ifdef __cplusplus
 }
