@@ -24,6 +24,11 @@ DMAChannel::DMAChannel(uint8_t channelRequest) : TCD(*(TCD_t *)0), channel(16)
 	}
 	channel = ch;
 	TCD = *(TCD_t *)(0x40009000 + ch * 32);
+	TCD.CSR = 0;
+	TCD.ATTR = 0;
+	TCD.NBYTES = 0;
+	TCD.BITER = 0;
+	TCD.CITER = 0;
 	SIM_SCGC7 |= SIM_SCGC7_DMA;
 	SIM_SCGC6 |= SIM_SCGC6_DMAMUX;
 	DMA_CR = 0;
