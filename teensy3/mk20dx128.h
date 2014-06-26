@@ -1296,7 +1296,9 @@ extern "C" {
 #define FTM_SC_TOIE			0x40				// Timer Overflow Interrupt Enable
 #define FTM_SC_CPWMS			0x20				// Center-Aligned PWM Select
 #define FTM_SC_CLKS(n)			(((n) & 3) << 3)		// Clock Source Selection
+#define FTM_SC_CLKS_MASK		0x18
 #define FTM_SC_PS(n)			(((n) & 7) << 0)		// Prescale Factor Selection
+#define FTM_SC_PS_MASK			0x07
 #define FTM0_CNT		(*(volatile uint32_t *)0x40038004) // Counter
 #define FTM0_MOD		(*(volatile uint32_t *)0x40038008) // Modulo
 #define FTM0_C0SC		(*(volatile uint32_t *)0x4003800C) // Channel 0 Status And Control
@@ -1324,9 +1326,18 @@ extern "C" {
 #define FTM0_C7V		(*(volatile uint32_t *)0x40038048) // Channel 7 Value
 #define FTM0_CNTIN		(*(volatile uint32_t *)0x4003804C) // Counter Initial Value
 #define FTM0_STATUS		(*(volatile uint32_t *)0x40038050) // Capture And Compare Status
+#define FTM_STATUS_CH7F			0x80				//
+#define FTM_STATUS_CH6F			0x40				//
+#define FTM_STATUS_CH5F			0x20				//
+#define FTM_STATUS_CH4F			0x10				//
+#define FTM_STATUS_CH3F			0x08				//
+#define FTM_STATUS_CH2F			0x04				//
+#define FTM_STATUS_CH1F			0x02				//
+#define FTM_STATUS_CH0F			0x01				//
 #define FTM0_MODE		(*(volatile uint32_t *)0x40038054) // Features Mode Selection
 #define FTM_MODE_FAULTIE		0x80				// Fault Interrupt Enable
 #define FTM_MODE_FAULTM(n)		(((n) & 3) << 5)		// Fault Control Mode
+#define FTM_MODE_FAULTM_MASK		0x60
 #define FTM_MODE_CAPTEST		0x10				// Capture Test Mode Enable
 #define FTM_MODE_PWMSYNC		0x08				// PWM Synchronization Mode
 #define FTM_MODE_WPDIS			0x04				// Write Protection Disable
@@ -1342,21 +1353,170 @@ extern "C" {
 #define FTM_SYNC_CNTMAX			0x02				//
 #define FTM_SYNC_CNTMIN			0x01				//
 #define FTM0_OUTINIT		(*(volatile uint32_t *)0x4003805C) // Initial State For Channels Output
+#define FTM_OUTINIT_CH7OI		0x80				//
+#define FTM_OUTINIT_CH6OI		0x40				//
+#define FTM_OUTINIT_CH5OI		0x20				//
+#define FTM_OUTINIT_CH4OI		0x10				//
+#define FTM_OUTINIT_CH3OI		0x08				//
+#define FTM_OUTINIT_CH2OI		0x04				//
+#define FTM_OUTINIT_CH1OI		0x02				//
+#define FTM_OUTINIT_CH0OI		0x01				//
 #define FTM0_OUTMASK		(*(volatile uint32_t *)0x40038060) // Output Mask
+#define FTM_OUTMASK_CH7OM		0x80				//
+#define FTM_OUTMASK_CH6OM		0x40				//
+#define FTM_OUTMASK_CH5OM		0x20				//
+#define FTM_OUTMASK_CH4OM		0x10				//
+#define FTM_OUTMASK_CH3OM		0x08				//
+#define FTM_OUTMASK_CH2OM		0x04				//
+#define FTM_OUTMASK_CH1OM		0x02				//
+#define FTM_OUTMASK_CH0OM		0x01				//
 #define FTM0_COMBINE		(*(volatile uint32_t *)0x40038064) // Function For Linked Channels
+#define FTM_COMBINE_FAULTEN3		0x40000000			// Enable the fault control, ch #6 & #7
+#define FTM_COMBINE_SYNCEN3		0x20000000			// Enable PWM sync of C6V & C7V
+#define FTM_COMBINE_DTEN3		0x10000000			// Enable deadtime insertion, ch #6 & #7
+#define FTM_COMBINE_DECAP3		0x08000000			// Dual Edge Capture Mode
+#define FTM_COMBINE_DECAPEN3		0x04000000			// Dual Edge Capture Mode Enable
+#define FTM_COMBINE_COMP3		0x02000000			// Complement Of Channel #6 & #7
+#define FTM_COMBINE_COMBINE3		0x01000000			// Combine Channels #6 & #7
+#define FTM_COMBINE_FAULTEN2		0x00400000			// Enable the fault control, ch #4 & #5
+#define FTM_COMBINE_SYNCEN2		0x00200000			// Enable PWM sync of C4V & C5V
+#define FTM_COMBINE_DTEN2		0x00100000			// Enable deadtime insertion, ch #4 & #5
+#define FTM_COMBINE_DECAP2		0x00080000			// Dual Edge Capture Mode
+#define FTM_COMBINE_DECAPEN2		0x00040000			// Dual Edge Capture Mode Enable
+#define FTM_COMBINE_COMP2		0x00020000			// Complement Of Channel #4 & #5
+#define FTM_COMBINE_COMBINE2		0x00010000			// Combine Channels #4 & #5
+#define FTM_COMBINE_FAULTEN1		0x00004000			// Enable the fault control, ch #2 & #3
+#define FTM_COMBINE_SYNCEN1		0x00002000			// Enable PWM sync of C2V & C3V
+#define FTM_COMBINE_DTEN1		0x00001000			// Enable deadtime insertion, ch #2 & #3
+#define FTM_COMBINE_DECAP1		0x00000800			// Dual Edge Capture Mode
+#define FTM_COMBINE_DECAPEN1		0x00000400			// Dual Edge Capture Mode Enable
+#define FTM_COMBINE_COMP1		0x00000200			// Complement Of Channel #2 & #3
+#define FTM_COMBINE_COMBINE1		0x00000100			// Combine Channels #2 & #3
+#define FTM_COMBINE_FAULTEN0		0x00000040			// Enable the fault control, ch #0 & #1
+#define FTM_COMBINE_SYNCEN0		0x00000020			// Enable PWM sync of C0V & C1V
+#define FTM_COMBINE_DTEN0		0x00000010			// Enable deadtime insertion, ch #0 & #1
+#define FTM_COMBINE_DECAP0		0x00000008			// Dual Edge Capture Mode
+#define FTM_COMBINE_DECAPEN0		0x00000004			// Dual Edge Capture Mode Enable
+#define FTM_COMBINE_COMP0		0x00000002			// Complement Of Channel #0 & #1
+#define FTM_COMBINE_COMBINE0		0x00000001			// Combine Channels #0 & #1
 #define FTM0_DEADTIME		(*(volatile uint32_t *)0x40038068) // Deadtime Insertion Control
+#define FTM_DEADTIME_DTPS(n)		(((n) & 3) << 6)		// Prescaler Value, 0=1x, 2=4x, 3=16x
+#define FTM_DEADTIME_DTPS_MASK		0xC0
+#define FTM_DEADTIME_DTVAL(n)		(((n) & 63) << 0)		// Deadtime Value
+#define FTM_DEADTIME_DTVAL_MASK		0x3F
 #define FTM0_EXTTRIG		(*(volatile uint32_t *)0x4003806C) // FTM External Trigger
+#define FTM_EXTTRIG_TRIGF		0x80				// Channel Trigger Flag
+#define FTM_EXTTRIG_INITTRIGEN		0x40				// Initialization Trigger Enable
+#define FTM_EXTTRIG_CH1TRIG		0x20				// Channel 1 Trigger Enable
+#define FTM_EXTTRIG_CH0TRIG		0x10				// Channel 0 Trigger Enable
+#define FTM_EXTTRIG_CH5TRIG		0x08				// Channel 5 Trigger Enable
+#define FTM_EXTTRIG_CH4TRIG		0x04				// Channel 4 Trigger Enable
+#define FTM_EXTTRIG_CH3TRIG		0x02				// Channel 3 Trigger Enable
+#define FTM_EXTTRIG_CH2TRIG		0x01				// Channel 2 Trigger Enable
 #define FTM0_POL		(*(volatile uint32_t *)0x40038070) // Channels Polarity
+#define FTM_POL_POL7			0x80				// Channel 7 Polarity, 0=active high, 1=active low
+#define FTM_POL_POL6			0x40				// Channel 6 Polarity, 0=active high, 1=active low
+#define FTM_POL_POL5			0x20				// Channel 5 Polarity, 0=active high, 1=active low
+#define FTM_POL_POL4			0x10				// Channel 4 Polarity, 0=active high, 1=active low
+#define FTM_POL_POL3			0x08				// Channel 3 Polarity, 0=active high, 1=active low
+#define FTM_POL_POL2			0x04				// Channel 2 Polarity, 0=active high, 1=active low
+#define FTM_POL_POL1			0x02				// Channel 1 Polarity, 0=active high, 1=active low
+#define FTM_POL_POL0			0x01				// Channel 0 Polarity, 0=active high, 1=active low
 #define FTM0_FMS		(*(volatile uint32_t *)0x40038074) // Fault Mode Status
+#define FTM_FMS_FAULTF			0x80				// Fault Detection Flag
+#define FTM_FMS_WPEN			0x40				// Write Protection Enable
+#define FTM_FMS_FAULTIN			0x20				// Fault Inputs
+#define FTM_FMS_FAULTF3			0x08				// Fault Detection Flag 3
+#define FTM_FMS_FAULTF2			0x04				// Fault Detection Flag 2
+#define FTM_FMS_FAULTF1			0x02				// Fault Detection Flag 1
+#define FTM_FMS_FAULTF0			0x01				// Fault Detection Flag 0
 #define FTM0_FILTER		(*(volatile uint32_t *)0x40038078) // Input Capture Filter Control
+#define FTM_FILTER_CH3FVAL(n)		(((n) & 15) << 12)		// Channel 3 Input Filter
+#define FTM_FILTER_CH2FVAL(n)		(((n) & 15) << 8)		// Channel 2 Input Filter
+#define FTM_FILTER_CH1FVAL(n)		(((n) & 15) << 4)		// Channel 1 Input Filter
+#define FTM_FILTER_CH0FVAL(n)		(((n) & 15) << 0)		// Channel 0 Input Filter
+#define FTM_FILTER_CH3FVAL_MASK		0xF000
+#define FTM_FILTER_CH2FVAL_MASK		0x0F00
+#define FTM_FILTER_CH1FVAL_MASK		0x00F0
+#define FTM_FILTER_CH0FVAL_MASK		0x000F
 #define FTM0_FLTCTRL		(*(volatile uint32_t *)0x4003807C) // Fault Control
+#define FTM_FLTCTRL_FFVAL(n)		(((n) & 15) << 8)		// Fault Input Filter Value, 0=disable
+#define FTM_FLTCTRL_FFVAL_MASK		0xF00
+#define FTM_FLTCTRL_FFLTR3EN		0x80				// Fault Input 3 Filter Enable
+#define FTM_FLTCTRL_FFLTR2EN		0x40				// Fault Input 2 Filter Enable
+#define FTM_FLTCTRL_FFLTR1EN		0x20				// Fault Input 1 Filter Enable
+#define FTM_FLTCTRL_FFLTR0EN		0x10				// Fault Input 0 Filter Enable
+#define FTM_FLTCTRL_FAULT3EN		0x08				// Fault Input 3 Enable
+#define FTM_FLTCTRL_FAULT2EN		0x04				// Fault Input 2 Enable
+#define FTM_FLTCTRL_FAULT1EN		0x02				// Fault Input 1 Enable
+#define FTM_FLTCTRL_FAULT0EN		0x01				// Fault Input 0 Enable
 #define FTM0_QDCTRL		(*(volatile uint32_t *)0x40038080) // Quadrature Decoder Control And Status
+#define FTM_QDCTRL_PHAFLTREN		0x80				// Phase A Input Filter Enable
+#define FTM_QDCTRL_PHBFLTREN		0x40				// Phase B Input Filter Enable
+#define FTM_QDCTRL_PHAPOL		0x20				// Phase A Input Polarity
+#define FTM_QDCTRL_PHBPOL		0x10				// Phase B Input Polarity
+#define FTM_QDCTRL_QUADMODE		0x08				// Quadrature Decoder Mode
+#define FTM_QDCTRL_QUADIR		0x04				// FTM Counter Direction In Quadrature Decoder Mode
+#define FTM_QDCTRL_TOFDIR		0x02				// Timer Overflow Direction In Quadrature Decoder Mode
+#define FTM_QDCTRL_QUADEN		0x01				// Quadrature Decoder Mode Enable
 #define FTM0_CONF		(*(volatile uint32_t *)0x40038084) // Configuration
+#define FTM_CONF_GTBEOUT		0x400				// Global Time Base Output
+#define FTM_CONF_GTBEEN			0x200				// Global Time Base Enable
+#define FTM_CONF_BDMMODE		(((n) & 3) << 6)		// Behavior when in debug mode
+#define FTM_CONF_NUMTOF			(((n) & 31) << 0)		// ratio of counter overflows to TOF bit set
 #define FTM0_FLTPOL		(*(volatile uint32_t *)0x40038088) // FTM Fault Input Polarity
+#define FTM_FLTPOL_FLT3POL		0x08				// Fault Input 3 Polarity
+#define FTM_FLTPOL_FLT2POL		0x04				// Fault Input 2 Polarity
+#define FTM_FLTPOL_FLT1POL		0x02				// Fault Input 1 Polarity
+#define FTM_FLTPOL_FLT0POL		0x01				// Fault Input 0 Polarity
 #define FTM0_SYNCONF		(*(volatile uint32_t *)0x4003808C) // Synchronization Configuration
+#define FTM_SYNCONF_HWSOC		0x100000			// Software output control synchronization is activated by a hardware trigger.
+#define FTM_SYNCONF_HWINVC		0x080000			// Inverting control synchronization is activated by a hardware trigger.
+#define FTM_SYNCONF_HWOM		0x040000			// Output mask synchronization is activated by a hardware trigger.
+#define FTM_SYNCONF_HWWRBUF		0x020000			// MOD, CNTIN, and CV registers synchronization is activated by a hardware trigger.
+#define FTM_SYNCONF_HWRSTCNT		0x010000			// FTM counter synchronization is activated by a hardware trigger.
+#define FTM_SYNCONF_SWSOC		0x001000			// Software output control synchronization is activated by the software trigger.
+#define FTM_SYNCONF_SWINVC		0x000800			// Inverting control synchronization is activated by the software trigger.
+#define FTM_SYNCONF_SWOM		0x000400			// Output mask synchronization is activated by the software trigger.
+#define FTM_SYNCONF_SWWRBUF		0x000200			// MOD, CNTIN, and CV registers synchronization is activated by the software trigger.
+#define FTM_SYNCONF_SWRSTCNT		0x000100			// FTM counter synchronization is activated by the software trigger.
+#define FTM_SYNCONF_SYNCMODE		0x000080			// Synchronization Mode, 0=Legacy, 1=Enhanced PWM
+#define FTM_SYNCONF_SWOC		0x000020			// SWOCTRL Register Synchronization
+#define FTM_SYNCONF_INVC		0x000010			// INVCTRL Register Synchronization
+#define FTM_SYNCONF_CNTINC		0x000004			// CNTIN Register Synchronization
+#define FTM_SYNCONF_HWTRIGMODE		0x000001			// Hardware Trigger Mode
 #define FTM0_INVCTRL		(*(volatile uint32_t *)0x40038090) // FTM Inverting Control
+#define FTM_INVCTRL_INV3EN		0x08				// Pair Channels 3 Inverting Enable
+#define FTM_INVCTRL_INV2EN		0x04				// Pair Channels 2 Inverting Enable
+#define FTM_INVCTRL_INV1EN		0x02				// Pair Channels 1 Inverting Enable
+#define FTM_INVCTRL_INV0EN		0x01				// Pair Channels 0 Inverting Enable
 #define FTM0_SWOCTRL		(*(volatile uint32_t *)0x40038094) // FTM Software Output Control
+#define FTM_SWOCTRL_CH7OCV		0x8000				// Channel 7 Software Output Control Value
+#define FTM_SWOCTRL_CH6OCV		0x4000				// Channel 6 Software Output Control Value
+#define FTM_SWOCTRL_CH5OCV		0x2000				// Channel 5 Software Output Control Value
+#define FTM_SWOCTRL_CH4OCV		0x1000				// Channel 4 Software Output Control Value
+#define FTM_SWOCTRL_CH3OCV		0x0800				// Channel 3 Software Output Control Value
+#define FTM_SWOCTRL_CH2OCV		0x0400				// Channel 2 Software Output Control Value
+#define FTM_SWOCTRL_CH1OCV		0x0200				// Channel 1 Software Output Control Value
+#define FTM_SWOCTRL_CH0OCV		0x0100				// Channel 0 Software Output Control Value
+#define FTM_SWOCTRL_CH7OC		0x0080				// Channel 7 Software Output Control Enable
+#define FTM_SWOCTRL_CH6OC		0x0040				// Channel 6 Software Output Control Enable
+#define FTM_SWOCTRL_CH5OC		0x0020				// Channel 5 Software Output Control Enable
+#define FTM_SWOCTRL_CH4OC		0x0010				// Channel 4 Software Output Control Enable
+#define FTM_SWOCTRL_CH3OC		0x0008				// Channel 3 Software Output Control Enable
+#define FTM_SWOCTRL_CH2OC		0x0004				// Channel 2 Software Output Control Enable
+#define FTM_SWOCTRL_CH1OC		0x0002				// Channel 1 Software Output Control Enable
+#define FTM_SWOCTRL_CH0OC		0x0001				// Channel 0 Software Output Control Enable
 #define FTM0_PWMLOAD		(*(volatile uint32_t *)0x40038098) // FTM PWM Load
+#define FTM_PWMLOAD_LDOK		0x200				// Enables the loading of the MOD, CNTIN, and CV registers with the values of their write buffers
+#define FTM_PWMLOAD_CH7SEL		0x80				// Channel 7 Select
+#define FTM_PWMLOAD_CH6SEL		0x40				// Channel 6 Select
+#define FTM_PWMLOAD_CH5SEL		0x20				// Channel 5 Select
+#define FTM_PWMLOAD_CH4SEL		0x10				// Channel 4 Select
+#define FTM_PWMLOAD_CH3SEL		0x08				// Channel 4 Select
+#define FTM_PWMLOAD_CH2SEL		0x04				// Channel 3 Select
+#define FTM_PWMLOAD_CH1SEL		0x02				// Channel 2 Select
+#define FTM_PWMLOAD_CH0SEL		0x01				// Channel 1 Select
 #define FTM1_SC			(*(volatile uint32_t *)0x40039000) // Status And Control
 #define FTM1_CNT		(*(volatile uint32_t *)0x40039004) // Counter
 #define FTM1_MOD		(*(volatile uint32_t *)0x40039008) // Modulo
