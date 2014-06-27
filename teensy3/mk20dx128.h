@@ -519,6 +519,7 @@ extern "C" {
 #define DMAMUX_SOURCE_ALWAYS7		61
 #define DMAMUX_SOURCE_ALWAYS8		62
 #define DMAMUX_SOURCE_ALWAYS9		63
+#define DMAMUX_NUM_SOURCE_ALWAYS	10
 
 // Chapter 21: Direct Memory Access Controller (eDMA)
 #define DMA_CR			(*(volatile uint32_t *)0x40008000) // Control Register
@@ -679,7 +680,9 @@ extern "C" {
 #define DMA_TCD_ATTR_SIZE_16BYTE	4
 #define DMA_TCD_ATTR_SIZE_32BYTE	5
 #define DMA_TCD_CSR_BWC(n)		(((n) & 0x3) << 14)
-#define DMA_TCD_CSR_MAJORLINKCH(n)	(((n) & 0x3) << 8)
+#define DMA_TCD_CSR_BWC_MASK		0xC000
+#define DMA_TCD_CSR_MAJORLINKCH(n)	(((n) & 0xF) << 8)
+#define DMA_TCD_CSR_MAJORLINKCH_MASK	0x0F00
 #define DMA_TCD_CSR_DONE		0x0080
 #define DMA_TCD_CSR_ACTIVE		0x0040
 #define DMA_TCD_CSR_MAJORELINK		0x0020
@@ -688,10 +691,20 @@ extern "C" {
 #define DMA_TCD_CSR_INTHALF		0x0004
 #define DMA_TCD_CSR_INTMAJOR		0x0002
 #define DMA_TCD_CSR_START		0x0001
-#define DMA_TCD_CITER_MASK		    ((uint16_t)0x7FFF)	   // Loop count mask
-#define DMA_TCD_CITER_ELINK		    ((uint16_t)1<<15)	   // Enable channel linking on minor-loop complete
-#define DMA_TCD_BITER_MASK		    ((uint16_t)0x7FFF)	   // Loop count mask
-#define DMA_TCD_BITER_ELINK		    ((uint16_t)1<<15)	   // Enable channel linking on minor-loop complete
+#define DMA_TCD_CITER_MASK		((uint16_t)0x7FFF)	   // Loop count mask
+#define DMA_TCD_CITER_ELINK		((uint16_t)1<<15)	   // Enable channel linking on minor-loop complete
+#define DMA_TCD_BITER_MASK		((uint16_t)0x7FFF)	   // Loop count mask
+#define DMA_TCD_BITER_ELINK		((uint16_t)1<<15)	   // Enable channel linking on minor-loop complete
+#define DMA_TCD_BITER_ELINKYES_ELINK		0x8000
+#define DMA_TCD_BITER_ELINKYES_LINKCH(n)	(((n) & 0xF) << 9)
+#define DMA_TCD_BITER_ELINKYES_LINKCH_MASK	0x1E00
+#define DMA_TCD_BITER_ELINKYES_BITER(n)		(((n) & 0x1FF) << 0)
+#define DMA_TCD_BITER_ELINKYES_BITER_MASK	0x01FF
+#define DMA_TCD_CITER_ELINKYES_ELINK		0x8000
+#define DMA_TCD_CITER_ELINKYES_LINKCH(n)	(((n) & 0xF) << 9)
+#define DMA_TCD_CITER_ELINKYES_LINKCH_MASK	0x1E00
+#define DMA_TCD_CITER_ELINKYES_CITER(n)		(((n) & 0x1FF) << 0)
+#define DMA_TCD_CITER_ELINKYES_CITER_MASK	0x01FF
 #define DMA_TCD_NBYTES_SMLOE		    ((uint32_t)1<<31)		    // Source Minor Loop Offset Enable
 #define DMA_TCD_NBYTES_DMLOE		    ((uint32_t)1<<30)		    // Destination Minor Loop Offset Enable
 #define DMA_TCD_NBYTES_MLOFFNO_NBYTES(n)    ((uint32_t)(n))		    // NBytes transfer count when minor loop disabled
@@ -2346,6 +2359,7 @@ typedef struct {
 #define IRQ_PORTE		44
 #define IRQ_SOFTWARE		45
 #define NVIC_NUM_INTERRUPTS	46
+#define DMA_NUM_CHANNELS	4
 
 #elif defined(__MK20DX256__)
 #define IRQ_DMA_CH0		0
@@ -2418,6 +2432,7 @@ typedef struct {
 #define IRQ_PORTE		91
 #define IRQ_SOFTWARE		94
 #define NVIC_NUM_INTERRUPTS	95
+#define DMA_NUM_CHANNELS	16
 
 #endif
 

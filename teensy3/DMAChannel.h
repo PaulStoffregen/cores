@@ -24,15 +24,20 @@ class DMAChannel {
 	typedef struct __attribute__((packed)) {
 		volatile const void * volatile SADDR;
 		int16_t SOFF;
-		union { uint16_t ATTR; struct { uint8_t ATTR_DST; uint8_t ATTR_SRC; }; };
-		uint32_t NBYTES;
+		union { uint16_t ATTR;
+			struct { uint8_t ATTR_DST; uint8_t ATTR_SRC; }; };
+		union { uint32_t NBYTES; uint32_t NBYTES_MLNO;
+			uint32_t NBYTES_MLOFFNO; uint32_t NBYTES_MLOFFYES; };
 		int32_t SLAST;
 		volatile void * volatile DADDR;
 		int16_t DOFF;
-		volatile uint16_t CITER;
+		union { volatile uint16_t CITER;
+			volatile uint16_t CITER_ELINKYES; volatile uint16_t CITER_ELINKNO; };
 		int32_t DLASTSGA;
 		volatile uint16_t CSR;
-		volatile uint16_t BITER;
+		union { volatile uint16_t BITER;
+			volatile uint16_t BITER_ELINKYES; volatile uint16_t BITER_ELINKNO; };
+
 	} TCD_t;
 public:
 	/*************************************************/
@@ -48,36 +53,62 @@ public:
 	/**    Triggering                     **/
 	/***************************************/
 
-	// Triggers cause the DMA channel to actually move data.
+	// Triggers cause the DMA channel to actually move data.  Each
+	// trigger moves a single data unit, which is typically 8, 16 or 32 bits.
 
 	// Use a hardware trigger to make the DMA channel run
 	void attachTrigger(uint8_t source) {
 		volatile uint8_t *mux;
 		mux = (volatile uint8_t *)&(DMAMUX0_CHCFG0) + channel;
 		*mux = 0;
-		*mux = source | DMAMUX_ENABLE;
+		*mux = (source & 63) | DMAMUX_ENABLE;
 	}
 
 	// Use another DMA channel as the trigger, causing this
-	// channel to trigger every time it triggers.  This
-	// effectively makes the 2 channels run in parallel.
-	void attachTrigger(DMAChannel &channel) {
-
+	// channel to trigger after each transfer is makes, except
+	// the its last transfer.  This effectively makes the 2
+	// channels run in parallel.
+	void attachTriggerBeforeCompletion(DMAChannel &ch) {
+		ch.TCD.BITER = (ch.TCD.BITER & ~DMA_TCD_BITER_ELINKYES_LINKCH_MASK)
+		  | DMA_TCD_BITER_ELINKYES_LINKCH(channel) | DMA_TCD_BITER_ELINKYES_ELINK;
+		ch.TCD.CITER = ch.TCD.BITER ;
 	}
 
 	// Use another DMA channel as the trigger, causing this
 	// channel to trigger when the other channel completes.
-	void attachTriggerOnCompletion(DMAChannel &channel) {
-
+	void attachTriggerAtCompletion(DMAChannel &ch) {
+		ch.TCD.CSR = (ch.TCD.CSR & ~DMA_TCD_CSR_MAJORLINKCH_MASK)
+		  | DMA_TCD_CSR_MAJORLINKCH(channel) | DMA_TCD_CSR_MAJORELINK;
 	}
 
-	void attachTriggerContinuous(DMAChannel &channel) {
-
+	// Cause this DMA channel to be continuously triggered, so
+	// it will move data as rapidly as possible, without waiting.
+	// Normally this would be used with disableOnCompletion().
+	void attachTriggerContinuous(void) {
+		volatile uint8_t *mux = (volatile uint8_t *)&DMAMUX0_CHCFG0;
+		mux[channel] = 0;
+#if DMAMUX_NUM_SOURCE_ALWAYS >= DMA_NUM_CHANNELS
+		mux[channel] = DMAMUX_SOURCE_ALWAYS0 + channel;	
+#else
+		// search for an unused "always on" source
+		unsigned int i = DMAMUX_SOURCE_ALWAYS0;
+		for (i = DMAMUX_SOURCE_ALWAYS0;
+		  i < DMAMUX_SOURCE_ALWAYS0 + DMAMUX_NUM_SOURCE_ALWAYS; i++) {
+			unsigned int ch;
+			for (ch=0; ch < DMA_NUM_CHANNELS; ch++) {
+				if (mux[ch] == i) break;
+			}
+			if (ch >= DMA_NUM_CHANNELS) {
+				mux[channel] = i;
+				return;
+			}
+		}
+#endif
 	}
 
 	// Manually trigger the DMA channel.
 	void trigger(void) {
-
+		DMA_SSRT = channel;
 	}
 
 
@@ -86,19 +117,24 @@ public:
 	/***************************************/
 
 	// An interrupt routine can be run when the DMA channel completes
-	// the entire transfer.
+	// the entire transfer, and also optionally when half of the
+	// transfer is completed.
 	void attachInterrupt(void (*isr)(void)) {
 		_VectorsRam[channel + IRQ_DMA_CH0 + 16] = isr;
 		NVIC_ENABLE_IRQ(IRQ_DMA_CH0 + channel);
+		TCD.CSR |= DMA_TCD_CSR_INTMAJOR;
+	}
+
+	void detachInterrupt(void) {
+		NVIC_DISABLE_IRQ(IRQ_DMA_CH0 + channel);
 	}
 
 	void interruptAtHalf(void) {
-
+		TCD.CSR |= DMA_TCD_CSR_INTHALF;
 	}
 
 	void clearInterrupt(void) {
-
-
+		DMA_CINT = channel;
 	}
 
 
@@ -107,15 +143,15 @@ public:
 	/***************************************/
 
 	void enable(void) {
-
+		DMA_SERQ = channel;
 	}
 
 	void disable(void) {
-
+		DMA_CERQ = channel;
 	}
 
 	void disableOnCompletion(void) {
-
+		TCD.CSR |= DMA_TCD_CSR_DREQ;
 	}
 
 
@@ -154,7 +190,8 @@ public:
 
 	// Use a buffer (array of data) as the data source.  Typically a
 	// buffer for transmitting data is used.
-	void sourceBuffer(const signed char p[], unsigned int len) { sourceBuffer((uint8_t *)p, len); }
+	void sourceBuffer(const signed char p[], unsigned int len) {
+		sourceBuffer((uint8_t *)p, len); }
 	void sourceBuffer(const unsigned char p[], unsigned int len) {
 		TCD.SADDR = p;
 		TCD.SOFF = 1;
@@ -164,7 +201,8 @@ public:
 		TCD.BITER = len;
 		TCD.CITER = len;
 	}
-	void sourceBuffer(const signed short p[], unsigned int len) { sourceBuffer((uint16_t *)p, len); }
+	void sourceBuffer(const signed short p[], unsigned int len) {
+		sourceBuffer((uint16_t *)p, len); }
 	void sourceBuffer(const unsigned short p[], unsigned int len) {
 		TCD.SADDR = p;
 		TCD.SOFF = 2;
@@ -174,9 +212,12 @@ public:
 		TCD.BITER = len / 2;
 		TCD.CITER = len / 2;
 	}
-	void sourceBuffer(const signed int p[], unsigned int len) { sourceBuffer((uint32_t *)p, len); }
-	void sourceBuffer(const unsigned int p[], unsigned int len) {sourceBuffer((uint32_t *)p, len); } 
-	void sourceBuffer(const signed long p[], unsigned int len) { sourceBuffer((uint32_t *)p, len); }
+	void sourceBuffer(const signed int p[], unsigned int len) {
+		sourceBuffer((uint32_t *)p, len); }
+	void sourceBuffer(const unsigned int p[], unsigned int len) {
+		sourceBuffer((uint32_t *)p, len); } 
+	void sourceBuffer(const signed long p[], unsigned int len) {
+		sourceBuffer((uint32_t *)p, len); }
 	void sourceBuffer(const unsigned long p[], unsigned int len) {
 		TCD.SADDR = p;
 		TCD.SOFF = 4;
@@ -188,7 +229,8 @@ public:
 	}
 
 	// Use a circular buffer as the data source
-	void sourceCircular(const signed char p[], unsigned int len) { sourceCircular((uint8_t *)p, len); }
+	void sourceCircular(const signed char p[], unsigned int len) {
+		sourceCircular((uint8_t *)p, len); }
 	void sourceCircular(const unsigned char p[], unsigned int len) {
 		TCD.SADDR = p;
 		TCD.SOFF = 1;
@@ -198,7 +240,8 @@ public:
 		TCD.BITER = len;
 		TCD.CITER = len;
 	}
-	void sourceCircular(const signed short p[], unsigned int len) { sourceCircular((uint16_t *)p, len); }
+	void sourceCircular(const signed short p[], unsigned int len) {
+		sourceCircular((uint16_t *)p, len); }
 	void sourceCircular(const unsigned short p[], unsigned int len) {
 		TCD.SADDR = p;
 		TCD.SOFF = 2;
@@ -208,9 +251,12 @@ public:
 		TCD.BITER = len / 2;
 		TCD.CITER = len / 2;
 	}
-	void sourceCircular(const signed int p[], unsigned int len) { sourceCircular((uint32_t *)p, len); }
-	void sourceCircular(const unsigned int p[], unsigned int len) { sourceCircular((uint32_t *)p, len); }
-	void sourceCircular(const signed long p[], unsigned int len) { sourceCircular((uint32_t *)p, len); }
+	void sourceCircular(const signed int p[], unsigned int len) {
+		sourceCircular((uint32_t *)p, len); }
+	void sourceCircular(const unsigned int p[], unsigned int len) {
+		sourceCircular((uint32_t *)p, len); }
+	void sourceCircular(const signed long p[], unsigned int len) {
+		sourceCircular((uint32_t *)p, len); }
 	void sourceCircular(const unsigned long p[], unsigned int len) {
 		TCD.SADDR = p;
 		TCD.SOFF = 4;
@@ -252,7 +298,8 @@ public:
 
 	// Use a buffer (array of data) as the data destination.  Typically a
 	// buffer for receiving data is used.
-	void destinationBuffer(signed char p[], unsigned int len) { destinationBuffer((uint8_t *)p, len); }
+	void destinationBuffer(signed char p[], unsigned int len) {
+		destinationBuffer((uint8_t *)p, len); }
 	void destinationBuffer(unsigned char p[], unsigned int len) {
 		TCD.DADDR = p;
 		TCD.DOFF = 1;
@@ -262,7 +309,8 @@ public:
 		TCD.BITER = len;
 		TCD.CITER = len;
 	}
-	void destinationBuffer(signed short p[], unsigned int len) { destinationBuffer((uint16_t *)p, len); }
+	void destinationBuffer(signed short p[], unsigned int len) {
+		destinationBuffer((uint16_t *)p, len); }
 	void destinationBuffer(unsigned short p[], unsigned int len) {
 		TCD.DADDR = p;
 		TCD.DOFF = 2;
@@ -272,9 +320,12 @@ public:
 		TCD.BITER = len / 2;
 		TCD.CITER = len / 2;
 	}
-	void destinationBuffer(signed int p[], unsigned int len) { destinationBuffer((uint32_t *)p, len); }
-	void destinationBuffer(unsigned int p[], unsigned int len) { destinationBuffer((uint32_t *)p, len); }
-	void destinationBuffer(signed long p[], unsigned int len) { destinationBuffer((uint32_t *)p, len); }
+	void destinationBuffer(signed int p[], unsigned int len) {
+		destinationBuffer((uint32_t *)p, len); }
+	void destinationBuffer(unsigned int p[], unsigned int len) {
+		destinationBuffer((uint32_t *)p, len); }
+	void destinationBuffer(signed long p[], unsigned int len) {
+		destinationBuffer((uint32_t *)p, len); }
 	void destinationBuffer(unsigned long p[], unsigned int len) {
 		TCD.DADDR = p;
 		TCD.DOFF = 4;
@@ -286,7 +337,8 @@ public:
 	}
 
 	// Use a circular buffer as the data destination
-	void destinationCircular(signed char p[], unsigned int len) { destinationCircular((uint8_t *)p, len); }
+	void destinationCircular(signed char p[], unsigned int len) {
+		destinationCircular((uint8_t *)p, len); }
 	void destinationCircular(unsigned char p[], unsigned int len) {
 		TCD.DADDR = p;
 		TCD.DOFF = 1;
@@ -296,7 +348,8 @@ public:
 		TCD.BITER = len;
 		TCD.CITER = len;
 	}
-	void destinationCircular(signed short p[], unsigned int len) { destinationCircular((uint16_t *)p, len); }
+	void destinationCircular(signed short p[], unsigned int len) {
+		destinationCircular((uint16_t *)p, len); }
 	void destinationCircular(unsigned short p[], unsigned int len) {
 		TCD.DADDR = p;
 		TCD.DOFF = 2;
@@ -306,9 +359,12 @@ public:
 		TCD.BITER = len / 2;
 		TCD.CITER = len / 2;
 	}
-	void destinationCircular(signed int p[], unsigned int len) { destinationCircular((uint32_t *)p, len); }
-	void destinationCircular(unsigned int p[], unsigned int len) { destinationCircular((uint32_t *)p, len); }
-	void destinationCircular(signed long p[], unsigned int len) { destinationCircular((uint32_t *)p, len); }
+	void destinationCircular(signed int p[], unsigned int len) {
+		destinationCircular((uint32_t *)p, len); }
+	void destinationCircular(unsigned int p[], unsigned int len) {
+		destinationCircular((uint32_t *)p, len); }
+	void destinationCircular(signed long p[], unsigned int len) {
+		destinationCircular((uint32_t *)p, len); }
 	void destinationCircular(unsigned long p[], unsigned int len) {
 		TCD.DADDR = p;
 		TCD.DOFF = 4;

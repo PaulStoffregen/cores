@@ -23,14 +23,19 @@ DMAChannel::DMAChannel(uint8_t channelRequest) : TCD(*(TCD_t *)0), channel(16)
 		}
 	}
 	channel = ch;
+	SIM_SCGC7 |= SIM_SCGC7_DMA;
+	SIM_SCGC6 |= SIM_SCGC6_DMAMUX;
+	DMA_CR = DMA_CR_EMLM | DMA_CR_EDBG ; // minor loop mapping is available
+	DMA_CERQ = ch;
+	DMA_CERR = ch;
+	DMA_CEEI = ch;
+	DMA_CINT = ch;
+
 	TCD = *(TCD_t *)(0x40009000 + ch * 32);
 	TCD.CSR = 0;
 	TCD.ATTR = 0;
 	TCD.NBYTES = 0;
 	TCD.BITER = 0;
 	TCD.CITER = 0;
-	SIM_SCGC7 |= SIM_SCGC7_DMA;
-	SIM_SCGC6 |= SIM_SCGC6_DMAMUX;
-	DMA_CR = 0;
 }
 
