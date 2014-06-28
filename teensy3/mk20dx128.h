@@ -678,7 +678,7 @@ extern "C" {
 #define DMA_TCD_ATTR_SIZE_16BIT		1
 #define DMA_TCD_ATTR_SIZE_32BIT		2
 #define DMA_TCD_ATTR_SIZE_16BYTE	4
-#define DMA_TCD_ATTR_SIZE_32BYTE	5
+#define DMA_TCD_ATTR_SIZE_32BYTE	5 // caution: this might not be supported in newer chips?
 #define DMA_TCD_CSR_BWC(n)		(((n) & 0x3) << 14)
 #define DMA_TCD_CSR_BWC_MASK		0xC000
 #define DMA_TCD_CSR_MAJORLINKCH(n)	(((n) & 0xF) << 8)
