@@ -267,7 +267,7 @@ public:
 	/*************************************************/
 
 	// Set the data size used for each triggered transfer
-	void size(unsigned int len) {
+	void transferSize(unsigned int len) {
 		if (len == 4) {
 			TCD->NBYTES = 4;
 			if (TCD->SOFF != 0) TCD->SOFF = 4;
@@ -287,7 +287,7 @@ public:
 	}
 
 	// Set the number of transfers (number of triggers until complete)
-	void count(unsigned int len) {
+	void transferCount(unsigned int len) {
 		if (len > 32767) return;
 		if (len >= 512) {
 			TCD->BITER = len;
@@ -316,6 +316,7 @@ public:
 
 	void replaceSettingsOnCompletion(const DMABaseClass &settings) {
 		TCD->DLASTSGA = (int32_t)(settings.TCD);
+		TCD->CSR &= ~DMA_TCD_CSR_DONE;
 		TCD->CSR |= DMA_TCD_CSR_ESG;
 	}
 
@@ -405,10 +406,11 @@ public:
 	/***************************************/
 
 	// Triggers cause the DMA channel to actually move data.  Each
-	// trigger moves a single data unit, which is typically 8, 16 or 32 bits.
+	// trigger moves a single data unit, which is typically 8, 16 or
+	// 32 bits.  If a channel is configured for 200 transfers
 
 	// Use a hardware trigger to make the DMA channel run
-	void attachTrigger(uint8_t source) {
+	void triggerAtHardwareEvent(uint8_t source) {
 		volatile uint8_t *mux;
 		mux = (volatile uint8_t *)&(DMAMUX0_CHCFG0) + channel;
 		*mux = 0;
@@ -418,8 +420,8 @@ public:
 	// Use another DMA channel as the trigger, causing this
 	// channel to trigger after each transfer is makes, except
 	// the its last transfer.  This effectively makes the 2
-	// channels run in parallel.
-	void attachTriggerBeforeCompletion(DMABaseClass &ch) {
+	// channels run in parallel until the last transfer
+	void triggerAtTransfersOf(DMABaseClass &ch) {
 		ch.TCD->BITER = (ch.TCD->BITER & ~DMA_TCD_BITER_ELINKYES_LINKCH_MASK)
 		  | DMA_TCD_BITER_ELINKYES_LINKCH(channel) | DMA_TCD_BITER_ELINKYES_ELINK;
 		ch.TCD->CITER = ch.TCD->BITER ;
@@ -427,15 +429,15 @@ public:
 
 	// Use another DMA channel as the trigger, causing this
 	// channel to trigger when the other channel completes.
-	void attachTriggerAtCompletion(DMABaseClass &ch) {
-		ch.TCD->CSR = (ch.TCD->CSR & ~DMA_TCD_CSR_MAJORLINKCH_MASK)
+	void triggerAtCompletionOf(DMABaseClass &ch) {
+		ch.TCD->CSR = (ch.TCD->CSR & ~(DMA_TCD_CSR_MAJORLINKCH_MASK|DMA_TCD_CSR_DONE))
 		  | DMA_TCD_CSR_MAJORLINKCH(channel) | DMA_TCD_CSR_MAJORELINK;
 	}
 
 	// Cause this DMA channel to be continuously triggered, so
 	// it will move data as rapidly as possible, without waiting.
 	// Normally this would be used with disableOnCompletion().
-	void attachTriggerContinuous(void) {
+	void triggerContinuously(void) {
 		volatile uint8_t *mux = (volatile uint8_t *)&DMAMUX0_CHCFG0;
 		mux[channel] = 0;
 #if DMAMUX_NUM_SOURCE_ALWAYS >= DMA_NUM_CHANNELS
@@ -458,7 +460,7 @@ public:
 	}
 
 	// Manually trigger the DMA channel.
-	void trigger(void) {
+	void triggerManual(void) {
 		DMA_SSRT = channel;
 	}
 
@@ -491,19 +493,34 @@ public:
 	void enable(void) {
 		DMA_SERQ = channel;
 	}
-
 	void disable(void) {
 		DMA_CERQ = channel;
 	}
-
-
 
 	/***************************************/
 	/**    Status                         **/
 	/***************************************/
 
-	// TODO: "get" functions, to read important stuff, like SADDR & DADDR...
-	// error status, etc
+	bool complete(void) {
+		if (TCD->CSR & DMA_TCD_CSR_DONE) return true;
+		return false;
+	}
+	void clearComplete(void) {
+		DMA_CDNE = channel;
+	}
+	bool error(void) {
+		if (DMA_ERR & (1<<channel)) return true;
+		return false;
+	}
+	void clearError(void) {
+		DMA_CERR = channel;
+	}
+	void * sourceAddress(void) {
+		return (void *)(TCD->SADDR);
+	}
+	void * destinationAddress(void) {
+		return (void *)(TCD->DADDR);
+	}
 
 	/***************************************/
 	/**    Direct Hardware Access         **/
@@ -514,6 +531,7 @@ public:
 	// can be used directly.  This leads to less portable and less readable
 	// code, but direct control of all parameters is possible.
 	uint8_t channel;
+	// TCD is accessible due to inheritance from DMABaseClass
 
 /* usage cases:
 
