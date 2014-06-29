@@ -168,6 +168,7 @@ public:
 	virtual size_t write9bit(uint32_t c)	{ serial_putchar(c); return 1; }
 };
 extern HardwareSerial Serial1;
+extern void serialEvent1(void);
 
 class HardwareSerial2 : public HardwareSerial
 {
@@ -195,6 +196,7 @@ public:
 	virtual size_t write9bit(uint32_t c)	{ serial2_putchar(c); return 1; }
 };
 extern HardwareSerial2 Serial2;
+extern void serialEvent2(void);
 
 class HardwareSerial3 : public HardwareSerial
 {
@@ -222,6 +224,7 @@ public:
 	virtual size_t write9bit(uint32_t c)	{ serial3_putchar(c); return 1; }
 };
 extern HardwareSerial3 Serial3;
+extern void serialEvent3(void);
 
 #endif
 #endif

@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2014 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -28,5 +28,21 @@
  * SOFTWARE.
  */
 
+#include "core_pins.h"
+#include "HardwareSerial.h"
+#include "usb_serial.h"
+#include "usb_seremu.h"
+
 void yield(void) __attribute__ ((weak));
-void yield(void) {};
+void yield(void)
+{
+	static uint8_t running=0;
+
+	if (running) return; // TODO: does this need to be atomic?
+	running = 1;
+	if (Serial.available()) serialEvent();
+	if (Serial1.available()) serialEvent1();
+	if (Serial2.available()) serialEvent2();
+	if (Serial3.available()) serialEvent3();
+	running = 0;
+};
