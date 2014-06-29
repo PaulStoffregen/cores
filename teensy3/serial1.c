@@ -222,8 +222,8 @@ int serial_room(void)
 
 	head = tx_buffer_head;
 	tail = tx_buffer_tail;
-	if (head >= tail) return TX_BUFFER_SIZE - head + tail;
-	return tail - head;
+	if (head >= tail) return TX_BUFFER_SIZE - 1 - head + tail;
+	return tail - head - 1;
 }
 
 int serial_available(void)
