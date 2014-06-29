@@ -101,6 +101,7 @@ void serial_set_transmit_pin(uint8_t pin);
 void serial_putchar(uint32_t c);
 void serial_write(const void *buf, unsigned int count);
 void serial_flush(void);
+int serial_room(void);
 int serial_available(void);
 int serial_getchar(void);
 int serial_peek(void);
@@ -116,6 +117,7 @@ void serial2_end(void);
 void serial2_putchar(uint32_t c);
 void serial2_write(const void *buf, unsigned int count);
 void serial2_flush(void);
+int serial2_room(void);
 int serial2_available(void);
 int serial2_getchar(void);
 int serial2_peek(void);
@@ -127,6 +129,7 @@ void serial3_end(void);
 void serial3_putchar(uint32_t c);
 void serial3_write(const void *buf, unsigned int count);
 void serial3_flush(void);
+int serial3_room(void);
 int serial3_available(void);
 int serial3_getchar(void);
 int serial3_peek(void);
@@ -155,6 +158,7 @@ public:
 	virtual int read(void)          { return serial_getchar(); }
 	virtual void flush(void)        { serial_flush(); }
 	virtual void clear(void)	{ serial_clear(); }
+	virtual int room(void)		{ return serial_room(); }
 	virtual size_t write(uint8_t c) { serial_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
 	virtual size_t write(long n)            { return write((uint8_t)n); }
@@ -183,6 +187,7 @@ public:
 	virtual int read(void)          { return serial2_getchar(); }
 	virtual void flush(void)        { serial2_flush(); }
 	virtual void clear(void)	{ serial2_clear(); }
+	virtual int room(void)		{ return serial2_room(); }
 	virtual size_t write(uint8_t c) { serial2_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
 	virtual size_t write(long n)            { return write((uint8_t)n); }
@@ -211,6 +216,7 @@ public:
 	virtual int read(void)          { return serial3_getchar(); }
 	virtual void flush(void)        { serial3_flush(); }
 	virtual void clear(void)	{ serial3_clear(); }
+	virtual int room(void)		{ return serial3_room(); }
 	virtual size_t write(uint8_t c) { serial3_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
 	virtual size_t write(long n)            { return write((uint8_t)n); }
