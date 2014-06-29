@@ -156,26 +156,26 @@ public:
 
 	// Use a single variable as the data destination.  Typically a register
 	// for transmitting data to one of the hardware peripherals is used.
-	void destination(signed char &p) { destination(*(uint8_t *)&p); }
-	void destination(unsigned char &p) {
+	void destination(volatile signed char &p) { destination(*(volatile uint8_t *)&p); }
+	void destination(volatile unsigned char &p) {
 		TCD->DADDR = &p;
 		TCD->DOFF = 0;
 		TCD->ATTR_DST = 0;
 		if ((uint32_t)p < 0x40000000 || TCD->NBYTES == 0) TCD->NBYTES = 1;
 		TCD->DLASTSGA = 0;
 	}
-	void destination(signed short &p) { destination(*(uint16_t *)&p); }
-	void destination(unsigned short &p) {
+	void destination(volatile signed short &p) { destination(*(volatile uint16_t *)&p); }
+	void destination(volatile unsigned short &p) {
 		TCD->DADDR = &p;
 		TCD->DOFF = 0;
 		TCD->ATTR_DST = 1;
 		if ((uint32_t)p < 0x40000000 || TCD->NBYTES == 0) TCD->NBYTES = 2;
 		TCD->DLASTSGA = 0;
 	}
-	void destination(signed int &p) { destination(*(uint32_t *)&p); }
-	void destination(unsigned int &p) { destination(*(uint32_t *)&p); }
-	void destination(signed long &p) { destination(*(uint32_t *)&p); }
-	void destination(unsigned long &p) {
+	void destination(volatile signed int &p) { destination(*(volatile uint32_t *)&p); }
+	void destination(volatile unsigned int &p) { destination(*(volatile uint32_t *)&p); }
+	void destination(volatile signed long &p) { destination(*(volatile uint32_t *)&p); }
+	void destination(volatile unsigned long &p) {
 		TCD->DADDR = &p;
 		TCD->DOFF = 0;
 		TCD->ATTR_DST = 2;
@@ -185,9 +185,9 @@ public:
 
 	// Use a buffer (array of data) as the data destination.  Typically a
 	// buffer for receiving data is used.
-	void destinationBuffer(signed char p[], unsigned int len) {
-		destinationBuffer((uint8_t *)p, len); }
-	void destinationBuffer(unsigned char p[], unsigned int len) {
+	void destinationBuffer(volatile signed char p[], unsigned int len) {
+		destinationBuffer((volatile uint8_t *)p, len); }
+	void destinationBuffer(volatile unsigned char p[], unsigned int len) {
 		TCD->DADDR = p;
 		TCD->DOFF = 1;
 		TCD->ATTR_DST = 0;
@@ -196,9 +196,9 @@ public:
 		TCD->BITER = len;
 		TCD->CITER = len;
 	}
-	void destinationBuffer(signed short p[], unsigned int len) {
-		destinationBuffer((uint16_t *)p, len); }
-	void destinationBuffer(unsigned short p[], unsigned int len) {
+	void destinationBuffer(volatile signed short p[], unsigned int len) {
+		destinationBuffer((volatile uint16_t *)p, len); }
+	void destinationBuffer(volatile unsigned short p[], unsigned int len) {
 		TCD->DADDR = p;
 		TCD->DOFF = 2;
 		TCD->ATTR_DST = 1;
@@ -207,13 +207,13 @@ public:
 		TCD->BITER = len / 2;
 		TCD->CITER = len / 2;
 	}
-	void destinationBuffer(signed int p[], unsigned int len) {
-		destinationBuffer((uint32_t *)p, len); }
-	void destinationBuffer(unsigned int p[], unsigned int len) {
-		destinationBuffer((uint32_t *)p, len); }
-	void destinationBuffer(signed long p[], unsigned int len) {
-		destinationBuffer((uint32_t *)p, len); }
-	void destinationBuffer(unsigned long p[], unsigned int len) {
+	void destinationBuffer(volatile signed int p[], unsigned int len) {
+		destinationBuffer((volatile uint32_t *)p, len); }
+	void destinationBuffer(volatile unsigned int p[], unsigned int len) {
+		destinationBuffer((volatile uint32_t *)p, len); }
+	void destinationBuffer(volatile signed long p[], unsigned int len) {
+		destinationBuffer((volatile uint32_t *)p, len); }
+	void destinationBuffer(volatile unsigned long p[], unsigned int len) {
 		TCD->DADDR = p;
 		TCD->DOFF = 4;
 		TCD->ATTR_DST = 1;
@@ -224,9 +224,9 @@ public:
 	}
 
 	// Use a circular buffer as the data destination
-	void destinationCircular(signed char p[], unsigned int len) {
-		destinationCircular((uint8_t *)p, len); }
-	void destinationCircular(unsigned char p[], unsigned int len) {
+	void destinationCircular(volatile signed char p[], unsigned int len) {
+		destinationCircular((volatile uint8_t *)p, len); }
+	void destinationCircular(volatile unsigned char p[], unsigned int len) {
 		TCD->DADDR = p;
 		TCD->DOFF = 1;
 		TCD->ATTR_DST = ((31 - __builtin_clz(len)) << 3);
@@ -235,9 +235,9 @@ public:
 		TCD->BITER = len;
 		TCD->CITER = len;
 	}
-	void destinationCircular(signed short p[], unsigned int len) {
-		destinationCircular((uint16_t *)p, len); }
-	void destinationCircular(unsigned short p[], unsigned int len) {
+	void destinationCircular(volatile signed short p[], unsigned int len) {
+		destinationCircular((volatile uint16_t *)p, len); }
+	void destinationCircular(volatile unsigned short p[], unsigned int len) {
 		TCD->DADDR = p;
 		TCD->DOFF = 2;
 		TCD->ATTR_DST = ((31 - __builtin_clz(len)) << 3) | 1;
@@ -246,13 +246,13 @@ public:
 		TCD->BITER = len / 2;
 		TCD->CITER = len / 2;
 	}
-	void destinationCircular(signed int p[], unsigned int len) {
-		destinationCircular((uint32_t *)p, len); }
-	void destinationCircular(unsigned int p[], unsigned int len) {
-		destinationCircular((uint32_t *)p, len); }
-	void destinationCircular(signed long p[], unsigned int len) {
-		destinationCircular((uint32_t *)p, len); }
-	void destinationCircular(unsigned long p[], unsigned int len) {
+	void destinationCircular(volatile signed int p[], unsigned int len) {
+		destinationCircular((volatile uint32_t *)p, len); }
+	void destinationCircular(volatile unsigned int p[], unsigned int len) {
+		destinationCircular((volatile uint32_t *)p, len); }
+	void destinationCircular(volatile signed long p[], unsigned int len) {
+		destinationCircular((volatile uint32_t *)p, len); }
+	void destinationCircular(volatile unsigned long p[], unsigned int len) {
 		TCD->DADDR = p;
 		TCD->DOFF = 4;
 		TCD->ATTR_DST = ((31 - __builtin_clz(len)) << 3) | 2;
