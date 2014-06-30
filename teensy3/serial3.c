@@ -28,7 +28,7 @@
  * SOFTWARE.
  */
 
-#include "mk20dx128.h"
+#include "kinetis.h"
 #include "core_pins.h"
 #include "HardwareSerial.h"
 

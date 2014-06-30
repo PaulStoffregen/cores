@@ -31,7 +31,7 @@
 #ifndef _avr_emulation_h_
 #define _avr_emulation_h_
 
-#include "mk20dx128.h"
+#include "kinetis.h"
 #include "core_pins.h"
 #include "pins_arduino.h"
 

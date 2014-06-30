@@ -28,7 +28,7 @@
  * SOFTWARE.
  */
 
-#include "mk20dx128.h"
+#include "kinetis.h"
 
 
 extern unsigned long _stext;
