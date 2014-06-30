@@ -33,17 +33,9 @@
 
 #include <stdint.h>
 
-#ifdef __cplusplus
-#define BEGIN_ENUM(NAME) enum name {
-#define END_ENUM(NAME)   };
-#else
-#define BEGIN_ENUM(NAME) typedef enum {
-#define END_ENUM(NAME)   } name;
-#endif
-
 // Teensy 3.0
 #if defined(__MK20DX128__)
-BEGIN_ENUM(IRQ_NUMBER_t)
+enum IRQ_NUMBER_t {
 	IRQ_DMA_CH0 =		0,
 	IRQ_DMA_CH1 =		1,
 	IRQ_DMA_CH2 =		2,
@@ -89,7 +81,7 @@ BEGIN_ENUM(IRQ_NUMBER_t)
 	IRQ_PORTD =		43,
 	IRQ_PORTE =		44,
 	IRQ_SOFTWARE =		45
-END_ENUM(IRQ_NUMBER_t)
+};
 #define NVIC_NUM_INTERRUPTS	46
 #define DMA_NUM_CHANNELS	4
 #define KINETISK_UART0
@@ -99,7 +91,7 @@ END_ENUM(IRQ_NUMBER_t)
 
 // Teensy 3.1
 #elif defined(__MK20DX256__)
-BEGIN_ENUM(IRQ_NUMBER_t)
+enum IRQ_NUMBER_t {
 	IRQ_DMA_CH0 =		0,
 	IRQ_DMA_CH1 =		1,
 	IRQ_DMA_CH2 =		2,
@@ -169,7 +161,7 @@ BEGIN_ENUM(IRQ_NUMBER_t)
 	IRQ_PORTD =		90,
 	IRQ_PORTE =		91,
 	IRQ_SOFTWARE =		94
-END_ENUM(IRQ_NUMBER_t)
+};
 #define NVIC_NUM_INTERRUPTS	95
 #define DMA_NUM_CHANNELS	16
 #define KINETISK_UART0
