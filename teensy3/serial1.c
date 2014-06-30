@@ -216,6 +216,16 @@ void serial_flush(void)
 	while (transmitting) yield(); // wait
 }
 
+int serial_room(void)
+{
+	uint32_t head, tail;
+
+	head = tx_buffer_head;
+	tail = tx_buffer_tail;
+	if (head >= tail) return TX_BUFFER_SIZE - 1 - head + tail;
+	return tail - head - 1;
+}
+
 int serial_available(void)
 {
 	uint32_t head, tail;

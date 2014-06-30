@@ -100,6 +100,7 @@ public:
 
 };
 extern usb_serial_class Serial;
+extern void serialEvent(void);
 #endif // __cplusplus
 
 
@@ -135,6 +136,7 @@ public:
 };
 
 extern usb_serial_class Serial;
+extern void serialEvent(void);
 #endif // __cplusplus
 
 #endif // F_CPU

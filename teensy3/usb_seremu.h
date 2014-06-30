@@ -84,6 +84,7 @@ public:
         operator bool() { return usb_configuration; }
 };
 extern usb_seremu_class Serial;
+extern void serialEvent(void);
 #endif // __cplusplus
 
 
@@ -120,6 +121,7 @@ public:
 };
 
 extern usb_seremu_class Serial;
+extern void serialEvent(void);
 #endif // __cplusplus
 
 

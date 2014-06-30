@@ -77,3 +77,6 @@ usb_seremu_class Serial;
 #endif
 
 #endif // F_CPU
+
+void serialEvent() __attribute__((weak));
+void serialEvent() {}
