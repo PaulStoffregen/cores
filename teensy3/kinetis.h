@@ -32,13 +32,18 @@
 #define _kinetis_h_
 
 #include <stdint.h>
+
 #ifdef __cplusplus
-extern "C" {
+#define BEGIN_ENUM(NAME) enum name {
+#define END_ENUM(NAME)   };
+#else
+#define BEGIN_ENUM(NAME) typedef enum {
+#define END_ENUM(NAME)   } name;
 #endif
 
 // Teensy 3.0
 #if defined(__MK20DX128__)
-enum IRQ_NUMBER_t {
+BEGIN_ENUM(IRQ_NUMBER_t)
 	IRQ_DMA_CH0 =		0,
 	IRQ_DMA_CH1 =		1,
 	IRQ_DMA_CH2 =		2,
@@ -84,7 +89,7 @@ enum IRQ_NUMBER_t {
 	IRQ_PORTD =		43,
 	IRQ_PORTE =		44,
 	IRQ_SOFTWARE =		45
-};
+END_ENUM(IRQ_NUMBER_t)
 #define NVIC_NUM_INTERRUPTS	46
 #define DMA_NUM_CHANNELS	4
 #define KINETISK_UART0
@@ -94,7 +99,7 @@ enum IRQ_NUMBER_t {
 
 // Teensy 3.1
 #elif defined(__MK20DX256__)
-enum IRQ_NUMBER_t {
+BEGIN_ENUM(IRQ_NUMBER_t)
 	IRQ_DMA_CH0 =		0,
 	IRQ_DMA_CH1 =		1,
 	IRQ_DMA_CH2 =		2,
@@ -164,7 +169,7 @@ enum IRQ_NUMBER_t {
 	IRQ_PORTD =		90,
 	IRQ_PORTE =		91,
 	IRQ_SOFTWARE =		94
-};
+END_ENUM(IRQ_NUMBER_t)
 #define NVIC_NUM_INTERRUPTS	95
 #define DMA_NUM_CHANNELS	16
 #define KINETISK_UART0
@@ -1927,6 +1932,26 @@ enum IRQ_NUMBER_t {
 #define USBDCD_TIMER2		(*(volatile uint32_t *)0x40035018) // TIMER2 register
 
 // Chapter 43: SPI (DSPI)
+typedef struct {
+	volatile uint32_t	MCR;	// 0
+	volatile uint32_t	unused1;// 4
+	volatile uint32_t	TCR;	// 8
+	volatile uint32_t	CTAR0;	// c
+	volatile uint32_t	CTAR1;	// 10
+	volatile uint32_t	CTAR2;	// 14
+	volatile uint32_t	CTAR3;	// 18
+	volatile uint32_t	CTAR4;	// 1c
+	volatile uint32_t	CTAR5;	// 20
+	volatile uint32_t	CTAR6;	// 24
+	volatile uint32_t	CTAR7;	// 28
+	volatile uint32_t	SR;	// 2c
+	volatile uint32_t	RSER;	// 30
+	volatile uint32_t	PUSHR;	// 34
+	volatile uint32_t	POPR;	// 38
+	volatile uint32_t	TXFR[16]; // 3c
+	volatile uint32_t	RXFR[16]; // 7c
+} KINETISK_SPI_t;
+#define SPI0			(*(KINETISK_SPI_t *)0x4002C000)
 #define SPI0_MCR		(*(volatile uint32_t *)0x4002C000) // DSPI Module Configuration Register
 #define SPI_MCR_MSTR			((uint32_t)0x80000000)		// Master/Slave Mode Select
 #define SPI_MCR_CONT_SCKE		((uint32_t)0x40000000)		//
@@ -1993,26 +2018,6 @@ enum IRQ_NUMBER_t {
 #define SPI0_RXFR1		(*(volatile uint32_t *)0x4002C080) // DSPI Receive FIFO Registers
 #define SPI0_RXFR2		(*(volatile uint32_t *)0x4002C084) // DSPI Receive FIFO Registers
 #define SPI0_RXFR3		(*(volatile uint32_t *)0x4002C088) // DSPI Receive FIFO Registers
-typedef struct {
-	volatile uint32_t	MCR;	// 0
-	volatile uint32_t	unused1;// 4
-	volatile uint32_t	TCR;	// 8
-	volatile uint32_t	CTAR0;	// c
-	volatile uint32_t	CTAR1;	// 10
-	volatile uint32_t	CTAR2;	// 14
-	volatile uint32_t	CTAR3;	// 18
-	volatile uint32_t	CTAR4;	// 1c
-	volatile uint32_t	CTAR5;	// 20
-	volatile uint32_t	CTAR6;	// 24
-	volatile uint32_t	CTAR7;	// 28
-	volatile uint32_t	SR;	// 2c
-	volatile uint32_t	RSER;	// 30
-	volatile uint32_t	PUSHR;	// 34
-	volatile uint32_t	POPR;	// 38
-	volatile uint32_t	TXFR[16]; // 3c
-	volatile uint32_t	RXFR[16]; // 7c
-} SPI_t;
-#define SPI0		(*(SPI_t *)0x4002C000)
 
 // Chapter 44: Inter-Integrated Circuit (I2C)
 #define I2C0_A1			(*(volatile uint8_t  *)0x40066000) // I2C Address Register 1
@@ -2480,6 +2485,11 @@ typedef struct {
 #define ARM_DWT_CTRL_CYCCNTENA		(1 << 0)		// Enable cycle count
 #define ARM_DWT_CYCCNT		(*(volatile uint32_t *)0xE0001004) // Cycle count register
 
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 extern int nvic_execution_priority(void);
 
 extern void nmi_isr(void);
@@ -2573,11 +2583,13 @@ extern void portd_isr(void);
 extern void porte_isr(void);
 extern void software_isr(void);
 
-
 extern void (* _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
 extern void (* const _VectorsFlash[NVIC_NUM_INTERRUPTS+16])(void);
 
 #ifdef __cplusplus
 }
 #endif
+
+#undef BEGIN_ENUM
+#undef END_ENUM
 #endif
