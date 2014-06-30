@@ -28,19 +28,153 @@
  * SOFTWARE.
  */
 
-#ifndef _mk20dx128_h_
-#define _mk20dx128_h_
+#ifndef _kinetis_h_
+#define _kinetis_h_
 
-//#ifdef F_CPU
-//#undef F_CPU
-//#endif
-//#define F_CPU 168000000
-//#define F_CPU 144000000
-//#define F_CPU 120000000
-//#define F_CPU 96000000
-//#define F_CPU 72000000
-//#define F_CPU 48000000
-//#define F_CPU 24000000
+#include <stdint.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// Teensy 3.0
+#if defined(__MK20DX128__)
+enum IRQ_NUMBER_t {
+	IRQ_DMA_CH0 =		0,
+	IRQ_DMA_CH1 =		1,
+	IRQ_DMA_CH2 =		2,
+	IRQ_DMA_CH3 =		3,
+	IRQ_DMA_ERROR =		4,
+	IRQ_FTFL_COMPLETE =	6,
+	IRQ_FTFL_COLLISION =	7,
+	IRQ_LOW_VOLTAGE =	8,
+	IRQ_LLWU =		9,
+	IRQ_WDOG =		10,
+	IRQ_I2C0 =		11,
+	IRQ_SPI0 =		12,
+	IRQ_I2S0_TX =		13,
+	IRQ_I2S0_RX =		14,
+	IRQ_UART0_LON =		15,
+	IRQ_UART0_STATUS =	16,
+	IRQ_UART0_ERROR =	17,
+	IRQ_UART1_STATUS =	18,
+	IRQ_UART1_ERROR =	19,
+	IRQ_UART2_STATUS =	20,
+	IRQ_UART2_ERROR =	21,
+	IRQ_ADC0 =		22,
+	IRQ_CMP0 =		23,
+	IRQ_CMP1 =		24,
+	IRQ_FTM0 =		25,
+	IRQ_FTM1 =		26,
+	IRQ_CMT =		27,
+	IRQ_RTC_ALARM =		28,
+	IRQ_RTC_SECOND =	29,
+	IRQ_PIT_CH0 =		30,
+	IRQ_PIT_CH1 =		31,
+	IRQ_PIT_CH2 =		32,
+	IRQ_PIT_CH3 =		33,
+	IRQ_PDB =		34,
+	IRQ_USBOTG =		35,
+	IRQ_USBDCD =		36,
+	IRQ_TSI =		37,
+	IRQ_MCG =		38,
+	IRQ_LPTMR =		39,
+	IRQ_PORTA =		40,
+	IRQ_PORTB =		41,
+	IRQ_PORTC =		42,
+	IRQ_PORTD =		43,
+	IRQ_PORTE =		44,
+	IRQ_SOFTWARE =		45
+};
+#define NVIC_NUM_INTERRUPTS	46
+#define DMA_NUM_CHANNELS	4
+#define KINETISK_UART0
+#define KINETISK_UART0_FIFO
+#define KINETISK_UART1
+#define KINETISK_UART2
+
+// Teensy 3.1
+#elif defined(__MK20DX256__)
+enum IRQ_NUMBER_t {
+	IRQ_DMA_CH0 =		0,
+	IRQ_DMA_CH1 =		1,
+	IRQ_DMA_CH2 =		2,
+	IRQ_DMA_CH3 =		3,
+	IRQ_DMA_CH4 =		4,
+	IRQ_DMA_CH5 =		5,
+	IRQ_DMA_CH6 =		6,
+	IRQ_DMA_CH7 =		7,
+	IRQ_DMA_CH8 =		8,
+	IRQ_DMA_CH9 =		9,
+	IRQ_DMA_CH10 =		10,
+	IRQ_DMA_CH11 =		11,
+	IRQ_DMA_CH12 =		12,
+	IRQ_DMA_CH13 =		13,
+	IRQ_DMA_CH14 =		14,
+	IRQ_DMA_CH15 =		15,
+	IRQ_DMA_ERROR =		16,
+	IRQ_FTFL_COMPLETE =	18,
+	IRQ_FTFL_COLLISION =	19,
+	IRQ_LOW_VOLTAGE =	20,
+	IRQ_LLWU =		21,
+	IRQ_WDOG =		22,
+	IRQ_I2C0 =		24,
+	IRQ_I2C1 =		25,
+	IRQ_SPI0 =		26,
+	IRQ_SPI1 =		27,
+	IRQ_CAN_MESSAGE =	29,
+	IRQ_CAN_BUS_OFF =	30,
+	IRQ_CAN_ERROR =		31,
+	IRQ_CAN_TX_WARN =	32,
+	IRQ_CAN_RX_WARN =	33,
+	IRQ_CAN_WAKEUP =	34,
+	IRQ_I2S0_TX =		35,
+	IRQ_I2S0_RX =		36,
+	IRQ_UART0_LON =		44,
+	IRQ_UART0_STATUS =	45,
+	IRQ_UART0_ERROR =	46,
+	IRQ_UART1_STATUS =	47,
+	IRQ_UART1_ERROR =	48,
+	IRQ_UART2_STATUS =	49,
+	IRQ_UART2_ERROR =	50,
+	IRQ_ADC0 =		57,
+	IRQ_ADC1 =		58,
+	IRQ_CMP0 =		59,
+	IRQ_CMP1 =		60,
+	IRQ_CMP2 =		61,
+	IRQ_FTM0 =		62,
+	IRQ_FTM1 =		63,
+	IRQ_FTM2 =		64,
+	IRQ_CMT =		65,
+	IRQ_RTC_ALARM =		66,
+	IRQ_RTC_SECOND =	67,
+	IRQ_PIT_CH0 =		68,
+	IRQ_PIT_CH1 =		69,
+	IRQ_PIT_CH2 =		70,
+	IRQ_PIT_CH3 =		71,
+	IRQ_PDB =		72,
+	IRQ_USBOTG =		73,
+	IRQ_USBDCD =		74,
+	IRQ_DAC0 =		81,
+	IRQ_TSI =		83,
+	IRQ_MCG =		84,
+	IRQ_LPTMR =		85,
+	IRQ_PORTA =		87,
+	IRQ_PORTB =		88,
+	IRQ_PORTC =		89,
+	IRQ_PORTD =		90,
+	IRQ_PORTE =		91,
+	IRQ_SOFTWARE =		94
+};
+#define NVIC_NUM_INTERRUPTS	95
+#define DMA_NUM_CHANNELS	16
+#define KINETISK_UART0
+#define KINETISK_UART0_FIFO
+#define KINETISK_UART1
+#define KINETISK_UART1_FIFO
+#define KINETISK_UART2
+
+#endif // end of board-specific definitions
+
 
 #if (F_CPU == 168000000)
  #define F_BUS 56000000
@@ -80,11 +214,6 @@
 
 #ifndef NULL
 #define NULL ((void *)0)
-#endif
-
-#include <stdint.h>
-#ifdef __cplusplus
-extern "C" {
 #endif
 
 // chapter 11: Port control and interrupts (PORT)
@@ -2311,130 +2440,6 @@ typedef struct {
 // Cortex-M0: 0,64,128,192
 #define NVIC_SET_PRIORITY(irqnum, priority)  (*((volatile uint8_t *)0xE000E400 + (irqnum)) = (uint8_t)(priority))
 #define NVIC_GET_PRIORITY(irqnum) (*((uint8_t *)0xE000E400 + (irqnum)))
-
-#if defined(__MK20DX128__)
-#define IRQ_DMA_CH0		0
-#define IRQ_DMA_CH1		1
-#define IRQ_DMA_CH2		2
-#define IRQ_DMA_CH3		3
-#define IRQ_DMA_ERROR		4
-#define IRQ_FTFL_COMPLETE	6
-#define IRQ_FTFL_COLLISION	7
-#define IRQ_LOW_VOLTAGE		8
-#define IRQ_LLWU		9
-#define IRQ_WDOG		10
-#define IRQ_I2C0		11
-#define IRQ_SPI0		12
-#define IRQ_I2S0_TX		13
-#define IRQ_I2S0_RX		14
-#define IRQ_UART0_LON		15
-#define IRQ_UART0_STATUS	16
-#define IRQ_UART0_ERROR		17
-#define IRQ_UART1_STATUS	18
-#define IRQ_UART1_ERROR		19
-#define IRQ_UART2_STATUS	20
-#define IRQ_UART2_ERROR		21
-#define IRQ_ADC0		22
-#define IRQ_CMP0		23
-#define IRQ_CMP1		24
-#define IRQ_FTM0		25
-#define IRQ_FTM1		26
-#define IRQ_CMT			27
-#define IRQ_RTC_ALARM		28
-#define IRQ_RTC_SECOND		29
-#define IRQ_PIT_CH0		30
-#define IRQ_PIT_CH1		31
-#define IRQ_PIT_CH2		32
-#define IRQ_PIT_CH3		33
-#define IRQ_PDB			34
-#define IRQ_USBOTG		35
-#define IRQ_USBDCD		36
-#define IRQ_TSI			37
-#define IRQ_MCG			38
-#define IRQ_LPTMR		39
-#define IRQ_PORTA		40
-#define IRQ_PORTB		41
-#define IRQ_PORTC		42
-#define IRQ_PORTD		43
-#define IRQ_PORTE		44
-#define IRQ_SOFTWARE		45
-#define NVIC_NUM_INTERRUPTS	46
-#define DMA_NUM_CHANNELS	4
-
-#elif defined(__MK20DX256__)
-#define IRQ_DMA_CH0		0
-#define IRQ_DMA_CH1		1
-#define IRQ_DMA_CH2		2
-#define IRQ_DMA_CH3		3
-#define IRQ_DMA_CH4		4
-#define IRQ_DMA_CH5		5
-#define IRQ_DMA_CH6		6
-#define IRQ_DMA_CH7		7
-#define IRQ_DMA_CH8		8
-#define IRQ_DMA_CH9		9
-#define IRQ_DMA_CH10		10
-#define IRQ_DMA_CH11		11
-#define IRQ_DMA_CH12		12
-#define IRQ_DMA_CH13		13
-#define IRQ_DMA_CH14		14
-#define IRQ_DMA_CH15		15
-#define IRQ_DMA_ERROR		16
-#define IRQ_FTFL_COMPLETE	18
-#define IRQ_FTFL_COLLISION	19
-#define IRQ_LOW_VOLTAGE		20
-#define IRQ_LLWU		21
-#define IRQ_WDOG		22
-#define IRQ_I2C0		24
-#define IRQ_I2C1		25
-#define IRQ_SPI0		26
-#define IRQ_SPI1		27
-#define IRQ_CAN_MESSAGE		29
-#define IRQ_CAN_BUS_OFF		30
-#define IRQ_CAN_ERROR		31
-#define IRQ_CAN_TX_WARN		32
-#define IRQ_CAN_RX_WARN		33
-#define IRQ_CAN_WAKEUP		34
-#define IRQ_I2S0_TX		35
-#define IRQ_I2S0_RX		36
-#define IRQ_UART0_LON		44
-#define IRQ_UART0_STATUS	45
-#define IRQ_UART0_ERROR		46
-#define IRQ_UART1_STATUS	47
-#define IRQ_UART1_ERROR		48
-#define IRQ_UART2_STATUS	49
-#define IRQ_UART2_ERROR		50
-#define IRQ_ADC0		57
-#define IRQ_ADC1		58
-#define IRQ_CMP0		59
-#define IRQ_CMP1		60
-#define IRQ_CMP2		61
-#define IRQ_FTM0		62
-#define IRQ_FTM1		63
-#define IRQ_FTM2		64
-#define IRQ_CMT			65
-#define IRQ_RTC_ALARM		66
-#define IRQ_RTC_SECOND		67
-#define IRQ_PIT_CH0		68
-#define IRQ_PIT_CH1		69
-#define IRQ_PIT_CH2		70
-#define IRQ_PIT_CH3		71
-#define IRQ_PDB			72
-#define IRQ_USBOTG		73
-#define IRQ_USBDCD		74
-#define IRQ_DAC0		81
-#define IRQ_TSI			83
-#define IRQ_MCG			84
-#define IRQ_LPTMR		85
-#define IRQ_PORTA		87
-#define IRQ_PORTB		88
-#define IRQ_PORTC		89
-#define IRQ_PORTD		90
-#define IRQ_PORTE		91
-#define IRQ_SOFTWARE		94
-#define NVIC_NUM_INTERRUPTS	95
-#define DMA_NUM_CHANNELS	16
-
-#endif
 
 
 

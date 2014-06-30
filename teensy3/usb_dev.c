@@ -31,7 +31,7 @@
 #include "usb_dev.h"
 #if F_CPU >= 20000000 && defined(NUM_ENDPOINTS)
 
-#include "mk20dx128.h"
+#include "kinetis.h"
 //#include "HardwareSerial.h"
 #include "usb_mem.h"
 

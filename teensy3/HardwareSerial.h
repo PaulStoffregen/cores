@@ -31,8 +31,7 @@
 #ifndef HardwareSerial_h
 #define HardwareSerial_h
 
-#include "mk20dx128.h"
-#include <inttypes.h>
+#include "kinetis.h"
 
 // uncomment to enable 9 bit formats
 //#define SERIAL_9BIT_SUPPORT

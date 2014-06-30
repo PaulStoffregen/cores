@@ -1,7 +1,7 @@
 #ifndef DMAChannel_h_
 #define DMAChannel_h_
 
-#include "mk20dx128.h"
+#include "kinetis.h"
 
 // This code is a work-in-progress.  It's incomplete and not usable yet...
 //

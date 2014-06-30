@@ -31,7 +31,7 @@
 #ifndef _core_pins_h_
 #define _core_pins_h_
 
-#include "mk20dx128.h"
+#include "kinetis.h"
 #include "pins_arduino.h"
 
 

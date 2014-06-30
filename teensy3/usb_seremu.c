@@ -30,7 +30,6 @@
 
 #if F_CPU >= 20000000
 
-//#include "mk20dx128.h"
 #include "usb_dev.h"
 #include "usb_seremu.h"
 #include "core_pins.h" // for yield()

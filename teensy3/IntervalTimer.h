@@ -21,8 +21,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 #ifndef __INTERVALTIMER_H__
 #define __INTERVALTIMER_H__
 
-#include <stdint.h>
-#include "mk20dx128.h"
+#include "kinetis.h"
 
 #ifdef __cplusplus
 extern "C" {
