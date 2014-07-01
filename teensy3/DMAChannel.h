@@ -452,7 +452,7 @@ public:
 				if (mux[ch] == i) break;
 			}
 			if (ch >= DMA_NUM_CHANNELS) {
-				mux[channel] = i;
+				mux[channel] = (i | DMAMUX_ENABLE);
 				return;
 			}
 		}
