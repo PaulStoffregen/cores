@@ -216,7 +216,7 @@ public:
 	void destinationBuffer(volatile unsigned long p[], unsigned int len) {
 		TCD->DADDR = p;
 		TCD->DOFF = 4;
-		TCD->ATTR_DST = 1;
+		TCD->ATTR_DST = 2;
 		TCD->NBYTES = 4;
 		TCD->DLASTSGA = -len;
 		TCD->BITER = len / 4;
