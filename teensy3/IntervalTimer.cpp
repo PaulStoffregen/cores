@@ -152,6 +152,7 @@ void IntervalTimer::start_PIT(uint32_t newValue) {
   *PIT_TCTRL = 0;
   *PIT_LDVAL = newValue;
   *PIT_TCTRL = 3;
+  NVIC_SET_PRIORITY(IRQ_PIT_CH, nvic_priority);
   NVIC_ENABLE_IRQ(IRQ_PIT_CH);
 
 }
