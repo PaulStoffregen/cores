@@ -119,6 +119,7 @@ SECTIONS
 	.data : AT (_etext) {
 		. = ALIGN(4);
 		_sdata = .; 
+		*(.fastrun*)
 		*(.data*)
 		. = ALIGN(4);
 		_edata = .; 
