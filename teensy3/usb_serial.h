@@ -48,6 +48,7 @@ int usb_serial_read(void *buffer, uint32_t size);
 void usb_serial_flush_input(void);
 int usb_serial_putchar(uint8_t c);
 int usb_serial_write(const void *buffer, uint32_t size);
+int usb_serial_room(void);
 void usb_serial_flush_output(void);
 extern uint32_t usb_cdc_line_coding[2];
 extern volatile uint8_t usb_cdc_line_rtsdtr;
@@ -78,6 +79,7 @@ public:
 	size_t write(long n) { return write((uint8_t)n); }
 	size_t write(unsigned int n) { return write((uint8_t)n); }
 	size_t write(int n) { return write((uint8_t)n); }
+	int room() { return usb_serial_room(); }
 	using Print::write;
         void send_now(void) { usb_serial_flush_output(); }
         uint32_t baud(void) { return usb_cdc_line_coding[0]; }
@@ -124,6 +126,7 @@ public:
 	size_t write(long n) { return 1; }
 	size_t write(unsigned int n) { return 1; }
 	size_t write(int n) { return 1; }
+	int room() { return 0; }
 	using Print::write;
         void send_now(void) { }
         uint32_t baud(void) { return 0; }
