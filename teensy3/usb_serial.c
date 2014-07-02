@@ -224,6 +224,24 @@ int usb_serial_write(const void *buffer, uint32_t size)
 	return 0;
 }
 
+int usb_serial_room(void)
+{
+	uint32_t len;
+
+	tx_noautoflush = 1;
+	if (!tx_packet) {
+		if (!usb_configuration ||
+		  usb_tx_packet_count(CDC_TX_ENDPOINT) >= TX_PACKET_LIMIT ||
+		  (tx_packet = usb_malloc()) == NULL) {
+			tx_noautoflush = 0;
+			return 0;
+		}
+	}
+	len = CDC_TX_SIZE - tx_packet->index;
+	tx_noautoflush = 0;
+	return len;
+}
+
 void usb_serial_flush_output(void)
 {
 	if (!usb_configuration) return;
