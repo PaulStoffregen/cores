@@ -177,7 +177,7 @@ void serial2_flush(void)
 	while (transmitting) yield(); // wait
 }
 
-int serial2_room(void)
+int serial2_write_buffer_free(void)
 {
 	uint32_t head, tail;
 
