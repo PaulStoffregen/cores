@@ -224,7 +224,7 @@ int usb_serial_write(const void *buffer, uint32_t size)
 	return 0;
 }
 
-int usb_serial_room(void)
+int usb_serial_write_buffer_free(void)
 {
 	uint32_t len;
 

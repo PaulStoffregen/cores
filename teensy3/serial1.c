@@ -216,7 +216,7 @@ void serial_flush(void)
 	while (transmitting) yield(); // wait
 }
 
-int serial_room(void)
+int serial_write_buffer_free(void)
 {
 	uint32_t head, tail;
 

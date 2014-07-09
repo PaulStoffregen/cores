@@ -223,7 +223,7 @@ int usb_seremu_write(const void *buffer, uint32_t size)
 #endif
 }
 
-int usb_seremu_room(void)
+int usb_seremu_write_buffer_free(void)
 {
 	uint32_t len;
 
