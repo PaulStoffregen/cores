@@ -157,7 +157,7 @@ public:
 	virtual int read(void)          { return serial_getchar(); }
 	virtual void flush(void)        { serial_flush(); }
 	virtual void clear(void)	{ serial_clear(); }
-	virtual int writeBufferFree(void) { return serial_write_buffer_free(); }
+	virtual int availableForWrite(void) { return serial_write_buffer_free(); }
 	virtual size_t write(uint8_t c) { serial_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
 	virtual size_t write(long n)            { return write((uint8_t)n); }
@@ -186,7 +186,7 @@ public:
 	virtual int read(void)          { return serial2_getchar(); }
 	virtual void flush(void)        { serial2_flush(); }
 	virtual void clear(void)	{ serial2_clear(); }
-	virtual int writeBufferFree(void) { return serial2_write_buffer_free(); }
+	virtual int availableForWrite(void) { return serial2_write_buffer_free(); }
 	virtual size_t write(uint8_t c) { serial2_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
 	virtual size_t write(long n)            { return write((uint8_t)n); }
@@ -215,7 +215,7 @@ public:
 	virtual int read(void)          { return serial3_getchar(); }
 	virtual void flush(void)        { serial3_flush(); }
 	virtual void clear(void)	{ serial3_clear(); }
-	virtual int writeBufferFree(void) { return serial3_write_buffer_free(); }
+	virtual int availableForWrite(void) { return serial3_write_buffer_free(); }
 	virtual size_t write(uint8_t c) { serial3_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
 	virtual size_t write(long n)            { return write((uint8_t)n); }

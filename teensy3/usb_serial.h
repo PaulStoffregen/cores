@@ -79,7 +79,7 @@ public:
 	size_t write(long n) { return write((uint8_t)n); }
 	size_t write(unsigned int n) { return write((uint8_t)n); }
 	size_t write(int n) { return write((uint8_t)n); }
-	int writeBufferFree() { return usb_serial_write_buffer_free(); }
+	int availableForWrite() { return usb_serial_write_buffer_free(); }
 	using Print::write;
         void send_now(void) { usb_serial_flush_output(); }
         uint32_t baud(void) { return usb_cdc_line_coding[0]; }
@@ -126,7 +126,7 @@ public:
 	size_t write(long n) { return 1; }
 	size_t write(unsigned int n) { return 1; }
 	size_t write(int n) { return 1; }
-	int writeBufferFree() { return 0; }
+	int availableForWrite() { return 0; }
 	using Print::write;
         void send_now(void) { }
         uint32_t baud(void) { return 0; }
