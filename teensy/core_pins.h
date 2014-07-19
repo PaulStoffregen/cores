@@ -1852,6 +1852,7 @@ static inline void analogReference(uint8_t mode)
 }
 #endif
 
+void yield(void);
 
 extern void delay(uint32_t);
 
