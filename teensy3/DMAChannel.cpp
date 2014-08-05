@@ -17,7 +17,7 @@ void DMAChannel::init(void)
 		if (++ch >= DMA_NUM_CHANNELS) {
 			__enable_irq();
 			TCD = (TCD_t *)0;
-			channel = 16;
+			channel = DMA_NUM_CHANNELS;
 			return; // no more channels available
 			// attempts to use this object will hardfault
 		}
