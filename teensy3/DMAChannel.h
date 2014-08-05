@@ -48,26 +48,26 @@ public:
 
 	// Use a single variable as the data source.  Typically a register
 	// for receiving data from one of the hardware peripherals is used.
-	void source(const signed char &p) { source(*(const uint8_t *)&p); }
-	void source(const unsigned char &p) {
+	void source(volatile const signed char &p) { source(*(volatile const uint8_t *)&p); }
+	void source(volatile const unsigned char &p) {
 		TCD->SADDR = &p;
 		TCD->SOFF = 0;
 		TCD->ATTR_SRC = 0;
 		if ((uint32_t)p < 0x40000000 || TCD->NBYTES == 0) TCD->NBYTES = 1;
 		TCD->SLAST = 0;
 	}
-	void source(const signed short &p) { source(*(const uint16_t *)&p); }
-	void source(const unsigned short &p) {
+	void source(volatile const signed short &p) { source(*(volatile const uint16_t *)&p); }
+	void source(volatile const unsigned short &p) {
 		TCD->SADDR = &p;
 		TCD->SOFF = 0;
 		TCD->ATTR_SRC = 1;
 		if ((uint32_t)p < 0x40000000 || TCD->NBYTES == 0) TCD->NBYTES = 2;
 		TCD->SLAST = 0;
 	}
-	void source(const signed int &p) { source(*(const uint32_t *)&p); }
-	void source(const unsigned int &p) { source(*(const uint32_t *)&p); }
-	void source(const signed long &p) { source(*(const uint32_t *)&p); }
-	void source(const unsigned long &p) {
+	void source(volatile const signed int &p) { source(*(volatile const uint32_t *)&p); }
+	void source(volatile const unsigned int &p) { source(*(volatile const uint32_t *)&p); }
+	void source(volatile const signed long &p) { source(*(volatile const uint32_t *)&p); }
+	void source(volatile const unsigned long &p) {
 		TCD->SADDR = &p;
 		TCD->SOFF = 0;
 		TCD->ATTR_SRC = 2;
@@ -77,9 +77,9 @@ public:
 
 	// Use a buffer (array of data) as the data source.  Typically a
 	// buffer for transmitting data is used.
-	void sourceBuffer(const signed char p[], unsigned int len) {
-		sourceBuffer((uint8_t *)p, len); }
-	void sourceBuffer(const unsigned char p[], unsigned int len) {
+	void sourceBuffer(volatile const signed char p[], unsigned int len) {
+		sourceBuffer((volatile const uint8_t *)p, len); }
+	void sourceBuffer(volatile const unsigned char p[], unsigned int len) {
 		TCD->SADDR = p;
 		TCD->SOFF = 1;
 		TCD->ATTR_SRC = 0;
@@ -88,9 +88,9 @@ public:
 		TCD->BITER = len;
 		TCD->CITER = len;
 	}
-	void sourceBuffer(const signed short p[], unsigned int len) {
-		sourceBuffer((uint16_t *)p, len); }
-	void sourceBuffer(const unsigned short p[], unsigned int len) {
+	void sourceBuffer(volatile const signed short p[], unsigned int len) {
+		sourceBuffer((volatile const uint16_t *)p, len); }
+	void sourceBuffer(volatile const unsigned short p[], unsigned int len) {
 		TCD->SADDR = p;
 		TCD->SOFF = 2;
 		TCD->ATTR_SRC = 1;
@@ -99,13 +99,13 @@ public:
 		TCD->BITER = len / 2;
 		TCD->CITER = len / 2;
 	}
-	void sourceBuffer(const signed int p[], unsigned int len) {
-		sourceBuffer((uint32_t *)p, len); }
-	void sourceBuffer(const unsigned int p[], unsigned int len) {
-		sourceBuffer((uint32_t *)p, len); } 
-	void sourceBuffer(const signed long p[], unsigned int len) {
-		sourceBuffer((uint32_t *)p, len); }
-	void sourceBuffer(const unsigned long p[], unsigned int len) {
+	void sourceBuffer(volatile const signed int p[], unsigned int len) {
+		sourceBuffer((volatile const uint32_t *)p, len); }
+	void sourceBuffer(volatile const unsigned int p[], unsigned int len) {
+		sourceBuffer((volatile const uint32_t *)p, len); }
+	void sourceBuffer(volatile const signed long p[], unsigned int len) {
+		sourceBuffer((volatile const uint32_t *)p, len); }
+	void sourceBuffer(volatile const unsigned long p[], unsigned int len) {
 		TCD->SADDR = p;
 		TCD->SOFF = 4;
 		TCD->ATTR_SRC = 2;
@@ -116,9 +116,9 @@ public:
 	}
 
 	// Use a circular buffer as the data source
-	void sourceCircular(const signed char p[], unsigned int len) {
-		sourceCircular((uint8_t *)p, len); }
-	void sourceCircular(const unsigned char p[], unsigned int len) {
+	void sourceCircular(volatile const signed char p[], unsigned int len) {
+		sourceCircular((volatile const uint8_t *)p, len); }
+	void sourceCircular(volatile const unsigned char p[], unsigned int len) {
 		TCD->SADDR = p;
 		TCD->SOFF = 1;
 		TCD->ATTR_SRC = ((31 - __builtin_clz(len)) << 3);
@@ -127,9 +127,9 @@ public:
 		TCD->BITER = len;
 		TCD->CITER = len;
 	}
-	void sourceCircular(const signed short p[], unsigned int len) {
-		sourceCircular((uint16_t *)p, len); }
-	void sourceCircular(const unsigned short p[], unsigned int len) {
+	void sourceCircular(volatile const signed short p[], unsigned int len) {
+		sourceCircular((volatile const uint16_t *)p, len); }
+	void sourceCircular(volatile const unsigned short p[], unsigned int len) {
 		TCD->SADDR = p;
 		TCD->SOFF = 2;
 		TCD->ATTR_SRC = ((31 - __builtin_clz(len)) << 3) | 1;
@@ -138,13 +138,13 @@ public:
 		TCD->BITER = len / 2;
 		TCD->CITER = len / 2;
 	}
-	void sourceCircular(const signed int p[], unsigned int len) {
-		sourceCircular((uint32_t *)p, len); }
-	void sourceCircular(const unsigned int p[], unsigned int len) {
-		sourceCircular((uint32_t *)p, len); }
-	void sourceCircular(const signed long p[], unsigned int len) {
-		sourceCircular((uint32_t *)p, len); }
-	void sourceCircular(const unsigned long p[], unsigned int len) {
+	void sourceCircular(volatile const signed int p[], unsigned int len) {
+		sourceCircular((volatile const uint32_t *)p, len); }
+	void sourceCircular(volatile const unsigned int p[], unsigned int len) {
+		sourceCircular((volatile const uint32_t *)p, len); }
+	void sourceCircular(volatile const signed long p[], unsigned int len) {
+		sourceCircular((volatile const uint32_t *)p, len); }
+	void sourceCircular(volatile const unsigned long p[], unsigned int len) {
 		TCD->SADDR = p;
 		TCD->SOFF = 4;
 		TCD->ATTR_SRC = ((31 - __builtin_clz(len)) << 3) | 2;
