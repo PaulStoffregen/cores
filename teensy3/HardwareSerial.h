@@ -113,6 +113,7 @@ void serial_phex32(uint32_t n);
 void serial2_begin(uint32_t divisor);
 void serial2_format(uint32_t format);
 void serial2_end(void);
+void serial2_set_transmit_pin(uint8_t pin);
 void serial2_putchar(uint32_t c);
 void serial2_write(const void *buf, unsigned int count);
 void serial2_flush(void);
@@ -125,6 +126,7 @@ void serial2_clear(void);
 void serial3_begin(uint32_t divisor);
 void serial3_format(uint32_t format);
 void serial3_end(void);
+void serial3_set_transmit_pin(uint8_t pin);
 void serial3_putchar(uint32_t c);
 void serial3_write(const void *buf, unsigned int count);
 void serial3_flush(void);
@@ -181,6 +183,7 @@ public:
 					  serial2_begin(BAUD2DIV(baud));
 					  serial2_format(format); }
 	virtual void end(void)		{ serial2_end(); }
+	virtual void transmitterEnable(uint8_t pin) { serial2_set_transmit_pin(pin); }
 	virtual int available(void)     { return serial2_available(); }
 	virtual int peek(void)          { return serial2_peek(); }
 	virtual int read(void)          { return serial2_getchar(); }
@@ -210,6 +213,7 @@ public:
 					  serial3_begin(BAUD2DIV3(baud));
 					  serial3_format(format); }
 	virtual void end(void)          { serial3_end(); }
+	virtual void transmitterEnable(uint8_t pin) { serial3_set_transmit_pin(pin); }
 	virtual int available(void)     { return serial3_available(); }
 	virtual int peek(void)          { return serial3_peek(); }
 	virtual int read(void)          { return serial3_getchar(); }

@@ -56,6 +56,7 @@ static uint8_t use9Bits = 0;
 static volatile BUFTYPE tx_buffer[TX_BUFFER_SIZE];
 static volatile BUFTYPE rx_buffer[RX_BUFFER_SIZE];
 static volatile uint8_t transmitting = 0;
+static volatile uint8_t *transmit_pin=NULL;
 #if TX_BUFFER_SIZE > 255
 static volatile uint16_t tx_buffer_head = 0;
 static volatile uint16_t tx_buffer_tail = 0;
@@ -134,11 +135,20 @@ void serial3_end(void)
 	rx_buffer_tail = 0;
 }
 
+void serial3_set_transmit_pin(uint8_t pin)
+{
+	while (transmitting) ;
+	pinMode(pin, OUTPUT);
+	digitalWrite(pin, LOW);
+	transmit_pin = portOutputRegister(pin);
+}
+
 void serial3_putchar(uint32_t c)
 {
 	uint32_t head;
 
 	if (!(SIM_SCGC4 & SIM_SCGC4_UART2)) return;
+	if (transmit_pin) *transmit_pin = 1;
 	head = tx_buffer_head;
 	if (++head >= TX_BUFFER_SIZE) head = 0;
 	while (tx_buffer_tail == head) {
@@ -234,9 +244,7 @@ void uart2_status_isr(void)
 	uint32_t head, tail, n;
 	uint8_t c;
 
-	//digitalWriteFast(4, HIGH);
 	if (UART2_S1 & UART_S1_RDRF) {
-		//digitalWriteFast(5, HIGH);
 		n = UART2_D;
 		if (use9Bits && (UART2_C3 & 0x80)) n |= 0x100;
 		head = rx_buffer_head + 1;
@@ -245,11 +253,9 @@ void uart2_status_isr(void)
 			rx_buffer[head] = n;
 			rx_buffer_head = head; 
 		}
-		//digitalWriteFast(5, LOW);
 	}
 	c = UART2_C2;
 	if ((c & UART_C2_TIE) && (UART2_S1 & UART_S1_TDRE)) {
-		//digitalWriteFast(5, HIGH);
 		head = tx_buffer_head;
 		tail = tx_buffer_tail;
 		if (head == tail) {
@@ -261,13 +267,12 @@ void uart2_status_isr(void)
 			UART2_D = n;
 			tx_buffer_tail = tail;
 		}
-		//digitalWriteFast(5, LOW);
 	}
 	if ((c & UART_C2_TCIE) && (UART2_S1 & UART_S1_TC)) {
 		transmitting = 0;
+		if (transmit_pin) *transmit_pin = 0;
 		UART2_C2 = C2_TX_INACTIVE;
 	}
-	//digitalWriteFast(4, LOW);
 }
 
 
