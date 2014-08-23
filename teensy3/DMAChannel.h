@@ -53,7 +53,7 @@ public:
 		TCD->SADDR = &p;
 		TCD->SOFF = 0;
 		TCD->ATTR_SRC = 0;
-		if ((uint32_t)p < 0x40000000 || TCD->NBYTES == 0) TCD->NBYTES = 1;
+		if ((uint32_t)&p < 0x40000000 || TCD->NBYTES == 0) TCD->NBYTES = 1;
 		TCD->SLAST = 0;
 	}
 	void source(volatile const signed short &p) { source(*(volatile const uint16_t *)&p); }
@@ -61,7 +61,7 @@ public:
 		TCD->SADDR = &p;
 		TCD->SOFF = 0;
 		TCD->ATTR_SRC = 1;
-		if ((uint32_t)p < 0x40000000 || TCD->NBYTES == 0) TCD->NBYTES = 2;
+		if ((uint32_t)&p < 0x40000000 || TCD->NBYTES == 0) TCD->NBYTES = 2;
 		TCD->SLAST = 0;
 	}
 	void source(volatile const signed int &p) { source(*(volatile const uint32_t *)&p); }
@@ -71,7 +71,7 @@ public:
 		TCD->SADDR = &p;
 		TCD->SOFF = 0;
 		TCD->ATTR_SRC = 2;
-		if ((uint32_t)p < 0x40000000 || TCD->NBYTES == 0) TCD->NBYTES = 4;
+		if ((uint32_t)&p < 0x40000000 || TCD->NBYTES == 0) TCD->NBYTES = 4;
 		TCD->SLAST = 0;
 	}
 
@@ -161,7 +161,7 @@ public:
 		TCD->DADDR = &p;
 		TCD->DOFF = 0;
 		TCD->ATTR_DST = 0;
-		if ((uint32_t)p < 0x40000000 || TCD->NBYTES == 0) TCD->NBYTES = 1;
+		if ((uint32_t)&p < 0x40000000 || TCD->NBYTES == 0) TCD->NBYTES = 1;
 		TCD->DLASTSGA = 0;
 	}
 	void destination(volatile signed short &p) { destination(*(volatile uint16_t *)&p); }
@@ -169,7 +169,7 @@ public:
 		TCD->DADDR = &p;
 		TCD->DOFF = 0;
 		TCD->ATTR_DST = 1;
-		if ((uint32_t)p < 0x40000000 || TCD->NBYTES == 0) TCD->NBYTES = 2;
+		if ((uint32_t)&p < 0x40000000 || TCD->NBYTES == 0) TCD->NBYTES = 2;
 		TCD->DLASTSGA = 0;
 	}
 	void destination(volatile signed int &p) { destination(*(volatile uint32_t *)&p); }
@@ -179,7 +179,7 @@ public:
 		TCD->DADDR = &p;
 		TCD->DOFF = 0;
 		TCD->ATTR_DST = 2;
-		if ((uint32_t)p < 0x40000000 || TCD->NBYTES == 0) TCD->NBYTES = 4;
+		if ((uint32_t)&p < 0x40000000 || TCD->NBYTES == 0) TCD->NBYTES = 4;
 		TCD->DLASTSGA = 0;
 	}
 
