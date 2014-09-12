@@ -396,7 +396,7 @@ public:
 	~DMAChannel() {
 		release();
 	}
-	void begin(void);
+	void begin(bool force_initialization = false);
 private:
 	void release(void);
 
