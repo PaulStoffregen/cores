@@ -4,10 +4,18 @@
 // so C-only code can reserve DMA channels
 uint16_t dma_channel_allocated_mask = 0;
 
-void DMAChannel::init(void)
+void DMAChannel::begin(void)
 {
 	uint32_t ch = 0;
+
 	__disable_irq();
+	if (TCD && ch < DMA_NUM_CHANNELS
+	  && (dma_channel_allocated_mask & (1 << ch))
+	  && (uint32_t)TCD == (0x40009000 + ch * 32)) {
+		// DMA channel already allocated
+		__enable_irq();
+		return;
+	}
 	while (1) {
 		if (!(dma_channel_allocated_mask & (1 << ch))) {
 			dma_channel_allocated_mask |= (1 << ch);

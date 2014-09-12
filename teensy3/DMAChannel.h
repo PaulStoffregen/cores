@@ -17,9 +17,9 @@
 // https://github.com/pixelmatix/SmartMatrix
 // https://github.com/crteensy/DmaSpi
 
-
 #ifdef __cplusplus
 
+#define DMACHANNEL_HAS_BEGIN
 
 class DMABaseClass {
 public:
@@ -371,14 +371,14 @@ public:
 	/*************************************************/
 
 	DMAChannel() {
-		init();
+		begin();
 	}
 	DMAChannel(const DMAChannel &c) {
 		TCD = c.TCD;
 		channel = c.channel;
 	}
 	DMAChannel(const DMASetting &c) {
-		init();
+		begin();
 		copy_tcd(TCD, c.TCD);
 	}
 	DMAChannel & operator = (const DMAChannel &rhs) {
@@ -396,8 +396,8 @@ public:
 	~DMAChannel() {
 		release();
 	}
+	void begin(void);
 private:
-	void init(void);
 	void release(void);
 
 public:
