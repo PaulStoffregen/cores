@@ -555,8 +555,15 @@ void analogWriteFrequency(uint8_t pin, uint32_t frequency)
 		FTM0_MOD = mod;
 		FTM0_SC = FTM_SC_CLKS(1) | FTM_SC_PS(prescale);
 	}
+#if defined(__MK20DX256__)
+	  else if (pin == 25 || pin == 32) {
+		FTM2_SC = 0;
+		FTM2_CNT = 0;
+		FTM2_MOD = mod;
+		FTM2_SC = FTM_SC_CLKS(1) | FTM_SC_PS(prescale);
+	}
+#endif
 }
-
 
 
 
