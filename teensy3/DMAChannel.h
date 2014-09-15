@@ -20,6 +20,7 @@
 #ifdef __cplusplus
 
 #define DMACHANNEL_HAS_BEGIN
+#define DMACHANNEL_HAS_BOOLEAN_CTOR
 
 class DMABaseClass {
 public:
@@ -380,6 +381,9 @@ public:
 	DMAChannel(const DMASetting &c) {
 		begin();
 		copy_tcd(TCD, c.TCD);
+	}
+	DMAChannel(bool allocate) {
+		if (allocate) begin();
 	}
 	DMAChannel & operator = (const DMAChannel &rhs) {
 		if (channel != rhs.channel) {
