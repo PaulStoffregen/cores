@@ -11,7 +11,7 @@ void DMAChannel::begin(bool force_initialization)
 	__disable_irq();
 	if (!force_initialization && TCD && channel < DMA_NUM_CHANNELS
 	  && (dma_channel_allocated_mask & (1 << channel))
-	  && (uint32_t)TCD == (0x40009000 + channel * 32)) {
+	  && (uint32_t)TCD == (uint32_t)(0x40009000 + channel * 32)) {
 		// DMA channel already allocated
 		__enable_irq();
 		return;
