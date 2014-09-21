@@ -38,7 +38,7 @@ typedef uint32_t prog_uint32_t;
 #define strncmp_P(a, b, n) strncmp((a), (b), (n))
 #define strncasecmp_P(a, b, n) strncasecmp((a), (b), (n))
 #define strncat_P(a, b, n) strncat((a), (b), (n))
-#define strncpy_P(a, b, n) strncmp((a), (b), (n))
+#define strncpy_P(a, b, n) strncpy((a), (b), (n))
 #define strpbrk_P(str, chrs) strpbrk((str), (chrs))
 #define strrchr_P(str, c) strrchr((str), (c))
 #define strsep_P(strp, delim) strsep((strp), (delim))
