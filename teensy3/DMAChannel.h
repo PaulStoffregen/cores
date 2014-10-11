@@ -15,7 +15,7 @@
 // https://github.com/pedvide/ADC
 // https://github.com/duff2013/SerialEvent
 // https://github.com/pixelmatix/SmartMatrix
-// https://github.com/crteensy/DmaSpi
+// https://github.com/crteensy/DmaSpi <-- DmaSpi has adopted this scheme
 
 #ifdef __cplusplus
 
