@@ -1390,6 +1390,12 @@ enum IRQ_NUMBER_t {
 #define CMP1_SCR		(*(volatile uint8_t  *)0x4007300B) // CMP Status and Control Register
 #define CMP1_DACCR		(*(volatile uint8_t  *)0x4007300C) // DAC Control Register
 #define CMP1_MUXCR		(*(volatile uint8_t  *)0x4007300D) // MUX Control Register
+#define CMP2_CR0		(*(volatile uint8_t  *)0x40073010) // CMP Control Register 0
+#define CMP2_CR1		(*(volatile uint8_t  *)0x40073011) // CMP Control Register 1
+#define CMP2_FPR		(*(volatile uint8_t  *)0x40073012) // CMP Filter Period Register
+#define CMP2_SCR		(*(volatile uint8_t  *)0x40073013) // CMP Status and Control Register
+#define CMP2_DACCR		(*(volatile uint8_t  *)0x40073014) // DAC Control Register
+#define CMP2_MUXCR		(*(volatile uint8_t  *)0x40073015) // MUX Control Register
 
 // Chapter 33: Voltage Reference (VREFV1)
 #define VREF_TRM		(*(volatile uint8_t  *)0x40074000) // VREF Trim Register
