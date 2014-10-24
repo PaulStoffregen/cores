@@ -31,9 +31,9 @@
 #ifndef USBserial_h_
 #define USBserial_h_
 
-#if (F_CPU >= 20000000) && (defined(USB_SERIAL) || defined(USB_SERIAL_HID))
-
 #include <inttypes.h>
+
+#if (F_CPU >= 20000000) && (defined(USB_SERIAL) || defined(USB_SERIAL_HID))
 
 // C language implementation
 #ifdef __cplusplus
