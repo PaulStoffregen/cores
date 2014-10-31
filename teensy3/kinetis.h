@@ -507,7 +507,7 @@ enum IRQ_NUMBER_t {
 #define PMC_LVDSC1_LVDIE		((uint8_t)0x20)			// Low-Voltage Detect Interrupt Enable
 #define PMC_LVDSC1_LVDRE		((uint8_t)0x10)			// Low-Voltage Detect Reset Enable
 #define PMC_LVDSC1_LVDV(n)		((uint8_t)((n) & 0x03))		// Low-Voltage Detect Voltage Select
-#define PMC_LVDSC2		(*(volati(le uint8_t  *)0x4007D001) // Low Voltage Detect Status And Control 2 register
+#define PMC_LVDSC2		(*(volatile uint8_t  *)0x4007D001) // Low Voltage Detect Status And Control 2 register
 #define PMC_LVDSC2_LVWF			((uint8_t)0x80)			// Low-Voltage Warning Flag
 #define PMC_LVDSC2_LVWACK		((uint8_t)0x40)			// Low-Voltage Warning Acknowledge
 #define PMC_LVDSC2_LVWIE		((uint8_t)0x20)			// Low-Voltage Warning Interrupt Enable
