@@ -238,6 +238,13 @@ int usb_serial_write_buffer_free(void)
 		}
 	}
 	len = CDC_TX_SIZE - tx_packet->index;
+	// TODO: Perhaps we need "usb_cdc_transmit_flush_timer = TRANSMIT_FLUSH_TIMEOUT"
+	// added here, so the SOF interrupt can't take away the available buffer
+	// space we just promised the user could write without blocking?
+	// But does this come with other performance downsides?  Could it lead to
+	// buffer data never actually transmitting in some usage cases?  More
+	// investigation is needed.
+	// https://github.com/PaulStoffregen/cores/issues/10#issuecomment-61514955
 	tx_noautoflush = 0;
 	return len;
 }
