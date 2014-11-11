@@ -5404,6 +5404,341 @@ extern "C"{
 #endif // LAYOUT_CZECH
 
 
+#ifdef LAYOUT_SERBIAN_LATIN_ONLY
+// http://forum.pjrc.com/threads/27032-Serbian-Keyboard-Layout
+
+#define SHIFT_MASK		0x0040
+#define ALTGR_MASK		0x0080
+#define DEADKEYS_MASK		0x0F00
+#define CEDILLA_BITS		0x0100
+#define CARON_BITS		0x0200
+#define CIRCUMFLEX_BITS		0x0300
+#define BREVE_BITS		0x0400
+#define DEGREE_SIGN_BITS	0x0500
+#define OGONEK_BITS		0x0600
+#define DOT_ABOVE_BITS		0x0700
+#define ACUTE_ACCENT_BITS	0x0800
+#define DOUBLE_ACUTE_BITS	0x0900
+#define DIAERESIS_BITS		0x0A00
+#define KEYCODE_TYPE		uint16_t
+#define DEADKEY_CEDILLA		KEY_TILDE
+#define DEADKEY_CARON		KEY_2 + ALTGR_MASK
+#define DEADKEY_CIRCUMFLEX	KEY_3 + ALTGR_MASK
+#define DEADKEY_BREVE		KEY_4 + ALTGR_MASK
+#define DEADKEY_DEGREE_SIGN	KEY_5 + ALTGR_MASK
+#define DEADKEY_OGONEK		KEY_6 + ALTGR_MASK
+#define DEADKEY_DOT_ABOVE	KEY_8 + ALTGR_MASK
+#define DEADKEY_ACUTE_ACCENT	KEY_9 + ALTGR_MASK
+#define DEADKEY_DOUBLE_ACUTE	KEY_0 + ALTGR_MASK
+#define DEADKEY_DIAERESIS	KEY_MINUS + ALTGR_MASK
+//#define DEADKEY_CEDILLA	KEY_EQUAL + ALTGR_MASK <-- TODO: why are there 2 Cedilla deadkeys?
+#define KEY_NON_US_100		63
+
+#define ASCII_20	KEY_SPACE				// 32  
+#define ASCII_21	KEY_1 + SHIFT_MASK			// 33 !
+#define ASCII_22	KEY_2 + SHIFT_MASK			// 34 "
+#define ASCII_23	KEY_3 + SHIFT_MASK			// 35 #
+#define ASCII_24	KEY_4 + SHIFT_MASK			// 36 $
+#define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
+#define ASCII_26	KEY_6 + SHIFT_MASK			// 38 &
+#define ASCII_27	KEY_MINUS				// 39 '
+#define ASCII_28	KEY_8 + SHIFT_MASK			// 40 (
+#define ASCII_29	KEY_9 + SHIFT_MASK			// 41 )
+#define ASCII_2A	KEY_EQUAL + SHIFT_MASK			// 42 *
+#define ASCII_2B	KEY_EQUAL				// 43 +
+#define ASCII_2C	KEY_COMMA				// 44 ,
+#define ASCII_2D	KEY_SLASH				// 45 -  TODO: verify
+#define ASCII_2E	KEY_PERIOD				// 46 .
+#define ASCII_2F	KEY_7 + SHIFT_MASK			// 47 /
+#define ASCII_30	KEY_0					// 48 0
+#define ASCII_31	KEY_1					// 49 1
+#define ASCII_32	KEY_2					// 50 2
+#define ASCII_33	KEY_3					// 51 3
+#define ASCII_34	KEY_4					// 52 4
+#define ASCII_35	KEY_5					// 53 5
+#define ASCII_36	KEY_6					// 54 6
+#define ASCII_37	KEY_7					// 55 7
+#define ASCII_38	KEY_8					// 55 8
+#define ASCII_39	KEY_9					// 57 9
+#define ASCII_3A	KEY_PERIOD + SHIFT_MASK			// 58 :
+#define ASCII_3B	KEY_COMMA + SHIFT_MASK			// 59 ;
+#define ASCII_3C	KEY_NON_US_100				// 60 <
+#define ASCII_3D	KEY_0 + SHIFT_MASK			// 61 =
+#define ASCII_3E	KEY_NON_US_100 + SHIFT_MASK		// 62 >
+#define ASCII_3F	KEY_MINUS + SHIFT_MASK			// 63 ?
+#define ASCII_40	KEY_V + ALTGR_MASK			// 64 @
+#define ASCII_41	KEY_A + SHIFT_MASK			// 65 A
+#define ASCII_42	KEY_B + SHIFT_MASK			// 66 B
+#define ASCII_43	KEY_C + SHIFT_MASK			// 67 C
+#define ASCII_44	KEY_D + SHIFT_MASK			// 68 D
+#define ASCII_45	KEY_E + SHIFT_MASK			// 69 E
+#define ASCII_46	KEY_F + SHIFT_MASK			// 70 F
+#define ASCII_47	KEY_G + SHIFT_MASK			// 71 G
+#define ASCII_48	KEY_H + SHIFT_MASK			// 72 H
+#define ASCII_49	KEY_I + SHIFT_MASK			// 73 I
+#define ASCII_4A	KEY_J + SHIFT_MASK			// 74 J
+#define ASCII_4B	KEY_K + SHIFT_MASK			// 75 K
+#define ASCII_4C	KEY_L + SHIFT_MASK			// 76 L
+#define ASCII_4D	KEY_M + SHIFT_MASK			// 77 M
+#define ASCII_4E	KEY_N + SHIFT_MASK			// 78 N
+#define ASCII_4F	KEY_O + SHIFT_MASK			// 79 O
+#define ASCII_50	KEY_P + SHIFT_MASK			// 80 P
+#define ASCII_51	KEY_Q + SHIFT_MASK			// 81 Q
+#define ASCII_52	KEY_R + SHIFT_MASK			// 82 R
+#define ASCII_53	KEY_S + SHIFT_MASK			// 83 S
+#define ASCII_54	KEY_T + SHIFT_MASK			// 84 T
+#define ASCII_55	KEY_U + SHIFT_MASK			// 85 U
+#define ASCII_56	KEY_V + SHIFT_MASK			// 86 V
+#define ASCII_57	KEY_W + SHIFT_MASK			// 87 W
+#define ASCII_58	KEY_X + SHIFT_MASK			// 88 X
+#define ASCII_59	KEY_Z + SHIFT_MASK			// 89 Y
+#define ASCII_5A	KEY_Y + SHIFT_MASK			// 90 Z
+#define ASCII_5B	KEY_F + ALTGR_MASK			// 91 [
+#define ASCII_5C	KEY_Q + ALTGR_MASK			// 92
+#define ASCII_5D	KEY_G + ALTGR_MASK			// 93 ]
+#define ASCII_5E	CIRCUMFLEX_BITS + KEY_SPACE		// 94 ^
+#define ASCII_5F	KEY_SLASH + SHIFT_MASK			// 95 _   TODO: verify
+#define ASCII_60	KEY_7 + ALTGR_MASK			// 96 `
+#define ASCII_61	KEY_A					// 97 a
+#define ASCII_62	KEY_B					// 98 b
+#define ASCII_63	KEY_C					// 99 c
+#define ASCII_64	KEY_D					// 100 d
+#define ASCII_65	KEY_E					// 101 e
+#define ASCII_66	KEY_F					// 102 f
+#define ASCII_67	KEY_G					// 103 g
+#define ASCII_68	KEY_H					// 104 h
+#define ASCII_69	KEY_I					// 105 i
+#define ASCII_6A	KEY_J					// 106 j
+#define ASCII_6B	KEY_K					// 107 k
+#define ASCII_6C	KEY_L					// 108 l
+#define ASCII_6D	KEY_M					// 109 m
+#define ASCII_6E	KEY_N					// 110 n
+#define ASCII_6F	KEY_O					// 111 o
+#define ASCII_70	KEY_P					// 112 p
+#define ASCII_71	KEY_Q					// 113 q
+#define ASCII_72	KEY_R					// 114 r
+#define ASCII_73	KEY_S					// 115 s
+#define ASCII_74	KEY_T					// 116 t
+#define ASCII_75	KEY_U					// 117 u
+#define ASCII_76	KEY_V					// 118 v
+#define ASCII_77	KEY_W					// 119 w
+#define ASCII_78	KEY_X					// 120 x
+#define ASCII_79	KEY_Z					// 121 y
+#define ASCII_7A	KEY_Y					// 122 z
+#define ASCII_7B	KEY_B + ALTGR_MASK			// 123 {
+#define ASCII_7C	KEY_W + ALTGR_MASK			// 124 |
+#define ASCII_7D	KEY_N + ALTGR_MASK			// 125 }
+#define ASCII_7E	KEY_1 + ALTGR_MASK			// 126 ~
+#define ASCII_7F	KEY_BACKSPACE				// 127
+#define ISO_8859_1_A0	KEY_SPACE				// 160       Nonbreakng Space
+#define ISO_8859_1_A1	0					// 161 ¡     Inverted Exclamation
+#define ISO_8859_1_A2	0					// 162 ¢     Cent Sign
+#define ISO_8859_1_A3	0					// 163 £     Pound Sign
+#define ISO_8859_1_A4	KEY_BACKSLASH + ALTGR_MASK		// 164 ¤     Currency Sign
+#define ISO_8859_1_A5	0					// 165 ¥     YEN SIGN
+#define ISO_8859_1_A6	0					// 166 ¦     BROKEN BAR
+#define ISO_8859_1_A7	KEY_M + ALTGR_MASK			// 167 §     SECTION SIGN
+#define ISO_8859_1_A8	DIAERESIS_BITS + KEY_SPACE		// 168 ¨     DIAERESIS
+#define ISO_8859_1_A9	0					// 169 ©     COPYRIGHT SIGN
+#define ISO_8859_1_AA	0					// 170 ª     FEMININE ORDINAL
+#define ISO_8859_1_AB	0					// 171 «     LEFT DOUBLE ANGLE QUOTE
+#define ISO_8859_1_AC	0					// 172 ¬     NOT SIGN
+#define ISO_8859_1_AD	0					// 173       SOFT HYPHEN
+#define ISO_8859_1_AE	0					// 174 ®     REGISTERED SIGN
+#define ISO_8859_1_AF	0					// 175 ¯     MACRON
+#define ISO_8859_1_B0	DEGREE_SIGN_BITS + KEY_SPACE		// 176 °     DEGREE SIGN
+#define ISO_8859_1_B1	0					// 177 ±     PLUS-MINUS SIGN
+#define ISO_8859_1_B2	0					// 178 ²     SUPERSCRIPT TWO
+#define ISO_8859_1_B3	0					// 179 ³     SUPERSCRIPT THREE
+#define ISO_8859_1_B4	ACUTE_ACCENT_BITS + KEY_SPACE		// 180 ´     ACUTE ACCENT
+#define ISO_8859_1_B5	0					// 181 µ     MICRO SIGN
+#define ISO_8859_1_B6	0					// 182 ¶     PILCROW SIGN
+#define ISO_8859_1_B7	0					// 183 ·     MIDDLE DOT
+#define ISO_8859_1_B8	CEDILLA_BITS + KEY_SPACE		// 184 ¸     CEDILLA
+#define ISO_8859_1_B9	0					// 185 ¹     SUPERSCRIPT ONE
+#define ISO_8859_1_BA	0					// 186 º     MASCULINE ORDINAL
+#define ISO_8859_1_BB	0					// 187 »     RIGHT DOUBLE ANGLE QUOTE
+#define ISO_8859_1_BC	0					// 188 ¼     FRACTION ONE QUARTER
+#define ISO_8859_1_BD	0					// 189 ½     FRACTION ONE HALF
+#define ISO_8859_1_BE	0					// 190 ¾     FRACTION THREE QUARTERS
+#define ISO_8859_1_BF	0					// 191 ¿     INVERTED QUESTION MARK
+#define ISO_8859_1_C0	0					// 192 À     A GRAVE
+#define ISO_8859_1_C1	ACUTE_ACCENT_BITS + KEY_A + SHIFT_MASK	// 193 Á     A ACUTE
+#define ISO_8859_1_C2	CIRCUMFLEX_BITS	+ KEY_A + SHIFT_MASK	// 194 Â     A CIRCUMFLEX
+#define ISO_8859_1_C3	0					// 195 Ã     A TILDE
+#define ISO_8859_1_C4	DIAERESIS_BITS + KEY_A + SHIFT_MASK	// 196 Ä     A DIAERESIS
+#define ISO_8859_1_C5	0					// 197 Å     A RING ABOVE
+#define ISO_8859_1_C6	0					// 198 Æ     AE
+#define ISO_8859_1_C7	CEDILLA_BITS + KEY_C + SHIFT_MASK	// 199 Ç     C CEDILLA
+#define ISO_8859_1_C8	0					// 200 È     E GRAVE
+#define ISO_8859_1_C9	ACUTE_ACCENT_BITS + KEY_E + SHIFT_MASK	// 201 É     E ACUTE
+#define ISO_8859_1_CA	CIRCUMFLEX_BITS + KEY_E + SHIFT_MASK	// 202 Ê     E CIRCUMFLEX
+#define ISO_8859_1_CB	DIAERESIS_BITS + KEY_E + SHIFT_MASK	// 203 Ë     E DIAERESIS
+#define ISO_8859_1_CC	0					// 204 Ì     I GRAVE
+#define ISO_8859_1_CD	ACUTE_ACCENT_BITS + KEY_I + SHIFT_MASK	// 205 Í     I ACUTE
+#define ISO_8859_1_CE	CIRCUMFLEX_BITS + KEY_I + SHIFT_MASK	// 206 Î     I CIRCUMFLEX
+#define ISO_8859_1_CF	DIAERESIS_BITS + KEY_I + SHIFT_MASK	// 207 Ï     I DIAERESIS
+#define ISO_8859_1_D0	0					// 208 Ð     ETH
+#define ISO_8859_1_D1	0					// 209 Ñ     N TILDE
+#define ISO_8859_1_D2	0					// 210 Ò     O GRAVE
+#define ISO_8859_1_D3	ACUTE_ACCENT_BITS + KEY_O + SHIFT_MASK	// 211 Ó     O ACUTE
+#define ISO_8859_1_D4	CIRCUMFLEX_BITS + KEY_O + SHIFT_MASK	// 212 Ô     O CIRCUMFLEX
+#define ISO_8859_1_D5	0					// 213 Õ     O TILDE
+#define ISO_8859_1_D6	DIAERESIS_BITS + KEY_O + SHIFT_MASK	// 214 Ö     O DIAERESIS
+#define ISO_8859_1_D7	KEY_RIGHT_BRACE + ALTGR_MASK		// 215 ×     MULTIPLICATION
+#define ISO_8859_1_D8	0					// 216 Ø     O STROKE
+#define ISO_8859_1_D9	0					// 217 Ù     U GRAVE
+#define ISO_8859_1_DA	ACUTE_ACCENT_BITS + KEY_U + SHIFT_MASK	// 218 Ú     U ACUTE
+#define ISO_8859_1_DB	CIRCUMFLEX_BITS + KEY_U + SHIFT_MASK	// 219 Û     U CIRCUMFLEX
+#define ISO_8859_1_DC	DIAERESIS_BITS + KEY_U + SHIFT_MASK	// 220 Ü     U DIAERESIS
+#define ISO_8859_1_DD	ACUTE_ACCENT_BITS + KEY_Z + SHIFT_MASK	// 221 Ý     Y ACUTE
+#define ISO_8859_1_DE	0					// 222 Þ     THORN
+#define ISO_8859_1_DF	KEY_QUOTE + ALTGR_MASK			// 223 ß     SHARP S
+#define ISO_8859_1_E0	0					// 224 à     a GRAVE
+#define ISO_8859_1_E1	ACUTE_ACCENT_BITS + KEY_A		// 225 á     a ACUTE
+#define ISO_8859_1_E2	CIRCUMFLEX_BITS + KEY_A			// 226 â     a CIRCUMFLEX
+#define ISO_8859_1_E3	0					// 227 ã     a TILDE
+#define ISO_8859_1_E4	DIAERESIS_BITS + KEY_A			// 228 ä     a DIAERESIS
+#define ISO_8859_1_E5	0					// 229 å     a RING ABOVE
+#define ISO_8859_1_E6	0					// 230 æ     ae
+#define ISO_8859_1_E7	CEDILLA_BITS + KEY_C			// 231 ç     c CEDILLA
+#define ISO_8859_1_E8	0					// 232 è     e GRAVE
+#define ISO_8859_1_E9	ACUTE_ACCENT_BITS + KEY_E		// 233 é     e ACUTE
+#define ISO_8859_1_EA	CIRCUMFLEX_BITS + KEY_E			// 234 ê     e CIRCUMFLEX
+#define ISO_8859_1_EB	DIAERESIS_BITS + KEY_E			// 235 ë     e DIAERESIS
+#define ISO_8859_1_EC	0					// 236 ì     i GRAVE
+#define ISO_8859_1_ED	ACUTE_ACCENT_BITS + KEY_I		// 237 í     i ACUTE
+#define ISO_8859_1_EE	CIRCUMFLEX_BITS + KEY_I			// 238 î     i CIRCUMFLEX
+#define ISO_8859_1_EF	DIAERESIS_BITS + KEY_I			// 239 ï     i DIAERESIS
+#define ISO_8859_1_F0	0					// 240 ð     ETH
+#define ISO_8859_1_F1	0					// 241 ñ     n TILDE
+#define ISO_8859_1_F2	0					// 242 ò     o GRAVE
+#define ISO_8859_1_F3	ACUTE_ACCENT_BITS + KEY_O		// 243 ó     o ACUTE
+#define ISO_8859_1_F4	CIRCUMFLEX_BITS + KEY_O			// 244 ô     o CIRCUMFLEX
+#define ISO_8859_1_F5	0					// 245 õ     o TILDE
+#define ISO_8859_1_F6	DIAERESIS_BITS + KEY_O			// 246 ö     o DIAERESIS
+#define ISO_8859_1_F7	KEY_LEFT_BRACE + ALTGR_MASK		// 247 ÷     DIVISION
+#define ISO_8859_1_F8	0					// 248 ø     o STROKE
+#define ISO_8859_1_F9	0					// 249 ù     u GRAVE
+#define ISO_8859_1_FA	ACUTE_ACCENT_BITS + KEY_U		// 250 ú     u ACUTE
+#define ISO_8859_1_FB	CIRCUMFLEX_BITS + KEY_U			// 251 û     u CIRCUMFLEX
+#define ISO_8859_1_FC	DIAERESIS_BITS + KEY_U			// 252 ü     u DIAERESIS
+#define ISO_8859_1_FD	ACUTE_ACCENT_BITS + KEY_Z		// 253 ý     y ACUTE
+#define ISO_8859_1_FE	0					// 254 þ     THORN
+#define ISO_8859_1_FF	0					// 255 ÿ     y DIAERESIS
+#define UNICODE_20AC	KEY_E + ALTGR_MASK			//     €     Euro Sign
+
+#define UNICODE_EXTRA00	0x0160 // S caron
+#define KEYCODE_EXTRA00	KEY_LEFT_BRACE + SHIFT_MASK
+#define UNICODE_EXTRA01	0x0161 // s caron
+#define KEYCODE_EXTRA01	KEY_LEFT_BRACE
+#define UNICODE_EXTRA02	0x0110 // D with stroke
+#define KEYCODE_EXTRA02	KEY_RIGHT_BRACE + SHIFT_MASK
+#define UNICODE_EXTRA03	0x0111 // d with stroke
+#define KEYCODE_EXTRA03	KEY_RIGHT_BRACE
+#define UNICODE_EXTRA04	0x010C // C with caron
+#define KEYCODE_EXTRA04	KEY_SEMICOLON + SHIFT_MASK
+#define UNICODE_EXTRA05	0x010D // c with caron
+#define KEYCODE_EXTRA05 KEY_SEMICOLON
+#define UNICODE_EXTRA06	0x0106 // C with acute
+#define KEYCODE_EXTRA06 KEY_QUOTE + SHIFT_MASK
+#define UNICODE_EXTRA07	0x0107 // c with acute
+#define KEYCODE_EXTRA07 KEY_QUOTE
+#define UNICODE_EXTRA08	0x017D // Z with caron
+#define KEYCODE_EXTRA08	KEY_BACKSLASH + SHIFT_MASK
+#define UNICODE_EXTRA09	0x017E // z with caron
+#define KEYCODE_EXTRA09	KEY_BACKSLASH
+
+#define UNICODE_EXTRA10	0x0141 // L with stroke
+#define KEYCODE_EXTRA10 KEY_L + ALTGR_MASK
+#define UNICODE_EXTRA11	0x0142 // l with stroke
+#define KEYCODE_EXTRA11 KEY_K + ALTGR_MASK
+#define UNICODE_EXTRA12	0x010E // D with caron
+#define KEYCODE_EXTRA12 CARON_BITS + KEY_D + SHIFT_MASK
+#define UNICODE_EXTRA13	0x010F // d with caron
+#define KEYCODE_EXTRA13 CARON_BITS + KEY_D
+#define UNICODE_EXTRA14	0x011A // E with caron
+#define KEYCODE_EXTRA14 CARON_BITS + KEY_E + SHIFT_MASK
+#define UNICODE_EXTRA15	0x011B // e with caron
+#define KEYCODE_EXTRA15 CARON_BITS + KEY_E
+#define UNICODE_EXTRA16	0x013D // L with caron
+#define KEYCODE_EXTRA16 CARON_BITS + KEY_L + SHIFT_MASK
+#define UNICODE_EXTRA17	0x013E // l with caron
+#define KEYCODE_EXTRA17 CARON_BITS + KEY_L
+#define UNICODE_EXTRA18	0x0147 // N with caron
+#define KEYCODE_EXTRA18 CARON_BITS + KEY_N + SHIFT_MASK
+#define UNICODE_EXTRA19	0x0148 // n with caron
+#define KEYCODE_EXTRA19 CARON_BITS + KEY_N
+
+#define UNICODE_EXTRA20	0x0158 // R with caron
+#define KEYCODE_EXTRA20 CARON_BITS + KEY_R + SHIFT_MASK
+#define UNICODE_EXTRA21	0x0159 // r with caron
+#define KEYCODE_EXTRA21 CARON_BITS + KEY_R
+#define UNICODE_EXTRA22	0x0164 // T with caron
+#define KEYCODE_EXTRA22 CARON_BITS + KEY_T + SHIFT_MASK
+#define UNICODE_EXTRA23	0x0165 // t with caron
+#define KEYCODE_EXTRA23 CARON_BITS + KEY_T
+#define UNICODE_EXTRA24	0x0102 // A with breve
+#define KEYCODE_EXTRA24 BREVE_BITS + KEY_A + SHIFT_MASK
+#define UNICODE_EXTRA25	0x0103 // a with breve
+#define KEYCODE_EXTRA25 BREVE_BITS + KEY_A
+#define UNICODE_EXTRA26	0x016E // U with ring above  TODO: verify
+#define KEYCODE_EXTRA26 DEADKEY_DEGREE_SIGN + KEY_U + SHIFT_MASK
+#define UNICODE_EXTRA27	0x016F // u with ring above  TODO: verify
+#define KEYCODE_EXTRA27 DEADKEY_DEGREE_SIGN + KEY_U
+#define UNICODE_EXTRA28	0x0104 // A with ogonek
+#define KEYCODE_EXTRA28 OGONEK_BITS + KEY_A + SHIFT_MASK
+#define UNICODE_EXTRA29	0x0105 // a with ogonek
+#define KEYCODE_EXTRA29 OGONEK_BITS + KEY_A
+
+#define UNICODE_EXTRA30	0x0118 // E with ogonek
+#define KEYCODE_EXTRA30 OGONEK_BITS + KEY_E + SHIFT_MASK
+#define UNICODE_EXTRA31	0x0119 // e with ogonek
+#define KEYCODE_EXTRA31 OGONEK_BITS + KEY_E
+#define UNICODE_EXTRA32	0x017B // Z with dot above
+#define KEYCODE_EXTRA32 DEADKEY_DOT_ABOVE + KEY_Z + SHIFT_MASK
+#define UNICODE_EXTRA33	0x017C // z with dot above
+#define KEYCODE_EXTRA33 DEADKEY_DOT_ABOVE + KEY_Z
+#define UNICODE_EXTRA34	0x0139 // L with acute
+#define KEYCODE_EXTRA34 ACUTE_ACCENT_BITS + KEY_L + SHIFT_MASK
+#define UNICODE_EXTRA35	0x013A // l with acute
+#define KEYCODE_EXTRA35 ACUTE_ACCENT_BITS + KEY_L
+#define UNICODE_EXTRA36	0x0143 // N with acute
+#define KEYCODE_EXTRA36 ACUTE_ACCENT_BITS + KEY_N + SHIFT_MASK
+#define UNICODE_EXTRA37	0x0144 // n with acute
+#define KEYCODE_EXTRA37 ACUTE_ACCENT_BITS + KEY_N
+#define UNICODE_EXTRA38	0x0154 // R with acute
+#define KEYCODE_EXTRA38 ACUTE_ACCENT_BITS + KEY_R + SHIFT_MASK
+#define UNICODE_EXTRA39	0x0155 // r with acute
+#define KEYCODE_EXTRA39 ACUTE_ACCENT_BITS + KEY_R
+
+#define UNICODE_EXTRA40	0x015A // S with acute
+#define KEYCODE_EXTRA40 ACUTE_ACCENT_BITS + KEY_S + SHIFT_MASK
+#define UNICODE_EXTRA41	0x015B // s with acute
+#define KEYCODE_EXTRA41 ACUTE_ACCENT_BITS + KEY_S
+#define UNICODE_EXTRA42	0x0179 // Z with acute
+#define KEYCODE_EXTRA42 ACUTE_ACCENT_BITS + KEY_Z + SHIFT_MASK
+#define UNICODE_EXTRA43	0x017A // z with acute
+#define KEYCODE_EXTRA43 ACUTE_ACCENT_BITS + KEY_Z
+#define UNICODE_EXTRA44	0x0150 // O with double acute
+#define KEYCODE_EXTRA44 DOUBLE_ACUTE_BITS + KEY_O + SHIFT_MASK
+#define UNICODE_EXTRA45	0x0151 // o with double acute
+#define KEYCODE_EXTRA45 DOUBLE_ACUTE_BITS + KEY_O
+#define UNICODE_EXTRA46	0x0170 // U with double acute
+#define KEYCODE_EXTRA46 DOUBLE_ACUTE_BITS + KEY_u + SHIFT_MASK
+#define UNICODE_EXTRA47	0x0171 // u with double acute
+#define KEYCODE_EXTRA47 DOUBLE_ACUTE_BITS + KEY_u
+#define UNICODE_EXTRA48	0x015E // S with cedilla
+#define KEYCODE_EXTRA48 CEDILLA_BITS + KEY_S + SHIFT_MASK
+#define UNICODE_EXTRA49	0x015F // s with cedilla
+#define KEYCODE_EXTRA49 CEDILLA_BITS + KEY_S
+
+#define UNICODE_EXTRA50	0x201A // single low quote
+#define KEYCODE_EXTRA50 KEY_TILDE
+#define UNICODE_EXTRA51	0x20AC // euro sign
+#define KEYCODE_EXTRA51 KEY_E + ALTGR_MASK
+
+#endif // LAYOUT_SERBIAN_LATIN_ONLY
 
 
 
