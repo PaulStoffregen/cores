@@ -1143,7 +1143,49 @@ public:
 extern SREGemulation SREG;
 
 
-extern uint8_t EIMSK;
+		// 22211  
+		// 84062840
+		// 322111 
+		// 17395173
+#define EIMSK_pA 0x01000018 // pins 3, 4, 24
+#define EIMSK_pB 0x020F0003 // pins 0, 1, 16-19, 25
+#define EIMSK_pC 0x78C0BE00 // pins 9-13, 15, 22, 23, 27-30
+#define EIMSK_pD 0x003041E4 // pins 2, 5-8, 14, 20, 21
+#define EIMSK_pE 0x84000000 // pins 26, 31
+
+class EIMSKemulation  // used by Adafruit_nRF8001
+{
+public:
+	operator int () const __attribute__((always_inline)) {
+		int mask = 0;
+		volatile const uint32_t *icer = &NVIC_ICER0;
+		if (icer[IRQ_PORTA >> 5] & (1 << (IRQ_PORTA & 31))) mask |= EIMSK_pA;
+		if (icer[IRQ_PORTB >> 5] & (1 << (IRQ_PORTB & 31))) mask |= EIMSK_pB;
+		if (icer[IRQ_PORTC >> 5] & (1 << (IRQ_PORTC & 31))) mask |= EIMSK_pC;
+		if (icer[IRQ_PORTD >> 5] & (1 << (IRQ_PORTD & 31))) mask |= EIMSK_pD;
+		if (icer[IRQ_PORTE >> 5] & (1 << (IRQ_PORTE & 31))) mask |= EIMSK_pE;
+		return mask;
+	}
+	inline EIMSKemulation & operator |= (int val) __attribute__((always_inline)) {
+		if (val & EIMSK_pA) NVIC_ENABLE_IRQ(IRQ_PORTA);
+		if (val & EIMSK_pB) NVIC_ENABLE_IRQ(IRQ_PORTB);
+		if (val & EIMSK_pC) NVIC_ENABLE_IRQ(IRQ_PORTC);
+		if (val & EIMSK_pD) NVIC_ENABLE_IRQ(IRQ_PORTD);
+		if (val & EIMSK_pE) NVIC_ENABLE_IRQ(IRQ_PORTE);
+		return *this;
+	}
+	inline EIMSKemulation & operator &= (int val) __attribute__((always_inline)) {
+		uint32_t n = val;
+		if ((n | ~EIMSK_pA) != 0xFFFFFFFF) NVIC_DISABLE_IRQ(IRQ_PORTA);
+		if ((n | ~EIMSK_pB) != 0xFFFFFFFF) NVIC_DISABLE_IRQ(IRQ_PORTB);
+		if ((n | ~EIMSK_pC) != 0xFFFFFFFF) NVIC_DISABLE_IRQ(IRQ_PORTC);
+		if ((n | ~EIMSK_pD) != 0xFFFFFFFF) NVIC_DISABLE_IRQ(IRQ_PORTD);
+		if ((n | ~EIMSK_pE) != 0xFFFFFFFF) NVIC_DISABLE_IRQ(IRQ_PORTE);
+		return *this;
+	}
+};
+extern EIMSKemulation EIMSK;
+
 
 // these are not intended for public consumption...
 #undef GPIO_BITBAND_ADDR

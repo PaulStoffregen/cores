@@ -41,6 +41,4 @@ volatile uint8_t * SPIFIFOclass::reg = 0;
 
 #endif
 
-uint8_t EIMSK = 0;
-
 
