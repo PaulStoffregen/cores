@@ -104,7 +104,7 @@ extern void serialEvent(void);
 #endif // __cplusplus
 
 
-#else  // F_CPU < 20 MHz && !(USB_SERIAL || USB_SERIAL_HID)
+#elif  (F_CPU < 20000000) && (defined(USB_SERIAL) || defined(USB_SERIAL_HID))
 
 // Allow Arduino programs using Serial to compile, but Serial will do nothing.
 #ifdef __cplusplus
