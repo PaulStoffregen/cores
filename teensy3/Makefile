@@ -9,7 +9,7 @@ ARDUINOPATH ?= ../../../..
 OPTIONS = -DF_CPU=48000000 -DUSB_SERIAL -DLAYOUT_US_ENGLISH
 
 # options needed by many Arduino libraries to configure for Teensy 3.0
-OPTIONS += -D__MK20DX128__ -DARDUIO=105 -DTEENSYDUINO=118
+OPTIONS += -D__MK20DX128__ -DARDUINO=105 -DTEENSYDUINO=120
 
 
 # Other Makefiles and project templates for Teensy 3.x:
