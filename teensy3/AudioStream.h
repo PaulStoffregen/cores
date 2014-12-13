@@ -43,6 +43,8 @@ class AudioConnection;
 typedef struct audio_block_struct {
 	unsigned char ref_count;
 	unsigned char memory_pool_index;
+	unsigned char reserved1;
+	unsigned char reserved2;
 	int16_t data[AUDIO_BLOCK_SAMPLES];
 } audio_block_t;
 
