@@ -36,9 +36,6 @@
 extern "C"{
 #endif
 
-#define true 1
-#define false 0
-
 #define PI 3.1415926535897932384626433832795
 #define HALF_PI 1.5707963267948966192313216916398
 #define TWO_PI 6.283185307179586476925286766559
@@ -90,7 +87,6 @@ typedef unsigned int word;
 
 #define bit(b) (1UL << (b))
 
-typedef uint8_t boolean;
 typedef uint8_t byte;
 
 uint32_t pulseIn(uint8_t pin, uint8_t state, uint32_t timeout);
@@ -107,6 +103,16 @@ void loop(void);
 
 #ifdef __cplusplus
 } // extern "C"
+#endif
+
+// fix C++ boolean issue
+// https://github.com/arduino/Arduino/pull/2151
+#ifdef __cplusplus
+typedef bool boolean;
+#else
+typedef uint8_t boolean;
+#define false 0
+#define true (!false)
 #endif
 
 #endif
