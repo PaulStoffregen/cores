@@ -26,6 +26,15 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ *
+ * Trying to understand this rather complex code?
+ *
+ * Kevin Cuzner wrote a simpler version, and a great blog article:
+ *   http://kevincuzner.com/2014/12/12/teensy-3-1-bare-metal-writing-a-usb-driver/
+ *   https://github.com/kcuzner/teensy-oscilloscope/blob/master/scope-teensy/src/usb.c
+ *
+ * Andy Payne wrote another relatively simple USB example for Freescale Kinetis
+ *   https://github.com/payne92/bare-metal-arm
  */
 
 #include "usb_dev.h"
