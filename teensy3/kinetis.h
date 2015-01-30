@@ -2747,10 +2747,14 @@ typedef struct __attribute__((packed)) {
 #endif
 
 // Nested Vectored Interrupt Controller, Table 3-4 & ARMv7 ref, appendix B3.4 (page 750)
+#define NVIC_STIR			(*(volatile uint32_t *)0xE000EF00)
 #define NVIC_ENABLE_IRQ(n)	(*((volatile uint32_t *)0xE000E100 + ((n) >> 5)) = (1 << ((n) & 31)))
 #define NVIC_DISABLE_IRQ(n)	(*((volatile uint32_t *)0xE000E180 + ((n) >> 5)) = (1 << ((n) & 31)))
 #define NVIC_SET_PENDING(n)	(*((volatile uint32_t *)0xE000E200 + ((n) >> 5)) = (1 << ((n) & 31)))
 #define NVIC_CLEAR_PENDING(n)	(*((volatile uint32_t *)0xE000E280 + ((n) >> 5)) = (1 << ((n) & 31)))
+#define NVIC_IS_PENDING(n)	(*((volatile uint32_t *)0xE000E200 + ((n) >> 5)) & (1 << ((n) & 31)))
+#define NVIC_IS_ACTIVE(n)	(*((volatile uint32_t *)0xE000E300 + ((n) >> 5)) & (1 << ((n) & 31)))
+#define NVIC_TRIGGER_IRQ(n)	NVIC_STIR=(n)
 
 #define NVIC_ISER0		(*(volatile uint32_t *)0xE000E100)
 #define NVIC_ISER1		(*(volatile uint32_t *)0xE000E104)
