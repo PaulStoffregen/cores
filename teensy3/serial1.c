@@ -75,7 +75,11 @@ static volatile uint8_t rx_buffer_tail = 0;
 // UART0 and UART1 are clocked by F_CPU, UART2 is clocked by F_BUS
 // UART0 has 8 byte fifo, UART1 and UART2 have 1 byte buffer
 
+#ifdef KINETISK_UART0_FIFO
 #define C2_ENABLE		UART_C2_TE | UART_C2_RE | UART_C2_RIE | UART_C2_ILIE
+#else
+#define C2_ENABLE               UART_C2_TE | UART_C2_RE | UART_C2_RIE
+#endif
 #define C2_TX_ACTIVE		C2_ENABLE | UART_C2_TIE
 #define C2_TX_COMPLETING	C2_ENABLE | UART_C2_TCIE
 #define C2_TX_INACTIVE		C2_ENABLE
@@ -90,14 +94,24 @@ void serial_begin(uint32_t divisor)
 	transmitting = 0;
 	CORE_PIN0_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3);
 	CORE_PIN1_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3);
+#if defined(KINETISK_UART0)
 	UART0_BDH = (divisor >> 13) & 0x1F;
 	UART0_BDL = (divisor >> 5) & 0xFF;
 	UART0_C4 = divisor & 0x1F;
-	//UART0_C1 = 0;
+#ifdef KINETISK_UART0_FIFO
 	UART0_C1 = UART_C1_ILT;
 	UART0_TWFIFO = 2; // tx watermark, causes S1_TDRE to set
 	UART0_RWFIFO = 4; // rx watermark, causes S1_RDRF to set
 	UART0_PFIFO = UART_PFIFO_TXFE | UART_PFIFO_RXFE;
+#else
+	UART0_C1 = 0;
+	UART0_PFIFO = 0;
+#endif
+#elif defined(KINETISL_UART1)
+	UART0_BDH = (divisor >> 8) & 0x1F;
+	UART0_BDL = divisor & 0xFF;
+	UART0_C1 = 0;
+#endif
 	UART0_C2 = C2_TX_INACTIVE;
 	NVIC_SET_PRIORITY(IRQ_UART0_STATUS, IRQ_PRIORITY);
 	NVIC_ENABLE_IRQ(IRQ_UART0_STATUS);
@@ -175,6 +189,7 @@ void serial_putchar(uint32_t c)
 	UART0_C2 = C2_TX_ACTIVE;
 }
 
+#ifdef KINETISK_UART0_FIFO
 void serial_write(const void *buf, unsigned int count)
 {
 	const uint8_t *p = (const uint8_t *)buf;
@@ -210,6 +225,13 @@ void serial_write(const void *buf, unsigned int count)
 	}
         UART0_C2 = C2_TX_ACTIVE;
 }
+#else
+void serial_write(const void *buf, unsigned int count)
+{
+        const uint8_t *p = (const uint8_t *)buf;
+        while (count-- > 0) serial_putchar(*p++);
+}
+#endif
 
 void serial_flush(void)
 {
@@ -263,10 +285,12 @@ int serial_peek(void)
 
 void serial_clear(void)
 {
+#ifdef KINETISK_UART0_FIFO
 	if (!(SIM_SCGC4 & SIM_SCGC4_UART0)) return;
 	UART0_C2 &= ~(UART_C2_RE | UART_C2_RIE | UART_C2_ILIE);
 	UART0_CFIFO = UART_CFIFO_RXFLUSH;
 	UART0_C2 |= (UART_C2_RE | UART_C2_RIE | UART_C2_ILIE);
+#endif
 	rx_buffer_head = rx_buffer_tail;
 }
 
@@ -280,8 +304,11 @@ void serial_clear(void)
 
 void uart0_status_isr(void)
 {
-	uint32_t head, newhead, tail, n;
-	uint8_t avail, c;
+	uint32_t head, tail, n;
+	uint8_t c;
+#ifdef KINETISK_UART0_FIFO
+        uint32_t newhead;
+        uint8_t avail;
 
 	if (UART0_S1 & (UART_S1_RDRF | UART_S1_IDLE)) {
 		__disable_irq();
@@ -337,6 +364,32 @@ void uart0_status_isr(void)
 		tx_buffer_tail = tail;
 		if (UART0_S1 & UART_S1_TDRE) UART0_C2 = C2_TX_COMPLETING;
 	}
+#else
+        if (UART0_S1 & UART_S1_RDRF) {
+                n = UART0_D;
+                if (use9Bits && (UART0_C3 & 0x80)) n |= 0x100;
+                head = rx_buffer_head + 1;
+                if (head >= RX_BUFFER_SIZE) head = 0;
+                if (head != rx_buffer_tail) {
+                        rx_buffer[head] = n;
+                        rx_buffer_head = head;
+                }
+        }
+        c = UART0_C2;
+        if ((c & UART_C2_TIE) && (UART0_S1 & UART_S1_TDRE)) {
+                head = tx_buffer_head;
+                tail = tx_buffer_tail;
+                if (head == tail) {
+                        UART0_C2 = C2_TX_COMPLETING;
+                } else {
+                        if (++tail >= TX_BUFFER_SIZE) tail = 0;
+                        n = tx_buffer[tail];
+                        if (use9Bits) UART0_C3 = (UART0_C3 & ~0x40) | ((n & 0x100) >> 2);
+                        UART0_D = n;
+                        tx_buffer_tail = tail;
+                }
+        }
+#endif
 	if ((c & UART_C2_TCIE) && (UART0_S1 & UART_S1_TC)) {
 		transmitting = 0;
 		if (transmit_pin) *transmit_pin = 0;

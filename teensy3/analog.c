@@ -99,8 +99,10 @@ void analog_init(void)
 {
 	uint32_t num;
 
+	#if defined(__MK20DX128__) || defined(__MK20DX256__)
 	VREF_TRM = 0x60;
 	VREF_SC = 0xE1;		// enable 1.2 volt ref
+	#endif
 
 	if (analog_config_bits == 8) {
 		ADC0_CFG1 = ADC_CFG1_8BIT + ADC_CFG1_MODE(0);
@@ -132,17 +134,27 @@ void analog_init(void)
 		#endif
 	}
 
+	#if defined(__MK20DX128__)
 	if (analog_reference_internal) {
 		ADC0_SC2 = ADC_SC2_REFSEL(1); // 1.2V ref
-		#if defined(__MK20DX256__)
-		ADC1_SC2 = ADC_SC2_REFSEL(1); // 1.2V ref
-		#endif
 	} else {
 		ADC0_SC2 = ADC_SC2_REFSEL(0); // vcc/ext ref
-		#if defined(__MK20DX256__)
-		ADC1_SC2 = ADC_SC2_REFSEL(0); // vcc/ext ref
-		#endif
 	}
+	#elif defined(__MK20DX256__)
+	if (analog_reference_internal) {
+		ADC0_SC2 = ADC_SC2_REFSEL(1); // 1.2V ref
+		ADC1_SC2 = ADC_SC2_REFSEL(1); // 1.2V ref
+	} else {
+		ADC0_SC2 = ADC_SC2_REFSEL(0); // vcc/ext ref
+		ADC1_SC2 = ADC_SC2_REFSEL(0); // vcc/ext ref
+	}
+	#elif defined(__MKL26Z64__)
+	if (analog_reference_internal) {
+		ADC0_SC2 = ADC_SC2_REFSEL(0); // external AREF
+	} else {
+		ADC0_SC2 = ADC_SC2_REFSEL(1); // vcc
+	}
+	#endif
 
 	num = analog_num_average;
 	if (num <= 1) {
@@ -220,12 +232,18 @@ static void wait_for_cal(void)
 //   VREFH/VREFL - connected as the primary reference option
 //   1.2 V VREF_OUT - connected as the VALT reference option
 
-
+#if defined(__MK20DX128__) || defined(__MK20DX256__)
 #define DEFAULT         0
 #define INTERNAL        2
 #define INTERNAL1V2     2
 #define INTERNAL1V1     2
 #define EXTERNAL        0
+
+#elif defined(__MKL26Z64__)
+#define DEFAULT         0
+#define INTERNAL        0
+#define EXTERNAL        1
+#endif
 
 void analogReference(uint8_t type)
 {
@@ -321,6 +339,16 @@ static const uint8_t channel2sc1a[] = {
 // A19  30   C11  ADC1_SE7b  7
 // A20  31   E0   ADC1_SE4a  4+64
 };
+#elif defined(__MKL26Z64__)
+static const uint8_t channel2sc1a[] = {
+	5, 14, 8, 9, 13, 12, 6, 7, 15, 11,
+	0, 4+64, 23
+};
+
+
+
+
+
 #endif
 
 
@@ -339,20 +367,40 @@ int analogRead(uint8_t pin)
 	//serial_phex(pin);
 	//serial_print(" ");
 
+#if defined(__MK20DX128__)
 	if (pin <= 13) {
 		index = pin;      // 0-13 refer to A0-A13
 	} else if (pin <= 23) {
 		index = pin - 14; // 14-23 are A0-A9
-#if defined(__MK20DX256__)
+	} else if (pin >= 34 && pin <= 40) {
+		index = pin - 24; // 34-37 are A10-A13, 38 is temp sensor,
+			          // 39 is vref, 40 is unused analog pin
+	} else {
+		return 0;
+	}
+#elif defined(__MK20DX256__)
+	if (pin <= 13) {
+		index = pin;      // 0-13 refer to A0-A13
+	} else if (pin <= 23) {
+		index = pin - 14; // 14-23 are A0-A9
 	} else if (pin >= 26 && pin <= 31) {
 		index = pin - 9;  // 26-31 are A15-A20
-#endif
 	} else if (pin >= 34 && pin <= 40) {
-		index = pin - 24;  // 34-37 are A10-A13, 38 is temp sensor,
-			    // 39 is vref, 40 is unused (A14 on Teensy 3.1)
+		index = pin - 24; // 34-37 are A10-A13, 38 is temp sensor,
+			          // 39 is vref, 40 is A14
 	} else {
-		return 0;   // all others are invalid
+		return 0;
 	}
+#elif defined(__MKL26Z64__)
+	if (pin <= 12) {
+		index = pin;      // 0-12 refer to A0-A12
+	} else if (pin >= 14 && pin <= 26) {
+		index = pin - 14; // 14-26 are A0-A12
+	} else {
+		return 0;
+	}
+
+#endif
 
 	//serial_phex(index);
 	//serial_print(" ");
@@ -373,6 +421,14 @@ int analogRead(uint8_t pin)
 	__disable_irq();
 startADC0:
 	//serial_print("startADC0\n");
+#if defined(__MKL26Z64__)
+	if (channel & 0x40) {
+		ADC0_CFG2 &= ~ADC_CFG2_MUXSEL;
+		channel &= 0x3F;
+	} else {
+		ADC0_CFG2 |= ADC_CFG2_MUXSEL;
+	}
+#endif
 	ADC0_SC1A = channel;
 	analogReadBusyADC0 = 1;
 	__enable_irq();

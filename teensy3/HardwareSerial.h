@@ -85,8 +85,16 @@
 // bit7: actual data goes into 9th bit
 
 
+#if defined(KINETISK)
 #define BAUD2DIV(baud)  (((F_CPU * 2) + ((baud) >> 1)) / (baud))
+#define BAUD2DIV2(baud) (((F_CPU * 2) + ((baud) >> 1)) / (baud))
 #define BAUD2DIV3(baud) (((F_BUS * 2) + ((baud) >> 1)) / (baud))
+#elif defined(KINETISL)
+#define BAUD2DIV(baud)  (((F_PLL / 2 / 16) + ((baud) >> 1)) / (baud))
+#define BAUD2DIV2(baud) (((F_BUS / 16) + ((baud) >> 1)) / (baud))
+#define BAUD2DIV3(baud) (((F_BUS / 16) + ((baud) >> 1)) / (baud))
+#endif
+
 
 // C language implementation
 //
@@ -178,7 +186,7 @@ extern void serialEvent1(void);
 class HardwareSerial2 : public HardwareSerial
 {
 public:
-	virtual void begin(uint32_t baud) { serial2_begin(BAUD2DIV(baud)); }
+	virtual void begin(uint32_t baud) { serial2_begin(BAUD2DIV2(baud)); }
 	virtual void begin(uint32_t baud, uint32_t format) {
 					  serial2_begin(BAUD2DIV(baud));
 					  serial2_format(format); }

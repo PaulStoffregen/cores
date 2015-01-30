@@ -29,7 +29,8 @@
  */
 
 #include "kinetis.h"
-
+//#include "core_pins.h" // testing only
+//#include "ser_print.h" // testing only
 
 extern unsigned long _stext;
 extern unsigned long _etext;
@@ -51,6 +52,51 @@ void __libc_init_array(void);
 
 void fault_isr(void)
 {
+#if 0
+	uint32_t addr;
+	digitalWriteFast(15, HIGH);
+	ser_print("\nfault: \n??: ");
+        asm("ldr %0, [sp, #52]" : "=r" (addr) ::);
+        ser_print_hex32(addr);
+        ser_print("\n??: ");
+        asm("ldr %0, [sp, #48]" : "=r" (addr) ::);
+        ser_print_hex32(addr);
+        ser_print("\n??: ");
+        asm("ldr %0, [sp, #44]" : "=r" (addr) ::);
+        ser_print_hex32(addr);
+        ser_print("\npsr:");
+        asm("ldr %0, [sp, #40]" : "=r" (addr) ::);
+        ser_print_hex32(addr);
+        ser_print("\nadr:");
+        asm("ldr %0, [sp, #36]" : "=r" (addr) ::);
+        ser_print_hex32(addr);
+        ser_print("\nlr: ");
+        asm("ldr %0, [sp, #32]" : "=r" (addr) ::);
+        ser_print_hex32(addr);
+        ser_print("\nr12:");
+        asm("ldr %0, [sp, #28]" : "=r" (addr) ::);
+        ser_print_hex32(addr);
+        ser_print("\nr3: ");
+        asm("ldr %0, [sp, #24]" : "=r" (addr) ::);
+        ser_print_hex32(addr);
+        ser_print("\nr2: ");
+        asm("ldr %0, [sp, #20]" : "=r" (addr) ::);
+        ser_print_hex32(addr);
+        ser_print("\nr1: ");
+        asm("ldr %0, [sp, #16]" : "=r" (addr) ::);
+        ser_print_hex32(addr);
+        ser_print("\nr0: ");
+        asm("ldr %0, [sp, #12]" : "=r" (addr) ::);
+        ser_print_hex32(addr);
+        ser_print("\nr4: ");
+        asm("ldr %0, [sp, #8]" : "=r" (addr) ::);
+        ser_print_hex32(addr);
+        ser_print("\nlr: ");
+        asm("ldr %0, [sp, #4]" : "=r" (addr) ::);
+        ser_print_hex32(addr);
+        ser_print("\n");
+        asm("ldr %0, [sp, #0]" : "=r" (addr) ::);
+#endif
 	while (1) {
 		// keep polling some communication while in fault
 		// mode, so we don't completely die.
@@ -73,10 +119,10 @@ void systick_default_isr(void)
 }
 
 void nmi_isr(void)		__attribute__ ((weak, alias("unused_isr")));
-void hard_fault_isr(void)	__attribute__ ((weak, alias("unused_isr")));
-void memmanage_fault_isr(void)	__attribute__ ((weak, alias("unused_isr")));
-void bus_fault_isr(void)	__attribute__ ((weak, alias("unused_isr")));
-void usage_fault_isr(void)	__attribute__ ((weak, alias("unused_isr")));
+void hard_fault_isr(void)	__attribute__ ((weak, alias("fault_isr")));
+void memmanage_fault_isr(void)	__attribute__ ((weak, alias("fault_isr")));
+void bus_fault_isr(void)	__attribute__ ((weak, alias("fault_isr")));
+void usage_fault_isr(void)	__attribute__ ((weak, alias("fault_isr")));
 void svcall_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void debugmonitor_isr(void)	__attribute__ ((weak, alias("unused_isr")));
 void pendablesrvreq_isr(void)	__attribute__ ((weak, alias("unused_isr")));
@@ -120,6 +166,7 @@ void can0_rx_warn_isr(void)	__attribute__ ((weak, alias("unused_isr")));
 void can0_wakeup_isr(void)	__attribute__ ((weak, alias("unused_isr")));
 void i2s0_tx_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void i2s0_rx_isr(void)		__attribute__ ((weak, alias("unused_isr")));
+void i2s0_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void uart0_lon_isr(void)	__attribute__ ((weak, alias("unused_isr")));
 void uart0_status_isr(void)	__attribute__ ((weak, alias("unused_isr")));
 void uart0_error_isr(void)	__attribute__ ((weak, alias("unused_isr")));
@@ -145,6 +192,7 @@ void ftm3_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void cmt_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void rtc_alarm_isr(void)	__attribute__ ((weak, alias("unused_isr")));
 void rtc_seconds_isr(void)	__attribute__ ((weak, alias("unused_isr")));
+void pit_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void pit0_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void pit1_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void pit2_isr(void)		__attribute__ ((weak, alias("unused_isr")));
@@ -162,12 +210,15 @@ void portb_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void portc_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void portd_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void porte_isr(void)		__attribute__ ((weak, alias("unused_isr")));
+void portcd_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void software_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 
 #if defined(__MK20DX128__)
 __attribute__ ((section(".dmabuffers"), used, aligned(256)))
-#else
+#elif defined(__MK20DX256__)
 __attribute__ ((section(".dmabuffers"), used, aligned(512)))
+#elif defined(__MKL26Z64__)
+__attribute__ ((section(".dmabuffers"), used, aligned(256)))
 #endif
 void (* _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
 
@@ -333,12 +384,42 @@ void (* const _VectorsFlash[NVIC_NUM_INTERRUPTS+16])(void) =
 	unused_isr,					// 108 --
 	unused_isr,					// 109 --
 	software_isr,					// 110 Software interrupt
+#elif defined(__MKL26Z64__)
+	dma_ch0_isr,					// 16 DMA channel 0 transfer complete
+	dma_ch1_isr,					// 17 DMA channel 1 transfer complete
+	dma_ch2_isr,					// 18 DMA channel 2 transfer complete
+	dma_ch3_isr,					// 19 DMA channel 3 transfer complete
+	unused_isr,					// 20 --
+	flash_cmd_isr,					// 21 Flash Memory Command complete
+	low_voltage_isr,				// 22 Low-voltage detect/warning
+	wakeup_isr,					// 23 Low Leakage Wakeup
+	i2c0_isr,					// 24 I2C0
+	i2c1_isr,					// 25 I2C1
+	spi0_isr,					// 26 SPI0
+	spi1_isr,					// 27 SPI1
+	uart0_status_isr,				// 28 UART0 status & error
+	uart1_status_isr,				// 29 UART1 status & error
+	uart2_status_isr,				// 30 UART2 status & error
+	adc0_isr,					// 31 ADC0
+	cmp0_isr,					// 32 CMP0
+	ftm0_isr,					// 33 FTM0
+	ftm1_isr,					// 34 FTM1
+	ftm2_isr,					// 35 FTM2
+	rtc_alarm_isr,					// 36 RTC Alarm interrupt
+	rtc_seconds_isr,				// 37 RTC Seconds interrupt
+	pit_isr,					// 38 PIT Both Channels
+	i2s0_isr,					// 39 I2S0 Transmit & Receive
+	usb_isr,					// 40 USB OTG
+	dac0_isr,					// 41 DAC0
+	tsi0_isr,					// 42 TSI0
+	mcg_isr,					// 43 MCG
+	lptmr_isr,					// 44 Low Power Timer
+	software_isr,					// 45 Software interrupt
+	porta_isr,					// 46 Pin detect (Port A)
+	portcd_isr,					// 47 Pin detect (Port C and D)
 #endif
 };
 
-//void usb_isr(void)
-//{
-//}
 
 __attribute__ ((section(".flashconfig"), used))
 const uint8_t flashconfigbytes[16] = {
@@ -356,10 +437,17 @@ const uint8_t flashconfigbytes[16] = {
 extern void rtc_set(unsigned long t);
 
 
-static void startup_default_early_hook(void) { WDOG_STCTRLH = WDOG_STCTRLH_ALLOWUPDATE; }
+static void startup_default_early_hook(void) {
+#if defined(KINETISK)
+	WDOG_STCTRLH = WDOG_STCTRLH_ALLOWUPDATE;
+#elif defined(KINETISL)
+	SIM_COPC = 0;  // disable the watchdog
+#endif
+}
 static void startup_default_late_hook(void) {}
 void startup_early_hook(void)		__attribute__ ((weak, alias("startup_default_early_hook")));
 void startup_late_hook(void)		__attribute__ ((weak, alias("startup_default_late_hook")));
+
 
 __attribute__ ((section(".startup")))
 void ResetHandler(void)
@@ -370,11 +458,14 @@ void ResetHandler(void)
 #if F_CPU <= 2000000
 	volatile int n;
 #endif
+	//volatile int count;
 
+#ifdef KINETISK
 	WDOG_UNLOCK = WDOG_UNLOCK_SEQ1;
 	WDOG_UNLOCK = WDOG_UNLOCK_SEQ2;
 	__asm__ volatile ("nop");
 	__asm__ volatile ("nop");
+#endif
 	// programs using the watchdog timer or needing to initialize hardware as
 	// early as possible can implement startup_early_hook()
 	startup_early_hook();
@@ -387,13 +478,29 @@ void ResetHandler(void)
 	SIM_SCGC3 = SIM_SCGC3_ADC1 | SIM_SCGC3_FTM2;
 	SIM_SCGC5 = 0x00043F82;		// clocks active to all GPIO
 	SIM_SCGC6 = SIM_SCGC6_RTC | SIM_SCGC6_FTM0 | SIM_SCGC6_FTM1 | SIM_SCGC6_ADC0 | SIM_SCGC6_FTFL;
+#elif defined(__MKL26Z64__)
+	SIM_SCGC4 = SIM_SCGC4_USBOTG | 0xF0000030;
+	SIM_SCGC5 = 0x00003F82;		// clocks active to all GPIO
+	SIM_SCGC6 = SIM_SCGC6_ADC0 | SIM_SCGC6_TPM0 | SIM_SCGC6_TPM1 | SIM_SCGC6_TPM2 | SIM_SCGC6_FTFL;
 #endif
+#if 0
+	// testing only, enable ser_print
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV4(1);
+	MCG_C4 |= MCG_C4_DMX32 | MCG_C4_DRST_DRS(1);
+	SIM_SOPT2 = SIM_SOPT2_UART0SRC(1) | SIM_SOPT2_TPMSRC(1);
+	SIM_SCGC4 |= 0x00000400;
+	UART0_BDH = 0;
+	UART0_BDL = 26; // 115200 at 48 MHz
+	UART0_C2 = UART_C2_TE;
+	PORTB_PCR17 = PORT_PCR_MUX(3);
+#endif
+#ifdef KINETISK
 	// if the RTC oscillator isn't enabled, get it started early
 	if (!(RTC_CR & RTC_CR_OSCE)) {
 		RTC_SR = 0;
 		RTC_CR = RTC_CR_SC16P | RTC_CR_SC4P | RTC_CR_OSCE;
 	}
-
+#endif
 	// release I/O pins hold, if we woke up from VLLS mode
 	if (PMC_REGSC & PMC_REGSC_ACKISO) PMC_REGSC |= PMC_REGSC_ACKISO;
 
@@ -449,6 +556,7 @@ void ResetHandler(void)
 	while ((MCG_S & MCG_S_IREFST) != 0) ;
 	// wait for MCGOUT to use oscillator
 	while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(2)) ;
+
 	// now in FBE mode
 	//  C1[CLKS] bits are written to 10
 	//  C1[IREFS] bit is written to 0
@@ -487,7 +595,6 @@ void ResetHandler(void)
 	// now we're in PBE mode
   #endif
 #endif
-
 	// now program the clock dividers
 #if F_CPU == 168000000
 	// config divisors: 168 MHz core, 56 MHz bus, 33.6 MHz flash, USB = 168 * 2 / 7
@@ -511,12 +618,20 @@ void ResetHandler(void)
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(2) | SIM_CLKDIV2_USBFRAC;
 #elif F_CPU == 48000000
 	// config divisors: 48 MHz core, 48 MHz bus, 24 MHz flash, USB = 96 / 2
+	#if defined(KINETISK)
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(1) | SIM_CLKDIV1_OUTDIV2(1) |	 SIM_CLKDIV1_OUTDIV4(3);
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(1);
+	#elif defined(KINETISL)
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(1) | SIM_CLKDIV1_OUTDIV4(1);
+	#endif
 #elif F_CPU == 24000000
 	// config divisors: 24 MHz core, 24 MHz bus, 24 MHz flash, USB = 96 / 2
+	#if defined(KINETISK)
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(3) | SIM_CLKDIV1_OUTDIV2(3) |	 SIM_CLKDIV1_OUTDIV4(3);
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(1);
+	#elif defined(KINETISL)
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(3) | SIM_CLKDIV1_OUTDIV4(0);
+	#endif
 #elif F_CPU == 16000000
 	// config divisors: 16 MHz core, 16 MHz bus, 16 MHz flash
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(0) |	 SIM_CLKDIV1_OUTDIV4(0);
@@ -547,7 +662,13 @@ void ResetHandler(void)
 	while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(3)) ;
 	// now we're in PEE mode
 	// USB uses PLL clock, trace is CPU clock, CLKOUT=OSCERCLK0
-	SIM_SOPT2 = SIM_SOPT2_USBSRC | SIM_SOPT2_PLLFLLSEL | SIM_SOPT2_TRACECLKSEL | SIM_SOPT2_CLKOUTSEL(6);
+	#if defined(KINETISK)
+	SIM_SOPT2 = SIM_SOPT2_USBSRC | SIM_SOPT2_PLLFLLSEL | SIM_SOPT2_TRACECLKSEL
+		| SIM_SOPT2_CLKOUTSEL(6);
+	#elif defined(KINETISL)
+	SIM_SOPT2 = SIM_SOPT2_USBSRC | SIM_SOPT2_PLLFLLSEL | SIM_SOPT2_CLKOUTSEL(6)
+		| SIM_SOPT2_UART0SRC(1) | SIM_SOPT2_TPMSRC(1);
+	#endif
 #else
 	SIM_SOPT2 = SIM_SOPT2_TRACECLKSEL | SIM_SOPT2_CLKOUTSEL(3);
 #endif
@@ -565,12 +686,13 @@ void ResetHandler(void)
 	__enable_irq();
 
 	_init_Teensyduino_internal_();
+#if defined(KINETISK)
 	if (RTC_SR & RTC_SR_TIF) {
 		// TODO: this should probably set the time more agressively, if
 		// we could reliably detect the first reboot after programming.
 		rtc_set(TIME_T);
 	}
-
+#endif
 	__libc_init_array();
 
 	startup_late_hook();

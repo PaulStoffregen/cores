@@ -3,6 +3,8 @@
 
 #include "avr_emulation.h"
 
+#ifdef KINETISK
+
 #if F_BUS == 60000000
 #define HAS_SPIFIFO
 #define SPI_CLOCK_24MHz   (SPI_CTAR_PBR(1) | SPI_CTAR_BR(0) | SPI_CTAR_DBR) //(60 / 3) * ((1+1)/2) = 20 MHz
@@ -93,7 +95,9 @@
 #define SPI_CLOCK_6MHz    (SPI_CTAR_PBR(0) | SPI_CTAR_BR(0) | SPI_CTAR_DBR) //(4 / 2) * ((1+1)/2) = 1 MHz
 #define SPI_CLOCK_4MHz    (SPI_CTAR_PBR(0) | SPI_CTAR_BR(0) | SPI_CTAR_DBR) //(4 / 2) * ((1+1)/2) = 1 MHz
 
-#endif
+#endif // F_BUS
+
+#endif // KINETISK
 
 /*
 #! /usr/bin/perl
@@ -228,5 +232,6 @@ private:
 };
 extern SPIFIFOclass SPIFIFO;
 
-#endif
+#endif // HAS_SPIFIFO
+
 #endif

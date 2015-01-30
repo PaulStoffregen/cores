@@ -33,7 +33,6 @@
 #include "HardwareSerial.h"
 #include "IntervalTimer.h"
 
-#if 1
 // IntervalTimer based tone.  This allows tone() to share the timers with other
 // libraries, rather than permanently hogging one PIT timer even for projects
 // which never use tone().  Someday this single-tone implementation might be
@@ -46,6 +45,19 @@ static uint16_t tone_frequency=0;
 IntervalTimer tone_timer;
 
 void tone_interrupt(void);
+
+#if defined(KINETISK)
+#define TONE_CLEAR_PIN   tone_reg[0] = 1
+#define TONE_TOGGLE_PIN  tone_reg[128] = 1
+#define TONE_OUTPUT_PIN  tone_reg[384] = 1
+
+#elif defined(KINETISL)
+static uint8_t tone_mask;
+#define TONE_CLEAR_PIN   tone_reg[0] = tone_mask
+#define TONE_TOGGLE_PIN  tone_reg[4] = tone_mask
+#define TONE_OUTPUT_PIN  __disable_irq(); tone_reg[12] |= tone_mask; __enable_irq()
+
+#endif
 
 void tone(uint8_t pin, uint16_t frequency, uint32_t duration)
 {
@@ -75,17 +87,20 @@ void tone(uint8_t pin, uint16_t frequency, uint32_t duration)
 			tone_toggle_count = count;
 		} else {
 			// same pin, but a new frequency.
-			tone_reg[0] = 1; // clear pin
+			TONE_CLEAR_PIN; // clear pin
 			tone_timer.begin(tone_interrupt, usec);
 		}
 	} else {
 		if (tone_pin < CORE_NUM_DIGITAL) {
-			tone_reg[0] = 1; // clear pin
+			TONE_CLEAR_PIN; // clear pin
 		}
 		tone_pin = pin;
 		tone_reg = portClearRegister(pin);
-		tone_reg[0] = 1; // clear pin
-		tone_reg[384] = 1; // output mode;
+		#if defined(KINETISL)
+		tone_mask = digitalPinToBitMask(pin);
+		#endif
+		TONE_CLEAR_PIN; // clear pin
+		TONE_OUTPUT_PIN; // output mode;
 		*config = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1);
 		tone_toggle_count = count;
 		tone_timer.begin(tone_interrupt, usec);
@@ -97,11 +112,11 @@ void tone(uint8_t pin, uint16_t frequency, uint32_t duration)
 void tone_interrupt(void)
 {
 	if (tone_toggle_count) {
-		tone_reg[128] = 1; // toggle
+		TONE_TOGGLE_PIN; // toggle
 		if (tone_toggle_count < 0xFFFFFFFF) tone_toggle_count--;
 	} else {
 		tone_timer.end();
-		tone_reg[0] = 0; // clear
+		TONE_CLEAR_PIN; // clear
 		tone_pin = 255;
 		tone_frequency = 0;
 	}
@@ -113,102 +128,12 @@ void noTone(uint8_t pin)
 	__disable_irq();
 	if (pin == tone_pin) {
 		tone_timer.end();
-		tone_reg[0] = 0; // clear
+		TONE_CLEAR_PIN; // clear
 		tone_pin = 255;
 		tone_frequency = 0;
 	}
 	__enable_irq();
 }
-#endif
-
-
-
-#if 0
-// Old PIT timer based tone().  This implementation is slightly more efficient,
-// but it consumes one of the PIT timers, even for projects which never use tone().
-
-static uint32_t tone_toggle_count;
-static volatile uint8_t *tone_reg;
-static uint8_t tone_pin;
-
-void init_tone(void)
-{
-	if (SIM_SCGC6 & SIM_SCGC6_PIT) return;
-	SIM_SCGC6 |= SIM_SCGC6_PIT; // TODO: use bitband for atomic read-mod-write
-	PIT_MCR = 0;
-	PIT_TCTRL3 = 0;		// disabled
-	tone_pin = 255;
-	NVIC_ENABLE_IRQ(IRQ_PIT_CH3);
-}
-
-void tone(uint8_t pin, uint16_t frequency, uint32_t duration)
-{
-	uint32_t count, load;
-	volatile uint32_t *config;
-
-	init_tone();
-	if (pin >= CORE_NUM_DIGITAL) return;
-	if (duration) {
-		count = (frequency * duration / 1000) * 2;
-	} else {
-		count = 0xFFFFFFFF;
-	}
-	load = (F_BUS / 2) / frequency;
-	config = portConfigRegister(pin);
-	__disable_irq();
-	if (pin != tone_pin) {
-		if (tone_pin < CORE_NUM_DIGITAL) {
-			tone_reg[0] = 1; // clear pin
-		}
-		tone_pin = pin;
-		tone_reg = portClearRegister(pin);
-		tone_reg[0] = 1; // clear pin
-		tone_reg[384] = 1; // output mode;
-		*config = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1);
-	}
-	tone_toggle_count = count;
-	if (PIT_LDVAL3 != load) {
-		PIT_TCTRL3 = 0;
-		PIT_LDVAL3 = load;
-		PIT_TCTRL3 = 3;
-	}
-	__enable_irq();
-}
-
-void pit3_isr(void)
-{
-	PIT_TFLG3 = 1;
-
-	if (tone_toggle_count) {
-		tone_reg[128] = 1; // toggle
-		if (tone_toggle_count < 0xFFFFFFFF) tone_toggle_count--;
-	} else {
-		PIT_TCTRL3 = 0;
-		PIT_LDVAL3 = 0;
-		tone_reg[0] = 0; // clear
-		tone_pin = 255;
-	}
-}
-
-void noTone(uint8_t pin)
-{
-	if (pin >= CORE_NUM_DIGITAL) return;
-	__disable_irq();
-	if (pin == tone_pin) {
-		PIT_TCTRL3 = 0;
-		PIT_LDVAL3 = 0;
-		tone_reg[0] = 0; // clear
-		tone_pin = 255;
-	}
-	__enable_irq();
-}
-#endif
-
-
-
-
-
-
 
 
 

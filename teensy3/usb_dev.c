@@ -715,7 +715,7 @@ void usb_isr(void)
 	restart:
 	status = USB0_ISTAT;
 
-	if ((status & USB_INTEN_SOFTOKEN /* 04 */ )) {
+	if ((status & USB_ISTAT_SOFTOK /* 04 */ )) {
 		if (usb_configuration) {
 			t = usb_reboot_timer;
 			if (t) {
@@ -743,7 +743,7 @@ void usb_isr(void)
 			usb_flightsim_flush_callback();
 #endif
 		}
-		USB0_ISTAT = USB_INTEN_SOFTOKEN;
+		USB0_ISTAT = USB_ISTAT_SOFTOK;
 	}
 
 	if ((status & USB_ISTAT_TOKDNE /* 08 */ )) {
@@ -949,8 +949,8 @@ void usb_init(void)
 	SIM_SCGC4 |= SIM_SCGC4_USBOTG;
 
 	// reset USB module
-	USB0_USBTRC0 = USB_USBTRC_USBRESET;
-	while ((USB0_USBTRC0 & USB_USBTRC_USBRESET) != 0) ; // wait for reset to end
+	//USB0_USBTRC0 = USB_USBTRC_USBRESET;
+	//while ((USB0_USBTRC0 & USB_USBTRC_USBRESET) != 0) ; // wait for reset to end
 
 	// set desc table base addr
 	USB0_BDTPAGE1 = ((uint32_t)table) >> 8;
@@ -962,7 +962,7 @@ void usb_init(void)
 	USB0_ERRSTAT = 0xFF;
 	USB0_OTGISTAT = 0xFF;
 
-	USB0_USBTRC0 |= 0x40; // undocumented bit
+	//USB0_USBTRC0 |= 0x40; // undocumented bit
 
 	// enable USB
 	USB0_CTL = USB_CTL_USBENSOFEN;

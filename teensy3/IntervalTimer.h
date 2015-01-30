@@ -32,12 +32,17 @@ class IntervalTimer {
     typedef void (*ISR)();
     typedef volatile uint32_t* reg;
     enum {TIMER_OFF, TIMER_PIT};
+#if defined(KINETISK)
     static const uint8_t NUM_PIT = 4;
+#elif defined(KINETISL)
+    static const uint8_t NUM_PIT = 2;
+#endif
     static const uint32_t MAX_PERIOD = UINT32_MAX / (F_BUS / 1000000.0);
     static void enable_PIT();
     static void disable_PIT();
     static bool PIT_enabled;
     static bool PIT_used[NUM_PIT];
+    static ISR PIT_ISR[NUM_PIT];
     bool allocate_PIT(uint32_t newValue);
     void start_PIT(uint32_t newValue);
     void stop_PIT();
@@ -81,7 +86,14 @@ class IntervalTimer {
 	nvic_priority = n;
 	if (PIT_enabled) NVIC_SET_PRIORITY(IRQ_PIT_CH, n);
     }
-    static ISR PIT_ISR[NUM_PIT];
+#if defined(KINETISK)
+    friend void pit0_isr();
+    friend void pit1_isr();
+    friend void pit2_isr();
+    friend void pit3_isr();
+#elif defined(KINETISL)
+    friend void pit_isr();
+#endif
 };
 
 

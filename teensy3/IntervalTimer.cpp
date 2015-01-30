@@ -36,10 +36,19 @@ IntervalTimer::ISR IntervalTimer::PIT_ISR[];
 // so that they can auto-clear themselves and so the user can
 // specify a custom ISR and reassign it as needed
 // ------------------------------------------------------------
+#if defined(KINETISK)
 void pit0_isr() { PIT_TFLG0 = 1; IntervalTimer::PIT_ISR[0](); }
 void pit1_isr() { PIT_TFLG1 = 1; IntervalTimer::PIT_ISR[1](); }
 void pit2_isr() { PIT_TFLG2 = 1; IntervalTimer::PIT_ISR[2](); }
 void pit3_isr() { PIT_TFLG3 = 1; IntervalTimer::PIT_ISR[3](); }
+
+#elif defined(KINETISL)
+void pit_isr() {
+	if (PIT_TFLG0) { PIT_TFLG0 = 1; IntervalTimer::PIT_ISR[0](); }
+	if (!IntervalTimer::PIT_enabled) return;
+	if (PIT_TFLG1) { PIT_TFLG1 = 1; IntervalTimer::PIT_ISR[1](); }
+}
+#endif
 
 
 
@@ -143,7 +152,6 @@ void IntervalTimer::start_PIT(uint32_t newValue) {
   // point to the correct registers
   PIT_LDVAL = &PIT_LDVAL0 + PIT_id * 4;
   PIT_TCTRL = &PIT_TCTRL0 + PIT_id * 4;
-  IRQ_PIT_CH = IRQ_PIT_CH0 + PIT_id;
   
   // point to the correct PIT ISR
   PIT_ISR[PIT_id] = myISR;
@@ -152,8 +160,14 @@ void IntervalTimer::start_PIT(uint32_t newValue) {
   *PIT_TCTRL = 0;
   *PIT_LDVAL = newValue;
   *PIT_TCTRL = 3;
+#if defined(KINETISK)
+  IRQ_PIT_CH = IRQ_PIT_CH0 + PIT_id;
   NVIC_SET_PRIORITY(IRQ_PIT_CH, nvic_priority);
   NVIC_ENABLE_IRQ(IRQ_PIT_CH);
+#elif defined(KINETISL)
+  NVIC_SET_PRIORITY(IRQ_PIT, nvic_priority); // TODO: use the higher of both channels, shared irq
+  NVIC_ENABLE_IRQ(IRQ_PIT);
+#endif
 
 }
 
@@ -167,8 +181,12 @@ void IntervalTimer::start_PIT(uint32_t newValue) {
 void IntervalTimer::stop_PIT() {
   
   // disable interrupt and PIT
-  NVIC_DISABLE_IRQ(IRQ_PIT_CH);
   *PIT_TCTRL = 0;
+#if defined(KINETISK)
+  NVIC_DISABLE_IRQ(IRQ_PIT_CH);
+#elif defined(KINETISL)
+  NVIC_DISABLE_IRQ(IRQ_PIT);
+#endif
   
   // free PIT for future use
   PIT_used[PIT_id] = false;

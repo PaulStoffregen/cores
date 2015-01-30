@@ -90,11 +90,17 @@ void serial3_begin(uint32_t divisor)
 	transmitting = 0;
 	CORE_PIN7_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3);
 	CORE_PIN8_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3);
+#if defined(KINETISK_UART2)
 	UART2_BDH = (divisor >> 13) & 0x1F;
 	UART2_BDL = (divisor >> 5) & 0xFF;
 	UART2_C4 = divisor & 0x1F;
 	UART2_C1 = 0;
 	UART2_PFIFO = 0;
+#elif defined(KINETISL_UART2)
+	UART2_BDH = (divisor >> 8) & 0x1F;
+	UART2_BDL = divisor & 0xFF;
+	UART2_C1 = 0;
+#endif
 	UART2_C2 = C2_TX_INACTIVE;
 	NVIC_SET_PRIORITY(IRQ_UART2_STATUS, IRQ_PRIORITY);
 	NVIC_ENABLE_IRQ(IRQ_UART2_STATUS);
