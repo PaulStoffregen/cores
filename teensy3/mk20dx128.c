@@ -29,8 +29,8 @@
  */
 
 #include "kinetis.h"
-//#include "core_pins.h" // testing only
-//#include "ser_print.h" // testing only
+#include "core_pins.h" // testing only
+#include "ser_print.h" // testing only
 
 extern unsigned long _stext;
 extern unsigned long _etext;
@@ -54,7 +54,12 @@ void fault_isr(void)
 {
 #if 0
 	uint32_t addr;
-	digitalWriteFast(15, HIGH);
+
+	SIM_SCGC4 |= 0x00000400;
+	UART0_BDH = 0;
+	UART0_BDL = 26; // 115200 at 48 MHz
+	UART0_C2 = UART_C2_TE;
+	PORTB_PCR17 = PORT_PCR_MUX(3);
 	ser_print("\nfault: \n??: ");
         asm("ldr %0, [sp, #52]" : "=r" (addr) ::);
         ser_print_hex32(addr);

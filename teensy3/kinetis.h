@@ -616,7 +616,15 @@ enum IRQ_NUMBER_t {
 #elif defined(KINETISL)
 #define MCM_PLASC               (*(volatile uint16_t *)0xF0003008) // Crossbar Switch (AXBS) Slave Configuration
 #define MCM_PLAMC               (*(volatile uint16_t *)0xF000300A) // Crossbar Switch (AXBS) Master Configuration
-#define MCM_PLACR               (*(volatile uint32_t *)0xF000300C) // Platform Control Register 
+#define MCM_PLACR               (*(volatile uint32_t *)0xF000300C) // Platform Control Register
+#define MCM_PLACR_ESFC			((uint32_t)0x00010000)		// Enable Stalling Flash Controller
+#define MCM_PLACR_DFCS			((uint32_t)0x00008000)		// Disable Flash Controller Speculation
+#define MCM_PLACR_EFDS			((uint32_t)0x00004000)		// Enable Flash Data Speculation
+#define MCM_PLACR_DFCC			((uint32_t)0x00002000)		// Disable Flash Controller Cache
+#define MCM_PLACR_DFCIC			((uint32_t)0x00001000)		// Disable Flash Controller Instruction Caching
+#define MCM_PLACR_DFCDA			((uint32_t)0x00000800)		// Disable Flash Controller Data Caching
+#define MCM_PLACR_CFCC			((uint32_t)0x00000400)		// Clear Flash Controller Cache
+#define MCM_PLACR_ARB			((uint32_t)0x00000200)		// Arbitration select
 #define MCM_CPO                 (*(volatile uint32_t *)0xF0003040) // Compute Operation Control Register
 #endif
 
