@@ -93,7 +93,7 @@ const static uint8_t SCL = 19;
   #define digitalPinToInterrupt(p)  ((p) < NUM_DIGITAL_PINS ? (p) : -1)
 #elif defined(__MKL26Z64__)
   #define analogInputToDigitalPin(p) (((p) <= 9) ? (p) + 14 : (((p) <= 12) ? (p) + 14 : -1))
-  #define digitalPinHasPWM(p) ((p) == 3 || (p) == 4 || (p) == 6 || (p) == 9 || (p) == 10 || (p) <= 16 || (p) == 17 || (p) == 20 || (p) == 22 || (p) == 23)
+  #define digitalPinHasPWM(p) ((p) == 3 || (p) == 4 || (p) == 6 || (p) == 9 || (p) == 10 || (p) == 16 || (p) == 17 || (p) == 20 || (p) == 22 || (p) == 23)
   #define digitalPinToInterrupt(p)  ((((p) >= 2 && (p) <= 15) || ((p) >= 20 && (p) <= 23)) ? (p) : -1)
 #endif
 
