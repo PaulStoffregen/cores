@@ -279,6 +279,8 @@ static void portcd_interrupt(void)
 #endif
 
 
+#if defined(__MK20DX128__) || defined(__MK20DX256__)
+
 unsigned long rtc_get(void)
 {
 	return RTC_TSR;
@@ -291,7 +293,6 @@ void rtc_set(unsigned long t)
 	RTC_TSR = t;
 	RTC_SR = RTC_SR_TCE;
 }
-
 
 // adjust is the amount of crystal error to compensate, 1 = 0.1192 ppm
 // For example, adjust = -100 is slows the clock by 11.92 ppm
@@ -327,6 +328,16 @@ void rtc_compensate(int adjust)
 	}
 	RTC_TCR = ((interval - 1) << 8) | tcr;
 }
+
+#else
+
+unsigned long rtc_get(void) { return 0; }
+void rtc_set(unsigned long t) { }
+void rtc_compensate(int adjust) { }
+
+#endif
+
+
 
 #if 0
 // TODO: build system should define this
