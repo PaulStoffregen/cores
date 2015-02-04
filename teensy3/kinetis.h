@@ -505,6 +505,7 @@ enum IRQ_NUMBER_t {
 #define SIM_SCGC5_TSI			((uint32_t)0x00000020)		// Touch Sense Input TSI Clock Gate Control
 #define SIM_SCGC5_LPTIMER		((uint32_t)0x00000001)		// Low Power Timer Access Control
 #define SIM_SCGC6		(*(volatile uint32_t *)0x4004803C) // System Clock Gating Control Register 6
+#define SIM_SCGC6_DAC0			((uint32_t)0x80000000)		// DAC on Kinetis-L
 #define SIM_SCGC6_RTC			((uint32_t)0x20000000)		// RTC Access
 #define SIM_SCGC6_ADC0			((uint32_t)0x08000000)		// ADC0 Clock Gate Control
 #define SIM_SCGC6_FTM1			((uint32_t)0x02000000)		// FTM1 Clock Gate Control

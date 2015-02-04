@@ -496,6 +496,18 @@ void analogWriteDAC0(int val)
 	if (val < 0) val = 0;  // TODO: saturate instruction?
 	else if (val > 4095) val = 4095;
 	*(int16_t *)&(DAC0_DAT0L) = val;
+#elif defined(__MKL26Z64__)
+	SIM_SCGC6 |= SIM_SCGC6_DAC0;
+	if (analog_reference_internal == 0) {
+		// use 3.3V VDDA power as the reference (this is the default)
+		DAC0_C0 = DAC_C0_DACEN | DAC_C0_DACRFS | DAC_C0_DACSWTRG; // 3.3V VDDA
+	} else {
+		// use whatever voltage is on the AREF pin
+		DAC0_C0 = DAC_C0_DACEN | DAC_C0_DACSWTRG; // 3.3V VDDA
+	}
+	if (val < 0) val = 0;
+	else if (val > 4095) val = 4095;
+	*(int16_t *)&(DAC0_DAT0L) = val;
 #endif
 }
 

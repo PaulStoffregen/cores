@@ -523,6 +523,17 @@ void analogWrite(uint8_t pin, int val)
 		analogWriteDAC0(val);
 		return;
 	}
+#elif defined(__MKL26Z64__)
+	if (pin == A12) {
+		uint8_t res = analog_write_res;
+		if (res < 12) {
+			val <<= 12 - res;
+		} else if (res > 12) {
+			val >>= res - 12;
+		}
+		analogWriteDAC0(val);
+		return;
+	}
 #endif
 
 	max = 1 << analog_write_res;
