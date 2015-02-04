@@ -1195,22 +1195,22 @@ enum IRQ_NUMBER_t {
 #define DMA_TCD15_BITER_ELINKNO	(*(volatile uint16_t *)0x400091FE) // TCD Beginning Minor Loop Link
 
 #elif defined(KINETISL)
-#define DMA_SAR0		(*(volatile uint16_t *)0x40008100)  // Source Address
-#define DMA_DAR0		(*(volatile uint16_t *)0x40008104)  // Destination Address
-#define DMA_DSR_BCR0		(*(volatile uint16_t *)0x40008108)  // Status / Byte Count
-#define DMA_DCR0		(*(volatile uint16_t *)0x4000810C)  // Control
-#define DMA_SAR1		(*(volatile uint16_t *)0x40008110)  // Source Address
-#define DMA_DAR1		(*(volatile uint16_t *)0x40008114)  // Destination Address
-#define DMA_DSR_BCR1		(*(volatile uint16_t *)0x40008118)  // Status / Byte Count
-#define DMA_DCR1		(*(volatile uint16_t *)0x4000811C)  // Control
-#define DMA_SAR2		(*(volatile uint16_t *)0x40008120)  // Source Address
-#define DMA_DAR2		(*(volatile uint16_t *)0x40008124)  // Destination Address
-#define DMA_DSR_BCR2		(*(volatile uint16_t *)0x40008128)  // Status / Byte Count
-#define DMA_DCR2		(*(volatile uint16_t *)0x4000812C)  // Control
-#define DMA_SAR3		(*(volatile uint16_t *)0x40008130)  // Source Address
-#define DMA_DAR3		(*(volatile uint16_t *)0x40008134)  // Destination Address
-#define DMA_DSR_BCR3		(*(volatile uint16_t *)0x40008138)  // Status / Byte Count
-#define DMA_DCR3		(*(volatile uint16_t *)0x4000813C)  // Control
+#define DMA_SAR0		(*(volatile const void * volatile *)0x40008100)  // Source Address
+#define DMA_DAR0		(*(volatile void * volatile *)0x40008104)  // Destination Address
+#define DMA_DSR_BCR0		(*(volatile uint32_t *)0x40008108)  // Status / Byte Count
+#define DMA_DCR0		(*(volatile uint32_t *)0x4000810C)  // Control
+#define DMA_SAR1		(*(volatile const void * volatile *)0x40008110)  // Source Address
+#define DMA_DAR1		(*(volatile void * volatile *)0x40008114)  // Destination Address
+#define DMA_DSR_BCR1		(*(volatile uint32_t *)0x40008118)  // Status / Byte Count
+#define DMA_DCR1		(*(volatile uint32_t *)0x4000811C)  // Control
+#define DMA_SAR2		(*(volatile const void * volatile *)0x40008120)  // Source Address
+#define DMA_DAR2		(*(volatile void * volatile *)0x40008124)  // Destination Address
+#define DMA_DSR_BCR2		(*(volatile uint32_t *)0x40008128)  // Status / Byte Count
+#define DMA_DCR2		(*(volatile uint32_t *)0x4000812C)  // Control
+#define DMA_SAR3		(*(volatile const void * volatile *)0x40008130)  // Source Address
+#define DMA_DAR3		(*(volatile void * volatile *)0x40008134)  // Destination Address
+#define DMA_DSR_BCR3		(*(volatile uint32_t *)0x40008138)  // Status / Byte Count
+#define DMA_DCR3		(*(volatile uint32_t *)0x4000813C)  // Control
 #define DMA_DSR_BCR_CE			((uint32_t)0x40000000)	// Configuration Error
 #define DMA_DSR_BCR_BES			((uint32_t)0x20000000)	// Bus Error on Source
 #define DMA_DSR_BCR_BED			((uint32_t)0x10000000)	// Bus Error on Destination
