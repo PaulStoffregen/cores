@@ -17,6 +17,8 @@
 // https://github.com/pixelmatix/SmartMatrix
 // https://github.com/crteensy/DmaSpi <-- DmaSpi has adopted this scheme
 
+#if defined(KINETISK)
+
 #ifdef __cplusplus
 
 #define DMACHANNEL_HAS_BEGIN
@@ -809,6 +811,6 @@ extern uint16_t dma_channel_allocated_mask;
 }
 #endif
 
-
+#endif // KINETISK
 
 #endif

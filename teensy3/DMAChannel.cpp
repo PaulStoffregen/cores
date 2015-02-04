@@ -1,5 +1,7 @@
 #include "DMAChannel.h"
 
+#if defined(KINETISK)
+
 // The channel allocation bitmask is accessible from "C" namespace,
 // so C-only code can reserve DMA channels
 uint16_t dma_channel_allocated_mask = 0;
@@ -104,3 +106,4 @@ void DMAPriorityOrder(DMAChannel &ch1, DMAChannel &ch2, DMAChannel &ch3, DMAChan
 	if (priority(ch3) < priority(ch4)) swap(ch2, ch3);
 }
 
+#endif

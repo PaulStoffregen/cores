@@ -694,6 +694,8 @@ enum IRQ_NUMBER_t {
 #define DMAMUX_SOURCE_I2S0_TX		15
 #define DMAMUX_SOURCE_SPI0_RX		16
 #define DMAMUX_SOURCE_SPI0_TX		17
+#define DMAMUX_SOURCE_SPI1_RX		18
+#define DMAMUX_SOURCE_SPI1_TX		19
 #define DMAMUX_SOURCE_I2C0		22
 #define DMAMUX_SOURCE_I2C1		23
 #define DMAMUX_SOURCE_FTM0_CH0		24
@@ -721,6 +723,7 @@ enum IRQ_NUMBER_t {
 #define DMAMUX_SOURCE_PORTC		51
 #define DMAMUX_SOURCE_PORTD		52
 #define DMAMUX_SOURCE_PORTE		53
+#if defined(KINETISK)
 #define DMAMUX_SOURCE_ALWAYS0		54
 #define DMAMUX_SOURCE_ALWAYS1		55
 #define DMAMUX_SOURCE_ALWAYS2		56
@@ -732,8 +735,20 @@ enum IRQ_NUMBER_t {
 #define DMAMUX_SOURCE_ALWAYS8		62
 #define DMAMUX_SOURCE_ALWAYS9		63
 #define DMAMUX_NUM_SOURCE_ALWAYS	10
+#elif defined(KINETISL)
+#define DMAMUX_SOURCE_FTM0_OV		54
+#define DMAMUX_SOURCE_FTM1_OV		55
+#define DMAMUX_SOURCE_FTM2_OV		56
+#define DMAMUX_SOURCE_TSI		57
+#define DMAMUX_SOURCE_ALWAYS0		60
+#define DMAMUX_SOURCE_ALWAYS1		61
+#define DMAMUX_SOURCE_ALWAYS2		62
+#define DMAMUX_SOURCE_ALWAYS3		63
+#define DMAMUX_NUM_SOURCE_ALWAYS	4
+#endif
 
 // Chapter 21: Direct Memory Access Controller (eDMA)
+#if defined(KINETISK)
 #define DMA_CR			(*(volatile uint32_t *)0x40008000) // Control Register
 #define DMA_CR_CX			((uint32_t)(1<<17))	// Cancel Transfer
 #define DMA_CR_ECX			((uint32_t)(1<<16))	// Error Cancel Transfer
@@ -880,7 +895,6 @@ enum IRQ_NUMBER_t {
 #define DMA_DCHPRI14		(*(volatile uint8_t  *)0x4000810D) // Channel n Priority Register
 #define DMA_DCHPRI13		(*(volatile uint8_t  *)0x4000810E) // Channel n Priority Register
 #define DMA_DCHPRI12		(*(volatile uint8_t  *)0x4000810F) // Channel n Priority Register
-
 
 #define DMA_TCD_ATTR_SMOD(n)		(((n) & 0x1F) << 11)
 #define DMA_TCD_ATTR_SSIZE(n)		(((n) & 0x7) << 8)
@@ -1179,6 +1193,47 @@ enum IRQ_NUMBER_t {
 #define DMA_TCD15_BITER_ELINKYES (*(volatile uint16_t *)0x400091FE) // TCD Beginning Minor Loop Link
 #define DMA_TCD15_BITER_ELINKNO	(*(volatile uint16_t *)0x400091FE) // TCD Beginning Minor Loop Link
 
+#elif defined(KINETISL)
+#define DMA_SAR0		(*(volatile uint16_t *)0x40008100)  // Source Address
+#define DMA_DAR0		(*(volatile uint16_t *)0x40008104)  // Destination Address
+#define DMA_DSR_BCR0		(*(volatile uint16_t *)0x40008108)  // Status / Byte Count
+#define DMA_DCR0		(*(volatile uint16_t *)0x4000810C)  // Control
+#define DMA_SAR1		(*(volatile uint16_t *)0x40008110)  // Source Address
+#define DMA_DAR1		(*(volatile uint16_t *)0x40008114)  // Destination Address
+#define DMA_DSR_BCR1		(*(volatile uint16_t *)0x40008118)  // Status / Byte Count
+#define DMA_DCR1		(*(volatile uint16_t *)0x4000811C)  // Control
+#define DMA_SAR2		(*(volatile uint16_t *)0x40008120)  // Source Address
+#define DMA_DAR2		(*(volatile uint16_t *)0x40008124)  // Destination Address
+#define DMA_DSR_BCR2		(*(volatile uint16_t *)0x40008128)  // Status / Byte Count
+#define DMA_DCR2		(*(volatile uint16_t *)0x4000812C)  // Control
+#define DMA_SAR3		(*(volatile uint16_t *)0x40008130)  // Source Address
+#define DMA_DAR3		(*(volatile uint16_t *)0x40008134)  // Destination Address
+#define DMA_DSR_BCR3		(*(volatile uint16_t *)0x40008138)  // Status / Byte Count
+#define DMA_DCR3		(*(volatile uint16_t *)0x4000813C)  // Control
+#define DMA_DSR_BCR_CE			((uint32_t)0x40000000)	// Configuration Error
+#define DMA_DSR_BCR_BES			((uint32_t)0x20000000)	// Bus Error on Source
+#define DMA_DSR_BCR_BED			((uint32_t)0x10000000)	// Bus Error on Destination
+#define DMA_DSR_BCR_REQ			((uint32_t)0x04000000)	// Request
+#define DMA_DSR_BCR_BSY			((uint32_t)0x02000000)	// Busy
+#define DMA_DSR_BCR_DONE		((uint32_t)0x01000000)	// Transactions Done
+#define DMA_DSR_BCR_BCR(n)		((n) & 0x00FFFFFF)	// Byte Count Remaining
+#define DMA_DCR_EINT			((uint32_t)0x80000000)	// Enable Interrupt on Completion
+#define DMA_DCR_ERQ			((uint32_t)0x40000000)	// Enable Peripheral Request
+#define DMA_DCR_CS			((uint32_t)0x20000000)	// Cycle Steal
+#define DMA_DCR_AA			((uint32_t)0x10000000)	// Auto-align
+#define DMA_DCR_EADREQ			((uint32_t)0x00800000)	// Enable asynchronous DMA requests
+#define DMA_DCR_SINC			((uint32_t)0x00400000)	// Source Increment
+#define DMA_DCR_SSIZE(n)		(((n) & 3) << 20)	// Source Size, 0=32, 1=8, 2=16
+#define DMA_DCR_DINC			((uint32_t)0x00080000)	// Destination Increment
+#define DMA_DCR_DSIZE(n)		(((n) & 3) << 17)	// Dest Size, 0=32, 1=8, 2=16
+#define DMA_DCR_START			((uint32_t)0x00010000)	// Start Transfer
+#define DMA_DCR_SMOD(n)			(((n) & 15) << 12)	// Source Address Modulo
+#define DMA_DCR_DMOD(n)			(((n) & 15) << 8)	// Destination Address Modulo
+#define DMA_DCR_D_REQ			((uint32_t)0x00000080)	// Disable Request
+#define DMA_DCR_LINKCC(n)		(((n) & 3) << 4)	// Link Channel Control
+#define DMA_DCR_LCH1(n)			(((n) & 3) << 2)	// Link Channel 1
+#define DMA_DCR_LCH2(n)			(((n) & 3) << 0)	// Link Channel 2
+#endif
 
 // Chapter 22: External Watchdog Monitor (EWM)
 #define EWM_CTRL		(*(volatile uint8_t  *)0x40061000) // Control Register
@@ -1422,6 +1477,7 @@ enum IRQ_NUMBER_t {
 #define ADC1_CLM1		(*(volatile uint32_t *)0x400BB068) // ADC minus-side general calibration value register
 #define ADC1_CLM0		(*(volatile uint32_t *)0x400BB06C) // ADC minus-side general calibration value register
 
+#if defined(KINETISK)
 #define DAC0_DAT0L		(*(volatile uint8_t  *)0x400CC000) // DAC Data Low Register
 #define DAC0_DATH		(*(volatile uint8_t  *)0x400CC001) // DAC Data High Register
 #define DAC0_DAT1L		(*(volatile uint8_t  *)0x400CC002) // DAC Data Low Register
@@ -1459,6 +1515,30 @@ enum IRQ_NUMBER_t {
 #define DAC_C2_DACBFRP(n)		((((n) & 15) << 4))		// DAC Buffer Read Pointer
 #define DAC_C2_DACBFUP(n)		((((n) & 15) << 0))		// DAC Buffer Upper Limit
 
+#elif defined(KINETISL)
+#define DAC0_DAT0L		(*(volatile uint8_t  *)0x4003F000) // Data Low
+#define DAC0_DAT0H		(*(volatile uint8_t  *)0x4003F001) // Data High
+#define DAC0_DAT1L		(*(volatile uint8_t  *)0x4003F002) // Data Low
+#define DAC0_DAT1H		(*(volatile uint8_t  *)0x4003F003) // Data High
+#define DAC0_SR			(*(volatile uint8_t  *)0x4003F020) // Status
+#define DAC0_C0			(*(volatile uint8_t  *)0x4003F021) // Control Register
+#define DAC0_C1			(*(volatile uint8_t  *)0x4003F022) // Control Register 1
+#define DAC0_C2			(*(volatile uint8_t  *)0x4003F023) // Control Register 2
+#define DAC_SR_DACBFRPTF		((uint8_t)0x02)		// Read Pointer Top Position Flag
+#define DAC_SR_DACBFRPBF		((uint8_t)0x01)		// Read Pointer Bottom Position Flag
+#define DAC_C0_DACEN			((uint8_t)0x80)		// Enable
+#define DAC_C0_DACRFS			((uint8_t)0x40)		// Reference, 0=AREF pin, 1=VCC
+#define DAC_C0_DACTRGSEL		((uint8_t)0x20)		// Trigger Select
+#define DAC_C0_DACSWTRG			((uint8_t)0x10)		// Software Trigger
+#define DAC_C0_LPEN			((uint8_t)0x08)		// Low Power Control
+#define DAC_C0_DACBTIEN			((uint8_t)0x02)		// Top Flag Interrupt Enable
+#define DAC_C0_DACBBIEN			((uint8_t)0x01)		// Bottom Flag Interrupt Enable
+#define DAC_C1_DMAEN			((uint8_t)0x80)		// DMA Enable
+#define DAC_C1_DACBFMD			((uint8_t)0x04)		// Work Mode Select
+#define DAC_C1_DACBFEN			((uint8_t)0x01)		// Buffer Enable
+#define DAC_C2_DACBFRP			((uint8_t)0x10)		// Buffer Read Pointer
+#define DAC_C2_DACBFUP			((uint8_t)0x01)		// Buffer Upper Limit
+#endif
 
 //#define MCG_C2_RANGE0(n)		(uint8_t)(((n) & 0x03) << 4)	// Frequency Range Select, Selects the frequency range for the crystal oscillator
 //#define MCG_C2_LOCRE0			(uint8_t)0x80			// Loss of Clock Reset Enable, Determines whether an interrupt or a reset request is made following a loss of OSC0
