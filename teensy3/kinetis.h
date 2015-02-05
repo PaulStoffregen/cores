@@ -2199,6 +2199,22 @@ typedef struct __attribute__((packed)) {
 #define SPI0_RXFR3		(*(volatile uint32_t *)0x4002C088) // DSPI Receive FIFO Registers
 
 #elif defined(KINETISL)
+typedef struct __attribute__((packed)) {
+	volatile uint8_t	S;
+	volatile uint8_t	BR;
+	volatile uint8_t	C2;
+	volatile uint8_t	C1;
+	volatile uint8_t	ML;
+	volatile uint8_t	MH;
+	volatile uint8_t	DL;
+	volatile uint8_t	DH;
+	volatile uint8_t	unused1;
+	volatile uint8_t	unused2;
+	volatile uint8_t	CI;
+	volatile uint8_t	C3;
+} KINETISL_SPI_t;
+#define SPI0			(*(KINETISL_SPI_t *)0x40076000)
+#define SPI1			(*(KINETISL_SPI_t *)0x40077000)
 #define SPI0_S			(*(volatile uint8_t *)0x40076000) // Status
 #define SPI_S_SPRF			((uint8_t)0x80)			// Read Buffer Full Flag 
 #define SPI_S_SPMF			((uint8_t)0x40)			// Match Flag
