@@ -526,7 +526,11 @@ enum IRQ_NUMBER_t {
 #define SIM_SCGC6_DMAMUX		((uint32_t)0x00000002)		// DMA Mux Clock Gate Control
 #define SIM_SCGC6_FTFL			((uint32_t)0x00000001)		// Flash Memory Clock Gate Control
 #define SIM_SCGC7		(*(volatile uint32_t *)0x40048040) // System Clock Gating Control Register 7
+#if defined(KINETISK)
 #define SIM_SCGC7_DMA			((uint32_t)0x00000002)		// DMA Clock Gate Control
+#elif defined(KINETISL)
+#define SIM_SCGC7_DMA			((uint32_t)0x00000100)		// DMA Clock Gate Control
+#endif
 #define SIM_CLKDIV1		(*(volatile uint32_t *)0x40048044) // System Clock Divider Register 1
 #define SIM_CLKDIV1_OUTDIV1(n)		((uint32_t)(((n) & 0x0F) << 28)) // divide value for the core/system clock
 #define SIM_CLKDIV1_OUTDIV2(n)		((uint32_t)(((n) & 0x0F) << 24)) // divide value for the peripheral clock
