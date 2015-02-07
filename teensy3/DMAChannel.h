@@ -934,9 +934,11 @@ public:
 	}
 
 	// Use another DMA channel as the trigger, causing this
-	// channel to trigger after each transfer is makes, except
+	// channel to trigger after each transfer is makes, including
 	// the its last transfer.  This effectively makes the 2
-	// channels run in parallel until the last transfer
+	// channels run in parallel.  Note, on Teensy 3.0 & 3.1,
+	// this feature triggers on every transfer except the last.
+	// On Teensy-LC, it triggers on every one, including the last.
 	void triggerAtTransfersOf(DMABaseClass &ch) {
 		uint32_t dcr = ch.CFG->DCR;
 		uint32_t linkcc = (dcr >> 4) & 3;
