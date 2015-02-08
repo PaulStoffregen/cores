@@ -36,6 +36,7 @@
 
 // defined by usb_dev.h -> usb_desc.h
 #if defined(CDC_STATUS_INTERFACE) && defined(CDC_DATA_INTERFACE)
+#if F_CPU >= 20000000
 
 uint32_t usb_cdc_line_coding[2];
 volatile uint8_t usb_cdc_line_rtsdtr=0;
@@ -290,9 +291,5 @@ void usb_serial_flush_callback(void)
 
 
 
-
-
-
-
-
+#endif // F_CPU
 #endif // CDC_STATUS_INTERFACE && CDC_DATA_INTERFACE

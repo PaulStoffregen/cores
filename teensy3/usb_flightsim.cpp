@@ -34,6 +34,7 @@
 #include <string.h>    // for memcpy()
 
 #ifdef FLIGHTSIM_INTERFACE // defined by usb_dev.h -> usb_desc.h
+#if F_CPU >= 20000000
 
 FlightSimCommand * FlightSimCommand::first = NULL;
 FlightSimCommand * FlightSimCommand::last = NULL;
@@ -364,4 +365,5 @@ void usb_flightsim_flush_callback(void)
 }
 }
 
+#endif // F_CPU
 #endif // FLIGHTSIM_INTERFACE

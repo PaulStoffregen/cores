@@ -33,7 +33,7 @@
 
 #include "usb_desc.h"
 
-#if defined(CDC_DATA_INTERFACE)
+#if defined(CDC_STATUS_INTERFACE) && defined(CDC_DATA_INTERFACE)
 
 #include <inttypes.h>
 
@@ -147,6 +147,6 @@ extern void serialEvent(void);
 
 #endif // F_CPU
 
-#endif // CDC_DATA_INTERFACE
+#endif // CDC_STATUS_INTERFACE && CDC_DATA_INTERFACE
 
 #endif // USBserial_h_

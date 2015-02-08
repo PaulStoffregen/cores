@@ -35,6 +35,7 @@
 #include <string.h> // for memcpy()
 
 #ifdef MOUSE_INTERFACE // defined by usb_dev.h -> usb_desc.h
+#if F_CPU >= 20000000
 
 // which buttons are currently pressed
 uint8_t usb_mouse_buttons_state=0;
@@ -239,5 +240,5 @@ void usb_mouse_screen_size(uint16_t width, uint16_t height, uint8_t mac)
 }
 
 
-
+#endif // F_CPU
 #endif // MOUSE_INTERFACE

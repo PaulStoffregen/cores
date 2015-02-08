@@ -35,7 +35,7 @@
 #include <string.h> // for memcpy()
 
 #ifdef JOYSTICK_INTERFACE // defined by usb_dev.h -> usb_desc.h
-
+#if F_CPU >= 20000000
 
 uint32_t usb_joystick_data[3];
 
@@ -99,5 +99,5 @@ int usb_joystick_send(void)
 
 
 
-
+#endif // F_CPU
 #endif // JOYSTICK_INTERFACE

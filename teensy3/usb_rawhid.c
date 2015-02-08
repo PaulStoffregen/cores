@@ -35,6 +35,7 @@
 //#include "HardwareSerial.h"
 
 #ifdef RAWHID_INTERFACE // defined by usb_dev.h -> usb_desc.h
+#if F_CPU >= 20000000
 
 int usb_rawhid_recv(void *buffer, uint32_t timeout)
 {
@@ -85,4 +86,5 @@ int usb_rawhid_send(const void *buffer, uint32_t timeout)
 	return RAWHID_TX_SIZE;
 }
 
+#endif // F_CPU
 #endif // RAWHID_INTERFACE

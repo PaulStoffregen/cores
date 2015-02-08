@@ -34,7 +34,7 @@
 #include "HardwareSerial.h"
 
 #ifdef MIDI_INTERFACE // defined by usb_dev.h -> usb_desc.h
-
+#if F_CPU >= 20000000
 
 uint8_t usb_midi_msg_channel;
 uint8_t usb_midi_msg_type;
@@ -279,4 +279,5 @@ int usb_midi_read(uint32_t channel)
 }
 
 
+#endif // F_CPU
 #endif // MIDI_INTERFACE

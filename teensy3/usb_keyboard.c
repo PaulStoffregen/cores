@@ -36,7 +36,7 @@
 #include <string.h> // for memcpy()
 
 #ifdef KEYBOARD_INTERFACE // defined by usb_dev.h -> usb_desc.h
-
+#if F_CPU >= 20000000
 
 // which modifier keys are currently pressed
 // 1=left ctrl,	   2=left shift,   4=left alt,	  8=left gui
@@ -508,4 +508,5 @@ int usb_keyboard_send(void)
 }
 
 
+#endif // F_CPU
 #endif // KEYBOARD_INTERFACE
