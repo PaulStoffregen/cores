@@ -301,6 +301,86 @@ static uint8_t flightsim_report_desc[] = {
 #endif
 
 
+// **************************************************************
+//   USB Descriptor Sizes
+// **************************************************************
+
+// pre-compute the size and position of everything in the config descriptor
+//
+#define CONFIG_HEADER_DESCRIPTOR_SIZE	9
+
+#define CDC_IAD_DESCRIPTOR_POS		CONFIG_HEADER_DESCRIPTOR_SIZE
+#ifdef  CDC_IAD_DESCRIPTOR
+#define CDC_IAD_DESCRIPTOR_SIZE		8
+#else
+#define CDC_IAD_DESCRIPTOR_SIZE		0
+#endif
+
+#define CDC_DATA_INTERFACE_DESC_POS	CDC_IAD_DESCRIPTOR_POS+CDC_IAD_DESCRIPTOR_SIZE
+#ifdef  CDC_DATA_INTERFACE
+#define CDC_DATA_INTERFACE_DESC_SIZE	9+5+5+4+5+7+9+7+7
+#else
+#define CDC_DATA_INTERFACE_DESC_SIZE	0
+#endif
+
+#define MIDI_INTERFACE_DESC_POS		CDC_DATA_INTERFACE_DESC_POS+CDC_DATA_INTERFACE_DESC_SIZE
+#ifdef  MIDI_INTERFACE
+#define MIDI_INTERFACE_DESC_SIZE	9+7+6+6+9+9+9+5+9+5
+#else
+#define MIDI_INTERFACE_DESC_SIZE	0
+#endif
+
+#define KEYBOARD_INTERFACE_DESC_POS	MIDI_INTERFACE_DESC_POS+MIDI_INTERFACE_DESC_SIZE
+#ifdef  KEYBOARD_INTERFACE
+#define KEYBOARD_INTERFACE_DESC_SIZE	9+9+7
+#define KEYBOARD_HID_DESC_OFFSET	KEYBOARD_INTERFACE_DESC_POS+9
+#else
+#define KEYBOARD_INTERFACE_DESC_SIZE	0
+#endif
+
+#define MOUSE_INTERFACE_DESC_POS	KEYBOARD_INTERFACE_DESC_POS+KEYBOARD_INTERFACE_DESC_SIZE
+#ifdef  MOUSE_INTERFACE
+#define MOUSE_INTERFACE_DESC_SIZE	9+9+7
+#define MOUSE_HID_DESC_OFFSET		MOUSE_INTERFACE_DESC_POS+9
+#else
+#define MOUSE_INTERFACE_DESC_SIZE	0
+#endif
+
+#define RAWHID_INTERFACE_DESC_POS	MOUSE_INTERFACE_DESC_POS+MOUSE_INTERFACE_DESC_SIZE
+#ifdef  RAWHID_INTERFACE
+#define RAWHID_INTERFACE_DESC_SIZE	9+9+7+7
+#define RAWHID_HID_DESC_OFFSET		RAWHID_INTERFACE_DESC_POS+9
+#else
+#define RAWHID_INTERFACE_DESC_SIZE	0
+#endif
+
+#define FLIGHTSIM_INTERFACE_DESC_POS	RAWHID_INTERFACE_DESC_POS+RAWHID_INTERFACE_DESC_SIZE
+#ifdef  FLIGHTSIM_INTERFACE
+#define FLIGHTSIM_INTERFACE_DESC_SIZE	9+9+7+7
+#define FLIGHTSIM_HID_DESC_OFFSET	FLIGHTSIM_INTERFACE_DESC_POS+9
+#else
+#define FLIGHTSIM_INTERFACE_DESC_SIZE	0
+#endif
+
+#define SEREMU_INTERFACE_DESC_POS	FLIGHTSIM_INTERFACE_DESC_POS+FLIGHTSIM_INTERFACE_DESC_SIZE
+#ifdef  SEREMU_INTERFACE
+#define SEREMU_INTERFACE_DESC_SIZE	9+9+7+7
+#define SEREMU_HID_DESC_OFFSET		SEREMU_INTERFACE_DESC_POS+9
+#else
+#define SEREMU_INTERFACE_DESC_SIZE	0
+#endif
+
+#define JOYSTICK_INTERFACE_DESC_POS	SEREMU_INTERFACE_DESC_POS+SEREMU_INTERFACE_DESC_SIZE
+#ifdef  JOYSTICK_INTERFACE
+#define JOYSTICK_INTERFACE_DESC_SIZE	9+9+7
+#define JOYSTICK_HID_DESC_OFFSET	JOYSTICK_INTERFACE_DESC_POS+9
+#else
+#define JOYSTICK_INTERFACE_DESC_SIZE	0
+#endif
+
+#define CONFIG_DESC_SIZE		JOYSTICK_INTERFACE_DESC_POS+JOYSTICK_INTERFACE_DESC_SIZE
+
+
 
 // **************************************************************
 //   USB Configuration
@@ -761,35 +841,32 @@ const usb_descriptor_list_t usb_descriptor_list[] = {
 	{0x0200, 0x0000, config_descriptor, sizeof(config_descriptor)},
 #ifdef SEREMU_INTERFACE
 	{0x2200, SEREMU_INTERFACE, seremu_report_desc, sizeof(seremu_report_desc)},
-	{0x2100, SEREMU_INTERFACE, config_descriptor+SEREMU_DESC_OFFSET, 9},
+	{0x2100, SEREMU_INTERFACE, config_descriptor+SEREMU_HID_DESC_OFFSET, 9},
 #endif
 #ifdef KEYBOARD_INTERFACE
         {0x2200, KEYBOARD_INTERFACE, keyboard_report_desc, sizeof(keyboard_report_desc)},
-        {0x2100, KEYBOARD_INTERFACE, config_descriptor+KEYBOARD_DESC_OFFSET, 9},
+        {0x2100, KEYBOARD_INTERFACE, config_descriptor+KEYBOARD_HID_DESC_OFFSET, 9},
 #endif
 #ifdef MOUSE_INTERFACE
         {0x2200, MOUSE_INTERFACE, mouse_report_desc, sizeof(mouse_report_desc)},
-        {0x2100, MOUSE_INTERFACE, config_descriptor+MOUSE_DESC_OFFSET, 9},
+        {0x2100, MOUSE_INTERFACE, config_descriptor+MOUSE_HID_DESC_OFFSET, 9},
 #endif
 #ifdef JOYSTICK_INTERFACE
         {0x2200, JOYSTICK_INTERFACE, joystick_report_desc, sizeof(joystick_report_desc)},
-        {0x2100, JOYSTICK_INTERFACE, config_descriptor+JOYSTICK_DESC_OFFSET, 9},
+        {0x2100, JOYSTICK_INTERFACE, config_descriptor+JOYSTICK_HID_DESC_OFFSET, 9},
 #endif
 #ifdef RAWHID_INTERFACE
 	{0x2200, RAWHID_INTERFACE, rawhid_report_desc, sizeof(rawhid_report_desc)},
-	{0x2100, RAWHID_INTERFACE, config_descriptor+RAWHID_DESC_OFFSET, 9},
+	{0x2100, RAWHID_INTERFACE, config_descriptor+RAWHID_HID_DESC_OFFSET, 9},
 #endif
 #ifdef FLIGHTSIM_INTERFACE
 	{0x2200, FLIGHTSIM_INTERFACE, flightsim_report_desc, sizeof(flightsim_report_desc)},
-	{0x2100, FLIGHTSIM_INTERFACE, config_descriptor+FLIGHTSIM_DESC_OFFSET, 9},
+	{0x2100, FLIGHTSIM_INTERFACE, config_descriptor+FLIGHTSIM_HID_DESC_OFFSET, 9},
 #endif
         {0x0300, 0x0000, (const uint8_t *)&string0, 0},
         {0x0301, 0x0409, (const uint8_t *)&usb_string_manufacturer_name, 0},
         {0x0302, 0x0409, (const uint8_t *)&usb_string_product_name, 0},
         {0x0303, 0x0409, (const uint8_t *)&usb_string_serial_number, 0},
-        //{0x0301, 0x0409, (const uint8_t *)&string1, 0},
-        //{0x0302, 0x0409, (const uint8_t *)&string2, 0},
-        //{0x0303, 0x0409, (const uint8_t *)&string3, 0},
 	{0, 0, NULL, 0}
 };
 

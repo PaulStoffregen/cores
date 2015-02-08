@@ -29,42 +29,41 @@
  */
 
 #include "WProgram.h"
+#include "usb_desc.h"
 
 #if F_CPU >= 20000000
 
-#ifdef USB_SERIAL
+#ifdef CDC_DATA_INTERFACE
 usb_serial_class Serial;
 #endif
 
-#ifdef USB_HID
-usb_keyboard_class Keyboard;
-usb_mouse_class Mouse;
-usb_joystick_class Joystick;
-uint8_t usb_joystick_class::manual_mode = 0;
-usb_seremu_class Serial;
-#endif
-
-#ifdef USB_SERIAL_HID
-usb_serial_class Serial;
-usb_keyboard_class Keyboard;
-usb_mouse_class Mouse;
-usb_joystick_class Joystick;
-uint8_t usb_joystick_class::manual_mode = 0;
-#endif
-
-#ifdef USB_MIDI
+#ifdef MIDI_INTERFACE
 usb_midi_class usbMIDI;
-usb_seremu_class Serial;
 #endif
 
-#ifdef USB_RAWHID
+#ifdef KEYBOARD_INTERFACE
+usb_keyboard_class Keyboard;
+#endif
+
+#ifdef MOUSE_INTERFACE
+usb_mouse_class Mouse;
+#endif
+
+#ifdef RAWHID_INTERFACE
 usb_rawhid_class RawHID;
+#endif
+
+#ifdef FLIGHTSIM_INTERFACE
+FlightSimClass FlightSim;
+#endif
+
+#ifdef SEREMU_INTERFACE
 usb_seremu_class Serial;
 #endif
 
-#ifdef USB_FLIGHTSIM
-FlightSimClass FlightSim;
-usb_seremu_class Serial;
+#ifdef JOYSTICK_INTERFACE
+usb_joystick_class Joystick;
+uint8_t usb_joystick_class::manual_mode = 0;
 #endif
 
 
