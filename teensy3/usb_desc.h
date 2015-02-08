@@ -90,11 +90,6 @@ If you are using existing interfaces (making your own device with
 a different set of interfaces) the code in all other files should
 automatically adapt to the new endpoints you specify here.
 
-However, the .h files for each interface, which define the API
-visible to user programs, may need to be edited.  At the top of
-each .h file is #if defined(USB_XYZ).  These may need to be edited
-to make the interface API appear to your program.
-
 If you need to create a new type of interface, you'll need to write
 the code which sends and receives packets, and presents an API to
 the user.  Usually, a pair of files are added for the actual code,
@@ -313,7 +308,8 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #endif
 
-#ifdef NUM_ENDPOINTS
+#ifdef USB_DESC_LIST_DEFINE
+#if defined(NUM_ENDPOINTS) && NUM_ENDPOINTS > 0
 // NUM_ENDPOINTS = number of non-zero endpoints (0 to 15)
 extern const uint8_t usb_endpoint_config_table[NUM_ENDPOINTS];
 
@@ -326,6 +322,7 @@ typedef struct {
 
 extern const usb_descriptor_list_t usb_descriptor_list[];
 #endif // NUM_ENDPOINTS
+#endif // USB_DESC_LIST_DEFINE
 
 #endif // F_CPU >= 20 MHz
 

@@ -31,7 +31,9 @@
 #ifndef USBmidi_h_
 #define USBmidi_h_
 
-#if defined(USB_MIDI)
+#include "usb_desc.h"
+
+#if defined(MIDI_INTERFACE)
 
 #include <inttypes.h>
 
@@ -179,6 +181,7 @@ extern usb_midi_class usbMIDI;
 
 #endif // __cplusplus
 
-#endif // USB_MIDI
+#endif // MIDI_INTERFACE
+
 #endif // USBmidi_h_
 

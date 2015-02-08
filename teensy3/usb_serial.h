@@ -31,9 +31,13 @@
 #ifndef USBserial_h_
 #define USBserial_h_
 
+#include "usb_desc.h"
+
+#if defined(CDC_DATA_INTERFACE)
+
 #include <inttypes.h>
 
-#if (F_CPU >= 20000000) && (defined(USB_SERIAL) || defined(USB_SERIAL_HID))
+#if F_CPU >= 20000000
 
 // C language implementation
 #ifdef __cplusplus
@@ -104,7 +108,7 @@ extern void serialEvent(void);
 #endif // __cplusplus
 
 
-#elif  (F_CPU < 20000000) && (defined(USB_SERIAL) || defined(USB_SERIAL_HID))
+#else  // F_CPU < 20000000
 
 // Allow Arduino programs using Serial to compile, but Serial will do nothing.
 #ifdef __cplusplus
@@ -140,6 +144,9 @@ extern usb_serial_class Serial;
 extern void serialEvent(void);
 #endif // __cplusplus
 
-#endif // F_CPU && USB_SERIAL || USB_SERIAL_HID
+
+#endif // F_CPU
+
+#endif // CDC_DATA_INTERFACE
 
 #endif // USBserial_h_

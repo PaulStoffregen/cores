@@ -31,8 +31,10 @@
 #ifndef _usb_dev_h_
 #define _usb_dev_h_
 
+#define USB_DESC_LIST_DEFINE
 #include "usb_desc.h"
-#if F_CPU >= 20000000 && defined(NUM_ENDPOINTS)
+
+#if F_CPU >= 20000000
 
 // This header is NOT meant to be included when compiling
 // user sketches in Arduino.  The low-level functions
@@ -102,7 +104,7 @@ extern void usb_flightsim_flush_callback(void);
 }
 #endif
 
-#else // F_CPU >= 20000000 && defined(NUM_ENDPOINTS)
+#else // F_CPU < 20000000
 
 #ifdef __cplusplus
 extern "C" {
@@ -115,6 +117,6 @@ void usb_init(void);
 #endif
 
 
-#endif // F_CPU >= 20000000 && defined(NUM_ENDPOINTS)
+#endif // F_CPU
 
 #endif

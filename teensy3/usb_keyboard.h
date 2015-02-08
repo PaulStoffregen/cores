@@ -31,9 +31,11 @@
 #ifndef USBkeyboard_h_
 #define USBkeyboard_h_
 
+#include "usb_desc.h"
+
 #include "keylayouts.h"
 
-#if defined(USB_HID) || defined(USB_SERIAL_HID)
+#if defined(KEYBOARD_INTERFACE)
 
 #include <inttypes.h>
 
@@ -94,5 +96,6 @@ extern usb_keyboard_class Keyboard;
 
 #endif // __cplusplus
 
-#endif // USB_HID || USB_SERIAL_HID
+#endif // KEYBOARD_INTERFACE
+
 #endif // USBkeyboard_h_

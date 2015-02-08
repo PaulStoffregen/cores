@@ -31,7 +31,9 @@
 #ifndef USBrawhid_h_
 #define USBrawhid_h_
 
-#if defined(USB_RAWHID)
+#include "usb_desc.h"
+
+#if defined(RAWHID_INTERFACE)
 
 #include <inttypes.h>
 
@@ -61,5 +63,6 @@ extern usb_rawhid_class RawHID;
 
 #endif // __cplusplus
 
-#endif // USB_HID
+#endif // RAWHID_INTERFACE
+
 #endif // USBrawhid_h_

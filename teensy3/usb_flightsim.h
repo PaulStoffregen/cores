@@ -31,10 +31,18 @@
 #ifndef USBflightsim_h_
 #define USBflightsim_h_
 
-#if defined(USB_FLIGHTSIM) && defined(__cplusplus)
+#include "usb_desc.h"
+
+#if defined(FLIGHTSIM_INTERFACE)
+
+#ifdef __cplusplus
 
 #include <inttypes.h>
 #include "elapsedMillis.h"
+
+// workaround for elapsedMillis.h bringing in WProgram.h which brings usb_undef.h
+#undef USB_DESC_LIST_DEFINE
+#include "usb_desc.h"
 
 class FlightSimClass;
 class FlightSimCommand;
@@ -180,6 +188,8 @@ public:
 
 extern FlightSimClass FlightSim;
 
+#endif // __cplusplus
 
-#endif
-#endif
+#endif // FLIGHTSIM_INTERFACE
+
+#endif // USBflightsim_h_

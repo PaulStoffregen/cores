@@ -31,7 +31,9 @@
 #ifndef USBmouse_h_
 #define USBmouse_h_
 
-#if defined(USB_HID) || defined(USB_SERIAL_HID)
+#include "usb_desc.h"
+
+#if defined(MOUSE_INTERFACE)
 
 #include <inttypes.h>
 
@@ -98,5 +100,6 @@ extern usb_mouse_class Mouse;
 
 #endif // __cplusplus
 
-#endif // USB_HID || USB_SERIAL_HID
+#endif // MOUSE_INTERFACE
+
 #endif // USBmouse_h_

@@ -30,6 +30,7 @@
 
 #if F_CPU >= 20000000
 
+#define USB_DESC_LIST_DEFINE
 #include "usb_desc.h"
 #ifdef NUM_ENDPOINTS
 #include "usb_names.h"

@@ -31,7 +31,9 @@
 #ifndef USBseremu_h_
 #define USBseremu_h_
 
-#if defined(USB_HID) || defined(USB_MIDI) || defined(USB_RAWHID) || defined(USB_FLIGHTSIM)
+#include "usb_desc.h"
+
+#if defined(SEREMU_INTERFACE)
 
 #include <inttypes.h>
 
@@ -127,9 +129,8 @@ extern usb_seremu_class Serial;
 extern void serialEvent(void);
 #endif // __cplusplus
 
+#endif // F_CPU
 
-#endif // F_CPU >= 20 MHz
-
-#endif // USB_HID
+#endif // SEREMU_INTERFACE
 
 #endif // USBseremu_h_
