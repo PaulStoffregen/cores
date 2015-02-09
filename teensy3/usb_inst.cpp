@@ -34,7 +34,9 @@
 #if F_CPU >= 20000000
 
 #ifdef CDC_DATA_INTERFACE
+#ifdef CDC_STATUS_INTERFACE
 usb_serial_class Serial;
+#endif
 #endif
 
 #ifdef MIDI_INTERFACE
@@ -64,6 +66,10 @@ usb_seremu_class Serial;
 #ifdef JOYSTICK_INTERFACE
 usb_joystick_class Joystick;
 uint8_t usb_joystick_class::manual_mode = 0;
+#endif
+
+#ifdef USB_DISABLED
+usb_serial_class Serial;
 #endif
 
 

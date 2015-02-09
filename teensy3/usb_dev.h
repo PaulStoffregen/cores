@@ -34,7 +34,7 @@
 #define USB_DESC_LIST_DEFINE
 #include "usb_desc.h"
 
-#if F_CPU >= 20000000
+#if F_CPU >= 20000000 && !defined(USB_DISABLED)
 
 // This header is NOT meant to be included when compiling
 // user sketches in Arduino.  The low-level functions
