@@ -553,8 +553,13 @@ void ResetHandler(void)
 	//  C6[PLLS] bit is written to 0
 	//  C2[LP] bit is written to 1
 #else
-	// enable capacitors for crystal
-	OSC0_CR = OSC_SC8P | OSC_SC2P | OSC_ERCLKEN;
+    #if defined(KINETISK)
+    // enable capacitors for crystal
+    OSC0_CR = OSC_SC8P | OSC_SC2P;
+    #elif defined(KINETISL)
+    // enable capacitors for crystal
+    OSC0_CR = OSC_SC8P | OSC_SC2P | OSC_ERCLKEN;
+    #endif
 	// enable osc, 8-32 MHz range, low power mode
 	MCG_C2 = MCG_C2_RANGE0(2) | MCG_C2_EREFS;
 	// switch to crystal as clock source, FLL input = 16 MHz / 512
