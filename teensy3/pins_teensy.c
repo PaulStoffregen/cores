@@ -391,7 +391,13 @@ extern void usb_init(void);
 #if defined(KINETISK)
 #define F_TIMER F_BUS
 #elif defined(KINETISL)
+
+#if F_CPU > 16000000
 #define F_TIMER (F_PLL/2)
+#else 
+#define F_TIMER (F_PLL)
+#endif//Low Power
+
 #endif
 
 #if F_TIMER == 60000000

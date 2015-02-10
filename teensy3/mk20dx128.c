@@ -530,8 +530,12 @@ void ResetHandler(void)
 // MCG_SC[FCDIV] defaults to divide by two for internal ref clock
 // I tried changing MSG_SC to divide by 1, it didn't work for me
 #if F_CPU <= 2000000
+    #if defined(KINETISK)
+    MCG_C1 = MCG_C1_CLKS(1) | MCG_C1_IREFS;
+    #elif defined(KINETISL)
 	// use the internal oscillator
-	MCG_C1 = MCG_C1_CLKS(1) | MCG_C1_IREFS;
+	MCG_C1 = MCG_C1_CLKS(1) | MCG_C1_IREFS | MCG_C1_IRCLKEN;
+    #endif
 	// wait for MCGOUT to use oscillator
 	while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(1)) ;
 	for (n=0; n<10; n++) ; // TODO: why do we get 2 mA extra without this delay?
@@ -550,7 +554,7 @@ void ResetHandler(void)
 	//  C2[LP] bit is written to 1
 #else
 	// enable capacitors for crystal
-	OSC0_CR = OSC_SC8P | OSC_SC2P;
+	OSC0_CR = OSC_SC8P | OSC_SC2P | 0x80;
 	// enable osc, 8-32 MHz range, low power mode
 	MCG_C2 = MCG_C2_RANGE0(2) | MCG_C2_EREFS;
 	// switch to crystal as clock source, FLL input = 16 MHz / 512
@@ -639,23 +643,39 @@ void ResetHandler(void)
 	#endif
 #elif F_CPU == 16000000
 	// config divisors: 16 MHz core, 16 MHz bus, 16 MHz flash
-	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(0) |	 SIM_CLKDIV1_OUTDIV4(0);
+#if defined(KINETISK)
+    SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(0) |	 SIM_CLKDIV1_OUTDIV4(0);
+#elif defined(KINETISL)
+    SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV4(0);
+#endif
 #elif F_CPU == 8000000
 	// config divisors: 8 MHz core, 8 MHz bus, 8 MHz flash
-	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(1) | SIM_CLKDIV1_OUTDIV2(1) |	 SIM_CLKDIV1_OUTDIV4(1);
+#if defined(KINETISK)
+    SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(1) | SIM_CLKDIV1_OUTDIV2(1) |	 SIM_CLKDIV1_OUTDIV4(1);
+#elif defined(KINETISL)
+    SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(1) | SIM_CLKDIV1_OUTDIV4(1);
+#endif
 #elif F_CPU == 4000000
     // config divisors: 4 MHz core, 4 MHz bus, 2 MHz flash
     // since we are running from external clock 16MHz
     // fix outdiv too -> cpu 16/4, bus 16/4, flash 16/4
     // here we can go into vlpr?
 	// config divisors: 4 MHz core, 4 MHz bus, 4 MHz flash
-	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(3) | SIM_CLKDIV1_OUTDIV2(3) |	 SIM_CLKDIV1_OUTDIV4(3);
+#if defined(KINETISK)
+    SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(3) | SIM_CLKDIV1_OUTDIV2(3) |	 SIM_CLKDIV1_OUTDIV4(3);
+#elif defined(KINETISL)
+    SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(3) | SIM_CLKDIV1_OUTDIV4(3);
+#endif
 #elif F_CPU == 2000000
     // since we are running from the fast internal reference clock 4MHz
     // but is divided down by 2 so we actually have a 2MHz, MCG_SC[FCDIV] default is 2
     // fix outdiv -> cpu 2/1, bus 2/1, flash 2/2
 	// config divisors: 2 MHz core, 2 MHz bus, 1 MHz flash
-	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(0) |	 SIM_CLKDIV1_OUTDIV4(1);
+#if defined(KINETISK)
+    SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(0) |	 SIM_CLKDIV1_OUTDIV4(1);
+#elif defined(KINETISL)
+    SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV4(1);
+#endif
 #else
 #error "Error, F_CPU must be 168, 144, 120, 96, 72, 48, 24, 16, 8, 4, or 2 MHz"
 #endif
@@ -675,7 +695,13 @@ void ResetHandler(void)
 		| SIM_SOPT2_UART0SRC(1) | SIM_SOPT2_TPMSRC(1);
 	#endif
 #else
-	SIM_SOPT2 = SIM_SOPT2_TRACECLKSEL | SIM_SOPT2_CLKOUTSEL(3);
+    
+#if F_CPU == 2000000
+	SIM_SOPT2 = SIM_SOPT2_TRACECLKSEL | SIM_SOPT2_CLKOUTSEL(4) | SIM_SOPT2_UART0SRC(3);
+#else
+    SIM_SOPT2 = SIM_SOPT2_TRACECLKSEL | SIM_SOPT2_CLKOUTSEL(6) | SIM_SOPT2_UART0SRC(2);
+#endif
+    
 #endif
 
 #if F_CPU <= 2000000
