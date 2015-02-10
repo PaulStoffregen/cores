@@ -777,9 +777,9 @@ public:
 		if (len == 4) {
 			CFG->DCR = dcr | DMA_DCR_DSIZE(0) | DMA_DCR_DSIZE(0);
 		} else if (len == 2) {
-			CFG->DCR = dcr | DMA_DCR_DSIZE(0) | DMA_DCR_DSIZE(0);
+			CFG->DCR = dcr | DMA_DCR_DSIZE(2) | DMA_DCR_DSIZE(2);
 		} else {
-			CFG->DCR = dcr | DMA_DCR_DSIZE(0) | DMA_DCR_DSIZE(0);
+			CFG->DCR = dcr | DMA_DCR_DSIZE(1) | DMA_DCR_DSIZE(1);
 		}
 	}
 
@@ -927,10 +927,10 @@ public:
 	// Use a hardware trigger to make the DMA channel run
 	void triggerAtHardwareEvent(uint8_t source) {
 		volatile uint8_t *mux;
+		CFG->DCR |= DMA_DCR_CS;
 		mux = (volatile uint8_t *)&(DMAMUX0_CHCFG0) + channel;
 		*mux = 0;
 		*mux = (source & 63) | DMAMUX_ENABLE;
-		CFG->DCR |= (DMA_DCR_ERQ | DMA_DCR_CS);
 	}
 
 	// Use another DMA channel as the trigger, causing this
@@ -1013,8 +1013,10 @@ public:
 	/***************************************/
 
 	void enable(void) {
+		CFG->DCR |= DMA_DCR_ERQ;
 	}
 	void disable(void) {
+		CFG->DCR &= ~DMA_DCR_ERQ;
 	}
 
 	/***************************************/
