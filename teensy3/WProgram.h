@@ -58,4 +58,17 @@ long map(long, long, long, long, long);
 
 #endif // __cplusplus
 
+
+// Fast memcpy
+#if defined(__MK20DX128__) || defined(__MK20DX256__)
+#ifdef __cplusplus
+extern "C" {
+extern void *memcpy (void *dst, const void *src, size_t count);
+}
+#else
+extern void *memcpy (void *dst, const void *src, size_t count);
+#endif
+#endif
+
+
 #endif // WProgram_h
