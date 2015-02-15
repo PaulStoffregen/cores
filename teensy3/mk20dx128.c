@@ -529,26 +529,7 @@ void ResetHandler(void)
 	//  C6[PLLS] bit is written to 0
 // MCG_SC[FCDIV] defaults to divide by two for internal ref clock
 // I tried changing MSG_SC to divide by 1, it didn't work for me
-#if F_CPU <= 2000000
-	// use the internal oscillator
-	MCG_C1 = MCG_C1_CLKS(1) | MCG_C1_IREFS;
-	// wait for MCGOUT to use oscillator
-	while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(1)) ;
-	for (n=0; n<10; n++) ; // TODO: why do we get 2 mA extra without this delay?
-	MCG_C2 = MCG_C2_IRCS;
-	while (!(MCG_S & MCG_S_IRCST)) ;
-	// now in FBI mode:
-	//  C1[CLKS] bits are written to 01
-	//  C1[IREFS] bit is written to 1
-	//  C6[PLLS] is written to 0
-	//  C2[LP] is written to 0
-	MCG_C2 = MCG_C2_IRCS | MCG_C2_LP;
-	// now in BLPI mode:
-	//  C1[CLKS] bits are written to 01
-	//  C1[IREFS] bit is written to 1
-	//  C6[PLLS] bit is written to 0
-	//  C2[LP] bit is written to 1
-#else
+#if F_CPU > 2000000
 	// enable capacitors for crystal
 	OSC0_CR = OSC_SC8P | OSC_SC2P;
 	// enable osc, 8-32 MHz range, low power mode
@@ -678,11 +659,6 @@ void ResetHandler(void)
 	SIM_SOPT2 = SIM_SOPT2_TRACECLKSEL | SIM_SOPT2_CLKOUTSEL(3);
 #endif
 
-#if F_CPU <= 2000000
-    // since we are not going into "stop mode" i removed it
-	SMC_PMCTRL = SMC_PMCTRL_RUNM(2); // VLPR mode :-)
-#endif
-
 	// initialize the SysTick counter
 	SYST_RVR = (F_CPU / 1000) - 1;
 	SYST_CSR = SYST_CSR_CLKSOURCE | SYST_CSR_TICKINT | SYST_CSR_ENABLE;
@@ -699,7 +675,30 @@ void ResetHandler(void)
 	}
 #endif
 	__libc_init_array();
-
+    
+#if F_CPU <= 2000000
+    // use the internal oscillator
+    MCG_C1 = MCG_C1_CLKS(1) | MCG_C1_IREFS;
+    // wait for MCGOUT to use oscillator
+    while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(1)) ;
+    for (n=0; n<10; n++) ; // TODO: why do we get 2 mA extra without this delay?
+    MCG_C2 = MCG_C2_IRCS;
+    while (!(MCG_S & MCG_S_IRCST)) ;
+    // now in FBI mode:
+    //  C1[CLKS] bits are written to 01
+    //  C1[IREFS] bit is written to 1
+    //  C6[PLLS] is written to 0
+    //  C2[LP] is written to 0
+    MCG_C2 = MCG_C2_IRCS | MCG_C2_LP;
+    // now in BLPI mode:
+    //  C1[CLKS] bits are written to 01
+    //  C1[IREFS] bit is written to 1
+    //  C6[PLLS] bit is written to 0
+    //  C2[LP] bit is written to 1
+    // since we are not going into "stop mode" i removed it
+    SMC_PMCTRL = SMC_PMCTRL_RUNM(2); // VLPR mode :-)
+#endif
+    
 	startup_late_hook();
 	main();
 	while (1) ;
