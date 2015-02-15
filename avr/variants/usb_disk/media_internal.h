@@ -1,9 +1,12 @@
+#ifdef USB_DISK
+
 //#define USB_SERIAL_PRIVATE_INCLUDE
 //#include "usb_mass_storage_debug.h"
 //#include "flash.h"
 
 //#include "pauls_ugly_debug.h"
-
+#include <stdint.h>
+#include "usb_common.h"
 
 inline uint32_t media_size(void);
 void media_init(void);
@@ -332,11 +335,4 @@ static void media_receive_end(void)
 {
 }
 
-
-
-
-
-
-
-
-
+#endif // USB_DISK

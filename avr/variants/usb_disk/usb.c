@@ -414,9 +414,9 @@ void usb_shutdown(void)
  **************************************************************************/
 
 #if defined(USB_DISK_SDFLASH)
-#include "media_sdcard.c"
+#include "media_sdcard.h"
 #elif defined(USB_DISK)
-#include "media_internal.c"
+#include "media_internal.h"
 #else
 #error "No known media type specified\n"
 #endif
