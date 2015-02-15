@@ -37,8 +37,8 @@
 static const uint8_t PROGMEM endpoint_config_table[] = {
 	1, EP_TYPE_INTERRUPT_IN,  EP_SIZE(DEBUG_TX_SIZE) | DEBUG_TX_BUFFER,
 	1, EP_TYPE_INTERRUPT_OUT, EP_SIZE(DEBUG_RX_SIZE) | DEBUG_RX_BUFFER,
-	1, EP_TYPE_INTERRUPT_IN,  EP_SIZE(RAWHID_TX_SIZE) | RAWHID_TX_BUFFER,
-	1, EP_TYPE_INTERRUPT_OUT, EP_SIZE(RAWHID_RX_SIZE) | RAWHID_RX_BUFFER,
+	1, EP_TYPE_INTERRUPT_IN,  EP_SIZE(FLIGHTSIM_TX_SIZE) | FLIGHTSIM_TX_BUFFER,
+	1, EP_TYPE_INTERRUPT_OUT, EP_SIZE(FLIGHTSIM_RX_SIZE) | FLIGHTSIM_RX_BUFFER,
 	0
 };
 
@@ -73,17 +73,17 @@ static const uint8_t PROGMEM device_descriptor[] = {
 };
 
 
-static uint8_t PROGMEM rawhid_hid_report_desc[] = {
-        0x06, LSB(RAWHID_USAGE_PAGE), MSB(RAWHID_USAGE_PAGE),
-        0x0A, LSB(RAWHID_USAGE), MSB(RAWHID_USAGE),
+static const uint8_t PROGMEM rawhid_hid_report_desc[] = {
+        0x06, 0x1C, 0xFF,			// Usage page = 0xFF1C
+        0x0A, 0x39, 0xA7,			// Usage = 0xA739
         0xA1, 0x01,                             // Collection 0x01
         0x75, 0x08,                             // report size = 8 bits
         0x15, 0x00,                             // logical minimum = 0
         0x26, 0xFF, 0x00,                       // logical maximum = 255
-        0x95, RAWHID_TX_SIZE,                   // report count
+        0x95, FLIGHTSIM_TX_SIZE,                   // report count
         0x09, 0x01,                             // usage
         0x81, 0x02,                             // Input (array)
-        0x95, RAWHID_RX_SIZE,                   // report count
+        0x95, FLIGHTSIM_RX_SIZE,                   // report count
         0x09, 0x02,                             // usage
         0x91, 0x02,                             // Output (array)
         0xC0                                    // end collection
@@ -109,7 +109,7 @@ static const uint8_t PROGMEM debug_hid_report_desc[] = {
 };
 
 
-#define RAWHID_HID_DESC_OFFSET		( 9 + 9 )
+#define FLIGHTSIM_HID_DESC_OFFSET	( 9 + 9 )
 #define DEBUG_HID_DESC_OFFSET		( 9 + 9+9+7+7 + 9 )
 #define CONFIG1_DESC_SIZE		( 9 + 9+9+7+7 + 9+9+7+7 )
 
@@ -128,7 +128,7 @@ static const uint8_t PROGMEM config1_descriptor[CONFIG1_DESC_SIZE] = {
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
         4,                                      // bDescriptorType
-        RAWHID_INTERFACE,                       // bInterfaceNumber
+        FLIGHTSIM_INTERFACE,                       // bInterfaceNumber
         0,                                      // bAlternateSetting
         2,                                      // bNumEndpoints
         0x03,                                   // bInterfaceClass (0x03 = HID)
@@ -147,17 +147,17 @@ static const uint8_t PROGMEM config1_descriptor[CONFIG1_DESC_SIZE] = {
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         7,                                      // bLength
         5,                                      // bDescriptorType
-        RAWHID_TX_ENDPOINT | 0x80,              // bEndpointAddress
+        FLIGHTSIM_TX_ENDPOINT | 0x80,           // bEndpointAddress
         0x03,                                   // bmAttributes (0x03=intr)
-        RAWHID_TX_SIZE, 0,                      // wMaxPacketSize
-        RAWHID_TX_INTERVAL,                     // bInterval
+        FLIGHTSIM_TX_SIZE, 0,                   // wMaxPacketSize
+        FLIGHTSIM_TX_INTERVAL,                  // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         7,                                      // bLength
         5,                                      // bDescriptorType
-        RAWHID_RX_ENDPOINT,                     // bEndpointAddress
+        FLIGHTSIM_RX_ENDPOINT,                  // bEndpointAddress
         0x03,                                   // bmAttributes (0x03=intr)
-        RAWHID_RX_SIZE, 0,                      // wMaxPacketSize
-        RAWHID_RX_INTERVAL,                     // bInterval
+        FLIGHTSIM_RX_SIZE, 0,			// wMaxPacketSize
+        FLIGHTSIM_RX_INTERVAL,                  // bInterval
 
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
@@ -213,16 +213,6 @@ static const struct usb_string_descriptor_struct PROGMEM string1 = {
 	3,
 	STR_PRODUCT
 };
-static const struct usb_string_descriptor_struct PROGMEM string2 = {
-	sizeof(STR_RAWHID),
-	3,
-	STR_RAWHID
-};
-static const struct usb_string_descriptor_struct PROGMEM string3 = {
-	sizeof(STR_DEBUG),
-	3,
-	STR_DEBUG
-};
 
 // This table defines which descriptor data is sent for each specific
 // request from the host (in wValue and wIndex).
@@ -234,14 +224,12 @@ static const struct descriptor_list_struct {
 } PROGMEM descriptor_list[] = {
 	{0x0100, 0x0000, device_descriptor, sizeof(device_descriptor)},
 	{0x0200, 0x0000, config1_descriptor, sizeof(config1_descriptor)},
-        {0x2200, RAWHID_INTERFACE, rawhid_hid_report_desc, sizeof(rawhid_hid_report_desc)},
-        {0x2100, RAWHID_INTERFACE, config1_descriptor+RAWHID_HID_DESC_OFFSET, 9},
+        {0x2200, FLIGHTSIM_INTERFACE, rawhid_hid_report_desc, sizeof(rawhid_hid_report_desc)},
+        {0x2100, FLIGHTSIM_INTERFACE, config1_descriptor+FLIGHTSIM_HID_DESC_OFFSET, 9},
         {0x2200, DEBUG_INTERFACE, debug_hid_report_desc, sizeof(debug_hid_report_desc)},
         {0x2100, DEBUG_INTERFACE, config1_descriptor+DEBUG_HID_DESC_OFFSET, 9},
 	{0x0300, 0x0000, (const uint8_t *)&string0, 4},
 	{0x0301, 0x0409, (const uint8_t *)&string1, sizeof(STR_PRODUCT)},
-	{0x0302, 0x0409, (const uint8_t *)&string2, sizeof(STR_RAWHID)},
-	{0x0303, 0x0409, (const uint8_t *)&string3, sizeof(STR_DEBUG)},
 };
 #define NUM_DESC_LIST (sizeof(descriptor_list)/sizeof(struct descriptor_list_struct))
 
@@ -318,16 +306,16 @@ void usb_shutdown(void)
  **************************************************************************/
 
 
-
 // USB Device Interrupt - handle all device-level events
 // the transmit buffer flushing is triggered by the start of frame
 //
 ISR(USB_GEN_vect)
 {
-	uint8_t intbits, t;
+	uint8_t intbits, t, ep;
 
         intbits = UDINT;
         UDINT = 0;
+	ep = UENUM;
         if (intbits & (1<<EORSTI)) {
 		UENUM = 0;
 		UECONX = 1;
@@ -337,6 +325,14 @@ ISR(USB_GEN_vect)
 		usb_configuration = 0;
         }
         if ((intbits & (1<<SOFI)) && usb_configuration) {
+		UENUM = FLIGHTSIM_TX_ENDPOINT;
+		t = UEBCLX;
+		if (t > 0) {
+			for (; t < FLIGHTSIM_TX_SIZE; t++) {
+				UEDATX = 0;
+			}
+			UEINTX = 0x3A;
+		}
                 t = debug_flush_timer;
                 if (t) {
                         debug_flush_timer = -- t;
@@ -348,10 +344,6 @@ ISR(USB_GEN_vect)
                                 UEINTX = 0x3A;
                         }
                 }
-                t = rawhid_rx_timeout_count;
-                if (t) rawhid_rx_timeout_count = --t;
-                t = rawhid_tx_timeout_count;
-                if (t) rawhid_tx_timeout_count = --t;
         }
 	if (intbits & (1<<SUSPI)) {
 		// USB Suspend (inactivity for 3ms)
@@ -381,6 +373,7 @@ ISR(USB_GEN_vect)
 		usb_suspended = 0;
 		return;
 	}
+	UENUM = ep;
 }
 
 
@@ -531,9 +524,9 @@ ISR(USB_COM_vect)
 				return;
 			}
 		}
-                if (wIndex == RAWHID_INTERFACE) {
+                if (wIndex == FLIGHTSIM_INTERFACE) {
                         if (bmRequestType == 0xA1 && bRequest == HID_GET_REPORT) {
-                                len = RAWHID_TX_SIZE;
+                                len = FLIGHTSIM_TX_SIZE;
                                 do {
                                         // wait for host ready for IN packet
                                         do {
@@ -552,7 +545,7 @@ ISR(USB_COM_vect)
                                 return;
                         }
                         if (bmRequestType == 0x21 && bRequest == HID_SET_REPORT) {
-                                len = RAWHID_RX_SIZE;
+                                len = FLIGHTSIM_RX_SIZE;
                                 do {
                                         n = len < ENDPOINT0_SIZE ? len : ENDPOINT0_SIZE;
                                         usb_wait_receive_out();

@@ -1,3 +1,5 @@
+#ifdef USB_DISK_SDFLASH
+
 //#define USB_SERIAL_PRIVATE_INCLUDE
 //#include "usb_mass_storage_debug.h"
 
@@ -623,4 +625,5 @@ static void media_receive_end(void)
 	print("\n");
 }
 
+#endif // USB_DISK_SDFLASH
 

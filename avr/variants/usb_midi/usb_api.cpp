@@ -136,7 +136,7 @@ uint8_t usb_midi_class::analog2velocity(uint16_t val, uint8_t range)
 #else
 	uint8_t i, e, b;
 	uint16_t s=0;
-	static const uint8_t PROGMEM table[] = {225,124,65,34,17,9,4,2,1};
+	static const prog_uint8_t table[] = {225,124,65,34,17,9,4,2,1};
 
 	if (val == 0) return 0;
 	if (val >= 1023) return 127;
