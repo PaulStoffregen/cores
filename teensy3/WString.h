@@ -53,7 +53,7 @@ public:
 	String(const char *cstr = (const char *)NULL);
 	String(const __FlashStringHelper *pgmstr);
 	String(const String &str);
-	#ifdef __GXX_EXPERIMENTAL_CXX0X__
+	#if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__)
 	String(String &&rval);
 	String(StringSumHelper &&rval);
 	#endif
@@ -78,7 +78,7 @@ public:
 	String & operator = (const String &rhs);
 	String & operator = (const char *cstr);
 	String & operator = (const __FlashStringHelper *pgmstr);
-	#ifdef __GXX_EXPERIMENTAL_CXX0X__
+	#if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__)
 	String & operator = (String &&rval);
 	String & operator = (StringSumHelper &&rval);
 	#endif
