@@ -107,7 +107,7 @@ void serial_begin(uint32_t divisor)
 	UART0_C1 = 0;
 	UART0_PFIFO = 0;
 #endif
-#elif defined(KINETISL_UART1)
+#elif defined(KINETISL_UART0)
 	UART0_BDH = (divisor >> 8) & 0x1F;
 	UART0_BDL = divisor & 0xFF;
 	UART0_C1 = 0;

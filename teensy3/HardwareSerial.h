@@ -90,7 +90,15 @@
 #define BAUD2DIV2(baud) (((F_CPU * 2) + ((baud) >> 1)) / (baud))
 #define BAUD2DIV3(baud) (((F_BUS * 2) + ((baud) >> 1)) / (baud))
 #elif defined(KINETISL)
+
+#if F_CPU <= 2000000
+#define BAUD2DIV(baud)  (((F_PLL / 16 ) + ((baud) >> 1)) / (baud))
+#elif F_CPU <= 16000000
+#define BAUD2DIV(baud)  (((F_PLL / (F_PLL / 1000000)) + ((baud) >> 1)) / (baud))
+#else
 #define BAUD2DIV(baud)  (((F_PLL / 2 / 16) + ((baud) >> 1)) / (baud))
+#endif
+
 #define BAUD2DIV2(baud) (((F_BUS / 16) + ((baud) >> 1)) / (baud))
 #define BAUD2DIV3(baud) (((F_BUS / 16) + ((baud) >> 1)) / (baud))
 #endif
