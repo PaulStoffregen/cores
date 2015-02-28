@@ -342,8 +342,11 @@ void uart1_status_isr(void)
 			head = rx_buffer_head;
 			tail = rx_buffer_tail;
 			do {
-				n = UART1_D;
-				if (use9Bits && (UART1_C3 & 0x80)) n |= 0x100;
+				if (use9Bits && (UART1_C3 & 0x80)) {
+					n = UART1_D | 0x100;
+				} else {
+					n = UART1_D;
+				}
 				newhead = head + 1;
 				if (newhead >= RX_BUFFER_SIZE) newhead = 0;
 				if (newhead != tail) {

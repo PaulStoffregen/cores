@@ -337,8 +337,11 @@ void uart0_status_isr(void)
 			head = rx_buffer_head;
 			tail = rx_buffer_tail;
 			do {
-				n = UART0_D;
-				if (use9Bits && (UART0_C3 & 0x80)) n |= 0x100;
+				if (use9Bits && (UART0_C3 & 0x80)) {
+					n = UART0_D | 0x100;
+				} else {
+					n = UART0_D;
+				}
 				newhead = head + 1;
 				if (newhead >= RX_BUFFER_SIZE) newhead = 0;
 				if (newhead != tail) {

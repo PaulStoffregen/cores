@@ -251,8 +251,11 @@ void uart2_status_isr(void)
 	uint8_t c;
 
 	if (UART2_S1 & UART_S1_RDRF) {
-		n = UART2_D;
-		if (use9Bits && (UART2_C3 & 0x80)) n |= 0x100;
+		if (use9Bits && (UART2_C3 & 0x80)) {
+			n = UART2_D | 0x100;
+		} else {
+			n = UART2_D;
+		}
 		head = rx_buffer_head + 1;
 		if (head >= RX_BUFFER_SIZE) head = 0;
 		if (head != rx_buffer_tail) {
