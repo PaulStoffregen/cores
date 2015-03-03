@@ -439,6 +439,7 @@ const uint8_t flashconfigbytes[16] = {
 #ifndef TIME_T
 #define TIME_T 1349049600 // default 1 Oct 2012 (never used, Arduino sets this)
 #endif
+extern void *__rtc_localtime; // Arduino build process sets this
 extern void rtc_set(unsigned long t);
 
 
@@ -722,13 +723,39 @@ void ResetHandler(void)
 	__enable_irq();
 
 	_init_Teensyduino_internal_();
+
 #if defined(KINETISK)
+	// RTC initialization
 	if (RTC_SR & RTC_SR_TIF) {
-		// TODO: this should probably set the time more agressively, if
-		// we could reliably detect the first reboot after programming.
+		// this code will normally run on a power-up reset
+		// when VBAT has detected a power-up.  Normally our
+		// compiled-in time will be stale.  Write a special
+		// flag into the VBAT register file indicating the
+		// RTC is set with known-stale time and should be
+		// updated when fresh time is known.
+		#if ARDUINO >= 10600
+		rtc_set((uint32_t)&__rtc_localtime);
+		#else
 		rtc_set(TIME_T);
+		#endif
+		*(uint32_t *)0x4003E01C = 0x5A94C3A5;
+	}
+	if ((RCM_SRS0 & RCM_SRS0_PIN) && (*(uint32_t *)0x4003E01C == 0x5A94C3A5)) {
+		// this code should run immediately after an upload
+		// where the Teensy Loader causes the Mini54 to reset.
+		// Our compiled-in time will be very fresh, so set
+		// the RTC with this, and clear the VBAT resister file
+		// data so we don't mess with the time after it's been
+		// set well.
+		#if ARDUINO >= 10600
+		rtc_set((uint32_t)&__rtc_localtime);
+		#else
+		rtc_set(TIME_T);
+		#endif
+		*(uint32_t *)0x4003E01C = 0;
 	}
 #endif
+
 	__libc_init_array();
 
 	startup_late_hook();
