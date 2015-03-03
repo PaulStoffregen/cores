@@ -342,11 +342,8 @@ static const uint8_t channel2sc1a[] = {
 #elif defined(__MKL26Z64__)
 static const uint8_t channel2sc1a[] = {
 	5, 14, 8, 9, 13, 12, 6, 7, 15, 11,
-	0, 4+64, 23
+	0, 4+64, 23, 26, 27
 };
-
-
-
 
 
 #endif
@@ -396,6 +393,9 @@ int analogRead(uint8_t pin)
 		index = pin;      // 0-12 refer to A0-A12
 	} else if (pin >= 14 && pin <= 26) {
 		index = pin - 14; // 14-26 are A0-A12
+	} else if (pin >= 38 && pin <= 39) {
+		index = pin - 25; // 38=temperature
+		                  // 39=bandgap ref (PMC_REGSC |= PMC_REGSC_BGBE)
 	} else {
 		return 0;
 	}
@@ -510,7 +510,6 @@ void analogWriteDAC0(int val)
 	*(int16_t *)&(DAC0_DAT0L) = val;
 #endif
 }
-
 
 
 
