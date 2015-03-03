@@ -659,7 +659,7 @@ void ResetHandler(void)
 #if defined(KINETISK)
     SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(1) | SIM_CLKDIV1_OUTDIV2(1) |	 SIM_CLKDIV1_OUTDIV4(1);
 #elif defined(KINETISL)
-    SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(1) | SIM_CLKDIV1_OUTDIV4(1);
+    SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(1) | SIM_CLKDIV1_OUTDIV4(0);
 #endif
 #elif F_CPU == 4000000
     // config divisors: 4 MHz core, 4 MHz bus, 2 MHz flash
@@ -670,7 +670,7 @@ void ResetHandler(void)
 #if defined(KINETISK)
     SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(3) | SIM_CLKDIV1_OUTDIV2(3) |	 SIM_CLKDIV1_OUTDIV4(3);
 #elif defined(KINETISL)
-    SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(3) | SIM_CLKDIV1_OUTDIV4(3);
+    SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(3) | SIM_CLKDIV1_OUTDIV4(0);
 #endif
 #elif F_CPU == 2000000
     // since we are running from the fast internal reference clock 4MHz
@@ -680,6 +680,7 @@ void ResetHandler(void)
 #if defined(KINETISK)
     SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(0) |	 SIM_CLKDIV1_OUTDIV4(1);
 #elif defined(KINETISL)
+    // config divisors: 2 MHz core, 1 MHz bus, 1 MHz flash
     SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV4(1);
 #endif
 #else
