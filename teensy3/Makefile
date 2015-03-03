@@ -3,13 +3,14 @@
 TARGET = main
 
 # Path to your arduino installation
-ARDUINOPATH ?= ../../../..
+ARDUINOPATH ?= ../../../../..
+#ARDUINOPATH ?= ../../../..
 
 # configurable options
-OPTIONS = -DF_CPU=48000000 -DUSB_SERIAL -DLAYOUT_US_ENGLISH
+OPTIONS = -DF_CPU=48000000 -DUSB_SERIAL -DLAYOUT_US_ENGLISH -DUSING_MAKEFILE
 
 # options needed by many Arduino libraries to configure for Teensy 3.0
-OPTIONS += -D__MK20DX128__ -DARDUINO=105 -DTEENSYDUINO=120
+OPTIONS += -D__MK20DX256__ -DARDUINO=10600 -DTEENSYDUINO=121
 
 
 # Other Makefiles and project templates for Teensy 3.x:
@@ -27,13 +28,12 @@ OPTIONS += -D__MK20DX128__ -DARDUINO=105 -DTEENSYDUINO=120
 
 # path location for Teensy Loader, teensy_post_compile and teensy_reboot
 TOOLSPATH = $(ARDUINOPATH)/hardware/tools   # on Linux
-#TOOLSPATH = $(ARDUINOPATH)/hardware/tools/tools/avr/bin   # on Mac or Windows
 
 # path location for Arduino libraries (currently not used)
 LIBRARYPATH = $(ARDUINOPATH)/libraries
 
 # path location for the arm-none-eabi compiler
-COMPILERPATH = $(ARDUINOPATH)/hardware/tools/arm-none-eabi/bin
+COMPILERPATH = $(ARDUINOPATH)/hardware/tools/arm/bin
 
 #************************************************************************
 # Settings below this point usually do not need to be edited
@@ -49,7 +49,7 @@ CXXFLAGS = -std=gnu++0x -felide-constructors -fno-exceptions -fno-rtti
 CFLAGS =
 
 # linker options
-LDFLAGS = -Os -Wl,--gc-sections -mcpu=cortex-m4 -mthumb -Tmk20dx128.ld
+LDFLAGS = -Os -Wl,--gc-sections,--defsym=__rtc_localtime=0 --specs=nano.specs -mcpu=cortex-m4 -mthumb -Tmk20dx256.ld
 
 # additional libraries to link
 LIBS = -lm
@@ -72,7 +72,7 @@ OBJS := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o)
 
 all: $(TARGET).hex
 
-$(TARGET).elf: $(OBJS) mk20dx128.ld
+$(TARGET).elf: $(OBJS) mk20dx256.ld
 	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
 %.hex: %.elf

@@ -2,7 +2,7 @@
 
 extern "C" int main(void)
 {
-#if !defined(ARDUINO)
+#ifdef USING_MAKEFILE
 
 	// To use Teensy 3.0 without Arduino, simply put your code here.
 	// For example:
