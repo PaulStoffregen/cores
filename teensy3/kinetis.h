@@ -89,6 +89,7 @@ enum IRQ_NUMBER_t {
 #define HAS_KINETISK_UART0_FIFO
 #define HAS_KINETISK_UART1
 #define HAS_KINETISK_UART2
+#define HAS_KINETIS_I2C0
 
 // Teensy 3.1
 #elif defined(__MK20DX256__)
@@ -171,6 +172,8 @@ enum IRQ_NUMBER_t {
 #define HAS_KINETISK_UART1
 #define HAS_KINETISK_UART1_FIFO
 #define HAS_KINETISK_UART2
+#define HAS_KINETIS_I2C0
+#define HAS_KINETIS_I2C1
 
 #elif defined(__MKL26Z64__)
 enum IRQ_NUMBER_t {
@@ -212,6 +215,10 @@ enum IRQ_NUMBER_t {
 #define HAS_KINETISL_UART0
 #define HAS_KINETISL_UART1
 #define HAS_KINETISL_UART2
+#define HAS_KINETIS_I2C0
+#define HAS_KINETIS_I2C0_STOPF
+#define HAS_KINETIS_I2C1
+#define HAS_KINETIS_I2C1_STOPF
 
 #endif // end of board-specific definitions
 
@@ -2128,7 +2135,7 @@ enum IRQ_NUMBER_t {
 
 #if defined(KINETISK)
 // Chapter 43: SPI (DSPI)
-typedef struct __attribute__((packed)) {
+typedef struct {
 	volatile uint32_t	MCR;	// 0
 	volatile uint32_t	unused1;// 4
 	volatile uint32_t	TCR;	// 8
@@ -2148,7 +2155,7 @@ typedef struct __attribute__((packed)) {
 	volatile uint32_t	RXFR[16]; // 7c
 } KINETISK_SPI_t;
 #define KINETISK_SPI0		(*(KINETISK_SPI_t *)0x4002C000)
-#define SPI0_MCR		(*(volatile uint32_t *)0x4002C000) // DSPI Module Configuration Register
+#define SPI0_MCR		(KINETISK_SPI0.MCR)	// DSPI Module Configuration Register
 #define SPI_MCR_MSTR			((uint32_t)0x80000000)		// Master/Slave Mode Select
 #define SPI_MCR_CONT_SCKE		((uint32_t)0x40000000)		//
 #define SPI_MCR_DCONF(n)		(((n) & 3) << 28)		//
@@ -2164,8 +2171,8 @@ typedef struct __attribute__((packed)) {
 #define SPI_MCR_CLR_RXF			((uint32_t)0x00000400)		//
 #define SPI_MCR_SMPL_PT(n)		(((n) & 3) << 8)		//
 #define SPI_MCR_HALT			((uint32_t)0x00000001)		//
-#define SPI0_TCR		(*(volatile uint32_t *)0x4002C008) // DSPI Transfer Count Register
-#define SPI0_CTAR0		(*(volatile uint32_t *)0x4002C00C) // DSPI Clock and Transfer Attributes Register, In Master Mode
+#define SPI0_TCR		(KINETISK_SPI0.TCR)	// DSPI Transfer Count Register
+#define SPI0_CTAR0		(KINETISK_SPI0.CTAR0)	// DSPI Clock and Transfer Attributes Register, In Master Mode
 #define SPI_CTAR_DBR			((uint32_t)0x80000000)		// Double Baud Rate
 #define SPI_CTAR_FMSZ(n)		(((n) & 15) << 27)		// Frame Size (+1)
 #define SPI_CTAR_CPOL			((uint32_t)0x04000000)		// Clock Polarity
@@ -2179,9 +2186,9 @@ typedef struct __attribute__((packed)) {
 #define SPI_CTAR_ASC(n)			(((n) & 15) << 8)		// After SCK Delay Scaler
 #define SPI_CTAR_DT(n)			(((n) & 15) << 4)		// Delay After Transfer Scaler
 #define SPI_CTAR_BR(n)			(((n) & 15) << 0)		// Baud Rate Scaler
-#define SPI0_CTAR0_SLAVE	(*(volatile uint32_t *)0x4002C00C) // DSPI Clock and Transfer Attributes Register, In Slave Mode
-#define SPI0_CTAR1		(*(volatile uint32_t *)0x4002C010) // DSPI Clock and Transfer Attributes Register, In Master Mode
-#define SPI0_SR			(*(volatile uint32_t *)0x4002C02C) // DSPI Status Register
+#define SPI0_CTAR0_SLAVE	(KINETISK_SPI0.CTAR0)	// DSPI Clock and Transfer Attributes Register, In Slave Mode
+#define SPI0_CTAR1		(KINETISK_SPI0.CTAR1)	// DSPI Clock and Transfer Attributes Register, In Master Mode
+#define SPI0_SR			(KINETISK_SPI0.SR)	// DSPI Status Register
 #define SPI_SR_TCF			((uint32_t)0x80000000)		// Transfer Complete Flag
 #define SPI_SR_TXRXS			((uint32_t)0x40000000)		// TX and RX Status
 #define SPI_SR_EOQF			((uint32_t)0x10000000)		// End of Queue Flag
@@ -2189,7 +2196,7 @@ typedef struct __attribute__((packed)) {
 #define SPI_SR_TFFF			((uint32_t)0x02000000)		// Transmit FIFO Fill Flag
 #define SPI_SR_RFOF			((uint32_t)0x00080000)		// Receive FIFO Overflow Flag
 #define SPI_SR_RFDF			((uint32_t)0x00020000)		// Receive FIFO Drain Flag
-#define SPI0_RSER		(*(volatile uint32_t *)0x4002C030) // DSPI DMA/Interrupt Request Select and Enable Register
+#define SPI0_RSER		(KINETISK_SPI0.RSER)	// DSPI DMA/Interrupt Request Select and Enable Register
 #define SPI_RSER_TCF_RE			((uint32_t)0x80000000)		// Transmission Complete Request Enable
 #define SPI_RSER_EOQF_RE		((uint32_t)0x10000000)		// DSPI Finished Request Request Enable
 #define SPI_RSER_TFUF_RE		((uint32_t)0x08000000)		// Transmit FIFO Underflow Request Enable
@@ -2198,25 +2205,25 @@ typedef struct __attribute__((packed)) {
 #define SPI_RSER_RFOF_RE		((uint32_t)0x00080000)		// Receive FIFO Overflow Request Enable
 #define SPI_RSER_RFDF_RE		((uint32_t)0x00020000)		// Receive FIFO Drain Request Enable
 #define SPI_RSER_RFDF_DIRS		((uint32_t)0x00010000)		// Receive FIFO Drain DMA or Interrupt Request Select
-#define SPI0_PUSHR		(*(volatile uint32_t *)0x4002C034) // DSPI PUSH TX FIFO Register In Master Mode
+#define SPI0_PUSHR		(KINETISK_SPI0.PUSHR)	// DSPI PUSH TX FIFO Register In Master Mode
 #define SPI_PUSHR_CONT			((uint32_t)0x80000000)		//
 #define SPI_PUSHR_CTAS(n)		(((n) & 7) << 28)		//
 #define SPI_PUSHR_EOQ			((uint32_t)0x08000000)		//
 #define SPI_PUSHR_CTCNT			((uint32_t)0x04000000)		//
 #define SPI_PUSHR_PCS(n)		(((n) & 31) << 16)		//
-#define SPI0_PUSHR_SLAVE	(*(volatile uint32_t *)0x4002C034) // DSPI PUSH TX FIFO Register In Slave Mode
-#define SPI0_POPR		(*(volatile uint32_t *)0x4002C038) // DSPI POP RX FIFO Register
-#define SPI0_TXFR0		(*(volatile uint32_t *)0x4002C03C) // DSPI Transmit FIFO Registers
-#define SPI0_TXFR1		(*(volatile uint32_t *)0x4002C040) // DSPI Transmit FIFO Registers
-#define SPI0_TXFR2		(*(volatile uint32_t *)0x4002C044) // DSPI Transmit FIFO Registers
-#define SPI0_TXFR3		(*(volatile uint32_t *)0x4002C048) // DSPI Transmit FIFO Registers
-#define SPI0_RXFR0		(*(volatile uint32_t *)0x4002C07C) // DSPI Receive FIFO Registers
-#define SPI0_RXFR1		(*(volatile uint32_t *)0x4002C080) // DSPI Receive FIFO Registers
-#define SPI0_RXFR2		(*(volatile uint32_t *)0x4002C084) // DSPI Receive FIFO Registers
-#define SPI0_RXFR3		(*(volatile uint32_t *)0x4002C088) // DSPI Receive FIFO Registers
+#define SPI0_PUSHR_SLAVE	(KINETISK_SPI0.PUSHR)	// DSPI PUSH TX FIFO Register In Slave Mode
+#define SPI0_POPR		(KINETISK_SPI0.POPR)	// DSPI POP RX FIFO Register
+#define SPI0_TXFR0		(KINETISK_SPI0.TXFR[0])	// DSPI Transmit FIFO Registers
+#define SPI0_TXFR1		(KINETISK_SPI0.TXFR[1])	// DSPI Transmit FIFO Registers
+#define SPI0_TXFR2		(KINETISK_SPI0.TXFR[2])	// DSPI Transmit FIFO Registers
+#define SPI0_TXFR3		(KINETISK_SPI0.TXFR[3])	// DSPI Transmit FIFO Registers
+#define SPI0_RXFR0		(KINETISK_SPI0.RXFR[0])	// DSPI Receive FIFO Registers
+#define SPI0_RXFR1		(KINETISK_SPI0.RXFR[1])	// DSPI Receive FIFO Registers
+#define SPI0_RXFR2		(KINETISK_SPI0.RXFR[2])	// DSPI Receive FIFO Registers
+#define SPI0_RXFR3		(KINETISK_SPI0.RXFR[3])	// DSPI Receive FIFO Registers
 
 #elif defined(KINETISL)
-typedef struct __attribute__((packed)) {
+typedef struct {
 	volatile uint8_t	S;
 	volatile uint8_t	BR;
 	volatile uint8_t	C2;
@@ -2232,7 +2239,7 @@ typedef struct __attribute__((packed)) {
 } KINETISL_SPI_t;
 #define KINETISL_SPI0		(*(KINETISL_SPI_t *)0x40076000)
 #define KINETISL_SPI1		(*(KINETISL_SPI_t *)0x40077000)
-#define SPI0_S			(*(volatile uint8_t *)0x40076000) // Status
+#define SPI0_S			(KINETISL_SPI0.S)		// Status
 #define SPI_S_SPRF			((uint8_t)0x80)			// Read Buffer Full Flag 
 #define SPI_S_SPMF			((uint8_t)0x40)			// Match Flag
 #define SPI_S_SPTEF			((uint8_t)0x20)			// Transmit Buffer Empty Flag 
@@ -2241,10 +2248,10 @@ typedef struct __attribute__((packed)) {
 #define SPI_S_TNEAREF			((uint8_t)0x04)			// Transmit FIFO nearly empty flag
 #define SPI_S_TXFULLF			((uint8_t)0x02)			// Transmit FIFO full flag
 #define SPI_S_RFIFOEF			((uint8_t)0x01)			// Read FIFO empty flag
-#define SPI0_BR			(*(volatile uint8_t *)0x40076001) // Baud Rate
+#define SPI0_BR			(KINETISL_SPI0.BR)		// Baud Rate
 #define SPI_BR_SPPR(n)			(((n) & 7) << 4)		// Prescale = N+1
 #define SPI_BR_SPR(n)			(((n) & 15) << 0)		// Baud Rate Divisor = 2^(N+1) : 0-8 -> 2 to 512
-#define SPI0_C2			(*(volatile uint8_t *)0x40076002) // Control Register 2
+#define SPI0_C2			(KINETISL_SPI0.C2)		// Control Register 2
 #define SPI_C2_SPMIE			((uint8_t)0x80)			// Match Interrupt Enable
 #define SPI_C2_SPIMODE			((uint8_t)0x40)			// 0 = 8 bit mode, 1 = 16 bit mode
 #define SPI_C2_TXDMAE			((uint8_t)0x20)			// Transmit DMA enable
@@ -2253,7 +2260,7 @@ typedef struct __attribute__((packed)) {
 #define SPI_C2_RXDMAE			((uint8_t)0x04)			// Receive DMA enable
 #define SPI_C2_SPISWAI			((uint8_t)0x02)			// SPI Stop in Wait Mode
 #define SPI_C2_SPC0			((uint8_t)0x01)			// SPI Pin Control, 0=normal, 1=single bidirectional
-#define SPI0_C1			(*(volatile uint8_t *)0x40076003) // Control Register 1
+#define SPI0_C1			(KINETISL_SPI0.C1)		// Control Register 1
 #define SPI_C1_SPIE			((uint8_t)0x80)			// Interrupt Enable
 #define SPI_C1_SPE			((uint8_t)0x40)			// SPI System Enable
 #define SPI_C1_SPTIE			((uint8_t)0x20)			// Transmit Interrupt Enable
@@ -2262,11 +2269,11 @@ typedef struct __attribute__((packed)) {
 #define SPI_C1_CPHA			((uint8_t)0x04)			// Clock Phase
 #define SPI_C1_SSOE			((uint8_t)0x02)			// Slave Select Output Enable
 #define SPI_C1_LSBFE			((uint8_t)0x01)			// LSB First: 0=MSB First, 1=LSB First
-#define SPI0_ML			(*(volatile uint8_t *)0x40076004) // Match Low
-#define SPI0_MH			(*(volatile uint8_t *)0x40076005) // Match High
-#define SPI0_DL			(*(volatile uint8_t *)0x40076006) // Data Low
-#define SPI0_DH			(*(volatile uint8_t *)0x40076007) // Data High
-#define SPI0_CI			(*(volatile uint8_t *)0x4007600A) // clear interrupt
+#define SPI0_ML			(KINETISL_SPI0.ML)		// Match Low
+#define SPI0_MH			(KINETISL_SPI0.MH)		// Match High
+#define SPI0_DL			(KINETISL_SPI0.DL)		// Data Low
+#define SPI0_DH			(KINETISL_SPI0.DH)		// Data High
+#define SPI0_CI			(KINETISL_SPI0.CI)		// Clear Interrupt
 #define SPI_CI_TXFERR			((uint8_t)0x80)			// Transmit FIFO error flag
 #define SPI_CI_RXFERR			((uint8_t)0x40)			// Receive FIFO error flag
 #define SPI_CI_TXFOF			((uint8_t)0x20)			// Transmit FIFO overflow flag
@@ -2275,30 +2282,46 @@ typedef struct __attribute__((packed)) {
 #define SPI_CI_RNFULLFCI		((uint8_t)0x04)			// Receive FIFO nearly full flag clear interrupt
 #define SPI_CI_SPTEFCI			((uint8_t)0x02)			// Transmit FIFO empty flag clear interrupt
 #define SPI_CI_SPRFCI			((uint8_t)0x01)			// Receive FIFO full flag clear interrupt
-#define SPI0_C3			(*(volatile uint8_t *)0x4007600B) // Control Register 3
+#define SPI0_C3			(KINETISL_SPI0.C3)		// Control Register 3
 #define SPI_C3_TNEAREF_MARK		((uint8_t)0x20)			// Transmit FIFO nearly empty watermark
 #define SPI_C3_RNFULLF_MARK		((uint8_t)0x10)			// Receive FIFO nearly full watermark
 #define SPI_C3_INTCLR			((uint8_t)0x08)			// Interrupt clearing mechanism select
 #define SPI_C3_TNEARIEN			((uint8_t)0x04)			// Transmit FIFO nearly empty interrupt enable
 #define SPI_C3_RNFULLIEN		((uint8_t)0x02)			// Receive FIFO nearly full interrupt enable
 #define SPI_C3_FIFOMODE			((uint8_t)0x01)			// FIFO mode enable
-#define SPI1_S			(*(volatile uint8_t *)0x40077000) // Status
-#define SPI1_BR			(*(volatile uint8_t *)0x40077001) // Baud Rate
-#define SPI1_C2			(*(volatile uint8_t *)0x40077002) // Control Register 2
-#define SPI1_C1			(*(volatile uint8_t *)0x40077003) // Control Register 1
-#define SPI1_ML			(*(volatile uint8_t *)0x40077004) // Match Low
-#define SPI1_MH			(*(volatile uint8_t *)0x40077005) // Match High
-#define SPI1_DL			(*(volatile uint8_t *)0x40077006) // Data Low
-#define SPI1_DH			(*(volatile uint8_t *)0x40077007) // Data High
-#define SPI1_CI			(*(volatile uint8_t *)0x4007700A) // clear interrupt
-#define SPI1_C3			(*(volatile uint8_t *)0x4007700B) // Control Register 3
+#define SPI1_S			(KINETISL_SPI1.S)		// Status
+#define SPI1_BR			(KINETISL_SPI1.BR)		// Baud Rate
+#define SPI1_C2			(KINETISL_SPI1.C2)		// Control Register 2
+#define SPI1_C1			(KINETISL_SPI1.C1)		// Control Register 1
+#define SPI1_ML			(KINETISL_SPI1.ML)		// Match Low
+#define SPI1_MH			(KINETISL_SPI1.MH)		// Match High
+#define SPI1_DL			(KINETISL_SPI1.DL)		// Data Low
+#define SPI1_DH			(KINETISL_SPI1.DH)		// Data High
+#define SPI1_CI			(KINETISL_SPI1.CI)		// Dlear Interrupt
+#define SPI1_C3			(KINETISL_SPI1.C3)		// Control Register 3
 #endif
 
 
 // Chapter 44: Inter-Integrated Circuit (I2C)
-#define I2C0_A1			(*(volatile uint8_t  *)0x40066000) // I2C Address Register 1
-#define I2C0_F			(*(volatile uint8_t  *)0x40066001) // I2C Frequency Divider register
-#define I2C0_C1			(*(volatile uint8_t  *)0x40066002) // I2C Control Register 1
+typedef struct {
+	volatile uint8_t	A1;
+	volatile uint8_t	F;
+	volatile uint8_t	C1;
+	volatile uint8_t	S;
+	volatile uint8_t	D;
+	volatile uint8_t	C2;
+	volatile uint8_t	FLT;
+	volatile uint8_t	RA;
+	volatile uint8_t	SMB;
+	volatile uint8_t	A2;
+	volatile uint8_t	SLTH;
+	volatile uint8_t	SLTL;
+} KINETIS_I2C_t;
+#define KINETIS_I2C0		(*(KINETIS_I2C_t *)0x40066000)
+#define KINETIS_I2C1		(*(KINETIS_I2C_t *)0x40067000)
+#define I2C0_A1			(KINETIS_I2C0.A1)		// I2C Address Register 1
+#define I2C0_F			(KINETIS_I2C0.F)		// I2C Frequency Divider register
+#define I2C0_C1			(KINETIS_I2C0.C1)		// I2C Control Register 1
 #define I2C_C1_IICEN			((uint8_t)0x80)			// I2C Enable
 #define I2C_C1_IICIE			((uint8_t)0x40)			// I2C Interrupt Enable
 #define I2C_C1_MST			((uint8_t)0x20)			// Master Mode Select
@@ -2307,7 +2330,7 @@ typedef struct __attribute__((packed)) {
 #define I2C_C1_RSTA			((uint8_t)0x04)			// Repeat START
 #define I2C_C1_WUEN			((uint8_t)0x02)			// Wakeup Enable
 #define I2C_C1_DMAEN			((uint8_t)0x01)			// DMA Enable
-#define I2C0_S			(*(volatile uint8_t  *)0x40066003) // I2C Status register
+#define I2C0_S			(KINETIS_I2C0.S)		// I2C Status register
 #define I2C_S_TCF			((uint8_t)0x80)			// Transfer Complete Flag
 #define I2C_S_IAAS			((uint8_t)0x40)			// Addressed As A Slave
 #define I2C_S_BUSY			((uint8_t)0x20)			// Bus Busy
@@ -2316,33 +2339,37 @@ typedef struct __attribute__((packed)) {
 #define I2C_S_SRW			((uint8_t)0x04)			// Slave Read/Write
 #define I2C_S_IICIF			((uint8_t)0x02)			// Interrupt Flag
 #define I2C_S_RXAK			((uint8_t)0x01)			// Receive Acknowledge
-#define I2C0_D			(*(volatile uint8_t  *)0x40066004) // I2C Data I/O register
-#define I2C0_C2			(*(volatile uint8_t  *)0x40066005) // I2C Control Register 2
+#define I2C0_D			(KINETIS_I2C0.D)		// I2C Data I/O register
+#define I2C0_C2			(KINETIS_I2C0.C2)		// I2C Control Register 2
 #define I2C_C2_GCAEN			((uint8_t)0x80)			// General Call Address Enable
 #define I2C_C2_ADEXT			((uint8_t)0x40)			// Address Extension
 #define I2C_C2_HDRS			((uint8_t)0x20)			// High Drive Select
 #define I2C_C2_SBRC			((uint8_t)0x10)			// Slave Baud Rate Control
 #define I2C_C2_RMEN			((uint8_t)0x08)			// Range Address Matching Enable
 #define I2C_C2_AD(n)			((n) & 7)			// Slave Address, upper 3 bits
-#define I2C0_FLT		(*(volatile uint8_t  *)0x40066006) // I2C Programmable Input Glitch Filter register
-#define I2C0_RA			(*(volatile uint8_t  *)0x40066007) // I2C Range Address register
-#define I2C0_SMB		(*(volatile uint8_t  *)0x40066008) // I2C SMBus Control and Status register
-#define I2C0_A2			(*(volatile uint8_t  *)0x40066009) // I2C Address Register 2
-#define I2C0_SLTH		(*(volatile uint8_t  *)0x4006600A) // I2C SCL Low Timeout Register High
-#define I2C0_SLTL		(*(volatile uint8_t  *)0x4006600B) // I2C SCL Low Timeout Register Low
+#define I2C0_FLT		(KINETIS_I2C0.FLT)		// I2C Programmable Input Glitch Filter register
+#define I2C_FLT_SHEN			((uint8_t)0x80)			// Stop Hold Enable
+#define I2C_FLT_STOPF			((uint8_t)0x40)			// Stop Detect Flag
+#define I2C_FLT_STOPIE			((uint8_t)0x20)			// Stop Interrupt Enable
+#define I2C_FLT_FTL(n)			((n) & 0x1F)			// Programmable Filter Factor
+#define I2C0_RA			(KINETIS_I2C0.RA)		// I2C Range Address register
+#define I2C0_SMB		(KINETIS_I2C0.SMB)		// I2C SMBus Control and Status register
+#define I2C0_A2			(KINETIS_I2C0.A2)		// I2C Address Register 2
+#define I2C0_SLTH		(KINETIS_I2C0.SLTH)		// I2C SCL Low Timeout Register High
+#define I2C0_SLTL		(KINETIS_I2C0.SLTL)		// I2C SCL Low Timeout Register Low
 
-#define I2C1_A1			(*(volatile uint8_t  *)0x40067000) // I2C Address Register 1
-#define I2C1_F			(*(volatile uint8_t  *)0x40067001) // I2C Frequency Divider register
-#define I2C1_C1			(*(volatile uint8_t  *)0x40067002) // I2C Control Register 1
-#define I2C1_S			(*(volatile uint8_t  *)0x40067003) // I2C Status register
-#define I2C1_D			(*(volatile uint8_t  *)0x40067004) // I2C Data I/O register
-#define I2C1_C2			(*(volatile uint8_t  *)0x40067005) // I2C Control Register 2
-#define I2C1_FLT		(*(volatile uint8_t  *)0x40067006) // I2C Programmable Input Glitch Filter register
-#define I2C1_RA			(*(volatile uint8_t  *)0x40067007) // I2C Range Address register
-#define I2C1_SMB		(*(volatile uint8_t  *)0x40067008) // I2C SMBus Control and Status register
-#define I2C1_A2			(*(volatile uint8_t  *)0x40067009) // I2C Address Register 2
-#define I2C1_SLTH		(*(volatile uint8_t  *)0x4006700A) // I2C SCL Low Timeout Register High
-#define I2C1_SLTL		(*(volatile uint8_t  *)0x4006700B) // I2C SCL Low Timeout Register Low
+#define I2C1_A1			(KINETIS_I2C1.A1)		// I2C Address Register 1
+#define I2C1_F			(KINETIS_I2C1.F)		// I2C Frequency Divider register
+#define I2C1_C1			(KINETIS_I2C1.C1)		// I2C Control Register 1
+#define I2C1_S			(KINETIS_I2C1.S)		// I2C Status register
+#define I2C1_D			(KINETIS_I2C1.D)		// I2C Data I/O register
+#define I2C1_C2			(KINETIS_I2C1.C2)		// I2C Control Register 2
+#define I2C1_FLT		(KINETIS_I2C1.FLT)		// I2C Programmable Input Glitch Filter register
+#define I2C1_RA			(KINETIS_I2C1.RA)		// I2C Range Address register
+#define I2C1_SMB		(KINETIS_I2C1.SMB)		// I2C SMBus Control and Status register
+#define I2C1_A2			(KINETIS_I2C1.A2)		// I2C Address Register 2
+#define I2C1_SLTH		(KINETIS_I2C1.SLTH)		// I2C SCL Low Timeout Register High
+#define I2C1_SLTL		(KINETIS_I2C1.SLTL)		// I2C SCL Low Timeout Register Low
 
 // Chapter 45: Universal Asynchronous Receiver/Transmitter (UART)
 typedef struct __attribute__((packed)) {
