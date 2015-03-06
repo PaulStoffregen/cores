@@ -33,6 +33,9 @@
 #include "SPIFIFO.h"
 
 uint8_t SPCRemulation::pinout = 0;
+#if defined(KINETISL)
+uint8_t SPCR1emulation::pinout = 0;
+#endif
 
 #ifdef HAS_SPIFIFO
 
