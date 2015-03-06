@@ -85,10 +85,10 @@ enum IRQ_NUMBER_t {
 #define NVIC_NUM_INTERRUPTS	46
 #define DMA_NUM_CHANNELS	4
 #define KINETISK
-#define KINETISK_UART0
-#define KINETISK_UART0_FIFO
-#define KINETISK_UART1
-#define KINETISK_UART2
+#define HAS_KINETISK_UART0
+#define HAS_KINETISK_UART0_FIFO
+#define HAS_KINETISK_UART1
+#define HAS_KINETISK_UART2
 
 // Teensy 3.1
 #elif defined(__MK20DX256__)
@@ -166,11 +166,11 @@ enum IRQ_NUMBER_t {
 #define NVIC_NUM_INTERRUPTS	95
 #define DMA_NUM_CHANNELS	16
 #define KINETISK
-#define KINETISK_UART0
-#define KINETISK_UART0_FIFO
-#define KINETISK_UART1
-#define KINETISK_UART1_FIFO
-#define KINETISK_UART2
+#define HAS_KINETISK_UART0
+#define HAS_KINETISK_UART0_FIFO
+#define HAS_KINETISK_UART1
+#define HAS_KINETISK_UART1_FIFO
+#define HAS_KINETISK_UART2
 
 #elif defined(__MKL26Z64__)
 enum IRQ_NUMBER_t {
@@ -209,9 +209,9 @@ enum IRQ_NUMBER_t {
 #define NVIC_NUM_INTERRUPTS     32
 #define DMA_NUM_CHANNELS        4
 #define KINETISL
-#define KINETISL_UART0
-#define KINETISL_UART1
-#define KINETISL_UART2
+#define HAS_KINETISL_UART0
+#define HAS_KINETISL_UART1
+#define HAS_KINETISL_UART2
 
 #endif // end of board-specific definitions
 
@@ -2147,7 +2147,7 @@ typedef struct __attribute__((packed)) {
 	volatile uint32_t	TXFR[16]; // 3c
 	volatile uint32_t	RXFR[16]; // 7c
 } KINETISK_SPI_t;
-#define SPI0			(*(KINETISK_SPI_t *)0x4002C000)
+#define KINETISK_SPI0		(*(KINETISK_SPI_t *)0x4002C000)
 #define SPI0_MCR		(*(volatile uint32_t *)0x4002C000) // DSPI Module Configuration Register
 #define SPI_MCR_MSTR			((uint32_t)0x80000000)		// Master/Slave Mode Select
 #define SPI_MCR_CONT_SCKE		((uint32_t)0x40000000)		//
@@ -2230,8 +2230,8 @@ typedef struct __attribute__((packed)) {
 	volatile uint8_t	CI;
 	volatile uint8_t	C3;
 } KINETISL_SPI_t;
-#define SPI0			(*(KINETISL_SPI_t *)0x40076000)
-#define SPI1			(*(KINETISL_SPI_t *)0x40077000)
+#define KINETISL_SPI0		(*(KINETISL_SPI_t *)0x40076000)
+#define KINETISL_SPI1		(*(KINETISL_SPI_t *)0x40077000)
 #define SPI0_S			(*(volatile uint8_t *)0x40076000) // Status
 #define SPI_S_SPRF			((uint8_t)0x80)			// Read Buffer Full Flag 
 #define SPI_S_SPMF			((uint8_t)0x40)			// Match Flag
@@ -2397,10 +2397,10 @@ typedef struct __attribute__((packed)) {
 	volatile uint8_t	RIDT;
 	volatile uint8_t	TIDT;
 } KINETISK_UART_t;
-#define UART0			(*(KINETISK_UART_t *)0x4006A000)
-#define UART0_BDH		(UART0.BDH)		// UART Baud Rate Registers: High
-#define UART0_BDL		(UART0.BDL)		// UART Baud Rate Registers: Low
-#define UART0_C1		(UART0.C1)		// UART Control Register 1
+#define KINETISK_UART0		(*(KINETISK_UART_t *)0x4006A000)
+#define UART0_BDH		(KINETISK_UART0.BDH)		// UART Baud Rate Registers: High
+#define UART0_BDL		(KINETISK_UART0.BDL)		// UART Baud Rate Registers: Low
+#define UART0_C1		(KINETISK_UART0.C1)		// UART Control Register 1
 #define UART_C1_LOOPS		0x80			//  When LOOPS is set, the RxD pin is disconnected from the UART and the transmitter output is internally connected to the receiver input
 #define UART_C1_UARTSWAI	0x40			//  UART Stops in Wait Mode
 #define UART_C1_RSRC		0x20			//  When LOOPS is set, the RSRC field determines the source for the receiver shift register input
@@ -2409,7 +2409,7 @@ typedef struct __attribute__((packed)) {
 #define UART_C1_ILT		0x04			//  Idle Line Type Select
 #define UART_C1_PE		0x02			//  Parity Enable
 #define UART_C1_PT		0x01			//  Parity Type, 0=even, 1=odd
-#define UART0_C2		(UART0.C2)		// UART Control Register 2
+#define UART0_C2		(KINETISK_UART0.C2)		// UART Control Register 2
 #define UART_C2_TIE		0x80			//  Transmitter Interrupt or DMA Transfer Enable.
 #define UART_C2_TCIE		0x40			//  Transmission Complete Interrupt Enable
 #define UART_C2_RIE		0x20			//  Receiver Full Interrupt or DMA Transfer Enable
@@ -2418,7 +2418,7 @@ typedef struct __attribute__((packed)) {
 #define UART_C2_RE		0x04			//  Receiver Enable
 #define UART_C2_RWU		0x02			//  Receiver Wakeup Control
 #define UART_C2_SBK		0x01			//  Send Break
-#define UART0_S1		(UART0.S1)		// UART Status Register 1
+#define UART0_S1		(KINETISK_UART0.S1)		// UART Status Register 1
 #define UART_S1_TDRE		0x80			//  Transmit Data Register Empty Flag
 #define UART_S1_TC		0x40			//  Transmit Complete Flag
 #define UART_S1_RDRF		0x20			//  Receive Data Register Full Flag
@@ -2427,44 +2427,44 @@ typedef struct __attribute__((packed)) {
 #define UART_S1_NF		0x04			//  Noise Flag
 #define UART_S1_FE		0x02			//  Framing Error Flag
 #define UART_S1_PF		0x01			//  Parity Error Flag
-#define UART0_S2		(UART0.S2)		// UART Status Register 2
-#define UART0_C3		(UART0.C3)		// UART Control Register 3
-#define UART0_D			(UART0.D)		// UART Data Register
-#define UART0_MA1		(UART0.MA1)		// UART Match Address Registers 1
-#define UART0_MA2		(UART0.MA2)		// UART Match Address Registers 2
-#define UART0_C4		(UART0.C4)		// UART Control Register 4
-#define UART0_C5		(UART0.C5)		// UART Control Register 5
-#define UART0_ED		(UART0.ED)		// UART Extended Data Register
-#define UART0_MODEM		(UART0.MODEM)		// UART Modem Register
-#define UART0_IR		(UART0.IR)		// UART Infrared Register
-#define UART0_PFIFO		(UART0.PFIFO)		// UART FIFO Parameters
+#define UART0_S2		(KINETISK_UART0.S2)		// UART Status Register 2
+#define UART0_C3		(KINETISK_UART0.C3)		// UART Control Register 3
+#define UART0_D			(KINETISK_UART0.D)		// UART Data Register
+#define UART0_MA1		(KINETISK_UART0.MA1)		// UART Match Address Registers 1
+#define UART0_MA2		(KINETISK_UART0.MA2)		// UART Match Address Registers 2
+#define UART0_C4		(KINETISK_UART0.C4)		// UART Control Register 4
+#define UART0_C5		(KINETISK_UART0.C5)		// UART Control Register 5
+#define UART0_ED		(KINETISK_UART0.ED)		// UART Extended Data Register
+#define UART0_MODEM		(KINETISK_UART0.MODEM)		// UART Modem Register
+#define UART0_IR		(KINETISK_UART0.IR)		// UART Infrared Register
+#define UART0_PFIFO		(KINETISK_UART0.PFIFO)		// UART FIFO Parameters
 #define UART_PFIFO_TXFE		0x80			//  Transmit FIFO Enable
 #define UART_PFIFO_TXFIFOSIZE(n) (((n) & 7) << 4)	//  Transmit FIFO Size, 0=1, 1=4, 2=8, 3=16, 4=32, 5=64, 6=128
 #define UART_PFIFO_RXFE		0x08			//  Receive FIFO Enable
 #define UART_PFIFO_RXFIFOSIZE(n) (((n) & 7) << 0)	//  Transmit FIFO Size, 0=1, 1=4, 2=8, 3=16, 4=32, 5=64, 6=128
-#define UART0_CFIFO		(UART0.CFIFO)		// UART FIFO Control Register
+#define UART0_CFIFO		(KINETISK_UART0.CFIFO)		// UART FIFO Control Register
 #define UART_CFIFO_TXFLUSH	0x80			//  Transmit FIFO/Buffer Flush
 #define UART_CFIFO_RXFLUSH	0x40			//  Receive FIFO/Buffer Flush
 #define UART_CFIFO_RXOFE	0x04			//  Receive FIFO Overflow Interrupt Enable
 #define UART_CFIFO_TXOFE	0x02			//  Transmit FIFO Overflow Interrupt Enable
 #define UART_CFIFO_RXUFE	0x01			//  Receive FIFO Underflow Interrupt Enable
-#define UART0_SFIFO		(UART0.SFIFO)		// UART FIFO Status Register
+#define UART0_SFIFO		(KINETISK_UART0.SFIFO)		// UART FIFO Status Register
 #define UART_SFIFO_TXEMPT	0x80			//  Transmit Buffer/FIFO Empty
 #define UART_SFIFO_RXEMPT	0x40			//  Receive Buffer/FIFO Empty
 #define UART_SFIFO_RXOF		0x04			//  Receiver Buffer Overflow Flag
 #define UART_SFIFO_TXOF		0x02			//  Transmitter Buffer Overflow Flag
 #define UART_SFIFO_RXUF		0x01			//  Receiver Buffer Underflow Flag
-#define UART0_TWFIFO		(UART0.TWFIFO)		// UART FIFO Transmit Watermark
-#define UART0_TCFIFO		(UART0.TCFIFO)		// UART FIFO Transmit Count
-#define UART0_RWFIFO		(UART0.RWFIFO)		// UART FIFO Receive Watermark
-#define UART0_RCFIFO		(UART0.RCFIFO)		// UART FIFO Receive Count
-#define UART0_C7816		(UART0.C7816)		// UART 7816 Control Register
+#define UART0_TWFIFO		(KINETISK_UART0.TWFIFO)		// UART FIFO Transmit Watermark
+#define UART0_TCFIFO		(KINETISK_UART0.TCFIFO)		// UART FIFO Transmit Count
+#define UART0_RWFIFO		(KINETISK_UART0.RWFIFO)		// UART FIFO Receive Watermark
+#define UART0_RCFIFO		(KINETISK_UART0.RCFIFO)		// UART FIFO Receive Count
+#define UART0_C7816		(KINETISK_UART0.C7816)		// UART 7816 Control Register
 #define UART_C7816_ONACK	0x10			//  Generate NACK on Overflow
 #define UART_C7816_ANACK	0x08			//  Generate NACK on Error
 #define UART_C7816_INIT		0x04			//  Detect Initial Character
 #define UART_C7816_TTYPE	0x02			//  Transfer Type
 #define UART_C7816_ISO_7816E	0x01			//  ISO-7816 Functionality Enabled
-#define UART0_IE7816		(UART0.IE7816)		// UART 7816 Interrupt Enable Register
+#define UART0_IE7816		(KINETISK_UART0.IE7816)		// UART 7816 Interrupt Enable Register
 #define UART_IE7816_WTE		0x80			//  Wait Timer Interrupt Enable
 #define UART_IE7816_CWTE	0x40			//  Character Wait Timer Interrupt Enable
 #define UART_IE7816_BWTE	0x20			//  Block Wait Timer Interrupt Enable
@@ -2472,7 +2472,7 @@ typedef struct __attribute__((packed)) {
 #define UART_IE7816_GTVE	0x04			//  Guard Timer Violated Interrupt Enable
 #define UART_IE7816_TXTE	0x02			//  Transmit Threshold Exceeded Interrupt Enable
 #define UART_IE7816_RXTE	0x01			//  Receive Threshold Exceeded Interrupt Enable
-#define UART0_IS7816		(UART0.IS7816)		// UART 7816 Interrupt Status Register
+#define UART0_IS7816		(KINETISK_UART0.IS7816)		// UART 7816 Interrupt Status Register
 #define UART_IS7816_WT		0x80			//  Wait Timer Interrupt
 #define UART_IS7816_CWT		0x40			//  Character Wait Timer Interrupt
 #define UART_IS7816_BWT		0x20			//  Block Wait Timer Interrupt
@@ -2480,29 +2480,29 @@ typedef struct __attribute__((packed)) {
 #define UART_IS7816_GTV		0x04			//  Guard Timer Violated Interrupt
 #define UART_IS7816_TXT		0x02			//  Transmit Threshold Exceeded Interrupt
 #define UART_IS7816_RXT		0x01			//  Receive Threshold Exceeded Interrupt
-#define UART0_WP7816T0		(UART0.WP7816T0)	// UART 7816 Wait Parameter Register
-#define UART0_WP7816T1		(UART0.WP7816T1)	// UART 7816 Wait Parameter Register
+#define UART0_WP7816T0		(KINETISK_UART0.WP7816T0)	// UART 7816 Wait Parameter Register
+#define UART0_WP7816T1		(KINETISK_UART0.WP7816T1)	// UART 7816 Wait Parameter Register
 #define UART_WP7816T1_CWI(n)	(((n) & 15) << 4)	//  Character Wait Time Integer (C7816[TTYPE] = 1)
 #define UART_WP7816T1_BWI(n)	(((n) & 15) << 0)	//  Block Wait Time Integer(C7816[TTYPE] = 1)
-#define UART0_WN7816		(UART0.WN7816)		// UART 7816 Wait N Register
-#define UART0_WF7816		(UART0.WF7816)		// UART 7816 Wait FD Register
-#define UART0_ET7816		(UART0.ET7816)		// UART 7816 Error Threshold Register
+#define UART0_WN7816		(KINETISK_UART0.WN7816)		// UART 7816 Wait N Register
+#define UART0_WF7816		(KINETISK_UART0.WF7816)		// UART 7816 Wait FD Register
+#define UART0_ET7816		(KINETISK_UART0.ET7816)		// UART 7816 Error Threshold Register
 #define UART_ET7816_TXTHRESHOLD(n) (((n) & 15) << 4)	//  Transmit NACK Threshold
 #define UART_ET7816_RXTHRESHOLD(n) (((n) & 15) << 0)	//  Receive NACK Threshold
-#define UART0_TL7816		(UART0.TL7816)		// UART 7816 Transmit Length Register
-#define UART0_C6		(UART0.C6)		// UART CEA709.1-B Control Register 6
+#define UART0_TL7816		(KINETISK_UART0.TL7816)		// UART 7816 Transmit Length Register
+#define UART0_C6		(KINETISK_UART0.C6)		// UART CEA709.1-B Control Register 6
 #define UART_C6_EN709		0x80			//  Enables the CEA709.1-B feature.
 #define UART_C6_TX709		0x40			//  Starts CEA709.1-B transmission.
 #define UART_C6_CE		0x20			//  Collision Enable
 #define UART_C6_CP		0x10			//  Collision Signal Polarity
-#define UART0_PCTH		(UART0.PCTH)		// UART CEA709.1-B Packet Cycle Time Counter High
-#define UART0_PCTL		(UART0.PCTL)		// UART CEA709.1-B Packet Cycle Time Counter Low
-#define UART0_B1T		(UART0.B1T)		// UART CEA709.1-B Beta1 Timer
-#define UART0_SDTH		(UART0.SDTH)		// UART CEA709.1-B Secondary Delay Timer High
-#define UART0_SDTL		(UART0.SDTL)		// UART CEA709.1-B Secondary Delay Timer Low
-#define UART0_PRE		(UART0.PRE)		// UART CEA709.1-B Preamble
-#define UART0_TPL		(UART0.TPL)		// UART CEA709.1-B Transmit Packet Length
-#define UART0_IE		(UART0.IE)		// UART CEA709.1-B Interrupt Enable Register
+#define UART0_PCTH		(KINETISK_UART0.PCTH)		// UART CEA709.1-B Packet Cycle Time Counter High
+#define UART0_PCTL		(KINETISK_UART0.PCTL)		// UART CEA709.1-B Packet Cycle Time Counter Low
+#define UART0_B1T		(KINETISK_UART0.B1T)		// UART CEA709.1-B Beta1 Timer
+#define UART0_SDTH		(KINETISK_UART0.SDTH)		// UART CEA709.1-B Secondary Delay Timer High
+#define UART0_SDTL		(KINETISK_UART0.SDTL)		// UART CEA709.1-B Secondary Delay Timer Low
+#define UART0_PRE		(KINETISK_UART0.PRE)		// UART CEA709.1-B Preamble
+#define UART0_TPL		(KINETISK_UART0.TPL)		// UART CEA709.1-B Transmit Packet Length
+#define UART0_IE		(KINETISK_UART0.IE)		// UART CEA709.1-B Interrupt Enable Register
 #define UART_IE_WBEIE		0x40			//  WBASE Expired Interrupt Enable
 #define UART_IE_ISDIE		0x20			//  Initial Sync Detection Interrupt Enable
 #define UART_IE_PRXIE		0x10			//  Packet Received Interrupt Enable
@@ -2510,8 +2510,8 @@ typedef struct __attribute__((packed)) {
 #define UART_IE_PCTEIE		0x04			//  Packet Cycle Timer Interrupt Enable
 #define UART_IE_PSIE		0x02			//  Preamble Start Interrupt Enable
 #define UART_IE_TXFIE		0x01			//  Transmission Fail Interrupt Enable
-#define UART0_WB		(UART0.WB)		// UART CEA709.1-B WBASE
-#define UART0_S3		(UART0.S3)		// UART CEA709.1-B Status Register
+#define UART0_WB		(KINETISK_UART0.WB)		// UART CEA709.1-B WBASE
+#define UART0_S3		(KINETISK_UART0.S3)		// UART CEA709.1-B Status Register
 #define UART_S3_PEF		0x80			//  Preamble Error Flag
 #define UART_S3_WBEF		0x40			//  Wbase Expired Flag
 #define UART_S3_ISD		0x20			//  Initial Sync Detect
@@ -2520,114 +2520,114 @@ typedef struct __attribute__((packed)) {
 #define UART_S3_PCTEF		0x04			//  Packet Cycle Timer Expired Flag
 #define UART_S3_PSF		0x02			//  Preamble Start Flag
 #define UART_S3_TXFF		0x01			//  Transmission Fail Flag
-#define UART0_S4		(UART0.S4)		// UART CEA709.1-B Status Register
+#define UART0_S4		(KINETISK_UART0.S4)		// UART CEA709.1-B Status Register
 #define UART_S4_INITF		0x10			//  Initial Synchronization Fail Flag
 #define UART_S4_CDET(n)		(((n) & 3) << 2)	//  Indicates collision: 0=none, 1=preamble, 2=data, 3=line code violation
 #define UART_S4_ILCV		0x02			//  Improper Line Code Violation
 #define UART_S4_FE		0x01			//  Framing Error
-#define UART0_RPL		(UART0.RPL)		// UART CEA709.1-B Received Packet Length
-#define UART0_RPREL		(UART0.RPREL)		// UART CEA709.1-B Received Preamble Length
-#define UART0_CPW		(UART0.CPW)		// UART CEA709.1-B Collision Pulse Width
-#define UART0_RIDT		(UART0.RIDT)		// UART CEA709.1-B Receive Indeterminate Time
-#define UART0_TIDT		(UART0.TIDT)		// UART CEA709.1-B Transmit Indeterminate Time
-#define UART1			(*(KINETISK_UART_t *)0x4006B000)
-#define UART1_BDH		(UART1.BDH)		// UART Baud Rate Registers: High
-#define UART1_BDL		(UART1.BDL)		// UART Baud Rate Registers: Low
-#define UART1_C1		(UART1.C1)		// UART Control Register 1
-#define UART1_C2		(UART1.C2)		// UART Control Register 2
-#define UART1_S1		(UART1.S1)		// UART Status Register 1
-#define UART1_S2		(UART1.S2)		// UART Status Register 2
-#define UART1_C3		(UART1.C3)		// UART Control Register 3
-#define UART1_D			(UART1.D)		// UART Data Register
-#define UART1_MA1		(UART1.MA1)		// UART Match Address Registers 1
-#define UART1_MA2		(UART1.MA2)		// UART Match Address Registers 2
-#define UART1_C4		(UART1.C4)		// UART Control Register 4
-#define UART1_C5		(UART1.C5)		// UART Control Register 5
-#define UART1_ED		(UART1.ED)		// UART Extended Data Register
-#define UART1_MODEM		(UART1.MODEM)		// UART Modem Register
-#define UART1_IR		(UART1.IR)		// UART Infrared Register
-#define UART1_PFIFO		(UART1.PFIFO)		// UART FIFO Parameters
-#define UART1_CFIFO		(UART1.CFIFO)		// UART FIFO Control Register
-#define UART1_SFIFO		(UART1.SFIFO)		// UART FIFO Status Register
-#define UART1_TWFIFO		(UART1.TWFIFO)		// UART FIFO Transmit Watermark
-#define UART1_TCFIFO		(UART1.TCFIFO)		// UART FIFO Transmit Count
-#define UART1_RWFIFO		(UART1.RWFIFO)		// UART FIFO Receive Watermark
-#define UART1_RCFIFO		(UART1.RCFIFO)		// UART FIFO Receive Count
-#define UART1_C7816		(UART1.C7816)		// UART 7816 Control Register
-#define UART1_IE7816		(UART1.IE7816)		// UART 7816 Interrupt Enable Register
-#define UART1_IS7816		(UART1.IS7816)		// UART 7816 Interrupt Status Register
-#define UART1_WP7816T0		(UART1.WP7816T0)	// UART 7816 Wait Parameter Register
-#define UART1_WP7816T1		(UART1.WP7816T1)	// UART 7816 Wait Parameter Register
-#define UART1_WN7816		(UART1.WN7816)		// UART 7816 Wait N Register
-#define UART1_WF7816		(UART1.WF7816)		// UART 7816 Wait FD Register
-#define UART1_ET7816		(UART1.ET7816)		// UART 7816 Error Threshold Register
-#define UART1_TL7816		(UART1.TL7816)		// UART 7816 Transmit Length Register
-#define UART1_C6		(UART1.C6)		// UART CEA709.1-B Control Register 6
-#define UART1_PCTH		(UART1.PCTH)		// UART CEA709.1-B Packet Cycle Time Counter High
-#define UART1_PCTL		(UART1.PCTL)		// UART CEA709.1-B Packet Cycle Time Counter Low
-#define UART1_B1T		(UART1.B1T)		// UART CEA709.1-B Beta1 Timer
-#define UART1_SDTH		(UART1.SDTH)		// UART CEA709.1-B Secondary Delay Timer High
-#define UART1_SDTL		(UART1.SDTL)		// UART CEA709.1-B Secondary Delay Timer Low
-#define UART1_PRE		(UART1.PRE)		// UART CEA709.1-B Preamble
-#define UART1_TPL		(UART1.TPL)		// UART CEA709.1-B Transmit Packet Length
-#define UART1_IE		(UART1.IE)		// UART CEA709.1-B Interrupt Enable Register
-#define UART1_WB		(UART1.WB)		// UART CEA709.1-B WBASE
-#define UART1_S3		(UART1.S3)		// UART CEA709.1-B Status Register
-#define UART1_S4		(UART1.S4)		// UART CEA709.1-B Status Register
-#define UART1_RPL		(UART1.RPL)		// UART CEA709.1-B Received Packet Length
-#define UART1_RPREL		(UART1.RPREL)		// UART CEA709.1-B Received Preamble Length
-#define UART1_CPW		(UART1.CPW)		// UART CEA709.1-B Collision Pulse Width
-#define UART1_RIDT		(UART1.RIDT)		// UART CEA709.1-B Receive Indeterminate Time
-#define UART1_TIDT		(UART1.TIDT)		// UART CEA709.1-B Transmit Indeterminate Time
-#define UART2			(*(KINETISK_UART_t *)0x4006C000)
-#define UART2_BDH		(UART2.BDH)		// UART Baud Rate Registers: High
-#define UART2_BDL		(UART2.BDL)		// UART Baud Rate Registers: Low
-#define UART2_C1		(UART2.C1)		// UART Control Register 1
-#define UART2_C2		(UART2.C2)		// UART Control Register 2
-#define UART2_S1		(UART2.S1)		// UART Status Register 1
-#define UART2_S2		(UART2.S2)		// UART Status Register 2
-#define UART2_C3		(UART2.C3)		// UART Control Register 3
-#define UART2_D			(UART2.D)		// UART Data Register
-#define UART2_MA1		(UART2.MA1)		// UART Match Address Registers 1
-#define UART2_MA2		(UART2.MA2)		// UART Match Address Registers 2
-#define UART2_C4		(UART2.C4)		// UART Control Register 4
-#define UART2_C5		(UART2.C5)		// UART Control Register 5
-#define UART2_ED		(UART2.ED)		// UART Extended Data Register
-#define UART2_MODEM		(UART2.MODEM)		// UART Modem Register
-#define UART2_IR		(UART2.IR)		// UART Infrared Register
-#define UART2_PFIFO		(UART2.PFIFO)		// UART FIFO Parameters
-#define UART2_CFIFO		(UART2.CFIFO)		// UART FIFO Control Register
-#define UART2_SFIFO		(UART2.SFIFO)		// UART FIFO Status Register
-#define UART2_TWFIFO		(UART2.TWFIFO)		// UART FIFO Transmit Watermark
-#define UART2_TCFIFO		(UART2.TCFIFO)		// UART FIFO Transmit Count
-#define UART2_RWFIFO		(UART2.RWFIFO)		// UART FIFO Receive Watermark
-#define UART2_RCFIFO		(UART2.RCFIFO)		// UART FIFO Receive Count
-#define UART2_C7816		(UART2.C7816)		// UART 7816 Control Register
-#define UART2_IE7816		(UART2.IE7816)		// UART 7816 Interrupt Enable Register
-#define UART2_IS7816		(UART2.IS7816)		// UART 7816 Interrupt Status Register
-#define UART2_WP7816T0		(UART2.WP7816T0)	// UART 7816 Wait Parameter Register
-#define UART2_WP7816T1		(UART2.WP7816T1)	// UART 7816 Wait Parameter Register
-#define UART2_WN7816		(UART2.WN7816)		// UART 7816 Wait N Register
-#define UART2_WF7816		(UART2.WF7816)		// UART 7816 Wait FD Register
-#define UART2_ET7816		(UART2.ET7816)		// UART 7816 Error Threshold Register
-#define UART2_TL7816		(UART2.TL7816)		// UART 7816 Transmit Length Register
-#define UART2_C6		(UART2.C6)		// UART CEA709.1-B Control Register 6
-#define UART2_PCTH		(UART2.PCTH)		// UART CEA709.1-B Packet Cycle Time Counter High
-#define UART2_PCTL		(UART2.PCTL)		// UART CEA709.1-B Packet Cycle Time Counter Low
-#define UART2_B1T		(UART2.B1T)		// UART CEA709.1-B Beta1 Timer
-#define UART2_SDTH		(UART2.SDTH)		// UART CEA709.1-B Secondary Delay Timer High
-#define UART2_SDTL		(UART2.SDTL)		// UART CEA709.1-B Secondary Delay Timer Low
-#define UART2_PRE		(UART2.PRE)		// UART CEA709.1-B Preamble
-#define UART2_TPL		(UART2.TPL)		// UART CEA709.1-B Transmit Packet Length
-#define UART2_IE		(UART2.IE)		// UART CEA709.1-B Interrupt Enable Register
-#define UART2_WB		(UART2.WB)		// UART CEA709.1-B WBASE
-#define UART2_S3		(UART2.S3)		// UART CEA709.1-B Status Register
-#define UART2_S4		(UART2.S4)		// UART CEA709.1-B Status Register
-#define UART2_RPL		(UART2.RPL)		// UART CEA709.1-B Received Packet Length
-#define UART2_RPREL		(UART2.RPREL)		// UART CEA709.1-B Received Preamble Length
-#define UART2_CPW		(UART2.CPW)		// UART CEA709.1-B Collision Pulse Width
-#define UART2_RIDT		(UART2.RIDT)		// UART CEA709.1-B Receive Indeterminate Time
-#define UART2_TIDT		(UART2.TIDT)		// UART CEA709.1-B Transmit Indeterminate Time
+#define UART0_RPL		(KINETISK_UART0.RPL)	// UART CEA709.1-B Received Packet Length
+#define UART0_RPREL		(KINETISK_UART0.RPREL)	// UART CEA709.1-B Received Preamble Length
+#define UART0_CPW		(KINETISK_UART0.CPW)	// UART CEA709.1-B Collision Pulse Width
+#define UART0_RIDT		(KINETISK_UART0.RIDT)	// UART CEA709.1-B Receive Indeterminate Time
+#define UART0_TIDT		(KINETISK_UART0.TIDT)	// UART CEA709.1-B Transmit Indeterminate Time
+#define KINETISK_UART1		(*(KINETISK_UART_t *)0x4006B000)
+#define UART1_BDH		(KINETISK_UART1.BDH)	// UART Baud Rate Registers: High
+#define UART1_BDL		(KINETISK_UART1.BDL)	// UART Baud Rate Registers: Low
+#define UART1_C1		(KINETISK_UART1.C1)	// UART Control Register 1
+#define UART1_C2		(KINETISK_UART1.C2)	// UART Control Register 2
+#define UART1_S1		(KINETISK_UART1.S1)	// UART Status Register 1
+#define UART1_S2		(KINETISK_UART1.S2)	// UART Status Register 2
+#define UART1_C3		(KINETISK_UART1.C3)	// UART Control Register 3
+#define UART1_D			(KINETISK_UART1.D)	// UART Data Register
+#define UART1_MA1		(KINETISK_UART1.MA1)	// UART Match Address Registers 1
+#define UART1_MA2		(KINETISK_UART1.MA2)	// UART Match Address Registers 2
+#define UART1_C4		(KINETISK_UART1.C4)	// UART Control Register 4
+#define UART1_C5		(KINETISK_UART1.C5)	// UART Control Register 5
+#define UART1_ED		(KINETISK_UART1.ED)	// UART Extended Data Register
+#define UART1_MODEM		(KINETISK_UART1.MODEM)	// UART Modem Register
+#define UART1_IR		(KINETISK_UART1.IR)	// UART Infrared Register
+#define UART1_PFIFO		(KINETISK_UART1.PFIFO)	// UART FIFO Parameters
+#define UART1_CFIFO		(KINETISK_UART1.CFIFO)	// UART FIFO Control Register
+#define UART1_SFIFO		(KINETISK_UART1.SFIFO)	// UART FIFO Status Register
+#define UART1_TWFIFO		(KINETISK_UART1.TWFIFO)	// UART FIFO Transmit Watermark
+#define UART1_TCFIFO		(KINETISK_UART1.TCFIFO)	// UART FIFO Transmit Count
+#define UART1_RWFIFO		(KINETISK_UART1.RWFIFO)	// UART FIFO Receive Watermark
+#define UART1_RCFIFO		(KINETISK_UART1.RCFIFO)	// UART FIFO Receive Count
+#define UART1_C7816		(KINETISK_UART1.C7816)	// UART 7816 Control Register
+#define UART1_IE7816		(KINETISK_UART1.IE7816)	// UART 7816 Interrupt Enable Register
+#define UART1_IS7816		(KINETISK_UART1.IS7816)	// UART 7816 Interrupt Status Register
+#define UART1_WP7816T0		(KINETISK_UART1.WP7816T0)// UART 7816 Wait Parameter Register
+#define UART1_WP7816T1		(KINETISK_UART1.WP7816T1)// UART 7816 Wait Parameter Register
+#define UART1_WN7816		(KINETISK_UART1.WN7816)	// UART 7816 Wait N Register
+#define UART1_WF7816		(KINETISK_UART1.WF7816)	// UART 7816 Wait FD Register
+#define UART1_ET7816		(KINETISK_UART1.ET7816)	// UART 7816 Error Threshold Register
+#define UART1_TL7816		(KINETISK_UART1.TL7816)	// UART 7816 Transmit Length Register
+#define UART1_C6		(KINETISK_UART1.C6)	// UART CEA709.1-B Control Register 6
+#define UART1_PCTH		(KINETISK_UART1.PCTH)	// UART CEA709.1-B Packet Cycle Time Counter High
+#define UART1_PCTL		(KINETISK_UART1.PCTL)	// UART CEA709.1-B Packet Cycle Time Counter Low
+#define UART1_B1T		(KINETISK_UART1.B1T)	// UART CEA709.1-B Beta1 Timer
+#define UART1_SDTH		(KINETISK_UART1.SDTH)	// UART CEA709.1-B Secondary Delay Timer High
+#define UART1_SDTL		(KINETISK_UART1.SDTL)	// UART CEA709.1-B Secondary Delay Timer Low
+#define UART1_PRE		(KINETISK_UART1.PRE)	// UART CEA709.1-B Preamble
+#define UART1_TPL		(KINETISK_UART1.TPL)	// UART CEA709.1-B Transmit Packet Length
+#define UART1_IE		(KINETISK_UART1.IE)	// UART CEA709.1-B Interrupt Enable Register
+#define UART1_WB		(KINETISK_UART1.WB)	// UART CEA709.1-B WBASE
+#define UART1_S3		(KINETISK_UART1.S3)	// UART CEA709.1-B Status Register
+#define UART1_S4		(KINETISK_UART1.S4)	// UART CEA709.1-B Status Register
+#define UART1_RPL		(KINETISK_UART1.RPL)	// UART CEA709.1-B Received Packet Length
+#define UART1_RPREL		(KINETISK_UART1.RPREL)	// UART CEA709.1-B Received Preamble Length
+#define UART1_CPW		(KINETISK_UART1.CPW)	// UART CEA709.1-B Collision Pulse Width
+#define UART1_RIDT		(KINETISK_UART1.RIDT)	// UART CEA709.1-B Receive Indeterminate Time
+#define UART1_TIDT		(KINETISK_UART1.TIDT)	// UART CEA709.1-B Transmit Indeterminate Time
+#define KINETISK_UART2		(*(KINETISK_UART_t *)0x4006C000)
+#define UART2_BDH		(KINETISK_UART2.BDH)	// UART Baud Rate Registers: High
+#define UART2_BDL		(KINETISK_UART2.BDL)	// UART Baud Rate Registers: Low
+#define UART2_C1		(KINETISK_UART2.C1)	// UART Control Register 1
+#define UART2_C2		(KINETISK_UART2.C2)	// UART Control Register 2
+#define UART2_S1		(KINETISK_UART2.S1)	// UART Status Register 1
+#define UART2_S2		(KINETISK_UART2.S2)	// UART Status Register 2
+#define UART2_C3		(KINETISK_UART2.C3)	// UART Control Register 3
+#define UART2_D			(KINETISK_UART2.D)	// UART Data Register
+#define UART2_MA1		(KINETISK_UART2.MA1)	// UART Match Address Registers 1
+#define UART2_MA2		(KINETISK_UART2.MA2)	// UART Match Address Registers 2
+#define UART2_C4		(KINETISK_UART2.C4)	// UART Control Register 4
+#define UART2_C5		(KINETISK_UART2.C5)	// UART Control Register 5
+#define UART2_ED		(KINETISK_UART2.ED)	// UART Extended Data Register
+#define UART2_MODEM		(KINETISK_UART2.MODEM)	// UART Modem Register
+#define UART2_IR		(KINETISK_UART2.IR)	// UART Infrared Register
+#define UART2_PFIFO		(KINETISK_UART2.PFIFO)	// UART FIFO Parameters
+#define UART2_CFIFO		(KINETISK_UART2.CFIFO)	// UART FIFO Control Register
+#define UART2_SFIFO		(KINETISK_UART2.SFIFO)	// UART FIFO Status Register
+#define UART2_TWFIFO		(KINETISK_UART2.TWFIFO)	// UART FIFO Transmit Watermark
+#define UART2_TCFIFO		(KINETISK_UART2.TCFIFO)	// UART FIFO Transmit Count
+#define UART2_RWFIFO		(KINETISK_UART2.RWFIFO)	// UART FIFO Receive Watermark
+#define UART2_RCFIFO		(KINETISK_UART2.RCFIFO)	// UART FIFO Receive Count
+#define UART2_C7816		(KINETISK_UART2.C7816)	// UART 7816 Control Register
+#define UART2_IE7816		(KINETISK_UART2.IE7816)	// UART 7816 Interrupt Enable Register
+#define UART2_IS7816		(KINETISK_UART2.IS7816)	// UART 7816 Interrupt Status Register
+#define UART2_WP7816T0		(KINETISK_UART2.WP7816T0)// UART 7816 Wait Parameter Register
+#define UART2_WP7816T1		(KINETISK_UART2.WP7816T1)// UART 7816 Wait Parameter Register
+#define UART2_WN7816		(KINETISK_UART2.WN7816)	// UART 7816 Wait N Register
+#define UART2_WF7816		(KINETISK_UART2.WF7816)	// UART 7816 Wait FD Register
+#define UART2_ET7816		(KINETISK_UART2.ET7816)	// UART 7816 Error Threshold Register
+#define UART2_TL7816		(KINETISK_UART2.TL7816)	// UART 7816 Transmit Length Register
+#define UART2_C6		(KINETISK_UART2.C6)	// UART CEA709.1-B Control Register 6
+#define UART2_PCTH		(KINETISK_UART2.PCTH)	// UART CEA709.1-B Packet Cycle Time Counter High
+#define UART2_PCTL		(KINETISK_UART2.PCTL)	// UART CEA709.1-B Packet Cycle Time Counter Low
+#define UART2_B1T		(KINETISK_UART2.B1T)	// UART CEA709.1-B Beta1 Timer
+#define UART2_SDTH		(KINETISK_UART2.SDTH)	// UART CEA709.1-B Secondary Delay Timer High
+#define UART2_SDTL		(KINETISK_UART2.SDTL)	// UART CEA709.1-B Secondary Delay Timer Low
+#define UART2_PRE		(KINETISK_UART2.PRE)	// UART CEA709.1-B Preamble
+#define UART2_TPL		(KINETISK_UART2.TPL)	// UART CEA709.1-B Transmit Packet Length
+#define UART2_IE		(KINETISK_UART2.IE)	// UART CEA709.1-B Interrupt Enable Register
+#define UART2_WB		(KINETISK_UART2.WB)	// UART CEA709.1-B WBASE
+#define UART2_S3		(KINETISK_UART2.S3)	// UART CEA709.1-B Status Register
+#define UART2_S4		(KINETISK_UART2.S4)	// UART CEA709.1-B Status Register
+#define UART2_RPL		(KINETISK_UART2.RPL)	// UART CEA709.1-B Received Packet Length
+#define UART2_RPREL		(KINETISK_UART2.RPREL)	// UART CEA709.1-B Received Preamble Length
+#define UART2_CPW		(KINETISK_UART2.CPW)	// UART CEA709.1-B Collision Pulse Width
+#define UART2_RIDT		(KINETISK_UART2.RIDT)	// UART CEA709.1-B Receive Indeterminate Time
+#define UART2_TIDT		(KINETISK_UART2.TIDT)	// UART CEA709.1-B Transmit Indeterminate Time
 
 // Chapter 46: Synchronous Audio Interface (SAI)
 #define I2S0_TCSR		(*(volatile uint32_t *)0x4002F000) // SAI Transmit Control Register

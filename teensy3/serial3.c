@@ -90,13 +90,13 @@ void serial3_begin(uint32_t divisor)
 	transmitting = 0;
 	CORE_PIN7_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3);
 	CORE_PIN8_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3);
-#if defined(KINETISK_UART2)
+#if defined(HAS_KINETISK_UART2)
 	UART2_BDH = (divisor >> 13) & 0x1F;
 	UART2_BDL = (divisor >> 5) & 0xFF;
 	UART2_C4 = divisor & 0x1F;
 	UART2_C1 = 0;
 	UART2_PFIFO = 0;
-#elif defined(KINETISL_UART2)
+#elif defined(HAS_KINETISL_UART2)
 	UART2_BDH = (divisor >> 8) & 0x1F;
 	UART2_BDL = divisor & 0xFF;
 	UART2_C1 = 0;

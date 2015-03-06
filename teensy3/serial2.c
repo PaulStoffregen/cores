@@ -74,7 +74,7 @@ static volatile uint8_t rx_buffer_tail = 0;
 // UART0 and UART1 are clocked by F_CPU, UART2 is clocked by F_BUS
 // UART0 has 8 byte fifo, UART1 and UART2 have 1 byte buffer
 
-#ifdef KINETISK_UART1_FIFO
+#ifdef HAS_KINETISK_UART1_FIFO
 #define C2_ENABLE		UART_C2_TE | UART_C2_RE | UART_C2_RIE | UART_C2_ILIE
 #else
 #define C2_ENABLE		UART_C2_TE | UART_C2_RE | UART_C2_RIE
@@ -93,11 +93,11 @@ void serial2_begin(uint32_t divisor)
 	transmitting = 0;
 	CORE_PIN9_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3);
 	CORE_PIN10_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3);
-#if defined(KINETISK_UART1)
+#if defined(HAS_KINETISK_UART1)
 	UART1_BDH = (divisor >> 13) & 0x1F;
 	UART1_BDL = (divisor >> 5) & 0xFF;
 	UART1_C4 = divisor & 0x1F;
-#ifdef KINETISK_UART1_FIFO
+#ifdef HAS_KINETISK_UART1_FIFO
 	UART1_C1 = UART_C1_ILT;
 	UART1_TWFIFO = 2; // tx watermark, causes S1_TDRE to set
 	UART1_RWFIFO = 4; // rx watermark, causes S1_RDRF to set
@@ -106,7 +106,7 @@ void serial2_begin(uint32_t divisor)
 	UART1_C1 = 0;
 	UART1_PFIFO = 0;
 #endif
-#elif defined(KINETISL_UART1)
+#elif defined(HAS_KINETISL_UART1)
 	UART1_BDH = (divisor >> 8) & 0x1F;
 	UART1_BDL = divisor & 0xFF;
 	UART1_C1 = 0;
@@ -194,7 +194,7 @@ void serial2_putchar(uint32_t c)
 	UART1_C2 = C2_TX_ACTIVE;
 }
 
-#ifdef KINETISK_UART1_FIFO
+#ifdef HAS_KINETISK_UART1_FIFO
 void serial2_write(const void *buf, unsigned int count)
 {
 	const uint8_t *p = (const uint8_t *)buf;
@@ -290,7 +290,7 @@ int serial2_peek(void)
 
 void serial2_clear(void)
 {
-#ifdef KINETISK_UART1_FIFO
+#ifdef HAS_KINETISK_UART1_FIFO
 	if (!(SIM_SCGC4 & SIM_SCGC4_UART1)) return;
 	UART1_C2 &= ~(UART_C2_RE | UART_C2_RIE | UART_C2_ILIE);
 	UART1_CFIFO = UART_CFIFO_RXFLUSH;
@@ -311,7 +311,7 @@ void uart1_status_isr(void)
 {
 	uint32_t head, tail, n;
 	uint8_t c;
-#ifdef KINETISK_UART1_FIFO
+#ifdef HAS_KINETISK_UART1_FIFO
 	uint32_t newhead;
 	uint8_t avail;
 
