@@ -77,6 +77,8 @@ usb_serial_class Serial;
 
 #if defined(USB_SERIAL) || defined(USB_SERIAL_HID)
 usb_serial_class Serial;
+#elif (USB_DISABLED)
+usb_serial_class Serial;
 #else
 usb_seremu_class Serial;
 #endif
