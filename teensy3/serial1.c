@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -57,6 +57,9 @@ static volatile BUFTYPE tx_buffer[TX_BUFFER_SIZE];
 static volatile BUFTYPE rx_buffer[RX_BUFFER_SIZE];
 static volatile uint8_t transmitting = 0;
 static volatile uint8_t *transmit_pin=NULL;
+#ifdef SERIAL_SINGLEWIRE_SUPPORT
+static volatile uint8_t single_wire=0;
+#endif
 #if TX_BUFFER_SIZE > 255
 static volatile uint16_t tx_buffer_head = 0;
 static volatile uint16_t tx_buffer_tail = 0;
@@ -124,7 +127,21 @@ void serial_format(uint32_t format)
         c = UART0_C1;
         c = (c & ~0x13) | (format & 0x03);      // configure parity
         if (format & 0x04) c |= 0x10;           // 9 bits (might include parity)
-        UART0_C1 = c;
+#ifdef SERIAL_SINGLEWIRE_SUPPORT
+        c = c & ~( 0x80 );                      // ToDo: Check what happens when we clear RSRC and set TXDIR
+        if ( format & SERIAL_SINGLEWIRE_BITMASK ) {
+          c = c | ( 0x80 | 0x20 );              // single wire mode - set C1[LOOPS = 7] and C1[RSRC = 5]
+          UART0_C1 = c;
+          c = UART0_C3 & ~0x20;                 // single wire mode also wants the C3[TXDIR = 5] to be cleared so it's listening
+          UART0_C3 = c;
+          single_wire = 1;                      // make sure there's a flag set so it can be toggled when necessary
+        } else {
+          UART0_C1 = c;
+          single_wire = 0;
+        }
+#else
+        UART0_C1 = c;                           // save that c value from above
+#endif
         if ((format & 0x0F) == 0x04) UART0_C3 |= 0x40; // 8N2 is 9 bit with 9th bit always 1
         c = UART0_S2 & ~0x10;
         if (format & 0x10) c |= 0x10;           // rx invert
@@ -166,6 +183,9 @@ void serial_putchar(uint32_t c)
 
 	if (!(SIM_SCGC4 & SIM_SCGC4_UART0)) return;
 	if (transmit_pin) *transmit_pin = 1;
+#ifdef SERIAL_SINGLEWIRE_SUPPORT
+	if (single_wire) UART0_C3 = UART0_C3 | 0x20;
+#endif
 	head = tx_buffer_head;
 	if (++head >= TX_BUFFER_SIZE) head = 0;
 	while (tx_buffer_tail == head) {
@@ -198,6 +218,9 @@ void serial_write(const void *buf, unsigned int count)
 
         if (!(SIM_SCGC4 & SIM_SCGC4_UART0)) return;
 	if (transmit_pin) *transmit_pin = 1;
+#ifdef SERIAL_SINGLEWIRE_SUPPORT
+	if (single_wire) UART0_C3 = UART0_C3 | 0x20;
+#endif
 	while (p < end) {
         	head = tx_buffer_head;
         	if (++head >= TX_BUFFER_SIZE) head = 0;
@@ -294,7 +317,7 @@ void serial_clear(void)
 	rx_buffer_head = rx_buffer_tail;
 }
 
-// status interrupt combines 
+// status interrupt combines
 //   Transmit data below watermark  UART_S1_TDRE
 //   Transmit complete              UART_S1_TC
 //   Idle line                      UART_S1_IDLE
@@ -396,6 +419,9 @@ void uart0_status_isr(void)
 	if ((c & UART_C2_TCIE) && (UART0_S1 & UART_S1_TC)) {
 		transmitting = 0;
 		if (transmit_pin) *transmit_pin = 0;
+#ifdef SERIAL_SINGLEWIRE_SUPPORT
+		if (single_wire) UART0_C3 = UART0_C3 & ~0x20;
+#endif
 		UART0_C2 = C2_TX_INACTIVE;
 	}
 }
@@ -440,4 +466,3 @@ void serial_phex32(uint32_t n)
 	serial_phex(n >> 8);
 	serial_phex(n);
 }
-
