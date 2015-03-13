@@ -151,7 +151,7 @@ void serial3_set_transmit_pin(uint8_t pin)
 
 void serial3_putchar(uint32_t c)
 {
-	uint32_t head;
+	uint32_t head, n;
 
 	if (!(SIM_SCGC4 & SIM_SCGC4_UART2)) return;
 	if (transmit_pin) *transmit_pin = 1;
@@ -163,7 +163,9 @@ void serial3_putchar(uint32_t c)
 			if ((UART2_S1 & UART_S1_TDRE)) {
 				uint32_t tail = tx_buffer_tail;
 				if (++tail >= TX_BUFFER_SIZE) tail = 0;
-				UART2_D = tx_buffer[tail];
+				n = tx_buffer[tail];
+				if (use9Bits) UART2_C3 = (UART2_C3 & ~0x40) | ((n & 0x100) >> 2);
+				UART2_D = n;
 				tx_buffer_tail = tail;
 			}
 		} else if (priority >= 256) {
