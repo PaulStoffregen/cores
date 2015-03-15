@@ -176,8 +176,8 @@ public:
 			p = 0x10;
 		} else {
 			reg = portOutputRegister(pin);
-			*reg = 1;
 			pinMode(pin, OUTPUT);
+			*reg = 1;
 			p = 0;
 		}
 		pcs = p;
