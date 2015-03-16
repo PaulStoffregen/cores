@@ -73,7 +73,7 @@ static const uint8_t PROGMEM device_descriptor[] = {
 };
 
 
-static uint8_t PROGMEM rawhid_hid_report_desc[] = {
+static const uint8_t PROGMEM rawhid_hid_report_desc[] = {
         0x06, 0x1C, 0xFF,			// Usage page = 0xFF1C
         0x0A, 0x39, 0xA7,			// Usage = 0xA739
         0xA1, 0x01,                             // Collection 0x01
