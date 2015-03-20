@@ -2970,6 +2970,7 @@ extern "C" {
 #endif
 extern int nvic_execution_priority(void);
 
+extern void unused_isr();
 extern void nmi_isr(void);
 extern void hard_fault_isr(void);
 extern void memmanage_fault_isr(void);
@@ -3066,6 +3067,13 @@ extern void software_isr(void);
 
 extern void (* _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
 extern void (* const _VectorsFlash[NVIC_NUM_INTERRUPTS+16])(void);
+
+void serialEvent1() __attribute__((weak));
+void serialEvent1() {}
+void serialEvent2() __attribute__((weak));
+void serialEvent2() {}
+void serialEvent3() __attribute__((weak));
+void serialEvent3() {}
 
 #ifdef __cplusplus
 }
