@@ -32,6 +32,7 @@
 #include "HardwareSerial.h"
 #include "usb_serial.h"
 #include "usb_seremu.h"
+#include "serialEvent.h"
 
 int serial_available(void) __attribute__ ((weak));
 int serial2_available(void) __attribute__ ((weak));
