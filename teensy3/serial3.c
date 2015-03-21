@@ -111,6 +111,7 @@ void serial3_begin(uint32_t divisor)
 	UART2_C1 = 0;
 #endif
 	UART2_C2 = C2_TX_INACTIVE;
+	attachInterruptVector(IRQ_UART2_STATUS,uart2_status_isr);
 	NVIC_SET_PRIORITY(IRQ_UART2_STATUS, IRQ_PRIORITY);
 	NVIC_ENABLE_IRQ(IRQ_UART2_STATUS);
 }

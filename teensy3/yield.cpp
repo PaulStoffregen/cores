@@ -33,6 +33,14 @@
 #include "usb_serial.h"
 #include "usb_seremu.h"
 
+int serial_available(void) __attribute__ ((weak));
+int serial2_available(void) __attribute__ ((weak));
+int serial3_available(void) __attribute__ ((weak));
+
+int serial_available(void) {return 0;}
+int serial2_available(void) {return 0;}
+int serial3_available(void) {return 0;}
+
 void yield(void) __attribute__ ((weak));
 void yield(void)
 {
