@@ -371,6 +371,7 @@ ISR(USB_COM_vect)
 	uint16_t wIndex;
 	uint16_t wLength;
 	uint16_t desc_val;
+	uint32_t baud;
 	const uint8_t *desc_addr;
 	uint8_t	desc_length;
 
@@ -488,8 +489,12 @@ ISR(USB_COM_vect)
 			}
 			usb_ack_out();
 			usb_send_in();
-			if (*(long *)cdc_line_coding == 134L) reboot_timer = 15;
-			if (*(long *)cdc_line_coding == 150L) {
+			baud = (uint32_t)cdc_line_coding[0]
+				| ((uint32_t)cdc_line_coding[1] << 8)
+				| ((uint32_t)cdc_line_coding[2] << 16)
+				| ((uint32_t)cdc_line_coding[3] << 24);
+			if (baud == 134UL) reboot_timer = 15;
+			if (baud == 150UL) {
 				UENUM = CDC_TX_ENDPOINT;
 				while (UESTA0X & 0x03) {
 					UEINTX = 0xFF;

@@ -58,7 +58,7 @@ size_t Print::print(const __FlashStringHelper *ifsh)
 {
 	uint8_t buffer[32];
 	size_t count = 0;
-	const char PROGMEM *p = (const char PROGMEM *)ifsh;
+	const char *p = (const char *)ifsh;
 	unsigned int len = strlen_P(p);
 	while (len > 0) {
 		unsigned int nbytes = len;

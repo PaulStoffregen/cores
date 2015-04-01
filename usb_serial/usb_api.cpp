@@ -409,7 +409,11 @@ void usb_serial_class::send_now(void)
 
 uint32_t usb_serial_class::baud(void)
 {
-	return *(uint32_t *)cdc_line_coding;
+	//return *(uint32_t *)cdc_line_coding;
+	return (uint32_t)cdc_line_coding[0]
+	  | ((uint32_t)cdc_line_coding[1] << 8)
+	  | ((uint32_t)cdc_line_coding[2] << 16)
+	  | ((uint32_t)cdc_line_coding[3] << 24);
 }
 
 uint8_t usb_serial_class::stopbits(void)

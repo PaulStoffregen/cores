@@ -105,7 +105,8 @@ void usb_midi_write_packed(uint32_t n)
 	}
 	transmit_previous_timeout = 0;
 	index = tx_packet->index;
-	*((uint32_t *)(tx_packet->buf) + index++) = n;
+	//*((uint32_t *)(tx_packet->buf) + index++) = n;
+	((uint32_t *)(tx_packet->buf))[index++] = n;
 	if (index < MIDI_TX_SIZE/4) {
 		tx_packet->index = index;
 	} else {
@@ -172,7 +173,8 @@ int usb_midi_read(uint32_t channel)
 		}
 	}
 	index = rx_packet->index;
-	n = *(uint32_t *)(rx_packet->buf + index);
+	//n = *(uint32_t *)(rx_packet->buf + index);
+	n = ((uint32_t *)rx_packet->buf)[index/4];
 	//serial_print("midi rx, n=");
 	//serial_phex32(n);
 	//serial_print("\n");
