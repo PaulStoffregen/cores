@@ -91,6 +91,16 @@ int HardwareSerial::available(void)
 	return RX_BUFFER_SIZE + head - tail;
 }
 
+int HardwareSerial::availableForWrite(void)
+{
+	uint8_t head, tail;
+
+	head = rx_buffer_head;
+	tail = rx_buffer_tail;
+	if (head >= tail) return TX_BUFFER_SIZE - 1 - head + tail;
+	return tail - head - 1;
+}
+
 int HardwareSerial::peek(void)
 {
 	uint8_t head, tail;
