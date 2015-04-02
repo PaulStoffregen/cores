@@ -105,7 +105,7 @@ class usb_joystick_class
 		if (!manual_mode) usb_joystick_send();
 	}
         inline void hat(int dir) {
-                uint32_t val;
+                uint32_t val = 0;
                 if (dir < 0) val = 15;
                 else if (dir < 23) val = 0;
                 else if (dir < 68) val = 1;

@@ -108,7 +108,7 @@
 #elif defined(__MKL26Z64__)
 #define CORE_NUM_TOTAL_PINS     27
 #define CORE_NUM_DIGITAL        27
-#define CORE_NUM_INTERRUPT      18
+#define CORE_NUM_INTERRUPT      24  // really only 18, but 6 "holes"
 #define CORE_NUM_ANALOG         13
 #define CORE_NUM_PWM            10
 #endif
