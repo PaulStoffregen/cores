@@ -4,6 +4,14 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define E2END 0x80
+#include "avr_functions.h"
+
+#if defined(__MK20DX128__) || defined(__MK20DX256__)
+  #define E2END 2048
+#elif defined(__MKL26Z64__)
+  #define E2END 128
+#else
+  #define E2END 0
+#endif
 
 #endif
