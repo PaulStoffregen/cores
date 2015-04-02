@@ -7,9 +7,9 @@
 #include "avr_functions.h"
 
 #if defined(__MK20DX128__) || defined(__MK20DX256__)
-  #define E2END 2048
+  #define E2END 0x7FF
 #elif defined(__MKL26Z64__)
-  #define E2END 128
+  #define E2END 0x7F
 #else
   #define E2END 0
 #endif
