@@ -719,6 +719,7 @@ void ResetHandler(void)
 	// initialize the SysTick counter
 	SYST_RVR = (F_CPU / 1000) - 1;
 	SYST_CSR = SYST_CSR_CLKSOURCE | SYST_CSR_TICKINT | SYST_CSR_ENABLE;
+	SCB_SHPR3 = 0x20200000;  // Systick = priority 32
 
 	//init_pins();
 	__enable_irq();
