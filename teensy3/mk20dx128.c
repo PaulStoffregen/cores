@@ -717,7 +717,9 @@ void ResetHandler(void)
 #endif
 
 	// initialize the SysTick counter
+	// Set Reset value, clear current and set control and status
 	SYST_RVR = (F_CPU / 1000) - 1;
+	SYST_CVR = 0; 
 	SYST_CSR = SYST_CSR_CLKSOURCE | SYST_CSR_TICKINT | SYST_CSR_ENABLE;
 	SCB_SHPR3 = 0x20200000;  // Systick = priority 32
 
