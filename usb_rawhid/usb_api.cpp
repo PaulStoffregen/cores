@@ -32,7 +32,7 @@
 
 int usb_rawhid_class::available(void)
 {
-	uint8_t n=0, i, intr_state;
+	uint8_t n=0, intr_state;
 
 	intr_state = SREG;
 	cli();
