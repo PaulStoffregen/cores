@@ -1070,8 +1070,7 @@ extern volatile uint32_t systick_millis_count;
 static inline uint32_t millis(void) __attribute__((always_inline, unused));
 static inline uint32_t millis(void)
 {
-	volatile uint32_t ret = systick_millis_count; // single aligned 32 bit is atomic;
-	return ret;
+	return systick_millis_count; // single aligned 32 bit is atomic;
 }
 
 uint32_t micros(void);
