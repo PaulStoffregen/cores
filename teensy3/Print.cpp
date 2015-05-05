@@ -57,7 +57,7 @@ size_t Print::print(const String &s)
 }
 
 
-size_t Print::print(long n)
+size_t Print::print(long long n)
 {
 	uint8_t sign=0;
 
@@ -99,9 +99,9 @@ int Print::printf(const __FlashStringHelper *format, ...)
 }
 
 
-size_t Print::printNumber(unsigned long n, uint8_t base, uint8_t sign)
+size_t Print::printNumber(unsigned long long n, uint8_t base, uint8_t sign)
 {
-	uint8_t buf[34];
+	uint8_t buf[20];
 	uint8_t digit, i;
 
 	// TODO: make these checks as inline, since base is
