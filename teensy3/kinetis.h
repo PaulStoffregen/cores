@@ -1628,6 +1628,9 @@ enum IRQ_NUMBER_t {
 
 // Chapter 35: FlexTimer Module (FTM)
 #define FTM0_SC			(*(volatile uint32_t *)0x40038000) // Status And Control
+#ifdef KINETISL
+#define FTM_SC_DMA			0x100				// DMA Enable
+#endif
 #define FTM_SC_TOF			0x80				// Timer Overflow Flag
 #define FTM_SC_TOIE			0x40				// Timer Overflow Interrupt Enable
 #define FTM_SC_CPWMS			0x20				// Center-Aligned PWM Select
