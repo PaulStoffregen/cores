@@ -888,7 +888,7 @@ uint32_t micros(void)
 #if defined(KINETISL) && F_CPU == 48000000
 	return count * 1000 + ((current * (uint32_t)87381) >> 22);
 #elif defined(KINETISL) && F_CPU == 24000000
-	return count * 1000 + ((current * (uint32_t)174763) >> 21);
+	return count * 1000 + ((current * (uint32_t)174763) >> 22);
 #endif
 	return count * 1000 + current / (F_CPU / 1000000);
 }
