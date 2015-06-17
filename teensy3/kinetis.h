@@ -1618,10 +1618,14 @@ enum IRQ_NUMBER_t {
 #define PDB0_MOD		(*(volatile uint32_t *)0x40036004) // Modulus Register
 #define PDB0_CNT		(*(volatile uint32_t *)0x40036008) // Counter Register
 #define PDB0_IDLY		(*(volatile uint32_t *)0x4003600C) // Interrupt Delay Register
-#define PDB0_CH0C1		(*(volatile uint32_t *)0x40036010) // Channel n Control Register 1
-#define PDB0_CH0S		(*(volatile uint32_t *)0x40036014) // Channel n Status Register
-#define PDB0_CH0DLY0		(*(volatile uint32_t *)0x40036018) // Channel n Delay 0 Register
-#define PDB0_CH0DLY1		(*(volatile uint32_t *)0x4003601C) // Channel n Delay 1 Register
+#define PDB0_CH0C1		(*(volatile uint32_t *)0x40036010) // Channel 0 Control Register 1
+#define PDB0_CH0S		(*(volatile uint32_t *)0x40036014) // Channel 0 Status Register
+#define PDB0_CH0DLY0		(*(volatile uint32_t *)0x40036018) // Channel 0 Delay 0 Register
+#define PDB0_CH0DLY1		(*(volatile uint32_t *)0x4003601C) // Channel 0 Delay 1 Register
+#define PDB0_CH1C1		(*(volatile uint32_t *)0x40036038) // Channel 1 Control Register 1
+#define PDB0_CH1S		(*(volatile uint32_t *)0x4003603C) // Channel 1 Status Register
+#define PDB0_CH1DLY0		(*(volatile uint32_t *)0x40036040) // Channel 1 Delay 0 Register
+#define PDB0_CH1DLY1		(*(volatile uint32_t *)0x40036044) // Channel 1 Delay 1 Register
 #define PDB0_POEN		(*(volatile uint32_t *)0x40036190) // Pulse-Out n Enable Register
 #define PDB0_PO0DLY		(*(volatile uint32_t *)0x40036194) // Pulse-Out n Delay Register
 #define PDB0_PO1DLY		(*(volatile uint32_t *)0x40036198) // Pulse-Out n Delay Register
