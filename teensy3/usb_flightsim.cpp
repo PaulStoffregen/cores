@@ -377,7 +377,7 @@ extern "C" {
 void usb_flightsim_flush_callback(void)
 {
 	if (tx_noautoflush || !tx_packet || tx_packet->index == 0) return;
-	for (int i=tx_packet->index; i < FLIGHTSIM_TX_ENDPOINT; i++) {
+	for (int i=tx_packet->index; i < FLIGHTSIM_TX_SIZE; i++) {
 		tx_packet->buf[i] = 0;
 	}
 	tx_packet->len = FLIGHTSIM_TX_SIZE;
