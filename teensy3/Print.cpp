@@ -110,6 +110,27 @@ int Print::printf(const __FlashStringHelper *format, ...)
 //    tmp1 = {random};
 //    tmp2 = 10;
 #if 1
+// https://forum.pjrc.com/threads/28932-LC-is-10-9-times-slower-than-T3-1?p=76072&viewfull=1#post76072
+void inline divmod10_v2(uint32_t n,uint32_t *div,uint32_t *mod) {
+  uint32_t p,q;
+  /* Using 32.16 fixed point representation p.q */
+  /* p.q = (n+1)/512 */
+  q = (n&0xFFFF) + 1;
+  p = (n>>16);
+  /* p.q = 51*(n+1)/512 */
+  q = 13107*q;
+  p = 13107*p;
+  /* p.q = (1+1/2^8+1/2^16+1/2^24)*51*(n+1)/512 */
+  q = q + (q>>16) + (p&0xFFFF);
+  p = p + (p>>16) + (q>>16);
+  /* divide by 2 */
+  p = p>>1;
+  *div = p;
+  *mod = n-10*p;
+}
+#define divmod10_asm(div, mod, tmp1, tmp2, const3333) \
+  divmod10_v2(div, &div, &mod);
+/*
 #define divmod10_asm(div, mod, tmp1, tmp2, const3333) \
 asm (                              \
   " lsr   %2, %0, #16"     "\n\t"  \
@@ -146,20 +167,24 @@ asm (                              \
   : "l" (const3333)                \
   :                                \
 )
+*/
 #else
 #define divmod10_asm(_div, _mod, _tmp1, _tmp2, _const3333)    \
   ({ _tmp1 = _div; _div = _div / 10; _mod = _tmp1 - _div * 10; })
   // ({_mod = _div % 10, _div = _div / 10; })
 #endif
 
+
 size_t Print::printNumberDec(unsigned long n, uint8_t sign)
 {
         uint8_t buf[11], *p;
-        uint32_t digit, t1, t2, c3333=0x3333;
+        uint32_t digit;
+	//uint32_t t1, t2, c3333=0x3333;
 
         p = buf + (sizeof(buf));
         do {
-                divmod10_asm(n, digit, t1, t2, c3333);
+		divmod10_v2(n, &n, &digit);
+		//divmod10_asm(n, digit, t1, t2, c3333);
                 *--p = digit + '0';
         } while (n);
         if (sign) *--p = '-';
