@@ -81,6 +81,7 @@ extern void (*usb_midi_handleAfterTouch)(uint8_t ch, uint8_t pressure);
 extern void (*usb_midi_handlePitchChange)(uint8_t ch, int pitch);
 extern void (*usb_midi_handleSysEx)(const uint8_t *data, uint16_t length, uint8_t complete);
 extern void (*usb_midi_handleRealTimeSystem)(uint8_t rtb);
+extern void (*usb_midi_handleTimeCodeQuarterFrame)(uint16_t data);
 
 #ifdef __cplusplus
 }
@@ -123,6 +124,28 @@ class usb_midi_class
 	}
         void sendSysEx(uint32_t length, const uint8_t *data) {
 		usb_midi_send_sysex(data, length);
+	}
+	void sendRealTime(uint32_t type) __attribute__((always_inline)) {
+		uint32_t data = ( (type & 0xFF) | ((type << 8) & 0xFF00) );
+		switch (type) {
+			case 0xF8: // Clock
+			case 0xFA: // Start
+			case 0xFC: // Stop
+			case 0xFB: // Continue
+			case 0xFE: // ActiveSensing
+			case 0xFF: // SystemReset
+				usb_midi_write_packed(data);
+				break;
+			default: // Invalid Real Time marker
+				break;
+		}
+	}
+	void sendTimeCodeQuarterFrame(uint32_t type, uint32_t value) __attribute__((always_inline)) {
+		uint32_t data = ( ((type & 0x07) << 4) | (value & 0x0F) );
+		sendTimeCodeQuarterFrame(data);	
+	}
+        void sendTimeCodeQuarterFrame(uint32_t data) __attribute__((always_inline)) {
+		usb_midi_write_packed(0xF108 | ((data & 0x7F) << 16));
 	}
         void send_now(void) {
 		usb_midi_flush_output();
@@ -172,6 +195,9 @@ class usb_midi_class
         }
         inline void setHandleRealTimeSystem(void (*fptr)(uint8_t realtimebyte)) {
                 usb_midi_handleRealTimeSystem = fptr;
+        };
+        inline void setHandleTimeCodeQuarterFrame(void (*fptr)(uint16_t data)) {
+                usb_midi_handleTimeCodeQuarterFrame = fptr;
         };
 	private:
 };

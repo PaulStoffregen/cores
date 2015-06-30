@@ -51,6 +51,7 @@ void (*usb_midi_handleAfterTouch)(uint8_t ch, uint8_t pressure) = NULL;
 void (*usb_midi_handlePitchChange)(uint8_t ch, int pitch) = NULL;
 void (*usb_midi_handleSysEx)(const uint8_t *data, uint16_t length, uint8_t complete) = NULL;
 void (*usb_midi_handleRealTimeSystem)(uint8_t rtb) = NULL;
+void (*usb_midi_handleTimeCodeQuarterFrame)(uint16_t data) = NULL;
 
 // Maximum number of transmit packets to queue so we don't starve other endpoints for memory
 #define TX_PACKET_LIMIT 6
@@ -276,6 +277,14 @@ int usb_midi_read(uint32_t channel)
 				(*usb_midi_handleRealTimeSystem)(n >> 8);
 			goto return_message;
 		}
+	}
+	if (type1 == 0x02) {
+		// From Timm Schlegelmilch, karg.music at gmail.com
+		// http://karg-music.blogspot.de/2015/06/receiving-midi-time-codes-over-usb-with.html
+		usb_midi_msg_type = 9;
+		if (usb_midi_handleTimeCodeQuarterFrame)
+			(*usb_midi_handleTimeCodeQuarterFrame)(n >> 16);
+		return 1;
 	}
 	return 0;
 }
