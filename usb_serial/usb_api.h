@@ -23,6 +23,8 @@ public:
 	virtual void write(const uint8_t *buffer, uint16_t size);
 	virtual void write(const char *s)	{ write((const uint8_t *)s, strlen(s)); }
 #endif
+	int availableForWrite(void);
+	void clear(void);
 	void send_now(void);
 	uint32_t baud(void);
 	uint8_t stopbits(void);

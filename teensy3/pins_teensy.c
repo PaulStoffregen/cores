@@ -674,18 +674,19 @@ void analogWriteRes(uint32_t bits)
 }
 
 
-void analogWriteFrequency(uint8_t pin, uint32_t frequency)
+void analogWriteFrequency(uint8_t pin, float frequency)
 {
-	uint32_t minfreq, prescale, mod;
+	uint32_t prescale, mod;
+	float minfreq;
 
 	//serial_print("analogWriteFrequency: pin = ");
 	//serial_phex(pin);
 	//serial_print(", freq = ");
-	//serial_phex32(frequency);
+	//serial_phex32((uint32_t)frequency);
 	//serial_print("\n");
 	for (prescale = 0; prescale < 7; prescale++) {
-		minfreq = (F_TIMER >> 16) >> prescale;
-		if (frequency > minfreq) break;
+		minfreq = (float)(F_TIMER >> prescale) / 65536.0f;
+		if (frequency >= minfreq) break;
 	}
 	//serial_print("F_TIMER = ");
 	//serial_phex32(F_TIMER >> prescale);
@@ -693,8 +694,7 @@ void analogWriteFrequency(uint8_t pin, uint32_t frequency)
 	//serial_print("prescale = ");
 	//serial_phex(prescale);
 	//serial_print("\n");
-	//mod = ((F_TIMER >> prescale) / frequency) - 1;
-	mod = (((F_TIMER >> prescale) + (frequency >> 1)) / frequency) - 1;
+	mod = (float)(F_TIMER >> prescale) / frequency - 0.5f;
 	if (mod > 65535) mod = 65535;
 	//serial_print("mod = ");
 	//serial_phex32(mod);
@@ -885,6 +885,11 @@ uint32_t micros(void)
 	 //systick_istatus = istatus & SCB_ICSR_PENDSTSET ? 1 : 0;
 	if ((istatus & SCB_ICSR_PENDSTSET) && current > 50) count++;
 	current = ((F_CPU / 1000) - 1) - current;
+#if defined(KINETISL) && F_CPU == 48000000
+	return count * 1000 + ((current * (uint32_t)87381) >> 22);
+#elif defined(KINETISL) && F_CPU == 24000000
+	return count * 1000 + ((current * (uint32_t)174763) >> 22);
+#endif
 	return count * 1000 + current / (F_CPU / 1000000);
 }
 

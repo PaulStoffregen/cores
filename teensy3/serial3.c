@@ -56,9 +56,18 @@ static uint8_t use9Bits = 0;
 static volatile BUFTYPE tx_buffer[TX_BUFFER_SIZE];
 static volatile BUFTYPE rx_buffer[RX_BUFFER_SIZE];
 static volatile uint8_t transmitting = 0;
-static volatile uint8_t *transmit_pin=NULL;
+#if defined(KINETISK)
+  static volatile uint8_t *transmit_pin=NULL;
+  #define transmit_assert()   *transmit_pin = 1
+  #define transmit_deassert() *transmit_pin = 0
+#elif defined(KINETISL)
+  static volatile uint8_t *transmit_pin=NULL;
+  static uint8_t transmit_mask=0;
+  #define transmit_assert()   *(transmit_pin+4) = transmit_mask;
+  #define transmit_deassert() *(transmit_pin+8) = transmit_mask;
+#endif
 #ifdef SERIAL_SINGLEWIRE_SUPPORT
-static volatile uint8_t single_wire=0;
+  static volatile uint8_t single_wire=0;
 #endif
 #if TX_BUFFER_SIZE > 255
 static volatile uint16_t tx_buffer_head = 0;
@@ -164,14 +173,17 @@ void serial3_set_transmit_pin(uint8_t pin)
 	pinMode(pin, OUTPUT);
 	digitalWrite(pin, LOW);
 	transmit_pin = portOutputRegister(pin);
+	#if defined(KINETISL)
+	transmit_mask = digitalPinToBitMask(pin);
+	#endif
 }
 
 void serial3_putchar(uint32_t c)
 {
-	uint32_t head;
+	uint32_t head, n;
 
 	if (!(SIM_SCGC4 & SIM_SCGC4_UART2)) return;
-	if (transmit_pin) *transmit_pin = 1;
+  if (transmit_pin) transmit_assert();
 #ifdef SERIAL_SINGLEWIRE_SUPPORT
 	if (single_wire) UART2_C3 = UART2_C3 | 0x20;
 #endif
@@ -183,7 +195,9 @@ void serial3_putchar(uint32_t c)
 			if ((UART2_S1 & UART_S1_TDRE)) {
 				uint32_t tail = tx_buffer_tail;
 				if (++tail >= TX_BUFFER_SIZE) tail = 0;
-				UART2_D = tx_buffer[tail];
+				n = tx_buffer[tail];
+				if (use9Bits) UART2_C3 = (UART2_C3 & ~0x40) | ((n & 0x100) >> 2);
+				UART2_D = n;
 				tx_buffer_tail = tail;
 			}
 		} else if (priority >= 256) {
@@ -299,7 +313,7 @@ void uart2_status_isr(void)
 	}
 	if ((c & UART_C2_TCIE) && (UART2_S1 & UART_S1_TC)) {
 		transmitting = 0;
-		if (transmit_pin) *transmit_pin = 0;
+    if (transmit_pin) transmit_deassert();
 #ifdef SERIAL_SINGLEWIRE_SUPPORT
 		if (single_wire) UART2_C3 = UART2_C3 & ~0x20;
 #endif

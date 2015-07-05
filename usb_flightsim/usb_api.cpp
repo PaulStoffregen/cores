@@ -67,7 +67,7 @@ void FlightSimCommand::identify(void)
 	uint8_t len, buf[6];
 
 	if (!FlightSim.enabled || !name) return;
-	len = strlen_P((const prog_char*)name);
+	len = strlen_P((const char *)name);
 	buf[0] = len + 6;
 	buf[1] = 1;
 	buf[2] = id;
@@ -111,7 +111,7 @@ void FlightSimInteger::identify(void)
 	uint8_t len, buf[6];
 
 	if (!FlightSim.enabled || !name) return;
-	len = strlen_P((const prog_char*)name);
+	len = strlen_P((const char *)name);
 	buf[0] = len + 6;
 	buf[1] = 1;
 	buf[2] = id;
@@ -174,7 +174,7 @@ void FlightSimFloat::identify(void)
 	uint8_t len, buf[6];
 
 	if (!FlightSim.enabled || !name) return;
-	len = strlen_P((const prog_char*)name);
+	len = strlen_P((const char *)name);
 	buf[0] = len + 6;
 	buf[1] = 1;
 	buf[2] = id;
@@ -412,7 +412,7 @@ send:
 void FlightSimClass::xmit(const uint8_t *p1, uint8_t n1, const _XpRefStr_ *p2, uint8_t n2)
 {
 	uint8_t intr_state, total, avail;
-	const prog_char *s2 = (const prog_char *)p2;
+	const char *s2 = (const char *)p2;
 
 	total = n1 + n2;
 	if (total > FLIGHTSIM_TX_SIZE) return;

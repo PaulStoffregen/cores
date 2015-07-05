@@ -167,7 +167,11 @@ static inline uint8_t digitalPinToTimer(uint8_t pin)
 // SERIAL_PORT_HARDWARE_OPEN Hardware serial ports which are open for use. Their RX & TX
 // pins are NOT connected to anything by default.
 //
+#if F_CPU >= 20000000 && !defined(USB_DISABLED)
 #define SERIAL_PORT_MONITOR		Serial
+#else
+#define SERIAL_PORT_MONITOR		Serial1
+#endif
 #define SERIAL_PORT_USBVIRTUAL		Serial
 #define SERIAL_PORT_HARDWARE		Serial1
 #define SERIAL_PORT_HARDWARE1		Serial2

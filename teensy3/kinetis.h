@@ -1618,16 +1618,23 @@ enum IRQ_NUMBER_t {
 #define PDB0_MOD		(*(volatile uint32_t *)0x40036004) // Modulus Register
 #define PDB0_CNT		(*(volatile uint32_t *)0x40036008) // Counter Register
 #define PDB0_IDLY		(*(volatile uint32_t *)0x4003600C) // Interrupt Delay Register
-#define PDB0_CH0C1		(*(volatile uint32_t *)0x40036010) // Channel n Control Register 1
-#define PDB0_CH0S		(*(volatile uint32_t *)0x40036014) // Channel n Status Register
-#define PDB0_CH0DLY0		(*(volatile uint32_t *)0x40036018) // Channel n Delay 0 Register
-#define PDB0_CH0DLY1		(*(volatile uint32_t *)0x4003601C) // Channel n Delay 1 Register
+#define PDB0_CH0C1		(*(volatile uint32_t *)0x40036010) // Channel 0 Control Register 1
+#define PDB0_CH0S		(*(volatile uint32_t *)0x40036014) // Channel 0 Status Register
+#define PDB0_CH0DLY0		(*(volatile uint32_t *)0x40036018) // Channel 0 Delay 0 Register
+#define PDB0_CH0DLY1		(*(volatile uint32_t *)0x4003601C) // Channel 0 Delay 1 Register
+#define PDB0_CH1C1		(*(volatile uint32_t *)0x40036038) // Channel 1 Control Register 1
+#define PDB0_CH1S		(*(volatile uint32_t *)0x4003603C) // Channel 1 Status Register
+#define PDB0_CH1DLY0		(*(volatile uint32_t *)0x40036040) // Channel 1 Delay 0 Register
+#define PDB0_CH1DLY1		(*(volatile uint32_t *)0x40036044) // Channel 1 Delay 1 Register
 #define PDB0_POEN		(*(volatile uint32_t *)0x40036190) // Pulse-Out n Enable Register
 #define PDB0_PO0DLY		(*(volatile uint32_t *)0x40036194) // Pulse-Out n Delay Register
 #define PDB0_PO1DLY		(*(volatile uint32_t *)0x40036198) // Pulse-Out n Delay Register
 
 // Chapter 35: FlexTimer Module (FTM)
 #define FTM0_SC			(*(volatile uint32_t *)0x40038000) // Status And Control
+#ifdef KINETISL
+#define FTM_SC_DMA			0x100				// DMA Enable
+#endif
 #define FTM_SC_TOF			0x80				// Timer Overflow Flag
 #define FTM_SC_TOIE			0x40				// Timer Overflow Interrupt Enable
 #define FTM_SC_CPWMS			0x20				// Center-Aligned PWM Select
@@ -1921,16 +1928,27 @@ enum IRQ_NUMBER_t {
 #define FTM2_CONF		(*(volatile uint32_t *)0x4003A084) // Configuration
 #endif
 
-// Chapter 36: Periodic Interrupt Timer (PIT)
+// Chapter 36 (3.1)/Chapter 32 (LC): Periodic Interrupt Timer (PIT)
 #define PIT_MCR			(*(volatile uint32_t *)0x40037000) // PIT Module Control Register
+#define PIT_MCR_MDIS            (1<<1)                               // Module disable
+#define PIT_MCR_FRZ             (1<<0)                               // Freeze
+#if defined(KINETISL)
+#define PIT_LTMR64H             (*(volatile uint32_t *)0x400370E0) // PIT Upper Lifetime Timer Register
+#define PIT_LTMR64L             (*(volatile uint32_t *)0x400370E4) // PIT Lower Lifetime Timer Register
+#endif // defined(KINETISL)
 #define PIT_LDVAL0		(*(volatile uint32_t *)0x40037100) // Timer Load Value Register
 #define PIT_CVAL0		(*(volatile uint32_t *)0x40037104) // Current Timer Value Register
 #define PIT_TCTRL0		(*(volatile uint32_t *)0x40037108) // Timer Control Register
+#define PIT_TCTRL_CHN           (1<<2)                               // Chain Mode
+#define PIT_TCTRL_TIE           (1<<1)                               // Timer Interrupt Enable
+#define PIT_TCTRL_TEN           (1<<0)                               // Timer Enable
 #define PIT_TFLG0		(*(volatile uint32_t *)0x4003710C) // Timer Flag Register
+#define PIT_TFLG_TIF            (1<<0)                               // Timer Interrupt Flag (write 1 to clear)
 #define PIT_LDVAL1		(*(volatile uint32_t *)0x40037110) // Timer Load Value Register
 #define PIT_CVAL1		(*(volatile uint32_t *)0x40037114) // Current Timer Value Register
 #define PIT_TCTRL1		(*(volatile uint32_t *)0x40037118) // Timer Control Register
 #define PIT_TFLG1		(*(volatile uint32_t *)0x4003711C) // Timer Flag Register
+#if defined(KINETISK) // the 3.1 has 4 PITs, LC has only 2
 #define PIT_LDVAL2		(*(volatile uint32_t *)0x40037120) // Timer Load Value Register
 #define PIT_CVAL2		(*(volatile uint32_t *)0x40037124) // Current Timer Value Register
 #define PIT_TCTRL2		(*(volatile uint32_t *)0x40037128) // Timer Control Register
@@ -1939,6 +1957,7 @@ enum IRQ_NUMBER_t {
 #define PIT_CVAL3		(*(volatile uint32_t *)0x40037134) // Current Timer Value Register
 #define PIT_TCTRL3		(*(volatile uint32_t *)0x40037138) // Timer Control Register
 #define PIT_TFLG3		(*(volatile uint32_t *)0x4003713C) // Timer Flag Register
+#endif // defined(KINETISK)
 
 // Chapter 37: Low-Power Timer (LPTMR)
 #define LPTMR0_CSR		(*(volatile uint32_t *)0x40040000) // Low Power Timer Control Status Register
@@ -2903,7 +2922,11 @@ typedef struct __attribute__((packed)) {
 #define NVIC_CLEAR_PENDING(n)	(*((volatile uint32_t *)0xE000E280 + ((n) >> 5)) = (1 << ((n) & 31)))
 #define NVIC_IS_PENDING(n)	(*((volatile uint32_t *)0xE000E200 + ((n) >> 5)) & (1 << ((n) & 31)))
 #define NVIC_IS_ACTIVE(n)	(*((volatile uint32_t *)0xE000E300 + ((n) >> 5)) & (1 << ((n) & 31)))
+#ifdef KINETISK
 #define NVIC_TRIGGER_IRQ(n)	NVIC_STIR=(n)
+#else
+#define NVIC_TRIGGER_IRQ(n)	NVIC_SET_PENDING(n)
+#endif
 
 #define NVIC_ISER0		(*(volatile uint32_t *)0xE000E100)
 #define NVIC_ISER1		(*(volatile uint32_t *)0xE000E104)
@@ -2927,8 +2950,8 @@ typedef struct __attribute__((packed)) {
 
 
 
-#define __disable_irq() __asm__ volatile("CPSID i");
-#define __enable_irq()	__asm__ volatile("CPSIE i");
+#define __disable_irq() __asm__ volatile("CPSID i":::"memory");
+#define __enable_irq()	__asm__ volatile("CPSIE i":::"memory");
 
 // System Control Space (SCS), ARMv7 ref manual, B3.2, page 708
 #define SCB_CPUID		(*(const    uint32_t *)0xE000ED00) // CPUID Base Register

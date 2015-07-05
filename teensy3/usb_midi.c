@@ -51,6 +51,7 @@ void (*usb_midi_handleAfterTouch)(uint8_t ch, uint8_t pressure) = NULL;
 void (*usb_midi_handlePitchChange)(uint8_t ch, int pitch) = NULL;
 void (*usb_midi_handleSysEx)(const uint8_t *data, uint16_t length, uint8_t complete) = NULL;
 void (*usb_midi_handleRealTimeSystem)(uint8_t rtb) = NULL;
+void (*usb_midi_handleTimeCodeQuarterFrame)(uint16_t data) = NULL;
 
 // Maximum number of transmit packets to queue so we don't starve other endpoints for memory
 #define TX_PACKET_LIMIT 6
@@ -105,7 +106,8 @@ void usb_midi_write_packed(uint32_t n)
 	}
 	transmit_previous_timeout = 0;
 	index = tx_packet->index;
-	*((uint32_t *)(tx_packet->buf) + index++) = n;
+	//*((uint32_t *)(tx_packet->buf) + index++) = n;
+	((uint32_t *)(tx_packet->buf))[index++] = n;
 	if (index < MIDI_TX_SIZE/4) {
 		tx_packet->index = index;
 	} else {
@@ -172,7 +174,8 @@ int usb_midi_read(uint32_t channel)
 		}
 	}
 	index = rx_packet->index;
-	n = *(uint32_t *)(rx_packet->buf + index);
+	//n = *(uint32_t *)(rx_packet->buf + index);
+	n = ((uint32_t *)rx_packet->buf)[index/4];
 	//serial_print("midi rx, n=");
 	//serial_phex32(n);
 	//serial_print("\n");
@@ -274,6 +277,14 @@ int usb_midi_read(uint32_t channel)
 				(*usb_midi_handleRealTimeSystem)(n >> 8);
 			goto return_message;
 		}
+	}
+	if (type1 == 0x02) {
+		// From Timm Schlegelmilch, karg.music at gmail.com
+		// http://karg-music.blogspot.de/2015/06/receiving-midi-time-codes-over-usb-with.html
+		usb_midi_msg_type = 9;
+		if (usb_midi_handleTimeCodeQuarterFrame)
+			(*usb_midi_handleTimeCodeQuarterFrame)(n >> 16);
+		return 1;
 	}
 	return 0;
 }

@@ -23,7 +23,6 @@
  * adrianm@mcqn.com 1/1/2011
  */
 
-#if ARDUINO >= 100
 #ifndef IPAddress_h
 #define IPAddress_h
 
@@ -33,50 +32,88 @@
 
 class IPAddress : public Printable {
 private:
-    uint8_t _address[4];  // IPv4 address
-    // Access the raw byte array containing the address.  Because this returns a pointer
-    // to the internal structure rather than a copy of the address this function should only
-    // be used when you know that the usage of the returned uint8_t* will be transient and not
-    // stored.
-    uint8_t* raw_address() { return _address; };
+	union {
+		uint8_t bytes[4]; // IPv4 address
+		uint32_t dword;
+	} _address;
+
+	// Access the raw byte array containing the address.  Because this returns a pointer
+	// to the internal structure rather than a copy of the address this function should only
+	// be used when you know that the usage of the returned uint8_t* will be transient and not
+	// stored.
+	uint8_t * raw_address() { return _address.bytes; };
 
 public:
-    // Constructors
-    IPAddress();
-    IPAddress(uint8_t first_octet, uint8_t second_octet, uint8_t third_octet, uint8_t fourth_octet);
-    IPAddress(uint32_t address);
-    IPAddress(const uint8_t *address);
+	// Constructors
+	IPAddress() {
+		_address.dword = 0;
+	}
+	IPAddress(uint8_t b1, uint8_t b2, uint8_t b3, uint8_t b4) {
+		_address.bytes[0] = b1;
+		_address.bytes[1] = b2;
+		_address.bytes[2] = b3;
+		_address.bytes[3] = b4;
+	}
+	IPAddress(uint32_t address) {
+		_address.dword = address;
+	}
+	IPAddress(const uint8_t *address) {
+		// TODO: use unaligned read on Cortex-M4
+		_address.bytes[0] = *address++;
+		_address.bytes[1] = *address++;
+		_address.bytes[2] = *address++;
+		_address.bytes[3] = *address++;
+	}
 
-    // Overloaded cast operator to allow IPAddress objects to be used where a pointer
-    // to a four-byte uint8_t array is expected
-    operator uint32_t () { return _address[0] | (_address[1] << 8)
-	| (_address[2] << 16) | (_address[3] << 24); }
-    bool operator==(const IPAddress& addr) { return _address[0] == addr._address[0]
-	&& _address[1] == addr._address[1]
-	&& _address[2] == addr._address[2]
-	&& _address[3] == addr._address[3]; }
-    bool operator==(const uint8_t* addr);
+	// Overloaded cast operator to allow IPAddress objects to be used where a pointer
+	// to a four-byte uint8_t array is expected
+	operator uint32_t () {
+		return _address.dword;
+	}
+	bool operator==(const IPAddress& addr) {
+		return _address.dword == addr._address.dword;
+	}
+	bool operator==(const uint8_t* addr) {
+		// TODO: use unaligned read on Cortex-M4
+		return (_address.bytes[0] == addr[0]
+			&& _address.bytes[1] == addr[1]
+			&& _address.bytes[2] == addr[2]
+			&& _address.bytes[3] == addr[3]);
+	}
 
-    // Overloaded index operator to allow getting and setting individual octets of the address
-    uint8_t operator[](int index) const { return _address[index]; };
-    uint8_t& operator[](int index) { return _address[index]; };
+	// Overloaded index operator to allow getting and setting individual octets of the address
+	uint8_t operator[](int index) const {
+		return _address.bytes[index];
+	};
+	uint8_t& operator[](int index) {
+		return _address.bytes[index];
+	};
 
-    // Overloaded copy operators to allow initialisation of IPAddress objects from other types
-    IPAddress& operator=(const uint8_t *address);
-    IPAddress& operator=(uint32_t address);
+	// Overloaded copy operators to allow initialisation of IPAddress objects from other types
+	IPAddress& operator=(const uint8_t *address) {
+		// TODO: use unaligned read on Cortex-M4
+		_address.bytes[0] = *address++;
+		_address.bytes[1] = *address++;
+		_address.bytes[2] = *address++;
+		_address.bytes[3] = *address++;
+		return *this;
+	}
+	IPAddress& operator=(uint32_t address) {
+		_address.dword = address;
+		return *this;
+	}
 
-    virtual size_t printTo(Print& p) const;
+	virtual size_t printTo(Print& p) const;
 
-    friend class EthernetClass;
-    friend class UDP;
-    friend class Client;
-    friend class Server;
-    friend class DhcpClass;
-    friend class DNSClient;
+	friend class EthernetClass;
+	friend class UDP;
+	friend class Client;
+	friend class Server;
+	friend class DhcpClass;
+	friend class DNSClient;
 };
 
-const IPAddress INADDR_NONE(0,0,0,0);
+const IPAddress INADDR_NONE((uint32_t)0);
 
 
-#endif
 #endif

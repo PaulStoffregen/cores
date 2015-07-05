@@ -108,7 +108,7 @@
 #elif defined(__MKL26Z64__)
 #define CORE_NUM_TOTAL_PINS     27
 #define CORE_NUM_DIGITAL        27
-#define CORE_NUM_INTERRUPT      18
+#define CORE_NUM_INTERRUPT      24  // really only 18, but 6 "holes"
 #define CORE_NUM_ANALOG         13
 #define CORE_NUM_PWM            10
 #endif
@@ -986,7 +986,7 @@ void init_pins(void);
 void analogWrite(uint8_t pin, int val);
 void analogWriteRes(uint32_t bits);
 static inline void analogWriteResolution(uint32_t bits) { analogWriteRes(bits); }
-void analogWriteFrequency(uint8_t pin, uint32_t frequency);
+void analogWriteFrequency(uint8_t pin, float frequency);
 void analogWriteDAC0(int val);
 #ifdef __cplusplus
 void attachInterruptVector(IRQ_NUMBER_t irq, void (*function)(void));
@@ -1070,8 +1070,7 @@ extern volatile uint32_t systick_millis_count;
 static inline uint32_t millis(void) __attribute__((always_inline, unused));
 static inline uint32_t millis(void)
 {
-	volatile uint32_t ret = systick_millis_count; // single aligned 32 bit is atomic;
-	return ret;
+	return systick_millis_count; // single aligned 32 bit is atomic;
 }
 
 uint32_t micros(void);

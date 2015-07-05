@@ -37,7 +37,7 @@
 //#define SERIAL_9BIT_SUPPORT
 
 // uncomment to enable Single Wire (i.e. all TX & RX communication via the TX line)
-//#define SERIAL_SINGLEWIRE_SUPPORT
+#define SERIAL_SINGLEWIRE_SUPPORT
 
 #define SERIAL_7E1 0x02
 #define SERIAL_7O1 0x03
