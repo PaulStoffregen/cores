@@ -66,7 +66,7 @@ private:
 	static void enable(void) { enabled = 1; enableTimeout = 0; }
 	static void disable(void) { enabled = 0; }
 	static void xmit(const void *p1, uint8_t n1, const void *p2, uint8_t n2);
-	static void xmit_big_packet(const void *p1, uint16_t n1, const void *p2, uint16_t n2);
+	static void xmit_big_packet(const void *p1, uint8_t n1, const void *p2, uint8_t n2);
 	friend class FlightSimCommand;
 	friend class FlightSimInteger;
 	friend class FlightSimFloat;

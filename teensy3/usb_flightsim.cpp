@@ -29,7 +29,6 @@
  */
 
 #include "usb_dev.h"
-#include "usb_desc.h"
 #include "usb_flightsim.h"
 #include "core_pins.h" // for yield(), millis()
 #include <string.h>    // for memcpy()
@@ -347,7 +346,7 @@ static volatile uint8_t tx_noautoflush=0;
 
 void FlightSimClass::xmit(const void *p1, uint8_t n1, const void *p2, uint8_t n2)
 {
-	uint8_t total;
+	uint16_t total;
 
 	total = n1 + n2;
 	if (total > FLIGHTSIM_TX_SIZE) {
@@ -393,15 +392,17 @@ send:
 	tx_noautoflush = 0;
 }
 
-void FlightSimClass::xmit_big_packet(const void *p1, uint16_t n1, const void *p2, uint16_t n2)
+void FlightSimClass::xmit_big_packet(const void *p1, uint8_t n1, const void *p2, uint8_t n2)
 {
 	if (!enabled || !usb_configuration) return;
+
+	uint16_t remaining = n1 + n2;
+	if (remaining > 255) return;
 	
 	bool part2 = false;
-	uint16_t remainingPart1 = n1;
-	uint16_t remaining;
-	const void *dataPtr = p1;
-	bool needAdditionalFragment = false;
+	uint8_t remainingPart1 = n1;
+	const uint8_t *dataPtr = (const uint8_t*)p1;
+	bool writeFragmentHeader = false;
 	uint8_t fragmentCounter = 1;
 
 	tx_noautoflush =1; // don't mess with my data, I'm working on it!
@@ -410,24 +411,31 @@ void FlightSimClass::xmit_big_packet(const void *p1, uint16_t n1, const void *p2
 		// If we have a current packet, fill it with whatever fits
 		uint8_t partLen = FLIGHTSIM_TX_SIZE - tx_packet->index; 
 		if (partLen > n1) partLen=n1;
-		// copy first part
+		// copy first part, containing total packet length
 		memcpy(tx_packet->buf + tx_packet->index, dataPtr, partLen);
 		remainingPart1 -= partLen;
 		tx_packet->index += partLen;
 		if (remainingPart1) {
+			// there still is data from the first part that
+			// will go to the next packet. The boolean variable
+			// part2 remains false
 			remaining = remainingPart1+n2;
 			dataPtr += partLen;
 		} else {
-			// maybe we have space for more
+			// maybe we have space for some data from the second part
 			part2=true;
 			partLen = FLIGHTSIM_TX_SIZE - tx_packet->index;
+			// there is no need here to check whether partLen is
+			// bigger than n2. It's not. If it were, all the data
+			// would have fit in a single packet and xmit_big_packet
+			// would never have been called...
 			remaining = n2;
 			if (partLen) {
 				memcpy(tx_packet->buf + tx_packet->index, p2, partLen);
 				remaining -= partLen;
 				tx_packet->index += partLen;
-				dataPtr = p2 + partLen;
 			}
+			dataPtr = (const uint8_t*)p2 + partLen;
 		}
 		// Packet padding should not be necessary, as xmit_big_packet 
 		// will only be called for data that doesn't fit in a single
@@ -436,36 +444,41 @@ void FlightSimClass::xmit_big_packet(const void *p1, uint16_t n1, const void *p2
 		for (int i = tx_packet->index; i < FLIGHTSIM_TX_SIZE; i++) {
 			tx_packet->buf[i] = 0;
 		}
+
+		// queue first packet for sending
 		tx_packet->len = FLIGHTSIM_TX_SIZE;
 		usb_tx(FLIGHTSIM_TX_ENDPOINT, tx_packet);
 		tx_packet = NULL;
-		needAdditionalFragment = true;
+		writeFragmentHeader = true;
 	} else {
 		remaining = n1+n2;
 	}
 	
 	while (remaining >0) {
 		while (1) {
+			// get memory for next packet
 			if (usb_tx_packet_count(FLIGHTSIM_TX_ENDPOINT) < TX_PACKET_LIMIT) {
 				tx_packet = usb_malloc();
-				if (tx_packet) break;
+				if (tx_packet) {
+					break;
+				}
 			}
+
 			if (!enabled || !usb_configuration) {
+				// teensy disconnected
 				tx_noautoflush = 0;
 				return;
 			}
 			tx_noautoflush = 0;  // you can pick up my data, if you like
-			yield();
+			yield(); 			 // do other things and wait for memory to become free
 			tx_noautoflush = 1;  // wait, I'm working on the packet data
 		}
 
-		if (needAdditionalFragment) {
-			// fragment header
+		if (writeFragmentHeader) {
 			tx_packet->buf[0]=(remaining+3 <= FLIGHTSIM_TX_SIZE) ? (byte) remaining+3 : FLIGHTSIM_TX_SIZE;
 			tx_packet->buf[1]=0xff;
 			tx_packet->buf[2]=fragmentCounter++;
 			tx_packet->index=3;
-			
 		}
 		if (!part2) {
 			// we still need to send the first part
@@ -479,7 +492,7 @@ void FlightSimClass::xmit_big_packet(const void *p1, uint16_t n1, const void *p2
 			remaining -= partLen;
 			if (!remainingPart1) {
 				part2=true;
-				dataPtr = p2;
+				dataPtr = (const uint8_t*)p2;
 			}
 		}
 
@@ -494,9 +507,10 @@ void FlightSimClass::xmit_big_packet(const void *p1, uint16_t n1, const void *p2
 				dataPtr += partLen;
 			}
 		} 
-		needAdditionalFragment = true;
+		writeFragmentHeader = true;
 		
 		if (tx_packet->index >= FLIGHTSIM_TX_SIZE) {
+			// queue packet for sending
 			tx_packet->len = FLIGHTSIM_TX_SIZE;
 			usb_tx(FLIGHTSIM_TX_ENDPOINT, tx_packet);
 			tx_packet = NULL;
@@ -506,7 +520,7 @@ void FlightSimClass::xmit_big_packet(const void *p1, uint16_t n1, const void *p2
 }
 
 extern "C" {
-// This gets called when a USB start token arrives.
+// This gets called from usb_isr when a USB start token arrives.
 // If we have a packet to transmit AND transmission isn't disabled 
 // by tx_noautoflush, we fill it up with zeros and send it out 
 // to USB
