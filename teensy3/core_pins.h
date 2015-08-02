@@ -99,7 +99,7 @@
 #define CORE_NUM_INTERRUPT      34
 #define CORE_NUM_ANALOG         14
 #define CORE_NUM_PWM            10
-#elif defined(__MK20DX256__)
+#elif defined(__MK20DX256__) || defined(__MK66FX1M0__)
 #define CORE_NUM_TOTAL_PINS     34
 #define CORE_NUM_DIGITAL        34
 #define CORE_NUM_INTERRUPT      34
@@ -113,7 +113,7 @@
 #define CORE_NUM_PWM            10
 #endif
 
-#if defined(__MK20DX128__) || defined(__MK20DX256__)
+#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK66FX1M0__)
 
 #define CORE_PIN0_BIT		16
 #define CORE_PIN1_BIT		17

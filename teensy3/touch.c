@@ -31,7 +31,7 @@
 #include "core_pins.h"
 //#include "HardwareSerial.h"
 
-#if defined(__MK20DX128__) || defined(__MK20DX256__)
+#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK66FX1M0__)
 // These settings give approx 0.02 pF sensitivity and 1200 pF range
 // Lower current, higher number of scans, and higher prescaler
 // increase sensitivity, but the trade-off is longer measurement

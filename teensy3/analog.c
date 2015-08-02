@@ -31,6 +31,10 @@
 #include "core_pins.h"
 //#include "HardwareSerial.h"
 
+#if defined(__MK66FX1M0__) // ugly hack for now...
+#define __MK20DX256__ 
+#endif
+
 static uint8_t calibrating;
 static uint8_t analog_right_shift = 0;
 static uint8_t analog_config_bits = 10;

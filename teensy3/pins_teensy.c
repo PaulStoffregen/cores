@@ -175,7 +175,7 @@ void detachInterrupt(uint8_t pin)
 	__enable_irq();
 }
 
-#if defined(__MK20DX128__) || defined(__MK20DX256__)
+#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK66FX1M0__)
 
 static void porta_interrupt(void)
 {
@@ -490,7 +490,7 @@ void _init_Teensyduino_internal_(void)
 #define FTM0_CH7_PIN  5
 #define FTM1_CH0_PIN  3
 #define FTM1_CH1_PIN  4
-#elif defined(__MK20DX256__)
+#elif defined(__MK20DX256__) || defined(__MK66FX1M0__)
 #define FTM0_CH0_PIN 22
 #define FTM0_CH1_PIN 23
 #define FTM0_CH2_PIN  9
