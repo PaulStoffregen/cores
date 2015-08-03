@@ -577,7 +577,7 @@ void startup_early_hook(void)		__attribute__ ((weak, alias("startup_default_earl
 void startup_late_hook(void)		__attribute__ ((weak, alias("startup_default_late_hook")));
 
 
-__attribute__ ((section(".startup")))
+__attribute__ ((section(".startup"),optimize("-Os")))
 void ResetHandler(void)
 {
 	uint32_t *src = &_etext;
@@ -606,6 +606,14 @@ void ResetHandler(void)
 	SIM_SCGC3 = SIM_SCGC3_ADC1 | SIM_SCGC3_FTM2;
 	SIM_SCGC5 = 0x00043F82;		// clocks active to all GPIO
 	SIM_SCGC6 = SIM_SCGC6_RTC | SIM_SCGC6_FTM0 | SIM_SCGC6_FTM1 | SIM_SCGC6_ADC0 | SIM_SCGC6_FTFL;
+#elif defined(__MK66FX1M0__)
+	SIM_SCGC3 = SIM_SCGC3_ADC1 | SIM_SCGC3_FTM2 | SIM_SCGC3_FTM3;
+	SIM_SCGC5 = 0x00043F82;		// clocks active to all GPIO
+	SIM_SCGC6 = SIM_SCGC6_RTC | SIM_SCGC6_FTM0 | SIM_SCGC6_FTM1 | SIM_SCGC6_ADC0 | SIM_SCGC6_FTFL;
+	PORTC_PCR5 = PORT_PCR_MUX(1) | PORT_PCR_DSE | PORT_PCR_SRE;
+	GPIOC_PDDR |= (1<<5);
+	GPIOC_PSOR = (1<<5);
+	//while (1);
 #elif defined(__MKL26Z64__)
 	SIM_SCGC4 = SIM_SCGC4_USBOTG | 0xF0000030;
 	SIM_SCGC5 = 0x00003F82;		// clocks active to all GPIO
@@ -709,6 +717,14 @@ void ResetHandler(void)
 	//   C2[LP] bit is written to 1
   #else
 	// if we need faster than the crystal, turn on the PLL
+   #if defined(__MK66FX1M0__)
+    #if F_CPU == 96000000
+	MCG_C5 = MCG_C5_PRDIV0(1);
+	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(8);
+    #else
+    #error "MK66FX1M0 only supports 96 MHz so far...."
+    #endif
+   #else
     #if F_CPU == 72000000
 	MCG_C5 = MCG_C5_PRDIV0(5);		 // config PLL input for 16 MHz Crystal / 6 = 2.667 Hz
     #else
@@ -725,6 +741,9 @@ void ResetHandler(void)
     #else
 	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(0); // config PLL for 96 MHz output
     #endif
+   #endif
+
+
 	// wait for PLL to start using xtal as its input
 	while (!(MCG_S & MCG_S_PLLST)) ;
 	// wait for PLL to lock

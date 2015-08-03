@@ -274,6 +274,7 @@ enum IRQ_NUMBER_t {
 #define HAS_KINETIS_I2C1
 #define HAS_KINETIS_LLWU_16CH
 
+// Teensy-LC
 #elif defined(__MKL26Z64__)
 enum IRQ_NUMBER_t {
 	IRQ_DMA_CH0 =		0,
@@ -910,23 +911,25 @@ enum IRQ_NUMBER_t {
 #define SIM_SCGC1_I2C3			((uint32_t)0x00000080)		// I2C3 Clock Gate Control
 #define SIM_SCGC1_I2C2			((uint32_t)0x00000040)		// I2C2 Clock Gate Control
 #define SIM_SCGC2		(*(volatile uint32_t *)0x4004802C) // System Clock Gating Control Register 2
+#if defined(KINETISK)
 #define SIM_SCGC2_DAC1			((uint32_t)0x00002000)		// DAC1 Clock Gate Control
-#define SIM_SCGC2_DAC0			((uint32_t)0x00001000)		// DAC0 Clock Gate Control
+#define SIM_SCGC2_DAC0			((uint32_t)0x00001000)		// DAC0 Clock on APIS1 (base addr 400CC000)
 #define SIM_SCGC2_TPM2			((uint32_t)0x00000400)		// TPM2 Clock Gate Control
 #define SIM_SCGC2_TPM1			((uint32_t)0x00000200)		// TPM1 Clock Gate Control
 #define SIM_SCGC2_LPUART0		((uint32_t)0x00000010)		// LPUART0 Clock Gate Control
 #define SIM_SCGC2_ENET			((uint32_t)0x00000001)		// Ethernet Clock Gate Control
+#endif
 #define SIM_SCGC3		(*(volatile uint32_t *)0x40048030) // System Clock Gating Control Register 3
 #define SIM_SCGC3_ADC1			((uint32_t)0x08000000)		// ADC1 Clock Gate Control
 #define SIM_SCGC3_FTM3			((uint32_t)0x02000000)		// FTM3 Clock Gate Control
-#define SIM_SCGC3_FTM2			((uint32_t)0x01000000)		// FTM2 Clock Gate Control
+#define SIM_SCGC3_FTM2			((uint32_t)0x01000000)		// FTM2 Clock on APIS1 (base addr 400B8000)
 #define SIM_SCGC3_SDHC			((uint32_t)0x00020000)		// SDHC Clock Gate Control
 #define SIM_SCGC3_SPI2			((uint32_t)0x00001000)		// SPI2 Clock Gate Control
 #define SIM_SCGC3_FLEXCAN1		((uint32_t)0x00000010)		// FLEXCAN1 Clock Gate Control
 #define SIM_SCGC3_USBHSDCD		((uint32_t)0x00000008)		// USBHSDCD Clock Gate Control
 #define SIM_SCGC3_USBHSPHY		((uint32_t)0x00000004)		// USBHSPHY Clock Gate Control
 #define SIM_SCGC3_USBHS			((uint32_t)0x00000002)		// USBHS Clock Gate Control
-#define SIM_SCGC3_RNGA			((uint32_t)0x00000001)		// RNGA Clock Gate Control
+#define SIM_SCGC3_RNGA			((uint32_t)0x00000001)		// RNGA Clock on APIS1 (base addr 400A0000)
 #define SIM_SCGC4		(*(volatile uint32_t *)0x40048034) // System Clock Gating Control Register 4
 #define SIM_SCGC4_VREF			((uint32_t)0x00100000)		// VREF Clock Gate Control
 #define SIM_SCGC4_CMP			((uint32_t)0x00080000)		// Comparator Clock Gate Control
@@ -943,9 +946,6 @@ enum IRQ_NUMBER_t {
 #define SIM_SCGC4_SPI1			((uint32_t)0x00800000)		// 
 #define SIM_SCGC4_SPI0			((uint32_t)0x00400000)		// 
 #endif
-// TODO: DAC0, FTM2, and RNGA can be accessed through both AIPS0 and AIPS1 (on K66)
-// make sure the clock control bits correspond to the register addresses
-// used below for these 3 peripherals
 #define SIM_SCGC5		(*(volatile uint32_t *)0x40048038) // System Clock Gating Control Register 5
 #define SIM_SCGC5_PORTE			((uint32_t)0x00002000)		// Port E Clock Gate Control
 #define SIM_SCGC5_PORTD			((uint32_t)0x00001000)		// Port D Clock Gate Control
@@ -955,28 +955,28 @@ enum IRQ_NUMBER_t {
 #define SIM_SCGC5_TSI			((uint32_t)0x00000020)		// Touch Sense Input TSI Clock Gate Control
 #define SIM_SCGC5_LPTIMER		((uint32_t)0x00000001)		// Low Power Timer Access Control
 #define SIM_SCGC6		(*(volatile uint32_t *)0x4004803C) // System Clock Gating Control Register 6
+#if defined(KINETISL)
 #define SIM_SCGC6_DAC0			((uint32_t)0x80000000)		// DAC on Kinetis-L
-#define SIM_SCGC6_RTC			((uint32_t)0x20000000)		// RTC Access
-#define SIM_SCGC6_ADC0			((uint32_t)0x08000000)		// ADC0 Clock Gate Control
-#define SIM_SCGC6_FTM2			((uint32_t)0x04000000)		// FTM2 Clock (TODO: which bit really controls FTM2)
-#define SIM_SCGC6_FTM1			((uint32_t)0x02000000)		// FTM1 Clock Gate Control
-#define SIM_SCGC6_FTM0			((uint32_t)0x01000000)		// FTM0 Clock Gate Control
-#ifdef KINETISL
-#define SIM_SCGC6_TPM2			((uint32_t)0x04000000)		// FTM1 Clock Gate Control
+#define SIM_SCGC6_TPM2			((uint32_t)0x04000000)		// FTM2 Clock Gate Control
 #define SIM_SCGC6_TPM1			((uint32_t)0x02000000)		// FTM1 Clock Gate Control
 #define SIM_SCGC6_TPM0			((uint32_t)0x01000000)		// FTM0 Clock Gate Control
-#endif
-#define SIM_SCGC6_PIT			((uint32_t)0x00800000)		// PIT Clock Gate Control
+#elif defined(KINETISK)
+//#define SIM_SCGC6_DAC0		((uint32_t)0x80000000)		// DAC0 Clock on APIS0 (base addr 4003F000)
+//#define SIM_SCGC6_FTM2		((uint32_t)0x04000000)		// FTM2 Clock on APIS0 (base addr 4003A000)
 #define SIM_SCGC6_PDB			((uint32_t)0x00400000)		// PDB Clock Gate Control
 #define SIM_SCGC6_USBDCD		((uint32_t)0x00200000)		// USB DCD Clock Gate Control
-#define SIM_SCGC6_CRC			((uint32_t)0x00040000)		// CRC Clock Gate Control
-#define SIM_SCGC6_I2S			((uint32_t)0x00008000)		// I2S Clock Gate Control
-#ifdef KINETISK
 #define SIM_SCGC6_SPI1			((uint32_t)0x00002000)		// SPI1 Clock Gate Control
 #define SIM_SCGC6_SPI0			((uint32_t)0x00001000)		// SPI0 Clock Gate Control
-#endif
-#define SIM_SCGC6_RNGA			((uint32_t)0x00000200)		// RNGA Clock Gate Control
+//#define SIM_SCGC6_RNGA		((uint32_t)0x00000200)		// RNGA Clock on APIS0 (base addr 40029000)
 #define SIM_SCGC6_FLEXCAN0		((uint32_t)0x00000010)		// FlexCAN0 Clock Gate Control
+#define SIM_SCGC6_CRC			((uint32_t)0x00040000)		// CRC Clock Gate Control
+#endif
+#define SIM_SCGC6_RTC			((uint32_t)0x20000000)		// RTC Access
+#define SIM_SCGC6_ADC0			((uint32_t)0x08000000)		// ADC0 Clock Gate Control
+#define SIM_SCGC6_FTM1			((uint32_t)0x02000000)		// FTM1 Clock Gate Control
+#define SIM_SCGC6_FTM0			((uint32_t)0x01000000)		// FTM0 Clock Gate Control
+#define SIM_SCGC6_PIT			((uint32_t)0x00800000)		// PIT Clock Gate Control
+#define SIM_SCGC6_I2S			((uint32_t)0x00008000)		// I2S Clock Gate Control
 #define SIM_SCGC6_DMAMUX		((uint32_t)0x00000002)		// DMA Mux Clock Gate Control
 #define SIM_SCGC6_FTFL			((uint32_t)0x00000001)		// Flash Memory Clock Gate Control
 #define SIM_SCGC7		(*(volatile uint32_t *)0x40048040) // System Clock Gating Control Register 7
@@ -2211,60 +2211,84 @@ enum IRQ_NUMBER_t {
 
 // Multipurpose Clock Generator (MCG)
 
-#define MCG_C1			(*(volatile uint8_t  *)0x40064000) // MCG Control 1 Register
-#define MCG_C1_IREFSTEN			((uint8_t)0x01)			// Internal Reference Stop Enable, Controls whether or not the internal reference clock remains enabled when the MCG enters Stop mode.
-#define MCG_C1_IRCLKEN			((uint8_t)0x02)			// Internal Reference Clock Enable, Enables the internal reference clock for use as MCGIRCLK.
-#define MCG_C1_IREFS			((uint8_t)0x04)			// Internal Reference Select, Selects the reference clock source for the FLL.
-#define MCG_C1_FRDIV(n)			((uint8_t)(((n) & 0x07) << 3))	// FLL External Reference Divider, Selects the amount to divide down the external reference clock for the FLL
-#define MCG_C1_CLKS(n)			((uint8_t)(((n) & 0x03) << 6))	// Clock Source Select, Selects the clock source for MCGOUTCLK
-#define MCG_C2			(*(volatile uint8_t  *)0x40064001) // MCG Control 2 Register
-#define MCG_C2_IRCS			((uint8_t)0x01)			// Internal Reference Clock Select, Selects between the fast or slow internal reference clock source.
-#define MCG_C2_LP			((uint8_t)0x02)			// Low Power Select, Controls whether the FLL or PLL is disabled in BLPI and BLPE modes.
-#define MCG_C2_EREFS			((uint8_t)0x04)			// External Reference Select, Selects the source for the external reference clock.
-#define MCG_C2_HGO0			((uint8_t)0x08)			// High Gain Oscillator Select, Controls the crystal oscillator mode of operation
-#define MCG_C2_RANGE0(n)		((uint8_t)(((n) & 0x03) << 4))	// Frequency Range Select, Selects the frequency range for the crystal oscillator
-#define MCG_C2_LOCRE0			((uint8_t)0x80)			// Loss of Clock Reset Enable, Determines whether an interrupt or a reset request is made following a loss of OSC0
-#define MCG_C3			(*(volatile uint8_t  *)0x40064002) // MCG Control 3 Register
-#define MCG_C3_SCTRIM(n)		((uint8_t)(n))			// Slow Internal Reference Clock Trim Setting
-#define MCG_C4			(*(volatile uint8_t  *)0x40064003) // MCG Control 4 Register
-#define MCG_C4_SCFTRIM			((uint8_t)0x01)			// Slow Internal Reference Clock Fine Trim
-#define MCG_C4_FCTRIM(n)		((uint8_t)(((n) & 0x0F) << 1))	// Fast Internal Reference Clock Trim Setting
-#define MCG_C4_DRST_DRS(n)		((uint8_t)(((n) & 0x03) << 5))	// DCO Range Select
-#define MCG_C4_DMX32			((uint8_t)0x80)			// DCO Maximum Frequency with 32.768 kHz Reference, controls whether the DCO frequency range is narrowed
-#define MCG_C5			(*(volatile uint8_t  *)0x40064004) // MCG Control 5 Register
-#define MCG_C5_PRDIV0(n)		((uint8_t)((n) & 0x1F))		// PLL External Reference Divider
-#define MCG_C5_PLLSTEN0			((uint8_t)0x20)			// PLL Stop Enable
-#define MCG_C5_PLLCLKEN0		((uint8_t)0x40)			// PLL Clock Enable
-#define MCG_C6			(*(volatile uint8_t  *)0x40064005) // MCG Control 6 Register
-#define MCG_C6_VDIV0(n)			((uint8_t)((n) & 0x1F))		// VCO 0 Divider
-#define MCG_C6_CME0			((uint8_t)0x20)			// Clock Monitor Enable
-#define MCG_C6_PLLS			((uint8_t)0x40)			// PLL Select, Controls whether the PLL or FLL output is selected as the MCG source when CLKS[1:0]=00.
-#define MCG_C6_LOLIE0			((uint8_t)0x80)			// Loss of Lock Interrrupt Enable
-#define MCG_S			(*(volatile uint8_t  *)0x40064006) // MCG Status Register
-#define MCG_S_IRCST			((uint8_t)0x01)			// Internal Reference Clock Status
-#define MCG_S_OSCINIT0			((uint8_t)0x02)			// OSC Initialization,	resets to 0, is set to 1 after the initialization cycles of the crystal oscillator
-#define MCG_S_CLKST(n)			((uint8_t)(((n) & 0x03) << 2))	// Clock Mode Status, 0=FLL is selected, 1= Internal ref, 2=External ref, 3=PLL
-#define MCG_S_CLKST_MASK		((uint8_t)0x0C)
-#define MCG_S_IREFST			((uint8_t)0x10)			// Internal Reference Status
-#define MCG_S_PLLST			((uint8_t)0x20)			// PLL Select Status
-#define MCG_S_LOCK0			((uint8_t)0x40)			// Lock Status, 0=PLL Unlocked, 1=PLL Locked
-#define MCG_S_LOLS0			((uint8_t)0x80)			// Loss of Lock Status
-#define MCG_SC			(*(volatile uint8_t  *)0x40064008) // MCG Status and Control Register
-#define MCG_SC_LOCS0			((uint8_t)0x01)			// OSC0 Loss of Clock Status
-#define MCG_SC_FCRDIV(n)		((uint8_t)(((n) & 0x07) << 1))	// Fast Clock Internal Reference Divider
-#define MCG_SC_FLTPRSRV			((uint8_t)0x10)			// FLL Filter Preserve Enable
-#define MCG_SC_ATMF			((uint8_t)0x20)			// Automatic Trim Machine Fail Flag
-#define MCG_SC_ATMS			((uint8_t)0x40)			// Automatic Trim Machine Select
-#define MCG_SC_ATME			((uint8_t)0x80)			// Automatic Trim Machine Enable
-#define MCG_ATCVH		(*(volatile uint8_t  *)0x4006400A) // MCG Auto Trim Compare Value High Register
-#define MCG_ATCVL		(*(volatile uint8_t  *)0x4006400B) // MCG Auto Trim Compare Value Low Register
-#define MCG_C7			(*(volatile uint8_t  *)0x4006400C) // MCG Control 7 Register
-#define MCG_C8			(*(volatile uint8_t  *)0x4006400D) // MCG Control 8 Register
-#define MCG_C9			(*(volatile uint8_t  *)0x4006400E) // MCG Control 9 Register
-#define MCG_C11			(*(volatile uint8_t  *)0x40064010) // MCG Control 11 Register
-#define MCG_C12			(*(volatile uint8_t  *)0x40064011) // MCG Control 12 Register
-#define MCG_S2			(*(volatile uint8_t  *)0x40064012) // MCG Status 2 Register
-#define MCG_T3			(*(volatile uint8_t  *)0x40064013) // MCG Test 3 Register
+typedef struct {
+	volatile uint8_t C1;
+	volatile uint8_t C2;
+	volatile uint8_t C3;
+	volatile uint8_t C4;
+	volatile uint8_t C5;
+	volatile uint8_t C6;
+	volatile uint8_t S;
+	volatile uint8_t unused1;
+	volatile uint8_t SC;
+	volatile uint8_t unused2;
+	volatile uint8_t ATCVH;
+	volatile uint8_t ATCVL;
+	volatile uint8_t C7;
+	volatile uint8_t C8;
+	volatile uint8_t C9;
+	volatile uint8_t unused3;
+	volatile uint8_t C11;
+	volatile uint8_t C12;
+	volatile uint8_t S2;
+	volatile uint8_t T3;
+} KINETIS_MCG_t;
+#define KINETIS_MCG		(*(KINETIS_MCG_t *)0x40064000)
+#define MCG_C1                  (KINETIS_MCG.C1)		// 40064000  MCG Control 1 Register
+#define MCG_C1_IREFSTEN			(uint8_t)0x01			// Internal Reference Stop Enable, Controls whether or not the internal reference clock remains enabled when the MCG enters Stop mode.
+#define MCG_C1_IRCLKEN			(uint8_t)0x02			// Internal Reference Clock Enable, Enables the internal reference clock for use as MCGIRCLK.
+#define MCG_C1_IREFS			(uint8_t)0x04			// Internal Reference Select, Selects the reference clock source for the FLL.
+#define MCG_C1_FRDIV(n)			(uint8_t)(((n) & 0x07) << 3)	// FLL External Reference Divider, Selects the amount to divide down the external reference clock for the FLL
+#define MCG_C1_CLKS(n)			(uint8_t)(((n) & 0x03) << 6)	// Clock Source Select, Selects the clock source for MCGOUTCLK
+#define MCG_C2                  (KINETIS_MCG.C2)		// 40064001  MCG Control 2 Register
+#define MCG_C2_IRCS			(uint8_t)0x01			// Internal Reference Clock Select, Selects between the fast or slow internal reference clock source.
+#define MCG_C2_LP			(uint8_t)0x02			// Low Power Select, Controls whether the FLL or PLL is disabled in BLPI and BLPE modes.
+#define MCG_C2_EREFS			(uint8_t)0x04			// External Reference Select, Selects the source for the external reference clock. 
+#define MCG_C2_HGO0			(uint8_t)0x08			// High Gain Oscillator Select, Controls the crystal oscillator mode of operation
+#define MCG_C2_RANGE0(n)		(uint8_t)(((n) & 0x03) << 4)	// Frequency Range Select, Selects the frequency range for the crystal oscillator
+#define MCG_C2_LOCRE0			(uint8_t)0x80			// Loss of Clock Reset Enable, Determines whether an interrupt or a reset request is made following a loss of OSC0 
+#define MCG_C3                  (KINETIS_MCG.C3)		// 40064002  MCG Control 3 Register
+#define MCG_C3_SCTRIM(n)		(uint8_t)(n)			// Slow Internal Reference Clock Trim Setting
+#define MCG_C4                  (KINETIS_MCG.C4)		// 40064003  MCG Control 4 Register
+#define MCG_C4_SCFTRIM			(uint8_t)0x01			// Slow Internal Reference Clock Fine Trim
+#define MCG_C4_FCTRIM(n)		(uint8_t)(((n) & 0x0F) << 1)	// Fast Internal Reference Clock Trim Setting
+#define MCG_C4_DRST_DRS(n)		(uint8_t)(((n) & 0x03) << 5)	// DCO Range Select
+#define MCG_C4_DMX32			(uint8_t)0x80			// DCO Maximum Frequency with 32.768 kHz Reference, controls whether the DCO frequency range is narrowed
+#define MCG_C5                  (KINETIS_MCG.C5)		// 40064004  MCG Control 5 Register
+#define MCG_C5_PRDIV0(n)		(uint8_t)((n) & 0x1F)		// PLL External Reference Divider
+#define MCG_C5_PLLSTEN0			(uint8_t)0x20			// PLL Stop Enable
+#define MCG_C5_PLLCLKEN0		(uint8_t)0x40			// PLL Clock Enable
+#define MCG_C6                  (KINETIS_MCG.C6)		// 40064005  MCG Control 6 Register
+#define MCG_C6_VDIV0(n)			(uint8_t)((n) & 0x1F)		// VCO 0 Divider
+#define MCG_C6_CME0			(uint8_t)0x20			// Clock Monitor Enable
+#define MCG_C6_PLLS			(uint8_t)0x40			// PLL Select, Controls whether the PLL or FLL output is selected as the MCG source when CLKS[1:0]=00. 
+#define MCG_C6_LOLIE0			(uint8_t)0x80			// Loss of Lock Interrrupt Enable
+#define MCG_S                   (KINETIS_MCG.S)			// 40064006  MCG Status Register
+#define MCG_S_IRCST			(uint8_t)0x01			// Internal Reference Clock Status
+#define MCG_S_OSCINIT0			(uint8_t)0x02			// OSC Initialization,  resets to 0, is set to 1 after the initialization cycles of the crystal oscillator
+#define MCG_S_CLKST(n)			(uint8_t)(((n) & 0x03) << 2)	// Clock Mode Status, 0=FLL is selected, 1= Internal ref, 2=External ref, 3=PLL
+#define MCG_S_CLKST_MASK		(uint8_t)0x0C
+#define MCG_S_IREFST			(uint8_t)0x10			// Internal Reference Status
+#define MCG_S_PLLST			(uint8_t)0x20			// PLL Select Status
+#define MCG_S_LOCK0			(uint8_t)0x40			// Lock Status, 0=PLL Unlocked, 1=PLL Locked
+#define MCG_S_LOLS0			(uint8_t)0x80			// Loss of Lock Status
+#define MCG_SC                  (KINETIS_MCG.SC)		// 40064008  MCG Status and Control Register
+#define MCG_SC_LOCS0			(uint8_t)0x01			// OSC0 Loss of Clock Status
+#define MCG_SC_FCRDIV(n)		(uint8_t)(((n) & 0x07) << 1)	// Fast Clock Internal Reference Divider
+#define MCG_SC_FLTPRSRV			(uint8_t)0x10			// FLL Filter Preserve Enable
+#define MCG_SC_ATMF			(uint8_t)0x20			// Automatic Trim Machine Fail Flag
+#define MCG_SC_ATMS			(uint8_t)0x40			// Automatic Trim Machine Select
+#define MCG_SC_ATME			(uint8_t)0x80			// Automatic Trim Machine Enable
+#define MCG_ATCVH               (KINETIS_MCG.ATCVH)		// 4006400A  MCG Auto Trim Compare Value High Register
+#define MCG_ATCVL               (KINETIS_MCG.ATCVL)		// 4006400B  MCG Auto Trim Compare Value Low Register
+#define MCG_C7                  (KINETIS_MCG.C7)		// 4006400C  MCG Control 7 Register
+#define MCG_C8                  (KINETIS_MCG.C8)		// 4006400D  MCG Control 8 Register
+#define MCG_C9			(KINETIS_MCG.C9)		// 4006400E  MCG Control 9 Register
+#define MCG_C11			(KINETIS_MCG.C11)		// 40064010  MCG Control 11 Register
+#define MCG_C12			(KINETIS_MCG.C12)		// 40064011  MCG Control 12 Register
+#define MCG_S2			(KINETIS_MCG.S2)		// 40064012  MCG Status 2 Register
+#define MCG_T3			(KINETIS_MCG.T3)		// 40064013  MCG Test 3 Register
+
 
 // Oscillator (OSC)
 #define OSC0_CR			(*(volatile uint8_t  *)0x40065000) // OSC Control Register
