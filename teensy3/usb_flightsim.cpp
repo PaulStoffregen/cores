@@ -106,6 +106,8 @@ FlightSimInteger::FlightSimInteger()
 	next = NULL;
 	value = 0;
 	change_callback = NULL;
+	callbackInfo = NULL;
+	hasCallbackInfo = false;
 	FlightSimClass::request_id_messages = 1;
 }
 
@@ -142,7 +144,13 @@ void FlightSimInteger::write(long val)
 void FlightSimInteger::update(long val)
 {
 	value = val;
-	if (change_callback) (*change_callback)(val);
+	if (change_callback) {
+		if (!hasCallbackInfo) {
+			(*change_callback)(val);
+		} else {
+			(*(void(*)(long,void*))change_callback)(val,callbackInfo);
+		}
+	}
 }
 
 FlightSimInteger * FlightSimInteger::find(unsigned int n)
@@ -169,6 +177,8 @@ FlightSimFloat::FlightSimFloat()
 	next = NULL;
 	value = 0;
 	change_callback = NULL;
+	hasCallbackInfo = false;
+	callbackInfo = NULL;
 	FlightSimClass::request_id_messages = 1;
 }
 
@@ -205,7 +215,13 @@ void FlightSimFloat::write(float val)
 void FlightSimFloat::update(float val)
 {
 	value = val;
-	if (change_callback) (*change_callback)(val);
+	if (change_callback) { // add: JB
+		if (!hasCallbackInfo) {
+			(*change_callback)(val);
+		} else {
+			(*(void(*)(long,void*))change_callback)(val,callbackInfo);
+		}
+	}
 }
 
 FlightSimFloat * FlightSimFloat::find(unsigned int n)
@@ -282,6 +298,7 @@ void FlightSimClass::update(void)
 				switch (p[2]) {
 				  case 1:
 					request_id_messages = 1;
+					/* no break */
 				  case 2:
 					enable();
 					frameCount++;
@@ -329,10 +346,13 @@ static volatile uint8_t tx_noautoflush=0;
 
 void FlightSimClass::xmit(const void *p1, uint8_t n1, const void *p2, uint8_t n2)
 {
-	uint8_t total;
+	uint16_t total;
 
 	total = n1 + n2;
-	if (total > FLIGHTSIM_TX_SIZE) return;
+	if (total > FLIGHTSIM_TX_SIZE) {
+		xmit_big_packet(p1, n1, p2,  n2);
+		return;
+	}
 	if (!enabled || !usb_configuration) return;
 	tx_noautoflush = 1;
 	if (tx_packet) {
@@ -372,8 +392,138 @@ send:
 	tx_noautoflush = 0;
 }
 
+void FlightSimClass::xmit_big_packet(const void *p1, uint8_t n1, const void *p2, uint8_t n2)
+{
+	if (!enabled || !usb_configuration) return;
+
+	uint16_t remaining = n1 + n2;
+	if (remaining > 255) return;
+	
+	bool part2 = false;
+	uint8_t remainingPart1 = n1;
+	const uint8_t *dataPtr = (const uint8_t*)p1;
+	bool writeFragmentHeader = false;
+	uint8_t fragmentCounter = 1;
+
+	tx_noautoflush =1; // don't mess with my data, I'm working on it!
+
+	if (tx_packet) {
+		// If we have a current packet, fill it with whatever fits
+		uint8_t partLen = FLIGHTSIM_TX_SIZE - tx_packet->index; 
+		if (partLen > n1) partLen=n1;
+		// copy first part, containing total packet length
+		memcpy(tx_packet->buf + tx_packet->index, dataPtr, partLen);
+		remainingPart1 -= partLen;
+		tx_packet->index += partLen;
+		if (remainingPart1) {
+			// there still is data from the first part that
+			// will go to the next packet. The boolean variable
+			// part2 remains false
+			remaining = remainingPart1+n2;
+			dataPtr += partLen;
+		} else {
+			// maybe we have space for some data from the second part
+			part2=true;
+			partLen = FLIGHTSIM_TX_SIZE - tx_packet->index;
+			// there is no need here to check whether partLen is
+			// bigger than n2. It's not. If it were, all the data
+			// would have fit in a single packet and xmit_big_packet
+			// would never have been called...
+			remaining = n2;
+			if (partLen) {
+				memcpy(tx_packet->buf + tx_packet->index, p2, partLen);
+				remaining -= partLen;
+				tx_packet->index += partLen;
+			}
+			dataPtr = (const uint8_t*)p2 + partLen;
+		}
+		// Packet padding should not be necessary, as xmit_big_packet 
+		// will only be called for data that doesn't fit in a single
+		// packet. So, the previous code should always fill up the
+		// first packet. Right?
+		for (int i = tx_packet->index; i < FLIGHTSIM_TX_SIZE; i++) {
+			tx_packet->buf[i] = 0;
+		}
+
+		// queue first packet for sending
+		tx_packet->len = FLIGHTSIM_TX_SIZE;
+		usb_tx(FLIGHTSIM_TX_ENDPOINT, tx_packet);
+		tx_packet = NULL;
+		writeFragmentHeader = true;
+	} else {
+		remaining = n1+n2;
+	}
+	
+	while (remaining >0) {
+		while (1) {
+			// get memory for next packet
+			if (usb_tx_packet_count(FLIGHTSIM_TX_ENDPOINT) < TX_PACKET_LIMIT) {
+				tx_packet = usb_malloc();
+				if (tx_packet) {
+					break;
+				}
+			}
+
+			if (!enabled || !usb_configuration) {
+				// teensy disconnected
+				tx_noautoflush = 0;
+				return;
+			}
+			tx_noautoflush = 0;  // you can pick up my data, if you like
+			yield(); 			 // do other things and wait for memory to become free
+			tx_noautoflush = 1;  // wait, I'm working on the packet data
+		}
+
+		if (writeFragmentHeader) {
+			tx_packet->buf[0]=(remaining+3 <= FLIGHTSIM_TX_SIZE) ? (byte) remaining+3 : FLIGHTSIM_TX_SIZE;
+			tx_packet->buf[1]=0xff;
+			tx_packet->buf[2]=fragmentCounter++;
+			tx_packet->index=3;
+		}
+		if (!part2) {
+			// we still need to send the first part
+			uint8_t partLen = FLIGHTSIM_TX_SIZE - tx_packet->index; 
+			if (partLen > remainingPart1)
+				partLen=remainingPart1;
+			memcpy(tx_packet->buf + tx_packet->index, dataPtr, partLen);
+			dataPtr += partLen;
+			remainingPart1 -= partLen;
+			tx_packet->index += partLen;
+			remaining -= partLen;
+			if (!remainingPart1) {
+				part2=true;
+				dataPtr = (const uint8_t*)p2;
+			}
+		}
+
+		if (part2) {
+			uint8_t partLen = FLIGHTSIM_TX_SIZE - tx_packet->index; 
+			if (partLen) {
+				if (partLen > remaining)
+					partLen=remaining;
+				memcpy(tx_packet->buf + tx_packet->index, dataPtr, partLen);
+				remaining -= partLen;
+				tx_packet->index += partLen;
+				dataPtr += partLen;
+			}
+		} 
+		writeFragmentHeader = true;
+		
+		if (tx_packet->index >= FLIGHTSIM_TX_SIZE) {
+			// queue packet for sending
+			tx_packet->len = FLIGHTSIM_TX_SIZE;
+			usb_tx(FLIGHTSIM_TX_ENDPOINT, tx_packet);
+			tx_packet = NULL;
+		}
+	}
+	tx_noautoflush = 0;  // data is ready to be transmitted on start of USB token
+}
 
 extern "C" {
+// This gets called from usb_isr when a USB start token arrives.
+// If we have a packet to transmit AND transmission isn't disabled 
+// by tx_noautoflush, we fill it up with zeros and send it out 
+// to USB
 void usb_flightsim_flush_callback(void)
 {
 	if (tx_noautoflush || !tx_packet || tx_packet->index == 0) return;
