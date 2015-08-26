@@ -753,8 +753,8 @@ void ResetHandler(void)
 #endif
 	// now program the clock dividers
 #if F_CPU == 168000000
-	// config divisors: 168 MHz core, 56 MHz bus, 33.6 MHz flash, USB = 168 * 2 / 7
-	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(2) |	 SIM_CLKDIV1_OUTDIV4(4);
+	// config divisors: 168 MHz core, 56 MHz bus, 28 MHz flash, USB = 168 * 2 / 7
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(2) |	 SIM_CLKDIV1_OUTDIV4(5);
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(6) | SIM_CLKDIV2_USBFRAC;
 #elif F_CPU == 144000000
 	// config divisors: 144 MHz core, 48 MHz bus, 28.8 MHz flash, USB = 144 / 3
