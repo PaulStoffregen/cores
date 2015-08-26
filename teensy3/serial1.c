@@ -172,6 +172,36 @@ void serial_set_transmit_pin(uint8_t pin)
 	#endif
 }
 
+int serial_set_rts(uint8_t pin)
+{
+	if (!(SIM_SCGC4 & SIM_SCGC4_UART0)) return 0;
+	if (pin == 6) {
+		CORE_PIN6_CONFIG = PORT_PCR_MUX(3);
+	} else if (pin == 19) {
+		CORE_PIN19_CONFIG = PORT_PCR_MUX(3);
+	} else {
+		UART0_MODEM &= ~UART_MODEM_RXRTSE;
+		return 0;
+	}
+	UART0_MODEM |= UART_MODEM_RXRTSE;
+	return 1;
+}
+
+int serial_set_cts(uint8_t pin)
+{
+	if (!(SIM_SCGC4 & SIM_SCGC4_UART0)) return 0;
+	if (pin == 18) {
+		CORE_PIN18_CONFIG = PORT_PCR_MUX(3); // TODO: weak pullup or pulldown?
+	} else if (pin == 20) {
+		CORE_PIN20_CONFIG = PORT_PCR_MUX(3); // TODO: weak pullup or pulldown?
+	} else {
+		UART0_MODEM &= ~UART_MODEM_TXCTSE;
+		return 0;
+	}
+	UART0_MODEM |= UART_MODEM_TXCTSE;
+	return 1;
+}
+
 void serial_putchar(uint32_t c)
 {
 	uint32_t head, n;
