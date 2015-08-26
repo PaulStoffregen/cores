@@ -3881,15 +3881,45 @@ typedef struct __attribute__((packed)) {
 #define UART_S1_FE		0x02			//  Framing Error Flag
 #define UART_S1_PF		0x01			//  Parity Error Flag
 #define UART0_S2		(KINETISK_UART0.S2)		// UART Status Register 2
+#define UART_S2_LBKDIF		0x80			// LIN Break Detect Interrupt Flag
+#define UART_S2_RXEDGIF		0x40			// RxD Pin Active Edge Interrupt Flag
+#define UART_S2_MSBF		0x20			// Most Significant Bit First
+#define UART_S2_RXINV		0x10			// Receive Data Inversion
+#define UART_S2_RWUID		0x08			// Receive Wakeup Idle Detect
+#define UART_S2_BRK13		0x04			// Break Transmit Character Length
+#define UART_S2_LBKDE		0x02			// LIN Break Detection Enable
+#define UART_S2_RAF		0x01			// Receiver Active Flag
 #define UART0_C3		(KINETISK_UART0.C3)		// UART Control Register 3
+#define UART_C3_R8		0x80			// Received Bit 8
+#define UART_C3_T8		0x40			// Transmit Bit 8
+#define UART_C3_TXDIR		0x20			// TX Pin Direction in Single-Wire mode
+#define UART_C3_TXINV		0x10			// Transmit Data Inversion
+#define UART_C3_ORIE		0x08			// Overrun Error Interrupt Enable
+#define UART_C3_NEIE		0x04			// Noise Error Interrupt Enable
+#define UART_C3_FEIE		0x02			// Framing Error Interrupt Enable
+#define UART_C3_PEIE		0x01			// Parity Error Interrupt Enable
 #define UART0_D			(KINETISK_UART0.D)		// UART Data Register
 #define UART0_MA1		(KINETISK_UART0.MA1)		// UART Match Address Registers 1
 #define UART0_MA2		(KINETISK_UART0.MA2)		// UART Match Address Registers 2
 #define UART0_C4		(KINETISK_UART0.C4)		// UART Control Register 4
+#define UART_C4_MAEN1		0x80			// Match Address Mode Enable 1
+#define UART_C4_MAEN2		0x40			// Match Address Mode Enable 2
+#define UART_C4_M10		0x20			// 10-bit Mode select
+#define UART_C4_BRFA(n)		((n) & 31)		// Baud Rate Fine Adjust
 #define UART0_C5		(KINETISK_UART0.C5)		// UART Control Register 5
+#define UART_C5_TDMAS		0x80			// Transmitter DMA Select
+#define UART_C5_RDMAS		0x20			// Receiver Full DMA Select
 #define UART0_ED		(KINETISK_UART0.ED)		// UART Extended Data Register
+#define UART_ED_NOISY		0x80			// data received with noise
+#define UART_ED_PARITYE		0x40			// data received with a parity error
 #define UART0_MODEM		(KINETISK_UART0.MODEM)		// UART Modem Register
+#define UART_MODEM_RXRTSE	0x08			// Receiver request-to-send enable
+#define UART_MODEM_TXRTSPOL	0x04			// Transmitter request-to-send polarity
+#define UART_MODEM_TXRTSE	0x02			// Transmitter request-to-send enable
+#define UART_MODEM_TXCTSE	0x01			// Transmitter clear-to-send enable
 #define UART0_IR		(KINETISK_UART0.IR)		// UART Infrared Register
+#define UART_IR_IREN		0x04			// Infrared enable
+#define UART_IR_TNP(n)		((n) & 3)		// TX narrow pulse, 0=3/16, 1=1/16, 2=1/32, 3=1/4
 #define UART0_PFIFO		(KINETISK_UART0.PFIFO)		// UART FIFO Parameters
 #define UART_PFIFO_TXFE		0x80			//  Transmit FIFO Enable
 #define UART_PFIFO_TXFIFOSIZE(n) (((n) & 7) << 4)	//  Transmit FIFO Size, 0=1, 1=4, 2=8, 3=16, 4=32, 5=64, 6=128
