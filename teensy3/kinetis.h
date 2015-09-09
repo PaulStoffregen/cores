@@ -4407,7 +4407,7 @@ typedef struct __attribute__((packed)) {
 #define TSI_GENCS_STPE			((uint32_t)0x00000001)		//
 #define TSI0_SCANC		(*(volatile uint32_t *)0x40045004) // SCAN Control Register
 #define TSI_SCANC_REFCHRG(n)		(((n) & 15) << 24)		//
-#define TSI_SCANC_EXTCHRG(n)		(((n) & 7) << 16)		//
+#define TSI_SCANC_EXTCHRG(n)		(((n) & 15) << 16)		//
 #define TSI_SCANC_SMOD(n)		(((n) & 255) << 8)		//
 #define TSI_SCANC_AMCLKS(n)		(((n) & 3) << 3)		//
 #define TSI_SCANC_AMPSC(n)		(((n) & 7) << 0)		//
