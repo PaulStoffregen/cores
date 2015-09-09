@@ -31,7 +31,7 @@
 #include "core_pins.h"
 //#include "HardwareSerial.h"
 
-#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK66FX1M0__)
+#if defined(__MK20DX128__) || defined(__MK20DX256__)
 // These settings give approx 0.02 pF sensitivity and 1200 pF range
 // Lower current, higher number of scans, and higher prescaler
 // increase sensitivity, but the trade-off is longer measurement
@@ -45,6 +45,18 @@ static const uint8_t pin2tsi[] = {
 255, 255, 255, 255, 255,  13,   0,   6,   8,   7,
 255, 255,  14,  15, 255,  12, 255, 255, 255, 255,
 255, 255,  11,   5
+};
+
+#elif defined(__MK66FX1M0__)
+#define CURRENT   2
+#define NSCAN     9
+#define PRESCALE  2
+static const uint8_t pin2tsi[] = {
+//0    1    2    3    4    5    6    7    8    9
+  9,  10, 255, 255, 255, 255, 255, 255, 255, 255,
+255, 255, 255, 255, 255,  13,   0,   6,   8,   7,
+255, 255,  14,  15, 255, 255, 255, 255, 255,  11,
+ 12, 255, 255, 255, 255, 255, 255, 255, 255, 255
 };
 
 #elif defined(__MKL26Z64__)

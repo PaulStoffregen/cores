@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if defined(__MK20DX128__) || defined(__MK20DX256__)
+#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK66FX1M0__)
 #if defined (__ARM_ARCH_7M__) || defined (__ARM_ARCH_7EM__)
 #define __ARM_FEATURE_UNALIGNED 1
  
@@ -325,5 +325,5 @@ memcpy:
 	.size	memcpy, .-memcpy
 #endif
 
-#endif // __MK20DX128__ || __MK20DX256__
+#endif // __MK20DX128__ || __MK20DX256__ || __MK66FX1M0__
 

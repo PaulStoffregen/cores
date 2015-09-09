@@ -3001,6 +3001,45 @@ typedef struct {
 #define FTM2_INVCTRL		(*(volatile uint32_t *)0x400B8090) // FTM Inverting Control
 #define FTM2_SWOCTRL		(*(volatile uint32_t *)0x400B8094) // FTM Software Output Control
 #define FTM2_PWMLOAD		(*(volatile uint32_t *)0x400B8098) // FTM PWM Load
+#define FTM3_SC			(*(volatile uint32_t *)0x400B9000) // Status And Control
+#define FTM3_CNT		(*(volatile uint32_t *)0x400B9004) // Counter
+#define FTM3_MOD		(*(volatile uint32_t *)0x400B9008) // Modulo
+#define FTM3_C0SC		(*(volatile uint32_t *)0x400B900C) // Channel 0 Status And Control
+#define FTM3_C0V		(*(volatile uint32_t *)0x400B9010) // Channel 0 Value
+#define FTM3_C1SC		(*(volatile uint32_t *)0x400B9014) // Channel 1 Status And Control
+#define FTM3_C1V		(*(volatile uint32_t *)0x400B9018) // Channel 1 Value
+#define FTM3_C2SC		(*(volatile uint32_t *)0x400B901C) // Channel 1 Status And Control
+#define FTM3_C2V		(*(volatile uint32_t *)0x400B9020) // Channel 1 Value
+#define FTM3_C3SC		(*(volatile uint32_t *)0x400B9024) // Channel 1 Status And Control
+#define FTM3_C3V		(*(volatile uint32_t *)0x400B9028) // Channel 1 Value
+#define FTM3_C4SC		(*(volatile uint32_t *)0x400B902C) // Channel 1 Status And Control
+#define FTM3_C4V		(*(volatile uint32_t *)0x400B9030) // Channel 1 Value
+#define FTM3_C5SC		(*(volatile uint32_t *)0x400B9034) // Channel 1 Status And Control
+#define FTM3_C5V		(*(volatile uint32_t *)0x400B9038) // Channel 1 Value
+#define FTM3_C6SC		(*(volatile uint32_t *)0x400B903C) // Channel 1 Status And Control
+#define FTM3_C6V		(*(volatile uint32_t *)0x400B9040) // Channel 1 Value
+#define FTM3_C7SC		(*(volatile uint32_t *)0x400B9044) // Channel 1 Status And Control
+#define FTM3_C7V		(*(volatile uint32_t *)0x400B9048) // Channel 1 Value
+#define FTM3_CNTIN		(*(volatile uint32_t *)0x400B904C) // Counter Initial Value
+#define FTM3_STATUS		(*(volatile uint32_t *)0x400B9050) // Capture And Compare Status
+#define FTM3_MODE		(*(volatile uint32_t *)0x400B9054) // Features Mode Selection
+#define FTM3_SYNC		(*(volatile uint32_t *)0x400B9058) // Synchronization
+#define FTM3_OUTINIT		(*(volatile uint32_t *)0x400B905C) // Initial State For Channels Output
+#define FTM3_OUTMASK		(*(volatile uint32_t *)0x400B9060) // Output Mask
+#define FTM3_COMBINE		(*(volatile uint32_t *)0x400B9064) // Function For Linked Channels
+#define FTM3_DEADTIME		(*(volatile uint32_t *)0x400B9068) // Deadtime Insertion Control
+#define FTM3_EXTTRIG		(*(volatile uint32_t *)0x400B906C) // FTM External Trigger
+#define FTM3_POL		(*(volatile uint32_t *)0x400B9070) // Channels Polarity
+#define FTM3_FMS		(*(volatile uint32_t *)0x400B9074) // Fault Mode Status
+#define FTM3_FILTER		(*(volatile uint32_t *)0x400B9078) // Input Capture Filter Control
+#define FTM3_FLTCTRL		(*(volatile uint32_t *)0x400B907C) // Fault Control
+#define FTM3_QDCTRL		(*(volatile uint32_t *)0x400B9080) // Quadrature Decoder Control And Status
+#define FTM3_CONF		(*(volatile uint32_t *)0x400B9084) // Configuration
+#define FTM3_FLTPOL		(*(volatile uint32_t *)0x400B9088) // FTM Fault Input Polarity
+#define FTM3_SYNCONF		(*(volatile uint32_t *)0x400B908C) // Synchronization Configuration
+#define FTM3_INVCTRL		(*(volatile uint32_t *)0x400B9090) // FTM Inverting Control
+#define FTM3_SWOCTRL		(*(volatile uint32_t *)0x400B9094) // FTM Software Output Control
+#define FTM3_PWMLOAD		(*(volatile uint32_t *)0x400B9098) // FTM PWM Load
 #elif defined(KINETISL)
 #define FTM2_SC			(*(volatile uint32_t *)0x4003A000) // Status And Control
 #define FTM2_CNT		(*(volatile uint32_t *)0x4003A004) // Counter

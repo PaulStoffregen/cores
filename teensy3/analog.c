@@ -516,7 +516,20 @@ void analogWriteDAC0(int val)
 }
 
 
-
+#if defined(__MK66FX1M0__)
+void analogWriteDAC1(int val)
+{
+	SIM_SCGC2 |= SIM_SCGC2_DAC1;
+	if (analog_reference_internal) {
+		DAC1_C0 = DAC_C0_DACEN;  // 1.2V ref is DACREF_1
+	} else {
+		DAC1_C0 = DAC_C0_DACEN | DAC_C0_DACRFS; // 3.3V VDDA is DACREF_2
+	}
+	if (val < 0) val = 0;  // TODO: saturate instruction?
+	else if (val > 4095) val = 4095;
+	*(int16_t *)&(DAC1_DAT0L) = val;
+}
+#endif
 
 
 

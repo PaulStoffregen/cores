@@ -60,7 +60,7 @@ long map(long, long, long, long, long);
 
 
 // Fast memcpy
-#if defined(__MK20DX128__) || defined(__MK20DX256__)
+#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK66FX1M0__)
 #ifdef __cplusplus
 extern "C" {
 extern void *memcpy (void *dst, const void *src, size_t count);

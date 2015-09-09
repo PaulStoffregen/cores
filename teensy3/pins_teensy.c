@@ -72,7 +72,15 @@ const struct digital_pin_bitband_and_config_table_struct digital_pin_to_info_PGM
 	{GPIO_BITBAND_PTR(CORE_PIN30_PORTREG, CORE_PIN30_BIT), &CORE_PIN30_CONFIG},
 	{GPIO_BITBAND_PTR(CORE_PIN31_PORTREG, CORE_PIN31_BIT), &CORE_PIN31_CONFIG},
 	{GPIO_BITBAND_PTR(CORE_PIN32_PORTREG, CORE_PIN32_BIT), &CORE_PIN32_CONFIG},
-	{GPIO_BITBAND_PTR(CORE_PIN33_PORTREG, CORE_PIN33_BIT), &CORE_PIN33_CONFIG}
+	{GPIO_BITBAND_PTR(CORE_PIN33_PORTREG, CORE_PIN33_BIT), &CORE_PIN33_CONFIG},
+#ifdef CORE_PIN34_PORTREG
+	{GPIO_BITBAND_PTR(CORE_PIN34_PORTREG, CORE_PIN34_BIT), &CORE_PIN34_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN35_PORTREG, CORE_PIN35_BIT), &CORE_PIN35_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN36_PORTREG, CORE_PIN36_BIT), &CORE_PIN36_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN37_PORTREG, CORE_PIN37_BIT), &CORE_PIN37_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN38_PORTREG, CORE_PIN38_BIT), &CORE_PIN38_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN39_PORTREG, CORE_PIN39_BIT), &CORE_PIN39_CONFIG},
+#endif
 };
 
 #elif defined(KINETISL)
@@ -175,7 +183,7 @@ void detachInterrupt(uint8_t pin)
 	__enable_irq();
 }
 
-#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK66FX1M0__)
+#if defined(__MK20DX128__) || defined(__MK20DX256__)
 
 static void porta_interrupt(void)
 {
@@ -276,10 +284,83 @@ static void portcd_interrupt(void)
 	if ((isfr & CORE_PIN21_BITMASK) && intFunc[21]) intFunc[21]();
 }
 
+#elif defined(__MK66FX1M0__)
+
+static void porta_interrupt(void)
+{
+	uint32_t isfr = PORTA_ISFR;
+	PORTA_ISFR = isfr;
+	if ((isfr & CORE_PIN3_BITMASK) && intFunc[3]) intFunc[3]();
+	if ((isfr & CORE_PIN4_BITMASK) && intFunc[4]) intFunc[4]();
+	if ((isfr & CORE_PIN25_BITMASK) && intFunc[25]) intFunc[25]();
+	if ((isfr & CORE_PIN26_BITMASK) && intFunc[26]) intFunc[26]();
+	if ((isfr & CORE_PIN27_BITMASK) && intFunc[27]) intFunc[27]();
+	if ((isfr & CORE_PIN28_BITMASK) && intFunc[28]) intFunc[28]();
+	if ((isfr & CORE_PIN39_BITMASK) && intFunc[39]) intFunc[39]();
+}
+
+static void portb_interrupt(void)
+{
+	uint32_t isfr = PORTB_ISFR;
+	PORTB_ISFR = isfr;
+	if ((isfr & CORE_PIN0_BITMASK) && intFunc[0]) intFunc[0]();
+	if ((isfr & CORE_PIN1_BITMASK) && intFunc[1]) intFunc[1]();
+	if ((isfr & CORE_PIN16_BITMASK) && intFunc[16]) intFunc[16]();
+	if ((isfr & CORE_PIN17_BITMASK) && intFunc[17]) intFunc[17]();
+	if ((isfr & CORE_PIN18_BITMASK) && intFunc[18]) intFunc[18]();
+	if ((isfr & CORE_PIN19_BITMASK) && intFunc[19]) intFunc[19]();
+	if ((isfr & CORE_PIN29_BITMASK) && intFunc[29]) intFunc[29]();
+	if ((isfr & CORE_PIN30_BITMASK) && intFunc[30]) intFunc[30]();
+	if ((isfr & CORE_PIN31_BITMASK) && intFunc[31]) intFunc[31]();
+	if ((isfr & CORE_PIN32_BITMASK) && intFunc[32]) intFunc[32]();
+}
+
+static void portc_interrupt(void)
+{
+	// TODO: these are inefficent.  Use CLZ somehow....
+	uint32_t isfr = PORTC_ISFR;
+	PORTC_ISFR = isfr;
+	if ((isfr & CORE_PIN9_BITMASK) && intFunc[9]) intFunc[9]();
+	if ((isfr & CORE_PIN10_BITMASK) && intFunc[10]) intFunc[10]();
+	if ((isfr & CORE_PIN11_BITMASK) && intFunc[11]) intFunc[11]();
+	if ((isfr & CORE_PIN12_BITMASK) && intFunc[12]) intFunc[12]();
+	if ((isfr & CORE_PIN13_BITMASK) && intFunc[13]) intFunc[13]();
+	if ((isfr & CORE_PIN15_BITMASK) && intFunc[15]) intFunc[15]();
+	if ((isfr & CORE_PIN22_BITMASK) && intFunc[22]) intFunc[22]();
+	if ((isfr & CORE_PIN23_BITMASK) && intFunc[23]) intFunc[23]();
+	if ((isfr & CORE_PIN35_BITMASK) && intFunc[35]) intFunc[35]();
+	if ((isfr & CORE_PIN36_BITMASK) && intFunc[36]) intFunc[36]();
+	if ((isfr & CORE_PIN37_BITMASK) && intFunc[37]) intFunc[37]();
+	if ((isfr & CORE_PIN38_BITMASK) && intFunc[38]) intFunc[38]();
+}
+
+static void portd_interrupt(void)
+{
+	uint32_t isfr = PORTD_ISFR;
+	PORTD_ISFR = isfr;
+	if ((isfr & CORE_PIN2_BITMASK) && intFunc[2]) intFunc[2]();
+	if ((isfr & CORE_PIN5_BITMASK) && intFunc[5]) intFunc[5]();
+	if ((isfr & CORE_PIN6_BITMASK) && intFunc[6]) intFunc[6]();
+	if ((isfr & CORE_PIN7_BITMASK) && intFunc[7]) intFunc[7]();
+	if ((isfr & CORE_PIN8_BITMASK) && intFunc[8]) intFunc[8]();
+	if ((isfr & CORE_PIN14_BITMASK) && intFunc[14]) intFunc[14]();
+	if ((isfr & CORE_PIN20_BITMASK) && intFunc[20]) intFunc[20]();
+	if ((isfr & CORE_PIN21_BITMASK) && intFunc[21]) intFunc[21]();
+}
+
+static void porte_interrupt(void)
+{
+	uint32_t isfr = PORTE_ISFR;
+	PORTE_ISFR = isfr;
+	if ((isfr & CORE_PIN24_BITMASK) && intFunc[24]) intFunc[24]();
+	if ((isfr & CORE_PIN33_BITMASK) && intFunc[33]) intFunc[33]();
+	if ((isfr & CORE_PIN34_BITMASK) && intFunc[34]) intFunc[34]();
+}
+
 #endif
 
 
-#if defined(__MK20DX128__) || defined(__MK20DX256__)
+#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK66FX1M0__)
 
 unsigned long rtc_get(void)
 {
@@ -435,7 +516,7 @@ extern void usb_init(void);
 //void init_pins(void)
 void _init_Teensyduino_internal_(void)
 {
-#if defined(__MK20DX128__) || defined(__MK20DX256__)
+#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK66FX1M0__)
 	NVIC_ENABLE_IRQ(IRQ_PORTA);
 	NVIC_ENABLE_IRQ(IRQ_PORTB);
 	NVIC_ENABLE_IRQ(IRQ_PORTC);
@@ -455,9 +536,19 @@ void _init_Teensyduino_internal_(void)
 	FTM0_C3SC = 0x28;
 	FTM0_C4SC = 0x28;
 	FTM0_C5SC = 0x28;
-#if defined(__MK20DX128__) || defined(__MK20DX256__)
+#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK66FX1M0__)
 	FTM0_C6SC = 0x28;
 	FTM0_C7SC = 0x28;
+#endif
+#if defined(__MK66FX1M0__)
+	FTM3_C0SC = 0x28;
+	FTM3_C1SC = 0x28;
+	FTM3_C2SC = 0x28;
+	FTM3_C3SC = 0x28;
+	FTM3_C4SC = 0x28;
+	FTM3_C5SC = 0x28;
+	FTM3_C6SC = 0x28;
+	FTM3_C7SC = 0x28;
 #endif
 	FTM0_SC = FTM_SC_CLKS(1) | FTM_SC_PS(DEFAULT_FTM_PRESCALE);
 	FTM1_CNT = 0;
@@ -465,12 +556,19 @@ void _init_Teensyduino_internal_(void)
 	FTM1_C0SC = 0x28;
 	FTM1_C1SC = 0x28;
 	FTM1_SC = FTM_SC_CLKS(1) | FTM_SC_PS(DEFAULT_FTM_PRESCALE);
-#if defined(__MK20DX256__) || defined(__MKL26Z64__)
+#if defined(__MK20DX256__) || defined(__MK66FX1M0__) || defined(__MKL26Z64__)
 	FTM2_CNT = 0;
 	FTM2_MOD = DEFAULT_FTM_MOD;
 	FTM2_C0SC = 0x28;
 	FTM2_C1SC = 0x28;
 	FTM2_SC = FTM_SC_CLKS(1) | FTM_SC_PS(DEFAULT_FTM_PRESCALE);
+#endif
+#if defined(__MK66FX1M0__)
+	FTM3_CNT = 0;
+	FTM3_MOD = DEFAULT_FTM_MOD;
+	FTM3_C0SC = 0x28;
+	FTM3_C1SC = 0x28;
+	FTM3_SC = FTM_SC_CLKS(1) | FTM_SC_PS(DEFAULT_FTM_PRESCALE);
 #endif
 	analog_init();
 	//delay(100); // TODO: this is not necessary, right?
@@ -490,7 +588,7 @@ void _init_Teensyduino_internal_(void)
 #define FTM0_CH7_PIN  5
 #define FTM1_CH0_PIN  3
 #define FTM1_CH1_PIN  4
-#elif defined(__MK20DX256__) || defined(__MK66FX1M0__)
+#elif defined(__MK20DX256__)
 #define FTM0_CH0_PIN 22
 #define FTM0_CH1_PIN 23
 #define FTM0_CH2_PIN  9
@@ -514,6 +612,27 @@ void _init_Teensyduino_internal_(void)
 #define FTM1_CH1_PIN 17
 #define FTM2_CH0_PIN  3
 #define FTM2_CH1_PIN  4
+#elif defined(__MK66FX1M0__)
+#define FTM0_CH0_PIN 22
+#define FTM0_CH1_PIN 23
+#define FTM0_CH2_PIN  9
+#define FTM0_CH3_PIN 10
+#define FTM0_CH4_PIN  6
+#define FTM0_CH5_PIN 20
+#define FTM0_CH6_PIN 21
+#define FTM0_CH7_PIN  5
+#define FTM1_CH0_PIN  3
+#define FTM1_CH1_PIN  4
+#define FTM2_CH0_PIN 29
+#define FTM2_CH1_PIN 30
+#define FTM3_CH0_PIN  2
+#define FTM3_CH1_PIN 14
+#define FTM3_CH2_PIN  7
+#define FTM3_CH3_PIN  8
+#define FTM3_CH4_PIN 35
+#define FTM3_CH5_PIN 36
+#define FTM3_CH6_PIN 37
+#define FTM3_CH7_PIN 38
 #endif
 #define FTM_PINCFG(pin) FTM_PINCFG2(pin)
 #define FTM_PINCFG2(pin) CORE_PIN ## pin ## _CONFIG
@@ -549,6 +668,18 @@ void analogWrite(uint8_t pin, int val)
 			val >>= res - 12;
 		}
 		analogWriteDAC0(val);
+		return;
+	}
+#elif defined(__MK66FX1M0__)
+	if (pin == A21 || pin == A22) {
+		uint8_t res = analog_write_res;
+		if (res < 12) {
+			val <<= 12 - res;
+		} else if (res > 12) {
+			val >>= res - 12;
+		}
+		if (pin == A21) analogWriteDAC0(val);
+		else analogWriteDAC1(val);
 		return;
 	}
 #endif
@@ -656,6 +787,54 @@ void analogWrite(uint8_t pin, int val)
 		FTM_PINCFG(FTM2_CH1_PIN) = PORT_PCR_MUX(3) | PORT_PCR_DSE | PORT_PCR_SRE;
 		break;
 #endif
+#ifdef FTM3_CH0_PIN
+	  case FTM3_CH0_PIN:
+		FTM3_C0V = cval;
+		FTM_PINCFG(FTM3_CH0_PIN) = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef FTM3_CH1_PIN
+	  case FTM3_CH1_PIN:
+		FTM3_C1V = cval;
+		FTM_PINCFG(FTM3_CH1_PIN) = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef FTM3_CH2_PIN
+	  case FTM3_CH2_PIN:
+		FTM3_C2V = cval;
+		FTM_PINCFG(FTM3_CH2_PIN) = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef FTM3_CH3_PIN
+	  case FTM3_CH3_PIN:
+		FTM3_C3V = cval;
+		FTM_PINCFG(FTM3_CH3_PIN) = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef FTM3_CH4_PIN
+	  case FTM3_CH4_PIN:
+		FTM3_C4V = cval;
+		FTM_PINCFG(FTM3_CH4_PIN) = PORT_PCR_MUX(3) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef FTM3_CH5_PIN
+	  case FTM3_CH5_PIN:
+		FTM3_C5V = cval;
+		FTM_PINCFG(FTM3_CH5_PIN) = PORT_PCR_MUX(3) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef FTM3_CH6_PIN
+	  case FTM3_CH6_PIN:
+		FTM3_C6V = cval;
+		FTM_PINCFG(FTM3_CH6_PIN) = PORT_PCR_MUX(3) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef FTM3_CH7_PIN
+	  case FTM3_CH7_PIN:
+		FTM3_C7V = cval;
+		FTM_PINCFG(FTM3_CH7_PIN) = PORT_PCR_MUX(3) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
 	  default:
 		digitalWrite(pin, (val > 127) ? HIGH : LOW);
 		pinMode(pin, OUTPUT);
@@ -722,6 +901,17 @@ void analogWriteFrequency(uint8_t pin, float frequency)
 		FTM2_CNT = 0;
 		FTM2_MOD = mod;
 		FTM2_SC = FTM_SC_CLKS(1) | FTM_SC_PS(prescale);
+	}
+#endif
+#ifdef FTM3_CH0_PIN
+	  else if (pin == FTM3_CH0_PIN || pin == FTM3_CH1_PIN
+	  || pin == FTM3_CH2_PIN || pin == FTM3_CH3_PIN
+	  || pin == FTM3_CH4_PIN || pin == FTM3_CH5_PIN
+	  || pin == FTM3_CH6_PIN || pin == FTM3_CH7_PIN) {
+		FTM3_SC = 0;
+		FTM3_CNT = 0;
+		FTM3_MOD = mod;
+		FTM3_SC = FTM_SC_CLKS(1) | FTM_SC_PS(prescale);
 	}
 #endif
 }
