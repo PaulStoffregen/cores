@@ -185,6 +185,30 @@
 #ifdef FLIGHTSIM_RX_SIZE
 #undef FLIGHTSIM_RX_SIZE
 #endif
+#ifdef MTP_INTERFACE
+#undef MTP_INTERFACE
+#endif
+#ifdef MTP_TX_ENDPOINT
+#undef MTP_TX_ENDPOINT
+#endif
+#ifdef MTP_TX_SIZE
+#undef MTP_TX_SIZE
+#endif
+#ifdef MTP_RX_ENDPOINT
+#undef MTP_RX_ENDPOINT
+#endif
+#ifdef MTP_RX_SIZE
+#undef MTP_RX_SIZE
+#endif
+#ifdef MTP_EVENT_ENDPOINT
+#undef MTP_EVENT_ENDPOINT
+#endif
+#ifdef MTP_EVENT_SIZE
+#undef MTP_EVENT_SIZE
+#endif
+#ifdef MTP_EVENT_INTERVAL
+#undef MTP_EVENT_INTERVAL
+#endif
 #ifdef ENDPOINT1_CONFIG
 #undef ENDPOINT1_CONFIG
 #endif

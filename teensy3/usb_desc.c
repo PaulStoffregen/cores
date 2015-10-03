@@ -379,7 +379,14 @@ static uint8_t flightsim_report_desc[] = {
 #define JOYSTICK_INTERFACE_DESC_SIZE	0
 #endif
 
-#define CONFIG_DESC_SIZE		JOYSTICK_INTERFACE_DESC_POS+JOYSTICK_INTERFACE_DESC_SIZE
+#define MTP_INTERFACE_DESC_POS		JOYSTICK_INTERFACE_DESC_POS+JOYSTICK_INTERFACE_DESC_SIZE
+#ifdef  MTP_INTERFACE
+#define MTP_INTERFACE_DESC_SIZE		9+7+7+7
+#else
+#define MTP_INTERFACE_DESC_SIZE	0
+#endif
+
+#define CONFIG_DESC_SIZE		MTP_INTERFACE_DESC_POS+MTP_INTERFACE_DESC_SIZE
 
 
 
@@ -757,6 +764,39 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         JOYSTICK_INTERVAL,                      // bInterval
 #endif // JOYSTICK_INTERFACE
 
+#ifdef MTP_INTERFACE
+        // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+        9,                                      // bLength
+        4,                                      // bDescriptorType
+        MTP_INTERFACE,                          // bInterfaceNumber
+        0,                                      // bAlternateSetting
+        3,                                      // bNumEndpoints
+        0x06,                                   // bInterfaceClass (0x06 = still image)
+        0x01,                                   // bInterfaceSubClass
+        0x01,                                   // bInterfaceProtocol
+        0,                                      // iInterface
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        7,                                      // bLength
+        5,                                      // bDescriptorType
+        MTP_TX_ENDPOINT | 0x80,                 // bEndpointAddress
+        0x02,                                   // bmAttributes (0x02=bulk)
+        MTP_TX_SIZE, 0,                         // wMaxPacketSize
+        0,                                      // bInterval
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        7,                                      // bLength
+        5,                                      // bDescriptorType
+        MTP_RX_ENDPOINT,                        // bEndpointAddress
+        0x02,                                   // bmAttributes (0x02=bulk)
+        MTP_RX_SIZE, 0,                         // wMaxPacketSize
+        0,                                      // bInterval
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        7,                                      // bLength
+        5,                                      // bDescriptorType
+        MTP_EVENT_ENDPOINT | 0x80,              // bEndpointAddress
+        0x03,                                   // bmAttributes (0x03=intr)
+        MTP_EVENT_SIZE, 0,                      // wMaxPacketSize
+        MTP_EVENT_INTERVAL,                     // bInterval
+#endif // MTP_INTERFACE
 };
 
 

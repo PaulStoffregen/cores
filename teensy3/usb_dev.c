@@ -277,7 +277,7 @@ static void usb_setup(void)
 			endpoint0_stall();
 			return;
 		}
-		(*(uint8_t *)(&USB0_ENDPT0 + setup.wIndex * 4)) &= ~0x02;
+		(*(uint8_t *)(&USB0_ENDPT0 + i * 4)) &= ~0x02;
 		// TODO: do we need to clear the data toggle here?
 		break;
 	  case 0x0302: // SET_FEATURE (endpoint)
@@ -287,7 +287,7 @@ static void usb_setup(void)
 			endpoint0_stall();
 			return;
 		}
-		(*(uint8_t *)(&USB0_ENDPT0 + setup.wIndex * 4)) |= 0x02;
+		(*(uint8_t *)(&USB0_ENDPT0 + i * 4)) |= 0x02;
 		// TODO: do we need to clear the data toggle here?
 		break;
 	  case 0x0680: // GET_DESCRIPTOR
@@ -338,6 +338,21 @@ static void usb_setup(void)
 		break;
 	  case 0x2021: // CDC_SET_LINE_CODING
 		//serial_print("set coding, waiting...\n");
+		return;
+#endif
+
+#if defined(MTP_INTERFACE)
+	case 0x2164: // Cancel Request (PTP spec, 5.2.1, page 8)
+		// TODO: required by PTP spec
+		endpoint0_stall();
+		return;
+	case 0x2166: // Device Reset (PTP spec, 5.2.3, page 10)
+		// TODO: required by PTP spec
+		endpoint0_stall();
+		return;
+	case 0x2167: // Get Device Statis (PTP spec, 5.2.4, page 10)
+		// TODO: required by PTP spec
+		endpoint0_stall();
 		return;
 #endif
 
