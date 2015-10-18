@@ -41,7 +41,8 @@
 static uint32_t tone_toggle_count;
 static volatile uint8_t *tone_reg;
 static uint8_t tone_pin=255;
-static uint16_t tone_frequency=0;
+static float tone_usec=0.0;
+static uint32_t tone_new_count=0;
 IntervalTimer tone_timer;
 
 void tone_interrupt(void);
@@ -68,8 +69,9 @@ void tone(uint8_t pin, uint16_t frequency, uint32_t duration)
 	if (pin >= CORE_NUM_DIGITAL) return;
 	if (duration) {
 		count = (frequency * duration / 1000) * 2;
+		if (!(count & 1)) count++; // always full waveform cycles
 	} else {
-		count = 0xFFFFFFFF;
+		count = 0xFFFFFFFD;
 	}
 	usec = (float)500000.0 / (float)frequency;
 	config = portConfigRegister(pin);
@@ -78,22 +80,25 @@ void tone(uint8_t pin, uint16_t frequency, uint32_t duration)
 	// the interrupt on a single timer.
 	__disable_irq();
 	if (pin == tone_pin) {
-		if (frequency == tone_frequency) {
-			// same pin, same frequency, so just update the
-			// duration.  Users will call repetitively call
-			// tone() with the same setting, expecting a
-			// continuous output with no glitches or phase
-			// changes or jitter at each call.
-			tone_toggle_count = count;
+		// changing a pin which is already playing a tone
+		if (usec == tone_usec) {
+			// same frequency, so just change the duration
+			tone_toggle_count = (tone_toggle_count & 1) + count - 1;
 		} else {
-			// same pin, but a new frequency.
-			TONE_CLEAR_PIN; // clear pin
-			tone_timer.begin(tone_interrupt, usec);
+			// different frequency, reduce duration to only the
+			// remainder of its current cycle, and configure for
+			// the transition to the new frequency when the
+			// current cycle completes
+			tone_usec = usec;
+			tone_new_count = count;
+			tone_toggle_count = (tone_toggle_count & 1);
 		}
 	} else {
+		// if playing on a different pin, immediately stop, even mid-cycle :-(
 		if (tone_pin < CORE_NUM_DIGITAL) {
 			TONE_CLEAR_PIN; // clear pin
 		}
+		// configure the new tone to play
 		tone_pin = pin;
 		tone_reg = portClearRegister(pin);
 		#if defined(KINETISL)
@@ -103,6 +108,7 @@ void tone(uint8_t pin, uint16_t frequency, uint32_t duration)
 		TONE_OUTPUT_PIN; // output mode;
 		*config = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1);
 		tone_toggle_count = count;
+		tone_usec = usec;
 		tone_timer.begin(tone_interrupt, usec);
 	}
 	__enable_irq();
@@ -111,14 +117,24 @@ void tone(uint8_t pin, uint16_t frequency, uint32_t duration)
 
 void tone_interrupt(void)
 {
-	if (tone_toggle_count) {
+	if (tone_toggle_count) {  // odd = rising edge, even = falling edge
+		// not the end
 		TONE_TOGGLE_PIN; // toggle
-		if (tone_toggle_count < 0xFFFFFFFF) tone_toggle_count--;
+		tone_toggle_count--;
+		if (tone_toggle_count == 0xFFFFFFFB) tone_toggle_count = 0xFFFFFFFD;
 	} else {
-		tone_timer.end();
+		// this transition completes the tone
 		TONE_CLEAR_PIN; // clear
-		tone_pin = 255;
-		tone_frequency = 0;
+		if (tone_new_count > 0) {
+			// begin playing a new tone
+			tone_timer.begin(tone_interrupt, tone_usec);
+			tone_toggle_count = tone_new_count;
+			tone_new_count = 0;
+		} else {
+			// finished playing
+			tone_timer.end();
+			tone_pin = 255;
+		}
 	}
 }
 
@@ -130,7 +146,6 @@ void noTone(uint8_t pin)
 		tone_timer.end();
 		TONE_CLEAR_PIN; // clear
 		tone_pin = 255;
-		tone_frequency = 0;
 	}
 	__enable_irq();
 }
