@@ -855,7 +855,7 @@ void analogWriteRes(uint32_t bits)
 
 void analogWriteFrequency(uint8_t pin, float frequency)
 {
-	uint32_t prescale, mod;
+	uint32_t prescale, mod, ftmClock, ftmClockSource;
 	float minfreq;
 
 	//serial_print("analogWriteFrequency: pin = ");
@@ -863,17 +863,27 @@ void analogWriteFrequency(uint8_t pin, float frequency)
 	//serial_print(", freq = ");
 	//serial_phex32((uint32_t)frequency);
 	//serial_print("\n");
+	
+    if (frequency < (float)(F_TIMER >> 7) / 65536.0f) { 	//If frequency is too low for working with F_TIMER:
+            ftmClockSource = 2; 				//Use alternative 31250Hz clock source
+            ftmClock = 31250;   				//Set variable for the actual timer clock frequency
+    } else {												//Else do as before:
+            ftmClockSource = 1; 				//Use default F_Timer clock source
+            ftmClock = F_TIMER;					//Set variable for the actual timer clock frequency
+    }
+
+	
 	for (prescale = 0; prescale < 7; prescale++) {
-		minfreq = (float)(F_TIMER >> prescale) / 65536.0f;
+		minfreq = (float)(ftmClock >> prescale) / 65536.0f;	//Use ftmClock instead of F_TIMER
 		if (frequency >= minfreq) break;
 	}
-	//serial_print("F_TIMER = ");
-	//serial_phex32(F_TIMER >> prescale);
+	//serial_print("F_TIMER/ftm_Clock = ");
+	//serial_phex32(ftmClock >> prescale);
 	//serial_print("\n");
 	//serial_print("prescale = ");
 	//serial_phex(prescale);
 	//serial_print("\n");
-	mod = (float)(F_TIMER >> prescale) / frequency - 0.5f;
+	mod = (float)(ftmClock >> prescale) / frequency - 0.5f;	//Use ftmClock instead of F_TIMER
 	if (mod > 65535) mod = 65535;
 	//serial_print("mod = ");
 	//serial_phex32(mod);
@@ -882,7 +892,7 @@ void analogWriteFrequency(uint8_t pin, float frequency)
 		FTM1_SC = 0;
 		FTM1_CNT = 0;
 		FTM1_MOD = mod;
-		FTM1_SC = FTM_SC_CLKS(1) | FTM_SC_PS(prescale);
+		FTM1_SC = FTM_SC_CLKS(ftmClockSource) | FTM_SC_PS(prescale);	//Use ftmClockSource instead of 1
 	} else if (pin == FTM0_CH0_PIN || pin == FTM0_CH1_PIN
 	  || pin == FTM0_CH2_PIN || pin == FTM0_CH3_PIN
 	  || pin == FTM0_CH4_PIN || pin == FTM0_CH5_PIN
@@ -893,14 +903,14 @@ void analogWriteFrequency(uint8_t pin, float frequency)
 		FTM0_SC = 0;
 		FTM0_CNT = 0;
 		FTM0_MOD = mod;
-		FTM0_SC = FTM_SC_CLKS(1) | FTM_SC_PS(prescale);
+		FTM0_SC = FTM_SC_CLKS(ftmClockSource) | FTM_SC_PS(prescale);	//Use ftmClockSource instead of 1
 	}
 #ifdef FTM2_CH0_PIN
 	  else if (pin == FTM2_CH0_PIN || pin == FTM2_CH1_PIN) {
 		FTM2_SC = 0;
 		FTM2_CNT = 0;
 		FTM2_MOD = mod;
-		FTM2_SC = FTM_SC_CLKS(1) | FTM_SC_PS(prescale);
+		FTM2_SC = FTM_SC_CLKS(ftmClockSource) | FTM_SC_PS(prescale);	//Use ftmClockSource instead of 1
 	}
 #endif
 #ifdef FTM3_CH0_PIN
@@ -911,7 +921,7 @@ void analogWriteFrequency(uint8_t pin, float frequency)
 		FTM3_SC = 0;
 		FTM3_CNT = 0;
 		FTM3_MOD = mod;
-		FTM3_SC = FTM_SC_CLKS(1) | FTM_SC_PS(prescale);
+		FTM3_SC = FTM_SC_CLKS(ftmClockSource) | FTM_SC_PS(prescale);	//Use the new ftmClockSource instead of 1
 	}
 #endif
 }
