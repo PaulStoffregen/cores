@@ -4280,6 +4280,7 @@ typedef struct __attribute__((packed)) {
 #define I2S0_TCR3		(*(volatile uint32_t *)0x4002F00C) // SAI Transmit Configuration 3 Register
 #define I2S_TCR3_WDFL(n)		((uint32_t)n & 0x0f)		// word flag configuration
 #define I2S_TCR3_TCE			((uint32_t)0x10000)		// transmit channel enable
+#define I2S_TCR3_TCE_2CH		((uint32_t)0x30000)		// transmit 2 channel enable
 #define I2S0_TCR4		(*(volatile uint32_t *)0x4002F010) // SAI Transmit Configuration 4 Register
 #define I2S_TCR4_FSD			((uint32_t)1)			// Frame Sync Direction
 #define I2S_TCR4_FSP			((uint32_t)2)			// Frame Sync Polarity
@@ -4331,6 +4332,7 @@ typedef struct __attribute__((packed)) {
 #define I2S0_RCR3		(*(volatile uint32_t *)0x4002F08C) // SAI Receive Configuration 3 Register
 #define I2S_RCR3_WDFL(n)		((uint32_t)n & 0x0f)		// word flag configuration
 #define I2S_RCR3_RCE			((uint32_t)0x10000)		// receive channel enable
+#define I2S_RCR3_RCE_2CH		((uint32_t)0x30000)		// receive 2 channel enable
 #define I2S0_RCR4		(*(volatile uint32_t *)0x4002F090) // SAI Receive Configuration 4 Register
 #define I2S_RCR4_FSD			((uint32_t)1)			// Frame Sync Direction
 #define I2S_RCR4_FSP			((uint32_t)2)			// Frame Sync Polarity
