@@ -87,7 +87,7 @@ static volatile uint8_t rx_buffer_tail = 0;
 #ifdef HAS_KINETISK_UART0_FIFO
 #define C2_ENABLE		UART_C2_TE | UART_C2_RE | UART_C2_RIE | UART_C2_ILIE
 #else
-#define C2_ENABLE               UART_C2_TE | UART_C2_RE | UART_C2_RIE
+#define C2_ENABLE		UART_C2_TE | UART_C2_RE | UART_C2_RIE
 #endif
 #define C2_TX_ACTIVE		C2_ENABLE | UART_C2_TIE
 #define C2_TX_COMPLETING	C2_ENABLE | UART_C2_TCIE
@@ -128,24 +128,24 @@ void serial_begin(uint32_t divisor)
 
 void serial_format(uint32_t format)
 {
-        uint8_t c;
+	uint8_t c;
 
-        c = UART0_C1;
-        c = (c & ~0x13) | (format & 0x03);      // configure parity
-        if (format & 0x04) c |= 0x10;           // 9 bits (might include parity)
-        UART0_C1 = c;
-        if ((format & 0x0F) == 0x04) UART0_C3 |= 0x40; // 8N2 is 9 bit with 9th bit always 1
-        c = UART0_S2 & ~0x10;
-        if (format & 0x10) c |= 0x10;           // rx invert
-        UART0_S2 = c;
-        c = UART0_C3 & ~0x10;
-        if (format & 0x20) c |= 0x10;           // tx invert
-        UART0_C3 = c;
+	c = UART0_C1;
+	c = (c & ~0x13) | (format & 0x03);	// configure parity
+	if (format & 0x04) c |= 0x10;		// 9 bits (might include parity)
+	UART0_C1 = c;
+	if ((format & 0x0F) == 0x04) UART0_C3 |= 0x40; // 8N2 is 9 bit with 9th bit always 1
+	c = UART0_S2 & ~0x10;
+	if (format & 0x10) c |= 0x10;		// rx invert
+	UART0_S2 = c;
+	c = UART0_C3 & ~0x10;
+	if (format & 0x20) c |= 0x10;		// tx invert
+	UART0_C3 = c;
 #ifdef SERIAL_9BIT_SUPPORT
-        c = UART0_C4 & 0x1F;
-        if (format & 0x08) c |= 0x20;           // 9 bit mode with parity (requires 10 bits)
-        UART0_C4 = c;
-        use9Bits = format & 0x80;
+	c = UART0_C4 & 0x1F;
+	if (format & 0x08) c |= 0x20;		// 9 bit mode with parity (requires 10 bits)
+	UART0_C4 = c;
+	use9Bits = format & 0x80;
 #endif
 }
 
@@ -236,15 +236,15 @@ void serial_write(const void *buf, unsigned int count)
 {
 	const uint8_t *p = (const uint8_t *)buf;
 	const uint8_t *end = p + count;
-        uint32_t head, n;
+	uint32_t head, n;
 
-        if (!(SIM_SCGC4 & SIM_SCGC4_UART0)) return;
+	if (!(SIM_SCGC4 & SIM_SCGC4_UART0)) return;
 	if (transmit_pin) transmit_assert();
 	while (p < end) {
-        	head = tx_buffer_head;
-        	if (++head >= TX_BUFFER_SIZE) head = 0;
+		head = tx_buffer_head;
+		if (++head >= TX_BUFFER_SIZE) head = 0;
 		if (tx_buffer_tail == head) {
-        		UART0_C2 = C2_TX_ACTIVE;
+			UART0_C2 = C2_TX_ACTIVE;
 			do {
 				int priority = nvic_execution_priority();
 				if (priority <= IRQ_PRIORITY) {
@@ -261,17 +261,17 @@ void serial_write(const void *buf, unsigned int count)
 				}
 			} while (tx_buffer_tail == head);
 		}
-        	tx_buffer[head] = *p++;
-        	transmitting = 1;
-        	tx_buffer_head = head;
+		tx_buffer[head] = *p++;
+		transmitting = 1;
+		tx_buffer_head = head;
 	}
-        UART0_C2 = C2_TX_ACTIVE;
+	UART0_C2 = C2_TX_ACTIVE;
 }
 #else
 void serial_write(const void *buf, unsigned int count)
 {
-        const uint8_t *p = (const uint8_t *)buf;
-        while (count-- > 0) serial_putchar(*p++);
+	const uint8_t *p = (const uint8_t *)buf;
+	while (count-- > 0) serial_putchar(*p++);
 }
 #endif
 
@@ -338,19 +338,19 @@ void serial_clear(void)
 
 // status interrupt combines 
 //   Transmit data below watermark  UART_S1_TDRE
-//   Transmit complete              UART_S1_TC
-//   Idle line                      UART_S1_IDLE
+//   Transmit complete		    UART_S1_TC
+//   Idle line			    UART_S1_IDLE
 //   Receive data above watermark   UART_S1_RDRF
-//   LIN break detect               UART_S2_LBKDIF
-//   RxD pin active edge            UART_S2_RXEDGIF
+//   LIN break detect		    UART_S2_LBKDIF
+//   RxD pin active edge	    UART_S2_RXEDGIF
 
 void uart0_status_isr(void)
 {
 	uint32_t head, tail, n;
 	uint8_t c;
 #ifdef HAS_KINETISK_UART0_FIFO
-        uint32_t newhead;
-        uint8_t avail;
+	uint32_t newhead;
+	uint8_t avail;
 
 	if (UART0_S1 & (UART_S1_RDRF | UART_S1_IDLE)) {
 		__disable_irq();
@@ -410,30 +410,30 @@ void uart0_status_isr(void)
 		if (UART0_S1 & UART_S1_TDRE) UART0_C2 = C2_TX_COMPLETING;
 	}
 #else
-        if (UART0_S1 & UART_S1_RDRF) {
-                n = UART0_D;
-                if (use9Bits && (UART0_C3 & 0x80)) n |= 0x100;
-                head = rx_buffer_head + 1;
-                if (head >= RX_BUFFER_SIZE) head = 0;
-                if (head != rx_buffer_tail) {
-                        rx_buffer[head] = n;
-                        rx_buffer_head = head;
-                }
-        }
-        c = UART0_C2;
-        if ((c & UART_C2_TIE) && (UART0_S1 & UART_S1_TDRE)) {
-                head = tx_buffer_head;
-                tail = tx_buffer_tail;
-                if (head == tail) {
-                        UART0_C2 = C2_TX_COMPLETING;
-                } else {
-                        if (++tail >= TX_BUFFER_SIZE) tail = 0;
-                        n = tx_buffer[tail];
-                        if (use9Bits) UART0_C3 = (UART0_C3 & ~0x40) | ((n & 0x100) >> 2);
-                        UART0_D = n;
-                        tx_buffer_tail = tail;
-                }
-        }
+	if (UART0_S1 & UART_S1_RDRF) {
+		n = UART0_D;
+		if (use9Bits && (UART0_C3 & 0x80)) n |= 0x100;
+		head = rx_buffer_head + 1;
+		if (head >= RX_BUFFER_SIZE) head = 0;
+		if (head != rx_buffer_tail) {
+			rx_buffer[head] = n;
+			rx_buffer_head = head;
+		}
+	}
+	c = UART0_C2;
+	if ((c & UART_C2_TIE) && (UART0_S1 & UART_S1_TDRE)) {
+		head = tx_buffer_head;
+		tail = tx_buffer_tail;
+		if (head == tail) {
+			UART0_C2 = C2_TX_COMPLETING;
+		} else {
+			if (++tail >= TX_BUFFER_SIZE) tail = 0;
+			n = tx_buffer[tail];
+			if (use9Bits) UART0_C3 = (UART0_C3 & ~0x40) | ((n & 0x100) >> 2);
+			UART0_D = n;
+			tx_buffer_tail = tail;
+		}
+	}
 #endif
 	if ((c & UART_C2_TCIE) && (UART0_S1 & UART_S1_TC)) {
 		transmitting = 0;

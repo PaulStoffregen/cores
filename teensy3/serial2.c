@@ -237,7 +237,7 @@ void serial2_write(const void *buf, unsigned int count)
 {
 	const uint8_t *p = (const uint8_t *)buf;
 	const uint8_t *end = p + count;
-        uint32_t head, n;
+	uint32_t head, n;
 
 	if (!(SIM_SCGC4 & SIM_SCGC4_UART1)) return;
 	if (transmit_pin) transmit_assert();
@@ -266,7 +266,7 @@ void serial2_write(const void *buf, unsigned int count)
 		transmitting = 1;
 		tx_buffer_head = head;
 	}
-        UART1_C2 = C2_TX_ACTIVE;
+	UART1_C2 = C2_TX_ACTIVE;
 }
 #else
 void serial2_write(const void *buf, unsigned int count)
@@ -339,11 +339,11 @@ void serial2_clear(void)
 
 // status interrupt combines 
 //   Transmit data below watermark  UART_S1_TDRE
-//   Transmit complete              UART_S1_TC
-//   Idle line                      UART_S1_IDLE
+//   Transmit complete		    UART_S1_TC
+//   Idle line			    UART_S1_IDLE
 //   Receive data above watermark   UART_S1_RDRF
-//   LIN break detect               UART_S2_LBKDIF
-//   RxD pin active edge            UART_S2_RXEDGIF
+//   LIN break detect		    UART_S2_LBKDIF
+//   RxD pin active edge	    UART_S2_RXEDGIF
 
 void uart1_status_isr(void)
 {
