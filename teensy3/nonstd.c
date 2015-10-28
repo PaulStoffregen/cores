@@ -94,6 +94,15 @@ char * dtostrf(float val, int width, unsigned int precision, char *buf)
 		*p++ = '0';
 		*p++ = '.';
 	}
+	else if (decpt < 0 && precision > 0) {
+		*p++ = '0';
+		*p++ = '.';
+		e++;
+		while ( decpt < 0 ) {
+			decpt++;
+			*p++ = '0';
+		}
+	}
 	while (p < e) {
 		*p++ = *s++;
 		if (p == e) break;
