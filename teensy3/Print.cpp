@@ -295,7 +295,7 @@ size_t Print::printFloat(double number, uint8_t digits)
 
 	// Print the decimal point, but only if there are digits beyond
 	if (digits > 0) {
-		uint8_t n, buf[8], count=1;
+		uint8_t n, buf[16], count=1;
 		buf[0] = '.';
 
 		// Extract digits from the remainder one at a time
