@@ -193,6 +193,7 @@ public:
 					  serial_write((const uint8_t *)str, len);
 					  return len; }
 	virtual size_t write9bit(uint32_t c)	{ serial_putchar(c); return 1; }
+	operator bool()			{ return true; }
 };
 extern HardwareSerial Serial1;
 extern void serialEvent1(void);
@@ -223,6 +224,7 @@ public:
 					  serial2_write((const uint8_t *)str, len);
 					  return len; }
 	virtual size_t write9bit(uint32_t c)	{ serial2_putchar(c); return 1; }
+	operator bool()			{ return true; }
 };
 extern HardwareSerial2 Serial2;
 extern void serialEvent2(void);
@@ -253,6 +255,7 @@ public:
 					  serial3_write((const uint8_t *)str, len);
 					  return len; }
 	virtual size_t write9bit(uint32_t c)	{ serial3_putchar(c); return 1; }
+	operator bool()			{ return true; }
 };
 extern HardwareSerial3 Serial3;
 extern void serialEvent3(void);
