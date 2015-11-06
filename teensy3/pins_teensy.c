@@ -571,8 +571,9 @@ void _init_Teensyduino_internal_(void)
 	FTM3_SC = FTM_SC_CLKS(1) | FTM_SC_PS(DEFAULT_FTM_PRESCALE);
 #endif
 	analog_init();
-	//delay(100); // TODO: this is not necessary, right?
-	delay(4);
+	// for background about this startup delay, please see this conversation
+	// https://forum.pjrc.com/threads/31290-Teensey-3-2-Teensey-Loader-1-24-Issues?p=87273&viewfull=1#post87273
+	delay(250);
 	usb_init();
 }
 
