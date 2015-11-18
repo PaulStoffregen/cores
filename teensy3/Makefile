@@ -1,3 +1,9 @@
+# set your MCU type here, or make command line `make MCU=MK20DX256`
+MCU=MK20DX256
+
+# make it lower case
+LOWER_MCU := $(subst A,a,$(subst B,b,$(subst C,c,$(subst D,d,$(subst E,e,$(subst F,f,$(subst G,g,$(subst H,h,$(subst I,i,$(subst J,j,$(subst K,k,$(subst L,l,$(subst M,m,$(subst N,n,$(subst O,o,$(subst P,p,$(subst Q,q,$(subst R,r,$(subst S,s,$(subst T,t,$(subst U,u,$(subst V,v,$(subst W,w,$(subst X,x,$(subst Y,y,$(subst Z,z,$(MCU)))))))))))))))))))))))))))
+MCU_LD = $(LOWER_MCU).ld
 
 # The name of your project (used to name the compiled .hex file)
 TARGET = main
@@ -10,7 +16,7 @@ ARDUINOPATH ?= ../../../../..
 OPTIONS = -DF_CPU=48000000 -DUSB_SERIAL -DLAYOUT_US_ENGLISH -DUSING_MAKEFILE
 
 # options needed by many Arduino libraries to configure for Teensy 3.0
-OPTIONS += -D__MK20DX256__ -DARDUINO=10600 -DTEENSYDUINO=121
+OPTIONS += -D__$(MCU)__ -DARDUINO=10600 -DTEENSYDUINO=121
 
 
 # Other Makefiles and project templates for Teensy 3.x:
@@ -40,7 +46,7 @@ COMPILERPATH = $(ARDUINOPATH)/hardware/tools/arm/bin
 #************************************************************************
 
 # CPPFLAGS = compiler options for C and C++
-CPPFLAGS = -Wall -g -Os -mcpu=cortex-m4 -mthumb -nostdlib -MMD $(OPTIONS) -I.
+CPPFLAGS = -Wall -g -Os -mcpu=cortex-m4 -mthumb -MMD $(OPTIONS) -I.
 
 # compiler options for C++ only
 CXXFLAGS = -std=gnu++0x -felide-constructors -fno-exceptions -fno-rtti
@@ -49,7 +55,7 @@ CXXFLAGS = -std=gnu++0x -felide-constructors -fno-exceptions -fno-rtti
 CFLAGS =
 
 # linker options
-LDFLAGS = -Os -Wl,--gc-sections,--defsym=__rtc_localtime=0 --specs=nano.specs -mcpu=cortex-m4 -mthumb -Tmk20dx256.ld
+LDFLAGS = -Os -Wl,--gc-sections,--defsym=__rtc_localtime=0 --specs=nano.specs -mcpu=cortex-m4 -mthumb -T$(MCU_LD)
 
 # additional libraries to link
 LIBS = -lm
@@ -72,7 +78,7 @@ OBJS := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o)
 
 all: $(TARGET).hex
 
-$(TARGET).elf: $(OBJS) mk20dx256.ld
+$(TARGET).elf: $(OBJS) $(MCU_LD)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
 %.hex: %.elf
@@ -87,5 +93,3 @@ $(TARGET).elf: $(OBJS) mk20dx256.ld
 
 clean:
 	rm -f *.o *.d $(TARGET).elf $(TARGET).hex
-
-
