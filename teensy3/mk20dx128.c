@@ -1224,7 +1224,7 @@ void _exit(int status)
 }
 
 __attribute__((weak)) 
-void __cxa_pure_virtual()
+void __cxa_pure_virtual(void)
 {
 	while (1);
 }
