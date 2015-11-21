@@ -8,8 +8,8 @@
 // some libraries and sketches depend on this
 // AVR stuff, assuming Arduino.h or WProgram.h
 // automatically includes it...
-#include <avr/pgmspace.h>
-#include <avr/interrupt.h>
+#include "avr/pgmspace.h"
+#include "avr/interrupt.h"
 
 #include "avr_functions.h"
 #include "wiring.h"
@@ -23,7 +23,7 @@
 #include "avr_emulation.h"
 #include "usb_serial.h"
 #include "usb_seremu.h"
-#include "usb_keyboard.h"
+//#include "usb_keyboard.h"
 #include "usb_mouse.h"
 #include "usb_joystick.h"
 #include "usb_midi.h"

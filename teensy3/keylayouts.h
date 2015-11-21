@@ -32,7 +32,6 @@
 #define KEYLAYOUTS_H__
 
 #include <stdint.h>
-#include <avr/pgmspace.h>
 
 #ifdef __cplusplus
 extern "C"{

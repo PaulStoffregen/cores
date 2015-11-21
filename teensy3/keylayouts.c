@@ -28,7 +28,6 @@
  * SOFTWARE.
  */
 
-#include <avr/pgmspace.h>
 #include <stdint.h>
 
 #include "keylayouts.h"

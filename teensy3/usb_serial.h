@@ -65,6 +65,7 @@ extern volatile uint8_t usb_configuration;
 
 // C++ interface
 #ifdef __cplusplus
+#include "core_pins.h" // for yield millis
 #include "Stream.h"
 class usb_serial_class : public Stream
 {
