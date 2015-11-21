@@ -25,7 +25,7 @@
 #define elapsedMillis_h
 #ifdef __cplusplus
 
-#if ARDUINO >= 100
+#if defined(ARDUINO) && ARDUINO >= 100
 #include "Arduino.h"
 #else
 #include "WProgram.h"

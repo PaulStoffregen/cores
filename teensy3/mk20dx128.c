@@ -1120,7 +1120,7 @@ void ResetHandler(void)
 		// flag into the VBAT register file indicating the
 		// RTC is set with known-stale time and should be
 		// updated when fresh time is known.
-		#if ARDUINO >= 10600
+		#if defined(ARDUINO) && ARDUINO >= 10600
 		rtc_set((uint32_t)&__rtc_localtime);
 		#else
 		rtc_set(TIME_T);
@@ -1134,7 +1134,7 @@ void ResetHandler(void)
 		// the RTC with this, and clear the VBAT resister file
 		// data so we don't mess with the time after it's been
 		// set well.
-		#if ARDUINO >= 10600
+		#if defined(ARDUINO) && ARDUINO >= 10600
 		rtc_set((uint32_t)&__rtc_localtime);
 		#else
 		rtc_set(TIME_T);

@@ -32,7 +32,7 @@
  * bjoern@cs.stanford.edu 12/30/2008
  */
 
-#if ARDUINO >= 100
+#if defined(ARDUINO) && ARDUINO >= 100
 
 #ifndef udp_h
 #define udp_h
