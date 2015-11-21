@@ -1,4 +1,4 @@
-#if ARDUINO >= 100
+#if defined(ARDUINO) && ARDUINO >= 100
 
 #ifndef client_h
 #define client_h
