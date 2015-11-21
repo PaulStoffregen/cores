@@ -28,7 +28,7 @@
  * SOFTWARE.
  */
 
-#include <Arduino.h>
+#include "Arduino.h"
 
 extern "C" int main(void)
 {
