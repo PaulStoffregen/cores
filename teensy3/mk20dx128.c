@@ -29,8 +29,7 @@
  */
 
 #include "kinetis.h"
-#include "core_pins.h" // testing only
-#include "ser_print.h" // testing only
+//#include "ser_print.h" // testing only
 
 extern unsigned long _stext;
 extern unsigned long _etext;
@@ -863,7 +862,6 @@ void ResetHandler(void)
 	SYST_CSR = SYST_CSR_CLKSOURCE | SYST_CSR_TICKINT | SYST_CSR_ENABLE;
 	SCB_SHPR3 = 0x20200000;  // Systick = priority 32
 
-	//init_pins();
 	__enable_irq();
 
 	_init_Teensyduino_internal_();
