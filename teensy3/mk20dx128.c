@@ -1106,7 +1106,6 @@ void ResetHandler(void)
 	SYST_CSR = SYST_CSR_CLKSOURCE | SYST_CSR_TICKINT | SYST_CSR_ENABLE;
 	SCB_SHPR3 = 0x20200000;  // Systick = priority 32
 
-	//init_pins();
 	__enable_irq();
 
 	_init_Teensyduino_internal_();
