@@ -286,7 +286,12 @@ public:
 
 	// Set the data size used for each triggered transfer
 	void transferSize(unsigned int len) {
-		if (len == 4) {
+		if (len == 16) {
+			TCD->NBYTES = 16;
+			if (TCD->SOFF != 0) TCD->SOFF = 16;
+			if (TCD->DOFF != 0) TCD->DOFF = 16;
+			TCD->ATTR = (TCD->ATTR & 0xF8F8) | 0x0404;
+		} else if (len == 4) {
 			TCD->NBYTES = 4;
 			if (TCD->SOFF != 0) TCD->SOFF = 4;
 			if (TCD->DOFF != 0) TCD->DOFF = 4;
