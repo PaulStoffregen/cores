@@ -59,21 +59,80 @@ void usb_midi_class::sendPitchBend(uint16_t value, uint8_t channel)
 	send_raw(0x0E, 0xE0 | ((channel - 1) & 0x0F), value & 0x7F, (value >> 7) & 0x7F);
 }
 
-void usb_midi_class::sendSysEx(uint8_t length, const uint8_t *data)
+void usb_midi_class::sendSysEx(uint8_t length, const uint8_t *data, const bool ArrayContainsBoundaries)
 {
-	// TODO: MIDI 2.5 lib automatically adds start and stop bytes
-	while (length > 3) {
-		send_raw(0x04, data[0], data[1], data[2]);
-		data += 3;
-		length -= 3;
-	}
-	if (length == 3) {
-		send_raw(0x07, data[0], data[1], data[2]);
-	} else if (length == 2) {
-		send_raw(0x06, data[0], data[1], 0);
-	} else if (length == 1) {
-		send_raw(0x05, data[0], 0, 0);
-	}
+	//TODO: MIDI 2.5 lib automatically adds start and stop bytes
+    //done!
+
+    if (!ArrayContainsBoundaries)
+	{
+        //append sysex start (0xF0) and stop (0xF7) bytes to array
+        bool firstByte = true;
+        bool startSent = false;
+
+        while (length > 3)
+		{
+            if (firstByte)
+			{
+                send_raw(0x04, 0xF0, data[0], data[1]);
+                firstByte = false;
+                startSent = true;
+                data += 2;
+                length -= 2;
+
+            }
+			else
+			{
+                send_raw(0x04, data[0], data[1], data[2]);
+                data += 3;
+                length -= 3;
+            }
+        }
+
+        if (length == 3)
+		{
+            if (startSent)
+			{
+                send_raw(0x04, data[0], data[1], data[2]);
+                send_raw(0x05, 0xF7, 0, 0);
+            }
+			else
+			{
+                send_raw(0x04, 0xF0, data[0], data[1]);
+                send_raw(0x06, data[2], 0xF7, 0);
+            }
+
+        }
+        else if (length == 2)
+		{
+            if (startSent)
+                send_raw(0x07, data[0], data[1], 0xF7);
+            else
+			{
+                send_raw(0x04, 0xF0, data[0], data[1]);
+                send_raw(0x05, 0xF7, 0, 0);
+            }
+        }
+
+        else if (length == 1)
+		{
+            if (startSent)  send_raw(0x06, data[0], 0xF7, 0);
+            else            send_raw(0x07, 0xF0, data[0], 0xF7);
+        }
+
+    }
+	else
+	{
+        while (length > 3)
+		{
+            send_raw(0x04, data[0], data[1], data[2]);
+            data += 3;
+            length -= 3;
+        }
+        if (length == 3)        send_raw(0x07, data[0], data[1], data[2]);
+        else if (length == 2)   send_raw(0x06, data[0], data[1], 0);
+        else if (length == 1)   send_raw(0x05, data[0], 0, 0);
+    }
 }
 
 void usb_midi_class::send_raw(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3)

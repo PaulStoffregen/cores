@@ -36,7 +36,7 @@ public:
 	void sendProgramChange(uint8_t program, uint8_t channel);
 	void sendAfterTouch(uint8_t pressure, uint8_t channel);
 	void sendPitchBend(uint16_t value, uint8_t channel);
-	void sendSysEx(uint8_t length, const uint8_t *data);
+	void sendSysEx(uint8_t length, const uint8_t *data, const bool ArrayContainsBoundaries = true);
 	void send_now(void);
 	uint8_t analog2velocity(uint16_t val, uint8_t range);
 	bool read(uint8_t channel=0);
