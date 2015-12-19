@@ -577,7 +577,12 @@ void startup_early_hook(void)		__attribute__ ((weak, alias("startup_default_earl
 void startup_late_hook(void)		__attribute__ ((weak, alias("startup_default_late_hook")));
 
 
+#ifdef __clang__
+// Clang seems to generate slightly larger code with Os than gcc
+__attribute__ ((optimize("-Os")))
+#else
 __attribute__ ((section(".startup"),optimize("-Os")))
+#endif
 void ResetHandler(void)
 {
 	uint32_t *src = &_etext;
