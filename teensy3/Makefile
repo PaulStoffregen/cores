@@ -33,13 +33,13 @@ OPTIONS += -D__$(MCU)__ -DARDUINO=10600 -DTEENSYDUINO=121
 #************************************************************************
 
 # path location for Teensy Loader, teensy_post_compile and teensy_reboot
-TOOLSPATH = $(ARDUINOPATH)/hardware/tools   # on Linux
+TOOLSPATH = $(abspath $(ARDUINOPATH)/hardware/tools)   # on Linux
 
 # path location for Arduino libraries (currently not used)
-LIBRARYPATH = $(ARDUINOPATH)/libraries
+LIBRARYPATH = $(abspath $(ARDUINOPATH)/libraries)
 
 # path location for the arm-none-eabi compiler
-COMPILERPATH = $(ARDUINOPATH)/hardware/tools/arm/bin
+COMPILERPATH = $(abspath $(ARDUINOPATH)/hardware/tools/arm/bin)
 
 #************************************************************************
 # Settings below this point usually do not need to be edited
@@ -62,10 +62,10 @@ LIBS = -lm
 
 
 # names for the compiler programs
-CC = $(abspath $(COMPILERPATH))/arm-none-eabi-gcc
-CXX = $(abspath $(COMPILERPATH))/arm-none-eabi-g++
-OBJCOPY = $(abspath $(COMPILERPATH))/arm-none-eabi-objcopy
-SIZE = $(abspath $(COMPILERPATH))/arm-none-eabi-size
+CC = $(COMPILERPATH)/arm-none-eabi-gcc
+CXX = $(COMPILERPATH)/arm-none-eabi-g++
+OBJCOPY = $(COMPILERPATH)/arm-none-eabi-objcopy
+SIZE = $(COMPILERPATH)/arm-none-eabi-size
 
 # automatically create lists of the sources and objects
 # TODO: this does not handle Arduino libraries yet...
@@ -84,8 +84,8 @@ $(TARGET).elf: $(OBJS) $(MCU_LD)
 %.hex: %.elf
 	$(SIZE) $<
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
-	$(abspath $(TOOLSPATH))/teensy_post_compile -file=$(basename $@) -path=$(shell pwd) -tools=$(abspath $(TOOLSPATH))
-	-$(abspath $(TOOLSPATH))/teensy_reboot
+	$(TOOLSPATH)/teensy_post_compile -file=$(basename $@) -path=$(shell pwd) -tools=$(TOOLSPATH)
+	-$(TOOLSPATH)/teensy_reboot
 
 
 # compiler generated dependency info
