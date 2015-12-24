@@ -183,7 +183,9 @@ size_t Print::printNumberDec(unsigned long n, uint8_t sign)
 
         p = buf + (sizeof(buf));
         do {
-		divmod10_v2(n, &n, &digit);
+		uint32_t div;
+		divmod10_v2(n, &div, &digit);
+		n = div;
 		//divmod10_asm(n, digit, t1, t2, c3333);
                 *--p = digit + '0';
         } while (n);
