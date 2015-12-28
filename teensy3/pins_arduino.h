@@ -198,5 +198,6 @@ static inline uint8_t digitalPinToTimer(uint8_t pin)
 #define SERIAL_PORT_HARDWARE_OPEN1	Serial2
 #define SERIAL_PORT_HARDWARE_OPEN2	Serial3
 
+#define SerialUSB			Serial
 
 #endif
