@@ -331,6 +331,7 @@ static void usb_setup(void)
 		return;
 #if defined(CDC_STATUS_INTERFACE)
 	  case 0x2221: // CDC_SET_CONTROL_LINE_STATE
+		usb_cdc_line_rtsdtr_millis = systick_millis_count;
 		usb_cdc_line_rtsdtr = setup.wValue;
 		//serial_print("set control line state\n");
 		break;

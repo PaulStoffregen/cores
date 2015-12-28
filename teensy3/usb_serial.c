@@ -39,6 +39,7 @@
 #if F_CPU >= 20000000
 
 uint32_t usb_cdc_line_coding[2];
+volatile uint32_t usb_cdc_line_rtsdtr_millis;
 volatile uint8_t usb_cdc_line_rtsdtr=0;
 volatile uint8_t usb_cdc_transmit_flush_timer=0;
 
