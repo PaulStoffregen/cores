@@ -66,6 +66,16 @@ char * ltoa(long val, char *buf, int radix)
 	}
 }
 
+char * utoa(unsigned int val, char *buf, int radix)
+{
+	return ultoa(val, buf, radix);
+}
+
+char * itoa(int val, char *buf, int radix)
+{
+	return ltoa(val, buf, radix);
+}
+
 char * dtostrf(float val, int width, unsigned int precision, char *buf)
 {
 	int decpt, sign, reqd, pad;
