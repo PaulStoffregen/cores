@@ -718,7 +718,12 @@ void _reboot_Teensyduino_(void)
 	__asm__ volatile("bkpt");
 }
 
+void usb_unused_cb(void)
+{
+}
 
+void usb_tx_cb(void)	__attribute__ ((weak, alias("usb_unused_cb")));
+void usb_rx_cb(void)	__attribute__ ((weak, alias("usb_unused_cb")));
 
 void usb_isr(void)
 {
@@ -829,6 +834,7 @@ void usb_isr(void)
 						break;
 					}
 				}
+				usb_tx_cb();
 			} else { // receive
 				packet->len = b->desc >> 16;
 				if (packet->len > 0) {
@@ -865,6 +871,7 @@ void usb_isr(void)
 						b->desc = 0;
 						usb_rx_memory_needed++;
 					}
+					usb_rx_cb();
 				} else {
 					b->desc = BDT_DESC(64, ((uint32_t)b & 8) ? DATA1 : DATA0);
 				}
