@@ -848,8 +848,9 @@ struct usb_string_descriptor_struct usb_string_serial_number_default = {
 void usb_init_serialnumber(void)
 {
 	char buf[11];
-	uint32_t i, num;
+	uint32_t i, num, irq_disabled;
 
+	__irq_status(irq_disabled);
 	__disable_irq();
 	FTFL_FSTAT = FTFL_FSTAT_RDCOLERR | FTFL_FSTAT_ACCERR | FTFL_FSTAT_FPVIOL;
 	FTFL_FCCOB0 = 0x41;
@@ -857,7 +858,9 @@ void usb_init_serialnumber(void)
 	FTFL_FSTAT = FTFL_FSTAT_CCIF;
 	while (!(FTFL_FSTAT & FTFL_FSTAT_CCIF)) ; // wait
 	num = *(uint32_t *)&FTFL_FCCOB7;
-	__enable_irq();
+	if(!irq_disabled) {
+		__enable_irq();
+	}
 	// add extra zero to work around OS-X CDC-ACM driver bug
 	if (num < 10000000) num = num * 10;
 	ultoa(num, buf, 10);
