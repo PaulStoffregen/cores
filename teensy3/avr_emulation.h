@@ -1459,7 +1459,7 @@ class SREGemulation
 public:
 	operator int () const __attribute__((always_inline)) {
 		uint32_t primask;
-		asm volatile("mrs %0, primask\n" : "=r" (primask)::);
+		__irq_status(primask);
 		if (primask) return 0;
 		return (1<<7);
 	}

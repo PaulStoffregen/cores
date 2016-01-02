@@ -4526,8 +4526,11 @@ typedef struct __attribute__((packed)) {
 
 
 
-#define __disable_irq() __asm__ volatile("CPSID i":::"memory");
-#define __enable_irq()	__asm__ volatile("CPSIE i":::"memory");
+#define __disable_irq()  __asm__ volatile("CPSID i":::"memory");
+#define __enable_irq()   __asm__ volatile("CPSIE i":::"memory");
+// assigns 1 if irqs are disabled (exceptions are prevented), 0 if enabled
+// use int or uint32_t or the compiler will clear the full register after
+#define __irq_status(irq_disabled) __asm__ volatile("mrs %0, primask\n" : "=r" (irq_disabled)::);
 
 // System Control Space (SCS), ARMv7 ref manual, B3.2, page 708
 #define SCB_CPUID		(*(const    uint32_t *)0xE000ED00) // CPUID Base Register
