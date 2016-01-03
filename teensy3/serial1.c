@@ -212,6 +212,7 @@ int serial_set_rts(uint8_t pin)
 
 int serial_set_cts(uint8_t pin)
 {
+#if defined(KINETISK)
 	if (!(SIM_SCGC4 & SIM_SCGC4_UART0)) return 0;
 	if (pin == 18) {
 		CORE_PIN18_CONFIG = PORT_PCR_MUX(3) | PORT_PCR_PE; // weak pulldown
@@ -223,6 +224,9 @@ int serial_set_cts(uint8_t pin)
 	}
 	UART0_MODEM |= UART_MODEM_TXCTSE;
 	return 1;
+#else
+	return 0;
+#endif
 }
 
 void serial_putchar(uint32_t c)
