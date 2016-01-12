@@ -4536,6 +4536,9 @@ typedef struct __attribute__((packed)) {
 #define SCB_VTOR		(*(volatile uint32_t *)0xE000ED08) // Vector Table Offset
 #define SCB_AIRCR		(*(volatile uint32_t *)0xE000ED0C) // Application Interrupt and Reset Control
 #define SCB_SCR			(*(volatile uint32_t *)0xE000ED10) // System Control Register
+#define SCB_SCR_SEVONPEND   ((uint8_t)0x10)	   // Send Event on Pending bit
+#define SCB_SCR_SLEEPDEEP   ((uint8_t)0x04)	   // Sleep or Deep Sleep
+#define SCB_SCR_SLEEPONEXIT ((uint8_t)0x02)	   // Sleep-on-exit
 #define SCB_CCR			(*(volatile uint32_t *)0xE000ED14) // Configuration and Control
 #define SCB_SHPR1		(*(volatile uint32_t *)0xE000ED18) // System Handler Priority Register 1
 #define SCB_SHPR2		(*(volatile uint32_t *)0xE000ED1C) // System Handler Priority Register 2
