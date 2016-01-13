@@ -252,7 +252,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME		{'T','e','e','n','s','y','d','u','i','n','o',' ','R','a','w','H','I','D'}
   #define PRODUCT_NAME_LEN	18
   #define EP0_SIZE		64
-  #define NUM_ENDPOINTS         6
+  #define NUM_ENDPOINTS         4
   #define NUM_USB_BUFFERS	12
   #define NUM_INTERFACE		2
   #define RAWHID_INTERFACE      0	// RawHID
