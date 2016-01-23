@@ -186,94 +186,94 @@ public:
 	virtual void setTX(uint8_t pin, bool opendrain=false) { serial_set_tx(pin, opendrain); }
 	virtual bool attachRts(uint8_t pin) { return serial_set_rts(pin); }
 	virtual bool attachCts(uint8_t pin) { return serial_set_cts(pin); }
-	virtual int available(void)     { return serial_available(); }
-	virtual int peek(void)          { return serial_peek(); }
-	virtual int read(void)          { return serial_getchar(); }
-	virtual void flush(void)        { serial_flush(); }
+	int available() override     { return serial_available(); }
+	int peek() override          { return serial_peek(); }
+	int read() override          { return serial_getchar(); }
+	void flush() override        { serial_flush(); }
 	virtual void clear(void)	{ serial_clear(); }
 	virtual int availableForWrite(void) { return serial_write_buffer_free(); }
-	virtual size_t write(uint8_t c) { serial_putchar(c); return 1; }
+	size_t write(uint8_t c) override { serial_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
 	virtual size_t write(long n)            { return write((uint8_t)n); }
 	virtual size_t write(unsigned int n)    { return write((uint8_t)n); }
 	virtual size_t write(int n)             { return write((uint8_t)n); }
-	virtual size_t write(const uint8_t *buffer, size_t size)
+	size_t write(const uint8_t *buffer, size_t size) override
 					{ serial_write(buffer, size); return size; }
         virtual size_t write(const char *str)	{ size_t len = strlen(str);
 					  serial_write((const uint8_t *)str, len);
 					  return len; }
 	virtual size_t write9bit(uint32_t c)	{ serial_putchar(c); return 1; }
-	operator bool()			{ return true; }
+	explicit operator bool()                { return true; }
 };
 extern HardwareSerial Serial1;
 extern void serialEvent1(void);
 
-class HardwareSerial2 : public HardwareSerial
+class HardwareSerial2 final : public HardwareSerial
 {
 public:
-	virtual void begin(uint32_t baud) { serial2_begin(BAUD2DIV2(baud)); }
-	virtual void begin(uint32_t baud, uint32_t format) {
+	void begin(uint32_t baud) override { serial2_begin(BAUD2DIV2(baud)); }
+	void begin(uint32_t baud, uint32_t format) override {
 					  serial2_begin(BAUD2DIV2(baud));
 					  serial2_format(format); }
-	virtual void end(void)		{ serial2_end(); }
-	virtual void transmitterEnable(uint8_t pin) { serial2_set_transmit_pin(pin); }
-	virtual void setRX(uint8_t pin) { serial2_set_rx(pin); }
-	virtual void setTX(uint8_t pin, bool opendrain=false) { serial2_set_tx(pin, opendrain); }
-	virtual bool attachRts(uint8_t pin) { return serial2_set_rts(pin); }
-	virtual bool attachCts(uint8_t pin) { return serial2_set_cts(pin); }
-	virtual int available(void)     { return serial2_available(); }
-	virtual int peek(void)          { return serial2_peek(); }
-	virtual int read(void)          { return serial2_getchar(); }
-	virtual void flush(void)        { serial2_flush(); }
-	virtual void clear(void)	{ serial2_clear(); }
-	virtual int availableForWrite(void) { return serial2_write_buffer_free(); }
-	virtual size_t write(uint8_t c) { serial2_putchar(c); return 1; }
-	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
-	virtual size_t write(long n)            { return write((uint8_t)n); }
-	virtual size_t write(unsigned int n)    { return write((uint8_t)n); }
-	virtual size_t write(int n)             { return write((uint8_t)n); }
-	virtual size_t write(const uint8_t *buffer, size_t size)
+	void end() override		{ serial2_end(); }
+	void transmitterEnable(uint8_t pin) override { serial2_set_transmit_pin(pin); }
+	void setRX(uint8_t pin) override { serial2_set_rx(pin); }
+	void setTX(uint8_t pin, bool opendrain=false) override { serial2_set_tx(pin, opendrain); }
+	bool attachRts(uint8_t pin) override { return serial2_set_rts(pin); }
+	bool attachCts(uint8_t pin) override { return serial2_set_cts(pin); }
+	int available() override     { return serial2_available(); }
+	int peek() override          { return serial2_peek(); }
+	int read() override          { return serial2_getchar(); }
+	void flush() override        { serial2_flush(); }
+	void clear() override	{ serial2_clear(); }
+	int availableForWrite() override { return serial2_write_buffer_free(); }
+	size_t write(uint8_t c) override { serial2_putchar(c); return 1; }
+	size_t write(unsigned long n) override   { return write((uint8_t)n); }
+	size_t write(long n) override            { return write((uint8_t)n); }
+	size_t write(unsigned int n) override    { return write((uint8_t)n); }
+	size_t write(int n) override             { return write((uint8_t)n); }
+	size_t write(const uint8_t *buffer, size_t size) override
 					{ serial2_write(buffer, size); return size; }
-        virtual size_t write(const char *str)	{ size_t len = strlen(str);
+	 size_t write(const char *str) override	{ size_t len = strlen(str);
 					  serial2_write((const uint8_t *)str, len);
 					  return len; }
-	virtual size_t write9bit(uint32_t c)	{ serial2_putchar(c); return 1; }
-	operator bool()			{ return true; }
+	size_t write9bit(uint32_t c) override	{ serial2_putchar(c); return 1; }
+	explicit operator bool()                { return true; }
 };
 extern HardwareSerial2 Serial2;
 extern void serialEvent2(void);
 
-class HardwareSerial3 : public HardwareSerial
+class HardwareSerial3 final : public HardwareSerial
 {
 public:
-	virtual void begin(uint32_t baud) { serial3_begin(BAUD2DIV3(baud)); }
-	virtual void begin(uint32_t baud, uint32_t format) {
+	void begin(uint32_t baud) override { serial3_begin(BAUD2DIV3(baud)); }
+	void begin(uint32_t baud, uint32_t format) override {
 					  serial3_begin(BAUD2DIV3(baud));
 					  serial3_format(format); }
-	virtual void end(void)          { serial3_end(); }
-	virtual void transmitterEnable(uint8_t pin) { serial3_set_transmit_pin(pin); }
-	virtual void setRX(uint8_t pin) { serial3_set_rx(pin); }
-	virtual void setTX(uint8_t pin, bool opendrain=false) { serial3_set_tx(pin, opendrain); }
-	virtual bool attachRts(uint8_t pin) { return serial3_set_rts(pin); }
-	virtual bool attachCts(uint8_t pin) { return serial3_set_cts(pin); }
-	virtual int available(void)     { return serial3_available(); }
-	virtual int peek(void)          { return serial3_peek(); }
-	virtual int read(void)          { return serial3_getchar(); }
-	virtual void flush(void)        { serial3_flush(); }
-	virtual void clear(void)	{ serial3_clear(); }
-	virtual int availableForWrite(void) { return serial3_write_buffer_free(); }
-	virtual size_t write(uint8_t c) { serial3_putchar(c); return 1; }
-	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
-	virtual size_t write(long n)            { return write((uint8_t)n); }
-	virtual size_t write(unsigned int n)    { return write((uint8_t)n); }
-	virtual size_t write(int n)             { return write((uint8_t)n); }
-	virtual size_t write(const uint8_t *buffer, size_t size)
+	void end() override          { serial3_end(); }
+	void transmitterEnable(uint8_t pin) override { serial3_set_transmit_pin(pin); }
+	void setRX(uint8_t pin) override { serial3_set_rx(pin); }
+	void setTX(uint8_t pin, bool opendrain=false) override { serial3_set_tx(pin, opendrain); }
+	bool attachRts(uint8_t pin) override { return serial3_set_rts(pin); }
+	bool attachCts(uint8_t pin) override { return serial3_set_cts(pin); }
+	int available() override             { return serial3_available(); }
+	int peek() override                  { return serial3_peek(); }
+	int read() override                  { return serial3_getchar(); }
+	void flush() override                { serial3_flush(); }
+	void clear() override	             { serial3_clear(); }
+	int availableForWrite() override     { return serial3_write_buffer_free(); }
+	size_t write(uint8_t c) override     { serial3_putchar(c); return 1; }
+	size_t write(unsigned long n) override   { return write((uint8_t)n); }
+	size_t write(long n) override            { return write((uint8_t)n); }
+	size_t write(unsigned int n) override    { return write((uint8_t)n); }
+	size_t write(int n) override             { return write((uint8_t)n); }
+	size_t write(const uint8_t *buffer, size_t size) override
 					{ serial3_write(buffer, size); return size; }
-        virtual size_t write(const char *str)	{ size_t len = strlen(str);
+	size_t write(const char *str) override	{ size_t len = strlen(str);
 					  serial3_write((const uint8_t *)str, len);
 					  return len; }
-	virtual size_t write9bit(uint32_t c)	{ serial3_putchar(c); return 1; }
-	operator bool()			{ return true; }
+	size_t write9bit(uint32_t c) override	{ serial3_putchar(c); return 1; }
+	explicit operator bool()                { return true; }
 };
 extern HardwareSerial3 Serial3;
 extern void serialEvent3(void);

@@ -68,18 +68,18 @@ extern volatile uint8_t usb_configuration;
 // C++ interface
 #ifdef __cplusplus
 #include "Stream.h"
-class usb_serial_class : public Stream
+class usb_serial_class final : public Stream
 {
 public:
         void begin(long) { /* TODO: call a function that tries to wait for enumeration */ };
         void end() { /* TODO: flush output and shut down USB port */ };
-        virtual int available() { return usb_serial_available(); }
-        virtual int read() { return usb_serial_getchar(); }
-        virtual int peek() { return usb_serial_peekchar(); }
-        virtual void flush() { usb_serial_flush_output(); }  // TODO: actually wait for data to leave USB...
+	int available() override { return usb_serial_available(); }
+	int read() override { return usb_serial_getchar(); }
+	int peek() override { return usb_serial_peekchar(); }
+	void flush() override { usb_serial_flush_output(); }  // TODO: actually wait for data to leave USB...
         virtual void clear(void) { usb_serial_flush_input(); }
-        virtual size_t write(uint8_t c) { return usb_serial_putchar(c); }
-        virtual size_t write(const uint8_t *buffer, size_t size) { return usb_serial_write(buffer, size); }
+	size_t write(uint8_t c) override { return usb_serial_putchar(c); }
+	size_t write(const uint8_t *buffer, size_t size) override { return usb_serial_write(buffer, size); }
 	size_t write(unsigned long n) { return write((uint8_t)n); }
 	size_t write(long n) { return write((uint8_t)n); }
 	size_t write(unsigned int n) { return write((uint8_t)n); }
@@ -119,17 +119,17 @@ extern void serialEvent(void);
 // Allow Arduino programs using Serial to compile, but Serial will do nothing.
 #ifdef __cplusplus
 #include "Stream.h"
-class usb_serial_class : public Stream
+class usb_serial_class final : public Stream
 {
 public:
         void begin(long) { };
         void end() { };
-        virtual int available() { return 0; }
-        virtual int read() { return -1; }
-        virtual int peek() { return -1; }
-        virtual void flush() { }
-        virtual size_t write(uint8_t c) { return 1; }
-        virtual size_t write(const uint8_t *buffer, size_t size) { return size; }
+	int available() override { return 0; }
+	int read() override { return -1; }
+	int peek() override { return -1; }
+	void flush() override { }
+	size_t write(uint8_t c) override { return 1; }
+	size_t write(const uint8_t *buffer, size_t size) override { return size; }
 	size_t write(unsigned long n) { return 1; }
 	size_t write(long n) { return 1; }
 	size_t write(unsigned int n) { return 1; }

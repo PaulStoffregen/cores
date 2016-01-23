@@ -68,12 +68,12 @@ extern volatile uint8_t keyboard_leds;
 // C++ interface
 #ifdef __cplusplus
 #include "Stream.h"
-class usb_keyboard_class : public Print
+class usb_keyboard_class final : public Print
 {
 public:
 	void begin(void) { }
 	void end(void) { }
-	virtual size_t write(uint8_t c) { usb_keyboard_write(c); return 1; }
+	size_t write(uint8_t c) override { usb_keyboard_write(c); return 1; }
         size_t write(unsigned long n) { return write((uint8_t)n); }
         size_t write(long n) { return write((uint8_t)n); }
         size_t write(unsigned int n) { return write((uint8_t)n); }

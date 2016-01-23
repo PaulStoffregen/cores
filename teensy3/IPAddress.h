@@ -109,7 +109,7 @@ public:
 		return *this;
 	}
 
-	virtual size_t printTo(Print& p) const;
+	size_t printTo(Print& p) const override;
 
 	friend class EthernetClass;
 	friend class UDP;
