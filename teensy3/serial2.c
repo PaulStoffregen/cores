@@ -488,10 +488,11 @@ void uart1_status_isr(void)
 			} while (--avail > 0);
 			rx_buffer_head = head;
 			if (rts_pin) {
-				int avail;
-				if (head >= tail) avail = head - tail;
-				else avail = RX_BUFFER_SIZE + head - tail;
-				if (avail >= RTS_HIGH_WATERMARK) rts_deassert();
+				int available;
+				if (head >= tail) available = head - tail;
+				else available = RX_BUFFER_SIZE + head - tail;
+				if (available >= RTS_HIGH_WATERMARK)
+					rts_deassert();
 			}
 		}
 	}

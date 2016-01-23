@@ -436,11 +436,11 @@ public:
 	// 32 bits.  If a channel is configured for 200 transfers
 
 	// Use a hardware trigger to make the DMA channel run
-	void triggerAtHardwareEvent(uint8_t source) {
+	void triggerAtHardwareEvent(uint8_t src) {
 		volatile uint8_t *mux;
 		mux = (volatile uint8_t *)&(DMAMUX0_CHCFG0) + channel;
 		*mux = 0;
-		*mux = (source & 63) | DMAMUX_ENABLE;
+		*mux = (src & 63) | DMAMUX_ENABLE;
 	}
 
 	// Use another DMA channel as the trigger, causing this
