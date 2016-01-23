@@ -34,60 +34,60 @@
 #include <stdint.h>
 
 // A0-A9 are always digital 14-23, for Arduino compatibility
-const static uint8_t A0 = 14;
-const static uint8_t A1 = 15;
-const static uint8_t A2 = 16;
-const static uint8_t A3 = 17;
-const static uint8_t A4 = 18;
-const static uint8_t A5 = 19;
-const static uint8_t A6 = 20;
-const static uint8_t A7 = 21;
-const static uint8_t A8 = 22;
-const static uint8_t A9 = 23;
+static const uint8_t A0 = 14;
+static const uint8_t A1 = 15;
+static const uint8_t A2 = 16;
+static const uint8_t A3 = 17;
+static const uint8_t A4 = 18;
+static const uint8_t A5 = 19;
+static const uint8_t A6 = 20;
+static const uint8_t A7 = 21;
+static const uint8_t A8 = 22;
+static const uint8_t A9 = 23;
 #if defined(__MK20DX128__)
-const static uint8_t A10 = 34;
-const static uint8_t A11 = 35;
-const static uint8_t A12 = 36;
-const static uint8_t A13 = 37;
+static const uint8_t A10 = 34;
+static const uint8_t A11 = 35;
+static const uint8_t A12 = 36;
+static const uint8_t A13 = 37;
 #elif defined(__MK20DX256__)
-const static uint8_t A10 = 34;
-const static uint8_t A11 = 35;
-const static uint8_t A12 = 36;
-const static uint8_t A13 = 37;
-const static uint8_t A14 = 40;
-const static uint8_t A15 = 26;
-const static uint8_t A16 = 27;
-const static uint8_t A17 = 28;
-const static uint8_t A18 = 29;
-const static uint8_t A19 = 30;
-const static uint8_t A20 = 31;
+static const uint8_t A10 = 34;
+static const uint8_t A11 = 35;
+static const uint8_t A12 = 36;
+static const uint8_t A13 = 37;
+static const uint8_t A14 = 40;
+static const uint8_t A15 = 26;
+static const uint8_t A16 = 27;
+static const uint8_t A17 = 28;
+static const uint8_t A18 = 29;
+static const uint8_t A19 = 30;
+static const uint8_t A20 = 31;
 #elif defined(__MKL26Z64__)
-const static uint8_t A10 = 24;
-const static uint8_t A11 = 25;
-const static uint8_t A12 = 26;
+static const uint8_t A10 = 24;
+static const uint8_t A11 = 25;
+static const uint8_t A12 = 26;
 #elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
-const static uint8_t A10 = 40;
-const static uint8_t A11 = 41;
-const static uint8_t A12 = 31;
-const static uint8_t A13 = 32;
-const static uint8_t A14 = 33;
-const static uint8_t A15 = 34;
-const static uint8_t A16 = 35;
-const static uint8_t A17 = 36;
-const static uint8_t A18 = 37;
-const static uint8_t A19 = 38;
-const static uint8_t A20 = 39;
-const static uint8_t A21 = 42;
-const static uint8_t A22 = 43;
+static const uint8_t A10 = 40;
+static const uint8_t A11 = 41;
+static const uint8_t A12 = 31;
+static const uint8_t A13 = 32;
+static const uint8_t A14 = 33;
+static const uint8_t A15 = 34;
+static const uint8_t A16 = 35;
+static const uint8_t A17 = 36;
+static const uint8_t A18 = 37;
+static const uint8_t A19 = 38;
+static const uint8_t A20 = 39;
+static const uint8_t A21 = 42;
+static const uint8_t A22 = 43;
 #endif
 
-const static uint8_t SS = 10;
-const static uint8_t MOSI = 11;
-const static uint8_t MISO = 12;
-const static uint8_t SCK = 13;
-const static uint8_t LED_BUILTIN = 13;
-const static uint8_t SDA = 18;
-const static uint8_t SCL = 19;
+static const uint8_t SS = 10;
+static const uint8_t MOSI = 11;
+static const uint8_t MISO = 12;
+static const uint8_t SCK = 13;
+static const uint8_t LED_BUILTIN = 13;
+static const uint8_t SDA = 18;
+static const uint8_t SCL = 19;
 
 
 #define NUM_DIGITAL_PINS  CORE_NUM_DIGITAL

@@ -118,7 +118,7 @@ const struct digital_pin_bitband_and_config_table_struct digital_pin_to_info_PGM
 
 
 typedef void (*voidFuncPtr)(void);
-volatile static voidFuncPtr intFunc[CORE_NUM_DIGITAL];
+static volatile voidFuncPtr intFunc[CORE_NUM_DIGITAL];
 #if defined(KINETISK)
 static void porta_interrupt(void);
 static void portb_interrupt(void);
