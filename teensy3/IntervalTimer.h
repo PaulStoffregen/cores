@@ -74,7 +74,7 @@ class IntervalTimer {
     }
     bool begin(ISR newISR, float newPeriod) {
 	if (newPeriod <= 0 || newPeriod > MAX_PERIOD) return false;
-	uint32_t newValue = (float)(F_BUS / 1000000) * newPeriod - 0.5;
+	uint32_t newValue = (uint32_t)((F_BUS / 1000000) * newPeriod - 0.5f);
 	if (newValue < 40) return false;
 	return beginCycles(newISR, newValue);
     }

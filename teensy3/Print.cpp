@@ -286,7 +286,7 @@ size_t Print::printFloat(double number, uint8_t digits)
 	size_t bytecount=0;
 
 	// Handle negative numbers
-	if (number < 0.0) {
+	if (number < 0) {
 		sign = 1;
 		number = -number;
 	}
@@ -312,7 +312,7 @@ size_t Print::printFloat(double number, uint8_t digits)
 		if (digits > sizeof(buf) - 1) digits = sizeof(buf) - 1;
 
 		while (digits-- > 0) {
-			remainder *= 10.0;
+			remainder *= 10;
 			n = (uint8_t)(remainder);
 			buf[count++] = '0' + n;
 			remainder -= n; 
