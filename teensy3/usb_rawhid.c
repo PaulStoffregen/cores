@@ -60,7 +60,7 @@ int usb_rawhid_available(void)
 
 	if (!usb_configuration) return 0;
 	count = usb_rx_byte_count(RAWHID_RX_ENDPOINT);
-	return count;
+	return (int)count;
 }
 
 // Maximum number of transmit packets to queue so we don't starve other endpoints for memory

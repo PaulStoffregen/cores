@@ -690,7 +690,7 @@ void analogWrite(uint8_t pin, int val)
 		digitalWrite(pin, LOW);
 		pinMode(pin, OUTPUT);	// TODO: implement OUTPUT_LOW
 		return;
-	} else if (val >= max) {
+	} else if ((uint32_t)val >= max) {
 		digitalWrite(pin, HIGH);
 		pinMode(pin, OUTPUT);	// TODO: implement OUTPUT_HIGH
 		return;
