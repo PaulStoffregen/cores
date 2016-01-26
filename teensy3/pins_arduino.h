@@ -115,6 +115,13 @@ const static uint8_t SCL = 19;
   #define digitalPinToInterrupt(p)  ((p) < NUM_DIGITAL_PINS ? (p) : -1)
 #endif
 
+#define digitalPinToPCICR(p)    ((volatile uint8_t *)0)
+#define digitalPinToPCICRbit(p) (0)
+#define digitalPinToPCIFR(p)    ((volatile uint8_t *)0)
+#define digitalPinToPCIFRbit(p) (0)
+#define digitalPinToPCMSK(p)    ((volatile uint8_t *)0)
+#define digitalPinToPCMSKbit(p) (0)
+
 
 #if defined(KINETISK)
 struct digital_pin_bitband_and_config_table_struct {
