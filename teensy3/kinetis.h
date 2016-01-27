@@ -1608,9 +1608,9 @@ enum IRQ_NUMBER_t {
 #define DMA_TCD_CITER_ELINKYES_CITER_MASK	0x01FF
 #define DMA_TCD_NBYTES_SMLOE		    ((uint32_t)1<<31)		    // Source Minor Loop Offset Enable
 #define DMA_TCD_NBYTES_DMLOE		    ((uint32_t)1<<30)		    // Destination Minor Loop Offset Enable
-#define DMA_TCD_NBYTES_MLOFFNO_NBYTES(n)    ((uint32_t)((n) & 0x3FFFFFFF))  // NBytes transfer count when minor loop disabled
-#define DMA_TCD_NBYTES_MLOFFYES_NBYTES(n)   ((uint32_t)((n) & 0x1F))	    // NBytes transfer count when minor loop enabled
-#define DMA_TCD_NBYTES_MLOFFYES_MLOFF(n)    ((uint32_t)((n) & 0xFFFFF)<<10) // Minor loop offset
+#define DMA_TCD_NBYTES_MLOFFNO_NBYTES(n)    ((uint32_t)(n))		    // NBytes transfer count when minor loop disabled
+#define DMA_TCD_NBYTES_MLOFFYES_NBYTES(n)   ((uint32_t)(n & 0x1F))	    // NBytes transfer count when minor loop enabled
+#define DMA_TCD_NBYTES_MLOFFYES_MLOFF(n)    ((uint32_t)(n & 0xFFFFF)<<10)   // Offset
 
 #if DMA_NUM_CHANNELS >= 4
 #define DMA_TCD0_SADDR		(*(volatile const void * volatile *)0x40009000) // TCD Source Address
@@ -4536,9 +4536,6 @@ typedef struct __attribute__((packed)) {
 #define SCB_VTOR		(*(volatile uint32_t *)0xE000ED08) // Vector Table Offset
 #define SCB_AIRCR		(*(volatile uint32_t *)0xE000ED0C) // Application Interrupt and Reset Control
 #define SCB_SCR			(*(volatile uint32_t *)0xE000ED10) // System Control Register
-#define SCB_SCR_SEVONPEND   ((uint8_t)0x10)	   // Send Event on Pending bit
-#define SCB_SCR_SLEEPDEEP   ((uint8_t)0x04)	   // Sleep or Deep Sleep
-#define SCB_SCR_SLEEPONEXIT ((uint8_t)0x02)	   // Sleep-on-exit
 #define SCB_CCR			(*(volatile uint32_t *)0xE000ED14) // Configuration and Control
 #define SCB_SHPR1		(*(volatile uint32_t *)0xE000ED18) // System Handler Priority Register 1
 #define SCB_SHPR2		(*(volatile uint32_t *)0xE000ED1C) // System Handler Priority Register 2
@@ -4570,6 +4567,10 @@ typedef struct __attribute__((packed)) {
 #ifdef __cplusplus
 extern "C" {
 #endif
+#include <stdlib.h>
+extern void *memcpy (void *dst, const void *src, size_t count);
+extern void *memset(void *str, int c, size_t n);
+
 extern int nvic_execution_priority(void);
 
 extern void nmi_isr(void);
@@ -4687,6 +4688,7 @@ extern void software_isr(void);
 
 extern void (* _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
 extern void (* const _VectorsFlash[NVIC_NUM_INTERRUPTS+16])(void);
+
 
 #ifdef __cplusplus
 }
