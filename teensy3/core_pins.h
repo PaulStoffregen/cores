@@ -111,7 +111,7 @@
 #define CORE_NUM_INTERRUPT      24  // really only 18, but 6 "holes"
 #define CORE_NUM_ANALOG         13
 #define CORE_NUM_PWM            10
-#elif defined(__MK66FX1M0__)
+#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
 #define CORE_NUM_TOTAL_PINS     40
 #define CORE_NUM_DIGITAL        40
 #define CORE_NUM_INTERRUPT      40
@@ -727,7 +727,7 @@
 #define CORE_INT23_PIN		23
 
 
-#elif defined(__MK66FX1M0__)
+#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
 
 #define CORE_PIN0_BIT		16
 #define CORE_PIN1_BIT		17
@@ -1462,7 +1462,7 @@ void analogReadAveraging(unsigned int num);
 void analog_init(void);
 
 
-#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK66FX1M0__)
+#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
 #define DEFAULT         0
 #define INTERNAL        2
 #define INTERNAL1V2     2

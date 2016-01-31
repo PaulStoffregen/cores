@@ -1479,7 +1479,7 @@ extern SREGemulation SREG;
 		// 84062840
 		// 322111 
 		// 17395173
-#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK66FX1M0__)
+#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
 
 #if defined(__MK20DX128__) || defined(__MK20DX256__)
 #define EIMSK_pA 0x01000018 // pins 3, 4, 24
@@ -1487,7 +1487,7 @@ extern SREGemulation SREG;
 #define EIMSK_pC 0x78C0BE00 // pins 9-13, 15, 22, 23, 27-30
 #define EIMSK_pD 0x003041E4 // pins 2, 5-8, 14, 20, 21
 #define EIMSK_pE 0x84000000 // pins 26, 31
-#elif defined(__MK66FX1M0__)
+#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
 #define EIMSK_pA 0x1E000018 // pins 3, 4, 25-28
 #define EIMSK_pB 0xE00F0003 // pins 0, 1, 16-19, 29-31
 #define EIMSK_pC 0x00C0BE00 // pins 9-13, 15, 22, 23

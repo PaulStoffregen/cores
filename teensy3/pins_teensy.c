@@ -284,7 +284,7 @@ static void portcd_interrupt(void)
 	if ((isfr & CORE_PIN21_BITMASK) && intFunc[21]) intFunc[21]();
 }
 
-#elif defined(__MK66FX1M0__)
+#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
 
 static void porta_interrupt(void)
 {
@@ -360,7 +360,7 @@ static void porte_interrupt(void)
 #endif
 
 
-#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK66FX1M0__)
+#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
 
 unsigned long rtc_get(void)
 {
@@ -516,7 +516,7 @@ extern void usb_init(void);
 //void init_pins(void)
 void _init_Teensyduino_internal_(void)
 {
-#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK66FX1M0__)
+#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
 	NVIC_ENABLE_IRQ(IRQ_PORTA);
 	NVIC_ENABLE_IRQ(IRQ_PORTB);
 	NVIC_ENABLE_IRQ(IRQ_PORTC);
@@ -536,11 +536,11 @@ void _init_Teensyduino_internal_(void)
 	FTM0_C3SC = 0x28;
 	FTM0_C4SC = 0x28;
 	FTM0_C5SC = 0x28;
-#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK66FX1M0__)
+#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
 	FTM0_C6SC = 0x28;
 	FTM0_C7SC = 0x28;
 #endif
-#if defined(__MK66FX1M0__)
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 	FTM3_C0SC = 0x28;
 	FTM3_C1SC = 0x28;
 	FTM3_C2SC = 0x28;
@@ -556,14 +556,14 @@ void _init_Teensyduino_internal_(void)
 	FTM1_C0SC = 0x28;
 	FTM1_C1SC = 0x28;
 	FTM1_SC = FTM_SC_CLKS(1) | FTM_SC_PS(DEFAULT_FTM_PRESCALE);
-#if defined(__MK20DX256__) || defined(__MK66FX1M0__) || defined(__MKL26Z64__)
+#if defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__) || defined(__MKL26Z64__)
 	FTM2_CNT = 0;
 	FTM2_MOD = DEFAULT_FTM_MOD;
 	FTM2_C0SC = 0x28;
 	FTM2_C1SC = 0x28;
 	FTM2_SC = FTM_SC_CLKS(1) | FTM_SC_PS(DEFAULT_FTM_PRESCALE);
 #endif
-#if defined(__MK66FX1M0__)
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 	FTM3_CNT = 0;
 	FTM3_MOD = DEFAULT_FTM_MOD;
 	FTM3_C0SC = 0x28;
@@ -613,7 +613,7 @@ void _init_Teensyduino_internal_(void)
 #define FTM1_CH1_PIN 17
 #define FTM2_CH0_PIN  3
 #define FTM2_CH1_PIN  4
-#elif defined(__MK66FX1M0__)
+#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
 #define FTM0_CH0_PIN 22
 #define FTM0_CH1_PIN 23
 #define FTM0_CH2_PIN  9
@@ -671,7 +671,7 @@ void analogWrite(uint8_t pin, int val)
 		analogWriteDAC0(val);
 		return;
 	}
-#elif defined(__MK66FX1M0__)
+#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
 	if (pin == A21 || pin == A22) {
 		uint8_t res = analog_write_res;
 		if (res < 12) {

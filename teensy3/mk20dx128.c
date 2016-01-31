@@ -877,9 +877,9 @@ void ResetHandler(void)
 #endif
 	// now program the clock dividers
 #if F_CPU == 192000000
-	// config divisors: 192 MHz core, 64 MHz bus, 27.4 MHz flash, USB = 192 * 4
+	// config divisors: 192 MHz core, 48 MHz bus, 27.4 MHz flash, USB = 192 * 4
 	// TODO: gradual ramp-up for HSRUN mode
-	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(2) | SIM_CLKDIV1_OUTDIV4(6);
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(3) | SIM_CLKDIV1_OUTDIV4(6);
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(3);
 #elif F_CPU == 180000000
 	// config divisors: 180 MHz core, 60 MHz bus, 25.7 MHz flash, USB = not feasible
