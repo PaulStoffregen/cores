@@ -1535,7 +1535,11 @@ uint32_t micros(void);
 static inline void delayMicroseconds(uint32_t) __attribute__((always_inline, unused));
 static inline void delayMicroseconds(uint32_t usec)
 {
-#if F_CPU == 168000000
+#if F_CPU == 192000000
+	uint32_t n = usec * 64;
+#elif F_CPU == 180000000
+	uint32_t n = usec * 60;
+#elif F_CPU == 168000000
 	uint32_t n = usec * 56;
 #elif F_CPU == 144000000
 	uint32_t n = usec * 48;

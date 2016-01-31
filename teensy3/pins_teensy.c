@@ -1111,7 +1111,11 @@ void delay(uint32_t ms)
 }
 
 // TODO: verify these result in correct timeouts...
-#if F_CPU == 168000000
+#if F_CPU == 192000000
+#define PULSEIN_LOOPS_PER_USEC 29
+#elif F_CPU == 180000000
+#define PULSEIN_LOOPS_PER_USEC 27
+#elif F_CPU == 168000000
 #define PULSEIN_LOOPS_PER_USEC 25
 #elif F_CPU == 144000000
 #define PULSEIN_LOOPS_PER_USEC 21

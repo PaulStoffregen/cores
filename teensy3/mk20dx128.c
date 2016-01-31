@@ -716,6 +716,9 @@ void ResetHandler(void)
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 	SCB_CPACR = 0x00F00000;
 #endif
+#if defined(__MK66FX1M0__)
+	LMEM_PCCCR = 0x85000003;
+#endif
 #if 0
 	// testing only, enable ser_print
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV4(1);
