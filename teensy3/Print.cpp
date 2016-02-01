@@ -88,14 +88,22 @@ int Print::printf(const char *format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
+#ifdef __STRICT_ANSI__
+	return 0;  // TODO: make this work with -std=c++0x
+#else
 	return vdprintf((int)this, format, ap);
+#endif
 }
 
 int Print::printf(const __FlashStringHelper *format, ...)
 {
 	va_list ap;
 	va_start(ap, format);
+#ifdef __STRICT_ANSI__
+	return 0;
+#else
 	return vdprintf((int)this, (const char *)format, ap);
+#endif
 }
 
 #ifdef __MKL26Z64__

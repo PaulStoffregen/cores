@@ -22,6 +22,7 @@
  */
 //#include <asm.h>
 //#include <arch/arm/cores.h>
+#if defined (__OPTIMIZE_SIZE__)
 #if defined (__ARM_ARCH_7M__) || defined (__ARM_ARCH_7EM__)
 .global	memset
 .text
@@ -88,4 +89,5 @@
     // restore the base pointer as return value
     pop     { r0, pc }
 
+#endif
 #endif

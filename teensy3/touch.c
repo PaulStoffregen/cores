@@ -78,6 +78,9 @@ static const uint8_t pin2tsi[] = {
 
 int touchRead(uint8_t pin)
 {
+#if defined(__MK64FX512__)
+	return 0; // no Touch sensing :(
+#else
 	uint32_t ch;
 
 	if (pin >= NUM_DIGITAL_PINS) return 0;
@@ -103,6 +106,7 @@ int touchRead(uint8_t pin)
 	while (TSI0_GENCS & TSI_GENCS_SCNIP) ; // wait
 	delayMicroseconds(1);
 	return TSI0_DATA & 0xFFFF;
+#endif
 #endif
 }
 
