@@ -4678,6 +4678,7 @@ typedef struct __attribute__((packed)) {
 #define NVIC_DISABLE_IRQ(n)	(*((volatile uint32_t *)0xE000E180 + ((n) >> 5)) = (1 << ((n) & 31)))
 #define NVIC_SET_PENDING(n)	(*((volatile uint32_t *)0xE000E200 + ((n) >> 5)) = (1 << ((n) & 31)))
 #define NVIC_CLEAR_PENDING(n)	(*((volatile uint32_t *)0xE000E280 + ((n) >> 5)) = (1 << ((n) & 31)))
+#define NVIC_IS_ENABLED(n)	(*((volatile uint32_t *)0xE000E100 + ((n) >> 5)) & (1 << ((n) & 31)))
 #define NVIC_IS_PENDING(n)	(*((volatile uint32_t *)0xE000E200 + ((n) >> 5)) & (1 << ((n) & 31)))
 #define NVIC_IS_ACTIVE(n)	(*((volatile uint32_t *)0xE000E300 + ((n) >> 5)) & (1 << ((n) & 31)))
 #ifdef KINETISK
