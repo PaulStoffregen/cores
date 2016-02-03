@@ -1,5 +1,10 @@
 #include "DMAChannel.h"
 
+#if DMA_NUM_CHANNELS > 16
+#undef DMA_NUM_CHANNELS
+#define DMA_NUM_CHANNELS 16
+#endif
+
 
 // The channel allocation bitmask is accessible from "C" namespace,
 // so C-only code can reserve DMA channels
@@ -65,7 +70,7 @@ void DMAChannel::release(void)
 	__disable_irq();
 	dma_channel_allocated_mask &= ~(1 << channel);
 	__enable_irq();
-	channel = 16;
+	channel = DMA_NUM_CHANNELS;
 	TCD = (TCD_t *)0;
 }
 
