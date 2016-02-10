@@ -66,6 +66,11 @@ digitalPinHasPWM	KEYWORD2
 NOT_AN_INTERRUPT	LITERAL1
 digitalPinToInterrupt	KEYWORD2
 
+# Teensy 3.x advanced pin states
+OUTPUT_OPENDRAIN	LITERAL1
+INPUT_PULLUP      LITERAL1
+INPUT_PULLDOWN		LITERAL1
+
 # String functions
 copy	KEYWORD2
 append	KEYWORD2
