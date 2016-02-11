@@ -2754,10 +2754,28 @@ typedef struct {
 // Analog Comparator (CMP)
 
 #define CMP0_CR0		(*(volatile uint8_t  *)0x40073000) // CMP Control Register 0
-#define CMP0_CR1		(*(volatile uint8_t  *)0x40073001) // CMP Control Register 1
+#define CMP_CR0_FILTER_CNT(n)   (uint8_t)(((n) & 0x07) << 4)
+#define CMP_CR0_HYSTCTR(n)      (uint8_t)(((n) & 0x03) << 0)
+#define CMP0_CR1		(*(volatile uint8_t  *)0x40073001) // CMP Control Register
+#define CMP_CR1_SE              (uint8_t)0x80 // Sample Enable
+#define CMP_CR1_WE              (uint8_t)0x40 // Windowing Enable
+#define CMP_CR1_PMODE           (uint8_t)0x10 // Power Mode Select
+#define CMP_CR1_INV             (uint8_t)0x08 // Comparator INVERT
+#define CMP_CR1_COS             (uint8_t)0x04 // Comparator Output Select
+#define CMP_CR1_OPE             (uint8_t)0x02 // Comparator Output Pin Enable
+#define CMP_CR1_EN              (uint8_t)0x01 // Comparator Module Enable
 #define CMP0_FPR		(*(volatile uint8_t  *)0x40073002) // CMP Filter Period Register
 #define CMP0_SCR		(*(volatile uint8_t  *)0x40073003) // CMP Status and Control Register
+#define CMP_SCR_DMAEN           (uint8_t)0x40 // DMA Enable Control
+#define CMP_SCR_IER             (uint8_t)0x10 // Comparator Interrupt Enable Rising
+#define CMP_SCR_IEF             (uint8_t)0x08 // Comparator Interrupt Enable Falling
+#define CMP_SCR_CFR             (uint8_t)0x04 // Analog Comparator Flag Rising
+#define CMP_SCR_CFF             (uint8_t)0x02 // Analog Comparator Flag Falling
+#define CMP_SCR_COUT            (uint8_t)0x01 // Analog Comparator Output
 #define CMP0_DACCR		(*(volatile uint8_t  *)0x40073004) // DAC Control Register
+#define CMP_DACCR_DACEN         (uint8_t)0x80 // DAC Enable
+#define CMP_DACCR_VRSEL         (uint8_t)0x40 // Supply Voltage Reference Source Select
+#define CMP_DACCR_VOSEL(n)      (uint8_t)(((n) & 0x3F) << 0) // DAC Output Voltage Select
 #define CMP0_MUXCR		(*(volatile uint8_t  *)0x40073005) // MUX Control Register
 #define CMP1_CR0		(*(volatile uint8_t  *)0x40073008) // CMP Control Register 0
 #define CMP1_CR1		(*(volatile uint8_t  *)0x40073009) // CMP Control Register 1
