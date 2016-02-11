@@ -983,25 +983,37 @@ void pinMode(uint8_t pin, uint8_t mode)
 	if (pin >= CORE_NUM_DIGITAL) return;
 	config = portConfigRegister(pin);
 
-	if (mode == OUTPUT) {
+	if (mode == OUTPUT || mode == OUTPUT_OPENDRAIN) {
 #ifdef KINETISK
 		*portModeRegister(pin) = 1;
 #else
 		*portModeRegister(pin) |= digitalPinToBitMask(pin); // TODO: atomic
 #endif
 		*config = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1);
+		if (mode == OUTPUT_OPENDRAIN) {
+		    *config |= PORT_PCR_ODE;
+		} else {
+		    *config &= ~PORT_PCR_ODE;
+                }
 	} else {
 #ifdef KINETISK
 		*portModeRegister(pin) = 0;
 #else
 		*portModeRegister(pin) &= ~digitalPinToBitMask(pin);
 #endif
-		if (mode == INPUT) {
+		if (mode == INPUT || mode == INPUT_PULLUP || mode == INPUT_PULLDOWN) {
 			*config = PORT_PCR_MUX(1);
+			if (mode == INPUT_PULLUP) {
+		    	*config |= (PORT_PCR_PE | PORT_PCR_PS); // pullup
+			} else if (mode == INPUT_PULLDOWN) {
+			    *config |= (PORT_PCR_PE); // pulldown
+			    *config &= ~(PORT_PCR_PS);
+			}
 		} else {
 			*config = PORT_PCR_MUX(1) | PORT_PCR_PE | PORT_PCR_PS; // pullup
 		}
 	}
+
 }
 
 
