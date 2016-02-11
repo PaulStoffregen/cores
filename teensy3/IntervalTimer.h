@@ -86,6 +86,16 @@ class IntervalTimer {
 	nvic_priority = n;
 	if (PIT_enabled) NVIC_SET_PRIORITY(IRQ_PIT_CH, n);
     }
+    operator IRQ_NUMBER_t() {
+        if (PIT_enabled) {
+#if defined(KINETISK)
+            return (IRQ_NUMBER_t)(IRQ_PIT_CH + PIT_id);
+#elif defined(KINETISL)
+            return IRQ_PIT;
+#endif
+        }
+        return (IRQ_NUMBER_t)NVIC_NUM_INTERRUPTS;
+    }
 #if defined(KINETISK)
     friend void pit0_isr();
     friend void pit1_isr();
