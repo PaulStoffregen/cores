@@ -95,13 +95,15 @@ static uint32_t usb_mouse_offset_y=DEFAULT_YSCALE/2-1;
 
 // Set the mouse buttons.  To create a "click", 2 calls are needed,
 // one to push the button down and the second to release it
-int usb_mouse_buttons(uint8_t left, uint8_t middle, uint8_t right)
+int usb_mouse_buttons(uint8_t left, uint8_t middle, uint8_t right, uint8_t back, uint8_t forward)
 {
         uint8_t mask=0;
 
-        if (left) mask |= 1;
-        if (middle) mask |= 4;
-        if (right) mask |= 2;
+        if (left) mask    |= 1;
+        if (middle) mask  |= 4;
+        if (right) mask   |= 2;
+        if (back) mask    |= 8;
+        if (forward) mask |= 16;
         usb_mouse_buttons_state = mask;
         return usb_mouse_move(0, 0, 0);
 }
