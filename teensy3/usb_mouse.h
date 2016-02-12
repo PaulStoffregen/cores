@@ -41,7 +41,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-int usb_mouse_buttons(uint8_t left, uint8_t middle, uint8_t right);
+int usb_mouse_buttons(uint8_t left, uint8_t middle, uint8_t right, uint8_t back, uint8_t forward);
 int usb_mouse_move(int8_t x, int8_t y, int8_t wheel);
 int usb_mouse_position(uint16_t x, uint16_t y);
 void usb_mouse_screen_size(uint16_t width, uint16_t height, uint8_t mac);
@@ -54,7 +54,9 @@ extern uint8_t usb_mouse_buttons_state;
 #define MOUSE_LEFT 1
 #define MOUSE_MIDDLE 4
 #define MOUSE_RIGHT 2
-#define MOUSE_ALL (MOUSE_LEFT | MOUSE_RIGHT | MOUSE_MIDDLE)
+#define MOUSE_BACK 8
+#define MOUSE_FORWARD 16
+#define MOUSE_ALL (MOUSE_LEFT | MOUSE_RIGHT | MOUSE_MIDDLE | MOUSE_BACK | MOUSE_FORWARD)
 
 // C++ interface
 #ifdef __cplusplus
@@ -75,8 +77,8 @@ class usb_mouse_class
 		usb_mouse_move(0, 0, 0);
 	}
         void scroll(int8_t wheel) { usb_mouse_move(0, 0, wheel); }
-        void set_buttons(uint8_t left, uint8_t middle=0, uint8_t right=0) {
-		usb_mouse_buttons(left, middle, right);
+        void set_buttons(uint8_t left, uint8_t middle=0, uint8_t right=0, uint8_t back=0, uint8_t forward=0) {
+		usb_mouse_buttons(left, middle, right, back, forward);
 	}
         void press(uint8_t b = MOUSE_LEFT) {
 		uint8_t buttons = usb_mouse_buttons_state | (b & MOUSE_ALL);
