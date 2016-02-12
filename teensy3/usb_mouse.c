@@ -117,7 +117,11 @@ static uint8_t transmit_previous_timeout=0;
 // When the PC isn't listening, how long do we wait before discarding data?
 #define TX_TIMEOUT_MSEC 30
 
-#if F_CPU == 168000000
+#if F_CPU == 192000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1280)
+#elif F_CPU == 180000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1200)
+#elif F_CPU == 168000000
   #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1100)
 #elif F_CPU == 144000000
   #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 932)
