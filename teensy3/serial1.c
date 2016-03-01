@@ -89,6 +89,8 @@ static volatile uint16_t rx_buffer_tail = 0;
 static volatile uint8_t rx_buffer_head = 0;
 static volatile uint8_t rx_buffer_tail = 0;
 #endif
+static uint8_t rx_pin_num = 0;
+static uint8_t tx_pin_num = 1;
 
 // UART0 and UART1 are clocked by F_CPU, UART2 is clocked by F_BUS
 // UART0 has 8 byte fifo, UART1 and UART2 have 1 byte buffer
@@ -110,8 +112,20 @@ void serial_begin(uint32_t divisor)
 	tx_buffer_head = 0;
 	tx_buffer_tail = 0;
 	transmitting = 0;
-	CORE_PIN0_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3);
-	CORE_PIN1_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3);
+	switch (rx_pin_num) {
+		case 0:  CORE_PIN0_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
+		case 21: CORE_PIN21_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
+		#if defined(KINETISL)
+		case 3:  CORE_PIN3_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(2); break;
+		#endif
+	}
+	switch (tx_pin_num) {
+		case 1:  CORE_PIN1_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
+		case 5:  CORE_PIN5_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
+		#if defined(KINETISL)
+		case 4:  CORE_PIN4_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(2); break;
+		#endif
+	}
 #if defined(HAS_KINETISK_UART0)
 	UART0_BDH = (divisor >> 13) & 0x1F;
 	UART0_BDL = (divisor >> 5) & 0xFF;
@@ -181,6 +195,52 @@ void serial_set_transmit_pin(uint8_t pin)
 	transmit_mask = digitalPinToBitMask(pin);
 	#endif
 }
+
+void serial_set_tx(uint8_t pin)
+{
+	if (pin == tx_pin_num) return;
+	if ((SIM_SCGC4 & SIM_SCGC4_UART0)) {
+		switch (tx_pin_num) {
+			case 1:  CORE_PIN1_CONFIG = 0; break; // PTB17
+			case 5:  CORE_PIN5_CONFIG = 0; break; // PTD7
+			#if defined(KINETISL)
+			case 4:  CORE_PIN4_CONFIG = 0; break; // PTA2
+			#endif
+		}
+		switch (pin) {
+			case 1:  CORE_PIN1_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
+			case 5:  CORE_PIN5_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
+			#if defined(KINETISL)
+			case 4:  CORE_PIN4_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(2); break;
+			#endif
+		}
+	}
+	tx_pin_num = pin;
+}
+
+void serial_set_rx(uint8_t pin)
+{
+	if (pin == rx_pin_num) return;
+	if ((SIM_SCGC4 & SIM_SCGC4_UART0)) {
+		switch (rx_pin_num) {
+			case 0:  CORE_PIN0_CONFIG = 0; break; // PTB16
+			case 21: CORE_PIN21_CONFIG = 0; break; // PTD6
+			#if defined(KINETISL)
+			case 3:  CORE_PIN3_CONFIG = 0; break; // PTA1
+			#endif
+		}
+		switch (pin) {
+			case 0:  CORE_PIN0_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
+			case 21: CORE_PIN21_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
+			#if defined(KINETISL)
+			case 3:  CORE_PIN3_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(2); break;
+			#endif
+		}
+	}
+	rx_pin_num = pin;
+}
+
+
 
 int serial_set_rts(uint8_t pin)
 {

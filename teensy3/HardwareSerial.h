@@ -113,6 +113,8 @@ void serial_begin(uint32_t divisor);
 void serial_format(uint32_t format);
 void serial_end(void);
 void serial_set_transmit_pin(uint8_t pin);
+void serial_set_rx(uint8_t pin);
+void serial_set_tx(uint8_t pin);
 int serial_set_rts(uint8_t pin);
 int serial_set_cts(uint8_t pin);
 void serial_putchar(uint32_t c);
@@ -132,6 +134,8 @@ void serial2_begin(uint32_t divisor);
 void serial2_format(uint32_t format);
 void serial2_end(void);
 void serial2_set_transmit_pin(uint8_t pin);
+void serial2_set_rx(uint8_t pin);
+void serial2_set_tx(uint8_t pin);
 int serial2_set_rts(uint8_t pin);
 int serial2_set_cts(uint8_t pin);
 void serial2_putchar(uint32_t c);
@@ -147,6 +151,8 @@ void serial3_begin(uint32_t divisor);
 void serial3_format(uint32_t format);
 void serial3_end(void);
 void serial3_set_transmit_pin(uint8_t pin);
+void serial3_set_rx(uint8_t pin);
+void serial3_set_tx(uint8_t pin);
 int serial3_set_rts(uint8_t pin);
 int serial3_set_cts(uint8_t pin);
 void serial3_putchar(uint32_t c);
@@ -176,6 +182,8 @@ public:
 					  serial_format(format); }
 	virtual void end(void)		{ serial_end(); }
 	virtual void transmitterEnable(uint8_t pin) { serial_set_transmit_pin(pin); }
+	virtual void setRX(uint8_t pin) { serial_set_rx(pin); }
+	virtual void setTX(uint8_t pin) { serial_set_tx(pin); }
 	virtual bool attachRts(uint8_t pin) { return serial_set_rts(pin); }
 	virtual bool attachCts(uint8_t pin) { return serial_set_cts(pin); }
 	virtual int available(void)     { return serial_available(); }
@@ -209,6 +217,8 @@ public:
 					  serial2_format(format); }
 	virtual void end(void)		{ serial2_end(); }
 	virtual void transmitterEnable(uint8_t pin) { serial2_set_transmit_pin(pin); }
+	virtual void setRX(uint8_t pin) { serial2_set_rx(pin); }
+	virtual void setTX(uint8_t pin) { serial2_set_tx(pin); }
 	virtual bool attachRts(uint8_t pin) { return serial2_set_rts(pin); }
 	virtual bool attachCts(uint8_t pin) { return serial2_set_cts(pin); }
 	virtual int available(void)     { return serial2_available(); }
@@ -242,6 +252,8 @@ public:
 					  serial3_format(format); }
 	virtual void end(void)          { serial3_end(); }
 	virtual void transmitterEnable(uint8_t pin) { serial3_set_transmit_pin(pin); }
+	virtual void setRX(uint8_t pin) { serial3_set_rx(pin); }
+	virtual void setTX(uint8_t pin) { serial3_set_tx(pin); }
 	virtual bool attachRts(uint8_t pin) { return serial3_set_rts(pin); }
 	virtual bool attachCts(uint8_t pin) { return serial3_set_cts(pin); }
 	virtual int available(void)     { return serial3_available(); }

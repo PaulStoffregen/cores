@@ -88,6 +88,10 @@ static volatile uint16_t rx_buffer_tail = 0;
 static volatile uint8_t rx_buffer_head = 0;
 static volatile uint8_t rx_buffer_tail = 0;
 #endif
+#if defined(KINETISK)
+static uint8_t rx_pin_num = 9;
+static uint8_t tx_pin_num = 10;
+#endif
 
 // UART0 and UART1 are clocked by F_CPU, UART2 is clocked by F_BUS
 // UART0 has 8 byte fifo, UART1 and UART2 have 1 byte buffer
@@ -109,8 +113,19 @@ void serial2_begin(uint32_t divisor)
 	tx_buffer_head = 0;
 	tx_buffer_tail = 0;
 	transmitting = 0;
+#if defined(KINETISK)
+	switch (rx_pin_num) {
+		case 9: CORE_PIN9_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
+		case 26: CORE_PIN26_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
+	}
+	switch (tx_pin_num) {
+		case 10: CORE_PIN10_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
+		case 31: CORE_PIN31_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
+	}
+#elif defined(KINETISL)
 	CORE_PIN9_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3);
 	CORE_PIN10_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3);
+#endif
 #if defined(HAS_KINETISK_UART1)
 	UART1_BDH = (divisor >> 13) & 0x1F;
 	UART1_BDL = (divisor >> 5) & 0xFF;
@@ -184,6 +199,42 @@ void serial2_set_transmit_pin(uint8_t pin)
 	transmit_pin = portOutputRegister(pin);
 	#if defined(KINETISL)
 	transmit_mask = digitalPinToBitMask(pin);
+	#endif
+}
+
+void serial2_set_tx(uint8_t pin)
+{
+	#if defined(KINETISK)
+	if (pin == tx_pin_num) return;
+	if ((SIM_SCGC4 & SIM_SCGC4_UART2)) {
+		switch (tx_pin_num) {
+			case 10: CORE_PIN10_CONFIG = 0; break; // PTC4
+			case 31: CORE_PIN31_CONFIG = 0; break; // PTE0
+		}
+		switch (pin) {
+			case 10: CORE_PIN10_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
+			case 31: CORE_PIN31_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
+		}
+	}
+	tx_pin_num = pin;
+	#endif
+}
+
+void serial2_set_rx(uint8_t pin)
+{
+	#if defined(KINETISK)
+	if (pin == rx_pin_num) return;
+	if ((SIM_SCGC4 & SIM_SCGC4_UART2)) {
+		switch (rx_pin_num) {
+			case 9: CORE_PIN9_CONFIG = 0; break; // PTC3
+			case 26: CORE_PIN26_CONFIG = 0; break; // PTE1
+		}
+		switch (pin) {
+			case 9: CORE_PIN9_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
+			case 26: CORE_PIN26_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
+		}
+	}
+	rx_pin_num = pin;
 	#endif
 }
 
