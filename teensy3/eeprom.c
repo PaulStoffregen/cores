@@ -490,3 +490,5 @@ void eeprom_write_block(const void *buf, void *addr, uint32_t len)
 
 
 #endif // KINETISL
+
+uint32_t eeprom_size(void) { return EEPROM_SIZE; }
