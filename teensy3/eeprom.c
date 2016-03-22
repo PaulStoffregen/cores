@@ -43,7 +43,16 @@
 // (aligned to 2 or 4 byte boundaries) has twice the endurance
 // compared to writing 8 bit bytes.
 //
+#if defined(__MK20DX128__) || defined(__MK20DX256__)
 #define EEPROM_SIZE 2048
+#define PARTITION   0x03  // all 32K dataflash for EEPROM, none for Data
+#elif defined(__MK64FX512__)
+#define EEPROM_SIZE 4096
+#define PARTITION   0x04  // 64K dataflash for EEPROM, 64K for Data
+#elif defined(__MK66FX1M0__)
+#define EEPROM_SIZE 4096
+#define PARTITION   0x05  // 128K dataflash for EEPROM, 128K for Data
+#endif
 
 // Writing unaligned 16 or 32 bit data is handled automatically when
 // this is defined, but at a cost of extra code size.  Without this,
@@ -55,7 +64,9 @@
 
 				// Minimum EEPROM Endurance
 				// ------------------------
-#if (EEPROM_SIZE == 2048)	// 35000 writes/byte or 70000 writes/word
+#if (EEPROM_SIZE == 4096)	// 
+  #define EEESIZE 0x32
+#elif (EEPROM_SIZE == 2048)	// 35000 writes/byte or 70000 writes/word (with 32K)
   #define EEESIZE 0x33
 #elif (EEPROM_SIZE == 1024)	// 75000 writes/byte or 150000 writes/word
   #define EEESIZE 0x34
@@ -84,7 +95,7 @@ void eeprom_initialize(void)
 		// We need to reconfigure for EEPROM usage
 		FTFL_FCCOB0 = 0x80; // PGMPART = Program Partition Command
 		FTFL_FCCOB4 = EEESIZE; // EEPROM Size
-		FTFL_FCCOB5 = 0x03; // 0K for Dataflash, 32K for EEPROM backup
+		FTFL_FCCOB5 = PARTITION;
 		__disable_irq();
 		// do_flash_cmd() must execute from RAM.  Luckily the C syntax is simple...
 		(*((void (*)(volatile uint8_t *))((uint32_t)do_flash_cmd | 1)))(&FTFL_FSTAT);
