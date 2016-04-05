@@ -213,7 +213,7 @@ class HardwareSerial2 : public HardwareSerial
 public:
 	virtual void begin(uint32_t baud) { serial2_begin(BAUD2DIV2(baud)); }
 	virtual void begin(uint32_t baud, uint32_t format) {
-					  serial2_begin(BAUD2DIV(baud));
+					  serial2_begin(BAUD2DIV2(baud));
 					  serial2_format(format); }
 	virtual void end(void)		{ serial2_end(); }
 	virtual void transmitterEnable(uint8_t pin) { serial2_set_transmit_pin(pin); }
