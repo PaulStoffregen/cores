@@ -29,9 +29,26 @@
  */
 
 #include "kinetis.h"
-#include <stdint.h>
+#include <avr/eeprom.h>
 //#include "HardwareSerial.h"
 
+
+#if defined(__MK20DX128__) || defined(__MK20DX256__)
+#define EEPROM_MAX  2048
+#define EEPARTITION 0x03  // all 32K dataflash for EEPROM, none for Data
+#elif defined(__MK64FX512__)
+#define EEPROM_MAX  4096
+#define EEPARTITION 0x04  // 64K dataflash for EEPROM, 64K for Data
+#elif defined(__MK66FX1M0__)
+#define EEPROM_MAX  4096
+#define EEPARTITION 0x05  // 128K dataflash for EEPROM, 128K for Data
+#elif defined(__MKL26Z64__)
+#define EEPROM_MAX  255
+#endif
+
+#if E2END > (EEPROM_MAX-1)
+#error "E2END is set larger than the maximum possible EEPROM size"
+#endif
 
 #if defined(KINETISK)
 
@@ -43,15 +60,31 @@
 // (aligned to 2 or 4 byte boundaries) has twice the endurance
 // compared to writing 8 bit bytes.
 //
-#if defined(__MK20DX128__) || defined(__MK20DX256__)
-#define EEPROM_SIZE 2048
-#define PARTITION   0x03  // all 32K dataflash for EEPROM, none for Data
-#elif defined(__MK64FX512__)
-#define EEPROM_SIZE 4096
-#define PARTITION   0x04  // 64K dataflash for EEPROM, 64K for Data
-#elif defined(__MK66FX1M0__)
-#define EEPROM_SIZE 4096
-#define PARTITION   0x05  // 128K dataflash for EEPROM, 128K for Data
+
+#if E2END < 32
+  #define EEPROM_SIZE 32
+  #define EEESIZE 0x39
+#elif E2END < 64
+  #define EEPROM_SIZE 64
+  #define EEESIZE 0x38
+#elif E2END < 128
+  #define EEPROM_SIZE 128
+  #define EEESIZE 0x37
+#elif E2END < 256
+  #define EEPROM_SIZE 256
+  #define EEESIZE 0x36
+#elif E2END < 512
+  #define EEPROM_SIZE 512
+  #define EEESIZE 0x35
+#elif E2END < 1024
+  #define EEPROM_SIZE 1024
+  #define EEESIZE 0x34
+#elif E2END < 2048
+  #define EEPROM_SIZE 2048
+  #define EEESIZE 0x33
+#elif E2END < 4096
+  #define EEPROM_SIZE 4096
+  #define EEESIZE 0x32
 #endif
 
 // Writing unaligned 16 or 32 bit data is handled automatically when
@@ -62,25 +95,6 @@
 //
 #define HANDLE_UNALIGNED_WRITES
 
-				// Minimum EEPROM Endurance
-				// ------------------------
-#if (EEPROM_SIZE == 4096)	// 
-  #define EEESIZE 0x32
-#elif (EEPROM_SIZE == 2048)	// 35000 writes/byte or 70000 writes/word (with 32K)
-  #define EEESIZE 0x33
-#elif (EEPROM_SIZE == 1024)	// 75000 writes/byte or 150000 writes/word
-  #define EEESIZE 0x34
-#elif (EEPROM_SIZE == 512)	// 155000 writes/byte or 310000 writes/word
-  #define EEESIZE 0x35
-#elif (EEPROM_SIZE == 256)	// 315000 writes/byte or 630000 writes/word
-  #define EEESIZE 0x36
-#elif (EEPROM_SIZE == 128)	// 635000 writes/byte or 1270000 writes/word
-  #define EEESIZE 0x37
-#elif (EEPROM_SIZE == 64)	// 1275000 writes/byte or 2550000 writes/word
-  #define EEESIZE 0x38
-#elif (EEPROM_SIZE == 32)	// 2555000 writes/byte or 5110000 writes/word
-  #define EEESIZE 0x39
-#endif
 
 void eeprom_initialize(void)
 {
@@ -95,7 +109,7 @@ void eeprom_initialize(void)
 		// We need to reconfigure for EEPROM usage
 		FTFL_FCCOB0 = 0x80; // PGMPART = Program Partition Command
 		FTFL_FCCOB4 = EEESIZE; // EEPROM Size
-		FTFL_FCCOB5 = PARTITION;
+		FTFL_FCCOB5 = EEPARTITION;
 		__disable_irq();
 		// do_flash_cmd() must execute from RAM.  Luckily the C syntax is simple...
 		(*((void (*)(volatile uint8_t *))((uint32_t)do_flash_cmd | 1)))(&FTFL_FSTAT);
@@ -310,7 +324,7 @@ void do_flash_cmd(volatile uint8_t *fstat)
 
 #elif defined(KINETISL)
 
-#define EEPROM_SIZE 128
+#define EEPROM_SIZE (E2END+1)
 
 #define FLASH_BEGIN (uint16_t *)63488
 #define FLASH_END   (uint16_t *)65536
