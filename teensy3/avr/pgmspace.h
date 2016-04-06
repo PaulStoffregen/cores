@@ -40,6 +40,8 @@ typedef int16_t prog_int16_t;
 typedef uint16_t prog_uint16_t;
 typedef int32_t prog_int32_t;
 typedef uint32_t prog_uint32_t;
+typedef int64_t prog_int64_t;
+typedef uint64_t prog_uint64_t;
 
 #define memchr_P(str, c, len) memchr((str), (c), (len))
 #define memcmp_P(a, b, n) memcmp((a), (b), (n))
