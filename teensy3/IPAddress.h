@@ -27,6 +27,7 @@
 #define IPAddress_h
 
 #include <Printable.h>
+#include <WString.h>
 
 // A class to make it easier to handle and pass around IP addresses
 
@@ -63,6 +64,11 @@ public:
 		_address.bytes[1] = *address++;
 		_address.bytes[2] = *address++;
 		_address.bytes[3] = *address++;
+	}
+
+	bool fromString(const char *address);
+	bool fromString(const String &address) {
+		return fromString(address.c_str());
 	}
 
 	// Overloaded cast operator to allow IPAddress objects to be used where a pointer
