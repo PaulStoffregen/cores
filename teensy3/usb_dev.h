@@ -55,6 +55,16 @@ uint32_t usb_tx_byte_count(uint32_t endpoint);
 uint32_t usb_tx_packet_count(uint32_t endpoint);
 void usb_tx(uint32_t endpoint, usb_packet_t *packet);
 void usb_tx_isr(uint32_t endpoint, usb_packet_t *packet);
+/* *_cb callbacks are weak symbols, define your own with "C" linkage to override
+ * this avoids introducing a conditional and the variable to hold a
+ * callback pointer
+ */
+/* called when a packet has been transmitted */
+void usb_tx_cb(void);
+#define USB_TX_CB_AVAILABLE
+/* called when a USB packet is received (non control, non 0 length) */
+void usb_rx_cb(void);
+#define USB_RX_CB_AVAILABLE
 
 extern volatile uint8_t usb_configuration;
 
