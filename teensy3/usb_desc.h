@@ -144,9 +144,9 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME		{'K','e','y','b','o','a','r','d','/','M','o','u','s','e','/','J','o','y','s','t','i','c','k'}
   #define PRODUCT_NAME_LEN	23
   #define EP0_SIZE		64
-  #define NUM_ENDPOINTS         5
+  #define NUM_ENDPOINTS         6
   #define NUM_USB_BUFFERS	24
-  #define NUM_INTERFACE		4
+  #define NUM_INTERFACE		5
   #define SEREMU_INTERFACE      2	// Serial emulation
   #define SEREMU_TX_ENDPOINT    1
   #define SEREMU_TX_SIZE        64
@@ -158,6 +158,10 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define KEYBOARD_ENDPOINT     3
   #define KEYBOARD_SIZE         8
   #define KEYBOARD_INTERVAL     1
+  #define KEYMEDIA_INTERFACE    4	// Keyboard Media Keys
+  #define KEYMEDIA_ENDPOINT     6
+  #define KEYMEDIA_SIZE         8
+  #define KEYMEDIA_INTERVAL     4
   #define MOUSE_INTERFACE       1	// Mouse
   #define MOUSE_ENDPOINT        5
   #define MOUSE_SIZE            8
@@ -171,6 +175,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT3_CONFIG	ENDPOINT_TRANSIMIT_ONLY
   #define ENDPOINT4_CONFIG	ENDPOINT_TRANSIMIT_ONLY
   #define ENDPOINT5_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT6_CONFIG	ENDPOINT_TRANSIMIT_ONLY
 
 #elif defined(USB_SERIAL_HID)
   #define VENDOR_ID		0x16C0
