@@ -157,10 +157,7 @@ static uint8_t keymedia_report_desc[] = {
         0x15, 0x00,             //  Logical Minimum (0)
         0x26, 0x9C, 0x02,       //  Logical Maximum (0x29C)
         0x81, 0x00,             //  Input (Data, Array)
-        0xC0,                   //  End Collection
         0x05, 0x01,             //  Usage Page (Generic Desktop)
-        0x09, 0x80,             //  Usage (System Control)
-        0xA1, 0x01,             //  Collection (Application)
         0x75, 0x08,             //  Report Size (8)
         0x95, 0x03,             //  Report Count (3)
         0x19, 0x00,             //  Usage Minimum (0)
