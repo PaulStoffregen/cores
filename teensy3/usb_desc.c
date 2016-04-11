@@ -121,20 +121,9 @@ static uint8_t keyboard_report_desc[] = {
         0x15, 0x00,             //  Logical Minimum (0),
         0x25, 0x01,             //  Logical Maximum (1),
         0x81, 0x02,             //  Input (Data, Variable, Absolute), ;Modifier keys
-        0x95, 0x08,             //  Report Count (8),
-        0x75, 0x01,             //  Report Size (1),
-        0x15, 0x00,             //  Logical Minimum (0),
-        0x25, 0x01,             //  Logical Maximum (1),
-        0x05, 0x0C,             //  Usage Page (Consumer),
-        0x09, 0xE9,             //  Usage (Volume Increment),
-        0x09, 0xEA,             //  Usage (Volume Decrement),
-        0x09, 0xE2,             //  Usage (Mute),
-        0x09, 0xCD,             //  Usage (Play/Pause),
-        0x09, 0xB5,             //  Usage (Scan Next Track),
-        0x09, 0xB6,             //  Usage (Scan Previous Track),
-        0x09, 0xB7,             //  Usage (Stop),
-        0x09, 0xB8,             //  Usage (Eject),
-        0x81, 0x02,             //  Input (Data, Variable, Absolute), ;Media keys
+        0x95, 0x01,             //   Report Count (1),
+        0x75, 0x08,             //   Report Size (8),
+        0x81, 0x03,             //   Input (Constant),                 ;Reserved byte
         0x95, 0x05,             //  Report Count (5),
         0x75, 0x01,             //  Report Size (1),
         0x05, 0x08,             //  Usage Page (LEDs),
