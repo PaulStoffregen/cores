@@ -604,7 +604,7 @@ static void usb_keymedia_press_system_key(uint8_t key)
 	}
 	for (i=0; i < 3; i++) {
 		if (keymedia_system_keys[i] == 0) {
-			keymedia_consumer_keys[i] = key;
+			keymedia_system_keys[i] = key;
 			usb_keymedia_send();
 			return;
 		}
