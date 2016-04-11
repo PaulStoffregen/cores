@@ -123,8 +123,8 @@ static KEYCODE_TYPE unicode_to_keycode(uint16_t cpoint)
 	// Unicode code points beyond U+FFFF are not supported
 	// technically this input should probably be called UCS-2
 	if (cpoint < 32) {
-		if (cpoint == 10) return KEY_ENTER & 0x3FFF;
-		if (cpoint == 11) return KEY_TAB & 0x3FFF;
+		if (cpoint == 10) return KEY_ENTER & KEYCODE_MASK;
+		if (cpoint == 11) return KEY_TAB & KEYCODE_MASK;
 		return 0;
 	}
 	if (cpoint < 128) {
@@ -290,6 +290,14 @@ static uint8_t keycode_to_key(KEYCODE_TYPE keycode)
 }
 
 
+// Input can be:
+//     32 - 127     ASCII direct (U+0020 to U+007F) <-- uses layout
+//    128 - 0xC1FF  Unicode direct (U+0080 to U+C1FF) <-- uses layout
+// 0xC200 - 0xDFFF  Unicode UTF8 packed (U+0080 to U+07FF) <-- uses layout
+// 0xE000 - 0xE0FF  Modifier key (bitmap, 8 keys, shift/ctrl/alt/gui)
+// 0xE200 - 0xE2FF  System key (HID usage code, within usage page 1)
+// 0xE400 - 0xE7FF  Media/Consumer key (HID usage code, within usage page 12)
+// 0xF000 - 0xFFFF  Normal key (HID usage code, within usage page 7)
 
 void usb_keyboard_press_keycode(uint16_t n)
 {
@@ -300,16 +308,27 @@ void usb_keyboard_press_keycode(uint16_t n)
 	#endif
 
 	msb = n >> 8;
-	if (msb >= 0xC2 && msb <= 0xDF) {
-		n = (n & 0x3F) | ((uint16_t)(msb & 0x1F) << 6);
-	} else
-	if (msb == 0x80) {
-		usb_keyboard_press_key(0, n);
-		return;
-	} else
-	if (msb == 0x40) {
-		usb_keyboard_press_key(n, 0);
-		return;
+
+	if (msb >= 0xC2) {
+		if (msb <= 0xDF) {
+			n = (n & 0x3F) | ((uint16_t)(msb & 0x1F) << 6);
+		} else if (msb == 0xF0) {
+			usb_keyboard_press_key(n, 0);
+			return;
+		} else if (msb == 0xE0) {
+			usb_keyboard_press_key(0, n);
+			return;
+#ifdef KEYMEDIA_INTERFACE
+		} else if (msb == 0xE2) {
+			// TODO: system keys
+			return;
+		} else if (msb >= 0xE4 && msb <= 0xE7) {
+			// TODO: media/consumer keys
+			return;
+#endif
+		} else {
+			return;
+		}
 	}
 	keycode = unicode_to_keycode(n);
 	if (!keycode) return;
@@ -340,16 +359,26 @@ void usb_keyboard_release_keycode(uint16_t n)
 	uint8_t key, mod, msb;
 
 	msb = n >> 8;
-	if (msb >= 0xC2 && msb <= 0xDF) {
-		n = (n & 0x3F) | ((uint16_t)(msb & 0x1F) << 6);
-	} else
-	if (msb == 0x80) {
-		usb_keyboard_release_key(0, n);
-		return;
-	} else
-	if (msb == 0x40) {
-		usb_keyboard_release_key(n, 0);
-		return;
+	if (msb >= 0xC2) {
+		if (msb <= 0xDF) {
+			n = (n & 0x3F) | ((uint16_t)(msb & 0x1F) << 6);
+		} else if (msb == 0xF0) {
+			usb_keyboard_release_key(n, 0);
+			return;
+		} else if (msb == 0xE0) {
+			usb_keyboard_release_key(0, n);
+			return;
+#ifdef KEYMEDIA_INTERFACE
+		} else if (msb == 0xE2) {
+			// TODO: system keys
+			return;
+		} else if (msb >= 0xE4 && msb <= 0xE7) {
+			// TODO: media/consumer keys
+			return;
+#endif
+		} else {
+			return;
+		}
 	}
 	KEYCODE_TYPE keycode = unicode_to_keycode(n);
 	if (!keycode) return;
