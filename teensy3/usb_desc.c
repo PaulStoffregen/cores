@@ -87,7 +87,7 @@ static uint8_t device_descriptor[] = {
         EP0_SIZE,                               // bMaxPacketSize0
         LSB(VENDOR_ID), MSB(VENDOR_ID),         // idVendor
         LSB(PRODUCT_ID), MSB(PRODUCT_ID),       // idProduct
-        0x00, 0x01,                             // bcdDevice
+        0x00, 0x02,                             // bcdDevice
         1,                                      // iManufacturer
         2,                                      // iProduct
         3,                                      // iSerialNumber

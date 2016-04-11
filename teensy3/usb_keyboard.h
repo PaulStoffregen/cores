@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2016 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -50,6 +50,9 @@ void usb_keyboard_release_keycode(uint16_t n);
 void usb_keyboard_release_all(void);
 int usb_keyboard_press(uint8_t key, uint8_t modifier);
 int usb_keyboard_send(void);
+#ifdef KEYMEDIA_INTERFACE
+void usb_keymedia_release_all(void);
+#endif
 extern uint8_t keyboard_modifier_keys;
 extern uint8_t keyboard_media_keys;
 extern uint8_t keyboard_keys[6];
