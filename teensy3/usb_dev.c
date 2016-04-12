@@ -857,7 +857,14 @@ void usb_isr(void)
 					  default:
 						break;
 					}
-					b->desc = BDT_DESC(packet->len, ((uint32_t)b & 8) ? DATA1 : DATA0);
+#ifdef AUDIO_INTERFACE
+					// isochronous does not use data toggle bit
+					if (endpoint == AUDIO_TX_ENDPOINT) {
+						b->desc = BDT_DESC(packet->len, DATA0);
+					} else
+#endif
+					b->desc = BDT_DESC(packet->len,
+						((uint32_t)b & 8) ? DATA1 : DATA0);
 				} else {
 					//serial_print("tx no packet\n");
 					switch (tx_state[endpoint]) {
