@@ -366,6 +366,47 @@ static void usb_setup(void)
 		break;
 	  // case 0xC940:
 #endif
+
+#if defined(AUDIO_INTERFACE)
+	  case 0x0B01: // SET_INTERFACE (alternate setting)
+		if (setup.wIndex == AUDIO_INTERFACE+1) {
+			//audio_tx_alternate_setting = setup.wValue;
+		} else if (setup.wIndex == AUDIO_INTERFACE+2) {
+			//audio_rx_alternate_setting = setup.wValue;
+		} else {
+			endpoint0_stall();
+			return;
+		}
+		break;
+	  case 0x0A81: // GET_INTERFACE (alternate setting)
+		datalen = 1;
+		data = reply_buffer;
+		if (setup.wIndex == AUDIO_INTERFACE+1) {
+			reply_buffer[0] = 0;
+			//reply_buffer[0] = audio_tx_alternate_setting;
+		} else if (setup.wIndex == AUDIO_INTERFACE+2) {
+			reply_buffer[0] = 0;
+			//reply_buffer[0] = audio_rx_alternate_setting;
+		} else {
+			endpoint0_stall();
+			return;
+		}
+		break;
+	  case 0x0122: // SET_CUR (wValue=0, wIndex=interface, wLength=len)
+		return;
+	  case 0x81A2: // GET_CUR (wValue=0, wIndex=interface, wLength=len)
+		if (setup.wLength >= 3) {
+			reply_buffer[0] = 44100 & 255;
+			reply_buffer[1] = 44100 >> 8;
+			reply_buffer[2] = 0;
+			datalen = 3;
+			data = reply_buffer;
+		} else {
+			endpoint0_stall();
+			return;
+		}
+		break;
+#endif
 	  default:
 		endpoint0_stall();
 		return;
@@ -506,6 +547,12 @@ static void usb_control(uint32_t stat)
 		if (setup.word1 == 0x03000921 && setup.word2 == ((4<<16)|SEREMU_INTERFACE)
 		  && buf[0] == 0xA9 && buf[1] == 0x45 && buf[2] == 0xC2 && buf[3] == 0x6B) {
 			usb_reboot_timer = 5;
+			endpoint0_transmit(NULL, 0);
+		}
+#endif
+#ifdef AUDIO_INTERFACE
+		if (setup.wRequestAndType == 0x0122 /* SET_CUR */) {
+			// TODO: actually check data, do something with it?
 			endpoint0_transmit(NULL, 0);
 		}
 #endif
