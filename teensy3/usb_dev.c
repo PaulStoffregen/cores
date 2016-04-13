@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2016 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -224,6 +224,14 @@ static void usb_setup(void)
 			epconf = *cfg++;
 			*reg = epconf;
 			reg += 4;
+#ifdef AUDIO_INTERFACE
+			if (i == AUDIO_RX_ENDPOINT) {
+				table[index(i, RX, EVEN)].addr = usb_audio_receive_buffer;
+				table[index(i, RX, EVEN)].desc = (AUDIO_RX_SIZE<<16) | BDT_OWN;
+				table[index(i, RX, ODD)].addr = usb_audio_receive_buffer;
+				table[index(i, RX, ODD)].desc = (AUDIO_RX_SIZE<<16) | BDT_OWN;
+			} else
+#endif
 			if (epconf & USB_ENDPT_EPRXEN) {
 				usb_packet_t *p;
 				p = usb_malloc();
@@ -679,6 +687,9 @@ void usb_rx_memory(usb_packet_t *packet)
 	//serial_print("rx_mem:");
 	__disable_irq();
 	for (i=1; i <= NUM_ENDPOINTS; i++) {
+#ifdef AUDIO_INTERFACE
+		if (i == AUDIO_RX_ENDPOINT) continue;
+#endif
 		if (*cfg++ & USB_ENDPT_EPRXEN) {
 			if (table[index(i, RX, EVEN)].desc == 0) {
 				table[index(i, RX, EVEN)].addr = packet->buf;
@@ -754,7 +765,26 @@ void usb_tx(uint32_t endpoint, usb_packet_t *packet)
 	__enable_irq();
 }
 
+void usb_tx_isochronous(uint32_t endpoint, void *data, uint32_t len)
+{
+	bdt_t *b = &table[index(endpoint, TX, EVEN)];
+	uint8_t next, state;
 
+	endpoint--;
+	if (endpoint >= NUM_ENDPOINTS) return;
+	__disable_irq();
+	state = tx_state[endpoint];
+	if (state == 0) {
+		next = 1;
+	} else {
+		b++;
+		next = 0;
+	}
+	tx_state[endpoint] = next;
+	b->addr = data;
+	b->desc = (len << 16) | BDT_OWN;
+	__enable_irq();
+}
 
 
 
@@ -834,6 +864,22 @@ void usb_isr(void)
 #endif
 			endpoint--;	// endpoint is index to zero-based arrays
 
+#ifdef AUDIO_INTERFACE
+			if ((endpoint == AUDIO_TX_ENDPOINT-1) && (stat & 0x08)) {
+				unsigned int len;
+				len = usb_audio_transmit_callback();
+				if (len > 0) {
+					b = (bdt_t *)((uint32_t)b ^ 8);
+					b->addr = usb_audio_transmit_buffer;
+					b->desc = (len << 16) | BDT_OWN;
+					tx_state[endpoint] ^= 1;
+				}
+			} else if ((endpoint == AUDIO_RX_ENDPOINT-1) && !(stat & 0x08)) {
+				usb_audio_receive_callback(b->desc >> 16);
+				b->addr = usb_audio_receive_buffer;
+				b->desc = (AUDIO_RX_SIZE << 16) | BDT_OWN;
+			} else
+#endif
 			if (stat & 0x08) { // transmit
 				usb_free(packet);
 				packet = tx_first[endpoint];
@@ -857,12 +903,6 @@ void usb_isr(void)
 					  default:
 						break;
 					}
-#ifdef AUDIO_INTERFACE
-					// isochronous does not use data toggle bit
-					if (endpoint == AUDIO_TX_ENDPOINT) {
-						b->desc = BDT_DESC(packet->len, DATA0);
-					} else
-#endif
 					b->desc = BDT_DESC(packet->len,
 						((uint32_t)b & 8) ? DATA1 : DATA0);
 				} else {
@@ -905,17 +945,18 @@ void usb_isr(void)
 					}
 					rx_last[endpoint] = packet;
 					usb_rx_byte_count_data[endpoint] += packet->len;
-					// TODO: implement a per-endpoint maximum # of allocated packets
-					// so a flood of incoming data on 1 endpoint doesn't starve
-					// the others if the user isn't reading it regularly
+					// TODO: implement a per-endpoint maximum # of allocated
+					// packets, so a flood of incoming data on 1 endpoint
+					// doesn't starve the others if the user isn't reading
+					// it regularly
 					packet = usb_malloc();
 					if (packet) {
 						b->addr = packet->buf;
-						b->desc = BDT_DESC(64, ((uint32_t)b & 8) ? DATA1 : DATA0);
+						b->desc = BDT_DESC(64,
+							((uint32_t)b & 8) ? DATA1 : DATA0);
 					} else {
 						//serial_print("starving ");
 						//serial_phex(endpoint + 1);
-						//serial_print(((uint32_t)b & 8) ? ",odd\n" : ",even\n");
 						b->desc = 0;
 						usb_rx_memory_needed++;
 					}

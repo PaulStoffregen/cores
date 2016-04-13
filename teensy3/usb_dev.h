@@ -54,7 +54,7 @@ usb_packet_t *usb_rx(uint32_t endpoint);
 uint32_t usb_tx_byte_count(uint32_t endpoint);
 uint32_t usb_tx_packet_count(uint32_t endpoint);
 void usb_tx(uint32_t endpoint, usb_packet_t *packet);
-void usb_tx_isr(uint32_t endpoint, usb_packet_t *packet);
+void usb_tx_isochronous(uint32_t endpoint, void *data, uint32_t len);
 
 extern volatile uint8_t usb_configuration;
 
@@ -98,7 +98,12 @@ extern void usb_midi_flush_output(void);
 extern void usb_flightsim_flush_callback(void);
 #endif
 
-
+#ifdef AUDIO_INTERFACE
+extern uint16_t usb_audio_receive_buffer[];
+extern uint16_t usb_audio_transmit_buffer[];
+extern void usb_audio_receive_callback(unsigned int len);
+extern unsigned int usb_audio_transmit_callback(void);
+#endif
 
 
 
