@@ -801,7 +801,7 @@ enum IRQ_NUMBER_t {
 
 
 #ifndef NULL
-#define NULL ((void *)0)
+#define NULL (0)
 #endif
 
 // Port control and interrupts (PORT)

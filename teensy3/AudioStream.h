@@ -31,7 +31,9 @@
 #ifndef AudioStream_h
 #define AudioStream_h
 
-#include "Arduino.h"
+#include <stdio.h>  // for NULL
+#include <string.h> // for memcpy
+#include "kinetis.h"
 
 #if defined(KINETISK)
 #define AUDIO_BLOCK_SAMPLES  128

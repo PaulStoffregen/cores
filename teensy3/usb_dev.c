@@ -965,9 +965,6 @@ void usb_isr(void)
 				}
 			}
 
-
-
-
 		}
 		USB0_ISTAT = USB_ISTAT_TOKDNE;
 		goto restart;

@@ -29,6 +29,7 @@
  */
 
 
+#include <string.h> // for memcpy
 #include "AudioStream.h"
 
 

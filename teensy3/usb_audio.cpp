@@ -28,23 +28,150 @@
  * SOFTWARE.
  */
 
-#include "usb_dev.h"
+#include "usb_audio.h"
 #include "HardwareSerial.h"
 #include <string.h> // for memcpy()
 
 #ifdef AUDIO_INTERFACE // defined by usb_dev.h -> usb_desc.h
 #if F_CPU >= 20000000
 
-uint16_t usb_audio_receive_buffer[AUDIO_RX_SIZE/2] __attribute__ ((section(".dmabuffers"), aligned (4)));
-uint16_t usb_audio_transmit_buffer[AUDIO_TX_SIZE/2] __attribute__ ((section(".dmabuffers"), aligned (4)));
+bool AudioInputUSB::update_responsibility;
+audio_block_t * AudioInputUSB::incoming_left;
+audio_block_t * AudioInputUSB::incoming_right;
+audio_block_t * AudioInputUSB::ready_left;
+audio_block_t * AudioInputUSB::ready_right;
+uint16_t AudioInputUSB::incoming_count;
+
+#define DMABUFATTR __attribute__ ((section(".dmabuffers"), aligned (4)))
+uint16_t usb_audio_receive_buffer[AUDIO_RX_SIZE/2] DMABUFATTR;
+uint16_t usb_audio_transmit_buffer[AUDIO_TX_SIZE/2] DMABUFATTR;
+
+void AudioInputUSB::begin(void)
+{
+	incoming_count = 0;
+	incoming_left = NULL;
+	incoming_right = NULL;
+	ready_left = NULL;
+	ready_right = NULL;
+	// update_responsibility = update_setup();
+	// TODO: update responsibility is tough, partly because the USB
+	// interrupts aren't sychronous to the audio library block size,
+	// but also because the PC may stop transmitting data, which
+	// means we no longer get receive callbacks from usb_dev.
+	update_responsibility = false;
+}
+
+static void copy_to_buffers(const uint32_t *src, int16_t *left, int16_t *right, unsigned int len)
+{
+	// TODO: optimize...
+	while (len > 0) {
+		uint32_t n = *src++;
+		*left++ = n & 0xFFFF;
+		*right++ = n >> 16;
+		len--;
+	}
+}
 
 // Called from the USB interrupt when an isochronous packet arrives
 // we must completely remove it from the receive buffer before returning
 //
 void usb_audio_receive_callback(unsigned int len)
 {
+	unsigned int count, avail;
+	audio_block_t *left, *right;
+	const uint32_t *data;
+
+	//return;
+
+	len >>= 2; // 1 sample = 4 bytes: 2 left, 2 right
+	data = (const uint32_t *)usb_audio_receive_buffer;
+
 	//serial_print(".");
+	//serial_phex(usb_audio_receive_buffer[0]);
+
+	count = AudioInputUSB::incoming_count;
+	left = AudioInputUSB::incoming_left;
+	right = AudioInputUSB::incoming_right;
+	if (left == NULL) {
+		left = AudioStream::allocate();
+		if (left == NULL) return;
+		AudioInputUSB::incoming_left = left;
+	}
+	if (right == NULL) {
+		right = AudioStream::allocate();
+		if (right == NULL) return;
+		AudioInputUSB::incoming_right = right;
+	}
+	while (len > 0) {
+		avail = AUDIO_BLOCK_SAMPLES - count;
+		if (len < avail) {
+			//serial_print(".");
+			copy_to_buffers(data, left->data + count, right->data + count, len);
+			AudioInputUSB::incoming_count = count + len;
+			return;
+		} else {
+			//serial_print("^");
+			copy_to_buffers(data, left->data + count, right->data + count, avail);
+			data += avail;
+			len -= avail;
+			if (AudioInputUSB::ready_left)
+				AudioStream::release(AudioInputUSB::ready_left);
+			AudioInputUSB::ready_left = left;
+			if (AudioInputUSB::ready_right)
+				AudioStream::release(AudioInputUSB::ready_right);
+			AudioInputUSB::ready_right = right;
+			if (AudioInputUSB::update_responsibility) AudioStream::update_all();
+			left = AudioStream::allocate();
+			if (left == NULL) {
+				AudioInputUSB::incoming_left = NULL;
+				AudioInputUSB::incoming_right = NULL;
+				AudioInputUSB::incoming_count = 0;
+				return;
+			}
+			right = AudioStream::allocate();
+			if (right == NULL) {
+				AudioStream::release(left);
+				AudioInputUSB::incoming_left = NULL;
+				AudioInputUSB::incoming_right = NULL;
+				AudioInputUSB::incoming_count = 0;
+				return;
+			}
+			AudioInputUSB::incoming_left = left;
+			AudioInputUSB::incoming_right = right;
+			count = 0;
+		}
+	}
+	AudioInputUSB::incoming_count = count;
 }
+
+void AudioInputUSB::update(void)
+{
+	audio_block_t *left, *right;
+
+	__disable_irq();
+	left = ready_left;
+	ready_left = NULL;
+	right = ready_right;
+	ready_right = NULL;
+	// TODO: use incoming_count for USB isochronous feedback
+	__enable_irq();
+	//if (left && right) {
+		//serial_print("$");
+	//} else {
+		//serial_print("#");
+	//}
+	if (left) {
+		transmit(left, 0);
+		release(left);
+	}
+	if (right) {
+		transmit(right, 1);
+		release(right);
+	}
+}
+
+
+
 
 // Called from the USB interrupt when ready to transmit another
 // isochronous packet.  If we place data into the transmit buffer,
