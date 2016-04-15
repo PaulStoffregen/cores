@@ -41,7 +41,7 @@ audio_block_t * AudioInputUSB::incoming_right;
 audio_block_t * AudioInputUSB::ready_left;
 audio_block_t * AudioInputUSB::ready_right;
 uint16_t AudioInputUSB::incoming_count;
-uint8_t AudioInputUSB::underflow_flag;
+//uint16_t AudioInputUSB::underflow_flag;
 
 #define DMABUFATTR __attribute__ ((section(".dmabuffers"), aligned (4)))
 uint16_t usb_audio_receive_buffer[AUDIO_RX_SIZE/2] DMABUFATTR;
@@ -55,7 +55,6 @@ void AudioInputUSB::begin(void)
 	incoming_right = NULL;
 	ready_left = NULL;
 	ready_right = NULL;
-	underflow_flag = 1;
 	// update_responsibility = update_setup();
 	// TODO: update responsibility is tough, partly because the USB
 	// interrupts aren't sychronous to the audio library block size,
@@ -64,7 +63,7 @@ void AudioInputUSB::begin(void)
 	update_responsibility = false;
 	usb_audio_sync_feedback = 722824;
 	usb_audio_sync_feedback = 723700; // too fast?
-	//usb_audio_sync_feedback = 722534; // too slow
+	usb_audio_sync_feedback = 722534; // too slow
 }
 
 static void copy_to_buffers(const uint32_t *src, int16_t *left, int16_t *right, unsigned int len)
@@ -90,9 +89,6 @@ void usb_audio_receive_callback(unsigned int len)
 	len >>= 2; // 1 sample = 4 bytes: 2 left, 2 right
 	data = (const uint32_t *)usb_audio_receive_buffer;
 
-	//serial_print(".");
-	//serial_phex(usb_audio_receive_buffer[0]);
-
 	count = AudioInputUSB::incoming_count;
 	left = AudioInputUSB::incoming_left;
 	right = AudioInputUSB::incoming_right;
@@ -109,19 +105,20 @@ void usb_audio_receive_callback(unsigned int len)
 	while (len > 0) {
 		avail = AUDIO_BLOCK_SAMPLES - count;
 		if (len < avail) {
-			//serial_print(".");
 			copy_to_buffers(data, left->data + count, right->data + count, len);
 			AudioInputUSB::incoming_count = count + len;
 			return;
 		} else if (avail > 0) {
-			//serial_print("^");
 			copy_to_buffers(data, left->data + count, right->data + count, avail);
 			data += avail;
 			len -= avail;
 			if (AudioInputUSB::ready_left || AudioInputUSB::ready_right) {
 				// buffer overrun, PC sending too fast
 				AudioInputUSB::incoming_count = count + avail;
-				serial_print("!");
+				if (len > 0) {
+					serial_print("!");
+					serial_phex(len);
+				}
 				return;
 			}
 			send:
@@ -145,15 +142,7 @@ void usb_audio_receive_callback(unsigned int len)
 			}
 			AudioInputUSB::incoming_left = left;
 			AudioInputUSB::incoming_right = right;
-			if (AudioInputUSB::underflow_flag) {
-				AudioInputUSB::underflow_flag = 0;
-				memset(left->data + count, 0, AUDIO_BLOCK_SAMPLES);
-				memset(right->data + count, 0, AUDIO_BLOCK_SAMPLES);
-				count = AUDIO_BLOCK_SAMPLES/2;
-				serial_print("*");
-			} else {
-				count = 0;
-			}
+			count = 0;
 		} else {
 			if (AudioInputUSB::ready_left || AudioInputUSB::ready_right) return;
 			goto send; // recover from buffer overrun
@@ -177,7 +166,6 @@ void AudioInputUSB::update(void)
 	//serial_phex(c);
 	//serial_print(".");
 	if (!left || !right) {
-		underflow_flag = 1;
 		serial_print("#"); // buffer underrun - PC sending too slow
 	}
 	if (left) {
