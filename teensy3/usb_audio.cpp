@@ -45,6 +45,7 @@ uint16_t AudioInputUSB::incoming_count;
 #define DMABUFATTR __attribute__ ((section(".dmabuffers"), aligned (4)))
 uint16_t usb_audio_receive_buffer[AUDIO_RX_SIZE/2] DMABUFATTR;
 uint16_t usb_audio_transmit_buffer[AUDIO_TX_SIZE/2] DMABUFATTR;
+uint32_t usb_audio_sync_feedback DMABUFATTR;
 
 void AudioInputUSB::begin(void)
 {
@@ -59,6 +60,7 @@ void AudioInputUSB::begin(void)
 	// but also because the PC may stop transmitting data, which
 	// means we no longer get receive callbacks from usb_dev.
 	update_responsibility = false;
+	usb_audio_sync_feedback = 722824;
 }
 
 static void copy_to_buffers(const uint32_t *src, int16_t *left, int16_t *right, unsigned int len)
@@ -80,8 +82,6 @@ void usb_audio_receive_callback(unsigned int len)
 	unsigned int count, avail;
 	audio_block_t *left, *right;
 	const uint32_t *data;
-
-	//return;
 
 	len >>= 2; // 1 sample = 4 bytes: 2 left, 2 right
 	data = (const uint32_t *)usb_audio_receive_buffer;
@@ -114,7 +114,7 @@ void usb_audio_receive_callback(unsigned int len)
 			copy_to_buffers(data, left->data + count, right->data + count, avail);
 			data += avail;
 			len -= avail;
-			if (AudioInputUSB::ready_left)
+			if (AudioInputUSB::ready_left) // buffer overrun, PC sending too fast
 				AudioStream::release(AudioInputUSB::ready_left);
 			AudioInputUSB::ready_left = left;
 			if (AudioInputUSB::ready_right)
@@ -154,12 +154,13 @@ void AudioInputUSB::update(void)
 	right = ready_right;
 	ready_right = NULL;
 	// TODO: use incoming_count for USB isochronous feedback
+	uint16_t c = incoming_count;
 	__enable_irq();
-	//if (left && right) {
-		//serial_print("$");
-	//} else {
-		//serial_print("#");
-	//}
+	//serial_phex(c);
+	//serial_print(".");
+	if (!left || !right) {
+		//serial_print("#"); // buffer underrun - PC sending too slow
+	}
 	if (left) {
 		transmit(left, 0);
 		release(left);

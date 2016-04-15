@@ -350,7 +350,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','A','u','d','i','o'}
   #define PRODUCT_NAME_LEN	12
   #define EP0_SIZE		64
-  #define NUM_ENDPOINTS         4
+  #define NUM_ENDPOINTS         5
   #define NUM_USB_BUFFERS	16
   #define NUM_INTERFACE		4
   #define SEREMU_INTERFACE      3	// Serial emulation
@@ -365,10 +365,12 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define AUDIO_TX_SIZE         180
   #define AUDIO_RX_ENDPOINT     4
   #define AUDIO_RX_SIZE         180
+  #define AUDIO_SYNC_ENDPOINT	5
   #define ENDPOINT1_CONFIG	ENDPOINT_TRANSIMIT_ONLY
   #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_ONLY
   #define ENDPOINT3_CONFIG	ENDPOINT_TRANSMIT_ISOCHRONOUS
   #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_ISOCHRONOUS
+  #define ENDPOINT5_CONFIG	ENDPOINT_TRANSMIT_ISOCHRONOUS
 
 #endif
 

@@ -253,6 +253,12 @@ static void usb_setup(void)
 			}
 			table[index(i, TX, EVEN)].desc = 0;
 			table[index(i, TX, ODD)].desc = 0;
+#ifdef AUDIO_INTERFACE
+			if (i == AUDIO_SYNC_ENDPOINT) {
+				table[index(i, TX, EVEN)].addr = &usb_audio_sync_feedback;
+				table[index(i, TX, EVEN)].desc = (3<<16) | BDT_OWN;
+			}
+#endif
 		}
 		break;
 	  case 0x0880: // GET_CONFIGURATION
@@ -878,6 +884,11 @@ void usb_isr(void)
 				usb_audio_receive_callback(b->desc >> 16);
 				b->addr = usb_audio_receive_buffer;
 				b->desc = (AUDIO_RX_SIZE << 16) | BDT_OWN;
+			} else if ((endpoint == AUDIO_SYNC_ENDPOINT-1) && (stat & 0x08)) {
+				b = (bdt_t *)((uint32_t)b ^ 8);
+				b->addr = &usb_audio_sync_feedback;
+				b->desc = (3 << 16) | BDT_OWN;
+				tx_state[endpoint] ^= 1;
 			} else
 #endif
 			if (stat & 0x08) { // transmit

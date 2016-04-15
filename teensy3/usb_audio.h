@@ -11,6 +11,7 @@ extern uint16_t usb_audio_receive_buffer[];
 extern uint16_t usb_audio_transmit_buffer[];
 extern void usb_audio_receive_callback(unsigned int len);
 extern unsigned int usb_audio_transmit_callback(void);
+extern uint32_t usb_audio_sync_feedback;
 #ifdef __cplusplus
 }
 
