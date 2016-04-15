@@ -31,6 +31,7 @@ private:
 	static audio_block_t *ready_left;
 	static audio_block_t *ready_right;
 	static uint16_t incoming_count;
+	static uint8_t underflow_flag;
 };
 
 #endif // __cplusplus

@@ -41,6 +41,7 @@ audio_block_t * AudioInputUSB::incoming_right;
 audio_block_t * AudioInputUSB::ready_left;
 audio_block_t * AudioInputUSB::ready_right;
 uint16_t AudioInputUSB::incoming_count;
+uint8_t AudioInputUSB::underflow_flag;
 
 #define DMABUFATTR __attribute__ ((section(".dmabuffers"), aligned (4)))
 uint16_t usb_audio_receive_buffer[AUDIO_RX_SIZE/2] DMABUFATTR;
@@ -54,6 +55,7 @@ void AudioInputUSB::begin(void)
 	incoming_right = NULL;
 	ready_left = NULL;
 	ready_right = NULL;
+	underflow_flag = 1;
 	// update_responsibility = update_setup();
 	// TODO: update responsibility is tough, partly because the USB
 	// interrupts aren't sychronous to the audio library block size,
@@ -138,7 +140,15 @@ void usb_audio_receive_callback(unsigned int len)
 			}
 			AudioInputUSB::incoming_left = left;
 			AudioInputUSB::incoming_right = right;
-			count = 0;
+			if (AudioInputUSB::underflow_flag) {
+				AudioInputUSB::underflow_flag = 0;
+				memset(left->data + count, 0, AUDIO_BLOCK_SAMPLES);
+				memset(right->data + count, 0, AUDIO_BLOCK_SAMPLES);
+				count = AUDIO_BLOCK_SAMPLES/2;
+				serial_print("*");
+			} else {
+				count = 0;
+			}
 		}
 	}
 	AudioInputUSB::incoming_count = count;
@@ -159,6 +169,7 @@ void AudioInputUSB::update(void)
 	//serial_phex(c);
 	//serial_print(".");
 	if (!left || !right) {
+		underflow_flag = 1;
 		//serial_print("#"); // buffer underrun - PC sending too slow
 	}
 	if (left) {
