@@ -41,12 +41,14 @@ audio_block_t * AudioInputUSB::incoming_right;
 audio_block_t * AudioInputUSB::ready_left;
 audio_block_t * AudioInputUSB::ready_right;
 uint16_t AudioInputUSB::incoming_count;
-//uint16_t AudioInputUSB::underflow_flag;
+uint8_t AudioInputUSB::receive_flag;
 
 #define DMABUFATTR __attribute__ ((section(".dmabuffers"), aligned (4)))
 uint16_t usb_audio_receive_buffer[AUDIO_RX_SIZE/2] DMABUFATTR;
 uint16_t usb_audio_transmit_buffer[AUDIO_TX_SIZE/2] DMABUFATTR;
 uint32_t usb_audio_sync_feedback DMABUFATTR;
+
+static uint32_t feedback_accumulator = 722534 << 8;
 
 void AudioInputUSB::begin(void)
 {
@@ -55,14 +57,15 @@ void AudioInputUSB::begin(void)
 	incoming_right = NULL;
 	ready_left = NULL;
 	ready_right = NULL;
+	receive_flag = 0;
 	// update_responsibility = update_setup();
 	// TODO: update responsibility is tough, partly because the USB
 	// interrupts aren't sychronous to the audio library block size,
 	// but also because the PC may stop transmitting data, which
 	// means we no longer get receive callbacks from usb_dev.
 	update_responsibility = false;
-	usb_audio_sync_feedback = 722824;
-	usb_audio_sync_feedback = 723700; // too fast?
+	//usb_audio_sync_feedback = 722824;
+	//usb_audio_sync_feedback = 723700; // too fast?
 	usb_audio_sync_feedback = 722534; // too slow
 }
 
@@ -86,6 +89,7 @@ void usb_audio_receive_callback(unsigned int len)
 	audio_block_t *left, *right;
 	const uint32_t *data;
 
+	AudioInputUSB::receive_flag = 1;
 	len >>= 2; // 1 sample = 4 bytes: 2 left, 2 right
 	data = (const uint32_t *)usb_audio_receive_buffer;
 
@@ -115,10 +119,10 @@ void usb_audio_receive_callback(unsigned int len)
 			if (AudioInputUSB::ready_left || AudioInputUSB::ready_right) {
 				// buffer overrun, PC sending too fast
 				AudioInputUSB::incoming_count = count + avail;
-				if (len > 0) {
-					serial_print("!");
-					serial_phex(len);
-				}
+				//if (len > 0) {
+					//serial_print("!");
+					//serial_phex(len);
+				//}
 				return;
 			}
 			send:
@@ -160,13 +164,26 @@ void AudioInputUSB::update(void)
 	ready_left = NULL;
 	right = ready_right;
 	ready_right = NULL;
-	// TODO: use incoming_count for USB isochronous feedback
 	uint16_t c = incoming_count;
+	uint8_t f = receive_flag;
+	receive_flag = 0;
 	__enable_irq();
+	if (f) {
+		int diff = AUDIO_BLOCK_SAMPLES/2 - (int)c;
+		feedback_accumulator += diff;
+		// TODO: min/max sanity check for feedback_accumulator??
+		usb_audio_sync_feedback = (feedback_accumulator >> 8) + diff * 3;
+		//if (diff > 0) {
+			//serial_print(".");
+		//} else if (diff < 0) {
+			//serial_print("^");
+		//}
+	}
 	//serial_phex(c);
 	//serial_print(".");
 	if (!left || !right) {
-		serial_print("#"); // buffer underrun - PC sending too slow
+		//serial_print("#"); // buffer underrun - PC sending too slow
+		if (f) feedback_accumulator += 10 << 8;
 	}
 	if (left) {
 		transmit(left, 0);
