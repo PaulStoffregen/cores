@@ -63,6 +63,8 @@ void AudioInputUSB::begin(void)
 	// means we no longer get receive callbacks from usb_dev.
 	update_responsibility = false;
 	usb_audio_sync_feedback = 722824;
+	usb_audio_sync_feedback = 723700; // too fast?
+	//usb_audio_sync_feedback = 722534; // too slow
 }
 
 static void copy_to_buffers(const uint32_t *src, int16_t *left, int16_t *right, unsigned int len)
@@ -111,18 +113,21 @@ void usb_audio_receive_callback(unsigned int len)
 			copy_to_buffers(data, left->data + count, right->data + count, len);
 			AudioInputUSB::incoming_count = count + len;
 			return;
-		} else {
+		} else if (avail > 0) {
 			//serial_print("^");
 			copy_to_buffers(data, left->data + count, right->data + count, avail);
 			data += avail;
 			len -= avail;
-			if (AudioInputUSB::ready_left) // buffer overrun, PC sending too fast
-				AudioStream::release(AudioInputUSB::ready_left);
+			if (AudioInputUSB::ready_left || AudioInputUSB::ready_right) {
+				// buffer overrun, PC sending too fast
+				AudioInputUSB::incoming_count = count + avail;
+				serial_print("!");
+				return;
+			}
+			send:
 			AudioInputUSB::ready_left = left;
-			if (AudioInputUSB::ready_right)
-				AudioStream::release(AudioInputUSB::ready_right);
 			AudioInputUSB::ready_right = right;
-			if (AudioInputUSB::update_responsibility) AudioStream::update_all();
+			//if (AudioInputUSB::update_responsibility) AudioStream::update_all();
 			left = AudioStream::allocate();
 			if (left == NULL) {
 				AudioInputUSB::incoming_left = NULL;
@@ -149,6 +154,9 @@ void usb_audio_receive_callback(unsigned int len)
 			} else {
 				count = 0;
 			}
+		} else {
+			if (AudioInputUSB::ready_left || AudioInputUSB::ready_right) return;
+			goto send; // recover from buffer overrun
 		}
 	}
 	AudioInputUSB::incoming_count = count;
@@ -170,7 +178,7 @@ void AudioInputUSB::update(void)
 	//serial_print(".");
 	if (!left || !right) {
 		underflow_flag = 1;
-		//serial_print("#"); // buffer underrun - PC sending too slow
+		serial_print("#"); // buffer underrun - PC sending too slow
 	}
 	if (left) {
 		transmit(left, 0);
