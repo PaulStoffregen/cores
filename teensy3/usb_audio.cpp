@@ -223,6 +223,15 @@ void AudioOutputUSB::begin(void)
 	right_1st = NULL;
 }
 
+static void copy_from_buffers(uint32_t *dst, int16_t *left, int16_t *right, unsigned int len)
+{
+	// TODO: optimize...
+	while (len > 0) {
+		*dst++ = (*right++ << 16) | (*left++ & 0xFFFF);
+		len--;
+	}
+}
+
 void AudioOutputUSB::update(void)
 {
 	audio_block_t *left, *right;
@@ -251,7 +260,19 @@ void AudioOutputUSB::update(void)
 		right = left;
 	}
 	__disable_irq();
-	if (left_1st == NULL) {
+	if (!transmitting) {
+		copy_from_buffers((uint32_t *)usb_audio_transmit_buffer,
+			left->data, right->data, 44);
+		left_1st = left;
+		right_1st = right;
+		left_2nd = NULL;
+		right_2nd = NULL;
+		offset_1st = 44;
+		outgoing_count = AUDIO_BLOCK_SAMPLES - 44;
+		usb_tx_isochronous(AUDIO_TX_ENDPOINT, usb_audio_transmit_buffer, 176);
+		transmitting = 1;
+		//serial_print("t");
+	} else if (left_1st == NULL) {
 		left_1st = left;
 		right_1st = right;
 		offset_1st = 0;
@@ -270,16 +291,11 @@ void AudioOutputUSB::update(void)
 		right_2nd = right;
 		offset_1st = 0; // TODO: discard part of this data?
 		outgoing_count = AUDIO_BLOCK_SAMPLES*2;
-		serial_print("*");
+		//serial_print("*");
 		release(discard1);
 		release(discard2);
 	}
 	__enable_irq();
-	if (!transmitting) {
-		serial_print("b");
-		usb_tx_isochronous(AUDIO_TX_ENDPOINT, usb_audio_transmit_buffer, 176);
-		transmitting = 1;
-	}
 }
 
 
@@ -289,30 +305,55 @@ void AudioOutputUSB::update(void)
 // no data to transmit
 unsigned int usb_audio_transmit_callback(void)
 {
-	serial_print(".");
-	AudioOutputUSB::transmitting = 0;
-	return 0;
+	static uint32_t count=5;
+	uint32_t avail, num, target, offset, len=0;
+	audio_block_t *left, *right;
+
+	if (usb_audio_transmit_setting == 0) {
+		AudioOutputUSB::transmitting = 0;
+		return 0;
+	}
+	//serial_print(".");
+
+	if (++count < 9) {   // TODO: dynamic adjust to match USB rate
+		target = 44;
+	} else {
+		count = 0;
+		target = 45;
+	}
+	while (len < target) {
+		num = target - len;
+		left = AudioOutputUSB::left_1st;
+		if (left == NULL) {
+			// buffer underrun - PC is consuming too quickly
+			memset(usb_audio_transmit_buffer + len, 0, num * 4);
+			//serial_print("%");
+			break;
+		}
+		right = AudioOutputUSB::right_1st;
+		offset = AudioOutputUSB::offset_1st;
+
+		avail = AUDIO_BLOCK_SAMPLES - offset;
+		if (num > avail) num = avail;
+
+		copy_from_buffers((uint32_t *)usb_audio_transmit_buffer + len,
+			left->data + offset, right->data + offset, num);
+		len += num;
+		offset += num;
+		if (offset >= AUDIO_BLOCK_SAMPLES) {
+			AudioStream::release(left);
+			AudioStream::release(right);
+			AudioOutputUSB::left_1st = AudioOutputUSB::left_2nd;
+			AudioOutputUSB::left_2nd = NULL;
+			AudioOutputUSB::right_1st = AudioOutputUSB::right_2nd;
+			AudioOutputUSB::right_2nd = NULL;
+			AudioOutputUSB::offset_1st = 0;
+		} else {
+			AudioOutputUSB::offset_1st = offset;
+		}
+	}
+	return target * 4;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #endif // F_CPU
