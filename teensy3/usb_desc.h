@@ -353,14 +353,14 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define NUM_ENDPOINTS         5
   #define NUM_USB_BUFFERS	16
   #define NUM_INTERFACE		4
-  #define SEREMU_INTERFACE      3	// Serial emulation
+  #define SEREMU_INTERFACE      0	// Serial emulation
   #define SEREMU_TX_ENDPOINT    1
   #define SEREMU_TX_SIZE        64
   #define SEREMU_TX_INTERVAL    1
   #define SEREMU_RX_ENDPOINT    2
   #define SEREMU_RX_SIZE        32
   #define SEREMU_RX_INTERVAL    2
-  #define AUDIO_INTERFACE	0	// Audio (uses 3 consecutive interfaces)
+  #define AUDIO_INTERFACE	1	// Audio (uses 3 consecutive interfaces)
   #define AUDIO_TX_ENDPOINT     3
   #define AUDIO_TX_SIZE         180
   #define AUDIO_RX_ENDPOINT     4
