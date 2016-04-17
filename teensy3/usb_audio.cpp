@@ -28,6 +28,7 @@
  * SOFTWARE.
  */
 
+#include "usb_dev.h"
 #include "usb_audio.h"
 #include "HardwareSerial.h"
 #include <string.h> // for memcpy()
@@ -45,10 +46,9 @@ uint8_t AudioInputUSB::receive_flag;
 
 #define DMABUFATTR __attribute__ ((section(".dmabuffers"), aligned (4)))
 uint16_t usb_audio_receive_buffer[AUDIO_RX_SIZE/2] DMABUFATTR;
-uint16_t usb_audio_transmit_buffer[AUDIO_TX_SIZE/2] DMABUFATTR;
 uint32_t usb_audio_sync_feedback DMABUFATTR;
 
-static uint32_t feedback_accumulator = 722534 << 8;
+static uint32_t feedback_accumulator = 185042824;
 
 void AudioInputUSB::begin(void)
 {
@@ -198,14 +198,106 @@ void AudioInputUSB::update(void)
 
 
 
+
+
+
+bool AudioOutputUSB::update_responsibility;
+bool AudioOutputUSB::transmitting;
+audio_block_t * AudioOutputUSB::left_1st;
+audio_block_t * AudioOutputUSB::left_2nd;
+audio_block_t * AudioOutputUSB::right_1st;
+audio_block_t * AudioOutputUSB::right_2nd;
+uint16_t AudioOutputUSB::offset_1st;
+uint16_t AudioOutputUSB::outgoing_count;
+
+
+uint16_t usb_audio_transmit_buffer[AUDIO_TX_SIZE/2] DMABUFATTR;
+
+void AudioOutputUSB::begin(void)
+{
+	update_responsibility = false;
+	transmitting = false;
+	left_1st = NULL;
+	right_1st = NULL;
+}
+
+void AudioOutputUSB::update(void)
+{
+	audio_block_t *left, *right;
+
+	left = receiveReadOnly(0); // input 0 = left channel
+	right = receiveReadOnly(1); // input 1 = right channel
+	if (left == NULL) {
+		if (right == NULL) return;
+		right->ref_count++;
+		left = right;
+	} else if (right == NULL) {
+		left->ref_count++;
+		right = left;
+	}
+	__disable_irq();
+	if (left_1st == NULL) {
+		left_1st = left;
+		right_1st = right;
+		offset_1st = 0;
+		outgoing_count = AUDIO_BLOCK_SAMPLES;
+	} else if (left_2nd == NULL) {
+		left_2nd = left;
+		right_2nd = right;
+		outgoing_count += AUDIO_BLOCK_SAMPLES;
+	} else {
+		// buffer overrun - PC is consuming too slowly
+		audio_block_t *discard1 = left_1st;
+		left_1st = left_2nd;
+		left_2nd = left;
+		audio_block_t *discard2 = right_1st;
+		right_1st = right_2nd;
+		right_2nd = right;
+		offset_1st = 0; // TODO: discard part of this data?
+		outgoing_count = AUDIO_BLOCK_SAMPLES*2;
+		serial_print("*");
+		release(discard1);
+		release(discard2);
+	}
+	__enable_irq();
+	if (!transmitting) {
+		serial_print("b");
+		usb_tx_isochronous(AUDIO_TX_ENDPOINT, usb_audio_transmit_buffer, 176);
+		transmitting = 1;
+	}
+}
+
+
 // Called from the USB interrupt when ready to transmit another
 // isochronous packet.  If we place data into the transmit buffer,
 // the return is the number of bytes.  Otherwise, return 0 means
 // no data to transmit
 unsigned int usb_audio_transmit_callback(void)
 {
+	serial_print(".");
+	AudioOutputUSB::transmitting = 0;
 	return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #endif // F_CPU
