@@ -888,7 +888,7 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
 	0x02, 0x06,				// wTerminalType, 0x0602 = Digital Audio
 	0,					// bAssocTerminal, 0 = unidirectional
 	2,					// bNrChannels
-	0x00, 0x03,				// wChannelConfig, 0x0003 = Left & Right Front
+	0x03, 0x00,				// wChannelConfig, 0x0003 = Left & Right Front
 	0,					// iChannelNames
 	0, 					// iTerminal
 	// Output Terminal Descriptor
@@ -910,7 +910,7 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
 	0x01, 0x01,				// wTerminalType, 0x0101 = USB_STREAMING
 	0,					// bAssocTerminal, 0 = unidirectional
 	2,					// bNrChannels
-	0x00, 0x03,				// wChannelConfig, 0x0003 = Left & Right Front
+	0x03, 0x00,				// wChannelConfig, 0x0003 = Left & Right Front
 	0,					// iChannelNames
 	0, 					// iTerminal
 	// Output Terminal Descriptor
