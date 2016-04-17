@@ -384,9 +384,9 @@ static void usb_setup(void)
 #if defined(AUDIO_INTERFACE)
 	  case 0x0B01: // SET_INTERFACE (alternate setting)
 		if (setup.wIndex == AUDIO_INTERFACE+1) {
-			//audio_tx_alternate_setting = setup.wValue;
+			usb_audio_transmit_setting = setup.wValue;
 		} else if (setup.wIndex == AUDIO_INTERFACE+2) {
-			//audio_rx_alternate_setting = setup.wValue;
+			usb_audio_receive_setting = setup.wValue;
 		} else {
 			endpoint0_stall();
 			return;
@@ -396,11 +396,9 @@ static void usb_setup(void)
 		datalen = 1;
 		data = reply_buffer;
 		if (setup.wIndex == AUDIO_INTERFACE+1) {
-			reply_buffer[0] = 0;
-			//reply_buffer[0] = audio_tx_alternate_setting;
+			reply_buffer[0] = usb_audio_transmit_setting;
 		} else if (setup.wIndex == AUDIO_INTERFACE+2) {
-			reply_buffer[0] = 0;
-			//reply_buffer[0] = audio_rx_alternate_setting;
+			reply_buffer[0] = usb_audio_receive_setting;
 		} else {
 			endpoint0_stall();
 			return;

@@ -47,6 +47,7 @@ uint8_t AudioInputUSB::receive_flag;
 #define DMABUFATTR __attribute__ ((section(".dmabuffers"), aligned (4)))
 uint16_t usb_audio_receive_buffer[AUDIO_RX_SIZE/2] DMABUFATTR;
 uint32_t usb_audio_sync_feedback DMABUFATTR;
+uint8_t usb_audio_receive_setting=0;
 
 static uint32_t feedback_accumulator = 185042824;
 
@@ -212,6 +213,7 @@ uint16_t AudioOutputUSB::outgoing_count;
 
 
 uint16_t usb_audio_transmit_buffer[AUDIO_TX_SIZE/2] DMABUFATTR;
+uint8_t usb_audio_transmit_setting=0;
 
 void AudioOutputUSB::begin(void)
 {
@@ -227,6 +229,19 @@ void AudioOutputUSB::update(void)
 
 	left = receiveReadOnly(0); // input 0 = left channel
 	right = receiveReadOnly(1); // input 1 = right channel
+	if (usb_audio_transmit_setting == 0) {
+		if (left) release(left);
+		if (right) release(right);
+		if (outgoing_count) {
+			if (left_1st) release(left_1st);
+			if (left_2nd) release(left_2nd);
+			if (right_1st) release(right_1st);
+			if (right_2nd) release(right_2nd);
+			outgoing_count = 0;
+			offset_1st = 0;
+		}
+		return;
+	}
 	if (left == NULL) {
 		if (right == NULL) return;
 		right->ref_count++;
