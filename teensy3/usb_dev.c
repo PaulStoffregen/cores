@@ -385,6 +385,17 @@ static void usb_setup(void)
 	  case 0x0B01: // SET_INTERFACE (alternate setting)
 		if (setup.wIndex == AUDIO_INTERFACE+1) {
 			usb_audio_transmit_setting = setup.wValue;
+			if (usb_audio_transmit_setting > 0) {
+				bdt_t *b = &table[index(AUDIO_TX_ENDPOINT, TX, EVEN)];
+				uint8_t state = tx_state[AUDIO_TX_ENDPOINT-1];
+				if (state) b++;
+				if (!(b->desc & BDT_OWN)) {
+					memset(usb_audio_transmit_buffer, 0, 176);
+					b->addr = usb_audio_transmit_buffer;
+					b->desc = (176 << 16) | BDT_OWN;
+					tx_state[AUDIO_TX_ENDPOINT-1] = state ^ 1;
+				}
+			}
 		} else if (setup.wIndex == AUDIO_INTERFACE+2) {
 			usb_audio_receive_setting = setup.wValue;
 		} else {

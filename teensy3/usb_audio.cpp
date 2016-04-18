@@ -203,13 +203,11 @@ void AudioInputUSB::update(void)
 
 
 bool AudioOutputUSB::update_responsibility;
-bool AudioOutputUSB::transmitting;
 audio_block_t * AudioOutputUSB::left_1st;
 audio_block_t * AudioOutputUSB::left_2nd;
 audio_block_t * AudioOutputUSB::right_1st;
 audio_block_t * AudioOutputUSB::right_2nd;
 uint16_t AudioOutputUSB::offset_1st;
-uint16_t AudioOutputUSB::outgoing_count;
 
 
 uint16_t usb_audio_transmit_buffer[AUDIO_TX_SIZE/2] DMABUFATTR;
@@ -218,7 +216,6 @@ uint8_t usb_audio_transmit_setting=0;
 void AudioOutputUSB::begin(void)
 {
 	update_responsibility = false;
-	transmitting = false;
 	left_1st = NULL;
 	right_1st = NULL;
 }
@@ -241,14 +238,11 @@ void AudioOutputUSB::update(void)
 	if (usb_audio_transmit_setting == 0) {
 		if (left) release(left);
 		if (right) release(right);
-		if (outgoing_count) {
-			if (left_1st) release(left_1st);
-			if (left_2nd) release(left_2nd);
-			if (right_1st) release(right_1st);
-			if (right_2nd) release(right_2nd);
-			outgoing_count = 0;
-			offset_1st = 0;
-		}
+		if (left_1st) release(left_1st);
+		if (left_2nd) release(left_2nd);
+		if (right_1st) release(right_1st);
+		if (right_2nd) release(right_2nd);
+		offset_1st = 0;
 		return;
 	}
 	if (left == NULL) {
@@ -260,27 +254,13 @@ void AudioOutputUSB::update(void)
 		right = left;
 	}
 	__disable_irq();
-	if (!transmitting) {
-		copy_from_buffers((uint32_t *)usb_audio_transmit_buffer,
-			left->data, right->data, 44);
-		left_1st = left;
-		right_1st = right;
-		left_2nd = NULL;
-		right_2nd = NULL;
-		offset_1st = 44;
-		outgoing_count = AUDIO_BLOCK_SAMPLES - 44;
-		usb_tx_isochronous(AUDIO_TX_ENDPOINT, usb_audio_transmit_buffer, 176);
-		transmitting = 1;
-		//serial_print("t");
-	} else if (left_1st == NULL) {
+	if (left_1st == NULL) {
 		left_1st = left;
 		right_1st = right;
 		offset_1st = 0;
-		outgoing_count = AUDIO_BLOCK_SAMPLES;
 	} else if (left_2nd == NULL) {
 		left_2nd = left;
 		right_2nd = right;
-		outgoing_count += AUDIO_BLOCK_SAMPLES;
 	} else {
 		// buffer overrun - PC is consuming too slowly
 		audio_block_t *discard1 = left_1st;
@@ -290,7 +270,6 @@ void AudioOutputUSB::update(void)
 		right_1st = right_2nd;
 		right_2nd = right;
 		offset_1st = 0; // TODO: discard part of this data?
-		outgoing_count = AUDIO_BLOCK_SAMPLES*2;
 		//serial_print("*");
 		release(discard1);
 		release(discard2);
@@ -308,12 +287,6 @@ unsigned int usb_audio_transmit_callback(void)
 	static uint32_t count=5;
 	uint32_t avail, num, target, offset, len=0;
 	audio_block_t *left, *right;
-
-	if (usb_audio_transmit_setting == 0) {
-		AudioOutputUSB::transmitting = 0;
-		return 0;
-	}
-	//serial_print(".");
 
 	if (++count < 9) {   // TODO: dynamic adjust to match USB rate
 		target = 44;
