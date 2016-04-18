@@ -199,17 +199,10 @@ void usb_serial_class::write(uint8_t c)
 
 
 // transmit a block of data
-#if ARDUINO >= 100
 size_t usb_serial_class::write(const uint8_t *buffer, uint16_t size)
-#else
-#define setWriteError() 
-void usb_serial_class::write(const uint8_t *buffer, uint16_t size)
-#endif
 {
 	uint8_t timeout, intr_state, write_size;
-#if ARDUINO >= 100
 	size_t count=0;
-#endif
 
 	// if we're not online (enumerated and configured), error
 	if (!usb_configuration) {
@@ -261,9 +254,7 @@ void usb_serial_class::write(const uint8_t *buffer, uint16_t size)
 		write_size = CDC_TX_SIZE - UEBCLX;
 		if (write_size > size) write_size = size;
 		size -= write_size;
-#if ARDUINO >= 100
 		count += write_size;
-#endif
 
 #define ASM_COPY1(src, dest, tmp) "ld " tmp ", " src "\n\t" "st " dest ", " tmp "\n\t"
 #define ASM_COPY2(src, dest, tmp) ASM_COPY1(src, dest, tmp) ASM_COPY1(src, dest, tmp)
@@ -315,11 +306,7 @@ void usb_serial_class::write(const uint8_t *buffer, uint16_t size)
 	}
 	SREG = intr_state;
 end:
-#if ARDUINO >= 100
 	return count;
-#else
-	return;
-#endif
 }
 
 // transmit a string
@@ -398,11 +385,7 @@ usb_serial_class::operator bool()
 
 // Step #1, decode UTF8 to Unicode code points
 //
-#if ARDUINO >= 100
 size_t usb_keyboard_class::write(uint8_t c)
-#else
-void usb_keyboard_class::write(uint8_t c)
-#endif
 {
 	if (c < 0x80) {
 		// single byte encoded, 0x00 to 0x7F
@@ -432,9 +415,7 @@ void usb_keyboard_class::write(uint8_t c)
 		// or illegal, 0xF5 to 0xFF
 		utf8_state = 255;
 	}
-#if ARDUINO >= 100
 	return 1;
-#endif
 }
 
 
@@ -445,7 +426,8 @@ KEYCODE_TYPE usb_keyboard_class::unicode_to_keycode(uint16_t cpoint)
 	// Unicode code points beyond U+FFFF are not supported
 	// technically this input should probably be called UCS-2
 	if (cpoint < 32) {
-		if (cpoint == 10) return KEY_ENTER & 0x3FFF;
+		if (cpoint == 10) return KEY_ENTER & KEYCODE_MASK;
+		if (cpoint == 11) return KEY_TAB & KEYCODE_MASK;
 		return 0;
 	}
 	if (cpoint < 128) {
@@ -618,10 +600,6 @@ void usb_keyboard_class::set_key6(uint8_t c)
 {
 	keyboard_report_data[7] = c;
 }
-void usb_keyboard_class::set_media(uint8_t c)
-{
-	keyboard_report_data[1] = c;
-}
 
 
 void usb_keyboard_class::send_now(void)
@@ -665,17 +643,25 @@ void usb_keyboard_class::press(uint16_t n)
 	uint8_t key, mod, msb, modrestore=0;
 
 	msb = n >> 8;
-	if (msb >= 0xC2 && msb <= 0xDF) {
-		n = (n & 0x3F) | ((uint16_t)(msb & 0x1F) << 6);
-	} else
-	if (msb == 0x80) {
-		presskey(0, n);
-		return;
-	} else
-	if (msb == 0x40) {
-		presskey(n, 0);
-		return;
-	}
+        if (msb >= 0xC2) {
+                if (msb <= 0xDF) {
+                        n = (n & 0x3F) | ((uint16_t)(msb & 0x1F) << 6);
+                } else if (msb == 0xF0) {
+                        presskey(n, 0);
+                        return;
+                } else if (msb == 0xE0) {
+                        presskey(0, n);
+                        return;
+                } else if (msb == 0xE2) {
+                        //press_system_key(n);
+                        return;
+                } else if (msb >= 0xE4 && msb <= 0xE7) {
+                        //press_consumer_key(n & 0x3FF);
+                        return;
+                } else {
+                        return;
+                }
+        }
 	KEYCODE_TYPE keycode = unicode_to_keycode(n);
 	if (!keycode) return;
 	#ifdef DEADKEYS_MASK
@@ -704,17 +690,25 @@ void usb_keyboard_class::release(uint16_t n)
 	uint8_t key, mod, msb;
 
 	msb = n >> 8;
-	if (msb >= 0xC2 && msb <= 0xDF) {
-		n = (n & 0x3F) | ((uint16_t)(msb & 0x1F) << 6);
-	} else
-	if (msb == 0x80) {
-		releasekey(0, n);
-		return;
-	} else
-	if (msb == 0x40) {
-		releasekey(n, 0);
-		return;
-	}
+        if (msb >= 0xC2) {
+                if (msb <= 0xDF) {
+                        n = (n & 0x3F) | ((uint16_t)(msb & 0x1F) << 6);
+                } else if (msb == 0xF0) {
+                        releasekey(n, 0);
+                        return;
+                } else if (msb == 0xE0) {
+                        releasekey(0, n);
+                        return;
+                } else if (msb == 0xE2) {
+                        //release_system_key(n);
+                        return;
+                } else if (msb >= 0xE4 && msb <= 0xE7) {
+                        //release_consumer_key(n & 0x3FF);
+                        return;
+                } else {
+                        return;
+                }
+        }
 	KEYCODE_TYPE keycode = unicode_to_keycode(n);
 	if (!keycode) return;
 	mod = keycode_to_modifier(keycode);

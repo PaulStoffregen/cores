@@ -61,7 +61,8 @@ class usb_keyboard_class : public Print
 	void set_key4(uint8_t);
 	void set_key5(uint8_t);
 	void set_key6(uint8_t);
-	void set_media(uint8_t);
+	void set_media(uint8_t) {
+	}
 	void send_now(void);
 	void press(uint16_t n);
 	void release(uint16_t n);

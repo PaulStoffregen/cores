@@ -12,11 +12,7 @@ class usb_keyboard_class : public Print
 	public:
 	void begin(void) { }
 	void end(void) { }
-#if ARDUINO >= 100
 	virtual size_t write(uint8_t);
-#else
-	virtual void write(uint8_t);
-#endif
 	using Print::write;
 	void write_unicode(uint16_t unicode) { write_keycode(unicode_to_keycode(unicode)); }
 	void set_modifier(uint8_t);
@@ -26,7 +22,13 @@ class usb_keyboard_class : public Print
 	void set_key4(uint8_t);
 	void set_key5(uint8_t);
 	void set_key6(uint8_t);
-	void set_media(uint8_t);
+	void set_media(uint16_t c) {
+                if (c == 0) {
+                        keymedia_release_all();
+                } else if (c >= 0xE400 && c <= 0xE7FF) {
+                        press(c);
+                }
+	}
 	void send_now(void);
 	void press(uint16_t n);
 	void release(uint16_t n);
@@ -40,6 +42,12 @@ class usb_keyboard_class : public Print
 	void releasekey(uint8_t key, uint8_t modifier);
 	void write_keycode(KEYCODE_TYPE key);
 	void write_key(KEYCODE_TYPE code);
+	void press_consumer_key(uint16_t key);
+	void release_consumer_key(uint16_t key);
+	void press_system_key(uint8_t key);
+	void release_system_key(uint8_t key);
+	void keymedia_release_all(void);
+	void keymedia_send(void);
 	uint8_t utf8_state;
 	uint16_t unicode_wchar;
 };
@@ -69,8 +77,6 @@ class usb_mouse_class
 extern usb_mouse_class Mouse;
 
 
-
-#if defined(__AVR_ATmega32U4__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB1286__)
 
 extern uint8_t joystick_report_data[12];
 
@@ -171,7 +177,6 @@ class usb_joystick_class
 
 extern usb_joystick_class Joystick;
 
-#endif
 
 
 
@@ -185,11 +190,7 @@ class usb_serial_class : public Stream
 	virtual int read();
 	virtual int peek();
 	virtual void flush();
-#if ARDUINO >= 100
 	virtual size_t write(uint8_t);
-#else
-	virtual void write(uint8_t);
-#endif
 	using Print::write;
 	operator bool();
 	// Teensy extensions
