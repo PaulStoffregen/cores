@@ -68,7 +68,7 @@
 static uint8_t device_descriptor[] = {
         18,                                     // bLength
         1,                                      // bDescriptorType
-        0x00, 0x02,                             // bcdUSB
+        0x01, 0x01,                             // bcdUSB
 #ifdef DEVICE_CLASS
         DEVICE_CLASS,                           // bDeviceClass
 #else
@@ -192,6 +192,13 @@ static uint8_t mouse_report_desc[] = {
         0x25, 0x7F,                     //   Logical Maximum (127)
         0x75, 0x08,                     //   Report Size (8),
         0x95, 0x03,                     //   Report Count (3),
+        0x81, 0x06,                     //   Input (Data, Variable, Relative)
+        0x05, 0x0C,                     //   Usage Page (Consumer)
+        0x0A, 0x38, 0x02,               //   Usage (AC Pan)
+        0x15, 0x81,                     //   Logical Minimum (-127)
+        0x25, 0x7F,                     //   Logical Maximum (127)
+        0x75, 0x08,                     //   Report Size (8),
+        0x95, 0x01,                     //   Report Count (1),
         0x81, 0x06,                     //   Input (Data, Variable, Relative)
         0xC0,                           // End Collection
         0x05, 0x01,                     // Usage Page (Generic Desktop)

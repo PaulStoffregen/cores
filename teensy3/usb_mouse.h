@@ -42,7 +42,7 @@
 extern "C" {
 #endif
 int usb_mouse_buttons(uint8_t left, uint8_t middle, uint8_t right, uint8_t back, uint8_t forward);
-int usb_mouse_move(int8_t x, int8_t y, int8_t wheel);
+int usb_mouse_move(int8_t x, int8_t y, int8_t wheel, int8_t horiz);
 int usb_mouse_position(uint16_t x, uint16_t y);
 void usb_mouse_screen_size(uint16_t width, uint16_t height, uint8_t mac);
 extern uint8_t usb_mouse_buttons_state;
@@ -65,18 +65,20 @@ class usb_mouse_class
         public:
         void begin(void) { }
         void end(void) { }
-        void move(int8_t x, int8_t y, int8_t wheel=0) { usb_mouse_move(x, y, wheel); }
+        void move(int8_t x, int8_t y, int8_t wheel=0, int8_t horiz=0) {
+		usb_mouse_move(x, y, wheel, horiz);
+	}
 	void moveTo(uint16_t x, uint16_t y) { usb_mouse_position(x, y); }
 	void screenSize(uint16_t width, uint16_t height, bool isMacintosh = false) {
 		usb_mouse_screen_size(width, height, isMacintosh ? 1 : 0);
 	}
         void click(uint8_t b = MOUSE_LEFT) {
 		usb_mouse_buttons_state = b;
-		usb_mouse_move(0, 0, 0);
+		usb_mouse_move(0, 0, 0, 0);
 		usb_mouse_buttons_state = 0;
-		usb_mouse_move(0, 0, 0);
+		usb_mouse_move(0, 0, 0, 0);
 	}
-        void scroll(int8_t wheel) { usb_mouse_move(0, 0, wheel); }
+        void scroll(int8_t wheel, int8_t horiz=0) { usb_mouse_move(0, 0, wheel, horiz); }
         void set_buttons(uint8_t left, uint8_t middle=0, uint8_t right=0, uint8_t back=0, uint8_t forward=0) {
 		usb_mouse_buttons(left, middle, right, back, forward);
 	}
@@ -84,14 +86,14 @@ class usb_mouse_class
 		uint8_t buttons = usb_mouse_buttons_state | (b & MOUSE_ALL);
 		if (buttons != usb_mouse_buttons_state) {
 			usb_mouse_buttons_state = buttons;
-			usb_mouse_move(0, 0, 0);
+			usb_mouse_move(0, 0, 0, 0);
 		}
 	}
         void release(uint8_t b = MOUSE_LEFT) {
 		uint8_t buttons = usb_mouse_buttons_state & ~(b & MOUSE_ALL);
 		if (buttons != usb_mouse_buttons_state) {
 			usb_mouse_buttons_state = buttons;
-			usb_mouse_move(0, 0, 0);
+			usb_mouse_move(0, 0, 0, 0);
 		}
 	}
         bool isPressed(uint8_t b = MOUSE_ALL) {

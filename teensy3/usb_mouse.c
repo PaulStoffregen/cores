@@ -105,7 +105,7 @@ int usb_mouse_buttons(uint8_t left, uint8_t middle, uint8_t right, uint8_t back,
         if (back) mask    |= 8;
         if (forward) mask |= 16;
         usb_mouse_buttons_state = mask;
-        return usb_mouse_move(0, 0, 0);
+        return usb_mouse_move(0, 0, 0, 0);
 }
 
 
@@ -139,7 +139,7 @@ static uint8_t transmit_previous_timeout=0;
 
 
 // Move the mouse.  x, y and wheel are -127 to 127.  Use 0 for no movement.
-int usb_mouse_move(int8_t x, int8_t y, int8_t wheel)
+int usb_mouse_move(int8_t x, int8_t y, int8_t wheel, int8_t horiz)
 {
         uint32_t wait_count=0;
         usb_packet_t *tx_packet;
@@ -149,6 +149,7 @@ int usb_mouse_move(int8_t x, int8_t y, int8_t wheel)
         if (x == -128) x = -127;
         if (y == -128) y = -127;
         if (wheel == -128) wheel = -127;
+        if (horiz == -128) horiz = -127;
 
         while (1) {
                 if (!usb_configuration) {
@@ -170,7 +171,8 @@ int usb_mouse_move(int8_t x, int8_t y, int8_t wheel)
         *(tx_packet->buf + 2) = x;
         *(tx_packet->buf + 3) = y;
         *(tx_packet->buf + 4) = wheel;
-        tx_packet->len = 5;
+        *(tx_packet->buf + 5) = horiz; // horizontal scroll
+        tx_packet->len = 6;
         usb_tx(MOUSE_ENDPOINT, tx_packet);
         return 0;
 }
