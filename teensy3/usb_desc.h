@@ -190,9 +190,9 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME		{'S','e','r','i','a','l','/','K','e','y','b','o','a','r','d','/','M','o','u','s','e','/','J','o','y','s','t','i','c','k'}
   #define PRODUCT_NAME_LEN	30
   #define EP0_SIZE		64
-  #define NUM_ENDPOINTS		6
+  #define NUM_ENDPOINTS		7
   #define NUM_USB_BUFFERS	30
-  #define NUM_INTERFACE		5
+  #define NUM_INTERFACE		6
   #define CDC_IAD_DESCRIPTOR	1
   #define CDC_STATUS_INTERFACE	0
   #define CDC_DATA_INTERFACE	1	// Serial
@@ -206,6 +206,10 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define KEYBOARD_ENDPOINT     1
   #define KEYBOARD_SIZE         8
   #define KEYBOARD_INTERVAL     1
+  #define KEYMEDIA_INTERFACE    5	// Keyboard Media Keys
+  #define KEYMEDIA_ENDPOINT     7
+  #define KEYMEDIA_SIZE         8
+  #define KEYMEDIA_INTERVAL     4
   #define MOUSE_INTERFACE       3	// Mouse
   #define MOUSE_ENDPOINT        5
   #define MOUSE_SIZE            8
@@ -220,6 +224,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT4_CONFIG	ENDPOINT_TRANSIMIT_ONLY
   #define ENDPOINT5_CONFIG	ENDPOINT_TRANSIMIT_ONLY
   #define ENDPOINT6_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT7_CONFIG	ENDPOINT_TRANSIMIT_ONLY
 
 #elif defined(USB_MIDI)
   #define VENDOR_ID		0x16C0
