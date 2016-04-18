@@ -238,10 +238,10 @@ void AudioOutputUSB::update(void)
 	if (usb_audio_transmit_setting == 0) {
 		if (left) release(left);
 		if (right) release(right);
-		if (left_1st) release(left_1st);
-		if (left_2nd) release(left_2nd);
-		if (right_1st) release(right_1st);
-		if (right_2nd) release(right_2nd);
+		if (left_1st) { release(left_1st); left_1st = NULL; }
+		if (left_2nd) { release(left_2nd); left_2nd = NULL; }
+		if (right_1st) { release(right_1st); right_1st = NULL; }
+		if (right_2nd) { release(right_2nd); right_2nd = NULL; }
 		offset_1st = 0;
 		return;
 	}
