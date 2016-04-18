@@ -980,9 +980,9 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
 	7,  					// bLength
 	0x25,  					// bDescriptorType, 0x25 = CS_ENDPOINT
 	1,  					// bDescriptorSubtype, 1 = EP_GENERAL
-	0x01,  					// bmAttributes = Sampling Frequency
-	1,  					// bLockDelayUnits, 1 = ms
-	0x30, 0x00,  				// wLockDelay
+	0x00,  					// bmAttributes
+	0,  					// bLockDelayUnits, 1 = ms
+	0x00, 0x00,  				// wLockDelay
 	// Standard AS Interface Descriptor
 	// USB DCD for Audio Devices 1.0, Section 4.5.1, Table 4-18, page 59
 	// Alternate 0: default setting, disabled zero bandwidth
@@ -1039,9 +1039,9 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
 	7,  					// bLength
 	0x25,  					// bDescriptorType, 0x25 = CS_ENDPOINT
 	1,  					// bDescriptorSubtype, 1 = EP_GENERAL
-	0x01,  					// bmAttributes = Sampling Frequency
-	1,  					// bLockDelayUnits, 1 = ms
-	0x30, 0x00,  				// wLockDelay
+	0x00,  					// bmAttributes
+	0,  					// bLockDelayUnits, 1 = ms
+	0x00, 0x00,  				// wLockDelay
 	// Standard AS Isochronous Audio Synch Endpoint Descriptor
 	// USB DCD for Audio Devices 1.0, Section 4.6.2.1, Table 4-22, page 63-64
 	9, 					// bLength
@@ -1050,7 +1050,7 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
 	0x01, 					// bmAttributes = isochronous
 	3, 0,					// wMaxPacketSize, 3 bytes
 	1,			 		// bInterval, 1 = every frame
-	1,					// bRefresh, 1=2ms, 2=8ms
+	5,					// bRefresh, 5 = 32ms
 	0,					// bSynchAddress
 #endif
 };
