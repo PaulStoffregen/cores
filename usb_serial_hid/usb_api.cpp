@@ -784,7 +784,7 @@ void usb_keyboard_class::releaseAll(void)
 
 
 
-void usb_mouse_class::move(int8_t x, int8_t y, int8_t wheel)
+void usb_mouse_class::move(int8_t x, int8_t y, int8_t wheel, int8_t horiz)
 {
         uint8_t intr_state, timeout;
 
@@ -792,6 +792,7 @@ void usb_mouse_class::move(int8_t x, int8_t y, int8_t wheel)
         if (x == -128) x = -127;
         if (y == -128) y = -127;
         if (wheel == -128) wheel = -127;
+        if (horiz == -128) horiz = -127;
         intr_state = SREG;
         cli();
         UENUM = MOUSE_ENDPOINT;
@@ -813,30 +814,33 @@ void usb_mouse_class::move(int8_t x, int8_t y, int8_t wheel)
         UEDATX = x;
         UEDATX = y;
         UEDATX = wheel;
+        UEDATX = horiz;
         UEINTX = 0x3A;
         SREG = intr_state;
 }
 
 void usb_mouse_class::click(uint8_t b)
 {
-        mouse_buttons = (b & 7);
+        mouse_buttons = b;
         move(0, 0);
         mouse_buttons = 0;
         move(0, 0);
 }
 
-void usb_mouse_class::scroll(int8_t wheel)
+void usb_mouse_class::scroll(int8_t wheel, int8_t horiz)
 {
-        move(0, 0, wheel);
+        move(0, 0, wheel, horiz);
 }
 
-void usb_mouse_class::set_buttons(uint8_t left, uint8_t middle, uint8_t right)
+void usb_mouse_class::set_buttons(uint8_t left, uint8_t middle, uint8_t right, uint8_t back, uint8_t forward)
 {
         uint8_t mask=0;
 
         if (left) mask |= 1;
         if (middle) mask |= 4;
         if (right) mask |= 2;
+        if (back) mask |= 8;
+        if (forward) mask |= 16;
         mouse_buttons = mask;
         move(0, 0);
 }
