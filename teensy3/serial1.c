@@ -196,22 +196,30 @@ void serial_set_transmit_pin(uint8_t pin)
 	#endif
 }
 
-void serial_set_tx(uint8_t pin)
+void serial_set_tx(uint8_t pin, uint8_t opendrain)
 {
+	uint32_t cfg;
+
+	if (opendrain) pin |= 128;
 	if (pin == tx_pin_num) return;
 	if ((SIM_SCGC4 & SIM_SCGC4_UART0)) {
-		switch (tx_pin_num) {
+		switch (tx_pin_num & 127) {
 			case 1:  CORE_PIN1_CONFIG = 0; break; // PTB17
 			case 5:  CORE_PIN5_CONFIG = 0; break; // PTD7
 			#if defined(KINETISL)
 			case 4:  CORE_PIN4_CONFIG = 0; break; // PTA2
 			#endif
 		}
-		switch (pin) {
-			case 1:  CORE_PIN1_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
-			case 5:  CORE_PIN5_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
+		if (opendrain) {
+			cfg = PORT_PCR_DSE | PORT_PCR_ODE;
+		} else {
+			cfg = PORT_PCR_DSE | PORT_PCR_SRE;
+		}
+		switch (pin & 127) {
+			case 1:  CORE_PIN1_CONFIG = cfg | PORT_PCR_MUX(3); break;
+			case 5:  CORE_PIN5_CONFIG = cfg | PORT_PCR_MUX(3); break;
 			#if defined(KINETISL)
-			case 4:  CORE_PIN4_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(2); break;
+			case 4:  CORE_PIN4_CONFIG = cfg | PORT_PCR_MUX(2); break;
 			#endif
 		}
 	}

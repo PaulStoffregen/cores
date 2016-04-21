@@ -186,18 +186,26 @@ void serial3_set_transmit_pin(uint8_t pin)
 	#endif
 }
 
-void serial3_set_tx(uint8_t pin)
+void serial3_set_tx(uint8_t pin, uint8_t opendrain)
 {
 	#if defined(KINETISL)
+	uint32_t cfg;
+
+	if (opendrain) pin |= 128;
 	if (pin == tx_pin_num) return;
 	if ((SIM_SCGC4 & SIM_SCGC4_UART2)) {
-		switch (tx_pin_num) {
+		switch (tx_pin_num & 127) {
 			case 8:  CORE_PIN8_CONFIG = 0; break; // PTD3
 			case 20: CORE_PIN20_CONFIG = 0; break; // PTD5
 		}
-		switch (pin) {
-			case 8:  CORE_PIN8_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
-			case 20: CORE_PIN20_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
+		if (opendrain) {
+			cfg = PORT_PCR_DSE | PORT_PCR_ODE;
+		} else {
+			cfg = PORT_PCR_DSE | PORT_PCR_SRE;
+		}
+		switch (pin & 127) {
+			case 8:  CORE_PIN8_CONFIG = cfg | PORT_PCR_MUX(3); break;
+			case 20: CORE_PIN20_CONFIG = cfg | PORT_PCR_MUX(3); break;
 		}
 	}
 	tx_pin_num = pin;
