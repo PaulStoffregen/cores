@@ -72,12 +72,26 @@ void AudioInputUSB::begin(void)
 
 static void copy_to_buffers(const uint32_t *src, int16_t *left, int16_t *right, unsigned int len)
 {
-	// TODO: optimize...
-	while (len > 0) {
+	uint32_t *target = (uint32_t*) src + len; 
+	while ((src < target) && (((uintptr_t) left & 0x02) != 0)) {
 		uint32_t n = *src++;
 		*left++ = n & 0xFFFF;
 		*right++ = n >> 16;
-		len--;
+	}
+
+	while ((src < target - 2)) {
+		uint32_t n = *src++;
+		uint32_t n1 = *src++;
+		*(uint32_t *)left = n1 & 0xFFFF | ((n & 0xFFFF) << 16);
+		left+=2;
+		*(uint32_t *)right = (n1 >> 16) | ((n & 0xFFFF0000)) ;
+		right+=2;
+	}
+
+	while ((src < target)) {
+		uint32_t n = *src++;
+		*left++ = n & 0xFFFF;
+		*right++ = n >> 16;
 	}
 }
 
