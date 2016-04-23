@@ -39,7 +39,7 @@
 #include "IntervalTimer.h"
 
 uint16_t makeWord(uint16_t w);
-uint16_t makeWord(byte h, byte l);
+unsigned int makeWord(unsigned char h, unsigned char l);
 
 #define word(...) makeWord(__VA_ARGS__)
 
