@@ -880,7 +880,7 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
 	0x24,					// bDescriptorType, 0x24 = CS_INTERFACE
 	0x01,					// bDescriptorSubtype, 1 = HEADER
 	0x00, 0x01,				// bcdADC (version 1.0)
-	LSB(52), MSB(52),			// wTotalLength
+	LSB(62), MSB(62),			// wTotalLength
 	2,					// bInCollection
 	AUDIO_INTERFACE+1,			// baInterfaceNr(1) - Transmit to PC
 	AUDIO_INTERFACE+2,			// baInterfaceNr(2) - Receive from PC
@@ -927,9 +927,9 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
 	0x31, 				// bUnitID
 	0x03, 				// bSourceID (Input Terminal)
 	0x01, 				// bControlSize (each channel is 1 byte, 3 channels)
-	0x03, 				// bmaControls(0) Master: Volume & Mute
-	0x00, 				// bmaControls(1) Left: None
-	0x00, 				// bmaControls(2) Right: None
+	0x01, 				// bmaControls(0) Master: Mute
+	0x02, 				// bmaControls(1) Left: Volume
+	0x02, 				// bmaControls(2) Right: Volume
 	0x00,				// iFeature
 	// Output Terminal Descriptor
 	// USB DCD for Audio Devices 1.0, Table 4-4, page 40
