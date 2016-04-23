@@ -415,8 +415,25 @@ static void usb_setup(void)
 			return;
 		}
 		break;
-	  case 0x0122: // SET_CUR (wValue=0, wIndex=interface, wLength=len)
+	  case 0x0121: // SET FEATURE
+	  case 0x0221:
+	  case 0x0321:
+	  case 0x0421:
+	  	// handle these on the next packet. See usb_audio_set_feature()
 		return;
+	  case 0x81A1: // GET FEATURE
+	  case 0x82A1:
+	  case 0x83A1:
+	  case 0x84A1:
+	  	if (usb_audio_get_feature(&setup, reply_buffer, &datalen)) {
+	  		data = reply_buffer;
+	  	}
+	  	else {
+	  		endpoint0_stall();
+	  		return;
+	  	}
+		break;
+
 	  case 0x81A2: // GET_CUR (wValue=0, wIndex=interface, wLength=len)
 		if (setup.wLength >= 3) {
 			reply_buffer[0] = 44100 & 255;
@@ -574,8 +591,7 @@ static void usb_control(uint32_t stat)
 		}
 #endif
 #ifdef AUDIO_INTERFACE
-		if (setup.wRequestAndType == 0x0122 /* SET_CUR */) {
-			// TODO: actually check data, do something with it?
+		if (usb_audio_set_feature(&setup, buf)) {
 			endpoint0_transmit(NULL, 0);
 		}
 #endif

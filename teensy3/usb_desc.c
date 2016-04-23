@@ -416,7 +416,7 @@ static uint8_t flightsim_report_desc[] = {
 
 #define AUDIO_INTERFACE_DESC_POS	KEYMEDIA_INTERFACE_DESC_POS+KEYMEDIA_INTERFACE_DESC_SIZE
 #ifdef  AUDIO_INTERFACE
-#define AUDIO_INTERFACE_DESC_SIZE	9+10+12+9+12+9 + 9+9+7+11+9+7 + 9+9+7+11+9+7+9
+#define AUDIO_INTERFACE_DESC_SIZE	9+10+12+9+12+10+9 + 9+9+7+11+9+7 + 9+9+7+11+9+7+9
 #else
 #define AUDIO_INTERFACE_DESC_SIZE	0
 #endif
@@ -920,6 +920,17 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
 	0x03, 0x00,				// wChannelConfig, 0x0003 = Left & Right Front
 	0,					// iChannelNames
 	0, 					// iTerminal
+	// Volume feature descriptor
+	10,					// bLength
+	0x24, 				// bDescriptorType = CS_INTERFACE
+	0x06, 				// bDescriptorSubType = FEATURE_UNIT
+	0x31, 				// bUnitID
+	0x03, 				// bSourceID (Input Terminal)
+	0x01, 				// bControlSize (each channel is 1 byte, 3 channels)
+	0x03, 				// bmaControls(0) Master: Volume & Mute
+	0x00, 				// bmaControls(1) Left: None
+	0x00, 				// bmaControls(2) Right: None
+	0x00,				// iFeature
 	// Output Terminal Descriptor
 	// USB DCD for Audio Devices 1.0, Table 4-4, page 40
 	9,					// bLength
@@ -929,7 +940,7 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
 	//0x02, 0x03,				// wTerminalType, 0x0302 = Headphones
 	0x02, 0x06,				// wTerminalType, 0x0602 = Digital Audio
 	0,					// bAssocTerminal, 0 = unidirectional
-	3,					// bCSourceID, connected to input terminal, ID=3
+	0x31,				// bCSourceID, connected to feature, ID=31
 	0,					// iTerminal
 	// Standard AS Interface Descriptor
 	// USB DCD for Audio Devices 1.0, Section 4.5.1, Table 4-18, page 59
