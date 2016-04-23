@@ -347,8 +347,7 @@ unsigned int usb_audio_transmit_callback(void)
 int usb_audio_get_feature(void *stp, uint8_t *data, uint32_t *datalen)
 {
 	struct setup_struct setup = *((struct setup_struct *)stp);
-	if (setup.bmRequestType==0xA1) { // should check bRequest too, and UnitID
-		if (setup.bChannel==0) { // only support main, but in theory could do left/right as well
+	if (setup.bmRequestType==0xA1) { // should check bRequest, bChannel, and UnitID
 			if (setup.bCS==0x01) { // mute
 				data[0] = AudioInputUSB::features.mute;  // 1=mute, 0=unmute
 				*datalen = 1;
@@ -378,8 +377,6 @@ int usb_audio_get_feature(void *stp, uint8_t *data, uint32_t *datalen)
 				*datalen = 2;
 				return 1;
 			}
-		}
-		return 0;
 	}
 	return 0;
 }
@@ -387,8 +384,7 @@ int usb_audio_get_feature(void *stp, uint8_t *data, uint32_t *datalen)
 int usb_audio_set_feature(void *stp, uint8_t *buf) 
 {
 	struct setup_struct setup = *((struct setup_struct *)stp);
-	if (setup.bmRequestType==0x21) { // should check bRequest too, and UnitID
-		if (setup.bChannel==0) { 
+	if (setup.bmRequestType==0x21) { // should check bRequest, bChannel and UnitID
 			if (setup.bCS==0x01) { // mute
 				if (setup.bRequest==0x01) { // SET_CUR
 					AudioInputUSB::features.mute = buf[0]; // 1=mute,0=unmute
@@ -403,7 +399,6 @@ int usb_audio_set_feature(void *stp, uint8_t *buf)
 					return 1;
 				}
 			}
-		}
 	}
 	return 0;
 }
