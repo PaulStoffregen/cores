@@ -140,7 +140,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #elif defined(USB_KEYBOARDONLY)
   #define VENDOR_ID		0x16C0
-  #define PRODUCT_ID		0x0482
+  #define PRODUCT_ID		0x0482 // TODO: unique
   #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
   #define MANUFACTURER_NAME_LEN	11
   #define PRODUCT_NAME		{'K','e','y','b','o','a','r','d'}
@@ -325,7 +325,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #elif defined(USB_MIDI_SERIAL)
   #define VENDOR_ID		0x16C0
-  #define PRODUCT_ID		0x0485
+  #define PRODUCT_ID		0x0485 // TODO: unique
   #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
   #define MANUFACTURER_NAME_LEN	11
   #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','M','I','D','I'}
@@ -476,6 +476,46 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT3_CONFIG	ENDPOINT_TRANSMIT_ISOCHRONOUS
   #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_ISOCHRONOUS
   #define ENDPOINT5_CONFIG	ENDPOINT_TRANSMIT_ISOCHRONOUS
+
+#elif defined(USB_MIDI_AUDIO_SERIAL)
+  #define VENDOR_ID		0x16C0
+  #define PRODUCT_ID		0x0485 // TODO: unique
+  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
+  #define MANUFACTURER_NAME_LEN	11
+  #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','M','I','D','I','/','A','u','d','i','o'}
+  #define PRODUCT_NAME_LEN	17
+  #define EP0_SIZE		64
+  #define NUM_ENDPOINTS         8
+  #define NUM_USB_BUFFERS	30
+  #define NUM_INTERFACE		6
+  #define CDC_IAD_DESCRIPTOR	1
+  #define CDC_STATUS_INTERFACE	0
+  #define CDC_DATA_INTERFACE	1	// Serial
+  #define CDC_ACM_ENDPOINT	1
+  #define CDC_RX_ENDPOINT       2
+  #define CDC_TX_ENDPOINT       3
+  #define CDC_ACM_SIZE          16
+  #define CDC_RX_SIZE           64
+  #define CDC_TX_SIZE           64
+  #define MIDI_INTERFACE        2	// MIDI
+  #define MIDI_TX_ENDPOINT      4
+  #define MIDI_TX_SIZE          64
+  #define MIDI_RX_ENDPOINT      5
+  #define MIDI_RX_SIZE          64
+  #define AUDIO_INTERFACE	3	// Audio (uses 3 consecutive interfaces)
+  #define AUDIO_TX_ENDPOINT     6
+  #define AUDIO_TX_SIZE         180
+  #define AUDIO_RX_ENDPOINT     7
+  #define AUDIO_RX_SIZE         180
+  #define AUDIO_SYNC_ENDPOINT	8
+  #define ENDPOINT1_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_ONLY
+  #define ENDPOINT3_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT4_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT5_CONFIG	ENDPOINT_RECEIVE_ONLY
+  #define ENDPOINT6_CONFIG	ENDPOINT_TRANSMIT_ISOCHRONOUS
+  #define ENDPOINT7_CONFIG	ENDPOINT_RECEIVE_ISOCHRONOUS
+  #define ENDPOINT8_CONFIG	ENDPOINT_TRANSMIT_ISOCHRONOUS
 
 #endif
 
