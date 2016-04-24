@@ -272,7 +272,7 @@ static uint8_t joystick_report_desc[] = {
 // https://msdn.microsoft.com/en-us/library/windows/hardware/jj151564%28v=vs.85%29.aspx
 // download.microsoft.com/download/a/d/f/adf1347d-08dc-41a4-9084-623b1194d4b2/digitizerdrvs_touch.docx
 static uint8_t multitouch_report_desc[] = {
-        0x05, 0x0d,             // Usage Page (Digitizer)
+        0x05, 0x0D,             // Usage Page (Digitizer)
         0x09, 0x04,             // Usage (Touch Screen)
         0xa1, 0x01,             // Collection (Application)
         0x09, 0x22,             //   Usage (Finger)
@@ -313,7 +313,7 @@ static uint8_t multitouch_report_desc[] = {
         0x75, 0x08,             //   Report Size (8)
         0x95, 0x01,             //   Report Count (1)
         0x81, 0x02,             //   Input (variable,absolute)
-        0x05, 0x0d,             //   Usage Page (Digitizers)
+        0x05, 0x0D,             //   Usage Page (Digitizers)
         0x09, 0x55,             //   Usage (Contact Count Maximum)
         0x25, 0x0A,             //   Logical Maximum (10)
         0x75, 0x08,             //   Report Size (8)

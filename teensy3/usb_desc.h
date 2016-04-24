@@ -226,6 +226,42 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT6_CONFIG	ENDPOINT_TRANSIMIT_ONLY
   #define ENDPOINT7_CONFIG	ENDPOINT_TRANSIMIT_ONLY
 
+#elif defined(USB_TOUCHSCREEN)
+  #define VENDOR_ID		0x16C0
+  #define PRODUCT_ID		0x048B
+  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
+  #define MANUFACTURER_NAME_LEN	11
+  #define PRODUCT_NAME		{'K','e','y','b','o','a','r','d','/','T','o','u','c','h','s','c','r','e','e','n'}
+  #define PRODUCT_NAME_LEN	20
+  #define EP0_SIZE		64
+  #define NUM_ENDPOINTS         5
+  #define NUM_USB_BUFFERS	15
+  #define NUM_INTERFACE		4
+  #define SEREMU_INTERFACE      1	// Serial emulation
+  #define SEREMU_TX_ENDPOINT    1
+  #define SEREMU_TX_SIZE        64
+  #define SEREMU_TX_INTERVAL    1
+  #define SEREMU_RX_ENDPOINT    2
+  #define SEREMU_RX_SIZE        32
+  #define SEREMU_RX_INTERVAL    2
+  #define KEYBOARD_INTERFACE    0	// Keyboard
+  #define KEYBOARD_ENDPOINT     3
+  #define KEYBOARD_SIZE         8
+  #define KEYBOARD_INTERVAL     1
+  #define KEYMEDIA_INTERFACE    2	// Keyboard Media Keys
+  #define KEYMEDIA_ENDPOINT     4
+  #define KEYMEDIA_SIZE         8
+  #define KEYMEDIA_INTERVAL     4
+  #define MULTITOUCH_INTERFACE  3	// Touchscreen
+  #define MULTITOUCH_ENDPOINT   5
+  #define MULTITOUCH_SIZE       9
+  #define MULTITOUCH_FINGERS    10
+  #define ENDPOINT1_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_ONLY
+  #define ENDPOINT3_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT4_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT5_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+
 #elif defined(USB_MIDI)
   #define VENDOR_ID		0x16C0
   #define PRODUCT_ID		0x0485
@@ -349,7 +385,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #elif defined(USB_AUDIO)
   #define VENDOR_ID		0x16C0
-  #define PRODUCT_ID		0x0485  // TODO: assign unique
+  #define PRODUCT_ID		0x048A
   #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
   #define MANUFACTURER_NAME_LEN	11
   #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','A','u','d','i','o'}
