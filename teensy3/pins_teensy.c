@@ -1086,7 +1086,7 @@ volatile uint32_t systick_millis_count = 0;
 
 uint32_t micros(void)
 {
-	uint32_t count, current, istatus;
+	uint32_t count, current, istatus, reload;
 
 	__disable_irq();
 	current = SYST_CVR;
@@ -1097,13 +1097,14 @@ uint32_t micros(void)
 	 //systick_count = count;
 	 //systick_istatus = istatus & SCB_ICSR_PENDSTSET ? 1 : 0;
 	if ((istatus & SCB_ICSR_PENDSTSET) && current > 50) count++;
-	current = ((F_CPU / 1000) - 1) - current;
+	reload = SYST_RVR;  // SYST_RVR remains always the same, can be read while irqs enabled
+	current = reload - current; // without division => quicker!
 #if defined(KINETISL) && F_CPU == 48000000
 	return count * 1000 + ((current * (uint32_t)87381) >> 22);
 #elif defined(KINETISL) && F_CPU == 24000000
 	return count * 1000 + ((current * (uint32_t)174763) >> 22);
 #endif
-	return count * 1000 + current / (F_CPU / 1000000);
+	return count * 1000 + (1000 * current) / (reload + 1); // only one instead of two divisions
 }
 
 void delay(uint32_t ms)
