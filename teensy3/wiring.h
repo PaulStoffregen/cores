@@ -60,6 +60,10 @@ extern "C"{
 #undef abs
 #endif
 
+#if __cplusplus >= 201103L && defined(__STRICT_ANSI__)
+#define typeof(a) decltype(a)
+#endif
+
 #define min(a, b) ({ \
   typeof(a) _a = (a); \
   typeof(b) _b = (b); \

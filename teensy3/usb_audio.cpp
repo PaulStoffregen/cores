@@ -44,6 +44,8 @@ audio_block_t * AudioInputUSB::ready_right;
 uint16_t AudioInputUSB::incoming_count;
 uint8_t AudioInputUSB::receive_flag;
 
+struct usb_audio_features_struct AudioInputUSB::features = {0,0,FEATURE_MAX_VOLUME};
+
 #define DMABUFATTR __attribute__ ((section(".dmabuffers"), aligned (4)))
 uint16_t usb_audio_receive_buffer[AUDIO_RX_SIZE/2] DMABUFATTR;
 uint32_t usb_audio_sync_feedback DMABUFATTR;
@@ -340,6 +342,65 @@ unsigned int usb_audio_transmit_callback(void)
 		}
 	}
 	return target * 4;
+}
+
+int usb_audio_get_feature(void *stp, uint8_t *data, uint32_t *datalen)
+{
+	struct setup_struct setup = *((struct setup_struct *)stp);
+	if (setup.bmRequestType==0xA1) { // should check bRequest, bChannel, and UnitID
+			if (setup.bCS==0x01) { // mute
+				data[0] = AudioInputUSB::features.mute;  // 1=mute, 0=unmute
+				*datalen = 1;
+				return 1;
+			}
+			else if (setup.bCS==0x02) { // volume
+				if (setup.bRequest==0x81) { // GET_CURR
+					data[0] = AudioInputUSB::features.volume & 0xFF;
+					data[1] = (AudioInputUSB::features.volume>>8) & 0xFF;
+				}
+				else if (setup.bRequest==0x82) { // GET_MIN
+					//serial_print("vol get_min\n");
+					data[0] = 0;     // min level is 0
+					data[1] = 0;
+				}
+				else if (setup.bRequest==0x83) { // GET_MAX
+					data[0] = FEATURE_MAX_VOLUME & 0xFF;  // max level, for range of 0 to MAX
+					data[1] = (FEATURE_MAX_VOLUME>>8) & 0x0F;
+				}
+				else if (setup.bRequest==0x84) { // GET_RES
+					data[0] = 1; // increment vol by by 1
+					data[1] = 0;
+				}
+				else { // pass over SET_MEM, etc.
+					return 0;
+				}
+				*datalen = 2;
+				return 1;
+			}
+	}
+	return 0;
+}
+
+int usb_audio_set_feature(void *stp, uint8_t *buf) 
+{
+	struct setup_struct setup = *((struct setup_struct *)stp);
+	if (setup.bmRequestType==0x21) { // should check bRequest, bChannel and UnitID
+			if (setup.bCS==0x01) { // mute
+				if (setup.bRequest==0x01) { // SET_CUR
+					AudioInputUSB::features.mute = buf[0]; // 1=mute,0=unmute
+					AudioInputUSB::features.change = 1;
+					return 1;
+				}
+			}
+			else if (setup.bCS==0x02) { // volume
+				if (setup.bRequest==0x01) { // SET_CUR
+					AudioInputUSB::features.volume = buf[0] + (buf[1]<<8);
+					AudioInputUSB::features.change = 1;
+					return 1;
+				}
+			}
+	}
+	return 0;
 }
 
 
