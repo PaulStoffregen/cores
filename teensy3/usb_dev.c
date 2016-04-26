@@ -866,6 +866,9 @@ void usb_isr(void)
 #ifdef FLIGHTSIM_INTERFACE
 			usb_flightsim_flush_callback();
 #endif
+#ifdef MULTITOUCH_INTERFACE
+			usb_touchscreen_update_callback();
+#endif
 		}
 		USB0_ISTAT = USB_ISTAT_SOFTOK;
 	}

@@ -108,6 +108,9 @@ extern void usb_audio_receive_callback(unsigned int len);
 extern unsigned int usb_audio_transmit_callback(void);
 #endif
 
+#ifdef MULTITOUCH_INTERFACE
+extern void usb_touchscreen_update_callback(void);
+#endif
 
 
 #ifdef __cplusplus
