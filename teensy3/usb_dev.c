@@ -447,6 +447,19 @@ static void usb_setup(void)
 		}
 		break;
 #endif
+
+#if defined(MULTITOUCH_INTERFACE)
+	  case 0x01A1:
+		if (setup.wValue == 0x0300 && setup.wIndex == MULTITOUCH_INTERFACE) {
+			reply_buffer[0] = MULTITOUCH_FINGERS;
+			data = reply_buffer;
+			datalen = 1;
+		} else {
+			endpoint0_stall();
+			return;
+		}
+		break;
+#endif
 	  default:
 		endpoint0_stall();
 		return;
