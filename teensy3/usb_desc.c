@@ -110,62 +110,62 @@ static uint8_t device_descriptor[] = {
 #ifdef KEYBOARD_INTERFACE
 // Keyboard Protocol 1, HID 1.11 spec, Appendix B, page 59-60
 static uint8_t keyboard_report_desc[] = {
-        0x05, 0x01,             //  Usage Page (Generic Desktop),
-        0x09, 0x06,             //  Usage (Keyboard),
-        0xA1, 0x01,             //  Collection (Application),
-        0x75, 0x01,             //  Report Size (1),
-        0x95, 0x08,             //  Report Count (8),
-        0x05, 0x07,             //  Usage Page (Key Codes),
-        0x19, 0xE0,             //  Usage Minimum (224),
-        0x29, 0xE7,             //  Usage Maximum (231),
-        0x15, 0x00,             //  Logical Minimum (0),
-        0x25, 0x01,             //  Logical Maximum (1),
-        0x81, 0x02,             //  Input (Data, Variable, Absolute), ;Modifier keys
-        0x95, 0x01,             //   Report Count (1),
-        0x75, 0x08,             //   Report Size (8),
-        0x81, 0x03,             //   Input (Constant),                 ;Reserved byte
-        0x95, 0x05,             //  Report Count (5),
-        0x75, 0x01,             //  Report Size (1),
-        0x05, 0x08,             //  Usage Page (LEDs),
-        0x19, 0x01,             //  Usage Minimum (1),
-        0x29, 0x05,             //  Usage Maximum (5),
-        0x91, 0x02,             //  Output (Data, Variable, Absolute), ;LED report
-        0x95, 0x01,             //  Report Count (1),
-        0x75, 0x03,             //  Report Size (3),
-        0x91, 0x03,             //  Output (Constant),                 ;LED report padding
-        0x95, 0x06,             //  Report Count (6),
-        0x75, 0x08,             //  Report Size (8),
-        0x15, 0x00,             //  Logical Minimum (0),
-        0x25, 0x7F,             //  Logical Maximum(104),
-        0x05, 0x07,             //  Usage Page (Key Codes),
-        0x19, 0x00,             //  Usage Minimum (0),
-        0x29, 0x7F,             //  Usage Maximum (104),
-        0x81, 0x00,             //  Input (Data, Array),                ;Normal keys
-        0xC0                    //  End Collection
+        0x05, 0x01,                     // Usage Page (Generic Desktop),
+        0x09, 0x06,                     // Usage (Keyboard),
+        0xA1, 0x01,                     // Collection (Application),
+        0x75, 0x01,                     //   Report Size (1),
+        0x95, 0x08,                     //   Report Count (8),
+        0x05, 0x07,                     //   Usage Page (Key Codes),
+        0x19, 0xE0,                     //   Usage Minimum (224),
+        0x29, 0xE7,                     //   Usage Maximum (231),
+        0x15, 0x00,                     //   Logical Minimum (0),
+        0x25, 0x01,                     //   Logical Maximum (1),
+        0x81, 0x02,                     //   Input (Data, Variable, Absolute), ;Modifier keys
+        0x95, 0x01,                     //   Report Count (1),
+        0x75, 0x08,                     //   Report Size (8),
+        0x81, 0x03,                     //   Input (Constant),          ;Reserved byte
+        0x95, 0x05,                     //   Report Count (5),
+        0x75, 0x01,                     //   Report Size (1),
+        0x05, 0x08,                     //   Usage Page (LEDs),
+        0x19, 0x01,                     //   Usage Minimum (1),
+        0x29, 0x05,                     //   Usage Maximum (5),
+        0x91, 0x02,                     //   Output (Data, Variable, Absolute), ;LED report
+        0x95, 0x01,                     //   Report Count (1),
+        0x75, 0x03,                     //   Report Size (3),
+        0x91, 0x03,                     //   Output (Constant),         ;LED report padding
+        0x95, 0x06,                     //   Report Count (6),
+        0x75, 0x08,                     //   Report Size (8),
+        0x15, 0x00,                     //   Logical Minimum (0),
+        0x25, 0x7F,                     //   Logical Maximum(104),
+        0x05, 0x07,                     //   Usage Page (Key Codes),
+        0x19, 0x00,                     //   Usage Minimum (0),
+        0x29, 0x7F,                     //   Usage Maximum (104),
+        0x81, 0x00,                     //   Input (Data, Array),       ;Normal keys
+        0xC0                            // End Collection
 };
 #endif
 
 #ifdef KEYMEDIA_INTERFACE
 static uint8_t keymedia_report_desc[] = {
-        0x05, 0x0C,             //  Usage Page (Consumer)
-        0x09, 0x01,             //  Usage (Consumer Controls)
-        0xA1, 0x01,             //  Collection (Application)
-        0x75, 0x0A,             //  Report Size (10)
-        0x95, 0x04,             //  Report Count (4)
-        0x19, 0x00,             //  Usage Minimum (0)
-        0x2A, 0x9C, 0x02,       //  Usage Maximum (0x29C)
-        0x15, 0x00,             //  Logical Minimum (0)
-        0x26, 0x9C, 0x02,       //  Logical Maximum (0x29C)
-        0x81, 0x00,             //  Input (Data, Array)
-        0x05, 0x01,             //  Usage Page (Generic Desktop)
-        0x75, 0x08,             //  Report Size (8)
-        0x95, 0x03,             //  Report Count (3)
-        0x19, 0x00,             //  Usage Minimum (0)
-        0x29, 0xB7,             //  Usage Maximum (0xB7)
-        0x15, 0x00,             //  Logical Minimum (0)
-        0x26, 0xB7, 0x00,       //  Logical Maximum (0xB7)
-        0x81, 0x00,             //  Input (Data, Array)
-        0xC0                    //  End Collection
+        0x05, 0x0C,                     // Usage Page (Consumer)
+        0x09, 0x01,                     // Usage (Consumer Controls)
+        0xA1, 0x01,                     // Collection (Application)
+        0x75, 0x0A,                     //   Report Size (10)
+        0x95, 0x04,                     //   Report Count (4)
+        0x19, 0x00,                     //   Usage Minimum (0)
+        0x2A, 0x9C, 0x02,               //   Usage Maximum (0x29C)
+        0x15, 0x00,                     //   Logical Minimum (0)
+        0x26, 0x9C, 0x02,               //   Logical Maximum (0x29C)
+        0x81, 0x00,                     //   Input (Data, Array)
+        0x05, 0x01,                     //   Usage Page (Generic Desktop)
+        0x75, 0x08,                     //   Report Size (8)
+        0x95, 0x03,                     //   Report Count (3)
+        0x19, 0x00,                     //   Usage Minimum (0)
+        0x29, 0xB7,                     //   Usage Maximum (0xB7)
+        0x15, 0x00,                     //   Logical Minimum (0)
+        0x26, 0xB7, 0x00,               //   Logical Maximum (0xB7)
+        0x81, 0x00,                     //   Input (Data, Array)
+        0xC0                            // End Collection
 };
 #endif
 
@@ -222,44 +222,44 @@ static uint8_t joystick_report_desc[] = {
         0x05, 0x01,                     // Usage Page (Generic Desktop)
         0x09, 0x04,                     // Usage (Joystick)
         0xA1, 0x01,                     // Collection (Application)
-        0x15, 0x00,                     // Logical Minimum (0)
-        0x25, 0x01,                     // Logical Maximum (1)
-        0x75, 0x01,                     // Report Size (1)
-        0x95, 0x20,                     // Report Count (32)
-        0x05, 0x09,                     // Usage Page (Button)
-        0x19, 0x01,                     // Usage Minimum (Button #1)
-        0x29, 0x20,                     // Usage Maximum (Button #32)
-        0x81, 0x02,                     // Input (variable,absolute)
-        0x15, 0x00,                     // Logical Minimum (0)
-        0x25, 0x07,                     // Logical Maximum (7)
-        0x35, 0x00,                     // Physical Minimum (0)
-        0x46, 0x3B, 0x01,               // Physical Maximum (315)
-        0x75, 0x04,                     // Report Size (4)
-        0x95, 0x01,                     // Report Count (1)
-        0x65, 0x14,                     // Unit (20)
-        0x05, 0x01,                     // Usage Page (Generic Desktop)
-        0x09, 0x39,                     // Usage (Hat switch)
-        0x81, 0x42,                     // Input (variable,absolute,null_state)
-        0x05, 0x01,                     // Usage Page (Generic Desktop)
-        0x09, 0x01,                     // Usage (Pointer)
-        0xA1, 0x00,                     // Collection ()
+        0x15, 0x00,                     //   Logical Minimum (0)
+        0x25, 0x01,                     //   Logical Maximum (1)
+        0x75, 0x01,                     //   Report Size (1)
+        0x95, 0x20,                     //   Report Count (32)
+        0x05, 0x09,                     //   Usage Page (Button)
+        0x19, 0x01,                     //   Usage Minimum (Button #1)
+        0x29, 0x20,                     //   Usage Maximum (Button #32)
+        0x81, 0x02,                     //   Input (variable,absolute)
+        0x15, 0x00,                     //   Logical Minimum (0)
+        0x25, 0x07,                     //   Logical Maximum (7)
+        0x35, 0x00,                     //   Physical Minimum (0)
+        0x46, 0x3B, 0x01,               //   Physical Maximum (315)
+        0x75, 0x04,                     //   Report Size (4)
+        0x95, 0x01,                     //   Report Count (1)
+        0x65, 0x14,                     //   Unit (20)
+        0x05, 0x01,                     //   Usage Page (Generic Desktop)
+        0x09, 0x39,                     //   Usage (Hat switch)
+        0x81, 0x42,                     //   Input (variable,absolute,null_state)
+        0x05, 0x01,                     //   Usage Page (Generic Desktop)
+        0x09, 0x01,                     //   Usage (Pointer)
+        0xA1, 0x00,                     //   Collection ()
+        0x15, 0x00,                     //     Logical Minimum (0)
+        0x26, 0xFF, 0x03,               //     Logical Maximum (1023)
+        0x75, 0x0A,                     //     Report Size (10)
+        0x95, 0x04,                     //     Report Count (4)
+        0x09, 0x30,                     //     Usage (X)
+        0x09, 0x31,                     //     Usage (Y)
+        0x09, 0x32,                     //     Usage (Z)
+        0x09, 0x35,                     //     Usage (Rz)
+        0x81, 0x02,                     //     Input (variable,absolute)
+        0xC0,                           //   End Collection
         0x15, 0x00,                     //   Logical Minimum (0)
         0x26, 0xFF, 0x03,               //   Logical Maximum (1023)
         0x75, 0x0A,                     //   Report Size (10)
-        0x95, 0x04,                     //   Report Count (4)
-        0x09, 0x30,                     //   Usage (X)
-        0x09, 0x31,                     //   Usage (Y)
-        0x09, 0x32,                     //   Usage (Z)
-        0x09, 0x35,                     //   Usage (Rz)
+        0x95, 0x02,                     //   Report Count (2)
+        0x09, 0x36,                     //   Usage (Slider)
+        0x09, 0x36,                     //   Usage (Slider)
         0x81, 0x02,                     //   Input (variable,absolute)
-        0xC0,                           // End Collection
-        0x15, 0x00,                     // Logical Minimum (0)
-        0x26, 0xFF, 0x03,               // Logical Maximum (1023)
-        0x75, 0x0A,                     // Report Size (10)
-        0x95, 0x02,                     // Report Count (2)
-        0x09, 0x36,                     // Usage (Slider)
-        0x09, 0x36,                     // Usage (Slider)
-        0x81, 0x02,                     // Input (variable,absolute)
         0xC0                            // End Collection
 };
 #endif
@@ -272,75 +272,75 @@ static uint8_t joystick_report_desc[] = {
 // https://msdn.microsoft.com/en-us/library/windows/hardware/jj151564%28v=vs.85%29.aspx
 // download.microsoft.com/download/a/d/f/adf1347d-08dc-41a4-9084-623b1194d4b2/digitizerdrvs_touch.docx
 static uint8_t multitouch_report_desc[] = {
-        0x05, 0x0D,             // Usage Page (Digitizer)
-        0x09, 0x04,             // Usage (Touch Screen)
-        0xa1, 0x01,             // Collection (Application)
-        0x09, 0x22,             //   Usage (Finger)
-        0xA1, 0x02,             //   Collection (Logical)
-        0x09, 0x42,             //     Usage (Tip Switch)
-        0x15, 0x00,             //     Logical Minimum (0)
-        0x25, 0x01,             //     Logical Maximum (1)
-        0x75, 0x01,             //     Report Size (1)
-        0x95, 0x01,             //     Report Count (1)
-        0x81, 0x02,             //     Input (variable,absolute)
-        0x09, 0x30,             //     Usage (Pressure)
-        0x25, 0x7F,             //     Logical Maximum (127)
-        0x75, 0x07,             //     Report Size (7)
-        0x95, 0x01,             //     Report Count (1)
-        0x81, 0x02,             //     Input (variable,absolute)
-        0x09, 0x51,             //     Usage (Contact Identifier)
-        0x26, 0xFF, 0x00,       //     Logical Maximum (255)
-        0x75, 0x08,             //     Report Size (8)
-        0x95, 0x01,             //     Report Count (1)
-        0x81, 0x02,             //     Input (variable,absolute)
-        0x05, 0x01,             //     Usage Page (Generic Desktop)
-        0x09, 0x30,             //     Usage (X)
-        0x09, 0x31,             //     Usage (Y)
-        0x26, 0xFF, 0x7F,       //     Logical Maximum (32767)
-        0x65, 0x00,             //     Unit (None)  <-- probably needs real units?
-        0x75, 0x10,             //     Report Size (16)
-        0x95, 0x02,             //     Report Count (2)
-        0x81, 0x02,             //     Input (variable,absolute)
-        0xC0,                   //   End Collection
-        0x05, 0x0D,             //   Usage Page (Digitizer)
-        0x27, 0xFF, 0xFF, 0, 0, //   Logical Maximum (65535)
-        0x75, 0x10,             //   Report Size (16)
-        0x95, 0x01,             //   Report Count (1)
-        0x09, 0x56,             //   Usage (Scan Time)
-        0x81, 0x02,             //   Input (variable,absolute)
-        0x09, 0x54,             //   Usage (Contact Count)
-        0x25, MULTITOUCH_FINGERS, // Logical Maximum (10)
-        0x75, 0x08,             //   Report Size (8)
-        0x95, 0x01,             //   Report Count (1)
-        0x81, 0x02,             //   Input (variable,absolute)
-        0x05, 0x0D,             //   Usage Page (Digitizers)
-        0x09, 0x55,             //   Usage (Contact Count Maximum)
-        0x25, MULTITOUCH_FINGERS, // Logical Maximum (10)
-        0x75, 0x08,             //   Report Size (8)
-        0x95, 0x01,             //   Report Count (1)
-        0xB1, 0x02,             //   Feature (variable,absolute)
-        0xC0                    // End Collection
+        0x05, 0x0D,                     // Usage Page (Digitizer)
+        0x09, 0x04,                     // Usage (Touch Screen)
+        0xa1, 0x01,                     // Collection (Application)
+        0x09, 0x22,                     //   Usage (Finger)
+        0xA1, 0x02,                     //   Collection (Logical)
+        0x09, 0x42,                     //     Usage (Tip Switch)
+        0x15, 0x00,                     //     Logical Minimum (0)
+        0x25, 0x01,                     //     Logical Maximum (1)
+        0x75, 0x01,                     //     Report Size (1)
+        0x95, 0x01,                     //     Report Count (1)
+        0x81, 0x02,                     //     Input (variable,absolute)
+        0x09, 0x30,                     //     Usage (Pressure)
+        0x25, 0x7F,                     //     Logical Maximum (127)
+        0x75, 0x07,                     //     Report Size (7)
+        0x95, 0x01,                     //     Report Count (1)
+        0x81, 0x02,                     //     Input (variable,absolute)
+        0x09, 0x51,                     //     Usage (Contact Identifier)
+        0x26, 0xFF, 0x00,               //     Logical Maximum (255)
+        0x75, 0x08,                     //     Report Size (8)
+        0x95, 0x01,                     //     Report Count (1)
+        0x81, 0x02,                     //     Input (variable,absolute)
+        0x05, 0x01,                     //     Usage Page (Generic Desktop)
+        0x09, 0x30,                     //     Usage (X)
+        0x09, 0x31,                     //     Usage (Y)
+        0x26, 0xFF, 0x7F,               //     Logical Maximum (32767)
+        0x65, 0x00,                     //     Unit (None)  <-- probably needs real units?
+        0x75, 0x10,                     //     Report Size (16)
+        0x95, 0x02,                     //     Report Count (2)
+        0x81, 0x02,                     //     Input (variable,absolute)
+        0xC0,                           //   End Collection
+        0x05, 0x0D,                     //   Usage Page (Digitizer)
+        0x27, 0xFF, 0xFF, 0, 0,         //   Logical Maximum (65535)
+        0x75, 0x10,                     //   Report Size (16)
+        0x95, 0x01,                     //   Report Count (1)
+        0x09, 0x56,                     //   Usage (Scan Time)
+        0x81, 0x02,                     //   Input (variable,absolute)
+        0x09, 0x54,                     //   Usage (Contact Count)
+        0x25, MULTITOUCH_FINGERS,       //   Logical Maximum (10)
+        0x75, 0x08,                     //   Report Size (8)
+        0x95, 0x01,                     //   Report Count (1)
+        0x81, 0x02,                     //   Input (variable,absolute)
+        0x05, 0x0D,                     //   Usage Page (Digitizers)
+        0x09, 0x55,                     //   Usage (Contact Count Maximum)
+        0x25, MULTITOUCH_FINGERS,       //   Logical Maximum (10)
+        0x75, 0x08,                     //   Report Size (8)
+        0x95, 0x01,                     //   Report Count (1)
+        0xB1, 0x02,                     //   Feature (variable,absolute)
+        0xC0                            // End Collection
 };
 #endif
 
 #ifdef SEREMU_INTERFACE
 static uint8_t seremu_report_desc[] = {
-        0x06, 0xC9, 0xFF,                       // Usage Page 0xFFC9 (vendor defined)
-        0x09, 0x04,                             // Usage 0x04
-        0xA1, 0x5C,                             // Collection 0x5C
-        0x75, 0x08,                             // report size = 8 bits (global)
-        0x15, 0x00,                             // logical minimum = 0 (global)
-        0x26, 0xFF, 0x00,                       // logical maximum = 255 (global)
-        0x95, SEREMU_TX_SIZE,                   // report count (global)
-        0x09, 0x75,                             // usage (local)
-        0x81, 0x02,                             // Input
-        0x95, SEREMU_RX_SIZE,                   // report count (global)
-        0x09, 0x76,                             // usage (local)
-        0x91, 0x02,                             // Output
-        0x95, 0x04,                             // report count (global)
-        0x09, 0x76,                             // usage (local)
-        0xB1, 0x02,                             // Feature
-        0xC0                                    // end collection
+        0x06, 0xC9, 0xFF,               // Usage Page 0xFFC9 (vendor defined)
+        0x09, 0x04,                     // Usage 0x04
+        0xA1, 0x5C,                     // Collection 0x5C
+        0x75, 0x08,                     //   report size = 8 bits (global)
+        0x15, 0x00,                     //   logical minimum = 0 (global)
+        0x26, 0xFF, 0x00,               //   logical maximum = 255 (global)
+        0x95, SEREMU_TX_SIZE,           //   report count (global)
+        0x09, 0x75,                     //   usage (local)
+        0x81, 0x02,                     //   Input
+        0x95, SEREMU_RX_SIZE,           //   report count (global)
+        0x09, 0x76,                     //   usage (local)
+        0x91, 0x02,                     //   Output
+        0x95, 0x04,                     //   report count (global)
+        0x09, 0x76,                     //   usage (local)
+        0xB1, 0x02,                     //   Feature
+        0xC0                            // end collection
 };
 #endif
 
@@ -348,35 +348,35 @@ static uint8_t seremu_report_desc[] = {
 static uint8_t rawhid_report_desc[] = {
         0x06, LSB(RAWHID_USAGE_PAGE), MSB(RAWHID_USAGE_PAGE),
         0x0A, LSB(RAWHID_USAGE), MSB(RAWHID_USAGE),
-        0xA1, 0x01,                             // Collection 0x01
-        0x75, 0x08,                             // report size = 8 bits
-        0x15, 0x00,                             // logical minimum = 0
-        0x26, 0xFF, 0x00,                       // logical maximum = 255
-        0x95, RAWHID_TX_SIZE,                   // report count
-        0x09, 0x01,                             // usage
-        0x81, 0x02,                             // Input (array)
-        0x95, RAWHID_RX_SIZE,                   // report count
-        0x09, 0x02,                             // usage
-        0x91, 0x02,                             // Output (array)
-        0xC0                                    // end collection
+        0xA1, 0x01,                     // Collection 0x01
+        0x75, 0x08,                     //   report size = 8 bits
+        0x15, 0x00,                     //   logical minimum = 0
+        0x26, 0xFF, 0x00,               //   logical maximum = 255
+        0x95, RAWHID_TX_SIZE,           //   report count
+        0x09, 0x01,                     //   usage
+        0x81, 0x02,                     //   Input (array)
+        0x95, RAWHID_RX_SIZE,           //   report count
+        0x09, 0x02,                     //   usage
+        0x91, 0x02,                     //   Output (array)
+        0xC0                            // end collection
 };
 #endif
 
 #ifdef FLIGHTSIM_INTERFACE
 static uint8_t flightsim_report_desc[] = {
-        0x06, 0x1C, 0xFF,                       // Usage page = 0xFF1C
-        0x0A, 0x39, 0xA7,                       // Usage = 0xA739
-        0xA1, 0x01,                             // Collection 0x01
-        0x75, 0x08,                             // report size = 8 bits
-        0x15, 0x00,                             // logical minimum = 0
-        0x26, 0xFF, 0x00,                       // logical maximum = 255
-        0x95, FLIGHTSIM_TX_SIZE,                // report count
-        0x09, 0x01,                             // usage
-        0x81, 0x02,                             // Input (array)
-        0x95, FLIGHTSIM_RX_SIZE,                // report count
-        0x09, 0x02,                             // usage
-        0x91, 0x02,                             // Output (array)
-        0xC0                                    // end collection
+        0x06, 0x1C, 0xFF,               // Usage page = 0xFF1C
+        0x0A, 0x39, 0xA7,               // Usage = 0xA739
+        0xA1, 0x01,                     // Collection 0x01
+        0x75, 0x08,                     //   report size = 8 bits
+        0x15, 0x00,                     //   logical minimum = 0
+        0x26, 0xFF, 0x00,               //   logical maximum = 255
+        0x95, FLIGHTSIM_TX_SIZE,        //   report count
+        0x09, 0x01,                     //   usage
+        0x81, 0x02,                     //   Input (array)
+        0x95, FLIGHTSIM_RX_SIZE,        //   report count
+        0x09, 0x02,                     //   usage
+        0x91, 0x02,                     //   Output (array)
+        0xC0                            // end collection
 };
 #endif
 

@@ -103,7 +103,6 @@ static int usb_touchscreen_transmit(int index, int count)
 	*(tx_packet->buf + 8) = count;
 	tx_packet->len = 9;
 	usb_tx(MULTITOUCH_ENDPOINT, tx_packet);
-	delayMicroseconds(20);
 	return 1;
 }
 
@@ -114,7 +113,6 @@ void usb_touchscreen_update_callback(void)
 {
 	int i, r, count=0;
 
-	digitalWriteFast(13, HIGH);
 	if (scan_state == 0) {
 		if (usb_tx_packet_count(MULTITOUCH_ENDPOINT) > 1) {
 			// wait to begin another scan if if more than
@@ -147,8 +145,6 @@ void usb_touchscreen_update_callback(void)
 	if (++scan_state >= MULTITOUCH_ENDPOINT) {
 		scan_state = 0;
 	}
-	delayMicroseconds(10);
-	digitalWriteFast(13, LOW);
 }
 
 
