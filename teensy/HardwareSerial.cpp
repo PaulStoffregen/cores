@@ -25,6 +25,7 @@
 #include <avr/interrupt.h>
 #include "core_pins.h"
 #include "HardwareSerial.h"
+#include "wiring_private.h" 
 
 #define RX_BUFFER_SIZE 64
 static volatile uint8_t rx_buffer[RX_BUFFER_SIZE];
@@ -157,13 +158,25 @@ void HardwareSerial::write(uint8_t c)
 	if (tx_enable_pin < 255 && !transmitting) {
 		digitalWrite(tx_enable_pin, HIGH);
 	}
+	// If the buffer and the data register is empty, just write the byte
+	// to the data register and be done. This shortcut helps
+	// significantly improve the effective datarate at high (>
+	// 500kbit/s) bitrates, where interrupt overhead becomes a slowdown.
+	if (tx_buffer_head == tx_buffer_tail && bit_is_set(UCSR1A, UDRE1)) {
+		UDR1 = c;
+		transmitting = 1;
+		return 1;
+	}
+
 	i = tx_buffer_head + 1;
 	if (i >= TX_BUFFER_SIZE) i = 0;
 	while (tx_buffer_tail == i) ; // wait until space in buffer
 	tx_buffer[i] = c;
 	transmitting = 1;
 	tx_buffer_head = i;
-	UCSR1B = (1<<RXEN1) | (1<<TXCIE1) | (1<<TXEN1) | (1<<RXCIE1) | (1<<UDRIE1);
+	//UCSR1B = (1<<RXEN1) | (1<<TXCIE1) | (1<<TXEN1) | (1<<RXCIE1) | (1<<UDRIE1);
+	sbi(UCSR1B, UDRIE1);
+
 #if ARDUINO >= 100
 	return 1;
 #endif
@@ -188,7 +201,8 @@ ISR(USART1_UDRE_vect)
 
 	if (tx_buffer_head == tx_buffer_tail) {
 		// buffer is empty, disable transmit interrupt
-		UCSR1B = (1<<RXEN1) | (1<<TXCIE1) | (1<<TXEN1) | (1<<RXCIE1);
+		//UCSR1B = (1<<RXEN1) | (1<<TXCIE1) | (1<<TXEN1) | (1<<RXCIE1);
+		cbi(UCSR1B, UDRIE1);
 	} else {
 		i = tx_buffer_tail + 1;
 		if (i >= TX_BUFFER_SIZE) i = 0;
