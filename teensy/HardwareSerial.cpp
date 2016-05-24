@@ -146,6 +146,7 @@ void HardwareSerial::write(uint8_t c)
 #endif
 {
 	uint8_t i;
+	uint8_t status;
 
 	if (!(UCSR1B & (1<<TXEN1))) {
 #if ARDUINO >= 100
@@ -162,9 +163,12 @@ void HardwareSerial::write(uint8_t c)
 	// to the data register and be done. This shortcut helps
 	// significantly improve the effective datarate at high (>
 	// 500kbit/s) bitrates, where interrupt overhead becomes a slowdown.
-	if (tx_buffer_head == tx_buffer_tail && bit_is_set(UCSR1A, UDRE1)) {
+	if ((tx_buffer_head == tx_buffer_tail) && (UCSR1A & (1<<UDRE1))) {
+		status = SREG;
+		cli();
 		UDR1 = c;
 		transmitting = 1;
+		SREG = status;
 		return 1;
 	}
 
