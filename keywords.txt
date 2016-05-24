@@ -390,6 +390,3 @@ update	KEYWORD2
 isEnabled	KEYWORD2
 getFrameCount	KEYWORD2
 XPlaneRef	KEYWORD2
-
-# USB Touchscreen
-TouchscreenUSB	KEYWORD1
