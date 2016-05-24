@@ -77,6 +77,7 @@ public:
         virtual int read() { return usb_serial_getchar(); }
         virtual int peek() { return usb_serial_peekchar(); }
         virtual void flush() { usb_serial_flush_output(); }  // TODO: actually wait for data to leave USB...
+        virtual void clear(void) { usb_serial_flush_input(); }
         virtual size_t write(uint8_t c) { return usb_serial_putchar(c); }
         virtual size_t write(const uint8_t *buffer, size_t size) { return usb_serial_write(buffer, size); }
 	size_t write(unsigned long n) { return write((uint8_t)n); }
