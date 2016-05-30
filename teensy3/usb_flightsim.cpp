@@ -219,7 +219,7 @@ void FlightSimFloat::update(float val)
 		if (!hasCallbackInfo) {
 			(*change_callback)(val);
 		} else {
-			(*(void(*)(long,void*))change_callback)(val,callbackInfo);
+			(*(void(*)(float,void*))change_callback)(val,callbackInfo);
 		}
 	}
 }
