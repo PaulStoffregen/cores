@@ -208,6 +208,7 @@ void serial_set_tx(uint8_t pin, uint8_t opendrain)
 			case 5:  CORE_PIN5_CONFIG = 0; break; // PTD7
 			#if defined(KINETISL)
 			case 4:  CORE_PIN4_CONFIG = 0; break; // PTA2
+			case 24: CORE_PIN24_CONFIG = 0; break; // PTE20
 			#endif
 		}
 		if (opendrain) {
@@ -220,6 +221,7 @@ void serial_set_tx(uint8_t pin, uint8_t opendrain)
 			case 5:  CORE_PIN5_CONFIG = cfg | PORT_PCR_MUX(3); break;
 			#if defined(KINETISL)
 			case 4:  CORE_PIN4_CONFIG = cfg | PORT_PCR_MUX(2); break;
+			case 24: CORE_PIN24_CONFIG = cfg | PORT_PCR_MUX(4); break;
 			#endif
 		}
 	}
@@ -235,6 +237,7 @@ void serial_set_rx(uint8_t pin)
 			case 21: CORE_PIN21_CONFIG = 0; break; // PTD6
 			#if defined(KINETISL)
 			case 3:  CORE_PIN3_CONFIG = 0; break; // PTA1
+			case 25: CORE_PIN25_CONFIG = 0; break; // PTE21
 			#endif
 		}
 		switch (pin) {
@@ -242,6 +245,7 @@ void serial_set_rx(uint8_t pin)
 			case 21: CORE_PIN21_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
 			#if defined(KINETISL)
 			case 3:  CORE_PIN3_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(2); break;
+			case 25: CORE_PIN25_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(4); break;
 			#endif
 		}
 	}
