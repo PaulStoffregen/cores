@@ -1529,7 +1529,17 @@ extern volatile uint32_t systick_millis_count;
 static inline uint32_t millis(void) __attribute__((always_inline, unused));
 static inline uint32_t millis(void)
 {
-	return systick_millis_count; // single aligned 32 bit is atomic;
+	// Reading a volatile variable to another volatile
+	// seems redundant, but isn't for some cases.
+	// Eventually this should probably be replaced by a
+	// proper memory barrier or other technique.  Please
+	// do not revome this "redundant" code without
+	// carefully verifying the case mentioned here:
+	//
+	// https://forum.pjrc.com/threads/17469-millis%28%29-on-teensy-3?p=104924&viewfull=1#post104924
+	//
+	volatile uint32_t ret = systick_millis_count; // single aligned 32 bit is atomic
+	return ret;
 }
 
 uint32_t micros(void);
