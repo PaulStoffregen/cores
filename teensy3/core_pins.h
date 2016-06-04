@@ -1533,7 +1533,7 @@ static inline uint32_t millis(void)
 	// seems redundant, but isn't for some cases.
 	// Eventually this should probably be replaced by a
 	// proper memory barrier or other technique.  Please
-	// do not revome this "redundant" code without
+	// do not remove this "redundant" code without
 	// carefully verifying the case mentioned here:
 	//
 	// https://forum.pjrc.com/threads/17469-millis%28%29-on-teensy-3?p=104924&viewfull=1#post104924
