@@ -90,13 +90,11 @@ int touchRead(uint8_t pin)
 	*portConfigRegister(pin) = PORT_PCR_MUX(0);
 	SIM_SCGC5 |= SIM_SCGC5_TSI;
 #if defined(KINETISK)
-	TSI0_GENCS = 0;
+	TSI0_GENCS = TSI_GENCS_EOSF;
 	TSI0_PEN = (1 << ch);
 	TSI0_SCANC = TSI_SCANC_REFCHRG(3) | TSI_SCANC_EXTCHRG(CURRENT);
 	TSI0_GENCS = TSI_GENCS_NSCN(NSCAN) | TSI_GENCS_PS(PRESCALE) | TSI_GENCS_TSIEN | TSI_GENCS_SWTS;
-	delayMicroseconds(10);
-	while (TSI0_GENCS & TSI_GENCS_SCNIP) ; // wait
-	delayMicroseconds(1);
+    while ((TSI0_GENCS & TSI_GENCS_EOSF)==0) ; // wait
 	return *((volatile uint16_t *)(&TSI0_CNTR1) + ch);
 #elif defined(KINETISL)
 	TSI0_GENCS = TSI_GENCS_REFCHRG(4) | TSI_GENCS_EXTCHRG(3) | TSI_GENCS_PS(PRESCALE)
