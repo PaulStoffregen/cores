@@ -1117,7 +1117,7 @@ enum IRQ_NUMBER_t {
 #define SIM_SCGC3_USBHSDCD		((uint32_t)0x00000008)		// USBHSDCD Clock Gate Control
 #define SIM_SCGC3_USBHSPHY		((uint32_t)0x00000004)		// USBHSPHY Clock Gate Control
 #define SIM_SCGC3_USBHS			((uint32_t)0x00000002)		// USBHS Clock Gate Control
-#define SIM_SCGC3_RNGA			((uint32_t)0x00000001)		// RNGA Clock on APIS1 (base addr 400A0000)
+//#define SIM_SCGC3_RNGA		((uint32_t)0x00000001)		// RNGA Clock on APIS1 (base addr 400A0000)
 #define SIM_SCGC4		(*(volatile uint32_t *)0x40048034) // System Clock Gating Control Register 4
 #define SIM_SCGC4_VREF			((uint32_t)0x00100000)		// VREF Clock Gate Control
 #define SIM_SCGC4_CMP			((uint32_t)0x00080000)		// Comparator Clock Gate Control
@@ -1155,7 +1155,7 @@ enum IRQ_NUMBER_t {
 #define SIM_SCGC6_USBDCD		((uint32_t)0x00200000)		// USB DCD Clock Gate Control
 #define SIM_SCGC6_SPI1			((uint32_t)0x00002000)		// SPI1 Clock Gate Control
 #define SIM_SCGC6_SPI0			((uint32_t)0x00001000)		// SPI0 Clock Gate Control
-//#define SIM_SCGC6_RNGA		((uint32_t)0x00000200)		// RNGA Clock on APIS0 (base addr 40029000)
+#define SIM_SCGC6_RNGA			((uint32_t)0x00000200)		// RNGA Clock on APIS0 (base addr 40029000)
 #define SIM_SCGC6_FLEXCAN0		((uint32_t)0x00000010)		// FlexCAN0 Clock Gate Control
 #define SIM_SCGC6_CRC			((uint32_t)0x00040000)		// CRC Clock Gate Control
 #endif
