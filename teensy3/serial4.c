@@ -163,7 +163,7 @@ void serial4_set_tx(uint8_t pin, uint8_t opendrain)
 	if (pin == tx_pin_num) return;
 	if ((SIM_SCGC4 & SIM_SCGC4_UART2)) {
 		switch (tx_pin_num & 127) {
-			case 32:  CORE_PIN8_CONFIG = 0; break; // PTD3
+			case 32:  CORE_PIN32_CONFIG = 0; break; // PTB11
 		}
 		if (opendrain) {
 			cfg = PORT_PCR_DSE | PORT_PCR_ODE;
@@ -171,7 +171,7 @@ void serial4_set_tx(uint8_t pin, uint8_t opendrain)
 			cfg = PORT_PCR_DSE | PORT_PCR_SRE;
 		}
 		switch (pin & 127) {
-			case 32:  CORE_PIN8_CONFIG = cfg | PORT_PCR_MUX(3); break;
+			case 32:  CORE_PIN32_CONFIG = cfg | PORT_PCR_MUX(3); break;
 		}
 	}
 	tx_pin_num = pin;
