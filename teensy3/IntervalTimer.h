@@ -74,7 +74,7 @@ class IntervalTimer {
     }
     bool begin(ISR newISR, float newPeriod) {
 	if (newPeriod <= 0 || newPeriod > MAX_PERIOD) return false;
-	uint32_t newValue = (float)(F_BUS / 1000000) * newPeriod + 0.5;
+	uint32_t newValue = (float)(F_BUS / 1000000) * newPeriod - 0.5;
 	if (newValue < 40) return false;
 	return beginCycles(newISR, newValue);
     }
@@ -85,6 +85,16 @@ class IntervalTimer {
     void priority(uint8_t n) {
 	nvic_priority = n;
 	if (PIT_enabled) NVIC_SET_PRIORITY(IRQ_PIT_CH, n);
+    }
+    operator IRQ_NUMBER_t() {
+        if (PIT_enabled) {
+#if defined(KINETISK)
+            return (IRQ_NUMBER_t)(IRQ_PIT_CH + PIT_id);
+#elif defined(KINETISL)
+            return IRQ_PIT;
+#endif
+        }
+        return (IRQ_NUMBER_t)NVIC_NUM_INTERRUPTS;
     }
 #if defined(KINETISK)
     friend void pit0_isr();

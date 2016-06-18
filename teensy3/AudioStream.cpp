@@ -29,6 +29,7 @@
  */
 
 
+#include <string.h> // for memcpy
 #include "AudioStream.h"
 
 
@@ -126,8 +127,10 @@ void AudioStream::release(audio_block_t *block)
 // Transmit an audio data block
 // to all streams that connect to an output.  The block
 // becomes owned by all the recepients, but also is still
-// owned by this object.  Normally, a block is released
-// after it's transmitted.
+// owned by this object.  Normally, a block must be released
+// by the caller after it's transmitted.  This allows the
+// caller to transmit to same block to more than 1 output,
+// and then release it once after all transmit calls.
 void AudioStream::transmit(audio_block_t *block, unsigned char index)
 {
 	for (AudioConnection *c = destination_list; c != NULL; c = c->next_dest) {

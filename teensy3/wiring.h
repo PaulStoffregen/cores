@@ -36,6 +36,9 @@
 extern "C"{
 #endif
 
+#ifdef PI
+#undef PI
+#endif
 #define PI 3.1415926535897932384626433832795
 #define HALF_PI 1.5707963267948966192313216916398
 #define TWO_PI 6.283185307179586476925286766559
@@ -55,6 +58,10 @@ extern "C"{
 // undefine stdlib's abs if encountered
 #ifdef abs
 #undef abs
+#endif
+
+#if __cplusplus >= 201103L && defined(__STRICT_ANSI__)
+#define typeof(a) decltype(a)
 #endif
 
 #define min(a, b) ({ \

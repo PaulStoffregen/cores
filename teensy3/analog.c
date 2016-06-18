@@ -31,7 +31,7 @@
 #include "core_pins.h"
 //#include "HardwareSerial.h"
 
-#if defined(__MK66FX1M0__) // ugly hack for now...
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__) // ugly hack for now...
 #define __MK20DX256__ 
 #endif
 
@@ -516,7 +516,7 @@ void analogWriteDAC0(int val)
 }
 
 
-#if defined(__MK66FX1M0__)
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 void analogWriteDAC1(int val)
 {
 	SIM_SCGC2 |= SIM_SCGC2_DAC1;

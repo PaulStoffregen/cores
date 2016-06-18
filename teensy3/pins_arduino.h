@@ -65,7 +65,7 @@ const static uint8_t A20 = 31;
 const static uint8_t A10 = 24;
 const static uint8_t A11 = 25;
 const static uint8_t A12 = 26;
-#elif defined(__MK66FX1M0__)
+#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
 const static uint8_t A10 = 40;
 const static uint8_t A11 = 41;
 const static uint8_t A12 = 31;
@@ -109,11 +109,18 @@ const static uint8_t SCL = 19;
   #define analogInputToDigitalPin(p) (((p) <= 9) ? (p) + 14 : (((p) <= 12) ? (p) + 14 : -1))
   #define digitalPinHasPWM(p) ((p) == 3 || (p) == 4 || (p) == 6 || (p) == 9 || (p) == 10 || (p) == 16 || (p) == 17 || (p) == 20 || (p) == 22 || (p) == 23)
   #define digitalPinToInterrupt(p)  ((((p) >= 2 && (p) <= 15) || ((p) >= 20 && (p) <= 23)) ? (p) : -1)
-#elif defined(__MK66FX1M0__)
+#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
   #define analogInputToDigitalPin(p) (((p) <= 9) ? (p) + 14 : (((p) >= 12 && (p) <= 20) ? (p) + 19 : -1))
   #define digitalPinHasPWM(p) (((p) >= 2 && (p) <= 10) || (p) == 14 || ((p) >= 20 && (p) <= 23) || (p) == 29 || (p) == 30 || ((p) >= 35 && (p) <= 38))
   #define digitalPinToInterrupt(p)  ((p) < NUM_DIGITAL_PINS ? (p) : -1)
 #endif
+
+#define digitalPinToPCICR(p)    ((volatile uint8_t *)0)
+#define digitalPinToPCICRbit(p) (0)
+#define digitalPinToPCIFR(p)    ((volatile uint8_t *)0)
+#define digitalPinToPCIFRbit(p) (0)
+#define digitalPinToPCMSK(p)    ((volatile uint8_t *)0)
+#define digitalPinToPCMSKbit(p) (0)
 
 
 #if defined(KINETISK)
@@ -198,5 +205,6 @@ static inline uint8_t digitalPinToTimer(uint8_t pin)
 #define SERIAL_PORT_HARDWARE_OPEN1	Serial2
 #define SERIAL_PORT_HARDWARE_OPEN2	Serial3
 
+#define SerialUSB			Serial
 
 #endif

@@ -363,6 +363,181 @@ enum IRQ_NUMBER_t {
 #define HAS_KINETIS_LLWU_16CH
 
 
+#elif defined(__MK64FX512__)
+enum IRQ_NUMBER_t {
+	IRQ_DMA_CH0 =		0,
+	IRQ_DMA_CH1 =		1,
+	IRQ_DMA_CH2 =		2,
+	IRQ_DMA_CH3 =		3,
+	IRQ_DMA_CH4 =		4,
+	IRQ_DMA_CH5 =		5,
+	IRQ_DMA_CH6 =		6,
+	IRQ_DMA_CH7 =		7,
+	IRQ_DMA_CH8 =		8,
+	IRQ_DMA_CH9 =		9,
+	IRQ_DMA_CH10 =		10,
+	IRQ_DMA_CH11 =		11,
+	IRQ_DMA_CH12 =		12,
+	IRQ_DMA_CH13 =		13,
+	IRQ_DMA_CH14 =		14,
+	IRQ_DMA_CH15 =		15,
+	IRQ_DMA_ERROR =		16,
+	IRQ_MCM =		17,
+	IRQ_FTFL_COMPLETE =	18,
+	IRQ_FTFL_COLLISION =	19,
+	IRQ_LOW_VOLTAGE =	20,
+	IRQ_LLWU =		21,
+	IRQ_WDOG =		22,
+	IRQ_RNG =		23,
+	IRQ_I2C0 =		24,
+	IRQ_I2C1 =		25,
+	IRQ_SPI0 =		26,
+	IRQ_SPI1 =		27,
+	IRQ_I2S0_TX =		28,
+	IRQ_I2S0_RX =		29,
+	IRQ_UART0_STATUS =	31,
+	IRQ_UART0_ERROR =	32,
+	IRQ_UART1_STATUS =	33,
+	IRQ_UART1_ERROR =	34,
+	IRQ_UART2_STATUS =	35,
+	IRQ_UART2_ERROR =	36,
+	IRQ_UART3_STATUS =	37,
+	IRQ_UART3_ERROR =	38,
+	IRQ_ADC0 =		39,
+	IRQ_CMP0 =		40,
+	IRQ_CMP1 =		41,
+	IRQ_FTM0 =		42,
+	IRQ_FTM1 =		43,
+	IRQ_FTM2 =		44,
+	IRQ_CMT =		45,
+	IRQ_RTC_ALARM =		46,
+	IRQ_RTC_SECOND =	47,
+	IRQ_PIT_CH0 =		48,
+	IRQ_PIT_CH1 =		49,
+	IRQ_PIT_CH2 =		50,
+	IRQ_PIT_CH3 =		51,
+	IRQ_PDB =		52,
+	IRQ_USBOTG =		53,
+	IRQ_USBDCD =		54,
+	IRQ_DAC0 =		56,
+	IRQ_MCG =		57,
+	IRQ_LPTMR =		58,
+	IRQ_PORTA =		59,
+	IRQ_PORTB =		60,
+	IRQ_PORTC =		61,
+	IRQ_PORTD =		62,
+	IRQ_PORTE =		63,
+	IRQ_SOFTWARE =		64,
+	IRQ_SPI2 =		65,
+	IRQ_UART4_STATUS =	66,
+	IRQ_UART4_ERROR =	67,
+	IRQ_UART5_STATUS =	68,
+	IRQ_UART5_ERROR =	69,
+	IRQ_CMP2 =		70,
+	IRQ_FTM3 =		71,
+	IRQ_DAC1 =		72,
+	IRQ_ADC1 =		73,
+	IRQ_I2C2 =		74,
+	IRQ_CAN0_MESSAGE =	75,
+	IRQ_CAN0_BUS_OFF =	76,
+	IRQ_CAN0_ERROR =	77,
+	IRQ_CAN0_TX_WARN =	78,
+	IRQ_CAN0_RX_WARN =	79,
+	IRQ_CAN0_WAKEUP =	80,
+	IRQ_SDHC =		81,
+	IRQ_ENET_TIMER =	82,
+	IRQ_ENET_TX =		83,
+	IRQ_ENET_RX =		84,
+	IRQ_ENET_ERROR =	85
+};
+#define NVIC_NUM_INTERRUPTS	86
+#define DMA_NUM_CHANNELS	16
+
+#define DMAMUX_SOURCE_TSI		1
+#define DMAMUX_SOURCE_UART0_RX		2
+#define DMAMUX_SOURCE_UART0_TX		3
+#define DMAMUX_SOURCE_UART1_RX		4
+#define DMAMUX_SOURCE_UART1_TX		5
+#define DMAMUX_SOURCE_UART2_RX		6
+#define DMAMUX_SOURCE_UART2_TX		7
+#define DMAMUX_SOURCE_UART3_RX		8
+#define DMAMUX_SOURCE_UART3_TX		9
+#define DMAMUX_SOURCE_UART4_RXTX	10
+#define DMAMUX_SOURCE_UART5_RXTX	11
+#define DMAMUX_SOURCE_I2S0_RX		12
+#define DMAMUX_SOURCE_I2S0_TX		13
+#define DMAMUX_SOURCE_SPI0_RX		14
+#define DMAMUX_SOURCE_SPI0_TX		14
+#define DMAMUX_SOURCE_SPI1_RX		16
+#define DMAMUX_SOURCE_SPI1_TX		17
+#define DMAMUX_SOURCE_I2C0		18
+#define DMAMUX_SOURCE_I2C1		19
+#define DMAMUX_SOURCE_I2C2		19
+#define DMAMUX_SOURCE_FTM0_CH0		20
+#define DMAMUX_SOURCE_FTM0_CH1		21
+#define DMAMUX_SOURCE_FTM0_CH2		22
+#define DMAMUX_SOURCE_FTM0_CH3		23
+#define DMAMUX_SOURCE_FTM0_CH4		24
+#define DMAMUX_SOURCE_FTM0_CH5		25
+#define DMAMUX_SOURCE_FTM0_CH6		26
+#define DMAMUX_SOURCE_FTM0_CH7		27
+#define DMAMUX_SOURCE_FTM1_CH0		28
+#define DMAMUX_SOURCE_FTM1_CH1		29
+#define DMAMUX_SOURCE_FTM2_CH0		30
+#define DMAMUX_SOURCE_FTM2_CH1		31
+#define DMAMUX_SOURCE_FTM3_CH0		32
+#define DMAMUX_SOURCE_FTM3_CH1		33
+#define DMAMUX_SOURCE_FTM3_CH2		34
+#define DMAMUX_SOURCE_FTM3_CH3		35
+#define DMAMUX_SOURCE_FTM3_CH4		36
+#define DMAMUX_SOURCE_FTM3_CH5		37
+#define DMAMUX_SOURCE_FTM3_CH6		38
+#define DMAMUX_SOURCE_FTM3_CH7		39
+#define DMAMUX_SOURCE_ADC0		40
+#define DMAMUX_SOURCE_ADC1		41
+#define DMAMUX_SOURCE_CMP0		42
+#define DMAMUX_SOURCE_CMP1		43
+#define DMAMUX_SOURCE_CMP2		44
+#define DMAMUX_SOURCE_DAC0		45
+#define DMAMUX_SOURCE_DAC1		46
+#define DMAMUX_SOURCE_CMT		47
+#define DMAMUX_SOURCE_PDB		48
+#define DMAMUX_SOURCE_PORTA		49
+#define DMAMUX_SOURCE_PORTB		50
+#define DMAMUX_SOURCE_PORTC		51
+#define DMAMUX_SOURCE_PORTD		52
+#define DMAMUX_SOURCE_PORTE		53
+#define DMAMUX_SOURCE_IEEE1588_T0	54
+#define DMAMUX_SOURCE_IEEE1588_T1	55
+#define DMAMUX_SOURCE_IEEE1588_T2	56
+#define DMAMUX_SOURCE_IEEE1588_T3	57
+#define DMAMUX_SOURCE_ALWAYS0		58
+#define DMAMUX_SOURCE_ALWAYS1		59
+#define DMAMUX_SOURCE_ALWAYS2		60
+#define DMAMUX_SOURCE_ALWAYS3		61
+#define DMAMUX_SOURCE_ALWAYS4		62
+#define DMAMUX_SOURCE_ALWAYS5		63
+#define DMAMUX_NUM_SOURCE_ALWAYS	6
+
+#define KINETISK
+#define HAS_KINETISK_UART0
+#define HAS_KINETISK_UART0_FIFO
+#define HAS_KINETISK_UART1
+#define HAS_KINETISK_UART1_FIFO
+#define HAS_KINETISK_UART2
+#define HAS_KINETISK_UART3
+#define HAS_KINETISK_UART4
+#define HAS_KINETISK_UART5
+#define HAS_KINETIS_I2C0
+#define HAS_KINETIS_I2C0_STOPF
+#define HAS_KINETIS_I2C1
+#define HAS_KINETIS_I2C1_STOPF
+#define HAS_KINETIS_I2C2
+#define HAS_KINETIS_I2C2_STOPF
+#define HAS_KINETIS_LLWU_32CH
+#define HAS_KINETIS_MPU
+
+
 #elif defined(__MK66FX1M0__)
 // https://forum.pjrc.com/threads/24633-Any-Chance-of-a-Teensy-3-1?p=78655&viewfull=1#post78655
 enum IRQ_NUMBER_t {
@@ -389,6 +564,7 @@ enum IRQ_NUMBER_t {
 	IRQ_LOW_VOLTAGE =	20,
 	IRQ_LLWU =		21,
 	IRQ_WDOG =		22,
+	IRQ_RNG =		23,
 	IRQ_I2C0 =		24,
 	IRQ_I2C1 =		25,
 	IRQ_SPI0 =		26,
@@ -565,7 +741,11 @@ enum IRQ_NUMBER_t {
 #endif // end of board-specific definitions
 
 
-#if (F_CPU == 180000000)
+#if (F_CPU == 192000000)
+ #define F_PLL 192000000
+ #define F_BUS 48000000
+ #define F_MEM 27428571
+#elif (F_CPU == 180000000)
  #define F_PLL 180000000
  #define F_BUS 60000000
  #define F_MEM 25714286
@@ -621,7 +801,7 @@ enum IRQ_NUMBER_t {
 
 
 #ifndef NULL
-#define NULL ((void *)0)
+#define NULL (0)
 #endif
 
 // Port control and interrupts (PORT)
@@ -1041,6 +1221,7 @@ enum IRQ_NUMBER_t {
 // System Mode Controller
 
 #define SMC_PMPROT		(*(volatile uint8_t  *)0x4007E000) // Power Mode Protection Register
+#define SMC_PMPROT_AHSRUN		((uint8_t)0x80)			// Allow high speed run mode
 #define SMC_PMPROT_AVLP			((uint8_t)0x20)			// Allow very low power modes
 #define SMC_PMPROT_ALLS			((uint8_t)0x08)			// Allow low leakage stop mode
 #define SMC_PMPROT_AVLLS		((uint8_t)0x02)			// Allow very low leakage stop mode
@@ -1060,6 +1241,7 @@ enum IRQ_NUMBER_t {
 #define SMC_PMSTAT_VLPS			((uint8_t)0x10)			// Current power mode is VLPS
 #define SMC_PMSTAT_LLS			((uint8_t)0x20)			// Current power mode is LLS
 #define SMC_PMSTAT_VLLS			((uint8_t)0x40)			// Current power mode is VLLS
+#define SMC_PMSTAT_HSRUN		((uint8_t)0x80)			// Current power mode is HSRUN
 
 // Power Management Controller
 
@@ -1608,9 +1790,9 @@ enum IRQ_NUMBER_t {
 #define DMA_TCD_CITER_ELINKYES_CITER_MASK	0x01FF
 #define DMA_TCD_NBYTES_SMLOE		    ((uint32_t)1<<31)		    // Source Minor Loop Offset Enable
 #define DMA_TCD_NBYTES_DMLOE		    ((uint32_t)1<<30)		    // Destination Minor Loop Offset Enable
-#define DMA_TCD_NBYTES_MLOFFNO_NBYTES(n)    ((uint32_t)(n))		    // NBytes transfer count when minor loop disabled
-#define DMA_TCD_NBYTES_MLOFFYES_NBYTES(n)   ((uint32_t)(n & 0x1F))	    // NBytes transfer count when minor loop enabled
-#define DMA_TCD_NBYTES_MLOFFYES_MLOFF(n)    ((uint32_t)(n & 0xFFFFF)<<10)   // Offset
+#define DMA_TCD_NBYTES_MLOFFNO_NBYTES(n)    ((uint32_t)((n) & 0x3FFFFFFF))  // NBytes transfer count when minor loop disabled
+#define DMA_TCD_NBYTES_MLOFFYES_NBYTES(n)   ((uint32_t)((n) & 0x1F))	    // NBytes transfer count when minor loop enabled
+#define DMA_TCD_NBYTES_MLOFFYES_MLOFF(n)    ((uint32_t)((n) & 0xFFFFF)<<10) // Minor loop offset
 
 #if DMA_NUM_CHANNELS >= 4
 #define DMA_TCD0_SADDR		(*(volatile const void * volatile *)0x40009000) // TCD Source Address
@@ -2572,10 +2754,28 @@ typedef struct {
 // Analog Comparator (CMP)
 
 #define CMP0_CR0		(*(volatile uint8_t  *)0x40073000) // CMP Control Register 0
-#define CMP0_CR1		(*(volatile uint8_t  *)0x40073001) // CMP Control Register 1
+#define CMP_CR0_FILTER_CNT(n)   (uint8_t)(((n) & 0x07) << 4)
+#define CMP_CR0_HYSTCTR(n)      (uint8_t)(((n) & 0x03) << 0)
+#define CMP0_CR1		(*(volatile uint8_t  *)0x40073001) // CMP Control Register
+#define CMP_CR1_SE              (uint8_t)0x80 // Sample Enable
+#define CMP_CR1_WE              (uint8_t)0x40 // Windowing Enable
+#define CMP_CR1_PMODE           (uint8_t)0x10 // Power Mode Select
+#define CMP_CR1_INV             (uint8_t)0x08 // Comparator INVERT
+#define CMP_CR1_COS             (uint8_t)0x04 // Comparator Output Select
+#define CMP_CR1_OPE             (uint8_t)0x02 // Comparator Output Pin Enable
+#define CMP_CR1_EN              (uint8_t)0x01 // Comparator Module Enable
 #define CMP0_FPR		(*(volatile uint8_t  *)0x40073002) // CMP Filter Period Register
 #define CMP0_SCR		(*(volatile uint8_t  *)0x40073003) // CMP Status and Control Register
+#define CMP_SCR_DMAEN           (uint8_t)0x40 // DMA Enable Control
+#define CMP_SCR_IER             (uint8_t)0x10 // Comparator Interrupt Enable Rising
+#define CMP_SCR_IEF             (uint8_t)0x08 // Comparator Interrupt Enable Falling
+#define CMP_SCR_CFR             (uint8_t)0x04 // Analog Comparator Flag Rising
+#define CMP_SCR_CFF             (uint8_t)0x02 // Analog Comparator Flag Falling
+#define CMP_SCR_COUT            (uint8_t)0x01 // Analog Comparator Output
 #define CMP0_DACCR		(*(volatile uint8_t  *)0x40073004) // DAC Control Register
+#define CMP_DACCR_DACEN         (uint8_t)0x80 // DAC Enable
+#define CMP_DACCR_VRSEL         (uint8_t)0x40 // Supply Voltage Reference Source Select
+#define CMP_DACCR_VOSEL(n)      (uint8_t)(((n) & 0x3F) << 0) // DAC Output Voltage Select
 #define CMP0_MUXCR		(*(volatile uint8_t  *)0x40073005) // MUX Control Register
 #define CMP1_CR0		(*(volatile uint8_t  *)0x40073008) // CMP Control Register 0
 #define CMP1_CR1		(*(volatile uint8_t  *)0x40073009) // CMP Control Register 1
@@ -4496,6 +4696,7 @@ typedef struct __attribute__((packed)) {
 #define NVIC_DISABLE_IRQ(n)	(*((volatile uint32_t *)0xE000E180 + ((n) >> 5)) = (1 << ((n) & 31)))
 #define NVIC_SET_PENDING(n)	(*((volatile uint32_t *)0xE000E200 + ((n) >> 5)) = (1 << ((n) & 31)))
 #define NVIC_CLEAR_PENDING(n)	(*((volatile uint32_t *)0xE000E280 + ((n) >> 5)) = (1 << ((n) & 31)))
+#define NVIC_IS_ENABLED(n)	(*((volatile uint32_t *)0xE000E100 + ((n) >> 5)) & (1 << ((n) & 31)))
 #define NVIC_IS_PENDING(n)	(*((volatile uint32_t *)0xE000E200 + ((n) >> 5)) & (1 << ((n) & 31)))
 #define NVIC_IS_ACTIVE(n)	(*((volatile uint32_t *)0xE000E300 + ((n) >> 5)) & (1 << ((n) & 31)))
 #ifdef KINETISK
@@ -4536,6 +4737,9 @@ typedef struct __attribute__((packed)) {
 #define SCB_VTOR		(*(volatile uint32_t *)0xE000ED08) // Vector Table Offset
 #define SCB_AIRCR		(*(volatile uint32_t *)0xE000ED0C) // Application Interrupt and Reset Control
 #define SCB_SCR			(*(volatile uint32_t *)0xE000ED10) // System Control Register
+#define SCB_SCR_SEVONPEND   ((uint8_t)0x10)	   // Send Event on Pending bit
+#define SCB_SCR_SLEEPDEEP   ((uint8_t)0x04)	   // Sleep or Deep Sleep
+#define SCB_SCR_SLEEPONEXIT ((uint8_t)0x02)	   // Sleep-on-exit
 #define SCB_CCR			(*(volatile uint32_t *)0xE000ED14) // Configuration and Control
 #define SCB_SHPR1		(*(volatile uint32_t *)0xE000ED18) // System Handler Priority Register 1
 #define SCB_SHPR2		(*(volatile uint32_t *)0xE000ED1C) // System Handler Priority Register 2
@@ -4545,6 +4749,15 @@ typedef struct __attribute__((packed)) {
 #define SCB_HFSR		(*(volatile uint32_t *)0xE000ED2C) // HardFault Status
 #define SCB_DFSR		(*(volatile uint32_t *)0xE000ED30) // Debug Fault Status
 #define SCB_MMFAR		(*(volatile uint32_t *)0xE000ED34) // MemManage Fault Address
+#define SCB_BFAR		(*(volatile uint32_t *)0xE000ED38) // Bus Fault Address
+#define SCB_AFAR		(*(volatile uint32_t *)0xE000ED3C) // Aux Fault Address
+#define SCB_CPACR		(*(volatile uint32_t *)0xE000ED88) // Coprocessor Access Control
+#define SCB_FPCCR		(*(volatile uint32_t *)0xE000EF34) // FP Context Control
+#define SCB_FPCAR		(*(volatile uint32_t *)0xE000EF38) // FP Context Address
+#define SCB_FPDSCR		(*(volatile uint32_t *)0xE000EF3C) // FP Default Status Control
+#define SCB_MVFR0		(*(volatile uint32_t *)0xE000EF40) // Media & FP Feature 0
+#define SCB_MVFR1		(*(volatile uint32_t *)0xE000EF44) // Media & FP Feature 1
+#define SCB_MVFR2		(*(volatile uint32_t *)0xE000EF48) // Media & FP Feature 2
 
 #define SYST_CSR		(*(volatile uint32_t *)0xE000E010) // SysTick Control and Status
 #define SYST_CSR_COUNTFLAG		((uint32_t)0x00010000)

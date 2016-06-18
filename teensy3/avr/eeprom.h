@@ -30,6 +30,8 @@
 
 #if defined(__MK20DX128__) || defined(__MK20DX256__)
   #define E2END 0x7FF
+#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
+  #define E2END 0xFFF
 #elif defined(__MKL26Z64__)
   #define E2END 0x7F
 #else

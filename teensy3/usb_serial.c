@@ -39,6 +39,7 @@
 #if F_CPU >= 20000000
 
 uint32_t usb_cdc_line_coding[2];
+volatile uint32_t usb_cdc_line_rtsdtr_millis;
 volatile uint8_t usb_cdc_line_rtsdtr=0;
 volatile uint8_t usb_cdc_transmit_flush_timer=0;
 
@@ -148,7 +149,11 @@ void usb_serial_flush_input(void)
 // software.  If it's too long, we stall the user's program when no software is running.
 #define TX_TIMEOUT_MSEC 70
 
-#if F_CPU == 168000000
+#if F_CPU == 192000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1280)
+#elif F_CPU == 180000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1200)
+#elif F_CPU == 168000000
   #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1100)
 #elif F_CPU == 144000000
   #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 932)

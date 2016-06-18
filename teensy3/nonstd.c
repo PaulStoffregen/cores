@@ -72,7 +72,7 @@ char * dtostrf(float val, int width, unsigned int precision, char *buf)
 	const char *s, *e;
 	char *p;
 
-	s = fcvt(val, precision, &decpt, &sign);
+	s = fcvtf(val, precision, &decpt, &sign);
 	if (precision == 0 && decpt == 0) {
 		s = (*s < '5') ? "0" : "1";
 		reqd = 1;

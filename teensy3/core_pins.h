@@ -40,6 +40,8 @@
 #define INPUT		0
 #define OUTPUT		1
 #define INPUT_PULLUP	2
+#define INPUT_PULLDOWN   3
+#define OUTPUT_OPENDRAIN 4
 #define LSBFIRST	0
 #define MSBFIRST	1
 #define _BV(n)		(1<<(n))
@@ -111,7 +113,7 @@
 #define CORE_NUM_INTERRUPT      24  // really only 18, but 6 "holes"
 #define CORE_NUM_ANALOG         13
 #define CORE_NUM_PWM            10
-#elif defined(__MK66FX1M0__)
+#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
 #define CORE_NUM_TOTAL_PINS     40
 #define CORE_NUM_DIGITAL        40
 #define CORE_NUM_INTERRUPT      40
@@ -727,7 +729,7 @@
 #define CORE_INT23_PIN		23
 
 
-#elif defined(__MK66FX1M0__)
+#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
 
 #define CORE_PIN0_BIT		16
 #define CORE_PIN1_BIT		17
@@ -1462,7 +1464,7 @@ void analogReadAveraging(unsigned int num);
 void analog_init(void);
 
 
-#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK66FX1M0__)
+#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
 #define DEFAULT         0
 #define INTERNAL        2
 #define INTERNAL1V2     2
@@ -1535,7 +1537,11 @@ uint32_t micros(void);
 static inline void delayMicroseconds(uint32_t) __attribute__((always_inline, unused));
 static inline void delayMicroseconds(uint32_t usec)
 {
-#if F_CPU == 168000000
+#if F_CPU == 192000000
+	uint32_t n = usec * 64;
+#elif F_CPU == 180000000
+	uint32_t n = usec * 60;
+#elif F_CPU == 168000000
 	uint32_t n = usec * 56;
 #elif F_CPU == 144000000
 	uint32_t n = usec * 48;
