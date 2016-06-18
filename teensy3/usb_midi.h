@@ -126,7 +126,6 @@ class usb_midi_class
 		usb_midi_send_sysex(data, length);
 	}
 	void sendRealTime(uint32_t type) __attribute__((always_inline)) {
-		uint32_t data = ( (type & 0xFF) | ((type << 8) & 0xFF00) );
 		switch (type) {
 			case 0xF8: // Clock
 			case 0xFA: // Start
@@ -134,7 +133,7 @@ class usb_midi_class
 			case 0xFB: // Continue
 			case 0xFE: // ActiveSensing
 			case 0xFF: // SystemReset
-				usb_midi_write_packed(data);
+				usb_midi_write_packed((type << 8) | 0x0F);
 				break;
 			default: // Invalid Real Time marker
 				break;
