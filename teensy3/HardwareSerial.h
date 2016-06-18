@@ -164,6 +164,57 @@ int serial3_getchar(void);
 int serial3_peek(void);
 void serial3_clear(void);
 
+void serial4_begin(uint32_t divisor);
+void serial4_format(uint32_t format);
+void serial4_end(void);
+void serial4_set_transmit_pin(uint8_t pin);
+void serial4_set_rx(uint8_t pin);
+void serial4_set_tx(uint8_t pin, uint8_t opendrain);
+int serial4_set_rts(uint8_t pin);
+int serial4_set_cts(uint8_t pin);
+void serial4_putchar(uint32_t c);
+void serial4_write(const void *buf, unsigned int count);
+void serial4_flush(void);
+int serial4_write_buffer_free(void);
+int serial4_available(void);
+int serial4_getchar(void);
+int serial4_peek(void);
+void serial4_clear(void);
+
+void serial5_begin(uint32_t divisor);
+void serial5_format(uint32_t format);
+void serial5_end(void);
+void serial5_set_transmit_pin(uint8_t pin);
+void serial5_set_rx(uint8_t pin);
+void serial5_set_tx(uint8_t pin, uint8_t opendrain);
+int serial5_set_rts(uint8_t pin);
+int serial5_set_cts(uint8_t pin);
+void serial5_putchar(uint32_t c);
+void serial5_write(const void *buf, unsigned int count);
+void serial5_flush(void);
+int serial5_write_buffer_free(void);
+int serial5_available(void);
+int serial5_getchar(void);
+int serial5_peek(void);
+void serial5_clear(void);
+
+void serial6_begin(uint32_t divisor);
+void serial6_format(uint32_t format);
+void serial6_end(void);
+void serial6_set_transmit_pin(uint8_t pin);
+void serial6_set_rx(uint8_t pin);
+void serial6_set_tx(uint8_t pin, uint8_t opendrain);
+int serial6_set_rts(uint8_t pin);
+int serial6_set_cts(uint8_t pin);
+void serial6_putchar(uint32_t c);
+void serial6_write(const void *buf, unsigned int count);
+void serial6_flush(void);
+int serial6_write_buffer_free(void);
+int serial6_available(void);
+int serial6_getchar(void);
+int serial6_peek(void);
+void serial6_clear(void);
+
 #ifdef __cplusplus
 }
 #endif
@@ -277,6 +328,114 @@ public:
 };
 extern HardwareSerial3 Serial3;
 extern void serialEvent3(void);
+
+class HardwareSerial4 : public HardwareSerial
+{
+public:
+	virtual void begin(uint32_t baud) { serial4_begin(BAUD2DIV3(baud)); }
+	virtual void begin(uint32_t baud, uint32_t format) {
+					  serial4_begin(BAUD2DIV3(baud));
+					  serial4_format(format); }
+	virtual void end(void)          { serial4_end(); }
+	virtual void transmitterEnable(uint8_t pin) { serial4_set_transmit_pin(pin); }
+	virtual void setRX(uint8_t pin) { serial4_set_rx(pin); }
+	virtual void setTX(uint8_t pin, bool opendrain=false) { serial4_set_tx(pin, opendrain); }
+	virtual bool attachRts(uint8_t pin) { return serial4_set_rts(pin); }
+	virtual bool attachCts(uint8_t pin) { return serial4_set_cts(pin); }
+	virtual int available(void)     { return serial4_available(); }
+	virtual int peek(void)          { return serial4_peek(); }
+	virtual int read(void)          { return serial4_getchar(); }
+	virtual void flush(void)        { serial4_flush(); }
+	virtual void clear(void)	{ serial4_clear(); }
+	virtual int availableForWrite(void) { return serial4_write_buffer_free(); }
+	virtual size_t write(uint8_t c) { serial4_putchar(c); return 1; }
+	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
+	virtual size_t write(long n)            { return write((uint8_t)n); }
+	virtual size_t write(unsigned int n)    { return write((uint8_t)n); }
+	virtual size_t write(int n)             { return write((uint8_t)n); }
+	virtual size_t write(const uint8_t *buffer, size_t size)
+					{ serial4_write(buffer, size); return size; }
+        virtual size_t write(const char *str)	{ size_t len = strlen(str);
+					  serial4_write((const uint8_t *)str, len);
+					  return len; }
+	virtual size_t write9bit(uint32_t c)	{ serial4_putchar(c); return 1; }
+	operator bool()			{ return true; }
+};
+extern HardwareSerial4 Serial4;
+extern void serialEvent4(void);
+
+class HardwareSerial5 : public HardwareSerial
+{
+public:
+	virtual void begin(uint32_t baud) { serial5_begin(BAUD2DIV3(baud)); }
+	virtual void begin(uint32_t baud, uint32_t format) {
+					  serial5_begin(BAUD2DIV3(baud));
+					  serial5_format(format); }
+	virtual void end(void)          { serial5_end(); }
+	virtual void transmitterEnable(uint8_t pin) { serial5_set_transmit_pin(pin); }
+	virtual void setRX(uint8_t pin) { serial5_set_rx(pin); }
+	virtual void setTX(uint8_t pin, bool opendrain=false) { serial5_set_tx(pin, opendrain); }
+	virtual bool attachRts(uint8_t pin) { return serial5_set_rts(pin); }
+	virtual bool attachCts(uint8_t pin) { return serial5_set_cts(pin); }
+	virtual int available(void)     { return serial5_available(); }
+	virtual int peek(void)          { return serial5_peek(); }
+	virtual int read(void)          { return serial5_getchar(); }
+	virtual void flush(void)        { serial5_flush(); }
+	virtual void clear(void)	{ serial5_clear(); }
+	virtual int availableForWrite(void) { return serial5_write_buffer_free(); }
+	virtual size_t write(uint8_t c) { serial5_putchar(c); return 1; }
+	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
+	virtual size_t write(long n)            { return write((uint8_t)n); }
+	virtual size_t write(unsigned int n)    { return write((uint8_t)n); }
+	virtual size_t write(int n)             { return write((uint8_t)n); }
+	virtual size_t write(const uint8_t *buffer, size_t size)
+					{ serial5_write(buffer, size); return size; }
+        virtual size_t write(const char *str)	{ size_t len = strlen(str);
+					  serial5_write((const uint8_t *)str, len);
+					  return len; }
+	virtual size_t write9bit(uint32_t c)	{ serial5_putchar(c); return 1; }
+	operator bool()			{ return true; }
+};
+extern HardwareSerial5 Serial5;
+extern void serialEvent5(void);
+
+class HardwareSerial6 : public HardwareSerial
+{
+public:
+	virtual void begin(uint32_t baud) { serial6_begin(BAUD2DIV3(baud)); }
+	virtual void begin(uint32_t baud, uint32_t format) {
+					  serial6_begin(BAUD2DIV3(baud));
+					  serial6_format(format); }
+	virtual void end(void)          { serial6_end(); }
+	virtual void transmitterEnable(uint8_t pin) { serial6_set_transmit_pin(pin); }
+	virtual void setRX(uint8_t pin) { serial6_set_rx(pin); }
+	virtual void setTX(uint8_t pin, bool opendrain=false) { serial6_set_tx(pin, opendrain); }
+	virtual bool attachRts(uint8_t pin) { return serial6_set_rts(pin); }
+	virtual bool attachCts(uint8_t pin) { return serial6_set_cts(pin); }
+	virtual int available(void)     { return serial6_available(); }
+	virtual int peek(void)          { return serial6_peek(); }
+	virtual int read(void)          { return serial6_getchar(); }
+	virtual void flush(void)        { serial6_flush(); }
+	virtual void clear(void)	{ serial6_clear(); }
+	virtual int availableForWrite(void) { return serial6_write_buffer_free(); }
+	virtual size_t write(uint8_t c) { serial6_putchar(c); return 1; }
+	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
+	virtual size_t write(long n)            { return write((uint8_t)n); }
+	virtual size_t write(unsigned int n)    { return write((uint8_t)n); }
+	virtual size_t write(int n)             { return write((uint8_t)n); }
+	virtual size_t write(const uint8_t *buffer, size_t size)
+					{ serial6_write(buffer, size); return size; }
+        virtual size_t write(const char *str)	{ size_t len = strlen(str);
+					  serial6_write((const uint8_t *)str, len);
+					  return len; }
+	virtual size_t write9bit(uint32_t c)	{ serial6_putchar(c); return 1; }
+	operator bool()			{ return true; }
+};
+extern HardwareSerial6 Serial6;
+extern void serialEvent6(void);
+
+
+
 
 #endif
 #endif
