@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -91,8 +91,8 @@ static volatile uint8_t rx_buffer_tail = 0;
 #endif
 #if defined(KINETISL)
 static uint8_t rx_pin_num = 7;
-static uint8_t tx_pin_num = 8;
 #endif
+static uint8_t tx_pin_num = 8;
 
 // UART0 and UART1 are clocked by F_CPU, UART2 is clocked by F_BUS
 // UART0 has 8 byte fifo, UART1 and UART2 have 1 byte buffer
@@ -188,7 +188,6 @@ void serial3_set_transmit_pin(uint8_t pin)
 
 void serial3_set_tx(uint8_t pin, uint8_t opendrain)
 {
-	#if defined(KINETISL)
 	uint32_t cfg;
 
 	if (opendrain) pin |= 128;
@@ -196,7 +195,9 @@ void serial3_set_tx(uint8_t pin, uint8_t opendrain)
 	if ((SIM_SCGC4 & SIM_SCGC4_UART2)) {
 		switch (tx_pin_num & 127) {
 			case 8:  CORE_PIN8_CONFIG = 0; break; // PTD3
+	#if defined(KINETISL)
 			case 20: CORE_PIN20_CONFIG = 0; break; // PTD5
+	#endif
 		}
 		if (opendrain) {
 			cfg = PORT_PCR_DSE | PORT_PCR_ODE;
@@ -205,11 +206,12 @@ void serial3_set_tx(uint8_t pin, uint8_t opendrain)
 		}
 		switch (pin & 127) {
 			case 8:  CORE_PIN8_CONFIG = cfg | PORT_PCR_MUX(3); break;
+	#if defined(KINETISL)
 			case 20: CORE_PIN20_CONFIG = cfg | PORT_PCR_MUX(3); break;
+	#endif
 		}
 	}
 	tx_pin_num = pin;
-	#endif
 }
 
 void serial3_set_rx(uint8_t pin)
@@ -370,7 +372,7 @@ void serial3_clear(void)
 	if (rts_pin) rts_assert();
 }
 
-// status interrupt combines 
+// status interrupt combines
 //   Transmit data below watermark  UART_S1_TDRE
 //   Transmit complete		    UART_S1_TC
 //   Idle line			    UART_S1_IDLE
@@ -393,7 +395,7 @@ void uart2_status_isr(void)
 		if (head >= RX_BUFFER_SIZE) head = 0;
 		if (head != rx_buffer_tail) {
 			rx_buffer[head] = n;
-			rx_buffer_head = head; 
+			rx_buffer_head = head;
 		}
 		if (rts_pin) {
 			int avail;
