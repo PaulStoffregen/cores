@@ -41,8 +41,14 @@ void yield(void)
 	if (running) return; // TODO: does this need to be atomic?
 	running = 1;
 	if (Serial.available()) serialEvent();
+	#ifndef _DISABLE_SERIAL1
 	if (Serial1.available()) serialEvent1();
+	#endif
+	#ifndef _DISABLE_SERIAL2
 	if (Serial2.available()) serialEvent2();
+	#endif
+	#ifndef _DISABLE_SERIAL3
 	if (Serial3.available()) serialEvent3();
+	#endif
 	running = 0;
 };
