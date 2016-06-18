@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -212,7 +212,9 @@ void serial2_set_tx(uint8_t pin, uint8_t opendrain)
 	if ((SIM_SCGC4 & SIM_SCGC4_UART2)) {
 		switch (tx_pin_num & 127) {
 			case 10: CORE_PIN10_CONFIG = 0; break; // PTC4
+			#if !(defined(__MK64FX512__) || defined(__MK66FX1M0__))  // not on T3.4 or T3.5
 			case 31: CORE_PIN31_CONFIG = 0; break; // PTE0
+			#endif
 		}
 		if (opendrain) {
 			cfg = PORT_PCR_DSE | PORT_PCR_ODE;
@@ -221,7 +223,9 @@ void serial2_set_tx(uint8_t pin, uint8_t opendrain)
 		}
 		switch (pin & 127) {
 			case 10: CORE_PIN10_CONFIG = cfg | PORT_PCR_MUX(3); break;
+			#if !(defined(__MK64FX512__) || defined(__MK66FX1M0__))  // not on T3.4 or T3.5
 			case 31: CORE_PIN31_CONFIG = cfg | PORT_PCR_MUX(3); break;
+			#endif
 		}
 	}
 	tx_pin_num = pin;
@@ -235,11 +239,15 @@ void serial2_set_rx(uint8_t pin)
 	if ((SIM_SCGC4 & SIM_SCGC4_UART2)) {
 		switch (rx_pin_num) {
 			case 9: CORE_PIN9_CONFIG = 0; break; // PTC3
+			#if !(defined(__MK64FX512__) || defined(__MK66FX1M0__))  // not on T3.4 or T3.5
 			case 26: CORE_PIN26_CONFIG = 0; break; // PTE1
+			#endif
 		}
 		switch (pin) {
 			case 9: CORE_PIN9_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
+			#if !(defined(__MK64FX512__) || defined(__MK66FX1M0__))  // not on T3.4 or T3.5
 			case 26: CORE_PIN26_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
+			#endif
 		}
 	}
 	rx_pin_num = pin;
@@ -431,7 +439,7 @@ void serial2_clear(void)
 	if (rts_pin) rts_assert();
 }
 
-// status interrupt combines 
+// status interrupt combines
 //   Transmit data below watermark  UART_S1_TDRE
 //   Transmit complete		    UART_S1_TC
 //   Idle line			    UART_S1_IDLE
@@ -518,7 +526,7 @@ void uart1_status_isr(void)
 		if (head >= RX_BUFFER_SIZE) head = 0;
 		if (head != rx_buffer_tail) {
 			rx_buffer[head] = n;
-			rx_buffer_head = head; 
+			rx_buffer_head = head;
 		}
 	}
 	c = UART1_C2;

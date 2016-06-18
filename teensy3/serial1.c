@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -210,6 +210,9 @@ void serial_set_tx(uint8_t pin, uint8_t opendrain)
 			case 4:  CORE_PIN4_CONFIG = 0; break; // PTA2
 			case 24: CORE_PIN24_CONFIG = 0; break; // PTE20
 			#endif
+			#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+			case 26: CORE_PIN26_CONFIG = 0; break; //PTA14
+			#endif
 		}
 		if (opendrain) {
 			cfg = PORT_PCR_DSE | PORT_PCR_ODE;
@@ -222,6 +225,9 @@ void serial_set_tx(uint8_t pin, uint8_t opendrain)
 			#if defined(KINETISL)
 			case 4:  CORE_PIN4_CONFIG = cfg | PORT_PCR_MUX(2); break;
 			case 24: CORE_PIN24_CONFIG = cfg | PORT_PCR_MUX(4); break;
+			#endif
+			#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+			case 26: CORE_PIN26_CONFIG = cfg | PORT_PCR_MUX(3); break;
 			#endif
 		}
 	}
@@ -239,6 +245,9 @@ void serial_set_rx(uint8_t pin)
 			case 3:  CORE_PIN3_CONFIG = 0; break; // PTA1
 			case 25: CORE_PIN25_CONFIG = 0; break; // PTE21
 			#endif
+			#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+			case 27: CORE_PIN27_CONFIG = 0; break; // PTA15
+			#endif
 		}
 		switch (pin) {
 			case 0:  CORE_PIN0_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
@@ -246,6 +255,9 @@ void serial_set_rx(uint8_t pin)
 			#if defined(KINETISL)
 			case 3:  CORE_PIN3_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(2); break;
 			case 25: CORE_PIN25_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(4); break;
+			#endif
+			#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+			case 27: CORE_PIN27_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
 			#endif
 		}
 	}
@@ -442,7 +454,7 @@ void serial_clear(void)
 	if (rts_pin) rts_assert();
 }
 
-// status interrupt combines 
+// status interrupt combines
 //   Transmit data below watermark  UART_S1_TDRE
 //   Transmit complete		    UART_S1_TC
 //   Idle line			    UART_S1_IDLE
