@@ -2620,10 +2620,10 @@ typedef struct {
 
 // Random Number Generator Accelerator (RNGA)
 
-#define RNG_CR			(*(volatile uint32_t *)0x400A0000) // RNGA Control Register
-#define RNG_SR			(*(volatile uint32_t *)0x400A0004) // RNGA Status Register
-#define RNG_ER			(*(volatile uint32_t *)0x400A0008) // RNGA Entropy Register
-#define RNG_OR			(*(volatile uint32_t *)0x400A000C) // RNGA Output Register
+#define RNG_CR			(*(volatile uint32_t *)0x40029000) // RNGA Control Register
+#define RNG_SR			(*(volatile uint32_t *)0x40029004) // RNGA Status Register
+#define RNG_ER			(*(volatile uint32_t *)0x40029008) // RNGA Entropy Register
+#define RNG_OR			(*(volatile uint32_t *)0x4002900C) // RNGA Output Register
 
 // Analog-to-Digital Converter (ADC)
 
