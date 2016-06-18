@@ -826,7 +826,13 @@ void ResetHandler(void)
 	SMC_PMCTRL = SMC_PMCTRL_RUNM(3); // enter HSRUN mode
 	while (SMC_PMSTAT != SMC_PMSTAT_HSRUN) ; // wait for HSRUN
     #endif
-    #if F_CPU == 192000000
+    #if F_CPU == 240000000
+	MCG_C5 = MCG_C5_PRDIV0(0);
+	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(14);
+    #elif F_CPU == 216000000
+	MCG_C5 = MCG_C5_PRDIV0(0);
+	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(11);
+    #elif F_CPU == 192000000
 	MCG_C5 = MCG_C5_PRDIV0(0);
 	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(8);
     #elif F_CPU == 180000000
@@ -879,8 +885,18 @@ void ResetHandler(void)
   #endif
 #endif
 	// now program the clock dividers
-#if F_CPU == 192000000
-	// config divisors: 192 MHz core, 48 MHz bus, 27.4 MHz flash, USB = 192 * 4
+#if F_CPU == 240000000
+	// config divisors: 240 MHz core, 60 MHz bus, 30 MHz flash, USB = 240 / 5
+	// TODO: gradual ramp-up for HSRUN mode
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(3) | SIM_CLKDIV1_OUTDIV4(7);
+	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(4);
+#elif F_CPU == 216000000
+	// config divisors: 216 MHz core, 54 MHz bus, 27 MHz flash, USB = not feasible
+	// TODO: gradual ramp-up for HSRUN mode
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(3) | SIM_CLKDIV1_OUTDIV4(7);
+	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(8) | SIM_CLKDIV2_USBFRAC;
+#elif F_CPU == 192000000
+	// config divisors: 192 MHz core, 48 MHz bus, 27.4 MHz flash, USB = 192 / 4
 	// TODO: gradual ramp-up for HSRUN mode
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(3) | SIM_CLKDIV1_OUTDIV4(6);
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(3);

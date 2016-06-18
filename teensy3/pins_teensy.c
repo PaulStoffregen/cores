@@ -487,6 +487,9 @@ extern void usb_init(void);
 #elif F_TIMER == 56000000
 #define DEFAULT_FTM_MOD (57344 - 1)
 #define DEFAULT_FTM_PRESCALE 1
+#elif F_TIMER == 54000000
+#define DEFAULT_FTM_MOD (55296 - 1)
+#define DEFAULT_FTM_PRESCALE 1
 #elif F_TIMER == 48000000
 #define DEFAULT_FTM_MOD (49152 - 1)
 #define DEFAULT_FTM_PRESCALE 1
@@ -1123,7 +1126,11 @@ void delay(uint32_t ms)
 }
 
 // TODO: verify these result in correct timeouts...
-#if F_CPU == 192000000
+#if F_CPU == 240000000
+#define PULSEIN_LOOPS_PER_USEC 33
+#elif F_CPU == 216000000
+#define PULSEIN_LOOPS_PER_USEC 31
+#elif F_CPU == 192000000
 #define PULSEIN_LOOPS_PER_USEC 29
 #elif F_CPU == 180000000
 #define PULSEIN_LOOPS_PER_USEC 27

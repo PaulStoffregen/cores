@@ -741,7 +741,15 @@ enum IRQ_NUMBER_t {
 #endif // end of board-specific definitions
 
 
-#if (F_CPU == 192000000)
+#if (F_CPU == 240000000)
+ #define F_PLL 240000000
+ #define F_BUS 60000000
+ #define F_MEM 30000000
+#elif (F_CPU == 216000000)
+ #define F_PLL 216000000
+ #define F_BUS 54000000
+ #define F_MEM 27000000
+#elif (F_CPU == 192000000)
  #define F_PLL 192000000
  #define F_BUS 48000000
  #define F_MEM 27428571

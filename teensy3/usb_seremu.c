@@ -139,7 +139,11 @@ void usb_seremu_flush_input(void)
 // software.  If it's too long, we stall the user's program when no software is running.
 #define TX_TIMEOUT_MSEC 30
 
-#if F_CPU == 192000000
+#if F_CPU == 240000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1600)
+#elif F_CPU == 216000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1440)
+#elif F_CPU == 192000000
   #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1280)
 #elif F_CPU == 180000000
   #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1200)

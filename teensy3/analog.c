@@ -50,7 +50,7 @@ static uint8_t analog_reference_internal = 0;
   #define ADC_CFG1_12BIT  ADC_CFG1_ADIV(1) + ADC_CFG1_ADICLK(1) // 15 MHz
   #define ADC_CFG1_10BIT  ADC_CFG1_ADIV(1) + ADC_CFG1_ADICLK(1) // 15 MHz
   #define ADC_CFG1_8BIT   ADC_CFG1_ADIV(1) + ADC_CFG1_ADICLK(1) // 15 MHz
-#elif F_BUS == 56000000
+#elif F_BUS == 56000000 || F_BUS == 54000000
   #define ADC_CFG1_16BIT  ADC_CFG1_ADIV(2) + ADC_CFG1_ADICLK(1) // 7 MHz
   #define ADC_CFG1_12BIT  ADC_CFG1_ADIV(1) + ADC_CFG1_ADICLK(1) // 14 MHz
   #define ADC_CFG1_10BIT  ADC_CFG1_ADIV(1) + ADC_CFG1_ADICLK(1) // 14 MHz
@@ -96,7 +96,7 @@ static uint8_t analog_reference_internal = 0;
   #define ADC_CFG1_10BIT  ADC_CFG1_ADIV(0) + ADC_CFG1_ADICLK(0) // 2 MHz
   #define ADC_CFG1_8BIT   ADC_CFG1_ADIV(0) + ADC_CFG1_ADICLK(0) // 2 MHz
 #else
-#error "F_BUS must be 60, 56, 48, 40, 36, 24, 4 or 2 MHz"
+#error "F_BUS must be 60, 56, 54, 48, 40, 36, 24, 4 or 2 MHz"
 #endif
 
 void analog_init(void)
