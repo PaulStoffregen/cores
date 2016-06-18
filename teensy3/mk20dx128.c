@@ -822,7 +822,22 @@ void ResetHandler(void)
   #else
 	// if we need faster than the crystal, turn on the PLL
    #if defined(__MK66FX1M0__)
-    #if F_CPU > 120000000
+    
+    
+    #if F_CPU == 180000000
+	//180 MHz needs a special configuration: 
+	// Setup CLKDIV before switching to PLL - otherwise FLASH will be overclocked and not work
+	// (48MHz / 6) * 45 = 360MHz (VCO), Core = 360 / 2 = 180MHz
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(2) |  SIM_CLKDIV1_OUTDIV3(4) | SIM_CLKDIV1_OUTDIV4(7);	
+	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(0);
+	SMC_PMCTRL = SMC_PMCTRL_RUNM(3); // enter HSRUN mode
+	while (SMC_PMSTAT != SMC_PMSTAT_HSRUN) ; // wait for HSRUN
+	MCG_C11 &= ~0x10; 
+	MCG_C5 = MCG_C5_PRDIV0(5) ;
+	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(29);
+	MCG_C7 = 2;
+	MCG_C5 |= MCG_C5_PLLCLKEN0;
+    #elif  F_CPU > 120000000
 	SMC_PMCTRL = SMC_PMCTRL_RUNM(3); // enter HSRUN mode
 	while (SMC_PMSTAT != SMC_PMSTAT_HSRUN) ; // wait for HSRUN
     #endif
@@ -836,8 +851,7 @@ void ResetHandler(void)
 	MCG_C5 = MCG_C5_PRDIV0(0);
 	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(8);
     #elif F_CPU == 180000000
-	MCG_C5 = MCG_C5_PRDIV0(1);
-	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(29);
+	//see above
     #elif F_CPU == 168000000
 	MCG_C5 = MCG_C5_PRDIV0(0);
 	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(5);
@@ -901,9 +915,7 @@ void ResetHandler(void)
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(3) | SIM_CLKDIV1_OUTDIV4(6);
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(3);
 #elif F_CPU == 180000000
-	// config divisors: 180 MHz core, 60 MHz bus, 25.7 MHz flash, USB = not feasible
-	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(2) | SIM_CLKDIV1_OUTDIV4(6);
-	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(6) | SIM_CLKDIV2_USBFRAC;
+	//see above
 #elif F_CPU == 168000000
 	// config divisors: 168 MHz core, 56 MHz bus, 28 MHz flash, USB = 168 * 2 / 7
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(2) | SIM_CLKDIV1_OUTDIV4(5);
@@ -987,9 +999,15 @@ void ResetHandler(void)
 	while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(3)) ;
 	// now we're in PEE mode
 	// USB uses PLL clock, trace is CPU clock, CLKOUT=OSCERCLK0
+		
 	#if defined(KINETISK)
+	#if F_CPU == 180000000
+	SIM_SOPT2 = SIM_SOPT2_USBSRC | 0x00030000 | SIM_SOPT2_TRACECLKSEL
+		| SIM_SOPT2_CLKOUTSEL(6);  
+	#else
 	SIM_SOPT2 = SIM_SOPT2_USBSRC | SIM_SOPT2_PLLFLLSEL | SIM_SOPT2_TRACECLKSEL
 		| SIM_SOPT2_CLKOUTSEL(6);
+	#endif	
 	#elif defined(KINETISL)
 	SIM_SOPT2 = SIM_SOPT2_USBSRC | SIM_SOPT2_PLLFLLSEL | SIM_SOPT2_CLKOUTSEL(6)
 		| SIM_SOPT2_UART0SRC(1) | SIM_SOPT2_TPMSRC(1);
