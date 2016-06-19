@@ -136,6 +136,7 @@ enum IRQ_NUMBER_t {
 #define HAS_KINETISK_UART2
 #define HAS_KINETIS_I2C0
 #define HAS_KINETIS_LLWU_16CH
+#define HAS_KINETIS_ADC0
 
 // Teensy 3.1
 #elif defined(__MK20DX256__)
@@ -273,6 +274,8 @@ enum IRQ_NUMBER_t {
 #define HAS_KINETIS_I2C0
 #define HAS_KINETIS_I2C1
 #define HAS_KINETIS_LLWU_16CH
+#define HAS_KINETIS_ADC0
+#define HAS_KINETIS_ADC1
 
 // Teensy-LC
 #elif defined(__MKL26Z64__)
@@ -361,6 +364,7 @@ enum IRQ_NUMBER_t {
 #define HAS_KINETIS_I2C1
 #define HAS_KINETIS_I2C1_STOPF
 #define HAS_KINETIS_LLWU_16CH
+#define HAS_KINETIS_ADC0
 
 
 #elif defined(__MK64FX512__)
@@ -536,6 +540,8 @@ enum IRQ_NUMBER_t {
 #define HAS_KINETIS_I2C2_STOPF
 #define HAS_KINETIS_LLWU_32CH
 #define HAS_KINETIS_MPU
+#define HAS_KINETIS_ADC0
+#define HAS_KINETIS_ADC1
 
 
 #elif defined(__MK66FX1M0__)
@@ -735,6 +741,8 @@ enum IRQ_NUMBER_t {
 #define HAS_KINETIS_I2C3_STOPF
 #define HAS_KINETIS_LLWU_32CH
 #define HAS_KINETIS_MPU
+#define HAS_KINETIS_ADC0
+#define HAS_KINETIS_ADC1
 
 
 
