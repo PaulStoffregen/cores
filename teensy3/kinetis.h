@@ -1035,6 +1035,7 @@ enum IRQ_NUMBER_t {
 #define SIM_SOPT2_RMIISRC		((uint32_t)0x00080000)		// 0=external, 1=external 1588
 #define SIM_SOPT2_USBSRC		((uint32_t)0x00040000)		// 0=USB_CLKIN, 1=FFL/PLL
 #define SIM_SOPT2_PLLFLLSEL		((uint32_t)0x00010000)		// 0=FLL, 1=PLL
+#define SIM_SOPT2_IRC48SEL		((uint32_t)0x00030000)		// 0=FLL, 1=PLL
 #define SIM_SOPT2_TRACECLKSEL		((uint32_t)0x00001000)		// 0=MCGOUTCLK, 1=CPU
 #define SIM_SOPT2_PTD7PAD		((uint32_t)0x00000800)		// 0=normal, 1=double drive PTD7
 #define SIM_SOPT2_FBSL(n)		((uint32_t)(((n) & 3) << 8))	// FlexBus security level
