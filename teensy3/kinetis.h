@@ -137,6 +137,7 @@ enum IRQ_NUMBER_t {
 #define HAS_KINETIS_I2C0
 #define HAS_KINETIS_LLWU_16CH
 #define HAS_KINETIS_ADC0
+#define HAS_KINETIS_TSI
 
 // Teensy 3.1
 #elif defined(__MK20DX256__)
@@ -276,6 +277,7 @@ enum IRQ_NUMBER_t {
 #define HAS_KINETIS_LLWU_16CH
 #define HAS_KINETIS_ADC0
 #define HAS_KINETIS_ADC1
+#define HAS_KINETIS_TSI
 
 // Teensy-LC
 #elif defined(__MKL26Z64__)
@@ -365,6 +367,7 @@ enum IRQ_NUMBER_t {
 #define HAS_KINETIS_I2C1_STOPF
 #define HAS_KINETIS_LLWU_16CH
 #define HAS_KINETIS_ADC0
+#define HAS_KINETIS_TSI_LITE
 
 
 #elif defined(__MK64FX512__)
@@ -743,6 +746,7 @@ enum IRQ_NUMBER_t {
 #define HAS_KINETIS_MPU
 #define HAS_KINETIS_ADC0
 #define HAS_KINETIS_ADC1
+#define HAS_KINETIS_TSI_LITE
 
 
 
@@ -4696,7 +4700,7 @@ typedef struct __attribute__((packed)) {
 
 // Touch sense input (TSI)
 
-#if defined(KINETISK)
+#if defined(HAS_KINETIS_TSI)
 #define TSI0_GENCS		(*(volatile uint32_t *)0x40045000) // General Control and Status Register
 #define TSI_GENCS_LPCLKS		((uint32_t)0x10000000)		//
 #define TSI_GENCS_LPSCNITV(n)		(((n) & 15) << 24)		//
@@ -4731,7 +4735,7 @@ typedef struct __attribute__((packed)) {
 #define TSI0_CNTR13		(*(volatile uint32_t *)0x40045118) // Counter Register
 #define TSI0_CNTR15		(*(volatile uint32_t *)0x4004511C) // Counter Register
 #define TSI0_THRESHOLD		(*(volatile uint32_t *)0x40045120) // Low Power Channel Threshold Register
-#elif defined(KINETISL)
+#elif defined(HAS_KINETIS_TSI_LITE)
 #define TSI0_GENCS		(*(volatile uint32_t *)0x40045000) // General Control and Status
 #define TSI_GENCS_OUTRGF		((uint32_t)0x80000000)		// Out of Range Flag
 #define TSI_GENCS_ESOR			((uint32_t)0x10000000)		// End-of-scan or Out-of-Range Interrupt Selection
