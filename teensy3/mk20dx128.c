@@ -888,21 +888,51 @@ void ResetHandler(void)
 #if F_CPU == 240000000
 	// config divisors: 240 MHz core, 60 MHz bus, 30 MHz flash, USB = 240 / 5
 	// TODO: gradual ramp-up for HSRUN mode
+	#if F_BUS == 60000000
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(3) | SIM_CLKDIV1_OUTDIV4(7);
+	#elif F_BUS == 80000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(2) | SIM_CLKDIV1_OUTDIV4(7);
+	#elif F_BUS == 120000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(7);
+	#else
+	#error "This F_CPU & F_BUS combination is not supported"
+	#endif
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(4);
 #elif F_CPU == 216000000
 	// config divisors: 216 MHz core, 54 MHz bus, 27 MHz flash, USB = IRC48M
 	// TODO: gradual ramp-up for HSRUN mode
+	#if F_BUS == 54000000
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(3) | SIM_CLKDIV1_OUTDIV4(7);
+	#elif F_BUS == 72000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(2) | SIM_CLKDIV1_OUTDIV4(7);
+	#elif F_BUS == 108000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(7);
+	#else
+	#error "This F_CPU & F_BUS combination is not supported"
+	#endif
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(0);
 #elif F_CPU == 192000000
 	// config divisors: 192 MHz core, 48 MHz bus, 27.4 MHz flash, USB = 192 / 4
 	// TODO: gradual ramp-up for HSRUN mode
+	#if F_BUS == 48000000
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(3) | SIM_CLKDIV1_OUTDIV4(6);
+	#elif F_BUS == 64000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(2) | SIM_CLKDIV1_OUTDIV4(6);
+	#elif F_BUS == 96000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(6);
+	#else
+	#error "This F_CPU & F_BUS combination is not supported"
+	#endif
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(3);
 #elif F_CPU == 180000000
 	// config divisors: 180 MHz core, 60 MHz bus, 25.7 MHz flash, USB = IRC48M
+	#if F_BUS == 60000000
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(2) | SIM_CLKDIV1_OUTDIV4(6);
+	#elif F_BUS == 90000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(6);
+	#else
+	#error "This F_CPU & F_BUS combination is not supported"
+	#endif
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(0);
 #elif F_CPU == 168000000
 	// config divisors: 168 MHz core, 56 MHz bus, 28 MHz flash, USB = 168 * 2 / 7
@@ -910,19 +940,43 @@ void ResetHandler(void)
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(6) | SIM_CLKDIV2_USBFRAC;
 #elif F_CPU == 144000000
 	// config divisors: 144 MHz core, 48 MHz bus, 28.8 MHz flash, USB = 144 / 3
+	#if F_BUS == 48000000
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(2) | SIM_CLKDIV1_OUTDIV4(4);
+	#elif F_BUS == 72000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(4);
+	#else
+	#error "This F_CPU & F_BUS combination is not supported"
+	#endif
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(2);
 #elif F_CPU == 120000000
 	// config divisors: 120 MHz core, 60 MHz bus, 24 MHz flash, USB = 128 * 2 / 5
+	#if F_BUS == 60000000
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(4);
+	#elif F_BUS == 120000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(0) | SIM_CLKDIV1_OUTDIV4(4);
+	#else
+	#error "This F_CPU & F_BUS combination is not supported"
+	#endif
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(4) | SIM_CLKDIV2_USBFRAC;
 #elif F_CPU == 96000000
 	// config divisors: 96 MHz core, 48 MHz bus, 24 MHz flash, USB = 96 / 2
+	#if F_BUS == 48000000
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(3);
+	#elif F_BUS == 96000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(0) | SIM_CLKDIV1_OUTDIV4(3);
+	#else
+	#error "This F_CPU & F_BUS combination is not supported"
+	#endif
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(1);
 #elif F_CPU == 72000000
 	// config divisors: 72 MHz core, 36 MHz bus, 24 MHz flash, USB = 72 * 2 / 3
+	#if F_BUS == 36000000
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(2);
+	#elif F_BUS == 72000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(0) | SIM_CLKDIV1_OUTDIV4(2);
+	#else
+	#error "This F_CPU & F_BUS combination is not supported"
+	#endif
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(2) | SIM_CLKDIV2_USBFRAC;
 #elif F_CPU == 48000000
 	// config divisors: 48 MHz core, 48 MHz bus, 24 MHz flash, USB = 96 / 2
