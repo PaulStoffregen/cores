@@ -1820,6 +1820,8 @@ enum IRQ_NUMBER_t {
 #define DMA_DCHPRI30		(*(volatile uint8_t  *)0x4000811D) // Channel n Priority Register
 #define DMA_DCHPRI29		(*(volatile uint8_t  *)0x4000811E) // Channel n Priority Register
 #define DMA_DCHPRI28		(*(volatile uint8_t  *)0x4000811F) // Channel n Priority Register
+#define DMA_CR_GRP0PRI			((uint32_t)0x100)
+#define DMA_CR_GRP1PRI			((uint32_t)0x400)
 #endif
 
 #define DMA_TCD_ATTR_SMOD(n)		(((n) & 0x1F) << 11)
