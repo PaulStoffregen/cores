@@ -1091,6 +1091,66 @@ public:
 };
 extern SPCRemulation SPCR;
 
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+class SPCR1emulation
+{
+public:
+	inline void setMOSI(uint8_t pin) __attribute__((always_inline)) {
+		if (pin == 0) pinout &= ~1; // MOSI1 = 0  (PTB16)
+		if (pin == 21) pinout |= 1; // MOSI1 = 21 (PTD6)
+	}
+	inline void setMISO(uint8_t pin) __attribute__((always_inline)) {
+		if (pin == 1) pinout &= ~2; // MISO1 = 1  (PTB17)
+		if (pin == 5) pinout |= 2;  // MISO1 = 5  (PTD7)
+	}
+	inline void setSCK(uint8_t pin) __attribute__((always_inline)) {
+		if (pin == 20) pinout &= ~4; // SCK = 20  (PTD5)
+		if (pin == 32) pinout |= 4;  // MISO1 = 32  (PTB11)
+	}
+	inline void enable_pins(void) __attribute__((always_inline)) {
+		//serial_print("enable_pins\n");
+		if ((pinout & 1) == 0) {
+			CORE_PIN0_CONFIG = PORT_PCR_MUX(2);  // MOSI1 = 0  (PTB16)
+		} else {
+			CORE_PIN21_CONFIG = PORT_PCR_MUX(7); // MOSI1 = 21 (PTD6)
+		}
+		if ((pinout & 2) == 0) {
+			CORE_PIN1_CONFIG = PORT_PCR_MUX(2);  // MISO1 = 1  (PTB17)
+		} else {
+			CORE_PIN5_CONFIG = PORT_PCR_MUX(7);  // MISO1 = 5  (PTD7)
+		}
+		if ((pinout & 4) == 0) {
+			CORE_PIN20_CONFIG = PORT_PCR_MUX(7); // SCK1 = 20 (PTD5)
+		} else {
+			CORE_PIN32_CONFIG = PORT_PCR_MUX(2);  // MISO1 = 5  (PTD7)
+		}
+	}
+	inline void disable_pins(void) __attribute__((always_inline)) {
+		//serial_print("disable_pins\n");
+		if ((pinout & 1) == 0) {
+			CORE_PIN0_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1);
+		} else {
+			CORE_PIN21_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1);
+		}
+		if ((pinout & 2) == 0) {
+			CORE_PIN1_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1);
+		} else {
+			CORE_PIN5_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1);
+		}
+		if ((pinout & 4) == 0) {
+			CORE_PIN20_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1); // SCK1 = 20 (PTD5)
+		} else {
+			CORE_PIN32_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1);  // MISO1 = 5  (PTD7)
+		}
+	}
+	friend class SPIFIFO1class;
+private:
+	static uint8_t pinout;
+};
+extern SPCR1emulation SPCR1;
+
+#endif
+
 class SPSRemulation
 {
 public:
@@ -1553,9 +1613,9 @@ public:
 extern SREGemulation SREG;
 
 
-		// 22211  
+		// 22211
 		// 84062840
-		// 322111 
+		// 322111
 		// 17395173
 #if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
 
