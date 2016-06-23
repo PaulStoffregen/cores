@@ -3686,12 +3686,32 @@ typedef struct {
 // USB Device Charger Detection Module (USBDCD)
 
 #define USBDCD_CONTROL		(*(volatile uint32_t *)0x40035000) // Control register
+#define USBDCD_CONTROL_SR		((uint32_t)0x02000000)
+#define USBDCD_CONTROL_START		((uint32_t)0x01000000)
+#define USBDCD_CONTROL_BC12		((uint32_t)0x00020000)
+#define USBDCD_CONTROL_IE		((uint32_t)0x00010000)
+#define USBDCD_CONTROL_IF		((uint32_t)0x00000100)
+#define USBDCD_CONTROL_IACK		((uint32_t)0x00000001)
 #define USBDCD_CLOCK		(*(volatile uint32_t *)0x40035004) // Clock register
+#define USBDCD_CLOCK_CLOCK_SPEED(n)	(uint32_t)(((n) & 0x3FF) << 2)
+#define USBDCD_CLOCK_CLOCK_UNIT		((uint32_t)0x00000001)
 #define USBDCD_STATUS		(*(volatile uint32_t *)0x40035008) // Status register
+#define USBDCD_STATUS_ACTIVE		((uint32_t)0x00400000)
+#define USBDCD_STATUS_ID		((uint32_t)0x00200000)
+#define USBDCD_STATUS_ERR		((uint32_t)0x00100000)
+#define USBDCD_STATUS_SEQ_STAT(n)	(uint32_t)(((n) & 0x3) << 18)
+#define USBDCD_STATUS_SEQ_STAT_MASK	((uint32_t)0x000C0000)
+#define USBDCD_STATUS_SEQ_RES(n)	(uint32_t)(((n) & 0x3) << 16)
+#define USBDCD_STATUS_SEQ_RES_MASK	((uint32_t)0x00030000)
 #define USBDCD_TIMER0		(*(volatile uint32_t *)0x40035010) // TIMER0 register
 #define USBDCD_TIMER1		(*(volatile uint32_t *)0x40035014) // TIMER1 register
 #define USBDCD_TIMER2		(*(volatile uint32_t *)0x40035018) // TIMER2 register
-
+#define USBHSDCD_CONTROL	(*(volatile uint32_t *)0x400A3000) // Control register
+#define USBHSDCD_CLOCK		(*(volatile uint32_t *)0x400A3004) // Clock register
+#define USBHSDCD_STATUS		(*(volatile uint32_t *)0x400A3008) // Status register
+#define USBHSDCD_TIMER0		(*(volatile uint32_t *)0x400A3010) // TIMER0 register
+#define USBHSDCD_TIMER1		(*(volatile uint32_t *)0x400A3014) // TIMER1 register
+#define USBHSDCD_TIMER2		(*(volatile uint32_t *)0x400A3018) // TIMER2 register
 
 // USB High Speed OTG Controller (USBHS)
 
@@ -3703,6 +3723,10 @@ typedef struct {
 #define USBHS_HWRXBUF		(*(volatile uint32_t *)0x400A1014) // Receive Buffer Hardware Parameters Register
 #define USBHS_GPTIMER0LD	(*(volatile uint32_t *)0x400A1080) // General Purpose Timer n Load Register
 #define USBHS_GPTIMER0CTL	(*(volatile uint32_t *)0x400A1084) // General Purpose Timer n Control Register
+#define USBHS_GPTIMERCTL_RUN		((uint32_t)0x80000000)
+#define USBHS_GPTIMERCTL_RST		((uint32_t)0x40000000)
+#define USBHS_GPTIMERCTL_MODE		((uint32_t)0x01000000)
+#define USBHS_GPTIMERCTL_GPTCNT(n)	(uint32_t)(((n) & 0xFFFFFF) << 0)
 #define USBHS_GPTIMER1LD	(*(volatile uint32_t *)0x400A1088) // General Purpose Timer n Load Register
 #define USBHS_GPTIMER1CTL	(*(volatile uint32_t *)0x400A108C) // General Purpose Timer n Control Register
 #define USBHS_USB_SBUSCFG	(*(volatile uint32_t *)0x400A1090) // System Bus Interface Configuration Register
@@ -3712,28 +3736,148 @@ typedef struct {
 #define USBHS_DCIVERSION	(*(volatile uint16_t *)0x400A1122) // Device Controller Interface Version
 #define USBHS_DCCPARAMS		(*(volatile uint32_t *)0x400A1124) // Device Controller Capability Parameters
 #define USBHS_USBCMD		(*(volatile uint32_t *)0x400A1140) // USB Command Register
+#define USBHS_USBCMD_ITC(n)		(uint32_t)(((n) & 0xFF) << 16)
+#define USBHS_USBCMD_FS2		((uint32_t)0x00008000)
+#define USBHS_USBCMD_ATDTW		((uint32_t)0x00004000)
+#define USBHS_USBCMD_SUTW		((uint32_t)0x00002000)
+#define USBHS_USBCMD_ASPE		((uint32_t)0x00000800)
+#define USBHS_USBCMD_ASP(n)		(uint32_t)(((n) & 0x3) << 8)
+#define USBHS_USBCMD_IAA		((uint32_t)0x00000040)
+#define USBHS_USBCMD_ASE		((uint32_t)0x00000020)
+#define USBHS_USBCMD_PSE		((uint32_t)0x00000010)
+#define USBHS_USBCMD_FS(n)		(uint32_t)(((n) & 0x3) << 2)
+#define USBHS_USBCMD_RST		((uint32_t)0x00000002)
+#define USBHS_USBCMD_RS			((uint32_t)0x00000001)
 #define USBHS_USBSTS		(*(volatile uint32_t *)0x400A1144) // USB Status Register
+#define USBHS_USBSTS_TI1		((uint32_t)0x02000000)
+#define USBHS_USBSTS_TI0		((uint32_t)0x01000000)
+#define USBHS_USBSTS_UPI		((uint32_t)0x00080000)
+#define USBHS_USBSTS_UAI		((uint32_t)0x00040000)
+#define USBHS_USBSTS_NAKI		((uint32_t)0x00010000)
+#define USBHS_USBSTS_AS			((uint32_t)0x00008000)
+#define USBHS_USBSTS_PS			((uint32_t)0x00004000)
+#define USBHS_USBSTS_RCL		((uint32_t)0x00002000)
+#define USBHS_USBSTS_HCH		((uint32_t)0x00001000)
+#define USBHS_USBSTS_SLI		((uint32_t)0x00000100)
+#define USBHS_USBSTS_SRI		((uint32_t)0x00000080)
+#define USBHS_USBSTS_URI		((uint32_t)0x00000040)
+#define USBHS_USBSTS_AAI		((uint32_t)0x00000020)
+#define USBHS_USBSTS_SEI		((uint32_t)0x00000010)
+#define USBHS_USBSTS_FRI		((uint32_t)0x00000008)
+#define USBHS_USBSTS_PCI		((uint32_t)0x00000004)
+#define USBHS_USBSTS_UEI		((uint32_t)0x00000002)
+#define USBHS_USBSTS_UI			((uint32_t)0x00000001)
 #define USBHS_USBINTR		(*(volatile uint32_t *)0x400A1148) // USB Interrupt Enable Register
+#define USBHS_USBINTR_TIE1		((uint32_t)0x02000000)
+#define USBHS_USBINTR_TIE0		((uint32_t)0x01000000)
+#define USBHS_USBINTR_UPIE		((uint32_t)0x00080000)
+#define USBHS_USBINTR_UAIE		((uint32_t)0x00040000)
+#define USBHS_USBINTR_NAKE		((uint32_t)0x00010000)
+#define USBHS_USBINTR_SLE		((uint32_t)0x00000100)
+#define USBHS_USBINTR_SRE		((uint32_t)0x00000080)
+#define USBHS_USBINTR_URE		((uint32_t)0x00000040)
+#define USBHS_USBINTR_AAE		((uint32_t)0x00000020)
+#define USBHS_USBINTR_SEE		((uint32_t)0x00000010)
+#define USBHS_USBINTR_FRE		((uint32_t)0x00000008)
+#define USBHS_USBINTR_PCE		((uint32_t)0x00000004)
+#define USBHS_USBINTR_UEE		((uint32_t)0x00000002)
+#define USBHS_USBINTR_UE		((uint32_t)0x00000001)
 #define USBHS_FRINDEX		(*(volatile uint32_t *)0x400A114C) // Frame Index Register
 #define USBHS_PERIODICLISTBASE	(*(volatile uint32_t *)0x400A1154) // Periodic Frame List Base Address Register
 #define USBHS_DEVICEADDR	(*(volatile uint32_t *)0x400A1154) // Device Address Register
+#define USBHS_DEVICEADDR_USBADR(n)	(uint32_t)(((n) & 0x7F) << 25)
+#define USBHS_DEVICEADDR_USBADRA	((uint32_t)0x01000000)
 #define USBHS_ASYNCLISTADDR	(*(volatile uint32_t *)0x400A1158) // Current Asynchronous List Address Register
 #define USBHS_EPLISTADDR	(*(volatile uint32_t *)0x400A1158) // Endpoint List Address Register
 #define USBHS_TTCTRL		(*(volatile uint32_t *)0x400A115C) // Host TT Asynchronous Buffer Control
+#define USBHS_TTCTRL_TTHA(n)		(uint32_t)(((n) & 0x7F) << 24)
 #define USBHS_BURSTSIZE		(*(volatile uint32_t *)0x400A1160) // Master Interface Data Burst Size Register
+#define USBHS_BURSTSIZE_TXPBURST(n)	(uint32_t)(((n) & 0xFF) << 8)
+#define USBHS_BURSTSIZE_RXPBURST(n)	(uint32_t)(((n) & 0xFF) << 0)
 #define USBHS_TXFILLTUNING	(*(volatile uint32_t *)0x400A1164) // Transmit FIFO Tuning Control Register
+#define USBHS_TXFILLTUNING_TXFIFOTHRES(n) (uint32_t)(((n) & 0x3F) << 16)
+#define USBHS_TXFILLTUNING_TXSCHHEALTH(n) (uint32_t)(((n) & 0x1F) << 8)
+#define USBHS_TXFILLTUNING_TXSCHOH(n)	(uint32_t)(((n) & 0x7F) << 0)
 #define USBHS_ENDPTNAK		(*(volatile uint32_t *)0x400A1178) // Endpoint NAK Register
 #define USBHS_ENDPTNAKEN	(*(volatile uint32_t *)0x400A117C) // Endpoint NAK Enable Register
 #define USBHS_CONFIGFLAG	(*(volatile uint32_t *)0x400A1180) // Configure Flag Register
 #define USBHS_PORTSC1		(*(volatile uint32_t *)0x400A1184) // Port Status and Control Registers
+#define USBHS_PORTSC1_PTS(n)		(uint32_t)(((n) & 0x3) << 30)
+#define USBHS_PORTSC1_PSPD(n)		(uint32_t)(((n) & 0x3) << 26)
+#define USBHS_PORTSC1_PTS2		((uint32_t)0x02000000)
+#define USBHS_PORTSC1_PFSC		((uint32_t)0x01000000)
+#define USBHS_PORTSC1_PHCD		((uint32_t)0x00800000)
+#define USBHS_PORTSC1_WKOC		((uint32_t)0x00400000)
+#define USBHS_PORTSC1_WKDS		((uint32_t)0x00200000)
+#define USBHS_PORTSC1_WKCN		((uint32_t)0x00100000)
+#define USBHS_PORTSC1_PTC(n)		(uint32_t)(((n) & 0xF) << 16)
+#define USBHS_PORTSC1_PIC(n)		(uint32_t)(((n) & 0x3) << 14)
+#define USBHS_PORTSC1_PO		((uint32_t)0x00002000)
+#define USBHS_PORTSC1_PP		((uint32_t)0x00001000)
+#define USBHS_PORTSC1_LS(n)		(uint32_t)(((n) & 0x3) << 10)
+#define USBHS_PORTSC1_HSP		((uint32_t)0x00000200)
+#define USBHS_PORTSC1_PR		((uint32_t)0x00000100)
+#define USBHS_PORTSC1_SUSP		((uint32_t)0x00000080)
+#define USBHS_PORTSC1_FPR		((uint32_t)0x00000040)
+#define USBHS_PORTSC1_OCC		((uint32_t)0x00000020)
+#define USBHS_PORTSC1_OCA		((uint32_t)0x00000010)
+#define USBHS_PORTSC1_PEC		((uint32_t)0x00000008)
+#define USBHS_PORTSC1_PE		((uint32_t)0x00000004)
+#define USBHS_PORTSC1_CSC		((uint32_t)0x00000002)
+#define USBHS_PORTSC1_CCS		((uint32_t)0x00000001)
 #define USBHS_OTGSC		(*(volatile uint32_t *)0x400A11A4) // On-the-Go Status and Control Register
+#define USBHS_OTGSC_DPIE		((uint32_t)0x40000000)
+#define USBHS_OTGSC_MSE			((uint32_t)0x20000000)
+#define USBHS_OTGSC_BSEIE		((uint32_t)0x10000000)
+#define USBHS_OTGSC_BSVIE		((uint32_t)0x08000000)
+#define USBHS_OTGSC_ASVIE		((uint32_t)0x04000000)
+#define USBHS_OTGSC_AVVIE		((uint32_t)0x02000000)
+#define USBHS_OTGSC_IDIE		((uint32_t)0x01000000)
+#define USBHS_OTGSC_DPIS		((uint32_t)0x00400000)
+#define USBHS_OTGSC_MSS			((uint32_t)0x00200000)
+#define USBHS_OTGSC_BSEIS		((uint32_t)0x00100000)
+#define USBHS_OTGSC_BSVIS		((uint32_t)0x00080000)
+#define USBHS_OTGSC_ASVIS		((uint32_t)0x00040000)
+#define USBHS_OTGSC_AVVIS		((uint32_t)0x00020000)
+#define USBHS_OTGSC_IDIS		((uint32_t)0x00010000)
+#define USBHS_OTGSC_DPS			((uint32_t)0x00004000)
+#define USBHS_OTGSC_MST			((uint32_t)0x00002000)
+#define USBHS_OTGSC_BSE			((uint32_t)0x00001000)
+#define USBHS_OTGSC_BSV			((uint32_t)0x00000800)
+#define USBHS_OTGSC_ASV			((uint32_t)0x00000400)
+#define USBHS_OTGSC_AVV			((uint32_t)0x00000200)
+#define USBHS_OTGSC_ID			((uint32_t)0x00000100)
+#define USBHS_OTGSC_HABA		((uint32_t)0x00000080)
+#define USBHS_OTGSC_IDPU		((uint32_t)0x00000020)
+#define USBHS_OTGSC_DP			((uint32_t)0x00000010)
+#define USBHS_OTGSC_OT			((uint32_t)0x00000008)
+#define USBHS_OTGSC_HAAR		((uint32_t)0x00000004)
+#define USBHS_OTGSC_VC			((uint32_t)0x00000002)
+#define USBHS_OTGSC_VD			((uint32_t)0x00000001)
 #define USBHS_USBMODE		(*(volatile uint32_t *)0x400A11A8) // USB Mode Register
+#define USBHS_USBMODE_TXHSD(n)		(uint32_t)(((n) & 0x7) << 12)
+#define USBHS_USBMODE_SDIS		((uint32_t)0x00000010)
+#define USBHS_USBMODE_SLOM		((uint32_t)0x00000008)
+#define USBHS_USBMODE_ES		((uint32_t)0x00000004)
+#define USBHS_USBMODE_CM(n)		(uint32_t)(((n) & 0x3) << 0)
 #define USBHS_EPSETUPSR		(*(volatile uint32_t *)0x400A11AC) // Endpoint Setup Status Register
 #define USBHS_EPPRIME		(*(volatile uint32_t *)0x400A11B0) // Endpoint Initialization Register
 #define USBHS_EPFLUSH		(*(volatile uint32_t *)0x400A11B4) // Endpoint Flush Register
 #define USBHS_EPSR		(*(volatile uint32_t *)0x400A11B8) // Endpoint Status Register
 #define USBHS_EPCOMPLETE	(*(volatile uint32_t *)0x400A11BC) // Endpoint Complete Register
 #define USBHS_EPCR0		(*(volatile uint32_t *)0x400A11C0) // Endpoint Control Register 0
+#define USBHS_EPCR_TXE			((uint32_t)0x00800000)
+#define USBHS_EPCR_TXR			((uint32_t)0x00400000)
+#define USBHS_EPCR_TXI			((uint32_t)0x00200000)
+#define USBHS_EPCR_TXT(n)		(uint32_t)(((n) & 0x3) << 18)
+#define USBHS_EPCR_TXD			((uint32_t)0x00020000)
+#define USBHS_EPCR_TXS			((uint32_t)0x00010000)
+#define USBHS_EPCR_RXE			((uint32_t)0x00000080)
+#define USBHS_EPCR_RXR			((uint32_t)0x00000040)
+#define USBHS_EPCR_RXI			((uint32_t)0x00000020)
+#define USBHS_EPCR_RXT(n)		(uint32_t)(((n) & 0x3) << 2)
+#define USBHS_EPCR_RXD			((uint32_t)0x00000002)
+#define USBHS_EPCR_RXS			((uint32_t)0x00000001)
 #define USBHS_EPCR1		(*(volatile uint32_t *)0x400A11C4) // Endpoint Control Register 1
 #define USBHS_EPCR2		(*(volatile uint32_t *)0x400A11C8) // Endpoint Control Register 2
 #define USBHS_EPCR3		(*(volatile uint32_t *)0x400A11CC) // Endpoint Control Register 3
@@ -3742,11 +3886,19 @@ typedef struct {
 #define USBHS_EPCR6		(*(volatile uint32_t *)0x400A11D8) // Endpoint Control Register 6
 #define USBHS_EPCR7		(*(volatile uint32_t *)0x400A11DC) // Endpoint Control Register 7
 #define USBHS_USBGENCTRL	(*(volatile uint32_t *)0x400A1200) // USB General Control Register
-
+#define USBHS_USBGENCTRL_WU_INT_CLR	((uint32_t)0x00000020)
+#define USBHS_USBGENCTRL_WU_IE		((uint32_t)0x00000001)
 
 // Universal Serial Bus 2.0 Integrated PHY (USB-PHY)
 
 #define USBPHY_PWD		(*(volatile uint32_t *)0x400A2000) // USB PHY Power-Down Register
+#define USBPHY_PWD_RXPWDRX			((uint32_t)0x00100000)
+#define USBPHY_PWD_RXPWDDIFF			((uint32_t)0x00080000)
+#define USBPHY_PWD_RXPWD1PT1			((uint32_t)0x00040000)
+#define USBPHY_PWD_RXPWDENV			((uint32_t)0x00020000)
+#define USBPHY_PWD_TXPWDV2I			((uint32_t)0x00001000)
+#define USBPHY_PWD_TXPWDIBIAS			((uint32_t)0x00000800)
+#define USBPHY_PWD_TXPWDFS			((uint32_t)0x00000400)
 #define USBPHY_PWD_SET		(*(volatile uint32_t *)0x400A2004) // USB PHY Power-Down Register
 #define USBPHY_PWD_CLR		(*(volatile uint32_t *)0x400A2008) // USB PHY Power-Down Register
 #define USBPHY_PWD_TOG		(*(volatile uint32_t *)0x400A200C) // USB PHY Power-Down Register
@@ -3759,10 +3911,29 @@ typedef struct {
 #define USBPHY_RX_CLR		(*(volatile uint32_t *)0x400A2028) // USB PHY Receiver Control Register
 #define USBPHY_RX_TOG		(*(volatile uint32_t *)0x400A202C) // USB PHY Receiver Control Register
 #define USBPHY_CTRL		(*(volatile uint32_t *)0x400A2030) // USB PHY General Control Register
+#define USBPHY_CTRL_SFTRST			((uint32_t)0x80000000)
+#define USBPHY_CTRL_CLKGATE			((uint32_t)0x40000000)
+#define USBPHY_CTRL_UTMI_SUSPENDM		((uint32_t)0x20000000)
+#define USBPHY_CTRL_HOST_FORCE_LS_SE0		((uint32_t)0x10000000)
+#define USBPHY_CTRL_OTG_ID_VALUE		((uint32_t)0x08000000)
+#define USBPHY_CTRL_FSDLL_RST_EN		((uint32_t)0x01000000)
+#define USBPHY_CTRL_ENAUTOCLR_PHY_PWD		((uint32_t)0x00100000)
+#define USBPHY_CTRL_ENAUTOCLR_CLKGATE		((uint32_t)0x00080000)
+#define USBPHY_CTRL_AUTORESUME_EN		((uint32_t)0x00040000)
+#define USBPHY_CTRL_ENUTMILEVEL3		((uint32_t)0x00008000)
+#define USBPHY_CTRL_ENUTMILEVEL2		((uint32_t)0x00004000)
+#define USBPHY_CTRL_DEVPLUGIN_IRQ		((uint32_t)0x00001000)
+#define USBPHY_CTRL_ENDEVPLUGINDET		((uint32_t)0x00000010)
+#define USBPHY_CTRL_HOSTDISCONDETECT_IRQ	((uint32_t)0x00000008)
+#define USBPHY_CTRL_ENHOSTDISCONDETECT		((uint32_t)0x00000002)
 #define USBPHY_CTRL_SET		(*(volatile uint32_t *)0x400A2034) // USB PHY General Control Register
 #define USBPHY_CTRL_CLR		(*(volatile uint32_t *)0x400A2038) // USB PHY General Control Register
 #define USBPHY_CTRL_TOG		(*(volatile uint32_t *)0x400A203C) // USB PHY General Control Register
 #define USBPHY_STATUS		(*(volatile uint32_t *)0x400A2040) // USB PHY Status Register
+#define USBPHY_STATUS_RESUME_STATUS		((uint32_t)0x00000400)
+#define USBPHY_STATUS_OTGID_STATUS		((uint32_t)0x00000100)
+#define USBPHY_STATUS_DEVPLUGIN_STATUS		((uint32_t)0x00000040)
+#define USBPHY_STATUS_HOSTDISCONDETECT_STATUS	((uint32_t)0x00000008)
 #define USBPHY_DEBUG		(*(volatile uint32_t *)0x400A2050) // USB PHY Debug Register
 #define USBPHY_DEBUG_SET	(*(volatile uint32_t *)0x400A2054) // USB PHY Debug Register
 #define USBPHY_DEBUG_CLR	(*(volatile uint32_t *)0x400A2058) // USB PHY Debug Register
@@ -3774,15 +3945,44 @@ typedef struct {
 #define USBPHY_DEBUG1_TOG	(*(volatile uint32_t *)0x400A207C) // UTMI Debug Status Register 1
 #define USBPHY_VERSION		(*(volatile uint32_t *)0x400A2080) // UTMI RTL Version
 #define USBPHY_PLL_SIC		(*(volatile uint32_t *)0x400A20A0) // USB PHY PLL Control/Status Register
+#define USBPHY_PLL_SIC_PLL_LOCK			((uint32_t)0x80000000)
+#define USBPHY_PLL_SIC_PLL_BYPASS		((uint32_t)0x00010000)
+#define USBPHY_PLL_SIC_PLL_ENABLE		((uint32_t)0x00002000)
+#define USBPHY_PLL_SIC_PLL_POWER		((uint32_t)0x00001000)
+#define USBPHY_PLL_SIC_PLL_HOLD_RING_OFF	((uint32_t)0x00000800)
+#define USBPHY_PLL_SIC_PLL_EN_USB_CLKS		((uint32_t)0x00000040)
+#define USBPHY_PLL_SIC_PLL_DIV_SEL(n)		(uint32_t)((n) & 3)
 #define USBPHY_PLL_SIC_SET	(*(volatile uint32_t *)0x400A20A4) // USB PHY PLL Control/Status Register
 #define USBPHY_PLL_SIC_CLR	(*(volatile uint32_t *)0x400A20A8) // USB PHY PLL Control/Status Register
 #define USBPHY_PLL_SIC_TOG	(*(volatile uint32_t *)0x400A20AC) // USB PHY PLL Control/Status Register
 #define USBPHY_USB1_VBUS_DETECT	(*(volatile uint32_t *)0x400A20C0) // USB PHY VBUS Detect Control Register
+#define USBPHY_USB1_VBUS_DETECT_EN_CHARGER_RESISTOR	((uint32_t)0x80000000)
+#define USBPHY_USB1_VBUS_DETECT_DISCHARGE_VBUS		((uint32_t)0x04000000)
+#define USBPHY_USB1_VBUS_DETECT_PWRUP_CMPS		((uint32_t)0x00100000)
+#define USBPHY_USB1_VBUS_DETECT_VBUSVALID_TO_SESSVALID	((uint32_t)0x00040000)
+#define USBPHY_USB1_VBUS_DETECT_VBUS_SOURCE_SEL(n)	(uint32_t)(((n) & 3) << 9)
+#define USBPHY_USB1_VBUS_DETECT_VBUSVALID_SEL		((uint32_t)0x00000100)
+#define USBPHY_USB1_VBUS_DETECT_VBUSVALID_OVERRIDE	((uint32_t)0x00000080)
+#define USBPHY_USB1_VBUS_DETECT_AVALID_OVERRIDE		((uint32_t)0x00000040)
+#define USBPHY_USB1_VBUS_DETECT_BVALID_OVERRIDE		((uint32_t)0x00000020)
+#define USBPHY_USB1_VBUS_DETECT_SESSEND_OVERRIDE	((uint32_t)0x00000010)
+#define USBPHY_USB1_VBUS_DETECT_VBUS_OVERRIDE_EN	((uint32_t)0x00000008)
+#define USBPHY_USB1_VBUS_DETECT_VBUSVALID_THRESH(n)	((uint32_t)((n) & 7)
 #define USBPHY_USB1_VBUS_DETECT_SET	(*(volatile uint32_t *)0x400A20C4) // USB PHY VBUS Detect Control Register
 #define USBPHY_USB1_VBUS_DETECT_CLR	(*(volatile uint32_t *)0x400A20C8) // USB PHY VBUS Detect Control Register
 #define USBPHY_USB1_VBUS_DETECT_TOG	(*(volatile uint32_t *)0x400A20CC) // USB PHY VBUS Detect Control Register
 #define USBPHY_USB1_VBUS_DET_STAT	(*(volatile uint32_t *)0x400A20D0) // USB PHY VBUS Detector Status Register
+#define USBPHY_USB1_VBUS_DET_STAT_VBUS_VALID_3V		((uint32_t)0x00000010)
+#define USBPHY_USB1_VBUS_DET_STAT_VBUS_VALID		((uint32_t)0x00000008)
+#define USBPHY_USB1_VBUS_DET_STAT_AVALID		((uint32_t)0x00000004)
+#define USBPHY_USB1_VBUS_DET_STAT_BVALID		((uint32_t)0x00000002)
+#define USBPHY_USB1_VBUS_DET_STAT_SESSEND		((uint32_t)0x00000001)
 #define USBPHY_USB1_CHRG_DET_STAT	(*(volatile uint32_t *)0x400A20F0) // USB PHY Charger Detect Status Register
+#define USBPHY_USB1_CHRG_DET_STAT_SECDET_DCP		((uint32_t)0x00000010)
+#define USBPHY_USB1_CHRG_DET_STAT_DP_STATE		((uint32_t)0x00000008)
+#define USBPHY_USB1_CHRG_DET_STAT_DM_STATE		((uint32_t)0x00000004)
+#define USBPHY_USB1_CHRG_DET_STAT_CHRG_DETECTED		((uint32_t)0x00000002)
+#define USBPHY_USB1_CHRG_DET_STAT_PLUG_CONTACT		((uint32_t)0x00000001)
 #define USBPHY_ANACTRL		(*(volatile uint32_t *)0x400A2100) // USB PHY Analog Control Register
 #define USBPHY_ANACTRL_SET	(*(volatile uint32_t *)0x400A2104) // USB PHY Analog Control Register
 #define USBPHY_ANACTRL_CLR	(*(volatile uint32_t *)0x400A2108) // USB PHY Analog Control Register
