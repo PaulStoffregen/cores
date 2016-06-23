@@ -3453,15 +3453,92 @@ typedef struct {
 // 10/100-Mbps Ethernet MAC (ENET)
 
 #define ENET_EIR		(*(volatile uint32_t *)0x400C0004) // Interrupt Event Register
+#define ENET_EIR_BABR			((uint32_t)0x40000000)		// Babbling Receive Error
+#define ENET_EIR_BABT			((uint32_t)0x20000000)		// Babbling Transmit Error
+#define ENET_EIR_GRA			((uint32_t)0x10000000)		// Graceful Stop Complete
+#define ENET_EIR_TXF			((uint32_t)0x08000000)		// Transmit Frame Interrupt
+#define ENET_EIR_TXB			((uint32_t)0x04000000)		// Transmit Buffer Interrupt
+#define ENET_EIR_RXF			((uint32_t)0x02000000)		// Receive Frame Interrupt
+#define ENET_EIR_RXB			((uint32_t)0x01000000)		// Receive Buffer Interrupt
+#define ENET_EIR_MII			((uint32_t)0x00800000)		// MII Interrupt
+#define ENET_EIR_EBERR			((uint32_t)0x00400000)		// Ethernet Bus Error
+#define ENET_EIR_LC			((uint32_t)0x00200000)		// Late Collision
+#define ENET_EIR_RL			((uint32_t)0x00100000)		// Collision Retry Limit
+#define ENET_EIR_UN			((uint32_t)0x00080000)		// Transmit FIFO Underrun
+#define ENET_EIR_PLR			((uint32_t)0x00040000)		// Payload Receive Error
+#define ENET_EIR_WAKEUP			((uint32_t)0x00020000)		// Node Wakeup Request Indication
+#define ENET_EIR_TS_AVAIL		((uint32_t)0x00010000)		// Transmit Timestamp Available
+#define ENET_EIR_TS_TIMER		((uint32_t)0x00008000)		// Timestamp Timer
 #define ENET_EIMR		(*(volatile uint32_t *)0x400C0008) // Interrupt Mask Register
+#define ENET_EIRM_BABR			((uint32_t)0x40000000)		// Babbling Receive Error Mask
+#define ENET_EIRM_BABT			((uint32_t)0x20000000)		// Babbling Transmit Error Mask
+#define ENET_EIRM_GRA			((uint32_t)0x10000000)		// Graceful Stop Complete Mask
+#define ENET_EIRM_TXF			((uint32_t)0x08000000)		// Transmit Frame Interrupt Mask
+#define ENET_EIRM_TXB			((uint32_t)0x04000000)		// Transmit Buffer Interrupt Mask
+#define ENET_EIRM_RXF			((uint32_t)0x02000000)		// Receive Frame Interrupt Mask
+#define ENET_EIRM_RXB			((uint32_t)0x01000000)		// Receive Buffer Interrupt Mask
+#define ENET_EIRM_MII			((uint32_t)0x00800000)		// MII Interrupt Mask
+#define ENET_EIRM_EBERR			((uint32_t)0x00400000)		// Ethernet Bus Error Mask
+#define ENET_EIRM_LC			((uint32_t)0x00200000)		// Late Collision Mask
+#define ENET_EIRM_RL			((uint32_t)0x00100000)		// Collision Retry Limit Mask
+#define ENET_EIRM_UN			((uint32_t)0x00080000)		// Transmit FIFO Underrun Mask
+#define ENET_EIRM_PLR			((uint32_t)0x00040000)		// Payload Receive Error Mask
+#define ENET_EIRM_WAKEUP		((uint32_t)0x00020000)		// Node Wakeup Request Indication Mask
+#define ENET_EIRM_TS_AVAIL		((uint32_t)0x00010000)		// Transmit Timestamp Available Mask
+#define ENET_EIRM_TS_TIMER		((uint32_t)0x00008000)		// Timestamp Timer Mask
 #define ENET_RDAR		(*(volatile uint32_t *)0x400C0010) // Receive Descriptor Active Register
+#define ENET_RDAR_RDAR			((uint32_t)0x01000000)
 #define ENET_TDAR		(*(volatile uint32_t *)0x400C0014) // Transmit Descriptor Active Register
+#define ENET_TDAR_TDAR			((uint32_t)0x01000000)
 #define ENET_ECR		(*(volatile uint32_t *)0x400C0024) // Ethernet Control Register
+#define ENET_ECR_DBSWP			((uint32_t)0x00000100)		// Descriptor Byte Swapping Enable
+#define ENET_ECR_STOPEN			((uint32_t)0x00000080)		// STOPEN Signal Control
+#define ENET_ECR_DBGEN			((uint32_t)0x00000040)		// Debug Enable
+#define ENET_ECR_EN1588			((uint32_t)0x00000010)		// EN1588 Enable
+#define ENET_ECR_SLEEP			((uint32_t)0x00000008)		// Sleep Mode Enable
+#define ENET_ECR_MAGICEN		((uint32_t)0x00000004)		// Magic Packet Detection Enable
+#define ENET_ECR_ETHEREN		((uint32_t)0x00000002)		// Ethernet Enable
+#define ENET_ECR_RESET			((uint32_t)0x00000001)		// Ethernet MAC Reset
 #define ENET_MMFR		(*(volatile uint32_t *)0x400C0040) // MII Management Frame Register
+#define ENET_MMFR_ST(n)			(uint32_t)(((n) & 0x3) << 30)
+#define ENET_MMFR_OP(n)			(uint32_t)(((n) & 0x3) << 28)
+#define ENET_MMFR_PA(n)			(uint32_t)(((n) & 0x1F) << 23)
+#define ENET_MMFR_RA(n)			(uint32_t)(((n) & 0x1F) << 18)
+#define ENET_MMFR_TA(n)			(uint32_t)(((n) & 0x3) << 16)
+#define ENET_MMFR_DATA(n)		(uint32_t)(((n) & 0xFFFF) << 0)
+#define ENET_MMFR_DATA_MASK		((uint32_t)0x0000FFFF)
 #define ENET_MSCR		(*(volatile uint32_t *)0x400C0044) // MII Speed Control Register
+#define ENET_MSCR_HOLDTIME(n)		(uint32_t)(((n) & 0x7) << 8)
+#define ENET_MSCR_DIS_PRE		((uint32_t)0x00000080)
+#define ENET_MSCR_MII_SPEED(n)		(uint32_t)(((n) & 0x3F) << 1)
 #define ENET_MIBC		(*(volatile uint32_t *)0x400C0064) // MIB Control Register
+#define ENET_MIBC_MIB_DIS		((uint32_t)0x80000000)		// Disable MIB Logic
+#define ENET_MIBC_MIB_IDLE		((uint32_t)0x40000000)		// MIB Idle
+#define ENET_MIBC_MIB_CLEAR		((uint32_t)0x20000000)		// MIB Clear
 #define ENET_RCR		(*(volatile uint32_t *)0x400C0084) // Receive Control Register
+#define ENET_RCR_GRS			((uint32_t)0x80000000)		// Graceful Receive Stopped
+#define ENET_RCR_NLC			((uint32_t)0x40000000)		// Payload Length Check Disable
+#define ENET_RCR_MAX_FL(n)		(uint32_t)(((n) & 0x3FFF)<<16)	// Maximum Frame Length
+#define ENET_RCR_CFEN			((uint32_t)0x00008000)		// MAC Control Frame Enable
+#define ENET_RCR_CRCFWD			((uint32_t)0x00004000)		// Terminate/Forward Received CRC
+#define ENET_RCR_PAUFWD			((uint32_t)0x00002000)		// Terminate/Forward Pause Frames
+#define ENET_RCR_PADEN			((uint32_t)0x00001000)		// Enable Frame Padding Remove On Receive
+#define ENET_RCR_RMII_10T		((uint32_t)0x00000200)		// Enables 10-Mbps mode of the RMII
+#define ENET_RCR_RMII_MODE		((uint32_t)0x00000100)		// RMII Mode Enable
+#define ENET_RCR_FCE			((uint32_t)0x00000020)		// Flow Control Enable
+#define ENET_RCR_BC_REJ			((uint32_t)0x00000010)		// Broadcast Frame Reject
+#define ENET_RCR_PROM			((uint32_t)0x00000008)		// Promiscuous Mode
+#define ENET_RCR_MII_MODE		((uint32_t)0x00000004)		// Media Independent Interface Mode
+#define ENET_RCR_DRT			((uint32_t)0x00000002)		// Disable Receive On Transmit
+#define ENET_RCR_LOOP			((uint32_t)0x00000001)		// Internal Loopback
 #define ENET_TCR		(*(volatile uint32_t *)0x400C00C4) // Transmit Control Register
+#define ENET_TCR_CRCFWD			((uint32_t)0x00000200)		// Forward Frame From Application With CRC
+#define ENET_TCR_ADDINS			((uint32_t)0x00000100)		// Set MAC Address On Transmit
+#define ENET_TCR_ADDSEL(n)		(uint32_t)(((n) & 0x7)<<5)	// Source MAC Address Select On Transmit
+#define ENET_TCR_RFC_PAUSE		((uint32_t)0x00000010)		// Receive Frame Control Pause
+#define ENET_TCR_TFC_PAUSE		((uint32_t)0x00000008)		// Transmit Frame Control Pause
+#define ENET_TCR_FDEN			((uint32_t)0x00000004)		// Full-Duplex Enable
+#define ENET_TCR_GTS			((uint32_t)0x00000001)		// Graceful Transmit Stop
 #define ENET_PALR		(*(volatile uint32_t *)0x400C00E4) // Physical Address Lower Register
 #define ENET_PAUR		(*(volatile uint32_t *)0x400C00E8) // Physical Address Upper Register
 #define ENET_OPD		(*(volatile uint32_t *)0x400C00EC) // Opcode/Pause Duration Register
@@ -3470,11 +3547,15 @@ typedef struct {
 #define ENET_GAUR		(*(volatile uint32_t *)0x400C0120) // Descriptor Group Upper Address Register
 #define ENET_GALR		(*(volatile uint32_t *)0x400C0124) // Descriptor Group Lower Address Register
 #define ENET_TFWR		(*(volatile uint32_t *)0x400C0144) // Transmit FIFO Watermark Register
+#define ENET_TFWR_STRFWD		((uint32_t)0x00000100)		// Store And Forward Enable
+#define ENET_TFWR_TFWR(n)		(uint32_t)(((n) & 0x3F)<<0)	// Transmit FIFO Write (X64 bytes)
 #define ENET_RDSR		(*(volatile uint32_t *)0x400C0180) // Receive Descriptor Ring Start Register
 #define ENET_TDSR		(*(volatile uint32_t *)0x400C0184) // Transmit Buffer Descriptor Ring Start Register
 #define ENET_MRBR		(*(volatile uint32_t *)0x400C0188) // Maximum Receive Buffer Size Register
 #define ENET_RSFL		(*(volatile uint32_t *)0x400C0190) // Receive FIFO Section Full Threshold
 #define ENET_RSEM		(*(volatile uint32_t *)0x400C0194) // Receive FIFO Section Empty Threshold
+#define ENET_RSEM_STAT_SECTION_EMPTY(n)	(uint32_t)(((n) & 0x7)<<5)	// RX Status FIFO Section Empty Threshold
+#define ENET_RSEM_RX_SECTION_EMPTY(n)	(uint32_t)(((n) & 0x7)<<5)	// Value Of The Receive FIFO Section Empty Threshold
 #define ENET_RAEM		(*(volatile uint32_t *)0x400C0198) // Receive FIFO Almost Empty Threshold
 #define ENET_RAFL		(*(volatile uint32_t *)0x400C019C) // Receive FIFO Almost Full Threshold
 #define ENET_TSEM		(*(volatile uint32_t *)0x400C01A0) // Transmit FIFO Section Empty Threshold
@@ -3483,7 +3564,15 @@ typedef struct {
 #define ENET_TIPG		(*(volatile uint32_t *)0x400C01AC) // Transmit Inter-Packet Gap
 #define ENET_FTRL		(*(volatile uint32_t *)0x400C01B0) // Frame Truncation Length
 #define ENET_TACC		(*(volatile uint32_t *)0x400C01C0) // Transmit Accelerator Function Configuration
+#define ENET_TACC_PROCHK		((uint32_t)0x00000010)		// Enables insertion of protocol checksum
+#define ENET_TACC_IPCHK			((uint32_t)0x00000008)		// Enables insertion of IP header checksum
+#define ENET_TACC_SHIFT16		((uint32_t)0x00000001)		// TX FIFO Shift-16 (align data to 32 bits)
 #define ENET_RACC		(*(volatile uint32_t *)0x400C01C4) // Receive Accelerator Function Configuration
+#define ENET_RACC_SHIFT16		((uint32_t)0x00000080)		// RX FIFO Shift-16 (align data to 32 bits)
+#define ENET_RACC_LINEDIS		((uint32_t)0x00000040)		// Enable Discard Of Frames With MAC Layer Errors
+#define ENET_RACC_PRODIS		((uint32_t)0x00000004)		// Enable Discard Of Frames With Wrong Protocol Checksum
+#define ENET_RACC_IPDIS			((uint32_t)0x00000002)		// Enable Discard Of Frames With Wrong IPv4 Header Checksum
+#define ENET_RACC_PADREM		((uint32_t)0x00000001)		// Enable Padding Removal For Short IP Frames
 #define ENET_RMON_T_DROP	(*(volatile uint32_t *)0x400C0200) // Reserved Statistic Register
 #define ENET_RMON_T_PACKETS	(*(volatile uint32_t *)0x400C0204) // Tx Packet Count Statistic Register
 #define ENET_RMON_T_BC_PKT	(*(volatile uint32_t *)0x400C0208) // Tx Broadcast Packets Statistic Register
@@ -3539,14 +3628,32 @@ typedef struct {
 #define ENET_IEEE_R_FDXFC	(*(volatile uint32_t *)0x400C02DC) // Flow Control Pause Frames Received Statistic Register
 #define ENET_IEEE_R_OCTETS_OK	(*(volatile uint32_t *)0x400C02E0) // Octet Count for Frames Received without Error Statistic Register
 #define ENET_ATCR		(*(volatile uint32_t *)0x400C0400) // Adjustable Timer Control Register
+#define ENET_ATCR_SLAVE			((uint32_t)0x00002000)		// Enable Timer Slave Mode
+#define ENET_ATCR_CAPTURE		((uint32_t)0x00000800)		// Capture Timer Value
+#define ENET_ATCR_RESTART		((uint32_t)0x00000400)		// Reset Timer
+#define ENET_ATCR_PINPER		((uint32_t)0x00000080)		// Enables event signal output assertion on period event
+#define ENET_ATCR_PEREN			((uint32_t)0x00000010)		// Enable Periodical Event
+#define ENET_ATCR_OFFRST		((uint32_t)0x00000008)		// Reset Timer On Offset Event
+#define ENET_ATCR_OFFEN			((uint32_t)0x00000004)		// Enable One-Shot Offset Event
+#define ENET_ATCR_EN			((uint32_t)0x00000001)		// Enable Timer
 #define ENET_ATVR		(*(volatile uint32_t *)0x400C0404) // Timer Value Register
 #define ENET_ATOFF		(*(volatile uint32_t *)0x400C0408) // Timer Offset Register
 #define ENET_ATPER		(*(volatile uint32_t *)0x400C040C) // Timer Period Register
 #define ENET_ATCOR		(*(volatile uint32_t *)0x400C0410) // Timer Correction Register
 #define ENET_ATINC		(*(volatile uint32_t *)0x400C0414) // Time-Stamping Clock Period Register
+#define ENET_ATINC_INC_CORR(n)		(uint32_t)(((n) & 0x7F)<<8)	// Correction Increment Value
+#define ENET_ATINC_INC(n)		(uint32_t)(((n) & 0x7F)<<0)	// Clock Period Of The Timestamping Clock (ts_clk) In Nanoseconds
 #define ENET_ATSTMP		(*(volatile uint32_t *)0x400C0418) // Timestamp of Last Transmitted Frame
 #define ENET_TGSR		(*(volatile uint32_t *)0x400C0604) // Timer Global Status Register
+#define ENET_TGSR_TF3			((uint32_t)0x00000008)		// Timer Flag For Channel 3
+#define ENET_TGSR_TF2			((uint32_t)0x00000004)		// Timer Flag For Channel 2
+#define ENET_TGSR_TF1			((uint32_t)0x00000002)		// Timer Flag For Channel 1
+#define ENET_TGSR_TF0			((uint32_t)0x00000001)		// Timer Flag For Channel 0
 #define ENET_TCSR0		(*(volatile uint32_t *)0x400C0608) // Timer Control Status Register
+#define ENET_TCSR_TF			((uint32_t)0x00000080)		// Timer Flag
+#define ENET_TCSR_TIR			((uint32_t)0x00000040)		// Timer Interrupt Enable
+#define ENET_TCSR_TMODE(n)		(uint32_t)(((n) & 0xF)<<2)	// Timer Mode
+#define ENET_TCSR_TDRE			((uint32_t)0x00000001)		// Timer DMA Request Enable
 #define ENET_TCCR0		(*(volatile uint32_t *)0x400C060C) // Timer Compare Capture Register
 #define ENET_TCSR1		(*(volatile uint32_t *)0x400C0610) // Timer Control Status Register
 #define ENET_TCCR1		(*(volatile uint32_t *)0x400C0614) // Timer Compare Capture Register
@@ -3712,6 +3819,7 @@ typedef struct {
 #define USBHSDCD_TIMER0		(*(volatile uint32_t *)0x400A3010) // TIMER0 register
 #define USBHSDCD_TIMER1		(*(volatile uint32_t *)0x400A3014) // TIMER1 register
 #define USBHSDCD_TIMER2		(*(volatile uint32_t *)0x400A3018) // TIMER2 register
+
 
 // USB High Speed OTG Controller (USBHS)
 
@@ -3888,6 +3996,7 @@ typedef struct {
 #define USBHS_USBGENCTRL	(*(volatile uint32_t *)0x400A1200) // USB General Control Register
 #define USBHS_USBGENCTRL_WU_INT_CLR	((uint32_t)0x00000020)
 #define USBHS_USBGENCTRL_WU_IE		((uint32_t)0x00000001)
+
 
 // Universal Serial Bus 2.0 Integrated PHY (USB-PHY)
 
