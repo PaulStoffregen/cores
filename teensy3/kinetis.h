@@ -3977,6 +3977,27 @@ typedef struct {
 #define SPI1_RXFR1		(KINETISK_SPI1.RXFR[1])	// DSPI Receive FIFO Registers
 #define SPI1_RXFR2		(KINETISK_SPI1.RXFR[2])	// DSPI Receive FIFO Registers
 #define SPI1_RXFR3		(KINETISK_SPI1.RXFR[3])	// DSPI Receive FIFO Registers
+
+#define KINETISK_SPI2		(*(KINETISK_SPI_t *)0x400AC000)
+#define SPI2_MCR		(KINETISK_SPI2.MCR)	// DSPI Module Configuration Register
+#define SPI2_TCR		(KINETISK_SPI2.TCR)	// DSPI Transfer Count Register
+#define SPI2_CTAR0		(KINETISK_SPI2.CTAR0)	// DSPI Clock and Transfer Attributes Register, In Master Mode
+#define SPI2_CTAR0_SLAVE	(KINETISK_SPI2.CTAR0)	// DSPI Clock and Transfer Attributes Register, In Slave Mode
+#define SPI2_CTAR1		(KINETISK_SPI2.CTAR1)	// DSPI Clock and Transfer Attributes Register, In Master Mode
+#define SPI2_SR			(KINETISK_SPI2.SR)	// DSPI Status Register
+#define SPI2_RSER		(KINETISK_SPI2.RSER)	// DSPI DMA/Interrupt Request Select and Enable Register
+#define SPI2_PUSHR		(KINETISK_SPI2.PUSHR)	// DSPI PUSH TX FIFO Register In Master Mode
+#define SPI2_PUSHR_SLAVE	(KINETISK_SPI2.PUSHR)	// DSPI PUSH TX FIFO Register In Slave Mode
+#define SPI2_POPR		(KINETISK_SPI2.POPR)	// DSPI POP RX FIFO Register
+#define SPI2_TXFR0		(KINETISK_SPI2.TXFR[0])	// DSPI Transmit FIFO Registers
+#define SPI2_TXFR1		(KINETISK_SPI2.TXFR[1])	// DSPI Transmit FIFO Registers
+#define SPI2_TXFR2		(KINETISK_SPI2.TXFR[2])	// DSPI Transmit FIFO Registers
+#define SPI2_TXFR3		(KINETISK_SPI2.TXFR[3])	// DSPI Transmit FIFO Registers
+#define SPI2_RXFR0		(KINETISK_SPI2.RXFR[0])	// DSPI Receive FIFO Registers
+#define SPI2_RXFR1		(KINETISK_SPI2.RXFR[1])	// DSPI Receive FIFO Registers
+#define SPI2_RXFR2		(KINETISK_SPI2.RXFR[2])	// DSPI Receive FIFO Registers
+#define SPI2_RXFR3		(KINETISK_SPI2.RXFR[3])	// DSPI Receive FIFO Registers
+
 #endif
 #elif defined(KINETISL)
 typedef struct {
