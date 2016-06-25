@@ -1314,19 +1314,99 @@ enum IRQ_NUMBER_t {
 
 #if defined(HAS_KINETIS_LLWU_32CH)
 #define LLWU_PE1		(*(volatile uint8_t  *)0x4007C000) // LLWU Pin Enable 1 register
+#define LLWU_PE1_WUPE0(n)       ((uint8_t)((n) & 0x03)) // Wakeup Pin Enable For LLWU_P0
+#define LLWU_PE1_WUPE1(n)       ((uint8_t)(((n) & 0x03) << 2)) // Wakeup Pin Enable For LLWU_P1
+#define LLWU_PE1_WUPE2(n)       ((uint8_t)(((n) & 0x03) << 4)) // Wakeup Pin Enable For LLWU_P2
+#define LLWU_PE1_WUPE3(n)       ((uint8_t)(((n) & 0x03) << 6)) // Wakeup Pin Enable For LLWU_P3
 #define LLWU_PE2		(*(volatile uint8_t  *)0x4007C001) // LLWU Pin Enable 2 register
+#define LLWU_PE2_WUPE4(n)       ((uint8_t)((n) & 0x03)) // Wakeup Pin Enable For LLWU_P4
+#define LLWU_PE2_WUPE5(n)       ((uint8_t)(((n) & 0x03) << 2)) // Wakeup Pin Enable For LLWU_P5
+#define LLWU_PE2_WUPE6(n)       ((uint8_t)(((n) & 0x03) << 4)) // Wakeup Pin Enable For LLWU_P6
+#define LLWU_PE2_WUPE7(n)       ((uint8_t)(((n) & 0x03) << 6)) // Wakeup Pin Enable For LLWU_P7
 #define LLWU_PE3		(*(volatile uint8_t  *)0x4007C002) // LLWU Pin Enable 3 register
+#define LLWU_PE3_WUPE8(n)       ((uint8_t)((n) & 0x03)) // Wakeup Pin Enable For LLWU_P8
+#define LLWU_PE3_WUPE9(n)       ((uint8_t)(((n) & 0x03) << 2)) // Wakeup Pin Enable For LLWU_P9
+#define LLWU_PE3_WUPE10(n)      ((uint8_t)(((n) & 0x03) << 4)) // Wakeup Pin Enable For LLWU_P10
+#define LLWU_PE3_WUPE11(n)      ((uint8_t)(((n) & 0x03) << 6)) // Wakeup Pin Enable For LLWU_P11
 #define LLWU_PE4		(*(volatile uint8_t  *)0x4007C003) // LLWU Pin Enable 4 register
+#define LLWU_PE4_WUPE12(n)      ((uint8_t)((n) & 0x03)) // Wakeup Pin Enable For LLWU_P12
+#define LLWU_PE4_WUPE13(n)      ((uint8_t)(((n) & 0x03) << 2)) // Wakeup Pin Enable For LLWU_P13
+#define LLWU_PE4_WUPE14(n)      ((uint8_t)(((n) & 0x03) << 4)) // Wakeup Pin Enable For LLWU_P14
+#define LLWU_PE4_WUPE15(n)      ((uint8_t)(((n) & 0x03) << 6)) // Wakeup Pin Enable For LLWU_P15
 #define LLWU_PE5		(*(volatile uint8_t  *)0x4007C004) // LLWU Pin Enable 5 register
+#define LLWU_PE5_WUPE19(n)      ((uint8_t)((n) & 0x03)) // Wakeup Pin Enable For LLWU_P19
+#define LLWU_PE5_WUPE18(n)      ((uint8_t)(((n) & 0x03) << 2)) // Wakeup Pin Enable For LLWU_P18
+#define LLWU_PE5_WUPE17(n)      ((uint8_t)(((n) & 0x03) << 4)) // Wakeup Pin Enable For LLWU_P17
+#define LLWU_PE5_WUPE16(n)      ((uint8_t)(((n) & 0x03) << 6)) // Wakeup Pin Enable For LLWU_P16
 #define LLWU_PE6		(*(volatile uint8_t  *)0x4007C005) // LLWU Pin Enable 6 register
+#define LLWU_PE6_WUPE23(n)      ((uint8_t)((n) & 0x03)) // Wakeup Pin Enable For LLWU_P23
+#define LLWU_PE6_WUPE22(n)      ((uint8_t)(((n) & 0x03) << 2)) // Wakeup Pin Enable For LLWU_P22
+#define LLWU_PE6_WUPE21(n)      ((uint8_t)(((n) & 0x03) << 4)) // Wakeup Pin Enable For LLWU_P21
+#define LLWU_PE6_WUPE20(n)      ((uint8_t)(((n) & 0x03) << 6)) // Wakeup Pin Enable For LLWU_P20
 #define LLWU_PE7		(*(volatile uint8_t  *)0x4007C006) // LLWU Pin Enable 7 register
+#define LLWU_PE7_WUPE27(n)      ((uint8_t)((n) & 0x03)) // Wakeup Pin Enable For LLWU_P27
+#define LLWU_PE7_WUPE26(n)      ((uint8_t)(((n) & 0x03) << 2)) // Wakeup Pin Enable For LLWU_P26
+#define LLWU_PE7_WUPE25(n)      ((uint8_t)(((n) & 0x03) << 4)) // Wakeup Pin Enable For LLWU_P25
+#define LLWU_PE7_WUPE24(n)      ((uint8_t)(((n) & 0x03) << 6)) // Wakeup Pin Enable For LLWU_P24
 #define LLWU_PE8		(*(volatile uint8_t  *)0x4007C007) // LLWU Pin Enable 8 register
+#define LLWU_PE8_WUPE31(n)      ((uint8_t)((n) & 0x03)) // Wakeup Pin Enable For LLWU_P31
+#define LLWU_PE8_WUPE30(n)      ((uint8_t)(((n) & 0x03) << 2)) // Wakeup Pin Enable For LLWU_P30
+#define LLWU_PE8_WUPE29(n)      ((uint8_t)(((n) & 0x03) << 4)) // Wakeup Pin Enable For LLWU_P29
+#define LLWU_PE8_WUPE28(n)      ((uint8_t)(((n) & 0x03) << 6)) // Wakeup Pin Enable For LLWU_P28
 #define LLWU_ME			(*(volatile uint8_t  *)0x4007C008) // LLWU Module Enable register
+#define LLWU_ME_WUME0           ((uint8_t)0x01) // Wakeup Module Enable For Module 0
+#define LLWU_ME_WUME1           ((uint8_t)0x02) // Wakeup Module Enable For Module 1
+#define LLWU_ME_WUME2           ((uint8_t)0x04) // Wakeup Module Enable For Module 2
+#define LLWU_ME_WUME3           ((uint8_t)0x08) // Wakeup Module Enable For Module 3
+#define LLWU_ME_WUME4           ((uint8_t)0x10) // Wakeup Module Enable For Module 4
+#define LLWU_ME_WUME5           ((uint8_t)0x20) // Wakeup Module Enable For Module 5
+#define LLWU_ME_WUME6           ((uint8_t)0x40) // Wakeup Module Enable For Module 6
+#define LLWU_ME_WUME7           ((uint8_t)0x80) // Wakeup Module Enable For Module 7
 #define LLWU_PF1		(*(volatile uint8_t  *)0x4007C009) // LLWU Pin Flag 1 register
+#define LLWU_PF1_WUF0            ((uint8_t)0x01) // Wakeup Flag For LLWU_P0
+#define LLWU_PF1_WUF1            ((uint8_t)0x02) // Wakeup Flag For LLWU_P1
+#define LLWU_PF1_WUF2            ((uint8_t)0x04) // Wakeup Flag For LLWU_P2
+#define LLWU_PF1_WUF3            ((uint8_t)0x08) // Wakeup Flag For LLWU_P3
+#define LLWU_PF1_WUF4            ((uint8_t)0x10) // Wakeup Flag For LLWU_P4
+#define LLWU_PF1_WUF5            ((uint8_t)0x20) // Wakeup Flag For LLWU_P5
+#define LLWU_PF1_WUF6            ((uint8_t)0x40) // Wakeup Flag For LLWU_P6
+#define LLWU_PF1_WUF7            ((uint8_t)0x80) // Wakeup Flag For LLWU_P7
 #define LLWU_PF2		(*(volatile uint8_t  *)0x4007C00A) // LLWU Pin Flag 2 register
+#define LLWU_PF2_WUF8            ((uint8_t)0x01) // Wakeup Flag For LLWU_P8
+#define LLWU_PF2_WUF9            ((uint8_t)0x02) // Wakeup Flag For LLWU_P9
+#define LLWU_PF2_WUF10           ((uint8_t)0x04) // Wakeup Flag For LLWU_P10
+#define LLWU_PF2_WUF11           ((uint8_t)0x08) // Wakeup Flag For LLWU_P11
+#define LLWU_PF2_WUF12           ((uint8_t)0x10) // Wakeup Flag For LLWU_P12
+#define LLWU_PF2_WUF13           ((uint8_t)0x20) // Wakeup Flag For LLWU_P13
+#define LLWU_PF2_WUF14           ((uint8_t)0x40) // Wakeup Flag For LLWU_P14
+#define LLWU_PF2_WUF15           ((uint8_t)0x80) // Wakeup Flag For LLWU_P15
 #define LLWU_PF3		(*(volatile uint8_t  *)0x4007C00B) // LLWU Pin Flag 3 register
+#define LLWU_PF3_WUF16           ((uint8_t)0x01) // Wakeup Flag For LLWU_P16
+#define LLWU_PF3_WUF17           ((uint8_t)0x02) // Wakeup Flag For LLWU_P17
+#define LLWU_PF3_WUF18           ((uint8_t)0x04) // Wakeup Flag For LLWU_P18
+#define LLWU_PF3_WUF19           ((uint8_t)0x08) // Wakeup Flag For LLWU_P19
+#define LLWU_PF3_WUF20           ((uint8_t)0x10) // Wakeup Flag For LLWU_P20
+#define LLWU_PF3_WUF21           ((uint8_t)0x20) // Wakeup Flag For LLWU_P21
+#define LLWU_PF3_WUF22           ((uint8_t)0x40) // Wakeup Flag For LLWU_P22
+#define LLWU_PF3_WUF23           ((uint8_t)0x80) // Wakeup Flag For LLWU_P23
 #define LLWU_PF4		(*(volatile uint8_t  *)0x4007C00C) // LLWU Pin Flag 4 register
+#define LLWU_PF4_WUF31           ((uint8_t)0x01) // Wakeup Flag For LLWU_P31
+#define LLWU_PF4_WUF30           ((uint8_t)0x02) // Wakeup Flag For LLWU_P30
+#define LLWU_PF4_WUF29           ((uint8_t)0x04) // Wakeup Flag For LLWU_P29
+#define LLWU_PF4_WUF28           ((uint8_t)0x08) // Wakeup Flag For LLWU_P28
+#define LLWU_PF4_WUF27           ((uint8_t)0x10) // Wakeup Flag For LLWU_P27
+#define LLWU_PF4_WUF26           ((uint8_t)0x20) // Wakeup Flag For LLWU_P26
+#define LLWU_PF4_WUF25           ((uint8_t)0x40) // Wakeup Flag For LLWU_P25
+#define LLWU_PF4_WUF24           ((uint8_t)0x80) // Wakeup Flag For LLWU_P24
 #define LLWU_MF5		(*(volatile uint8_t  *)0x4007C00D) // LLWU Module Flag 5 register
+#define LLWU_MF5_MWUF0           ((uint8_t)0x01) // Wakeup flag For module 0
+#define LLWU_MF5_MWUF1           ((uint8_t)0x02) // Wakeup flag For module 1
+#define LLWU_MF5_MWUF2           ((uint8_t)0x04) // Wakeup flag For module 2
+#define LLWU_MF5_MWUF3           ((uint8_t)0x08) // Wakeup flag For module 3
+#define LLWU_MF5_MWUF4           ((uint8_t)0x10) // Wakeup flag For module 4
+#define LLWU_MF5_MWUF5           ((uint8_t)0x20) // Wakeup flag For module 5
+#define LLWU_MF5_MWUF6           ((uint8_t)0x40) // Wakeup flag For module 6
+#define LLWU_MF5_MWUF7           ((uint8_t)0x80) // Wakeup flag For module 7
 #define LLWU_FILT1		(*(volatile uint8_t  *)0x4007C00E) // LLWU Pin Filter 1 register
 #define LLWU_FILT2		(*(volatile uint8_t  *)0x4007C00F) // LLWU Pin Filter 2 register
 #define LLWU_FILT3		(*(volatile uint8_t  *)0x4007C010) // LLWU Pin Filter 3 register
