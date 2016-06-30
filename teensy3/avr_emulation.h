@@ -1095,6 +1095,171 @@ extern SPCRemulation SPCR;
 class SPCR1emulation
 {
 public:
+	inline SPCR1emulation & operator = (int val) __attribute__((always_inline)) {
+		uint32_t ctar, mcr, sim6;
+		//serial_print("SPCR=");
+		//serial_phex(val);
+		//serial_print("\n");
+		sim6 = SIM_SCGC6;
+		if (!(sim6 & SIM_SCGC6_SPI1)) {
+			//serial_print("init1\n");
+			SIM_SCGC6 = sim6 | SIM_SCGC6_SPI1;
+			SPI1_CTAR0 = SPI_CTAR_FMSZ(7) | SPI_CTAR_PBR(1) | SPI_CTAR_BR(1) | SPI_CTAR_CSSCK(1);
+		}
+		if (!(val & (1<<SPE))) {
+			SPI1_MCR |= SPI_MCR_MDIS; // TODO: use bitband for atomic access
+		}
+		ctar = SPI_CTAR_FMSZ(7) | SPI_CTAR_PBR(1);
+		if (val & (1<<DORD))  ctar |= SPI_CTAR_LSBFE;
+		if (val & (1<<CPOL))  ctar |= SPI_CTAR_CPOL;
+		if (val & (1<<CPHA)) {
+			ctar |= SPI_CTAR_CPHA;
+			if ((val & 3) == 0) {
+				ctar |= SPI_CTAR_BR(1) | SPI_CTAR_ASC(1);
+			} else if ((val & 3) == 1) {
+				ctar |= SPI_CTAR_BR(4) | SPI_CTAR_ASC(4);
+			} else if ((val & 3) == 2) {
+				ctar |= SPI_CTAR_BR(6) | SPI_CTAR_ASC(6);
+			} else {
+				ctar |= SPI_CTAR_BR(7) | SPI_CTAR_ASC(7);
+			}
+		} else {
+			if ((val & 3) == 0) {
+				ctar |= SPI_CTAR_BR(1) | SPI_CTAR_CSSCK(1);
+			} else if ((val & 3) == 1) {
+				ctar |= SPI_CTAR_BR(4) | SPI_CTAR_CSSCK(4);
+			} else if ((val & 3) == 2) {
+				ctar |= SPI_CTAR_BR(6) | SPI_CTAR_CSSCK(6);
+			} else {
+				ctar |= SPI_CTAR_BR(7) | SPI_CTAR_CSSCK(7);
+			}
+		}
+		ctar |= (SPI1_CTAR0 & SPI_CTAR_DBR);
+		update_ctar(ctar);
+		mcr = SPI_MCR_DCONF(0) | SPI_MCR_PCSIS(0x1F);
+		if (val & (1<<MSTR)) mcr |= SPI_MCR_MSTR;
+		if (val & (1<<SPE)) {
+			mcr &= ~(SPI_MCR_MDIS | SPI_MCR_HALT);
+			SPI1_MCR = mcr;
+			enable_pins();
+		} else {
+			mcr |= (SPI_MCR_MDIS | SPI_MCR_HALT);
+			SPI1_MCR = mcr;
+			disable_pins();
+		}
+		//serial_print("MCR:");
+		//serial_phex32(SPI1_MCR);
+		//serial_print(", CTAR0:");
+		//serial_phex32(SPI1_CTAR0);
+		//serial_print("\n");
+		return *this;
+	}
+	inline SPCR1emulation & operator |= (int val) __attribute__((always_inline)) {
+		uint32_t sim6;
+		//serial_print("SPCR |= ");
+		//serial_phex(val);
+		//serial_print("\n");
+		sim6 = SIM_SCGC6;
+		if (!(sim6 & SIM_SCGC6_SPI1)) {
+			//serial_print("init2\n");
+			SIM_SCGC6 = sim6 | SIM_SCGC6_SPI1;
+			SPI1_CTAR0 = SPI_CTAR_FMSZ(7) | SPI_CTAR_PBR(1) | SPI_CTAR_BR(1);
+		}
+		if (val & ((1<<DORD)|(1<<CPOL)|(1<<CPHA)|3)) {
+			uint32_t ctar = SPI1_CTAR0;
+			if (val & (1<<DORD)) ctar |= SPI_CTAR_LSBFE; // TODO: use bitband
+			if (val & (1<<CPOL)) ctar |= SPI_CTAR_CPOL;
+			if ((val & 3) == 1) {
+				// TODO: implement - is this ever really needed
+			} else if ((val & 3) == 2) {
+				// TODO: implement - is this ever really needed
+			} else if ((val & 3) == 3) {
+				// TODO: implement - is this ever really needed
+			}
+			if (val & (1<<CPHA) && !(ctar & SPI_CTAR_CPHA)) {
+				ctar |= SPI_CTAR_CPHA;
+				// TODO: clear SPI_CTAR_CSSCK, set SPI_CTAR_ASC
+			}
+			update_ctar(ctar);
+		}
+		if (val & (1<<MSTR)) SPI1_MCR |= SPI_MCR_MSTR;
+		if (val & (1<<SPE)) {
+			SPI1_MCR &= ~(SPI_MCR_MDIS | SPI_MCR_HALT);
+			enable_pins();
+		}
+		//serial_print("MCR:");
+		//serial_phex32(SPI1_MCR);
+		//serial_print(", CTAR0:");
+		//serial_phex32(SPI1_CTAR0);
+		//serial_print("\n");
+		return *this;
+	}
+	inline SPCR1emulation & operator &= (int val) __attribute__((always_inline)) {
+		//serial_print("SPCR &= ");
+		//serial_phex(val);
+		//serial_print("\n");
+		SIM_SCGC6 |= SIM_SCGC6_SPI1;
+		if (!(val & (1<<SPE))) {
+			SPI1_MCR |= (SPI_MCR_MDIS | SPI_MCR_HALT);
+			disable_pins();
+		}
+		if ((val & ((1<<DORD)|(1<<CPOL)|(1<<CPHA)|3)) != ((1<<DORD)|(1<<CPOL)|(1<<CPHA)|3)) {
+			uint32_t ctar = SPI1_CTAR0;
+			if (!(val & (1<<DORD))) ctar &= ~SPI_CTAR_LSBFE; // TODO: use bitband
+			if (!(val & (1<<CPOL))) ctar &= ~SPI_CTAR_CPOL;
+			if ((val & 3) == 0) {
+				// TODO: implement - is this ever really needed
+			} else if ((val & 3) == 1) {
+				// TODO: implement - is this ever really needed
+			} else if ((val & 3) == 2) {
+				// TODO: implement - is this ever really needed
+			}
+			if (!(val & (1<<CPHA)) && (ctar & SPI_CTAR_CPHA)) {
+				ctar &= ~SPI_CTAR_CPHA;
+				// TODO: set SPI_CTAR_ASC, clear SPI_CTAR_CSSCK
+			}
+			update_ctar(ctar);
+		}
+		if (!(val & (1<<MSTR))) SPI1_MCR &= ~SPI_MCR_MSTR;
+		return *this;
+	}
+	inline int operator & (int val) const __attribute__((always_inline)) {
+		int ret = 0;
+		//serial_print("SPCR & ");
+		//serial_phex(val);
+		//serial_print(" MCR:");
+		//serial_phex32(SPI1_MCR);
+		//serial_print(", CTAR0:");
+		//serial_phex32(SPI1_CTAR0);
+		//serial_print("\n");
+
+		//serial_print("\n");
+		SIM_SCGC6 |= SIM_SCGC6_SPI1;
+		if ((val & (1<<DORD)) && (SPI1_CTAR0 & SPI_CTAR_LSBFE)) ret |= (1<<DORD);
+		if ((val & (1<<CPOL)) && (SPI1_CTAR0 & SPI_CTAR_CPOL)) ret |= (1<<CPOL);
+		if ((val & (1<<CPHA)) && (SPI1_CTAR0 & SPI_CTAR_CPHA)) ret |= (1<<CPHA);
+		if ((val & 3) == 3) {
+			uint32_t dbr = SPI1_CTAR0 & 15;
+			if (dbr <= 1) {
+			} else if (dbr <= 4) {
+				ret |= (1<<SPR0);
+			} else if (dbr <= 6) {
+				ret |= (1<<SPR1);
+			} else {
+				ret |= (1<<SPR1)|(1<<SPR0);
+			}
+		} else if ((val & 3) == 1) {
+			// TODO: implement - is this ever really needed
+		} else if ((val & 3) == 2) {
+			// TODO: implement - is this ever really needed
+		}
+		if (val & (1<<SPE) && (!(SPI1_MCR & SPI_MCR_MDIS))) ret |= (1<<SPE);
+		if (val & (1<<MSTR) && (SPI1_MCR & SPI_MCR_MSTR)) ret |= (1<<MSTR);
+		//serial_print("ret = ");
+		//serial_phex(ret);
+		//serial_print("\n");
+		return ret;
+	}
 	inline void setMOSI(uint8_t pin) __attribute__((always_inline)) {
 		if (pin == 0) pinout &= ~1; // MOSI1 = 0  (PTB16)
 		if (pin == 21) pinout |= 1; // MOSI1 = 21 (PTD6)
@@ -1146,6 +1311,17 @@ public:
 	friend class SPIFIFO1class;
 private:
 	static uint8_t pinout;
+	static inline void update_ctar(uint32_t ctar) __attribute__((always_inline)) {
+		if (SPI1_CTAR0 == ctar) return;
+		uint32_t mcr = SPI1_MCR;
+		if (mcr & SPI_MCR_MDIS) {
+			SPI1_CTAR0 = ctar;
+		} else {
+			SPI1_MCR = mcr | SPI_MCR_MDIS | SPI_MCR_HALT;
+			SPI1_CTAR0 = ctar;
+			SPI1_MCR = mcr;
+		}
+	}
 };
 extern SPCR1emulation SPCR1;
 
