@@ -80,7 +80,7 @@ public:
         size_t write(int n) { return write((uint8_t)n); }
 	using Print::write;
 	void write_unicode(uint16_t n) { usb_keyboard_write_unicode(n); }
-	void set_modifier(uint8_t c) { keyboard_modifier_keys = c; }
+	void set_modifier(uint16_t c) { keyboard_modifier_keys = (uint8_t)c; }
 	void set_key1(uint8_t c) { keyboard_keys[0] = c; }
 	void set_key2(uint8_t c) { keyboard_keys[1] = c; }
 	void set_key3(uint8_t c) { keyboard_keys[2] = c; }

@@ -20,7 +20,7 @@ class usb_keyboard_class : public Print
 #endif
 	using Print::write;
 	void write_unicode(uint16_t unicode) { write_keycode(unicode_to_keycode(unicode)); }
-	void set_modifier(uint8_t);
+	void set_modifier(uint16_t);
 	void set_key1(uint8_t);
 	void set_key2(uint8_t);
 	void set_key3(uint8_t);
