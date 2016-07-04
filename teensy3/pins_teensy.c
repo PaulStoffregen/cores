@@ -1179,12 +1179,12 @@ void delay(uint32_t ms)
 #define PULSEIN_LOOPS_PER_USEC 1
 #endif
 
-
+#if defined(KINETISK)
 uint32_t pulseIn_high(volatile uint8_t *reg, uint32_t timeout)
 {
 	uint32_t timeout_count = timeout * PULSEIN_LOOPS_PER_USEC;
 	uint32_t usec_start, usec_stop;
-	
+
 	// wait for any previous pulse to end
 	while (*reg) {
 		if (--timeout_count == 0) return 0;
@@ -1232,30 +1232,56 @@ uint32_t pulseIn(uint8_t pin, uint8_t state, uint32_t timeout)
 	return pulseIn_low(portInputRegister(pin), timeout);;
 }
 
+#elif defined(KINETISL)
+// For TeencyLC need to use mask on the input register as the register is shared by several IO pins
+uint32_t pulseIn_high(volatile uint8_t *reg, uint8_t mask, uint32_t timeout)
+{
+	uint32_t timeout_count = timeout * PULSEIN_LOOPS_PER_USEC;
+	uint32_t usec_start, usec_stop;
+	// wait for any previous pulse to end
+	while (*reg & mask) {
+		if (--timeout_count == 0) return -1;
+	}
+	// wait for the pulse to start
+	while (!(*reg & mask)) {
+		if (--timeout_count == 0) return 0;
+	}
+	usec_start = micros();
+	// wait for the pulse to stop
+	while (*reg & mask) {
+		if (--timeout_count == 0) return 0;
+	}
+	usec_stop = micros();
+	return usec_stop - usec_start;
+}
 
+uint32_t pulseIn_low(volatile uint8_t *reg, uint8_t mask, uint32_t timeout)
+{
+	uint32_t timeout_count = timeout * PULSEIN_LOOPS_PER_USEC;
+	uint32_t usec_start, usec_stop;
+	
+	// wait for any previous pulse to end
+	while (!(*reg & mask)) {
+		if (--timeout_count == 0) return 0;
+	}
+	// wait for the pulse to start
+	while (*reg & mask) {
+		if (--timeout_count == 0) return 0;
+	}
+	usec_start = micros();
+	// wait for the pulse to stop
+	while (!(*reg & mask)) {
+		if (--timeout_count == 0) return 0;
+	}
+	usec_stop = micros();
+	return usec_stop - usec_start;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// TODO: an inline version should handle the common case where state is const
+uint32_t pulseIn(uint8_t pin, uint8_t state, uint32_t timeout)
+{
+	if (pin >= CORE_NUM_DIGITAL) return 0;
+	if (state) return pulseIn_high(portInputRegister(pin), digitalPinToBitMask(pin), timeout);
+	return pulseIn_low(portInputRegister(pin), digitalPinToBitMask(pin), timeout);;
+}
+#endif
