@@ -118,12 +118,18 @@ void serial_begin(uint32_t divisor)
 		#if defined(KINETISL)
 		case 3:  CORE_PIN3_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(2); break;
 		#endif
+		#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+		case 27: CORE_PIN27_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
+		#endif
 	}
 	switch (tx_pin_num) {
 		case 1:  CORE_PIN1_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
 		case 5:  CORE_PIN5_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
 		#if defined(KINETISL)
 		case 4:  CORE_PIN4_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(2); break;
+		#endif
+		#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+		case 26: CORE_PIN26_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
 		#endif
 	}
 #if defined(HAS_KINETISK_UART0)

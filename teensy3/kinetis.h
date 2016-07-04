@@ -1045,7 +1045,7 @@ enum IRQ_NUMBER_t {
 
 #define SIM_SOPT1		(*(volatile uint32_t *)0x40047000) // System Options Register 1
 #define SIM_SOPT1_USBREGEN		((uint32_t)0x80000000)		// USB regulator enable
-#define SIM_SOPT1_USBSSTBY		((uint32_t)0x40000000)		// USB regulator standby in Stop, VLPS, LLS and VLLS 
+#define SIM_SOPT1_USBSSTBY		((uint32_t)0x40000000)		// USB regulator standby in Stop, VLPS, LLS and VLLS
 #define SIM_SOPT1_USBVSTBY		((uint32_t)0x20000000)		// USB regulator standby in  VLPR and VLPW
 #define SIM_SOPT1_OSC32KSEL(n)		((uint32_t)(((n) & 3) << 18))	// 32K oscillator clock, 0=system osc, 2=rtc osc, 3=lpo
 #define SIM_SOPT1CFG		(*(volatile uint32_t *)0x40047004) // SOPT1 Configuration Register
@@ -1171,8 +1171,8 @@ enum IRQ_NUMBER_t {
 #define SIM_SCGC4_CMT			((uint32_t)0x00000004)		// CMT Clock Gate Control
 #define SIM_SCGC4_EWM			((uint32_t)0x00000002)		// EWM Clock Gate Control
 #ifdef KINETISL
-#define SIM_SCGC4_SPI1			((uint32_t)0x00800000)		// 
-#define SIM_SCGC4_SPI0			((uint32_t)0x00400000)		// 
+#define SIM_SCGC4_SPI1			((uint32_t)0x00800000)		//
+#define SIM_SCGC4_SPI0			((uint32_t)0x00400000)		//
 #endif
 #define SIM_SCGC5		(*(volatile uint32_t *)0x40048038) // System Clock Gating Control Register 5
 #define SIM_SCGC5_PORTE			((uint32_t)0x00002000)		// Port E Clock Gate Control
@@ -1263,8 +1263,8 @@ enum IRQ_NUMBER_t {
 #define RCM_RPFC		(*(volatile uint8_t  *)0x4007F004) // Reset Pin Filter Control Register
 #define RCM_RPFW		(*(volatile uint8_t  *)0x4007F005) // Reset Pin Filter Width Register
 #define RCM_MR			(*(volatile uint8_t  *)0x4007F007) // Mode Register
-#define RCM_SSRS0		(*(volatile uint8_t  *)0x4007F008) // Sticky System Reset Status Register 0 
-#define RCM_SSRS1		(*(volatile uint8_t  *)0x4007F009) // Sticky System Reset Status Register 0 
+#define RCM_SSRS0		(*(volatile uint8_t  *)0x4007F008) // Sticky System Reset Status Register 0
+#define RCM_SSRS1		(*(volatile uint8_t  *)0x4007F009) // Sticky System Reset Status Register 0
 
 // System Mode Controller
 
@@ -2603,10 +2603,10 @@ typedef struct {
 #define MCG_C2                  (KINETIS_MCG.C2)		// 40064001  MCG Control 2 Register
 #define MCG_C2_IRCS			(uint8_t)0x01			// Internal Reference Clock Select, Selects between the fast or slow internal reference clock source.
 #define MCG_C2_LP			(uint8_t)0x02			// Low Power Select, Controls whether the FLL or PLL is disabled in BLPI and BLPE modes.
-#define MCG_C2_EREFS			(uint8_t)0x04			// External Reference Select, Selects the source for the external reference clock. 
+#define MCG_C2_EREFS			(uint8_t)0x04			// External Reference Select, Selects the source for the external reference clock.
 #define MCG_C2_HGO0			(uint8_t)0x08			// High Gain Oscillator Select, Controls the crystal oscillator mode of operation
 #define MCG_C2_RANGE0(n)		(uint8_t)(((n) & 0x03) << 4)	// Frequency Range Select, Selects the frequency range for the crystal oscillator
-#define MCG_C2_LOCRE0			(uint8_t)0x80			// Loss of Clock Reset Enable, Determines whether an interrupt or a reset request is made following a loss of OSC0 
+#define MCG_C2_LOCRE0			(uint8_t)0x80			// Loss of Clock Reset Enable, Determines whether an interrupt or a reset request is made following a loss of OSC0
 #define MCG_C3                  (KINETIS_MCG.C3)		// 40064002  MCG Control 3 Register
 #define MCG_C3_SCTRIM(n)		(uint8_t)(n)			// Slow Internal Reference Clock Trim Setting
 #define MCG_C4                  (KINETIS_MCG.C4)		// 40064003  MCG Control 4 Register
@@ -2621,7 +2621,7 @@ typedef struct {
 #define MCG_C6                  (KINETIS_MCG.C6)		// 40064005  MCG Control 6 Register
 #define MCG_C6_VDIV0(n)			(uint8_t)((n) & 0x1F)		// VCO 0 Divider
 #define MCG_C6_CME0			(uint8_t)0x20			// Clock Monitor Enable
-#define MCG_C6_PLLS			(uint8_t)0x40			// PLL Select, Controls whether the PLL or FLL output is selected as the MCG source when CLKS[1:0]=00. 
+#define MCG_C6_PLLS			(uint8_t)0x40			// PLL Select, Controls whether the PLL or FLL output is selected as the MCG source when CLKS[1:0]=00.
 #define MCG_C6_LOLIE0			(uint8_t)0x80			// Loss of Lock Interrrupt Enable
 #define MCG_S                   (KINETIS_MCG.S)			// 40064006  MCG Status Register
 #define MCG_S_IRCST			(uint8_t)0x01			// Internal Reference Clock Status
@@ -4346,6 +4346,48 @@ typedef struct {
 #define SPI0_RXFR2		(KINETISK_SPI0.RXFR[2])	// DSPI Receive FIFO Registers
 #define SPI0_RXFR3		(KINETISK_SPI0.RXFR[3])	// DSPI Receive FIFO Registers
 
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+#define KINETISK_SPI1		(*(KINETISK_SPI_t *)0x4002D000)
+#define SPI1_MCR		(KINETISK_SPI1.MCR)	// DSPI Module Configuration Register
+#define SPI1_TCR		(KINETISK_SPI1.TCR)	// DSPI Transfer Count Register
+#define SPI1_CTAR0		(KINETISK_SPI1.CTAR0)	// DSPI Clock and Transfer Attributes Register, In Master Mode
+#define SPI1_CTAR0_SLAVE	(KINETISK_SPI1.CTAR0)	// DSPI Clock and Transfer Attributes Register, In Slave Mode
+#define SPI1_CTAR1		(KINETISK_SPI1.CTAR1)	// DSPI Clock and Transfer Attributes Register, In Master Mode
+#define SPI1_SR			(KINETISK_SPI1.SR)	// DSPI Status Register
+#define SPI1_RSER		(KINETISK_SPI1.RSER)	// DSPI DMA/Interrupt Request Select and Enable Register
+#define SPI1_PUSHR		(KINETISK_SPI1.PUSHR)	// DSPI PUSH TX FIFO Register In Master Mode
+#define SPI1_PUSHR_SLAVE	(KINETISK_SPI1.PUSHR)	// DSPI PUSH TX FIFO Register In Slave Mode
+#define SPI1_POPR		(KINETISK_SPI1.POPR)	// DSPI POP RX FIFO Register
+#define SPI1_TXFR0		(KINETISK_SPI1.TXFR[0])	// DSPI Transmit FIFO Registers
+#define SPI1_TXFR1		(KINETISK_SPI1.TXFR[1])	// DSPI Transmit FIFO Registers
+#define SPI1_TXFR2		(KINETISK_SPI1.TXFR[2])	// DSPI Transmit FIFO Registers
+#define SPI1_TXFR3		(KINETISK_SPI1.TXFR[3])	// DSPI Transmit FIFO Registers
+#define SPI1_RXFR0		(KINETISK_SPI1.RXFR[0])	// DSPI Receive FIFO Registers
+#define SPI1_RXFR1		(KINETISK_SPI1.RXFR[1])	// DSPI Receive FIFO Registers
+#define SPI1_RXFR2		(KINETISK_SPI1.RXFR[2])	// DSPI Receive FIFO Registers
+#define SPI1_RXFR3		(KINETISK_SPI1.RXFR[3])	// DSPI Receive FIFO Registers
+
+#define KINETISK_SPI2		(*(KINETISK_SPI_t *)0x400AC000)
+#define SPI2_MCR		(KINETISK_SPI2.MCR)	// DSPI Module Configuration Register
+#define SPI2_TCR		(KINETISK_SPI2.TCR)	// DSPI Transfer Count Register
+#define SPI2_CTAR0		(KINETISK_SPI2.CTAR0)	// DSPI Clock and Transfer Attributes Register, In Master Mode
+#define SPI2_CTAR0_SLAVE	(KINETISK_SPI2.CTAR0)	// DSPI Clock and Transfer Attributes Register, In Slave Mode
+#define SPI2_CTAR1		(KINETISK_SPI2.CTAR1)	// DSPI Clock and Transfer Attributes Register, In Master Mode
+#define SPI2_SR			(KINETISK_SPI2.SR)	// DSPI Status Register
+#define SPI2_RSER		(KINETISK_SPI2.RSER)	// DSPI DMA/Interrupt Request Select and Enable Register
+#define SPI2_PUSHR		(KINETISK_SPI2.PUSHR)	// DSPI PUSH TX FIFO Register In Master Mode
+#define SPI2_PUSHR_SLAVE	(KINETISK_SPI2.PUSHR)	// DSPI PUSH TX FIFO Register In Slave Mode
+#define SPI2_POPR		(KINETISK_SPI2.POPR)	// DSPI POP RX FIFO Register
+#define SPI2_TXFR0		(KINETISK_SPI2.TXFR[0])	// DSPI Transmit FIFO Registers
+#define SPI2_TXFR1		(KINETISK_SPI2.TXFR[1])	// DSPI Transmit FIFO Registers
+#define SPI2_TXFR2		(KINETISK_SPI2.TXFR[2])	// DSPI Transmit FIFO Registers
+#define SPI2_TXFR3		(KINETISK_SPI2.TXFR[3])	// DSPI Transmit FIFO Registers
+#define SPI2_RXFR0		(KINETISK_SPI2.RXFR[0])	// DSPI Receive FIFO Registers
+#define SPI2_RXFR1		(KINETISK_SPI2.RXFR[1])	// DSPI Receive FIFO Registers
+#define SPI2_RXFR2		(KINETISK_SPI2.RXFR[2])	// DSPI Receive FIFO Registers
+#define SPI2_RXFR3		(KINETISK_SPI2.RXFR[3])	// DSPI Receive FIFO Registers
+
+#endif
 #elif defined(KINETISL)
 typedef struct {
 	volatile uint8_t	S;
@@ -4364,9 +4406,9 @@ typedef struct {
 #define KINETISL_SPI0		(*(KINETISL_SPI_t *)0x40076000)
 #define KINETISL_SPI1		(*(KINETISL_SPI_t *)0x40077000)
 #define SPI0_S			(KINETISL_SPI0.S)		// Status
-#define SPI_S_SPRF			((uint8_t)0x80)			// Read Buffer Full Flag 
+#define SPI_S_SPRF			((uint8_t)0x80)			// Read Buffer Full Flag
 #define SPI_S_SPMF			((uint8_t)0x40)			// Match Flag
-#define SPI_S_SPTEF			((uint8_t)0x20)			// Transmit Buffer Empty Flag 
+#define SPI_S_SPTEF			((uint8_t)0x20)			// Transmit Buffer Empty Flag
 #define SPI_S_MODF			((uint8_t)0x10)			// Fault Flag
 #define SPI_S_RNFULLF			((uint8_t)0x08)			// Receive FIFO nearly full flag
 #define SPI_S_TNEAREF			((uint8_t)0x04)			// Transmit FIFO nearly empty flag
@@ -5366,7 +5408,7 @@ typedef struct __attribute__((packed)) {
 #define TSI_GENCS_ESOR			((uint32_t)0x10000000)		// End-of-scan or Out-of-Range Interrupt Selection
 #define TSI_GENCS_MODE(n)		(((n) & 15) << 24)		// analog modes & status
 #define TSI_GENCS_REFCHRG(n)		(((n) & 7) << 21)		// reference  charge and discharge current
-#define TSI_GENCS_DVOLT(n)		(((n) & 3) << 19)		// voltage rails 
+#define TSI_GENCS_DVOLT(n)		(((n) & 3) << 19)		// voltage rails
 #define TSI_GENCS_EXTCHRG(n)		(((n) & 7) << 16)		// electrode charge and discharge current
 #define TSI_GENCS_PS(n)			(((n) & 7) << 13)		// prescaler
 #define TSI_GENCS_NSCN(n)		(((n) & 31) << 8)		// scan number
