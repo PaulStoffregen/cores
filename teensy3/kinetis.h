@@ -5028,7 +5028,7 @@ typedef struct __attribute__((packed)) {
 #define SDHC_XFERTYP_DPSEL		((uint32_t)0x00200000)		// Data Present Select
 #define SDHC_XFERTYP_CICEN		((uint32_t)0x00100000)		// Command Index Check Enable
 #define SDHC_XFERTYP_CCCEN		((uint32_t)0x00080000)		// Command CRC Check Enable
-#define SDHC_XFERTYP_RSPTYP		(uint32_t)(((n) & 0x3)<<16)	// Response Type Select
+#define SDHC_XFERTYP_RSPTYP(n)		(uint32_t)(((n) & 0x3)<<16)	// Response Type Select
 #define SDHC_XFERTYP_MSBSEL		((uint32_t)0x00000020)		// Multi/Single Block Select
 #define SDHC_XFERTYP_DTDSEL		((uint32_t)0x00000010)		// Data Transfer Direction Select
 #define SDHC_XFERTYP_AC12EN		((uint32_t)0x00000004)		// Auto CMD12 Enable
