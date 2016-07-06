@@ -83,6 +83,7 @@ char * dtostrf(float val, int width, unsigned int precision, char *buf)
 	}
 	if (sign) reqd++;
 	p = buf;
+	if ( decpt < 0 ) reqd++; // ALSO ties to e++ in extra pad and short string copy
 	e = p + reqd;
 	pad = width - reqd;
 	if (pad > 0) {
@@ -90,15 +91,10 @@ char * dtostrf(float val, int width, unsigned int precision, char *buf)
 		while (pad-- > 0) *p++ = ' ';
 	}
 	if (sign) *p++ = '-';
-	if (decpt == 0 && precision > 0) {
+	if (decpt <= 0 && precision > 0) {
 		*p++ = '0';
 		*p++ = '.';
-	}
-	else if (decpt < 0 && precision > 0) {
-		*p++ = '0';
-		*p++ = '.';
-		e++;
-		while ( decpt < 0 ) {
+		while ( decpt < 0 && !(p >= e) ) {
 			decpt++;
 			*p++ = '0';
 		}
