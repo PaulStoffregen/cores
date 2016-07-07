@@ -106,6 +106,8 @@ extern uint8_t usb_audio_receive_setting;
 extern uint8_t usb_audio_transmit_setting;
 extern void usb_audio_receive_callback(unsigned int len);
 extern unsigned int usb_audio_transmit_callback(void);
+extern int usb_audio_get_feature(void *stp, uint8_t *data, uint32_t *datalen);
+extern int usb_audio_set_feature(void *stp, uint8_t *buf);
 #endif
 
 #ifdef MULTITOUCH_INTERFACE

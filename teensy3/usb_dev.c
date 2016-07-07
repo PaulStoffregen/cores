@@ -43,6 +43,7 @@
 #include "kinetis.h"
 //#include "HardwareSerial.h"
 #include "usb_mem.h"
+#include <string.h> // for memset
 
 // buffer descriptor table
 

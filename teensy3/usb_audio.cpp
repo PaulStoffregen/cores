@@ -84,7 +84,7 @@ static void copy_to_buffers(const uint32_t *src, int16_t *left, int16_t *right, 
 	while ((src < target - 2)) {
 		uint32_t n1 = *src++;
 		uint32_t n = *src++;
-		*(uint32_t *)left = n1 & 0xFFFF | ((n & 0xFFFF) << 16);
+		*(uint32_t *)left = (n1 & 0xFFFF) | ((n & 0xFFFF) << 16);
 		left+=2;
 		*(uint32_t *)right = (n1 >> 16) | ((n & 0xFFFF0000)) ;
 		right+=2;
