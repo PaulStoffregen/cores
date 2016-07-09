@@ -597,7 +597,7 @@ void _init_Teensyduino_internal_(void)
 	analog_init();
 	// for background about this startup delay, please see this conversation
 	// https://forum.pjrc.com/threads/31290-Teensey-3-2-Teensey-Loader-1-24-Issues?p=87273&viewfull=1#post87273
-	delay(250);
+	delay(400);
 	usb_init();
 }
 
