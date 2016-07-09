@@ -32,6 +32,21 @@
 #include "core_pins.h" // testing only
 #include "ser_print.h" // testing only
 
+
+// Flash Security Setting. On Teensy 3.2, you can lock the MK20 chip to prevent
+// anyone from reading your code. The bootloader will be unable to respond to
+// auto-reboot requests from Arduino. Pressing the program button will cause a
+// full chip erase, because the bootloader chip is locked out.  Normally, erase
+// occurs when uploading begins, so if you press the Program button accidentally,
+// simply power cycling will run your program again.  When security is locked,
+// any Program button press causes immediate full erase.  To set the security
+// lock, change this to 0xDC.  Teensy 3.0 and 3.1 do not support security lock.
+#define FSEC 0xDE
+
+// Flash Options
+#define FOPT 0xF9
+
+
 extern unsigned long _stext;
 extern unsigned long _etext;
 extern unsigned long _sdata;
@@ -640,7 +655,7 @@ void (* const _VectorsFlash[NVIC_NUM_INTERRUPTS+16])(void) =
 __attribute__ ((section(".flashconfig"), used))
 const uint8_t flashconfigbytes[16] = {
 	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-	0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFF, 0xFF, 0xFF
+	0xFF, 0xFF, 0xFF, 0xFF, FSEC, FOPT, 0xFF, 0xFF
 };
 
 
