@@ -209,7 +209,7 @@ void serial2_set_tx(uint8_t pin, uint8_t opendrain)
 
 	if (opendrain) pin |= 128;
 	if (pin == tx_pin_num) return;
-	if ((SIM_SCGC4 & SIM_SCGC4_UART2)) {
+	if ((SIM_SCGC4 & SIM_SCGC4_UART1)) {
 		switch (tx_pin_num & 127) {
 			case 10: CORE_PIN10_CONFIG = 0; break; // PTC4
 			#if !(defined(__MK64FX512__) || defined(__MK66FX1M0__))  // not on T3.4 or T3.5
@@ -236,7 +236,7 @@ void serial2_set_rx(uint8_t pin)
 {
 	#if defined(KINETISK)
 	if (pin == rx_pin_num) return;
-	if ((SIM_SCGC4 & SIM_SCGC4_UART2)) {
+	if ((SIM_SCGC4 & SIM_SCGC4_UART1)) {
 		switch (rx_pin_num) {
 			case 9: CORE_PIN9_CONFIG = 0; break; // PTC3
 			#if !(defined(__MK64FX512__) || defined(__MK66FX1M0__))  // not on T3.4 or T3.5
