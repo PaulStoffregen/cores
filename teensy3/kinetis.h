@@ -2937,6 +2937,7 @@ typedef struct {
 #define CMP0_CR1		(*(volatile uint8_t  *)0x40073001) // CMP Control Register
 #define CMP_CR1_SE              (uint8_t)0x80 // Sample Enable
 #define CMP_CR1_WE              (uint8_t)0x40 // Windowing Enable
+#define CMP_CR1_TRIGM           (uint8_t)0x20 // Trigger Mode Enable
 #define CMP_CR1_PMODE           (uint8_t)0x10 // Power Mode Select
 #define CMP_CR1_INV             (uint8_t)0x08 // Comparator INVERT
 #define CMP_CR1_COS             (uint8_t)0x04 // Comparator Output Select
