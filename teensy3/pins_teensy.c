@@ -80,6 +80,24 @@ const struct digital_pin_bitband_and_config_table_struct digital_pin_to_info_PGM
 	{GPIO_BITBAND_PTR(CORE_PIN37_PORTREG, CORE_PIN37_BIT), &CORE_PIN37_CONFIG},
 	{GPIO_BITBAND_PTR(CORE_PIN38_PORTREG, CORE_PIN38_BIT), &CORE_PIN38_CONFIG},
 	{GPIO_BITBAND_PTR(CORE_PIN39_PORTREG, CORE_PIN39_BIT), &CORE_PIN39_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN40_PORTREG, CORE_PIN40_BIT), &CORE_PIN40_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN41_PORTREG, CORE_PIN41_BIT), &CORE_PIN41_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN42_PORTREG, CORE_PIN42_BIT), &CORE_PIN42_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN43_PORTREG, CORE_PIN43_BIT), &CORE_PIN43_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN44_PORTREG, CORE_PIN44_BIT), &CORE_PIN44_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN45_PORTREG, CORE_PIN45_BIT), &CORE_PIN45_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN46_PORTREG, CORE_PIN46_BIT), &CORE_PIN46_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN47_PORTREG, CORE_PIN47_BIT), &CORE_PIN47_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN48_PORTREG, CORE_PIN48_BIT), &CORE_PIN48_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN49_PORTREG, CORE_PIN49_BIT), &CORE_PIN49_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN50_PORTREG, CORE_PIN50_BIT), &CORE_PIN50_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN51_PORTREG, CORE_PIN51_BIT), &CORE_PIN51_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN52_PORTREG, CORE_PIN52_BIT), &CORE_PIN52_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN53_PORTREG, CORE_PIN53_BIT), &CORE_PIN53_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN54_PORTREG, CORE_PIN54_BIT), &CORE_PIN54_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN55_PORTREG, CORE_PIN55_BIT), &CORE_PIN55_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN56_PORTREG, CORE_PIN56_BIT), &CORE_PIN56_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN57_PORTREG, CORE_PIN57_BIT), &CORE_PIN57_CONFIG},
 #endif
 };
 
@@ -297,6 +315,9 @@ static void porta_interrupt(void)
 	if ((isfr & CORE_PIN27_BITMASK) && intFunc[27]) intFunc[27]();
 	if ((isfr & CORE_PIN28_BITMASK) && intFunc[28]) intFunc[28]();
 	if ((isfr & CORE_PIN39_BITMASK) && intFunc[39]) intFunc[39]();
+	if ((isfr & CORE_PIN40_BITMASK) && intFunc[40]) intFunc[40]();
+	if ((isfr & CORE_PIN41_BITMASK) && intFunc[41]) intFunc[41]();
+	if ((isfr & CORE_PIN42_BITMASK) && intFunc[42]) intFunc[42]();
 }
 
 static void portb_interrupt(void)
@@ -313,6 +334,12 @@ static void portb_interrupt(void)
 	if ((isfr & CORE_PIN30_BITMASK) && intFunc[30]) intFunc[30]();
 	if ((isfr & CORE_PIN31_BITMASK) && intFunc[31]) intFunc[31]();
 	if ((isfr & CORE_PIN32_BITMASK) && intFunc[32]) intFunc[32]();
+	if ((isfr & CORE_PIN43_BITMASK) && intFunc[43]) intFunc[43]();
+	if ((isfr & CORE_PIN44_BITMASK) && intFunc[44]) intFunc[44]();
+	if ((isfr & CORE_PIN45_BITMASK) && intFunc[45]) intFunc[45]();
+	if ((isfr & CORE_PIN46_BITMASK) && intFunc[46]) intFunc[46]();
+	if ((isfr & CORE_PIN49_BITMASK) && intFunc[49]) intFunc[49]();
+	if ((isfr & CORE_PIN50_BITMASK) && intFunc[50]) intFunc[50]();
 }
 
 static void portc_interrupt(void)
@@ -346,6 +373,13 @@ static void portd_interrupt(void)
 	if ((isfr & CORE_PIN14_BITMASK) && intFunc[14]) intFunc[14]();
 	if ((isfr & CORE_PIN20_BITMASK) && intFunc[20]) intFunc[20]();
 	if ((isfr & CORE_PIN21_BITMASK) && intFunc[21]) intFunc[21]();
+	if ((isfr & CORE_PIN47_BITMASK) && intFunc[47]) intFunc[47]();
+	if ((isfr & CORE_PIN48_BITMASK) && intFunc[48]) intFunc[48]();
+	if ((isfr & CORE_PIN51_BITMASK) && intFunc[51]) intFunc[51]();
+	if ((isfr & CORE_PIN52_BITMASK) && intFunc[52]) intFunc[52]();
+	if ((isfr & CORE_PIN53_BITMASK) && intFunc[53]) intFunc[53]();
+	if ((isfr & CORE_PIN54_BITMASK) && intFunc[54]) intFunc[54]();
+	if ((isfr & CORE_PIN55_BITMASK) && intFunc[55]) intFunc[55]();
 }
 
 static void porte_interrupt(void)
@@ -355,6 +389,8 @@ static void porte_interrupt(void)
 	if ((isfr & CORE_PIN24_BITMASK) && intFunc[24]) intFunc[24]();
 	if ((isfr & CORE_PIN33_BITMASK) && intFunc[33]) intFunc[33]();
 	if ((isfr & CORE_PIN34_BITMASK) && intFunc[34]) intFunc[34]();
+	if ((isfr & CORE_PIN56_BITMASK) && intFunc[56]) intFunc[56]();
+	if ((isfr & CORE_PIN57_BITMASK) && intFunc[57]) intFunc[57]();
 }
 
 #endif
