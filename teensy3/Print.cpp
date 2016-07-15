@@ -283,10 +283,10 @@ size_t Print::printNumber(unsigned long n, uint8_t base, uint8_t sign)
 size_t Print::printFloat(double number, uint8_t digits) 
 {
 	uint8_t sign=0;
-	size_t count=0;
+	size_t bytecount=0;
 
 	// Handle negative numbers
-	if (number < 0.0) {
+	if (number < 0) {
 		sign = 1;
 		number = -number;
 	}
@@ -301,7 +301,7 @@ size_t Print::printFloat(double number, uint8_t digits)
 	// Extract the integer part of the number and print it
 	unsigned long int_part = (unsigned long)number;
 	double remainder = number - (double)int_part;
-	count += printNumber(int_part, 10, sign);
+	bytecount += printNumber(int_part, 10, sign);
 
 	// Print the decimal point, but only if there are digits beyond
 	if (digits > 0) {
@@ -312,14 +312,14 @@ size_t Print::printFloat(double number, uint8_t digits)
 		if (digits > sizeof(buf) - 1) digits = sizeof(buf) - 1;
 
 		while (digits-- > 0) {
-			remainder *= 10.0;
+			remainder *= 10;
 			n = (uint8_t)(remainder);
 			buf[count++] = '0' + n;
 			remainder -= n; 
 		}
-		count += write(buf, count);
+		bytecount += write(buf, count);
 	}
-	return count;
+	return bytecount;
 }
 
 

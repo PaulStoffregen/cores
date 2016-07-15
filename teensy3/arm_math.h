@@ -5525,8 +5525,7 @@ extern "C"
     *pIa = Ialpha;
 
     /* Calculating pIb from Ialpha and Ibeta by equation pIb = -(1/2) * Ialpha + (sqrt(3)/2) * Ibeta */
-    *pIb = -0.5 * Ialpha + (float32_t) 0.8660254039 *Ibeta;
-
+    *pIb = -0.5f * Ialpha + 0.8660254039f * Ibeta;
   }
 
   /**

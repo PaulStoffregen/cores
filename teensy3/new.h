@@ -9,10 +9,10 @@
 
 #include <stdlib.h>
 
-void * operator new(size_t size);
-void * operator new[](size_t size);
-void operator delete(void * ptr);
-void operator delete[](void * ptr);
+void* operator new(size_t size) noexcept;
+void* operator new[](size_t size) noexcept;
+void operator delete(void* ptr) noexcept;
+void operator delete[](void* ptr) noexcept;
 
 __extension__ typedef int __guard __attribute__((mode (__DI__)));
 

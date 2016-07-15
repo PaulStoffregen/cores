@@ -972,7 +972,7 @@ public:
 	operator int () const __attribute__((always_inline)) {
 		int ret = 0;
 		if ((SIM_SCGC6 & SIM_SCGC6_SPI0)) {
-			int ctar = SPI0_CTAR0;
+			uint32_t ctar = SPI0_CTAR0;
 			if (ctar & SPI_CTAR_LSBFE) ret |= (1<<DORD);
 			if (ctar & SPI_CTAR_CPOL) ret |= (1<<CPOL);
 			if (ctar & SPI_CTAR_CPHA) ret |= (1<<CPHA);
@@ -985,7 +985,7 @@ public:
 			} else {
 				ret |= (1<<SPR1)|(1<<SPR0);
 			}
-			int mcr = SPI0_MCR;
+			uint32_t mcr = SPI0_MCR;
 			if (!(mcr & SPI_MCR_MDIS)) ret |= (1<<SPE);
 			if (mcr & SPI_MCR_MSTR) ret |= (1<<MSTR);
 		}
@@ -1410,7 +1410,7 @@ public:
 		//serial_print("SPDR (int) ");
 		//serial_phex(val);
 		//serial_print("\n");
-		return val;
+		return (int)val;
 	}
 };
 extern SPDRemulation SPDR;
@@ -1796,24 +1796,24 @@ extern SREGemulation SREG;
 #if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
 
 #if defined(__MK20DX128__) || defined(__MK20DX256__)
-#define EIMSK_pA 0x01000018 // pins 3, 4, 24
-#define EIMSK_pB 0x020F0003 // pins 0, 1, 16-19, 25
-#define EIMSK_pC 0x78C0BE00 // pins 9-13, 15, 22, 23, 27-30
-#define EIMSK_pD 0x003041E4 // pins 2, 5-8, 14, 20, 21
-#define EIMSK_pE 0x84000000 // pins 26, 31
+#define EIMSK_pA 0x01000018u // pins 3, 4, 24
+#define EIMSK_pB 0x020F0003u // pins 0, 1, 16-19, 25
+#define EIMSK_pC 0x78C0BE00u // pins 9-13, 15, 22, 23, 27-30
+#define EIMSK_pD 0x003041E4u // pins 2, 5-8, 14, 20, 21
+#define EIMSK_pE 0x84000000u // pins 26, 31
 #elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
-#define EIMSK_pA 0x1E000018 // pins 3, 4, 25-28
-#define EIMSK_pB 0xE00F0003 // pins 0, 1, 16-19, 29-31
-#define EIMSK_pC 0x00C0BE00 // pins 9-13, 15, 22, 23
-#define EIMSK_pD 0x003041E4 // pins 2, 5-8, 14, 20, 21
-#define EIMSK_pE 0x01000000 // pins 24
+#define EIMSK_pA 0x1E000018u // pins 3, 4, 25-28
+#define EIMSK_pB 0xE00F0003u // pins 0, 1, 16-19, 29-31
+#define EIMSK_pC 0x00C0BE00u // pins 9-13, 15, 22, 23
+#define EIMSK_pD 0x003041E4u // pins 2, 5-8, 14, 20, 21
+#define EIMSK_pE 0x01000000u // pins 24
 #endif
 
 class EIMSKemulation  // used by Adafruit_nRF8001 (only supports INT for pins 0 to 31)
 {
 public:
-	operator int () const __attribute__((always_inline)) {
-		int mask = 0;
+	operator uint32_t () const __attribute__((always_inline)) {
+		uint32_t mask = 0;
 		volatile const uint32_t *icer = &NVIC_ICER0;
 		if (icer[IRQ_PORTA >> 5] & (1 << (IRQ_PORTA & 31))) mask |= EIMSK_pA;
 		if (icer[IRQ_PORTB >> 5] & (1 << (IRQ_PORTB & 31))) mask |= EIMSK_pB;
@@ -1822,7 +1822,7 @@ public:
 		if (icer[IRQ_PORTE >> 5] & (1 << (IRQ_PORTE & 31))) mask |= EIMSK_pE;
 		return mask;
 	}
-	inline EIMSKemulation & operator |= (int val) __attribute__((always_inline)) {
+	inline EIMSKemulation & operator |= (uint32_t val) __attribute__((always_inline)) {
 		if (val & EIMSK_pA) NVIC_ENABLE_IRQ(IRQ_PORTA);
 		if (val & EIMSK_pB) NVIC_ENABLE_IRQ(IRQ_PORTB);
 		if (val & EIMSK_pC) NVIC_ENABLE_IRQ(IRQ_PORTC);
@@ -1830,7 +1830,7 @@ public:
 		if (val & EIMSK_pE) NVIC_ENABLE_IRQ(IRQ_PORTE);
 		return *this;
 	}
-	inline EIMSKemulation & operator &= (int val) __attribute__((always_inline)) {
+	inline EIMSKemulation & operator &= (uint32_t val) __attribute__((always_inline)) {
 		uint32_t n = val;
 		if ((n | ~EIMSK_pA) != 0xFFFFFFFF) NVIC_DISABLE_IRQ(IRQ_PORTA);
 		if ((n | ~EIMSK_pB) != 0xFFFFFFFF) NVIC_DISABLE_IRQ(IRQ_PORTB);

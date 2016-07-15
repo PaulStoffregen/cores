@@ -1,21 +1,21 @@
 #include "new.h"
 
-void * operator new(size_t size)
+void* operator new(size_t size) noexcept
 {
   return malloc(size);
 }
 
-void * operator new[](size_t size)
+void* operator new[](size_t size) noexcept
 {
   return malloc(size);
 }
 
-void operator delete(void * ptr)
+void operator delete(void* ptr) noexcept
 {
   free(ptr);
 }
 
-void operator delete[](void * ptr)
+void operator delete[](void* ptr) noexcept
 {
   free(ptr);
 }

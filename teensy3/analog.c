@@ -413,7 +413,7 @@ static volatile uint8_t analogReadBusyADC1 = 0;
 
 int analogRead(uint8_t pin)
 {
-	int result;
+	uint32_t result;
 	uint8_t index, channel;
 
 	//serial_phex(pin);
@@ -508,7 +508,7 @@ startADC0:
 			analogReadBusyADC0 = 0;
 			__enable_irq();
 			result >>= analog_right_shift;
-			return result;
+			return (int)result;
 		}
 		// detect if analogRead was used from an interrupt
 		// if so, our analogRead got canceled, so it must
@@ -539,7 +539,7 @@ startADC1:
 			analogReadBusyADC1 = 0;
 			__enable_irq();
 			result >>= analog_right_shift;
-			return result;
+			return (int)result;
 		}
 		// detect if analogRead was used from an interrupt
 		// if so, our analogRead got canceled, so it must

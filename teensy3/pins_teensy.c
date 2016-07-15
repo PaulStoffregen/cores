@@ -136,7 +136,7 @@ const struct digital_pin_bitband_and_config_table_struct digital_pin_to_info_PGM
 
 
 typedef void (*voidFuncPtr)(void);
-volatile static voidFuncPtr intFunc[CORE_NUM_DIGITAL];
+static volatile voidFuncPtr intFunc[CORE_NUM_DIGITAL];
 #if defined(KINETISK)
 static void porta_interrupt(void);
 static void portb_interrupt(void);
@@ -750,7 +750,7 @@ void analogWrite(uint8_t pin, int val)
 		digitalWrite(pin, LOW);
 		pinMode(pin, OUTPUT);	// TODO: implement OUTPUT_LOW
 		return;
-	} else if (val >= max) {
+	} else if ((uint32_t)val >= max) {
 		digitalWrite(pin, HIGH);
 		pinMode(pin, OUTPUT);	// TODO: implement OUTPUT_HIGH
 		return;

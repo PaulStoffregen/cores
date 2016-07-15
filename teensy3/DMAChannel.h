@@ -83,7 +83,7 @@ public:
 		TCD->SLAST = 0;
 	}
 	void source(volatile const signed int &p) { source(*(volatile const uint32_t *)&p); }
-	void source(volatile const unsigned int &p) { source(*(volatile const uint32_t *)&p); }
+	void source(volatile const unsigned int &p) { source(*(volatile const unsigned long*)&p); }
 	void source(volatile const signed long &p) { source(*(volatile const uint32_t *)&p); }
 	void source(volatile const unsigned long &p) {
 		TCD->SADDR = &p;
@@ -120,7 +120,7 @@ public:
 	void sourceBuffer(volatile const signed int p[], unsigned int len) {
 		sourceBuffer((volatile const uint32_t *)p, len); }
 	void sourceBuffer(volatile const unsigned int p[], unsigned int len) {
-		sourceBuffer((volatile const uint32_t *)p, len); }
+		sourceBuffer((volatile const unsigned long*)p, len); }
 	void sourceBuffer(volatile const signed long p[], unsigned int len) {
 		sourceBuffer((volatile const uint32_t *)p, len); }
 	void sourceBuffer(volatile const unsigned long p[], unsigned int len) {
@@ -159,7 +159,7 @@ public:
 	void sourceCircular(volatile const signed int p[], unsigned int len) {
 		sourceCircular((volatile const uint32_t *)p, len); }
 	void sourceCircular(volatile const unsigned int p[], unsigned int len) {
-		sourceCircular((volatile const uint32_t *)p, len); }
+		sourceCircular((volatile const unsigned long*)p, len); }
 	void sourceCircular(volatile const signed long p[], unsigned int len) {
 		sourceCircular((volatile const uint32_t *)p, len); }
 	void sourceCircular(volatile const unsigned long p[], unsigned int len) {
@@ -191,7 +191,7 @@ public:
 		TCD->DLASTSGA = 0;
 	}
 	void destination(volatile signed int &p) { destination(*(volatile uint32_t *)&p); }
-	void destination(volatile unsigned int &p) { destination(*(volatile uint32_t *)&p); }
+	void destination(volatile unsigned int &p) { destination(*(volatile unsigned long*)&p); }
 	void destination(volatile signed long &p) { destination(*(volatile uint32_t *)&p); }
 	void destination(volatile unsigned long &p) {
 		TCD->DADDR = &p;
@@ -228,7 +228,7 @@ public:
 	void destinationBuffer(volatile signed int p[], unsigned int len) {
 		destinationBuffer((volatile uint32_t *)p, len); }
 	void destinationBuffer(volatile unsigned int p[], unsigned int len) {
-		destinationBuffer((volatile uint32_t *)p, len); }
+		destinationBuffer((volatile unsigned long*)p, len); }
 	void destinationBuffer(volatile signed long p[], unsigned int len) {
 		destinationBuffer((volatile uint32_t *)p, len); }
 	void destinationBuffer(volatile unsigned long p[], unsigned int len) {
@@ -267,7 +267,7 @@ public:
 	void destinationCircular(volatile signed int p[], unsigned int len) {
 		destinationCircular((volatile uint32_t *)p, len); }
 	void destinationCircular(volatile unsigned int p[], unsigned int len) {
-		destinationCircular((volatile uint32_t *)p, len); }
+		destinationCircular((volatile unsigned long*)p, len); }
 	void destinationCircular(volatile signed long p[], unsigned int len) {
 		destinationCircular((volatile uint32_t *)p, len); }
 	void destinationCircular(volatile unsigned long p[], unsigned int len) {
@@ -436,11 +436,11 @@ public:
 	// 32 bits.  If a channel is configured for 200 transfers
 
 	// Use a hardware trigger to make the DMA channel run
-	void triggerAtHardwareEvent(uint8_t source) {
+	void triggerAtHardwareEvent(uint8_t src) {
 		volatile uint8_t *mux;
 		mux = (volatile uint8_t *)&(DMAMUX0_CHCFG0) + channel;
 		*mux = 0;
-		*mux = (source & 63) | DMAMUX_ENABLE;
+		*mux = (src & 63) | DMAMUX_ENABLE;
 	}
 
 	// Use another DMA channel as the trigger, causing this
