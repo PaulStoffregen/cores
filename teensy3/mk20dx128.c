@@ -34,13 +34,17 @@
 
 
 // Flash Security Setting. On Teensy 3.2, you can lock the MK20 chip to prevent
-// anyone from reading your code. The bootloader will be unable to respond to
-// auto-reboot requests from Arduino. Pressing the program button will cause a
-// full chip erase, because the bootloader chip is locked out.  Normally, erase
-// occurs when uploading begins, so if you press the Program button accidentally,
-// simply power cycling will run your program again.  When security is locked,
-// any Program button press causes immediate full erase.  To set the security
-// lock, change this to 0xDC.  Teensy 3.0 and 3.1 do not support security lock.
+// anyone from reading your code.  You CAN still reprogram your Teensy while
+// security is set, but the bootloader will be unable to respond to auto-reboot
+// requests from Arduino. Pressing the program button will cause a full chip
+// erase to gain access, because the bootloader chip is locked out.  Normally,
+// erase occurs when uploading begins, so if you press the Program button
+// accidentally, simply power cycling will run your program again.  When
+// security is locked, any Program button press causes immediate full erase.
+// Special care must be used with the Program button, because it must be made
+// accessible to initiate reprogramming, but it must not be accidentally
+// pressed when Teensy Loader is not being used to reprogram.  To set lock the
+// security change this to 0xDC.  Teensy 3.0 and 3.1 do not support security lock.
 #define FSEC 0xDE
 
 // Flash Options
