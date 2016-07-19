@@ -38,6 +38,7 @@ uint8_t SPCR1emulation::pinout = 0;
 #endif
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 uint8_t SPCR1emulation::pinout = 0;
+uint8_t SPCR2emulation::pinout = 0;
 #endif
 #ifdef HAS_SPIFIFO
 
