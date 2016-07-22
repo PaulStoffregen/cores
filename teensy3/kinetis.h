@@ -5014,6 +5014,39 @@ typedef struct __attribute__((packed)) {
 #define UART4_ET7816		(KINETISK_UART4.ET7816)	// UART 7816 Error Threshold Register
 #define UART4_TL7816		(KINETISK_UART4.TL7816)	// UART 7816 Transmit Length Register
 
+#define KINETISK_UART5		(*(KINETISK_UART_t *)0x400EB000)
+#define UART5_BDH		(KINETISK_UART5.BDH)	// UART Baud Rate Registers: High
+#define UART5_BDL		(KINETISK_UART5.BDL)	// UART Baud Rate Registers: Low
+#define UART5_C1		(KINETISK_UART5.C1)	// UART Control Register 1
+#define UART5_C2		(KINETISK_UART5.C2)	// UART Control Register 2
+#define UART5_S1		(KINETISK_UART5.S1)	// UART Status Register 1
+#define UART5_S2		(KINETISK_UART5.S2)	// UART Status Register 2
+#define UART5_C3		(KINETISK_UART5.C3)	// UART Control Register 3
+#define UART5_D			(KINETISK_UART5.D)	// UART Data Register
+#define UART5_MA1		(KINETISK_UART5.MA1)	// UART Match Address Registers 1
+#define UART5_MA2		(KINETISK_UART5.MA2)	// UART Match Address Registers 2
+#define UART5_C4		(KINETISK_UART5.C4)	// UART Control Register 4
+#define UART5_C5		(KINETISK_UART5.C5)	// UART Control Register 5
+#define UART5_ED		(KINETISK_UART5.ED)	// UART Extended Data Register
+#define UART5_MODEM		(KINETISK_UART5.MODEM)	// UART Modem Register
+#define UART5_IR		(KINETISK_UART5.IR)	// UART Infrared Register
+#define UART5_PFIFO		(KINETISK_UART5.PFIFO)	// UART FIFO Parameters
+#define UART5_CFIFO		(KINETISK_UART5.CFIFO)	// UART FIFO Control Register
+#define UART5_SFIFO		(KINETISK_UART5.SFIFO)	// UART FIFO Status Register
+#define UART5_TWFIFO		(KINETISK_UART5.TWFIFO)	// UART FIFO Transmit Watermark
+#define UART5_TCFIFO		(KINETISK_UART5.TCFIFO)	// UART FIFO Transmit Count
+#define UART5_RWFIFO		(KINETISK_UART5.RWFIFO)	// UART FIFO Receive Watermark
+#define UART5_RCFIFO		(KINETISK_UART5.RCFIFO)	// UART FIFO Receive Count
+#define UART5_C7816		(KINETISK_UART5.C7816)	// UART 7816 Control Register
+#define UART5_IE7816		(KINETISK_UART5.IE7816)	// UART 7816 Interrupt Enable Register
+#define UART5_IS7816		(KINETISK_UART5.IS7816)	// UART 7816 Interrupt Status Register
+#define UART5_WP7816T0		(KINETISK_UART5.WP7816T0)// UART 7816 Wait Parameter Register
+#define UART5_WP7816T1		(KINETISK_UART5.WP7816T1)// UART 7816 Wait Parameter Register
+#define UART5_WN7816		(KINETISK_UART5.WN7816)	// UART 7816 Wait N Register
+#define UART5_WF7816		(KINETISK_UART5.WF7816)	// UART 7816 Wait FD Register
+#define UART5_ET7816		(KINETISK_UART5.ET7816)	// UART 7816 Error Threshold Register
+#define UART5_TL7816		(KINETISK_UART5.TL7816)	// UART 7816 Transmit Length Register
+
 
 // Secured digital host controller (SDHC)
 
@@ -5184,6 +5217,84 @@ typedef struct __attribute__((packed)) {
 #define SDHC_MMCBOOT_BOOTACK		((uint32_t)0x00000010)		// Boot Ack Mode Select
 #define SDHC_MMCBOOT_DTOCVACK(n)	(uint32_t)(((n) & 0xF)<<0)	// Boot ACK Time Out Counter Value
 #define SDHC_HOSTVER		(*(volatile uint32_t *)0x400B10FC) // Host Controller Version
+
+///////////////////////////////////
+// Low Power Asynchronous Receiver/Transmitter (LPUART)
+
+typedef struct __attribute__((packed)) {
+	volatile uint32_t	BAUD;
+	volatile uint32_t	STAT;
+	volatile uint32_t	CTRL;
+	volatile uint32_t	DATA;
+	volatile uint32_t	MATCH;
+	volatile uint32_t	MODIR;
+} KINETISK_LPUART_t;
+#define KINETISK_LPUART0	(*(KINETISK_LPUART_t *)0x400C4000)
+#define LPUART0_BAUD		(KINETISK_LPUART0.BAUD)		// LPUART Baud Register
+#define LPUART_BAUD_MAEN1		((uint32_t)0x80000000)		// Enable automatic address or data maching
+#define LPUART_BAUD_MAEN2		((uint32_t)0x40000000)		// Enable automatic address or data maching
+#define LPUART_BAUD_M10			((uint32_t)0x20000000)		// 10-bit Mode select
+#define LPUART_BAUD_OSR(n)		((uint32_t)((n) & 0x1f) << 24) // Over sampling ratio
+#define LPUART_BAUD_TDMAE		((uint32_t)0x00800000)		// Transmitter Dma Enable
+#define LPUART_BAUD_RDMAE		((uint32_t)0x00400000)		// Receiver Dma Enable
+#define LPUART_BAUD_BOTHEDGE	((uint32_t)0x00020000)		// Both edge sampling needed OSR 4-7
+#define LPUART_BAUD_SBR(n)		((uint32_t)((n) & 0x1fff) << 0) // set baud rate divisor
+
+#define LPUART0_STAT		(KINETISK_LPUART0.STAT)		// LPUART Status register
+#define LPUART_STAT_LBKDIF		((uint32_t)0x80000000)		// LIN Break Detect Interrupt Flag
+#define LPUART_STAT_RXEDGIF		((uint32_t)0x40000000)		// RxD Pin Active Edge Interrupt Flag
+#define LPUART_STAT_MSBF		((uint32_t)0x20000000)		// Most Significant Bit First
+#define LPUART_STAT_RXINV		((uint32_t)0x10000000)		// Receive Data Inversion
+#define LPUART_STAT_RWUID		((uint32_t)0x08000000)		// Receive Wakeup Idle Detect
+#define LPUART_STAT_BRK13		((uint32_t)0x04000000)		// Break Transmit Character Length
+#define LPUART_STAT_LBKDE		((uint32_t)0x02000000)		// LIN Break Detection Enable
+#define LPUART_STAT_RAF			((uint32_t)0x01000000)		// Receiver Active Flag
+#define LPUART_STAT_TDRE		((uint32_t)0x00800000)		//  Transmit Data Register Empty Flag
+#define LPUART_STAT_TC			((uint32_t)0x00400000)		//  Transmit Complete Flag
+#define LPUART_STAT_RDRF		((uint32_t)0x00200000)		//  Receive Data Register Full Flag
+#define LPUART_STAT_IDLE		((uint32_t)0x00100000)		//  Idle Line Flag
+#define LPUART_STAT_OR			((uint32_t)0x00080000)		//  Receiver Overrun Flag
+#define LPUART_STAT_NF			((uint32_t)0x00040000)		//  Noise Flag
+#define LPUART_STAT_FE			((uint32_t)0x00020000)		//  Framing Error Flag
+#define LPUART_STAT_PF			((uint32_t)0x00010000)		//  Parity Error Flag
+#define LPUART_STAT_MA1F		((uint32_t)0x00008000)		//  Match 1 Flag
+#define LPUART_STAT_MA2F		((uint32_t)0x00004000)		//  Match 2 Flag
+#define LPUART0_CTRL		(KINETISK_LPUART0.CTRL)		// LPUART Control register
+#define LPUART_CTRL_R8			((uint32_t)0x80000000)		// Received Bit 8
+#define LPUART_CTRL_T8			((uint32_t)0x40000000)		// Transmit Bit 8
+#define LPUART_CTRL_TXDIR		((uint32_t)0x20000000)		// TX Pin Direction in Single-Wire mode
+#define LPUART_CTRL_TXINV		((uint32_t)0x10000000)		// Transmit Data Inversion
+#define LPUART_CTRL_ORIE		((uint32_t)0x08000000)		// Overrun Error Interrupt Enable
+#define LPUART_CTRL_NEIE		((uint32_t)0x04000000)		// Noise Error Interrupt Enable
+#define LPUART_CTRL_FEIE		((uint32_t)0x02000000)		// Framing Error Interrupt Enable
+#define LPUART_CTRL_PEIE		((uint32_t)0x01000000)		// Parity Error Interrupt Enable
+#define LPUART_CTRL_TIE			((uint32_t)0x00800000)		//  Transmitter Interrupt or DMA Transfer Enable.
+#define LPUART_CTRL_TCIE		((uint32_t)0x00400000)		//  Transmission Complete Interrupt Enable
+#define LPUART_CTRL_RIE			((uint32_t)0x00200000)		//  Receiver Full Interrupt or DMA Transfer Enable
+#define LPUART_CTRL_ILIE		((uint32_t)0x00100000)		//  Idle Line Interrupt Enable
+#define LPUART_CTRL_TE			((uint32_t)0x00080000)		//  Transmitter Enable
+#define LPUART_CTRL_RE			((uint32_t)0x00040000)		//  Receiver Enable
+#define LPUART_CTRL_RWU			((uint32_t)0x00020000)		//  Receiver Wakeup Control
+#define LPUART_CTRL_SBK			((uint32_t)0x00010000)		//  Send Break
+#define LPUART_CTRL_MAEN1		((uint32_t)0x00008000)		// Match Address Mode Enable 1
+#define LPUART_CTRL_MAEN2		((uint32_t)0x00004000)		// Match Address Mode Enable 2
+#define LPUART_CTRL_LOOPS		((uint32_t)0x00000080)		//  When LOOPS is set, the RxD pin is disconnected from the UART and the transmitter output is internally connected to the receiver input
+#define LPUART_CTRL_UARTSWAI	((uint32_t)0x00000040)		//  UART Stops in Wait Mode
+#define LPUART_CTRL_RSRC		((uint32_t)0x00000020)		//  When LOOPS is set, the RSRC field determines the source for the receiver shift register input
+#define LPUART_CTRL_M			((uint32_t)0x00000010)		//  9-bit or 8-bit Mode Select
+#define LPUART_CTRL_WAKE		((uint32_t)0x00000008)		//  Determines which condition wakes the UART
+#define LPUART_CTRL_ILT			((uint32_t)0x00000004)		//  Idle Line Type Select
+#define LPUART_CTRL_PE			((uint32_t)0x00000002)		//  Parity Enable
+#define LPUART_CTRL_PT			((uint32_t)0x00000001)		//  Parity Type, 0=even, 1=odd
+
+#define LPUART0_DATA		(KINETISK_LPUART0.DATA)		// LPUART Data register
+#define LPUART_DATA_NOISY		((uint32_t)0x00080000)		//  Data received with noise
+#define LPUART_DATA_PARITY		((uint32_t)0x00040000)		//  Data received with Parity error
+#define LPUART_DATA_FRETSC		((uint32_t)0x00020000)		//  Frame error/Transmit Special char
+#define LPUART_DATA_RXEMPT		((uint32_t)0x00010000)		//  receive buffer empty
+#define LPUART_DATA_IDLINE		((uint32_t)0x00008000)		// Match Address Mode Enable 1
+#define LPUART0_MATCH		(KINETISK_LPUART0.MATCH)	// LPUART Match register
+#define LPUART0_MODIR		(KINETISK_LPUART0.MODIR)	// LPUART Modem IrDA Register
 
 
 // Synchronous Audio Interface (SAI)

@@ -402,10 +402,17 @@ extern void serialEvent5(void);
 class HardwareSerial6 : public HardwareSerial
 {
 public:
+#if defined(__MK66FX1M0__)	// For LPUART just pass baud straight in. 
+	virtual void begin(uint32_t baud) { serial6_begin(baud); }
+	virtual void begin(uint32_t baud, uint32_t format) {
+					  serial6_begin(baud);
+					  serial6_format(format); }
+#else
 	virtual void begin(uint32_t baud) { serial6_begin(BAUD2DIV3(baud)); }
 	virtual void begin(uint32_t baud, uint32_t format) {
 					  serial6_begin(BAUD2DIV3(baud));
 					  serial6_format(format); }
+#endif
 	virtual void end(void)          { serial6_end(); }
 	virtual void transmitterEnable(uint8_t pin) { serial6_set_transmit_pin(pin); }
 	virtual void setRX(uint8_t pin) { serial6_set_rx(pin); }
