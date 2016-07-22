@@ -34,6 +34,13 @@
 
 #ifdef HAS_KINETISK_LPUART0
 
+#define GPIO_BITBAND_ADDR(reg, bit) (((uint32_t)&(reg) - 0x40000000) * 32 + (bit) * 4 + 0x42000000)
+#define GPIO_BITBAND_PTR(reg, bit) ((uint32_t *)GPIO_BITBAND_ADDR((reg), (bit)))
+#define BITBAND_SET_BIT(reg, bit) (*GPIO_BITBAND_PTR((reg), (bit)) = 1)
+#define BITBAND_CLR_BIT(reg, bit) (*GPIO_BITBAND_PTR((reg), (bit)) = 0)
+#define TCIE_BIT 22
+#define TIE_BIT  23
+
 
 ////////////////////////////////////////////////////////////////
 // Tunable parameters (relatively safe to edit these numbers)
@@ -308,7 +315,10 @@ void serial6_putchar(uint32_t c)
 	tx_buffer[head] = c;
 	transmitting = 1;
 	tx_buffer_head = head;
-	LPUART0_CTRL |= LPUART_CTRL_TIE;	// enable the transmit interrupt
+
+	//LPUART0_CTRL |= LPUART_CTRL_TIE;	// enable the transmit interrupt
+	BITBAND_SET_BIT(LPUART0_CTRL, TIE_BIT);
+
 }
 
 void serial6_write(const void *buf, unsigned int count)
@@ -418,8 +428,10 @@ void lpuart0_status_isr(void)
 		head = tx_buffer_head;
 		tail = tx_buffer_tail;
 		if (head == tail) {
-			LPUART0_CTRL &= ~LPUART_CTRL_TIE; 
-  			LPUART0_CTRL |= LPUART_CTRL_TCIE; // Actually wondering if we can just leave this one on...
+			BITBAND_CLR_BIT(LPUART0_CTRL, TIE_BIT);
+			BITBAND_SET_BIT(LPUART0_CTRL, TCIE_BIT);
+			//LPUART0_CTRL &= ~LPUART_CTRL_TIE; 
+  			//LPUART0_CTRL |= LPUART_CTRL_TCIE; // Actually wondering if we can just leave this one on...
 		} else {
 			if (++tail >= TX_BUFFER_SIZE) tail = 0;
 			n = tx_buffer[tail];
@@ -431,7 +443,8 @@ void lpuart0_status_isr(void)
 	if ((c & LPUART_CTRL_TCIE) && (LPUART0_STAT & LPUART_STAT_TC)) {
 		transmitting = 0;
 		if (transmit_pin) transmit_deassert();
-		LPUART0_CTRL &= ~LPUART_CTRL_TCIE; // Actually wondering if we can just leave this one on...
+		BITBAND_CLR_BIT(LPUART0_CTRL, TCIE_BIT);
+		// LPUART0_CTRL &= ~LPUART_CTRL_TCIE; // Actually wondering if we can just leave this one on...
 	}
 }
 
