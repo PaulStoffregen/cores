@@ -237,6 +237,11 @@ public:
 		} else if (pin == 15) {  // PTC0
 			CORE_PIN15_CONFIG = PORT_PCR_MUX(2);
 			p = 0x10;
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+		} else if (pin == 26) {  
+			CORE_PIN26_CONFIG = PORT_PCR_MUX(2);
+			p = 0x01;
+#endif
 		} else {
 			reg = portOutputRegister(pin);
 			pinMode(pin, OUTPUT);
