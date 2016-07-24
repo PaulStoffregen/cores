@@ -50,5 +50,8 @@ void yield(void)
 #ifdef HAS_KINETISK_UART4
 	if (Serial5.available()) serialEvent5();
 #endif
+#if defined(HAS_KINETISK_UART5) || defined (HAS_KINETISK_LPUART0)
+	if (Serial6.available()) serialEvent6();
+#endif
 	running = 0;
 };
