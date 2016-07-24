@@ -36,6 +36,11 @@
 #ifdef AUDIO_INTERFACE // defined by usb_dev.h -> usb_desc.h
 #if F_CPU >= 20000000
 
+// Uncomment this to work around a limitation in Macintosh adaptive rates
+// This is not a perfect solution.  Details here:
+// https://forum.pjrc.com/threads/34855-Distorted-audio-when-using-USB-input-on-Teensy-3-1
+//#define MACOSX_ADAPTIVE_LIMIT
+
 bool AudioInputUSB::update_responsibility;
 audio_block_t * AudioInputUSB::incoming_left;
 audio_block_t * AudioInputUSB::incoming_right;
@@ -67,9 +72,7 @@ void AudioInputUSB::begin(void)
 	// but also because the PC may stop transmitting data, which
 	// means we no longer get receive callbacks from usb_dev.
 	update_responsibility = false;
-	//usb_audio_sync_feedback = 722824;
-	//usb_audio_sync_feedback = 723700; // too fast?
-	usb_audio_sync_feedback = 722534; // too slow
+	usb_audio_sync_feedback = feedback_accumulator >> 8;
 }
 
 static void copy_to_buffers(const uint32_t *src, int16_t *left, int16_t *right, unsigned int len)
@@ -187,9 +190,12 @@ void AudioInputUSB::update(void)
 	__enable_irq();
 	if (f) {
 		int diff = AUDIO_BLOCK_SAMPLES/2 - (int)c;
-		feedback_accumulator += diff;
-		// TODO: min/max sanity check for feedback_accumulator??
-		usb_audio_sync_feedback = (feedback_accumulator >> 8) + diff * 3;
+		feedback_accumulator += diff / 3;
+		uint32_t feedback = (feedback_accumulator >> 8) + diff * 100;
+#ifdef MACOSX_ADAPTIVE_LIMIT
+		if (feedback > 722698) feedback = 722698;
+#endif
+		usb_audio_sync_feedback = feedback;
 		//if (diff > 0) {
 			//serial_print(".");
 		//} else if (diff < 0) {
@@ -200,7 +206,7 @@ void AudioInputUSB::update(void)
 	//serial_print(".");
 	if (!left || !right) {
 		//serial_print("#"); // buffer underrun - PC sending too slow
-		if (f) feedback_accumulator += 10 << 8;
+		//if (f) feedback_accumulator += 10 << 8;
 	}
 	if (left) {
 		transmit(left, 0);
