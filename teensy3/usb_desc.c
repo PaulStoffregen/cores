@@ -1132,7 +1132,7 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
 	9, 					// bLength
 	5, 					// bDescriptorType, 5 = ENDPOINT_DESCRIPTOR
 	AUDIO_SYNC_ENDPOINT | 0x80,		// bEndpointAddress
-	0x01, 					// bmAttributes = isochronous
+	0x11, 					// bmAttributes = isochronous, feedback
 	3, 0,					// wMaxPacketSize, 3 bytes
 	1,			 		// bInterval, 1 = every frame
 	5,					// bRefresh, 5 = 32ms
