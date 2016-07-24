@@ -196,6 +196,7 @@ extern "C"{
 #define KEYPAD_9                (  97  | 0xF000 )
 #define KEYPAD_0                (  98  | 0xF000 )
 #define KEYPAD_PERIOD           (  99  | 0xF000 )
+#define KEY_NON_US_BS           ( 100 | 0x4000 )
 #define KEY_MENU        	( 101  | 0xF000 )
 #define KEY_F13                 ( 104  | 0xF000 )
 #define KEY_F14                 ( 105  | 0xF000 )
