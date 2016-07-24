@@ -196,23 +196,29 @@ void serial6_format(uint32_t format)
 {
 	uint32_t c;
 
+	// Bits 0-2 - Parity plus 9  bit. 
 	c = LPUART0_CTRL;
+	//c = (c & ~(LPUART_CTRL_M | LPUART_CTRL_PE | LPUART_CTRL_PT)) | (format & (LPUART_CTRL_PE | LPUART_CTRL_PT));	// configure parity
+	//if (format & 0x04) c |= LPUART_CTRL_M;		// 9 bits (might include parity)
 	c = (c & ~0x13) | (format & 0x03);	// configure parity
 	if (format & 0x04) c |= 0x10;		// 9 bits (might include parity)
 	LPUART0_CTRL = c;
 	if ((format & 0x0F) == 0x04) LPUART0_CTRL |= LPUART_CTRL_T8; // 8N2 is 9 bit with 9th bit always 1
-//	c = UART5_S2 & ~0x10;
-//	if (format & 0x10) c |= 0x10;		// rx invert
-//	UART5_S2 = c;
+
+	// Bit 3 10 bit - Will assume that begin already cleared it.
+	if (format & 0x08)
+		LPUART0_BAUD |= LPUART_BAUD_M10;
+	
+	// Bit 4 RXINVERT 
+	c = LPUART0_STAT & ~LPUART_STAT_RXINV;
+	if (format & 0x10) c |= LPUART_STAT_RXINV;		// rx invert
+	LPUART0_STAT = c;
+
+	// Bit 5 TXINVERT
 	c = LPUART0_CTRL & ~LPUART_CTRL_TXINV;
 	if (format & 0x20) c |= LPUART_CTRL_TXINV;		// tx invert
 	LPUART0_CTRL = c;
-#if 0
-	c = UART5_C4 & 0x1F;
-	if (format & 0x08) c |= 0x20;		// 9 bit mode with parity (requires 10 bits)
-	UART5_C4 = c;
-	use9Bits = format & 0x80;
-#endif
+
 }
 
 void serial6_end(void)
