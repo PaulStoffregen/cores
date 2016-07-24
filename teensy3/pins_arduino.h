@@ -34,6 +34,16 @@
 #include <stdint.h>
 
 // A0-A9 are always digital 14-23, for Arduino compatibility
+#define PIN_A0  (14)
+#define PIN_A1  (15)
+#define PIN_A2  (16)
+#define PIN_A3  (17)
+#define PIN_A4  (18)
+#define PIN_A5  (19)
+#define PIN_A6  (20)
+#define PIN_A7  (21)
+#define PIN_A8  (22)
+#define PIN_A9  (23)
 const static uint8_t A0 = 14;
 const static uint8_t A1 = 15;
 const static uint8_t A2 = 16;
@@ -44,12 +54,29 @@ const static uint8_t A6 = 20;
 const static uint8_t A7 = 21;
 const static uint8_t A8 = 22;
 const static uint8_t A9 = 23;
+
 #if defined(__MK20DX128__)
+#define PIN_A10 (34)
+#define PIN_A11 (35)
+#define PIN_A12 (36)
+#define PIN_A13 (37)
 const static uint8_t A10 = 34;
 const static uint8_t A11 = 35;
 const static uint8_t A12 = 36;
 const static uint8_t A13 = 37;
+
 #elif defined(__MK20DX256__)
+#define PIN_A10 (34)
+#define PIN_A11 (35)
+#define PIN_A12 (36)
+#define PIN_A13 (37)
+#define PIN_A14 (40)
+#define PIN_A15 (26)
+#define PIN_A16 (27)
+#define PIN_A17 (28)
+#define PIN_A18 (29)
+#define PIN_A19 (30)
+#define PIN_A20 (31)
 const static uint8_t A10 = 34;
 const static uint8_t A11 = 35;
 const static uint8_t A12 = 36;
@@ -61,11 +88,29 @@ const static uint8_t A17 = 28;
 const static uint8_t A18 = 29;
 const static uint8_t A19 = 30;
 const static uint8_t A20 = 31;
+
 #elif defined(__MKL26Z64__)
+#define PIN_A10 (24)
+#define PIN_A11 (25)
+#define PIN_A12 (26)
 const static uint8_t A10 = 24;
 const static uint8_t A11 = 25;
 const static uint8_t A12 = 26;
+
 #elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
+#define PIN_A10 (40)
+#define PIN_A11 (41)
+#define PIN_A12 (31)
+#define PIN_A13 (32)
+#define PIN_A14 (33)
+#define PIN_A15 (34)
+#define PIN_A16 (35)
+#define PIN_A17 (36)
+#define PIN_A18 (37)
+#define PIN_A19 (38)
+#define PIN_A20 (39)
+#define PIN_A21 (42)
+#define PIN_A22 (43)
 const static uint8_t A10 = 40;
 const static uint8_t A11 = 41;
 const static uint8_t A12 = 31;
@@ -81,13 +126,24 @@ const static uint8_t A21 = 42;
 const static uint8_t A22 = 43;
 #endif
 
+#define LED_BUILTIN   (13)
+
+#define PIN_SPI_SS    (10)
+#define PIN_SPI_MOSI  (11)
+#define PIN_SPI_MISO  (12)
+#define PIN_SPI_SCK   (13)
 const static uint8_t SS = 10;
 const static uint8_t MOSI = 11;
 const static uint8_t MISO = 12;
 const static uint8_t SCK = 13;
-const static uint8_t LED_BUILTIN = 13;
+
+#define PIN_WIRE_SDA  (18)
+#define PIN_WIRE_SCL  (19)
 const static uint8_t SDA = 18;
 const static uint8_t SCL = 19;
+
+#define PIN_SERIAL_RX (0)
+#define PIN_SERIAL_TX (1)
 
 
 #define NUM_DIGITAL_PINS  CORE_NUM_DIGITAL
