@@ -161,7 +161,7 @@ void serial4_set_tx(uint8_t pin, uint8_t opendrain)
 
 	if (opendrain) pin |= 128;
 	if (pin == tx_pin_num) return;
-	if ((SIM_SCGC4 & SIM_SCGC4_UART2)) {
+	if ((SIM_SCGC4 & SIM_SCGC4_UART3)) {
 		switch (tx_pin_num & 127) {
 			case 32:  CORE_PIN32_CONFIG = 0; break; // PTB11
 		}
