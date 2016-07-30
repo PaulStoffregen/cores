@@ -132,6 +132,14 @@ void serial4_format(uint32_t format)
 	UART3_C4 = c;
 	use9Bits = format & 0x80;
 #endif
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__) || defined(KINETISL)
+	// For T3.5/T3.6/TLC See about turning on 2 stop bit mode
+	if ( format & 0x100) {
+		uint8_t bdl = UART3_BDL;
+		UART3_BDH |= UART_BDH_SBNS;		// Turn on 2 stop bits - was turned off by set baud
+		UART3_BDL = bdl;		// Says BDH not acted on until BDL is written
+	}
+#endif
 }
 
 void serial4_end(void)
