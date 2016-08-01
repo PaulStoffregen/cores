@@ -4688,12 +4688,13 @@ typedef struct __attribute__((packed)) {
 } KINETISK_UART_t;
 #define KINETISK_UART0		(*(KINETISK_UART_t *)0x4006A000)
 #define UART0_BDH		(KINETISK_UART0.BDH)		// UART Baud Rate Registers: High
+#define UART_BDH_SBNS		0x20			// UART Stop Bit Number Select (TLC T3.5 T3.6)
 #define UART0_BDL		(KINETISK_UART0.BDL)		// UART Baud Rate Registers: Low
 #define UART0_C1		(KINETISK_UART0.C1)		// UART Control Register 1
 #define UART_C1_LOOPS		0x80			//  When LOOPS is set, the RxD pin is disconnected from the UART and the transmitter output is internally connected to the receiver input
 #define UART_C1_UARTSWAI	0x40			//  UART Stops in Wait Mode
 #define UART_C1_RSRC		0x20			//  When LOOPS is set, the RSRC field determines the source for the receiver shift register input
-#define UART_C1_M		0x10			//  9-bit or 8-bit Mode Select
+#define UART_C1_M			0x10			//  9-bit or 8-bit Mode Select
 #define UART_C1_WAKE		0x08			//  Determines which condition wakes the UART
 #define UART_C1_ILT		0x04			//  Idle Line Type Select
 #define UART_C1_PE		0x02			//  Parity Enable
@@ -5238,6 +5239,7 @@ typedef struct __attribute__((packed)) {
 #define LPUART_BAUD_TDMAE		((uint32_t)0x00800000)		// Transmitter Dma Enable
 #define LPUART_BAUD_RDMAE		((uint32_t)0x00400000)		// Receiver Dma Enable
 #define LPUART_BAUD_BOTHEDGE	((uint32_t)0x00020000)		// Both edge sampling needed OSR 4-7
+#define LPUART_BAUD_SBNS		((uint32_t)0x00002000)		// UART Stop Bit Number Select 
 #define LPUART_BAUD_SBR(n)		((uint32_t)((n) & 0x1fff) << 0) // set baud rate divisor
 
 #define LPUART0_STAT		(KINETISK_LPUART0.STAT)		// LPUART Status register

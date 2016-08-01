@@ -170,12 +170,14 @@ void serial2_format(uint32_t format)
 	UART1_C4 = c;
 	use9Bits = format & 0x80;
 #endif
-	// UART1_C1.0 = parity, 0=even, 1=odd
-	// UART1_C1.1 = parity, 0=disable, 1=enable
-	// UART1_C1.4 = mode, 1=9bit, 0=8bit
-	// UART1_C4.5 = mode, 1=10bit, 0=8bit
-	// UART1_C3.4 = txinv, 0=normal, 1=inverted
-	// UART1_S2.4 = rxinv, 0=normal, 1=inverted
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__) || defined(KINETISL)
+	// For T3.5/T3.6/TLC See about turning on 2 stop bit mode
+	if ( format & 0x100) {
+		uint8_t bdl = UART1_BDL;
+		UART1_BDH |= UART_BDH_SBNS;		// Turn on 2 stop bits - was turned off by set baud
+		UART1_BDL = bdl;		// Says BDH not acted on until BDL is written
+	}
+#endif
 }
 
 void serial2_end(void)

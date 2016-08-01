@@ -132,6 +132,12 @@ void serial6_format(uint32_t format)
 	UART5_C4 = c;
 	use9Bits = format & 0x80;
 #endif
+	// For T3.5 See about turning on 2 stop bit mode
+	if ( format & 0x100) {
+		uint8_t bdl = UART5_BDL;
+		UART5_BDH |= UART_BDH_SBNS;		// Turn on 2 stop bits - was turned off by set baud
+		UART5_BDL = bdl;		// Says BDH not acted on until BDL is written
+	}
 }
 
 void serial6_end(void)

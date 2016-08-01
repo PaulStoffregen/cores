@@ -219,6 +219,8 @@ void serial6_format(uint32_t format)
 	if (format & 0x20) c |= LPUART_CTRL_TXINV;		// tx invert
 	LPUART0_CTRL = c;
 
+	// For T3.6 See about turning on 2 stop bit mode
+	if ( format & 0x100) LPUART0_BAUD |= LPUART_BAUD_SBNS;	
 }
 
 void serial6_end(void)
