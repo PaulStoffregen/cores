@@ -248,8 +248,19 @@ String & String::append(const String &s)
 String & String::append(const char *cstr, unsigned int length)
 {
 	unsigned int newlen = len + length;
+	bool self = false;
+	unsigned int buffer_offset; 
+	if ( (cstr >= buffer) && (cstr < (buffer+len) ) ) {
+		self = true;
+		buffer_offset = (unsigned int)(cstr-buffer);
+	}
 	if (length == 0 || !reserve(newlen)) return *this;
-	strcpy(buffer + len, cstr);
+	if ( self ) {
+		memcpy(buffer + len, buffer+buffer_offset, length);
+		buffer[newlen] = 0;
+		}
+	else
+		strcpy(buffer + len, cstr);
 	len = newlen;
 	return *this;
 }
