@@ -5104,6 +5104,7 @@ typedef struct __attribute__((packed)) {
 #define SDHC_PROCTL_EMODE(n)		(uint32_t)(((n) & 0x3)<<4)	// Endian Mode
 #define SDHC_PROCTL_D3CD		((uint32_t)0x00000008)		// DAT3 As Card Detection Pin
 #define SDHC_PROCTL_DTW(n)		(uint32_t)(((n) & 0x3)<<1)	// Data Transfer Width, 0=1bit, 1=4bit, 2=8bit
+#define SDHC_PROCTL_DTW_MASK		((uint32_t)0x00000006)
 #define SDHC_PROCTL_LCTL		((uint32_t)0x00000001)		// LED Control
 #define SDHC_SYSCTL		(*(volatile uint32_t *)0x400B102C) // System Control register
 #define SDHC_SYSCTL_INITA		((uint32_t)0x08000000)		// Initialization Active
@@ -5111,8 +5112,11 @@ typedef struct __attribute__((packed)) {
 #define SDHC_SYSCTL_RSTC		((uint32_t)0x02000000)		// Software Reset For CMD Line
 #define SDHC_SYSCTL_RSTA		((uint32_t)0x01000000)		// Software Reset For ALL
 #define SDHC_SYSCTL_DTOCV(n)		(uint32_t)(((n) & 0xF)<<16)	// Data Timeout Counter Value
+#define SDHC_SYSCTL_DTOCV_MASK		((uint32_t)0x000F0000)
 #define SDHC_SYSCTL_SDCLKFS(n)		(uint32_t)(((n) & 0xFF)<<8)	// SDCLK Frequency Select
+#define SDHC_SYSCTL_SDCLKFS_MASK	((uint32_t)0x0000FF00)
 #define SDHC_SYSCTL_DVS(n)		(uint32_t)(((n) & 0xF)<<4)	// Divisor
+#define SDHC_SYSCTL_DVS_MASK		((uint32_t)0x000000F0)
 #define SDHC_SYSCTL_SDCLKEN		((uint32_t)0x00000008)		// SD Clock Enable
 #define SDHC_SYSCTL_PEREN		((uint32_t)0x00000004)		// Peripheral Clock Enable
 #define SDHC_SYSCTL_HCKEN		((uint32_t)0x00000002)		// System Clock Enable
