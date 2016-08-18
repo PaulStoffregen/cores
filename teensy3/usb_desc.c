@@ -1215,11 +1215,14 @@ struct usb_string_descriptor_struct usb_string_serial_number_default = {
         {0,0,0,0,0,0,0,0,0,0}
 };
 
+// BUGBUG:: test to see if we can call earlier on. 
+static uint8_t usb_init_serialnumber_called = 0;
 void usb_init_serialnumber(void)
 {
 	char buf[11];
 	uint32_t i, num;
-
+	if (usb_init_serialnumber_called)
+		return;
 	__disable_irq();
 #if defined(HAS_KINETIS_FLASH_FTFA) || defined(HAS_KINETIS_FLASH_FTFL)
 	FTFL_FSTAT = FTFL_FSTAT_RDCOLERR | FTFL_FSTAT_ACCERR | FTFL_FSTAT_FPVIOL;
@@ -1246,6 +1249,7 @@ void usb_init_serialnumber(void)
 		usb_string_serial_number_default.wString[i] = c;
 	}
 	usb_string_serial_number_default.bLength = i * 2 + 2;
+        usb_init_serialnumber_called = 1;
 }
 
 
