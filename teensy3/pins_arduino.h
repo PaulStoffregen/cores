@@ -111,6 +111,8 @@ const static uint8_t A12 = 26;
 #define PIN_A20 (39)
 #define PIN_A21 (42)
 #define PIN_A22 (43)
+#define PIN_A23 (49)
+#define PIN_A24 (50)
 const static uint8_t A10 = 40;
 const static uint8_t A11 = 41;
 const static uint8_t A12 = 31;
@@ -124,6 +126,8 @@ const static uint8_t A19 = 38;
 const static uint8_t A20 = 39;
 const static uint8_t A21 = 42;
 const static uint8_t A22 = 43;
+const static uint8_t A23 = 49;
+const static uint8_t A24 = 50;
 #endif
 
 #define LED_BUILTIN   (13)
