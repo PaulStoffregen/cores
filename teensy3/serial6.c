@@ -93,7 +93,7 @@ static uint8_t tx_pin_num = 34;
 
 void serial6_begin(uint32_t divisor)
 {
-	SIM_SCGC1 |= SIM_SCGC1_UART4;	// turn on clock, TODO: use bitband
+	SIM_SCGC1 |= SIM_SCGC1_UART5;	// turn on clock, TODO: use bitband
 	rx_buffer_head = 0;
 	rx_buffer_tail = 0;
 	tx_buffer_head = 0;
@@ -142,7 +142,7 @@ void serial6_format(uint32_t format)
 
 void serial6_end(void)
 {
-	if (!(SIM_SCGC1 & SIM_SCGC1_UART4)) return;
+	if (!(SIM_SCGC1 & SIM_SCGC1_UART5)) return;
 	while (transmitting) yield();  // wait for buffered data to send
 	NVIC_DISABLE_IRQ(IRQ_UART5_STATUS);
 	UART5_C2 = 0;
@@ -189,7 +189,7 @@ void serial6_set_rx(uint8_t pin)
 
 int serial6_set_rts(uint8_t pin)
 {
-	if (!(SIM_SCGC1 & SIM_SCGC1_UART4)) return 0;
+	if (!(SIM_SCGC1 & SIM_SCGC1_UART5)) return 0;
 	if (pin < CORE_NUM_DIGITAL) {
 		rts_pin = portOutputRegister(pin);
 		pinMode(pin, OUTPUT);
@@ -203,7 +203,7 @@ int serial6_set_rts(uint8_t pin)
 
 int serial6_set_cts(uint8_t pin)
 {
-	if (!(SIM_SCGC1 & SIM_SCGC1_UART4)) return 0;
+	if (!(SIM_SCGC1 & SIM_SCGC1_UART5)) return 0;
 	if (pin == 56) {
 		CORE_PIN56_CONFIG = PORT_PCR_MUX(3) | PORT_PCR_PE; // weak pulldown
 	} else {
@@ -218,7 +218,7 @@ void serial6_putchar(uint32_t c)
 {
 	uint32_t head, n;
 
-	if (!(SIM_SCGC1 & SIM_SCGC1_UART4)) return;
+	if (!(SIM_SCGC1 & SIM_SCGC1_UART5)) return;
 	if (transmit_pin) transmit_assert();
 	head = tx_buffer_head;
 	if (++head >= TX_BUFFER_SIZE) head = 0;
@@ -319,7 +319,7 @@ void serial6_clear(void)
 //   LIN break detect		    UART_S2_LBKDIF
 //   RxD pin active edge	    UART_S2_RXEDGIF
 
-void UART5_status_isr(void)
+void uart5_status_isr(void)
 {
 	uint32_t head, tail, n;
 	uint8_t c;
@@ -365,4 +365,4 @@ void UART5_status_isr(void)
 	}
 }
 
-#endif // HAS_KINETISK_UART4
+#endif // HAS_KINETISK_UART5
