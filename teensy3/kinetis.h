@@ -1141,6 +1141,7 @@ enum IRQ_NUMBER_t {
 #define SIM_SOPT9_TPM1CH0SRC(n)		(uint32_t)(((n) & 3) << 18)	// TPM1 channel 0 input capture source select
 #define SIM_SDID		(*(const uint32_t *)0x40048024)    // System Device Identification Register
 #define SIM_SCGC1		(*(volatile uint32_t *)0x40048028) // System Clock Gating Control Register 1
+#define SIM_SCGC1_UART5			((uint32_t)0x00000800)		// UART5 Clock Gate Control
 #define SIM_SCGC1_UART4			((uint32_t)0x00000400)		// UART4 Clock Gate Control
 #define SIM_SCGC1_I2C3			((uint32_t)0x00000080)		// I2C3 Clock Gate Control
 #define SIM_SCGC1_I2C2			((uint32_t)0x00000040)		// I2C2 Clock Gate Control
