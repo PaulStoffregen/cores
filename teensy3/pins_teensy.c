@@ -630,8 +630,18 @@ void _init_Teensyduino_internal_(void)
 	FTM3_C1SC = 0x28;
 	FTM3_SC = FTM_SC_CLKS(1) | FTM_SC_PS(DEFAULT_FTM_PRESCALE);
 #endif
+#if defined(__MK66FX1M0__)
+	SIM_SCGC2 |= SIM_SCGC2_TPM1;
+	SIM_SOPT2 |= SIM_SOPT2_TPMSRC(2);
+	TPM1_CNT = 0;
+	TPM1_MOD = 32767;
+	TPM1_C0SC = 0x28;
+	TPM1_C1SC = 0x28;
+	TPM1_SC = FTM_SC_CLKS(1) | FTM_SC_PS(0);
+#endif
 	analog_init();
-	// for background about this startup delay, please see this conversation
+	// for background about this startup delay, please see these conversations
+	// https://forum.pjrc.com/threads/36606-startup-time-(400ms)?p=113980&viewfull=1#post113980
 	// https://forum.pjrc.com/threads/31290-Teensey-3-2-Teensey-Loader-1-24-Issues?p=87273&viewfull=1#post87273
 	delay(400);
 	usb_init();
@@ -673,7 +683,7 @@ void _init_Teensyduino_internal_(void)
 #define FTM1_CH1_PIN 17
 #define FTM2_CH0_PIN  3
 #define FTM2_CH1_PIN  4
-#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
+#elif defined(__MK64FX512__)
 #define FTM0_CH0_PIN 22
 #define FTM0_CH1_PIN 23
 #define FTM0_CH2_PIN  9
@@ -694,6 +704,29 @@ void _init_Teensyduino_internal_(void)
 #define FTM3_CH5_PIN 36
 #define FTM3_CH6_PIN 37
 #define FTM3_CH7_PIN 38
+#elif defined(__MK66FX1M0__)
+#define FTM0_CH0_PIN 22
+#define FTM0_CH1_PIN 23
+#define FTM0_CH2_PIN  9
+#define FTM0_CH3_PIN 10
+#define FTM0_CH4_PIN  6
+#define FTM0_CH5_PIN 20
+#define FTM0_CH6_PIN 21
+#define FTM0_CH7_PIN  5
+#define FTM1_CH0_PIN  3
+#define FTM1_CH1_PIN  4
+#define FTM2_CH0_PIN 29
+#define FTM2_CH1_PIN 30
+#define FTM3_CH0_PIN  2
+#define FTM3_CH1_PIN 14
+#define FTM3_CH2_PIN  7
+#define FTM3_CH3_PIN  8
+#define FTM3_CH4_PIN 35
+#define FTM3_CH5_PIN 36
+#define FTM3_CH6_PIN 37
+#define FTM3_CH7_PIN 38
+#define TPM1_CH0_PIN 16
+#define TPM1_CH1_PIN 17
 #endif
 #define FTM_PINCFG(pin) FTM_PINCFG2(pin)
 #define FTM_PINCFG2(pin) CORE_PIN ## pin ## _CONFIG
@@ -768,6 +801,16 @@ void analogWrite(uint8_t pin, int val)
 #if defined(FTM2_CH0_PIN)
 	} else if (pin == FTM2_CH0_PIN || pin == FTM2_CH1_PIN) {
 		cval = ((uint32_t)val * (uint32_t)(FTM2_MOD + 1)) >> analog_write_res;
+#endif
+#if defined(FTM3_CH0_PIN)
+	} else if (pin == FTM3_CH0_PIN || pin == FTM3_CH1_PIN || pin == FTM3_CH2_PIN
+	  || pin == FTM3_CH3_PIN || pin == FTM3_CH4_PIN || pin == FTM3_CH5_PIN
+	  || pin == FTM3_CH6_PIN || pin == FTM3_CH7_PIN) {
+		cval = ((uint32_t)val * (uint32_t)(FTM3_MOD + 1)) >> analog_write_res;
+#endif
+#if defined(TPM1_CH0_PIN)
+	} else if (pin == TPM1_CH0_PIN || pin == TPM1_CH1_PIN) {
+		cval = ((uint32_t)val * (uint32_t)(TPM1_MOD + 1)) >> analog_write_res;
 #endif
 	} else {
 		cval = ((uint32_t)val * (uint32_t)(FTM0_MOD + 1)) >> analog_write_res;
@@ -896,6 +939,18 @@ void analogWrite(uint8_t pin, int val)
 		FTM_PINCFG(FTM3_CH7_PIN) = PORT_PCR_MUX(3) | PORT_PCR_DSE | PORT_PCR_SRE;
 		break;
 #endif
+#ifdef TPM1_CH0_PIN
+	  case TPM1_CH0_PIN:
+		TPM1_C0V = cval;
+		FTM_PINCFG(TPM1_CH0_PIN) = PORT_PCR_MUX(6) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef TPM1_CH1_PIN
+	  case TPM1_CH1_PIN:
+		TPM1_C1V = cval;
+		FTM_PINCFG(TPM1_CH1_PIN) = PORT_PCR_MUX(6) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
 	  default:
 		digitalWrite(pin, (val > 127) ? HIGH : LOW);
 		pinMode(pin, OUTPUT);
@@ -924,14 +979,21 @@ void analogWriteFrequency(uint8_t pin, float frequency)
 	//serial_print(", freq = ");
 	//serial_phex32((uint32_t)frequency);
 	//serial_print("\n");
-	
-    if (frequency < (float)(F_TIMER >> 7) / 65536.0f) { 	//If frequency is too low for working with F_TIMER:
-            ftmClockSource = 2; 				//Use alternative 31250Hz clock source
-            ftmClock = 31250;   				//Set variable for the actual timer clock frequency
-    } else {												//Else do as before:
-            ftmClockSource = 1; 				//Use default F_Timer clock source
-            ftmClock = F_TIMER;					//Set variable for the actual timer clock frequency
-    }
+
+#ifdef TPM1_CH0_PIN
+	if (pin == TPM1_CH0_PIN || pin == TPM1_CH1_PIN) {
+		ftmClockSource = 1;
+		ftmClock = 16000000;
+	} else
+#endif
+	if (frequency < (float)(F_TIMER >> 7) / 65536.0f) {
+		// frequency is too low for working with F_TIMER:
+		ftmClockSource = 2; 	// Use alternative 31250Hz clock source
+		ftmClock = 31250;   	// Set variable for the actual timer clock frequency
+	} else {
+		ftmClockSource = 1; 	// Use default F_TIMER clock source
+		ftmClock = F_TIMER;	// Set variable for the actual timer clock frequency
+	}
 
 	
 	for (prescale = 0; prescale < 7; prescale++) {
@@ -983,6 +1045,14 @@ void analogWriteFrequency(uint8_t pin, float frequency)
 		FTM3_CNT = 0;
 		FTM3_MOD = mod;
 		FTM3_SC = FTM_SC_CLKS(ftmClockSource) | FTM_SC_PS(prescale);	//Use the new ftmClockSource instead of 1
+	}
+#endif
+#ifdef TPM1_CH0_PIN
+	  else if (pin == TPM1_CH0_PIN || pin == TPM1_CH1_PIN) {
+		TPM1_SC = 0;
+		TPM1_CNT = 0;
+		TPM1_MOD = mod;
+		TPM1_SC = FTM_SC_CLKS(ftmClockSource) | FTM_SC_PS(prescale);
 	}
 #endif
 }

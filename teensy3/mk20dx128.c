@@ -809,7 +809,7 @@ void ResetHandler(void)
 #else
     #if defined(KINETISK)
     // enable capacitors for crystal
-    OSC0_CR = OSC_SC8P | OSC_SC2P;
+    OSC0_CR = OSC_SC8P | OSC_SC2P | OSC_ERCLKEN;
     #elif defined(KINETISL)
     // enable capacitors for crystal
     OSC0_CR = OSC_SC8P | OSC_SC2P | OSC_ERCLKEN;
