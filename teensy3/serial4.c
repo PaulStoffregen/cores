@@ -102,15 +102,11 @@ void serial4_begin(uint32_t divisor)
 	transmitting = 0;
 	switch (rx_pin_num) {
 		case 31: CORE_PIN31_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
-		#if defined USE_SDCARD_PINS && (defined(__MK64FX512__) || defined(__MK66FX1M0__))  // on T3.5 or T3.6
 		case 63: CORE_PIN63_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
-		#endif
 	}
 	switch (tx_pin_num) {
 		case 32: CORE_PIN32_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
-		#if defined USE_SDCARD_PINS && (defined(__MK64FX512__) || defined(__MK66FX1M0__))  // on T3.5 or T3.6
 		case 62: CORE_PIN62_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
-		#endif
 	}
 	UART3_BDH = (divisor >> 13) & 0x1F;
 	UART3_BDL = (divisor >> 5) & 0xFF;
@@ -163,15 +159,11 @@ void serial4_end(void)
 	CORE_PIN32_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_MUX(1);
 	switch (rx_pin_num) {
 		case 31: CORE_PIN31_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_MUX(1); break; // PTC3
-		#if defined USE_SDCARD_PINS && (defined(__MK64FX512__) || defined(__MK66FX1M0__))  // on T3.5 or T3.6
 		case 63: CORE_PIN63_CONFIG = 0; break;
-		#endif
 	}
 	switch (tx_pin_num & 127) {
 		case 32: CORE_PIN32_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_MUX(1); break; // PTC4
-		#if defined USE_SDCARD_PINS && (defined(__MK64FX512__) || defined(__MK66FX1M0__))  // on T3.5 or T3.6
 		case 62: CORE_PIN62_CONFIG = 0; break;
-		#endif
 	}
 	rx_buffer_head = 0;
 	rx_buffer_tail = 0;
@@ -195,9 +187,7 @@ void serial4_set_tx(uint8_t pin, uint8_t opendrain)
 	if ((SIM_SCGC4 & SIM_SCGC4_UART3)) {
 		switch (tx_pin_num & 127) {
 			case 32:  CORE_PIN32_CONFIG = 0; break; // PTB11
-			#if defined USE_SDCARD_PINS && (defined(__MK64FX512__) || defined(__MK66FX1M0__))  // on T3.5 or T3.6
 			case 62: CORE_PIN62_CONFIG = 0; break;
-			#endif
 		}
 		if (opendrain) {
 			cfg = PORT_PCR_DSE | PORT_PCR_ODE;
@@ -206,9 +196,7 @@ void serial4_set_tx(uint8_t pin, uint8_t opendrain)
 		}
 		switch (pin & 127) {
 			case 32:  CORE_PIN32_CONFIG = cfg | PORT_PCR_MUX(3); break;
-			#if defined USE_SDCARD_PINS && (defined(__MK64FX512__) || defined(__MK66FX1M0__))  // on T3.5 or T3.6
 			case 62: CORE_PIN62_CONFIG = cfg | PORT_PCR_MUX(3);; break;
-			#endif
 		}
 	}
 	tx_pin_num = pin;
@@ -221,15 +209,11 @@ void serial4_set_rx(uint8_t pin)
 	if ((SIM_SCGC4 & SIM_SCGC4_UART3)) {
 		switch (rx_pin_num) {
 			case 31: CORE_PIN31_CONFIG = 0; break; // PTC3
-			#if defined USE_SDCARD_PINS && (defined(__MK64FX512__) || defined(__MK66FX1M0__))  // on T3.5 or T3.6
 			case 63: CORE_PIN63_CONFIG = 0; break;
-			#endif
 		}
 		switch (pin) {
 			case 31: CORE_PIN31_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
-			#if defined USE_SDCARD_PINS && (defined(__MK64FX512__) || defined(__MK66FX1M0__))  // on T3.5 or T3.6
 			case 63: CORE_PIN63_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
-			#endif
 		}
 	}
 	rx_pin_num = pin;
