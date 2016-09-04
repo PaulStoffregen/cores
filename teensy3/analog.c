@@ -397,7 +397,7 @@ static const uint8_t channel2sc1a[] = {
 // A18  PTC10  ADC1_SE6b
 // A19  PTC11  ADC1_SE7b
 // A20  PTA17  ADC1_SE17
-	23, 23+128, 26, 18+128  // A21-A22, temp sensor, vref
+	23, 23+128, 26, 18+128, 10+128, 11+128  // A21-A22, temp sensor, vref A23, A24
 // A21  DAC0  ADC0_SE23
 // A22  DAC1  ADC1_SE23
 };
@@ -453,7 +453,9 @@ int analogRead(uint8_t pin)
 	} else if (pin >= 40 && pin <= 41) {
 		index = pin - 30;  // 40-41 are A10-A11
 	} else if (pin >= 42 && pin <= 45) {
-		index = pin - 21;  // 42-43 are A21-A22, 44 is temp sensor, 45 is vref
+		index = pin - 21;  // 42-43 are A21-A22
+	} else if (pin >= 49 && pin <= 50) {
+		index = pin - 24;  // 49 and 50 are A23-A24
 	} else {
 		return 0;
 	}
