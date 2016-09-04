@@ -98,6 +98,14 @@ const struct digital_pin_bitband_and_config_table_struct digital_pin_to_info_PGM
 	{GPIO_BITBAND_PTR(CORE_PIN55_PORTREG, CORE_PIN55_BIT), &CORE_PIN55_CONFIG},
 	{GPIO_BITBAND_PTR(CORE_PIN56_PORTREG, CORE_PIN56_BIT), &CORE_PIN56_CONFIG},
 	{GPIO_BITBAND_PTR(CORE_PIN57_PORTREG, CORE_PIN57_BIT), &CORE_PIN57_CONFIG},
+#ifdef USE_SDCARD_PINS
+	{GPIO_BITBAND_PTR(CORE_PIN58_PORTREG, CORE_PIN58_BIT), &CORE_PIN58_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN59_PORTREG, CORE_PIN59_BIT), &CORE_PIN59_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN60_PORTREG, CORE_PIN60_BIT), &CORE_PIN60_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN61_PORTREG, CORE_PIN61_BIT), &CORE_PIN61_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN62_PORTREG, CORE_PIN62_BIT), &CORE_PIN62_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN63_PORTREG, CORE_PIN63_BIT), &CORE_PIN63_CONFIG},
+#endif
 #endif
 };
 
@@ -391,6 +399,14 @@ static void porte_interrupt(void)
 	if ((isfr & CORE_PIN34_BITMASK) && intFunc[34]) intFunc[34]();
 	if ((isfr & CORE_PIN56_BITMASK) && intFunc[56]) intFunc[56]();
 	if ((isfr & CORE_PIN57_BITMASK) && intFunc[57]) intFunc[57]();
+#ifdef USE_SDCARD_PINS
+	if ((isfr & CORE_PIN58_BITMASK) && intFunc[58]) intFunc[58]();
+	if ((isfr & CORE_PIN59_BITMASK) && intFunc[59]) intFunc[59]();
+	if ((isfr & CORE_PIN60_BITMASK) && intFunc[60]) intFunc[60]();
+	if ((isfr & CORE_PIN61_BITMASK) && intFunc[61]) intFunc[61]();
+	if ((isfr & CORE_PIN62_BITMASK) && intFunc[62]) intFunc[62]();
+	if ((isfr & CORE_PIN63_BITMASK) && intFunc[63]) intFunc[63]();
+#endif
 }
 
 #endif
