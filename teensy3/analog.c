@@ -358,48 +358,51 @@ void analogReadAveraging(unsigned int num)
 // The SC1A register is used for both software and hardware trigger modes of operation.
 
 #if defined(__MK20DX128__)
-static const uint8_t channel2sc1a[] = {
-	5, 14, 8, 9, 13, 12, 6, 7, 15, 4,
-	0, 19, 3, 21, 26, 22, 23
+static const uint8_t pin2sc1a[] = {
+	5, 14, 8, 9, 13, 12, 6, 7, 15, 4, 0, 19, 3, 21, // 0-13 -> A0-A13
+	5, 14, 8, 9, 13, 12, 6, 7, 15, 4, // 14-23 are A0-A9
+	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, // 24-33 are digital only
+	0, 19, 3, 21, // 34-37 are A10-A13
+	26,           // 38 is temp sensor
+	22,           // 39 is vref
+	23            // 40 is unused analog pin
 };
 #elif defined(__MK20DX256__)
-static const uint8_t channel2sc1a[] = {
-	5, 14, 8, 9, 13, 12, 6, 7, 15, 4,
-	0, 19, 3, 19+128, 26, 18+128, 23,
-	5+192, 5+128, 4+128, 6+128, 7+128, 4+192
-//   +64  -> use muxA
-//   +128 -> use ADC1
-// A15  26   E1   ADC1_SE5a  5+64
-// A16  27   C9   ADC1_SE5b  5
-// A17  28   C8   ADC1_SE4b  4
-// A18  29   C10  ADC1_SE6b  6
-// A19  30   C11  ADC1_SE7b  7
-// A20  31   E0   ADC1_SE4a  4+64
+static const uint8_t pin2sc1a[] = {
+	5, 14, 8, 9, 13, 12, 6, 7, 15, 4, 0, 19, 3, 19+128, // 0-13 -> A0-A13
+	5, 14, 8, 9, 13, 12, 6, 7, 15, 4, // 14-23 are A0-A9
+	255, 255, // 24-25 are digital only
+	5+192, 5+128, 4+128, 6+128, 7+128, 4+192, // 26-31 are A15-A20
+	255, 255, // 32-33 are digital only
+	0, 19, 3, 19+128, // 34-37 are A10-A13
+	26,     // 38 is temp sensor,
+	18+128, // 39 is vref
+	23      // 40 is A14
 };
 #elif defined(__MKL26Z64__)
-static const uint8_t channel2sc1a[] = {
-	5, 14, 8, 9, 13, 12, 6, 7, 15, 11,
-	0, 4+64, 23, 26, 27
+static const uint8_t pin2sc1a[] = {
+	5, 14, 8, 9, 13, 12, 6, 7, 15, 11, 0, 4+64, 23, // 0-12 -> A0-A12
+	255, // 13 is digital only (no A13 alias)
+	5, 14, 8, 9, 13, 12, 6, 7, 15, 11, 0, 4+64, 23, // 14-26 are A0-A12
+	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, // 27-37 unused
+	26, // 38=temperature
+	27  // 39=bandgap ref (PMC_REGSC |= PMC_REGSC_BGBE)
 };
 #elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
-static const uint8_t channel2sc1a[] = {
-	5, 14, 8, 9, 13, 12, 6, 7, 15, 4, // A0-A9
-	3, 19+128,                        // A10-A11
-// A10  ADC1_DP0/ADC0_DP3
-// A11  ADC1_DM0/ADC0_DM3
-	14+128, 15+128, 17, 18, 4+128, 5+128, 6+128, 7+128, 17+128,  // A12-A20
-// A12  PTB10  ADC1_SE14
-// A13  PTB11  ADC1_SE15
-// A14  PTE24  ADC0_SE17
-// A15  PTE25  ADC0_SE18
-// A16  PTC8   ADC1_SE4b
-// A17  PTC9   ADC1_SE5b
-// A18  PTC10  ADC1_SE6b
-// A19  PTC11  ADC1_SE7b
-// A20  PTA17  ADC1_SE17
-	23, 23+128, 26, 18+128, 10+128, 11+128  // A21-A22, temp sensor, vref A23, A24
-// A21  DAC0  ADC0_SE23
-// A22  DAC1  ADC1_SE23
+static const uint8_t pin2sc1a[] = {
+	5, 14, 8, 9, 13, 12, 6, 7, 15, 4, 3, 19+128, 14+128, 15+128, // 0-13 -> A0-A13
+	5, 14, 8, 9, 13, 12, 6, 7, 15, 4, // 14-23 are A0-A9
+	255, 255, 255, 255, 255, 255, 255, // 24-30 are digital only
+	14+128, 15+128, 17, 18, 4+128, 5+128, 6+128, 7+128, 17+128,  // 31-39 are A12-A20
+	255, 255, 255, 255, 255, 255, 255, 255, 255,  // 40-48 are digital only
+	10+128, 11+128, // 49-50 are A23-A24
+	255, 255, 255, 255, 255, 255, 255, // 51-57 are digital only
+	255, 255, 255, 255, 255, 255, // 58-63 (sd card pins) are digital only
+	3, 19+128, // 64-65 are A10-A11
+	23, 23+128,// 66-68 are A21-A22 (DAC pins)
+	1, 1+128,  // 69-70 are A25-A26 (unused USB host port on Teensy 3.5)
+	26,        // 71 is Temperature Sensor
+	18+128     // 72 is Vref
 };
 #endif
 
@@ -414,76 +417,16 @@ static volatile uint8_t analogReadBusyADC1 = 0;
 int analogRead(uint8_t pin)
 {
 	int result;
-	uint8_t index, channel;
+	uint8_t channel;
 
 	//serial_phex(pin);
 	//serial_print(" ");
 
-#if defined(__MK20DX128__)
-	if (pin <= 13) {
-		index = pin;      // 0-13 refer to A0-A13
-	} else if (pin <= 23) {
-		index = pin - 14; // 14-23 are A0-A9
-	} else if (pin >= 34 && pin <= 40) {
-		index = pin - 24; // 34-37 are A10-A13, 38 is temp sensor,
-			          // 39 is vref, 40 is unused analog pin
-	} else {
-		return 0;
-	}
-#elif defined(__MK20DX256__)
-	if (pin <= 13) {
-		index = pin;      // 0-13 refer to A0-A13
-	} else if (pin <= 23) {
-		index = pin - 14; // 14-23 are A0-A9
-	} else if (pin >= 26 && pin <= 31) {
-		index = pin - 9;  // 26-31 are A15-A20
-	} else if (pin >= 34 && pin <= 40) {
-		index = pin - 24; // 34-37 are A10-A13, 38 is temp sensor,
-			          // 39 is vref, 40 is A14
-	} else {
-		return 0;
-	}
-#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
-	if (pin <= 13) {
-		index = pin;       // 0-13 refer to A0-A13
-	} else if (pin <= 23) {
-		index = pin - 14;  // 14-23 are A0-A9
-	} else if (pin >= 31 && pin <= 39) {
-		index = pin - 19;  // 31-39 are A12-A20
-	} else if (pin >= 40 && pin <= 41) {
-		index = pin - 30;  // 40-41 are A10-A11
-	} else if (pin >= 42 && pin <= 45) {
-		index = pin - 21;  // 42-43 are A21-A22
-	} else if (pin >= 49 && pin <= 50) {
-		index = pin - 24;  // 49 and 50 are A23-A24
-	} else {
-		return 0;
-	}
-#elif defined(__MKL26Z64__)
-	if (pin <= 12) {
-		index = pin;      // 0-12 refer to A0-A12
-	} else if (pin >= 14 && pin <= 26) {
-		index = pin - 14; // 14-26 are A0-A12
-	} else if (pin >= 38 && pin <= 39) {
-		index = pin - 25; // 38=temperature
-		                  // 39=bandgap ref (PMC_REGSC |= PMC_REGSC_BGBE)
-	} else {
-		return 0;
-	}
+	if (pin >= sizeof(pin2sc1a)) return 0;
+	channel = pin2sc1a[pin];
+	if (channel == 255) return 0;
 
-#endif
-
-	//serial_phex(index);
-	//serial_print(" ");
-
-	channel = channel2sc1a[index];
-	//serial_phex(channel);
-	//serial_print(" ");
-
-	//serial_print("analogRead");
-	//return 0;
 	if (calibrating) wait_for_cal();
-	//pin = 5; // PTD1/SE5b, pin 14, analog 0
 
 #ifdef HAS_KINETIS_ADC1
 	if (channel & 0x80) goto beginADC1;
