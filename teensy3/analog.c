@@ -399,10 +399,10 @@ static const uint8_t pin2sc1a[] = {
 	255, 255, 255, 255, 255, 255, 255, // 51-57 are digital only
 	255, 255, 255, 255, 255, 255, // 58-63 (sd card pins) are digital only
 	3, 19+128, // 64-65 are A10-A11
-	23, 23+128,// 66-68 are A21-A22 (DAC pins)
-	1, 1+128,  // 69-70 are A25-A26 (unused USB host port on Teensy 3.5)
-	26,        // 71 is Temperature Sensor
-	18+128     // 72 is Vref
+	23, 23+128,// 66-67 are A21-A22 (DAC pins)
+	1, 1+128,  // 68-69 are A25-A26 (unused USB host port on Teensy 3.5)
+	26,        // 70 is Temperature Sensor
+	18+128     // 71 is Vref
 };
 #endif
 
