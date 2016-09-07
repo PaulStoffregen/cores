@@ -992,6 +992,27 @@ public:
 		return ret;
 	}
 	inline void setMOSI(uint8_t pin) __attribute__((always_inline)) {
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+		uint8_t newpinout = pinout;
+		// More than two options so now 2 bits
+		if (pin == 11) newpinout &= ~3;
+		if (pin == 7) newpinout  =(newpinout & ~0x3) | 1;
+		if (pin == 28) newpinout = (newpinout & ~0x3) | 2;
+		if ((SIM_SCGC6 & SIM_SCGC6_SPI0) && newpinout != pinout) {
+			// First unconfigure previous pin
+			switch (pinout & 3) {
+				case 0: CORE_PIN11_CONFIG = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1); break;
+				case 1: CORE_PIN7_CONFIG = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1); break;
+				default: CORE_PIN28_CONFIG = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1);
+			}
+			switch (newpinout & 3) {
+				case 0: CORE_PIN11_CONFIG = PORT_PCR_DSE | PORT_PCR_MUX(2); break;
+				case 1: CORE_PIN7_CONFIG = PORT_PCR_MUX(2); break;
+				default: CORE_PIN28_CONFIG = PORT_PCR_MUX(2);
+			}
+		}
+		pinout = newpinout;
+#else
 		uint8_t newpinout = pinout;
 		if (pin == 11) newpinout &= ~1;
 		if (pin == 7) newpinout |= 1;
@@ -1005,8 +1026,30 @@ public:
 			}
 		}
 		pinout = newpinout;
+#endif    
 	}
 	inline void setMISO(uint8_t pin) __attribute__((always_inline)) {
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+		uint8_t newpinout = pinout;
+		// More than two options so now 2 bits
+		if (pin == 12) newpinout &= ~0xc;
+		if (pin == 8) newpinout  =(newpinout & ~0xc) | 4;
+		if (pin == 39) newpinout = (newpinout & ~0xc) | 8;
+		if ((SIM_SCGC6 & SIM_SCGC6_SPI0) && newpinout != pinout) {
+			// First unconfigure previous pin
+			switch (pinout & 0xc) {
+				case 0: CORE_PIN12_CONFIG = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1); break;
+				case 0x4: CORE_PIN8_CONFIG = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1); break;
+				default: CORE_PIN39_CONFIG = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1);
+			}
+			switch (newpinout & 0xc) {
+				case 0: CORE_PIN12_CONFIG = PORT_PCR_MUX(2); break;
+				case 0x4: CORE_PIN8_CONFIG = PORT_PCR_MUX(2); break;
+				default: CORE_PIN39_CONFIG = PORT_PCR_MUX(2);
+			}
+		}
+		pinout = newpinout;
+#else
 		uint8_t newpinout = pinout;
 		if (pin == 12) newpinout &= ~2;
 		if (pin == 8) newpinout |= 2;
@@ -1020,8 +1063,30 @@ public:
 			}
 		}
 		pinout = newpinout;
+#endif
 	}
 	inline void setSCK(uint8_t pin) __attribute__((always_inline)) {
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+		uint8_t newpinout = pinout;
+		// More than two options so now 2 bits
+		if (pin == 13) newpinout &= ~0x30;
+		if (pin == 14) newpinout  =(newpinout & ~0x30) | 0x10;
+		if (pin == 27) newpinout = (newpinout & ~0x30) | 0x20;
+		if ((SIM_SCGC6 & SIM_SCGC6_SPI0) && newpinout != pinout) {
+			// First unconfigure previous pin
+			switch (pinout & 0x30) {
+				case 0: CORE_PIN13_CONFIG = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1); break;
+				case 0x10: CORE_PIN14_CONFIG = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1); break;
+				default: CORE_PIN27_CONFIG = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1);
+			}
+			switch (newpinout & 0x30) {
+				case 0: CORE_PIN13_CONFIG =  PORT_PCR_DSE | PORT_PCR_MUX(2); break;
+				case 0x10: CORE_PIN14_CONFIG = PORT_PCR_MUX(2); break;
+				default: CORE_PIN27_CONFIG = PORT_PCR_MUX(2);
+			}
+		}
+		pinout = newpinout;
+#else
 		uint8_t newpinout = pinout;
 		if (pin == 13) newpinout &= ~4;
 		if (pin == 14) newpinout |= 4;
@@ -1035,6 +1100,7 @@ public:
 			}
 		}
 		pinout = newpinout;
+#endif
 	}
 	friend class SPSRemulation;
 	friend class SPIFIFOclass;
@@ -1054,6 +1120,23 @@ private:
 public:
 	inline void enable_pins(void) __attribute__((always_inline)) {
 		//serial_print("enable_pins\n");
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+		switch (pinout & 3) {
+			case 0: CORE_PIN11_CONFIG = PORT_PCR_DSE | PORT_PCR_MUX(2); break;
+			case 1: CORE_PIN7_CONFIG = PORT_PCR_MUX(2); break;
+			default: CORE_PIN28_CONFIG = PORT_PCR_MUX(2);
+		}
+		switch (pinout & 0xc) {
+			case 0: CORE_PIN12_CONFIG = PORT_PCR_MUX(2); break;
+			case 0x4: CORE_PIN8_CONFIG = PORT_PCR_MUX(2); break;
+			default: CORE_PIN39_CONFIG = PORT_PCR_MUX(2);
+		}
+		switch (pinout & 0x30) {
+			case 0: CORE_PIN13_CONFIG =  PORT_PCR_DSE | PORT_PCR_MUX(2); break;
+			case 0x10: CORE_PIN14_CONFIG = PORT_PCR_MUX(2); break;
+			default: CORE_PIN27_CONFIG = PORT_PCR_MUX(2);
+		}
+#else
 		if ((pinout & 1) == 0) {
 			CORE_PIN11_CONFIG = PORT_PCR_DSE | PORT_PCR_MUX(2); // DOUT/MOSI = 11 (PTC6)
 		} else {
@@ -1069,8 +1152,27 @@ public:
 		} else {
 			CORE_PIN14_CONFIG = PORT_PCR_MUX(2); // SCK = 14 (PTD1)
 		}
+#endif
 	}
 	inline void disable_pins(void) __attribute__((always_inline)) {
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+		switch (pinout & 3) {
+			case 0: CORE_PIN11_CONFIG = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1); break;
+			case 1: CORE_PIN7_CONFIG = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1); break;
+			default: CORE_PIN28_CONFIG = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1);
+		}
+
+		switch (pinout & 0xc) {
+			case 0: CORE_PIN12_CONFIG = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1); break;
+			case 0x4: CORE_PIN8_CONFIG = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1); break;
+			default: CORE_PIN39_CONFIG = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1);
+		}
+		switch (pinout & 0x30) {
+			case 0: CORE_PIN13_CONFIG = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1); break;
+			case 0x10: CORE_PIN14_CONFIG = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1); break;
+			default: CORE_PIN27_CONFIG = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1);
+		}
+#else
 		//serial_print("disable_pins\n");
 		if ((pinout & 1) == 0) {
 			CORE_PIN11_CONFIG = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1);
@@ -1087,6 +1189,7 @@ public:
 		} else {
 			CORE_PIN14_CONFIG = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1);
 		}
+#endif
 	}
 };
 extern SPCRemulation SPCR;
