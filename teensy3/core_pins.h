@@ -112,12 +112,18 @@
 #define CORE_NUM_INTERRUPT      24  // really only 18, but 6 "holes"
 #define CORE_NUM_ANALOG         13
 #define CORE_NUM_PWM            10
-#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
+#elif defined(__MK64FX512__)
 #define CORE_NUM_TOTAL_PINS     64
 #define CORE_NUM_DIGITAL        64
 #define CORE_NUM_INTERRUPT      64
-#define CORE_NUM_ANALOG         23
+#define CORE_NUM_ANALOG         27
 #define CORE_NUM_PWM            20
+#elif defined(__MK66FX1M0__)
+#define CORE_NUM_TOTAL_PINS     64
+#define CORE_NUM_DIGITAL        64
+#define CORE_NUM_INTERRUPT      64
+#define CORE_NUM_ANALOG         25
+#define CORE_NUM_PWM            22
 #endif
 
 #if defined(__MK20DX128__) || defined(__MK20DX256__)
