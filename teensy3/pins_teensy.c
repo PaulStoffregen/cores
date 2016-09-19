@@ -209,69 +209,111 @@ void detachInterrupt(uint8_t pin)
 
 #if defined(__MK20DX128__) || defined(__MK20DX256__)
 
+#define CLZ(x) __builtin_clz(x)
+/* Bit number to CLZ output */
+#define BCLZ(x) (31-(x))
+/* Macro to assign the constant look up tables. Output +1 so pin 0 can be used. */
+#define PINCODE(x) [BCLZ(CORE_PIN ## x ## _BIT)]=(x)+1
+
+
+static void pin_isr_handler(const uint8_t *lut, uint32_t isfr)
+{
+	while (isfr) {
+		uint32_t x = CLZ(isfr);
+		uint8_t pin = lut[x];
+		if ((pin)&&(intFunc[pin-1])) intFunc[pin-1]();
+		isfr &= ~(1<<(31-x));
+	}
+}
+
+static const uint8_t porta_clz_lut[32] = {
+	[0 ... 31] = 0,
+	PINCODE(3),
+	PINCODE(4),
+	PINCODE(24),
+	PINCODE(33)
+};
+
+
 static void porta_interrupt(void)
 {
 	uint32_t isfr = PORTA_ISFR;
 	PORTA_ISFR = isfr;
-	if ((isfr & CORE_PIN3_BITMASK) && intFunc[3]) intFunc[3]();
-	if ((isfr & CORE_PIN4_BITMASK) && intFunc[4]) intFunc[4]();
-	if ((isfr & CORE_PIN24_BITMASK) && intFunc[24]) intFunc[24]();
-	if ((isfr & CORE_PIN33_BITMASK) && intFunc[33]) intFunc[33]();
+	pin_isr_handler(porta_clz_lut,isfr);
 }
+
+static const uint8_t portb_clz_lut[32] = {
+	[0 ... 31] = 0,
+	PINCODE(0),
+	PINCODE(1),
+	PINCODE(16),
+	PINCODE(17),
+	PINCODE(18),
+	PINCODE(19),
+	PINCODE(25),
+	PINCODE(32)
+};
 
 static void portb_interrupt(void)
 {
 	uint32_t isfr = PORTB_ISFR;
 	PORTB_ISFR = isfr;
-	if ((isfr & CORE_PIN0_BITMASK) && intFunc[0]) intFunc[0]();
-	if ((isfr & CORE_PIN1_BITMASK) && intFunc[1]) intFunc[1]();
-	if ((isfr & CORE_PIN16_BITMASK) && intFunc[16]) intFunc[16]();
-	if ((isfr & CORE_PIN17_BITMASK) && intFunc[17]) intFunc[17]();
-	if ((isfr & CORE_PIN18_BITMASK) && intFunc[18]) intFunc[18]();
-	if ((isfr & CORE_PIN19_BITMASK) && intFunc[19]) intFunc[19]();
-	if ((isfr & CORE_PIN25_BITMASK) && intFunc[25]) intFunc[25]();
-	if ((isfr & CORE_PIN32_BITMASK) && intFunc[32]) intFunc[32]();
+	pin_isr_handler(portb_clz_lut,isfr);
 }
+
+static const uint8_t portc_clz_lut[32] = {
+	[0 ... 31] = 0,
+	PINCODE(9),
+	PINCODE(10),
+	PINCODE(11),
+	PINCODE(12),
+	PINCODE(13),
+	PINCODE(15),
+	PINCODE(22),
+	PINCODE(23),
+	PINCODE(27),
+	PINCODE(28),
+	PINCODE(29),
+	PINCODE(30)
+};
 
 static void portc_interrupt(void)
 {
-	// TODO: these are inefficent.  Use CLZ somehow....
 	uint32_t isfr = PORTC_ISFR;
 	PORTC_ISFR = isfr;
-	if ((isfr & CORE_PIN9_BITMASK) && intFunc[9]) intFunc[9]();
-	if ((isfr & CORE_PIN10_BITMASK) && intFunc[10]) intFunc[10]();
-	if ((isfr & CORE_PIN11_BITMASK) && intFunc[11]) intFunc[11]();
-	if ((isfr & CORE_PIN12_BITMASK) && intFunc[12]) intFunc[12]();
-	if ((isfr & CORE_PIN13_BITMASK) && intFunc[13]) intFunc[13]();
-	if ((isfr & CORE_PIN15_BITMASK) && intFunc[15]) intFunc[15]();
-	if ((isfr & CORE_PIN22_BITMASK) && intFunc[22]) intFunc[22]();
-	if ((isfr & CORE_PIN23_BITMASK) && intFunc[23]) intFunc[23]();
-	if ((isfr & CORE_PIN27_BITMASK) && intFunc[27]) intFunc[27]();
-	if ((isfr & CORE_PIN28_BITMASK) && intFunc[28]) intFunc[28]();
-	if ((isfr & CORE_PIN29_BITMASK) && intFunc[29]) intFunc[29]();
-	if ((isfr & CORE_PIN30_BITMASK) && intFunc[30]) intFunc[30]();
+	pin_isr_handler(portc_clz_lut,isfr);
 }
+
+static const uint8_t portd_clz_lut[32] = {
+	[0 ... 31] = 0,
+	PINCODE(2),
+	PINCODE(5),
+	PINCODE(6),
+	PINCODE(7),
+	PINCODE(8),
+	PINCODE(14),
+	PINCODE(20),
+	PINCODE(21)
+};
 
 static void portd_interrupt(void)
 {
 	uint32_t isfr = PORTD_ISFR;
 	PORTD_ISFR = isfr;
-	if ((isfr & CORE_PIN2_BITMASK) && intFunc[2]) intFunc[2]();
-	if ((isfr & CORE_PIN5_BITMASK) && intFunc[5]) intFunc[5]();
-	if ((isfr & CORE_PIN6_BITMASK) && intFunc[6]) intFunc[6]();
-	if ((isfr & CORE_PIN7_BITMASK) && intFunc[7]) intFunc[7]();
-	if ((isfr & CORE_PIN8_BITMASK) && intFunc[8]) intFunc[8]();
-	if ((isfr & CORE_PIN14_BITMASK) && intFunc[14]) intFunc[14]();
-	if ((isfr & CORE_PIN20_BITMASK) && intFunc[20]) intFunc[20]();
-	if ((isfr & CORE_PIN21_BITMASK) && intFunc[21]) intFunc[21]();
+	pin_isr_handler(portd_clz_lut,isfr);
 }
+
+static const uint8_t porte_clz_lut[32] = {
+	[0 ... 31] = 0,
+	PINCODE(26),
+	PINCODE(31)
+};
 
 static void porte_interrupt(void)
 {
 	uint32_t isfr = PORTE_ISFR;
 	PORTE_ISFR = isfr;
-	if ((isfr & CORE_PIN26_BITMASK) && intFunc[26]) intFunc[26]();
-	if ((isfr & CORE_PIN31_BITMASK) && intFunc[31]) intFunc[31]();
+	pin_isr_handler(porte_clz_lut,isfr);
 }
 
 #elif defined(__MKL26Z64__)
