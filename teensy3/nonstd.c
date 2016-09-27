@@ -103,7 +103,7 @@ char * dtostrf(float val, int width, unsigned int precision, char *buf)
 
 	if (isinff(val)) {
 		int ndigs = (val<0) ? 4 : 3;
-		awidth = (awidth > ndigs) ? width - ndigs : 0;
+		awidth = (awidth > ndigs) ? awidth - ndigs : 0;
 		if (width<0) {
 		    while (awidth) {
 			*buf++ = ' ';
