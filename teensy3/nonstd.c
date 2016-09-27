@@ -87,7 +87,7 @@ char * dtostrf(float val, int width, unsigned int precision, char *buf)
 			awidth--;
 		    }
 		}		
-		if (copysignf(1.0f, val)<0) *buf++ = '-'; //does not work (?)
+		if (copysignf(1.0f, val)<0) *buf++ = '-';
 		if (DTOA_UPPER) {
 		    *buf++ = 'N';  *buf++ = 'A';  *buf++ = 'N';
 		} else {
