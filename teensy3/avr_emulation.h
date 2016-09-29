@@ -1261,51 +1261,74 @@ public:
 		return ret;
 	}
 	inline void setMOSI(uint8_t pin) __attribute__((always_inline)) {
-		if (pin == 0) pinout &= ~1; // MOSI1 = 0  (PTB16)
-		if (pin == 21) pinout |= 1; // MOSI1 = 21 (PTD6)
+		// More options, so 2 bits
+		pinout &= ~3;
+		switch (pin) {
+			case 0: break;
+			case 21: pinout |= 1; break; 
+			case 61: pinout |= 2; break;
+			case 59: pinout |= 3; break;
+		}
 	}
 	inline void setMISO(uint8_t pin) __attribute__((always_inline)) {
-		if (pin == 1) pinout &= ~2; // MISO1 = 1  (PTB17)
-		if (pin == 5) pinout |= 2;  // MISO1 = 5  (PTD7)
+		// More options, so 2 bits
+		pinout &= ~0xc;
+		switch (pin) {
+			case 1: break;
+			case 5: pinout |= 0x4; break; 
+			case 61: pinout |= 0x8; break;
+			case 59: pinout |= 0xc; break;
+		}
 	}
 	inline void setSCK(uint8_t pin) __attribute__((always_inline)) {
-		if (pin == 20) pinout &= ~4; // SCK = 20  (PTD5)
-		if (pin == 32) pinout |= 4;  // MISO1 = 32  (PTB11)
+		// More options, so 2 bits
+		pinout &= ~0x30;
+		switch (pin) {
+			case 20: break;
+			case 32: pinout |= 0x10; break; 
+			case 60: pinout |= 0x20; break;
+		}
 	}
 	inline void enable_pins(void) __attribute__((always_inline)) {
 		//serial_print("enable_pins\n");
-		if ((pinout & 1) == 0) {
-			CORE_PIN0_CONFIG = PORT_PCR_MUX(2);  // MOSI1 = 0  (PTB16)
-		} else {
-			CORE_PIN21_CONFIG = PORT_PCR_MUX(7); // MOSI1 = 21 (PTD6)
+		// MOSI (SOUT)
+		switch (pinout & 0x3) {
+			case 0: CORE_PIN0_CONFIG = PORT_PCR_MUX(2); break;
+			case 1: CORE_PIN21_CONFIG = PORT_PCR_MUX(7); break;
+			case 2: CORE_PIN61_CONFIG = PORT_PCR_MUX(7); break;
+			case 3: CORE_PIN59_CONFIG = PORT_PCR_MUX(2); break;
 		}
-		if ((pinout & 2) == 0) {
-			CORE_PIN1_CONFIG = PORT_PCR_MUX(2);  // MISO1 = 1  (PTB17)
-		} else {
-			CORE_PIN5_CONFIG = PORT_PCR_MUX(7);  // MISO1 = 5  (PTD7)
+		// MISO (SIN)
+		switch (pinout & 0xc) {
+			case 0x0: CORE_PIN1_CONFIG = PORT_PCR_MUX(2); break;
+			case 0x4: CORE_PIN5_CONFIG = PORT_PCR_MUX(7); break;
+			case 0x8: CORE_PIN61_CONFIG = PORT_PCR_MUX(2); break;
+			case 0xc: CORE_PIN59_CONFIG = PORT_PCR_MUX(7); break;
 		}
-		if ((pinout & 4) == 0) {
-			CORE_PIN20_CONFIG = PORT_PCR_MUX(7); // SCK1 = 20 (PTD5)
-		} else {
-			CORE_PIN32_CONFIG = PORT_PCR_MUX(2);  // MISO1 = 5  (PTD7)
+		// SCK
+		switch (pinout & 0x30) {
+			case 0x0: CORE_PIN20_CONFIG = PORT_PCR_MUX(7); break;
+			case 0x10: CORE_PIN32_CONFIG = PORT_PCR_MUX(2); break;
+			case 0x20: CORE_PIN60_CONFIG = PORT_PCR_MUX(2); break;
 		}
 	}
 	inline void disable_pins(void) __attribute__((always_inline)) {
-		//serial_print("disable_pins\n");
-		if ((pinout & 1) == 0) {
-			CORE_PIN0_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1);
-		} else {
-			CORE_PIN21_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1);
+		switch (pinout & 0x3) {
+			case 0: CORE_PIN0_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1); break;
+			case 1: CORE_PIN21_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1); break;
+			case 2: CORE_PIN61_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1); break;
+			case 3: CORE_PIN59_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1); break;
 		}
-		if ((pinout & 2) == 0) {
-			CORE_PIN1_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1);
-		} else {
-			CORE_PIN5_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1);
+		switch (pinout & 0xc) {
+			case 0x0: CORE_PIN1_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1); break;
+			case 0x4: CORE_PIN5_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1); break;
+			case 0x8: CORE_PIN61_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1); break;
+			case 0xc: CORE_PIN59_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1); break;
 		}
-		if ((pinout & 4) == 0) {
-			CORE_PIN20_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1); // SCK1 = 20 (PTD5)
-		} else {
-			CORE_PIN32_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1);  // MISO1 = 5  (PTD7)
+		switch (pinout & 0x30) {
+			case 0x0: CORE_PIN20_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1); break;
+			case 0x10: CORE_PIN32_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1); break;
+			case 0x20: CORE_PIN60_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1); break;
 		}
 	}
 	friend class SPIFIFO1class;
