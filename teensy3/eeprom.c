@@ -183,11 +183,58 @@ static void flexram_wait(void)
 	}
 }
 
+#if F_CPU > 120000000 && defined(__MK66FX1M0__)
+static volatile uint16_t c_intrestore = 0;
+void c_enable_irq( void );
+void c_disable_irq( void );
+static __inline__ uint32_t __get_primask(void) \
+{ uint32_t primask = 0; \
+  __asm__ volatile ("MRS %[result], PRIMASK\n\t":[result]"=r"(primask)::); \
+  return primask; } // returns 0 if interrupts enabled, 1 if disabled
+void c_enable_irq( void ){
+	if ( c_intrestore ) {
+		c_intrestore =0;
+		__enable_irq( );
+	}
+}
+void c_disable_irq( void ){
+	if ( !__get_primask() ) { // Returns 0 if they are enabled, or non-zero if disabled 
+		c_intrestore = 1;
+		__disable_irq( );
+	}
+}
+static volatile uint8_t restore_hsrun = 0;
+static void hsrun_off(void)
+{
+	if (SMC_PMSTAT == SMC_PMSTAT_HSRUN) {
+		c_disable_irq( ); // Turn off interrupts for the DURATION !!!!
+		SMC_PMCTRL = SMC_PMCTRL_RUNM(0); // exit HSRUN mode
+		while (SMC_PMSTAT == SMC_PMSTAT_HSRUN) ; // wait for !HSRUN
+		restore_hsrun = 1;
+	}
+}
+
+static void hsrun_on(void)
+{
+	if (restore_hsrun) {
+	    SMC_PMCTRL = SMC_PMCTRL_RUNM(3); // enter HSRUN mode
+	    while (SMC_PMSTAT != SMC_PMSTAT_HSRUN); // wait for HSRUN
+		restore_hsrun = 0;
+	    c_enable_irq( ); // Restore interrupts only when HSRUN restored	}
+	}
+}
+#else
+#define hsrun_off()
+#define hsrun_on()
+#endif
+
+
 void eeprom_write_byte(uint8_t *addr, uint8_t value)
 {
 	uint32_t offset = (uint32_t)addr;
 
 	if (offset >= EEPROM_SIZE) return;
+	hsrun_off();
 	if (!(FTFL_FCNFG & FTFL_FCNFG_EEERDY)) eeprom_initialize();
 	if (FlexRAM[offset] != value) {
 		uint8_t stat = FTFL_FSTAT & 0x70;
@@ -195,6 +242,7 @@ void eeprom_write_byte(uint8_t *addr, uint8_t value)
 		FlexRAM[offset] = value;
 		flexram_wait();
 	}
+	hsrun_on();
 }
 
 void eeprom_write_word(uint16_t *addr, uint16_t value)
@@ -202,6 +250,7 @@ void eeprom_write_word(uint16_t *addr, uint16_t value)
 	uint32_t offset = (uint32_t)addr;
 
 	if (offset >= EEPROM_SIZE-1) return;
+	hsrun_off();
 	if (!(FTFL_FCNFG & FTFL_FCNFG_EEERDY)) eeprom_initialize();
 #ifdef HANDLE_UNALIGNED_WRITES
 	if ((offset & 1) == 0) {
@@ -228,6 +277,7 @@ void eeprom_write_word(uint16_t *addr, uint16_t value)
 		}
 	}
 #endif
+	hsrun_on();
 }
 
 void eeprom_write_dword(uint32_t *addr, uint32_t value)
@@ -235,6 +285,7 @@ void eeprom_write_dword(uint32_t *addr, uint32_t value)
 	uint32_t offset = (uint32_t)addr;
 
 	if (offset >= EEPROM_SIZE-3) return;
+	hsrun_off();
 	if (!(FTFL_FCNFG & FTFL_FCNFG_EEERDY)) eeprom_initialize();
 #ifdef HANDLE_UNALIGNED_WRITES
 	switch (offset & 3) {
@@ -246,6 +297,7 @@ void eeprom_write_dword(uint32_t *addr, uint32_t value)
 			*(uint32_t *)(&FlexRAM[offset]) = value;
 			flexram_wait();
 		}
+		hsrun_on();
 		return;
 #ifdef HANDLE_UNALIGNED_WRITES
 	case 2:
@@ -261,6 +313,7 @@ void eeprom_write_dword(uint32_t *addr, uint32_t value)
 			*(uint16_t *)(&FlexRAM[offset + 2]) = value >> 16;
 			flexram_wait();
 		}
+		hsrun_on();
 		return;
 	default:
 		if (FlexRAM[offset] != value) {
@@ -283,6 +336,7 @@ void eeprom_write_dword(uint32_t *addr, uint32_t value)
 		}
 	}
 #endif
+	hsrun_on();
 }
 
 void eeprom_write_block(const void *buf, void *addr, uint32_t len)
@@ -291,6 +345,7 @@ void eeprom_write_block(const void *buf, void *addr, uint32_t len)
 	const uint8_t *src = (const uint8_t *)buf;
 
 	if (offset >= EEPROM_SIZE) return;
+	hsrun_off();
 	if (!(FTFL_FCNFG & FTFL_FCNFG_EEERDY)) eeprom_initialize();
 	if (len >= EEPROM_SIZE) len = EEPROM_SIZE;
 	if (offset + len >= EEPROM_SIZE) len = EEPROM_SIZE - offset;
@@ -337,6 +392,7 @@ void eeprom_write_block(const void *buf, void *addr, uint32_t len)
 			len--;
 		}
 	}
+	hsrun_on();
 }
 
 /*
