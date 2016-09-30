@@ -290,14 +290,18 @@ size_t Print::printFloat(double number, uint8_t digits)
 		sign = 1;
 		number = -number;
 	}
-
+	
 	// Round correctly so that print(1.999, 2) prints as "2.00"
+#if 0	
 	double rounding = 0.5;
 	for (uint8_t i=0; i<digits; ++i) {
 		rounding *= 0.1;
 	}
 	number += rounding;
-
+#else	
+	number += 0.5 * pow(0.1, digits);
+#endif
+	
 	// Extract the integer part of the number and print it
 	unsigned long int_part = (unsigned long)number;
 	double remainder = number - (double)int_part;
