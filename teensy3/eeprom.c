@@ -31,6 +31,9 @@
 #include "kinetis.h"
 #include <avr/eeprom.h>
 //#include "HardwareSerial.h"
+#if F_CPU > 120000000 && defined(__MK66FX1M0__)
+#include "core_pins.h"	// delayMicroseconds()
+#endif
 
 
 #if defined(__MK20DX128__) || defined(__MK20DX256__)
@@ -185,6 +188,7 @@ static void flexram_wait(void)
 
 #if F_CPU > 120000000 && defined(__MK66FX1M0__)
 static volatile uint16_t c_intrestore = 0;
+
 void c_enable_irq( void );
 void c_disable_irq( void );
 static __inline__ uint32_t __get_primask(void) \
@@ -209,7 +213,8 @@ static void hsrun_off(void)
 	if (SMC_PMSTAT == SMC_PMSTAT_HSRUN) {
 		c_disable_irq( ); // Turn off interrupts for the DURATION !!!!
 		SMC_PMCTRL = SMC_PMCTRL_RUNM(0); // exit HSRUN mode
-		while (SMC_PMSTAT == SMC_PMSTAT_HSRUN) ; // wait for !HSRUN
+		while (SMC_PMSTAT == SMC_PMSTAT_HSRUN) delayMicroseconds(2); // wait for !HSRUN
+		delayMicroseconds(100);
 		restore_hsrun = 1;
 	}
 }
@@ -218,7 +223,7 @@ static void hsrun_on(void)
 {
 	if (restore_hsrun) {
 	    SMC_PMCTRL = SMC_PMCTRL_RUNM(3); // enter HSRUN mode
-	    while (SMC_PMSTAT != SMC_PMSTAT_HSRUN); // wait for HSRUN
+	    while (SMC_PMSTAT != SMC_PMSTAT_HSRUN) delayMicroseconds(2);; // wait for HSRUN
 		restore_hsrun = 0;
 	    c_enable_irq( ); // Restore interrupts only when HSRUN restored	}
 	}
@@ -234,8 +239,8 @@ void eeprom_write_byte(uint8_t *addr, uint8_t value)
 	uint32_t offset = (uint32_t)addr;
 
 	if (offset >= EEPROM_SIZE) return;
-	hsrun_off();
 	if (!(FTFL_FCNFG & FTFL_FCNFG_EEERDY)) eeprom_initialize();
+	hsrun_off();
 	if (FlexRAM[offset] != value) {
 		uint8_t stat = FTFL_FSTAT & 0x70;
 		if (stat) FTFL_FSTAT = stat;
@@ -250,8 +255,8 @@ void eeprom_write_word(uint16_t *addr, uint16_t value)
 	uint32_t offset = (uint32_t)addr;
 
 	if (offset >= EEPROM_SIZE-1) return;
-	hsrun_off();
 	if (!(FTFL_FCNFG & FTFL_FCNFG_EEERDY)) eeprom_initialize();
+	hsrun_off();
 #ifdef HANDLE_UNALIGNED_WRITES
 	if ((offset & 1) == 0) {
 #endif
@@ -285,8 +290,8 @@ void eeprom_write_dword(uint32_t *addr, uint32_t value)
 	uint32_t offset = (uint32_t)addr;
 
 	if (offset >= EEPROM_SIZE-3) return;
-	hsrun_off();
 	if (!(FTFL_FCNFG & FTFL_FCNFG_EEERDY)) eeprom_initialize();
+	hsrun_off();
 #ifdef HANDLE_UNALIGNED_WRITES
 	switch (offset & 3) {
 	case 0:
@@ -345,8 +350,8 @@ void eeprom_write_block(const void *buf, void *addr, uint32_t len)
 	const uint8_t *src = (const uint8_t *)buf;
 
 	if (offset >= EEPROM_SIZE) return;
-	hsrun_off();
 	if (!(FTFL_FCNFG & FTFL_FCNFG_EEERDY)) eeprom_initialize();
+	hsrun_off();
 	if (len >= EEPROM_SIZE) len = EEPROM_SIZE;
 	if (offset + len >= EEPROM_SIZE) len = EEPROM_SIZE - offset;
 	while (len > 0) {
