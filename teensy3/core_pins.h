@@ -126,6 +126,29 @@
 #define CORE_NUM_PWM            22
 #endif
 
+// These MAX_PIN_PORTx values have the highest Kinetis pin index
+// that is used for a given port.
+#if defined(__MK20DX128__) || defined(__MK20DX256__)
+#define CORE_MAX_PIN_PORTA        13
+#define CORE_MAX_PIN_PORTB        19
+#define CORE_MAX_PIN_PORTC        11
+#define CORE_MAX_PIN_PORTD         7
+#define CORE_MAX_PIN_PORTE         1
+#elif defined(__MKL26Z64__)
+#define CORE_MAX_PIN_PORTA         2
+#define CORE_MAX_PIN_PORTB        17
+#define CORE_MAX_PIN_PORTC         7
+#define CORE_MAX_PIN_PORTD         7
+#define CORE_MAX_PIN_PORTE        30
+#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
+#define CORE_MAX_PIN_PORTA        29
+#define CORE_MAX_PIN_PORTB        23
+#define CORE_MAX_PIN_PORTC        11
+#define CORE_MAX_PIN_PORTD        15
+#define CORE_MAX_PIN_PORTE        26
+#endif
+
+
 #if defined(__MK20DX128__) || defined(__MK20DX256__)
 
 #define CORE_PIN0_BIT		16
