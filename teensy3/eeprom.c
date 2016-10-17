@@ -203,8 +203,8 @@ void c_enable_irq( void ){
 }
 void c_disable_irq( void ){
 	if ( !__get_primask() ) { // Returns 0 if they are enabled, or non-zero if disabled 
-		c_intrestore = 1;
 		__disable_irq( );
+		c_intrestore = 1;		
 	}
 }
 static volatile uint8_t restore_hsrun = 0;
