@@ -550,6 +550,7 @@ enum IRQ_NUMBER_t {
 #define HAS_KINETIS_ADC0
 #define HAS_KINETIS_ADC1
 #define HAS_KINETIS_FLASH_FTFE
+#define HAS_KINETIS_SDHC
 
 
 #elif defined(__MK66FX1M0__)
@@ -753,6 +754,7 @@ enum IRQ_NUMBER_t {
 #define HAS_KINETIS_ADC1
 #define HAS_KINETIS_TSI_LITE
 #define HAS_KINETIS_FLASH_FTFE
+#define HAS_KINETIS_SDHC
 
 
 
