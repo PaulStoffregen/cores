@@ -1267,8 +1267,8 @@
 #define CORE_ADC7_PIN		21
 #define CORE_ADC8_PIN		22
 #define CORE_ADC9_PIN		23
-#define CORE_ADC10_PIN		40
-#define CORE_ADC11_PIN		41
+#define CORE_ADC10_PIN		64
+#define CORE_ADC11_PIN		65
 #define CORE_ADC12_PIN		31
 #define CORE_ADC13_PIN		32
 #define CORE_ADC14_PIN		33
@@ -1278,6 +1278,12 @@
 #define CORE_ADC18_PIN		37
 #define CORE_ADC19_PIN		38
 #define CORE_ADC20_PIN		39
+#define CORE_ADC21_PIN		66
+#define CORE_ADC22_PIN		67
+#define CORE_ADC23_PIN		49
+#define CORE_ADC24_PIN		50
+#define CORE_ADC25_PIN		68
+#define CORE_ADC26_PIN		69
 
 #define CORE_RXD0_PIN		0
 #define CORE_TXD0_PIN		1
