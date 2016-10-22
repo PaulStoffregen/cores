@@ -140,16 +140,50 @@ const struct digital_pin_bitband_and_config_table_struct digital_pin_to_info_PGM
 
 #endif
 
+static void dummy_isr() {};
 
 typedef void (*voidFuncPtr)(void);
-volatile static voidFuncPtr intFunc[CORE_NUM_DIGITAL];
 #if defined(KINETISK)
-static void porta_interrupt(void);
-static void portb_interrupt(void);
-static void portc_interrupt(void);
-static void portd_interrupt(void);
-static void porte_interrupt(void);
+#ifdef NO_PORT_ISR_FASTRUN
+static void port_A_isr(void);
+static void port_B_isr(void);
+static void port_C_isr(void);
+static void port_D_isr(void);
+static void port_E_isr(void);
+#else
+static void port_A_isr(void) __attribute__ ((section(".fastrun"), noinline, noclone ));
+static void port_B_isr(void) __attribute__ ((section(".fastrun"), noinline, noclone ));
+static void port_C_isr(void) __attribute__ ((section(".fastrun"), noinline, noclone ));
+static void port_D_isr(void) __attribute__ ((section(".fastrun"), noinline, noclone ));
+static void port_E_isr(void) __attribute__ ((section(".fastrun"), noinline, noclone ));
+#endif
+
+voidFuncPtr isr_table_portA[CORE_MAX_PIN_PORTA+1] = { [0 ... CORE_MAX_PIN_PORTA] = dummy_isr };
+voidFuncPtr isr_table_portB[CORE_MAX_PIN_PORTB+1] = { [0 ... CORE_MAX_PIN_PORTB] = dummy_isr };
+voidFuncPtr isr_table_portC[CORE_MAX_PIN_PORTC+1] = { [0 ... CORE_MAX_PIN_PORTC] = dummy_isr };
+voidFuncPtr isr_table_portD[CORE_MAX_PIN_PORTD+1] = { [0 ... CORE_MAX_PIN_PORTD] = dummy_isr };
+voidFuncPtr isr_table_portE[CORE_MAX_PIN_PORTE+1] = { [0 ... CORE_MAX_PIN_PORTE] = dummy_isr };
+
+// The Pin Config Register is used to look up the correct interrupt table
+// for the corresponding port.
+inline voidFuncPtr* getIsrTable(volatile uint32_t *config) {
+	voidFuncPtr* isr_table = NULL;
+	if(&PORTA_PCR0 <= config && config <= &PORTA_PCR31) isr_table = isr_table_portA;
+	else if(&PORTB_PCR0 <= config && config <= &PORTB_PCR31) isr_table = isr_table_portB;
+	else if(&PORTC_PCR0 <= config && config <= &PORTC_PCR31) isr_table = isr_table_portC;
+	else if(&PORTD_PCR0 <= config && config <= &PORTD_PCR31) isr_table = isr_table_portD;
+	else if(&PORTE_PCR0 <= config && config <= &PORTE_PCR31) isr_table = isr_table_portE;
+	return isr_table;
+}
+
+inline uint32_t getPinIndex(volatile uint32_t *config) {
+	uintptr_t v = (uintptr_t) config;
+	// There are 32 pin config registers for each port, each port starting at a round address.
+	// They are spaced 4 bytes apart.
+	return (v % 128) / 4;
+}
 #elif defined(KINETISL)
+volatile static voidFuncPtr intFunc[CORE_NUM_DIGITAL] = { [0 ... CORE_NUM_DIGITAL-1] = dummy_isr };
 static void porta_interrupt(void);
 static void portcd_interrupt(void);
 #endif
@@ -177,15 +211,25 @@ void attachInterrupt(uint8_t pin, void (*function)(void), int mode)
 	config = portConfigRegister(pin);
 
 #if defined(KINETISK)
-	attachInterruptVector(IRQ_PORTA, porta_interrupt);
-	attachInterruptVector(IRQ_PORTB, portb_interrupt);
-	attachInterruptVector(IRQ_PORTC, portc_interrupt);
-	attachInterruptVector(IRQ_PORTD, portd_interrupt);
-	attachInterruptVector(IRQ_PORTE, porte_interrupt);
+	attachInterruptVector(IRQ_PORTA, port_A_isr);
+	attachInterruptVector(IRQ_PORTB, port_B_isr);
+	attachInterruptVector(IRQ_PORTC, port_C_isr);
+	attachInterruptVector(IRQ_PORTD, port_D_isr);
+	attachInterruptVector(IRQ_PORTE, port_E_isr);
+	voidFuncPtr* isr_table = getIsrTable(config);
+	if(!isr_table) return;
+	uint32_t pin_index = getPinIndex(config);
+	__disable_irq();
+	cfg = *config;
+	cfg &= ~0x000F0000;		// disable any previous interrupt
+	*config = cfg;
+	isr_table[pin_index] = function;	// set the function pointer
+	cfg |= mask;
+	*config = cfg;			// enable the new interrupt
+	__enable_irq();
 #elif defined(KINETISL)
 	attachInterruptVector(IRQ_PORTA, porta_interrupt);
 	attachInterruptVector(IRQ_PORTCD, portcd_interrupt);
-#endif
 	__disable_irq();
 	cfg = *config;
 	cfg &= ~0x000F0000;		// disable any previous interrupt
@@ -194,6 +238,7 @@ void attachInterrupt(uint8_t pin, void (*function)(void), int mode)
 	cfg |= mask;
 	*config = cfg;			// enable the new interrupt
 	__enable_irq();
+#endif
 }
 
 void detachInterrupt(uint8_t pin)
@@ -201,209 +246,87 @@ void detachInterrupt(uint8_t pin)
 	volatile uint32_t *config;
 
 	config = portConfigRegister(pin);
+#if defined(KINETISK)
+	voidFuncPtr* isr_table = getIsrTable(config);
+	if(!isr_table) return;
+	uint32_t pin_index = getPinIndex(config);
 	__disable_irq();
 	*config = ((*config & ~0x000F0000) | 0x01000000);
-	intFunc[pin] = NULL;
+	isr_table[pin_index] = dummy_isr;
 	__enable_irq();
+#elif defined(KINETISL)
+	__disable_irq();
+	*config = ((*config & ~0x000F0000) | 0x01000000);
+	intFunc[pin] = dummy_isr;
+	__enable_irq();
+#endif
 }
 
-#if defined(__MK20DX128__) || defined(__MK20DX256__)
+
+typedef void (*voidFuncPtr)(void);
+
+// Using CTZ instead of CLZ is faster, since it allows more efficient bit
+// clearing and fast indexing into the pin ISR table.
+#define PORT_ISR_FUNCTION_CLZ(port_name) \
+	static void port_ ## port_name ## _isr(void) {            \
+		uint32_t isfr = PORT ## port_name ##_ISFR;            \
+		PORT ## port_name ##_ISFR = isfr;                     \
+		voidFuncPtr* isr_table = isr_table_port ## port_name; \
+		uint32_t bit_nr;                                      \
+		while(isfr) {                                         \
+			bit_nr = __builtin_ctz(isfr);                     \
+			isr_table[bit_nr]();                              \
+			isfr = isfr & (isfr-1);                           \
+			if(!isfr) return;                                 \
+		}                                                     \
+	}
+// END PORT_ISR_FUNCTION_CLZ
+
+#if defined(KINETISK)
+PORT_ISR_FUNCTION_CLZ(A)
+PORT_ISR_FUNCTION_CLZ(B)
+PORT_ISR_FUNCTION_CLZ(C)
+PORT_ISR_FUNCTION_CLZ(D)
+PORT_ISR_FUNCTION_CLZ(E)
+#elif defined(KINETISL)
+// Kinetis L (Teensy LC) is based on Cortex M0 and doesn't have hardware
+// support for CLZ.
+
+#define DISPATCH_PIN_ISR(pin_nr) { voidFuncPtr pin_isr = intFunc[pin_nr]; \
+                                   if(isfr & CORE_PIN ## pin_nr ## _BITMASK) pin_isr(); }
 
 static void porta_interrupt(void)
 {
 	uint32_t isfr = PORTA_ISFR;
 	PORTA_ISFR = isfr;
-	if ((isfr & CORE_PIN3_BITMASK) && intFunc[3]) intFunc[3]();
-	if ((isfr & CORE_PIN4_BITMASK) && intFunc[4]) intFunc[4]();
-	if ((isfr & CORE_PIN24_BITMASK) && intFunc[24]) intFunc[24]();
-	if ((isfr & CORE_PIN33_BITMASK) && intFunc[33]) intFunc[33]();
-}
-
-static void portb_interrupt(void)
-{
-	uint32_t isfr = PORTB_ISFR;
-	PORTB_ISFR = isfr;
-	if ((isfr & CORE_PIN0_BITMASK) && intFunc[0]) intFunc[0]();
-	if ((isfr & CORE_PIN1_BITMASK) && intFunc[1]) intFunc[1]();
-	if ((isfr & CORE_PIN16_BITMASK) && intFunc[16]) intFunc[16]();
-	if ((isfr & CORE_PIN17_BITMASK) && intFunc[17]) intFunc[17]();
-	if ((isfr & CORE_PIN18_BITMASK) && intFunc[18]) intFunc[18]();
-	if ((isfr & CORE_PIN19_BITMASK) && intFunc[19]) intFunc[19]();
-	if ((isfr & CORE_PIN25_BITMASK) && intFunc[25]) intFunc[25]();
-	if ((isfr & CORE_PIN32_BITMASK) && intFunc[32]) intFunc[32]();
-}
-
-static void portc_interrupt(void)
-{
-	// TODO: these are inefficent.  Use CLZ somehow....
-	uint32_t isfr = PORTC_ISFR;
-	PORTC_ISFR = isfr;
-	if ((isfr & CORE_PIN9_BITMASK) && intFunc[9]) intFunc[9]();
-	if ((isfr & CORE_PIN10_BITMASK) && intFunc[10]) intFunc[10]();
-	if ((isfr & CORE_PIN11_BITMASK) && intFunc[11]) intFunc[11]();
-	if ((isfr & CORE_PIN12_BITMASK) && intFunc[12]) intFunc[12]();
-	if ((isfr & CORE_PIN13_BITMASK) && intFunc[13]) intFunc[13]();
-	if ((isfr & CORE_PIN15_BITMASK) && intFunc[15]) intFunc[15]();
-	if ((isfr & CORE_PIN22_BITMASK) && intFunc[22]) intFunc[22]();
-	if ((isfr & CORE_PIN23_BITMASK) && intFunc[23]) intFunc[23]();
-	if ((isfr & CORE_PIN27_BITMASK) && intFunc[27]) intFunc[27]();
-	if ((isfr & CORE_PIN28_BITMASK) && intFunc[28]) intFunc[28]();
-	if ((isfr & CORE_PIN29_BITMASK) && intFunc[29]) intFunc[29]();
-	if ((isfr & CORE_PIN30_BITMASK) && intFunc[30]) intFunc[30]();
-}
-
-static void portd_interrupt(void)
-{
-	uint32_t isfr = PORTD_ISFR;
-	PORTD_ISFR = isfr;
-	if ((isfr & CORE_PIN2_BITMASK) && intFunc[2]) intFunc[2]();
-	if ((isfr & CORE_PIN5_BITMASK) && intFunc[5]) intFunc[5]();
-	if ((isfr & CORE_PIN6_BITMASK) && intFunc[6]) intFunc[6]();
-	if ((isfr & CORE_PIN7_BITMASK) && intFunc[7]) intFunc[7]();
-	if ((isfr & CORE_PIN8_BITMASK) && intFunc[8]) intFunc[8]();
-	if ((isfr & CORE_PIN14_BITMASK) && intFunc[14]) intFunc[14]();
-	if ((isfr & CORE_PIN20_BITMASK) && intFunc[20]) intFunc[20]();
-	if ((isfr & CORE_PIN21_BITMASK) && intFunc[21]) intFunc[21]();
-}
-
-static void porte_interrupt(void)
-{
-	uint32_t isfr = PORTE_ISFR;
-	PORTE_ISFR = isfr;
-	if ((isfr & CORE_PIN26_BITMASK) && intFunc[26]) intFunc[26]();
-	if ((isfr & CORE_PIN31_BITMASK) && intFunc[31]) intFunc[31]();
-}
-
-#elif defined(__MKL26Z64__)
-
-static void porta_interrupt(void)
-{
-	uint32_t isfr = PORTA_ISFR;
-	PORTA_ISFR = isfr;
-	if ((isfr & CORE_PIN3_BITMASK) && intFunc[3]) intFunc[3]();
-	if ((isfr & CORE_PIN4_BITMASK) && intFunc[4]) intFunc[4]();
+	DISPATCH_PIN_ISR(3);
+	DISPATCH_PIN_ISR(4);
 }
 
 static void portcd_interrupt(void)
 {
 	uint32_t isfr = PORTC_ISFR;
 	PORTC_ISFR = isfr;
-	if ((isfr & CORE_PIN9_BITMASK) && intFunc[9]) intFunc[9]();
-	if ((isfr & CORE_PIN10_BITMASK) && intFunc[10]) intFunc[10]();
-	if ((isfr & CORE_PIN11_BITMASK) && intFunc[11]) intFunc[11]();
-	if ((isfr & CORE_PIN12_BITMASK) && intFunc[12]) intFunc[12]();
-	if ((isfr & CORE_PIN13_BITMASK) && intFunc[13]) intFunc[13]();
-	if ((isfr & CORE_PIN15_BITMASK) && intFunc[15]) intFunc[15]();
-	if ((isfr & CORE_PIN22_BITMASK) && intFunc[22]) intFunc[22]();
-	if ((isfr & CORE_PIN23_BITMASK) && intFunc[23]) intFunc[23]();
+	DISPATCH_PIN_ISR(9);
+	DISPATCH_PIN_ISR(10);
+	DISPATCH_PIN_ISR(11);
+	DISPATCH_PIN_ISR(12);
+	DISPATCH_PIN_ISR(13);
+	DISPATCH_PIN_ISR(15);
+	DISPATCH_PIN_ISR(22);
+	DISPATCH_PIN_ISR(23);
 	isfr = PORTD_ISFR;
 	PORTD_ISFR = isfr;
-	if ((isfr & CORE_PIN2_BITMASK) && intFunc[2]) intFunc[2]();
-	if ((isfr & CORE_PIN5_BITMASK) && intFunc[5]) intFunc[5]();
-	if ((isfr & CORE_PIN6_BITMASK) && intFunc[6]) intFunc[6]();
-	if ((isfr & CORE_PIN7_BITMASK) && intFunc[7]) intFunc[7]();
-	if ((isfr & CORE_PIN8_BITMASK) && intFunc[8]) intFunc[8]();
-	if ((isfr & CORE_PIN14_BITMASK) && intFunc[14]) intFunc[14]();
-	if ((isfr & CORE_PIN20_BITMASK) && intFunc[20]) intFunc[20]();
-	if ((isfr & CORE_PIN21_BITMASK) && intFunc[21]) intFunc[21]();
+	DISPATCH_PIN_ISR(2);
+	DISPATCH_PIN_ISR(5);
+	DISPATCH_PIN_ISR(6);
+	DISPATCH_PIN_ISR(7);
+	DISPATCH_PIN_ISR(8);
+	DISPATCH_PIN_ISR(14);
+	DISPATCH_PIN_ISR(20);
+	DISPATCH_PIN_ISR(21);
 }
-
-#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
-
-static void porta_interrupt(void)
-{
-	uint32_t isfr = PORTA_ISFR;
-	PORTA_ISFR = isfr;
-	if ((isfr & CORE_PIN3_BITMASK) && intFunc[3]) intFunc[3]();
-	if ((isfr & CORE_PIN4_BITMASK) && intFunc[4]) intFunc[4]();
-	if ((isfr & CORE_PIN25_BITMASK) && intFunc[25]) intFunc[25]();
-	if ((isfr & CORE_PIN26_BITMASK) && intFunc[26]) intFunc[26]();
-	if ((isfr & CORE_PIN27_BITMASK) && intFunc[27]) intFunc[27]();
-	if ((isfr & CORE_PIN28_BITMASK) && intFunc[28]) intFunc[28]();
-	if ((isfr & CORE_PIN39_BITMASK) && intFunc[39]) intFunc[39]();
-	if ((isfr & CORE_PIN40_BITMASK) && intFunc[40]) intFunc[40]();
-	if ((isfr & CORE_PIN41_BITMASK) && intFunc[41]) intFunc[41]();
-	if ((isfr & CORE_PIN42_BITMASK) && intFunc[42]) intFunc[42]();
-}
-
-static void portb_interrupt(void)
-{
-	uint32_t isfr = PORTB_ISFR;
-	PORTB_ISFR = isfr;
-	if ((isfr & CORE_PIN0_BITMASK) && intFunc[0]) intFunc[0]();
-	if ((isfr & CORE_PIN1_BITMASK) && intFunc[1]) intFunc[1]();
-	if ((isfr & CORE_PIN16_BITMASK) && intFunc[16]) intFunc[16]();
-	if ((isfr & CORE_PIN17_BITMASK) && intFunc[17]) intFunc[17]();
-	if ((isfr & CORE_PIN18_BITMASK) && intFunc[18]) intFunc[18]();
-	if ((isfr & CORE_PIN19_BITMASK) && intFunc[19]) intFunc[19]();
-	if ((isfr & CORE_PIN29_BITMASK) && intFunc[29]) intFunc[29]();
-	if ((isfr & CORE_PIN30_BITMASK) && intFunc[30]) intFunc[30]();
-	if ((isfr & CORE_PIN31_BITMASK) && intFunc[31]) intFunc[31]();
-	if ((isfr & CORE_PIN32_BITMASK) && intFunc[32]) intFunc[32]();
-	if ((isfr & CORE_PIN43_BITMASK) && intFunc[43]) intFunc[43]();
-	if ((isfr & CORE_PIN44_BITMASK) && intFunc[44]) intFunc[44]();
-	if ((isfr & CORE_PIN45_BITMASK) && intFunc[45]) intFunc[45]();
-	if ((isfr & CORE_PIN46_BITMASK) && intFunc[46]) intFunc[46]();
-	if ((isfr & CORE_PIN49_BITMASK) && intFunc[49]) intFunc[49]();
-	if ((isfr & CORE_PIN50_BITMASK) && intFunc[50]) intFunc[50]();
-}
-
-static void portc_interrupt(void)
-{
-	// TODO: these are inefficent.  Use CLZ somehow....
-	uint32_t isfr = PORTC_ISFR;
-	PORTC_ISFR = isfr;
-	if ((isfr & CORE_PIN9_BITMASK) && intFunc[9]) intFunc[9]();
-	if ((isfr & CORE_PIN10_BITMASK) && intFunc[10]) intFunc[10]();
-	if ((isfr & CORE_PIN11_BITMASK) && intFunc[11]) intFunc[11]();
-	if ((isfr & CORE_PIN12_BITMASK) && intFunc[12]) intFunc[12]();
-	if ((isfr & CORE_PIN13_BITMASK) && intFunc[13]) intFunc[13]();
-	if ((isfr & CORE_PIN15_BITMASK) && intFunc[15]) intFunc[15]();
-	if ((isfr & CORE_PIN22_BITMASK) && intFunc[22]) intFunc[22]();
-	if ((isfr & CORE_PIN23_BITMASK) && intFunc[23]) intFunc[23]();
-	if ((isfr & CORE_PIN35_BITMASK) && intFunc[35]) intFunc[35]();
-	if ((isfr & CORE_PIN36_BITMASK) && intFunc[36]) intFunc[36]();
-	if ((isfr & CORE_PIN37_BITMASK) && intFunc[37]) intFunc[37]();
-	if ((isfr & CORE_PIN38_BITMASK) && intFunc[38]) intFunc[38]();
-}
-
-static void portd_interrupt(void)
-{
-	uint32_t isfr = PORTD_ISFR;
-	PORTD_ISFR = isfr;
-	if ((isfr & CORE_PIN2_BITMASK) && intFunc[2]) intFunc[2]();
-	if ((isfr & CORE_PIN5_BITMASK) && intFunc[5]) intFunc[5]();
-	if ((isfr & CORE_PIN6_BITMASK) && intFunc[6]) intFunc[6]();
-	if ((isfr & CORE_PIN7_BITMASK) && intFunc[7]) intFunc[7]();
-	if ((isfr & CORE_PIN8_BITMASK) && intFunc[8]) intFunc[8]();
-	if ((isfr & CORE_PIN14_BITMASK) && intFunc[14]) intFunc[14]();
-	if ((isfr & CORE_PIN20_BITMASK) && intFunc[20]) intFunc[20]();
-	if ((isfr & CORE_PIN21_BITMASK) && intFunc[21]) intFunc[21]();
-	if ((isfr & CORE_PIN47_BITMASK) && intFunc[47]) intFunc[47]();
-	if ((isfr & CORE_PIN48_BITMASK) && intFunc[48]) intFunc[48]();
-	if ((isfr & CORE_PIN51_BITMASK) && intFunc[51]) intFunc[51]();
-	if ((isfr & CORE_PIN52_BITMASK) && intFunc[52]) intFunc[52]();
-	if ((isfr & CORE_PIN53_BITMASK) && intFunc[53]) intFunc[53]();
-	if ((isfr & CORE_PIN54_BITMASK) && intFunc[54]) intFunc[54]();
-	if ((isfr & CORE_PIN55_BITMASK) && intFunc[55]) intFunc[55]();
-}
-
-static void porte_interrupt(void)
-{
-	uint32_t isfr = PORTE_ISFR;
-	PORTE_ISFR = isfr;
-	if ((isfr & CORE_PIN24_BITMASK) && intFunc[24]) intFunc[24]();
-	if ((isfr & CORE_PIN33_BITMASK) && intFunc[33]) intFunc[33]();
-	if ((isfr & CORE_PIN34_BITMASK) && intFunc[34]) intFunc[34]();
-	if ((isfr & CORE_PIN56_BITMASK) && intFunc[56]) intFunc[56]();
-	if ((isfr & CORE_PIN57_BITMASK) && intFunc[57]) intFunc[57]();
-	if ((isfr & CORE_PIN58_BITMASK) && intFunc[58]) intFunc[58]();
-	if ((isfr & CORE_PIN59_BITMASK) && intFunc[59]) intFunc[59]();
-	if ((isfr & CORE_PIN60_BITMASK) && intFunc[60]) intFunc[60]();
-	if ((isfr & CORE_PIN61_BITMASK) && intFunc[61]) intFunc[61]();
-	if ((isfr & CORE_PIN62_BITMASK) && intFunc[62]) intFunc[62]();
-	if ((isfr & CORE_PIN63_BITMASK) && intFunc[63]) intFunc[63]();
-}
+#undef DISPATCH_PIN_ISR
 
 #endif
 
