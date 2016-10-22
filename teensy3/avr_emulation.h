@@ -1387,8 +1387,8 @@ public:
 		// More options, so 2 bits
 		pinout &= ~0x30;
 		switch (pin) {
-			case 20: break;
-			case 32: pinout |= 0x10; break; 
+			case 32: break;
+			case 20: pinout |= 0x10; break; 
 			case 60: pinout |= 0x20; break;
 		}
 	}
@@ -1410,8 +1410,8 @@ public:
 		}
 		// SCK
 		switch (pinout & 0x30) {
-			case 0x0: CORE_PIN20_CONFIG = PORT_PCR_MUX(7); break;
-			case 0x10: CORE_PIN32_CONFIG = PORT_PCR_MUX(2); break;
+			case 0x0: CORE_PIN32_CONFIG = PORT_PCR_MUX(2); break;
+			case 0x10: CORE_PIN20_CONFIG = PORT_PCR_MUX(7); break;
 			case 0x20: CORE_PIN60_CONFIG = PORT_PCR_MUX(2); break;
 		}
 	}
@@ -1429,8 +1429,8 @@ public:
 			case 0xc: CORE_PIN59_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1); break;
 		}
 		switch (pinout & 0x30) {
-			case 0x0: CORE_PIN20_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1); break;
-			case 0x10: CORE_PIN32_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1); break;
+			case 0x0: CORE_PIN32_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1); break;
+			case 0x10: CORE_PIN20_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1); break;
 			case 0x20: CORE_PIN60_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1); break;
 		}
 	}
