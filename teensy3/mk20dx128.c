@@ -125,9 +125,9 @@ void fault_isr(void)
 		// keep polling some communication while in fault
 		// mode, so we don't completely die.
 		if (SIM_SCGC4 & SIM_SCGC4_USBOTG) usb_isr();
-		if (SIM_SCGC4 & SIM_SCGC4_UART0) uart0_status_isr();
-		if (SIM_SCGC4 & SIM_SCGC4_UART1) uart1_status_isr();
-		if (SIM_SCGC4 & SIM_SCGC4_UART2) uart2_status_isr();
+		//if (SIM_SCGC4 & SIM_SCGC4_UART0) uart0_status_isr();
+		//if (SIM_SCGC4 & SIM_SCGC4_UART1) uart1_status_isr();
+		//if (SIM_SCGC4 & SIM_SCGC4_UART2) uart2_status_isr();
 	}
 }
 
@@ -305,11 +305,14 @@ void (* const _VectorsFlash[NVIC_NUM_INTERRUPTS+16])(void) =
 	i2s0_tx_isr,					// 29 I2S0 Transmit
 	i2s0_rx_isr,					// 30 I2S0 Receive
 	uart0_lon_isr,					// 31 UART0 CEA709.1-B (LON) status
-	uart0_status_isr,				// 32 UART0 status
+	//uart0_status_isr,				// 32 UART0 status
+	unused_isr,						// 32 UART0 status (overwritten in serial1.c)
 	uart0_error_isr,				// 33 UART0 error
-	uart1_status_isr,				// 34 UART1 status
+	//uart1_status_isr,				// 34 UART1 status
+	unused_isr,						// 34 UART1 status (overwritten in serial1.c)
 	uart1_error_isr,				// 35 UART1 error
-	uart2_status_isr,				// 36 UART2 status
+	//uart1_status_isr,				// 36 UART2 status
+	unused_isr,						// 36 UART2 status (overwritten in serial1.c)
 	uart2_error_isr,				// 37 UART2 error
 	adc0_isr,					// 38 ADC0
 	cmp0_isr,					// 39 CMP0
@@ -381,11 +384,14 @@ void (* const _VectorsFlash[NVIC_NUM_INTERRUPTS+16])(void) =
 	unused_isr,					// 58 --
 	unused_isr,					// 59 --
 	uart0_lon_isr,					// 60 UART0 CEA709.1-B (LON) status
-	uart0_status_isr,				// 61 UART0 status
+	//uart0_status_isr,				// 61 UART0 status
+	unused_isr,						// 61 UART0 status (overwritten in serial1.c)
 	uart0_error_isr,				// 62 UART0 error
-	uart1_status_isr,				// 63 UART1 status
+	//uart1_status_isr,				// 63 UART1 status
+	unused_isr,						// 63 UART1 status (overwritten in serial2.c)	
 	uart1_error_isr,				// 64 UART1 error
-	uart2_status_isr,				// 65 UART2 status
+	//uart2_status_isr,				// 65 UART2 status
+	unused_isr,						// 65 UART2 status (overwritten in serial3.c)
 	uart2_error_isr,				// 66 UART2 error
 	unused_isr,					// 67 --
 	unused_isr,					// 68 --
@@ -444,9 +450,12 @@ void (* const _VectorsFlash[NVIC_NUM_INTERRUPTS+16])(void) =
 	i2c1_isr,					// 25 I2C1
 	spi0_isr,					// 26 SPI0
 	spi1_isr,					// 27 SPI1
-	uart0_status_isr,				// 28 UART0 status & error
-	uart1_status_isr,				// 29 UART1 status & error
-	uart2_status_isr,				// 30 UART2 status & error
+	//uart0_status_isr,				// 28 UART0 status & error
+	unused_isr,						// 28 UART0 status & error (overwritten in serial1.c)
+	//uart1_status_isr,				// 29 UART1 status & error 
+	unused_isr,						// 29 UART1 status & error (overwritten in serial1.c)
+	//uart2_status_isr,				// 30 UART2 status & error
+	unused_isr,						// 30 UART2 status & error (overwritten in serial3.c)
 	adc0_isr,					// 31 ADC0
 	cmp0_isr,					// 32 CMP0
 	ftm0_isr,					// 33 FTM0

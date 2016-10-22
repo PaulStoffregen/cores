@@ -5648,6 +5648,7 @@ extern "C" {
 #endif
 extern int nvic_execution_priority(void);
 
+extern void unused_isr();
 extern void nmi_isr(void);
 extern void hard_fault_isr(void);
 extern void memmanage_fault_isr(void);
