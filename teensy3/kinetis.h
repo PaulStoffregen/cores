@@ -3882,6 +3882,17 @@ typedef struct {
 #define USB_USBTRC_SYNC_DET		((uint8_t)0x02)			//
 #define USB_USBTRC_USB_RESUME_INT	((uint8_t)0x01)			//
 #define USB0_USBFRMADJUST	(*(volatile uint8_t  *)0x40072114) // Frame Adjust Register
+#define USB0_CLK_RECOVER_CTRL	(*(volatile uint8_t  *)0x40072140) // USB Clock recovery control
+#define USB_CLK_RECOVER_CTRL_CLOCK_RECOVER_EN		((uint8_t)0x80)
+#define USB_CLK_RECOVER_CTRL_RESET_RESUME_ROUGH_EN	((uint8_t)0x40)
+#define USB_CLK_RECOVER_CTRL_RESTART_IFRTRIM_EN		((uint8_t)0x20)
+#define USB0_CLK_RECOVER_IRC_EN	(*(volatile uint8_t  *)0x40072144) // IRC48M oscillator enable 
+#define USB_CLK_RECOVER_IRC_EN_IRC_EN			((uint8_t)0x02)
+#define USB_CLK_RECOVER_IRC_EN_REG_EN			((uint8_t)0x01)
+#define USB0_CLK_RECOVER_INT_EN	(*(volatile uint8_t  *)0x40072154) // Clock recovery combined interrupt enable
+#define USB_CLK_RECOVER_INT_EN_OVF_ERROR_EN		((uint8_t)0x10)
+#define USB0_CLK_RECOVER_INT_STATUS (*(volatile uint8_t  *)0x4007215C) // Clock recovery separated interrupt status
+#define USB_CLK_RECOVER_INT_STATUS_OVF_ERROR		((uint8_t)0x10)
 
 
 // USB Device Charger Detection Module (USBDCD)
