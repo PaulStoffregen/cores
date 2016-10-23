@@ -1222,3 +1222,95 @@ int nvic_execution_priority(void)
 	return priority;
 }
 
+
+#ifdef HAS_KINETIS_HSRUN
+int kinetis_hsrun_disable(void)
+{
+	if (SMC_PMSTAT == SMC_PMSTAT_HSRUN) {
+		// First, reduce the CPU clock speed, but do not change
+		// the peripheral speed (F_BUS).  Serial1 & Serial2 baud
+		// rates will be impacted, but most other peripherals
+		// will continue functioning at the same speed.
+		#if F_CPU == 240000000 && F_BUS == 60000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(1, 3, 1, 7); // ok
+		#elif F_CPU == 240000000 && F_BUS == 80000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(2, 2, 2, 8); // ok
+		#elif F_CPU == 240000000 && F_BUS == 120000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(1, 1, 1, 7); // ok
+		#elif F_CPU == 216000000 && F_BUS == 54000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(1, 3, 1, 7); // ok
+		#elif F_CPU == 216000000 && F_BUS == 72000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(2, 2, 2, 8); // ok
+		#elif F_CPU == 216000000 && F_BUS == 108000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(1, 1, 1, 7); // ok
+		#elif F_CPU == 192000000 && F_BUS == 48000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(1, 3, 1, 7); // ok
+		#elif F_CPU == 192000000 && F_BUS == 64000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(2, 2, 2, 8); // ok
+		#elif F_CPU == 192000000 && F_BUS == 96000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(1, 1, 1, 7); // ok
+		#elif F_CPU == 180000000 && F_BUS == 60000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(2, 2, 2, 8); // ok
+		#elif F_CPU == 180000000 && F_BUS == 90000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(1, 1, 1, 7); // ok
+		#elif F_CPU == 168000000 && F_BUS == 56000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(2, 2, 2, 5); // ok
+		#elif F_CPU == 144000000 && F_BUS == 48000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(2, 2, 2, 5); // ok
+		#elif F_CPU == 144000000 && F_BUS == 72000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(1, 1, 1, 5); // ok
+		#else
+			return 0;
+		#endif
+		// Then turn off HSRUN mode
+		SMC_PMCTRL = SMC_PMCTRL_RUNM(0);
+		while (SMC_PMSTAT == SMC_PMSTAT_HSRUN) ; // wait
+		return 1;
+	}
+	return 0;
+}
+
+int kinetis_hsrun_enable(void)
+{
+	if (SMC_PMSTAT == SMC_PMSTAT_RUN) {
+		// Turn HSRUN mode on
+		SMC_PMCTRL = SMC_PMCTRL_RUNM(3);
+		while (SMC_PMSTAT != SMC_PMSTAT_HSRUN) ; // wait
+		// Then configure clock for full speed
+		#if F_CPU == 240000000 && F_BUS == 60000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 3, 0, 7);
+		#elif F_CPU == 240000000 && F_BUS == 80000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 2, 0, 7);
+		#elif F_CPU == 240000000 && F_BUS == 120000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 1, 0, 7);
+		#elif F_CPU == 216000000 && F_BUS == 54000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 3, 0, 7);
+		#elif F_CPU == 216000000 && F_BUS == 72000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 2, 0, 7);
+		#elif F_CPU == 216000000 && F_BUS == 108000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 1, 0, 7);
+		#elif F_CPU == 192000000 && F_BUS == 48000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 3, 0, 6);
+		#elif F_CPU == 192000000 && F_BUS == 64000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 2, 0, 6);
+		#elif F_CPU == 192000000 && F_BUS == 96000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 1, 0, 6);
+		#elif F_CPU == 180000000 && F_BUS == 60000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 2, 0, 6);
+		#elif F_CPU == 180000000 && F_BUS == 90000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 1, 0, 6);
+		#elif F_CPU == 168000000 && F_BUS == 56000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 2, 0, 5);
+		#elif F_CPU == 144000000 && F_BUS == 48000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 2, 0, 4);
+		#elif F_CPU == 144000000 && F_BUS == 72000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 1, 0, 4);
+		#else
+			return 0;
+		#endif
+		return 1;
+	}
+	return 0;
+}
+#endif // HAS_KINETIS_HSRUN
+

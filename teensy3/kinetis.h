@@ -755,6 +755,7 @@ enum IRQ_NUMBER_t {
 #define HAS_KINETIS_TSI_LITE
 #define HAS_KINETIS_FLASH_FTFE
 #define HAS_KINETIS_SDHC
+#define HAS_KINETIS_HSRUN
 
 
 
@@ -1230,6 +1231,9 @@ enum IRQ_NUMBER_t {
 #define SIM_CLKDIV1_OUTDIV2(n)		((uint32_t)(((n) & 0x0F) << 24)) // divide value for the peripheral clock
 #define SIM_CLKDIV1_OUTDIV3(n)		((uint32_t)(((n) & 0x0F) << 20)) // divide value for the flexbus clock
 #define SIM_CLKDIV1_OUTDIV4(n)		((uint32_t)(((n) & 0x0F) << 16)) // divide value for the flash clock
+#define SIM_CLKDIV1_OUTDIVS(n1, n2, n3, n4) \
+					(SIM_CLKDIV1_OUTDIV1(n1) | SIM_CLKDIV1_OUTDIV2(n2) | \
+					SIM_CLKDIV1_OUTDIV3(n3) | SIM_CLKDIV1_OUTDIV4(n4))
 #define SIM_CLKDIV2		(*(volatile uint32_t *)0x40048048) // System Clock Divider Register 2
 #define SIM_CLKDIV2_USBDIV(n)		((uint32_t)(((n) & 0x07) << 1))
 #define SIM_CLKDIV2_USBFRAC		((uint32_t)0x01)
@@ -5647,6 +5651,14 @@ typedef struct __attribute__((packed)) {
 extern "C" {
 #endif
 extern int nvic_execution_priority(void);
+
+#ifdef HAS_KINETIS_HSRUN
+extern int kinetis_hsrun_disable(void);
+extern int kinetis_hsrun_enable(void);
+#else
+#define kinetis_hsrun_disable() (0)
+#define kinetis_hsrun_enable() (0)
+#endif
 
 extern void nmi_isr(void);
 extern void hard_fault_isr(void);
