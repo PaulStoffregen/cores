@@ -1229,19 +1229,13 @@ void usb_init_serialnumber(void)
 	while (!(FTFL_FSTAT & FTFL_FSTAT_CCIF)) ; // wait
 	num = *(uint32_t *)&FTFL_FCCOB7;
 #elif defined(HAS_KINETIS_FLASH_FTFE)
-#if F_CPU > 120000000	// Disable HSRUN mode across ser# read
-	SMC_PMCTRL = SMC_PMCTRL_RUNM(0); // exit HSRUN mode
-	while (SMC_PMSTAT == SMC_PMSTAT_HSRUN) ; // wait for !(HSRUN)
-#endif
+	kinetis_hsrun_disable();
 	FTFL_FSTAT = FTFL_FSTAT_RDCOLERR | FTFL_FSTAT_ACCERR | FTFL_FSTAT_FPVIOL;
 	*(uint32_t *)&FTFL_FCCOB3 = 0x41070000;
 	FTFL_FSTAT = FTFL_FSTAT_CCIF;
 	while (!(FTFL_FSTAT & FTFL_FSTAT_CCIF)) ; // wait
 	num = *(uint32_t *)&FTFL_FCCOBB;
-#if F_CPU > 120000000
-	SMC_PMCTRL = SMC_PMCTRL_RUNM(3); // enter HSRUN mode
-	while (SMC_PMSTAT != SMC_PMSTAT_HSRUN) ; // wait for HSRUN
-#endif
+	kinetis_hsrun_enable();
 #endif
 	__enable_irq();
 	// add extra zero to work around OS-X CDC-ACM driver bug
