@@ -5663,7 +5663,7 @@ extern "C" {
 #endif
 extern int nvic_execution_priority(void);
 
-#ifdef HAS_KINETIS_HSRUN
+#if defined(HAS_KINETIS_HSRUN) && F_CPU > 120000000
 extern int kinetis_hsrun_disable(void);
 extern int kinetis_hsrun_enable(void);
 #else

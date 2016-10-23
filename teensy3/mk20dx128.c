@@ -1223,7 +1223,7 @@ int nvic_execution_priority(void)
 }
 
 
-#ifdef HAS_KINETIS_HSRUN
+#if defined(HAS_KINETIS_HSRUN) && F_CPU > 120000000
 int kinetis_hsrun_disable(void)
 {
 	if (SMC_PMSTAT == SMC_PMSTAT_HSRUN) {
@@ -1312,5 +1312,5 @@ int kinetis_hsrun_enable(void)
 	}
 	return 0;
 }
-#endif // HAS_KINETIS_HSRUN
+#endif // HAS_KINETIS_HSRUN && F_CPU > 120000000
 
