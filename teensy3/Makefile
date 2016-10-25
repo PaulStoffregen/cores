@@ -40,8 +40,8 @@ OPTIONS += -D__$(MCU)__ -DARDUINO=10600 -DTEENSYDUINO=121
 
 ifdef ARDUINOPATH
 
-# path location for Teensy Loader, teensy_post_compile and teensy_reboot
-TOOLSPATH = $(abspath $(ARDUINOPATH)/hardware/tools)   # on Linux
+# path location for Teensy Loader, teensy_post_compile and teensy_reboot (on Linux)
+TOOLSPATH = $(abspath $(ARDUINOPATH)/hardware/tools)
 
 # path location for Arduino libraries (currently not used)
 LIBRARYPATH = $(abspath $(ARDUINOPATH)/libraries)
