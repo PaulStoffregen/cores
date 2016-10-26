@@ -12,7 +12,7 @@ void srandom(uint32_t newseed)
 	seed = newseed;
 }
 
-uint32_t random(void)
+int32_t random(void)
 {
 	int32_t hi, lo, x;
 
