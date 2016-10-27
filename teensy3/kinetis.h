@@ -5667,8 +5667,8 @@ extern int nvic_execution_priority(void);
 extern int kinetis_hsrun_disable(void);
 extern int kinetis_hsrun_enable(void);
 #else
-#define kinetis_hsrun_disable() (0)
-#define kinetis_hsrun_enable() (0)
+__attribute__((always_inline)) static inline int kinetis_hsrun_disable(void) { return 0; }
+__attribute__((always_inline)) static inline int kinetis_hsrun_enable(void)  { return 0; }
 #endif
 
 extern void nmi_isr(void);
