@@ -66,6 +66,8 @@ char * ltoa(long val, char *buf, int radix)
 	}
 }
 
+char * fcvtf(float, int, int *, int *);
+
 char * dtostrf(float val, int width, unsigned int precision, char *buf)
 {
 	int decpt, sign, reqd, pad;
