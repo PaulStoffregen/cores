@@ -46,8 +46,12 @@
 // Tunable parameters (relatively safe to edit these numbers)
 ////////////////////////////////////////////////////////////////
 
-#define TX_BUFFER_SIZE     40 // number of outgoing bytes to buffer
-#define RX_BUFFER_SIZE     64 // number of incoming bytes to buffer
+#ifndef SERIAL6_TX_BUFFER_SIZE
+#define SERIAL6_TX_BUFFER_SIZE     40 // number of outgoing bytes to buffer
+#endif
+#ifndef SERIAL6_RX_BUFFER_SIZE
+#define SERIAL6_RX_BUFFER_SIZE     64 // number of incoming bytes to buffer
+#endif
 #define RTS_HIGH_WATERMARK 40 // RTS requests sender to pause
 #define RTS_LOW_WATERMARK  26 // RTS allows sender to resume
 #define IRQ_PRIORITY  64  // 0 = highest priority, 255 = lowest
@@ -65,8 +69,8 @@ static uint8_t use9Bits = 0;
 #define use9Bits 0
 #endif
 
-static volatile BUFTYPE tx_buffer[TX_BUFFER_SIZE];
-static volatile BUFTYPE rx_buffer[RX_BUFFER_SIZE];
+static volatile BUFTYPE tx_buffer[SERIAL6_TX_BUFFER_SIZE];
+static volatile BUFTYPE rx_buffer[SERIAL6_RX_BUFFER_SIZE];
 static volatile uint8_t transmitting = 0;
 static volatile uint8_t *transmit_pin=NULL;
 #define transmit_assert()   *transmit_pin = 1
@@ -74,14 +78,14 @@ static volatile uint8_t *transmit_pin=NULL;
 static volatile uint8_t *rts_pin=NULL;
 #define rts_assert()        *rts_pin = 0
 #define rts_deassert()      *rts_pin = 1
-#if TX_BUFFER_SIZE > 255
+#if SERIAL6_TX_BUFFER_SIZE > 255
 static volatile uint16_t tx_buffer_head = 0;
 static volatile uint16_t tx_buffer_tail = 0;
 #else
 static volatile uint8_t tx_buffer_head = 0;
 static volatile uint8_t tx_buffer_tail = 0;
 #endif
-#if RX_BUFFER_SIZE > 255
+#if SERIAL6_RX_BUFFER_SIZE > 255
 static volatile uint16_t rx_buffer_head = 0;
 static volatile uint16_t rx_buffer_tail = 0;
 #else
@@ -304,13 +308,13 @@ void serial6_putchar(uint32_t c)
 	if (!(SIM_SCGC2 & SIM_SCGC2_LPUART0)) return;
 	if (transmit_pin) transmit_assert();
 	head = tx_buffer_head;
-	if (++head >= TX_BUFFER_SIZE) head = 0;
+	if (++head >= SERIAL6_TX_BUFFER_SIZE) head = 0;
 	while (tx_buffer_tail == head) {
 		int priority = nvic_execution_priority();
 		if (priority <= IRQ_PRIORITY) {
 			if ((LPUART0_STAT & LPUART_STAT_TDRE)) {
 				uint32_t tail = tx_buffer_tail;
-				if (++tail >= TX_BUFFER_SIZE) tail = 0;
+				if (++tail >= SERIAL6_TX_BUFFER_SIZE) tail = 0;
 				n = tx_buffer[tail];
 				//if (use9Bits) UART5_C3 = (UART5_C3 & ~0x40) | ((n & 0x100) >> 2);
 				LPUART0_DATA = n;
@@ -346,7 +350,7 @@ int serial6_write_buffer_free(void)
 
 	head = tx_buffer_head;
 	tail = tx_buffer_tail;
-	if (head >= tail) return TX_BUFFER_SIZE - 1 - head + tail;
+	if (head >= tail) return SERIAL6_TX_BUFFER_SIZE - 1 - head + tail;
 	return tail - head - 1;
 }
 
@@ -357,7 +361,7 @@ int serial6_available(void)
 	head = rx_buffer_head;
 	tail = rx_buffer_tail;
 	if (head >= tail) return head - tail;
-	return RX_BUFFER_SIZE + head - tail;
+	return SERIAL6_RX_BUFFER_SIZE + head - tail;
 }
 
 int serial6_getchar(void)
@@ -368,13 +372,13 @@ int serial6_getchar(void)
 	head = rx_buffer_head;
 	tail = rx_buffer_tail;
 	if (head == tail) return -1;
-	if (++tail >= RX_BUFFER_SIZE) tail = 0;
+	if (++tail >= SERIAL6_RX_BUFFER_SIZE) tail = 0;
 	c = rx_buffer[tail];
 	rx_buffer_tail = tail;
 	if (rts_pin) {
 		int avail;
 		if (head >= tail) avail = head - tail;
-		else avail = RX_BUFFER_SIZE + head - tail;
+		else avail = SERIAL6_RX_BUFFER_SIZE + head - tail;
 		if (avail <= RTS_LOW_WATERMARK) rts_assert();
 	}
 	return c;
@@ -387,7 +391,7 @@ int serial6_peek(void)
 	head = rx_buffer_head;
 	tail = rx_buffer_tail;
 	if (head == tail) return -1;
-	if (++tail >= RX_BUFFER_SIZE) tail = 0;
+	if (++tail >= SERIAL6_RX_BUFFER_SIZE) tail = 0;
 	return rx_buffer[tail];
 }
 
@@ -418,7 +422,7 @@ void lpuart0_status_isr(void)
 //		}
 		n = LPUART0_DATA & 0x3ff;	// use only the 10 data bits
 		head = rx_buffer_head + 1;
-		if (head >= RX_BUFFER_SIZE) head = 0;
+		if (head >= SERIAL6_RX_BUFFER_SIZE) head = 0;
 		if (head != rx_buffer_tail) {
 			rx_buffer[head] = n;
 			rx_buffer_head = head;
@@ -427,7 +431,7 @@ void lpuart0_status_isr(void)
 			int avail;
 			tail = tx_buffer_tail;
 			if (head >= tail) avail = head - tail;
-			else avail = RX_BUFFER_SIZE + head - tail;
+			else avail = SERIAL6_RX_BUFFER_SIZE + head - tail;
 			if (avail >= RTS_HIGH_WATERMARK) rts_deassert();
 		}
 	}
@@ -441,7 +445,7 @@ void lpuart0_status_isr(void)
 			//LPUART0_CTRL &= ~LPUART_CTRL_TIE; 
   			//LPUART0_CTRL |= LPUART_CTRL_TCIE; // Actually wondering if we can just leave this one on...
 		} else {
-			if (++tail >= TX_BUFFER_SIZE) tail = 0;
+			if (++tail >= SERIAL6_TX_BUFFER_SIZE) tail = 0;
 			n = tx_buffer[tail];
 			//if (use9Bits) UART5_C3 = (UART5_C3 & ~0x40) | ((n & 0x100) >> 2);
 			LPUART0_DATA = n;
