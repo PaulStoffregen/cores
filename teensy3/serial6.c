@@ -30,6 +30,7 @@
 
 #include "kinetis.h"
 #include "core_pins.h"
+#ifndef SERIAL6_DISABLE
 #include "HardwareSerial.h"
 
 #ifdef HAS_KINETISK_UART5
@@ -370,3 +371,4 @@ void uart5_status_isr(void)
 }
 
 #endif // HAS_KINETISK_UART5
+#endif

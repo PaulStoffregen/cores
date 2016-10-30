@@ -30,6 +30,7 @@
 
 #include "kinetis.h"
 #include "core_pins.h"
+#ifndef SERIAL1_DISABLE
 #include "HardwareSerial.h"
 
 ////////////////////////////////////////////////////////////////
@@ -624,4 +625,4 @@ void serial_phex32(uint32_t n)
 	serial_phex(n >> 8);
 	serial_phex(n);
 }
-
+#endif

@@ -30,6 +30,7 @@
 
 #include "kinetis.h"
 #include "core_pins.h"
+#ifndef SERIAL3_DISABLE
 #include "HardwareSerial.h"
 
 ////////////////////////////////////////////////////////////////
@@ -438,5 +439,4 @@ void uart2_status_isr(void)
 		UART2_C2 = C2_TX_INACTIVE;
 	}
 }
-
-
+#endif

@@ -41,16 +41,22 @@ void yield(void)
 	if (running) return; // TODO: does this need to be atomic?
 	running = 1;
 	if (Serial.available()) serialEvent();
+#ifndef SERIAL1_DISABLE
 	if (Serial1.available()) serialEvent1();
+#endif
+#ifndef SERIAL2_DISABLE
 	if (Serial2.available()) serialEvent2();
+#endif
+#ifndef SERIAL3_DISABLE
 	if (Serial3.available()) serialEvent3();
-#ifdef HAS_KINETISK_UART3
+#endif	
+#if defined(HAS_KINETISK_UART3) && !defined(SERIAL4_DISABLE)
 	if (Serial4.available()) serialEvent4();
 #endif
-#ifdef HAS_KINETISK_UART4
+#if defined(HAS_KINETISK_UART4) && !defined(SERIAL5_DISABLE)
 	if (Serial5.available()) serialEvent5();
 #endif
-#if defined(HAS_KINETISK_UART5) || defined (HAS_KINETISK_LPUART0)
+#if (defined(HAS_KINETISK_UART5) || defined (HAS_KINETISK_LPUART0)) && !defined(SERIAL6_DISABLE)
 	if (Serial6.available()) serialEvent6();
 #endif
 	running = 0;
