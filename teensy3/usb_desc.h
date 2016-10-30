@@ -140,7 +140,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #elif defined(USB_KEYBOARDONLY)
   #define VENDOR_ID		0x16C0
-  #define PRODUCT_ID		0x0482 // TODO: unique
+  #define PRODUCT_ID		0x04D0
   #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
   #define MANUFACTURER_NAME_LEN	11
   #define PRODUCT_NAME		{'K','e','y','b','o','a','r','d'}
@@ -261,7 +261,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #elif defined(USB_TOUCHSCREEN)
   #define VENDOR_ID		0x16C0
-  #define PRODUCT_ID		0x048B
+  #define PRODUCT_ID		0x04D3
   #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
   #define MANUFACTURER_NAME_LEN	11
   #define PRODUCT_NAME		{'K','e','y','b','o','a','r','d','/','T','o','u','c','h','s','c','r','e','e','n'}
@@ -297,7 +297,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #elif defined(USB_HID_TOUCHSCREEN)
   #define VENDOR_ID		0x16C0
-  #define PRODUCT_ID		0x048C
+  #define PRODUCT_ID		0x04D4
   #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
   #define MANUFACTURER_NAME_LEN	11
   #define PRODUCT_NAME		{'K','e','y','b','o','a','r','d','/','M','o','u','s','e','/','T','o','u','c','h','s','c','r','e','e','n'}
@@ -366,7 +366,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #elif defined(USB_MIDI_SERIAL)
   #define VENDOR_ID		0x16C0
-  #define PRODUCT_ID		0x0485 // TODO: unique
+  #define PRODUCT_ID		0x0489
   #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
   #define MANUFACTURER_NAME_LEN	11
   #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','M','I','D','I'}
@@ -459,7 +459,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #elif defined(USB_FLIGHTSIM_JOYSTICK)
   #define VENDOR_ID		0x16C0
-  #define PRODUCT_ID		0x048D
+  #define PRODUCT_ID		0x04D9
   #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
   #define MANUFACTURER_NAME_LEN	11
   #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','F','l','i','g','h','t',' ','S','i','m',' ','C','o','n','t','r','o','l','s'}
@@ -495,7 +495,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #elif defined(USB_MTPDISK)
   #define VENDOR_ID		0x16C0
-  #define PRODUCT_ID		0x0489
+  #define PRODUCT_ID		0x04D1
   #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
   #define MANUFACTURER_NAME_LEN	11
   #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','M','T','P',' ','D','i','s','k'}
@@ -526,7 +526,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #elif defined(USB_AUDIO)
   #define VENDOR_ID		0x16C0
-  #define PRODUCT_ID		0x048A
+  #define PRODUCT_ID		0x04D2
   #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
   #define MANUFACTURER_NAME_LEN	11
   #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','A','u','d','i','o'}
@@ -556,7 +556,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #elif defined(USB_MIDI_AUDIO_SERIAL)
   #define VENDOR_ID		0x16C0
-  #define PRODUCT_ID		0x0485 // TODO: unique
+  #define PRODUCT_ID		0x048A
   #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
   #define MANUFACTURER_NAME_LEN	11
   #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','M','I','D','I','/','A','u','d','i','o'}
@@ -609,7 +609,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         15
   #define NUM_USB_BUFFERS	31
-  #define NUM_INTERFACE		12
+  #define NUM_INTERFACE		13
   #define CDC_IAD_DESCRIPTOR	1
   #define CDC_STATUS_INTERFACE	0
   #define CDC_DATA_INTERFACE	1	// Serial
@@ -650,6 +650,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define JOYSTICK_ENDPOINT     10
   #define JOYSTICK_SIZE         16
   #define JOYSTICK_INTERVAL     1
+/*
   #define MTP_INTERFACE		8	// MTP Disk
   #define MTP_TX_ENDPOINT	11
   #define MTP_TX_SIZE		64
@@ -658,17 +659,18 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define MTP_EVENT_ENDPOINT	11
   #define MTP_EVENT_SIZE	16
   #define MTP_EVENT_INTERVAL	10
-  #define KEYMEDIA_INTERFACE    9	// Keyboard Media Keys
+*/
+  #define KEYMEDIA_INTERFACE    8	// Keyboard Media Keys
   #define KEYMEDIA_ENDPOINT     12
   #define KEYMEDIA_SIZE         8
   #define KEYMEDIA_INTERVAL     4
-  #define AUDIO_INTERFACE	10	// Audio (uses 3 consecutive interfaces)
+  #define AUDIO_INTERFACE	9	// Audio (uses 3 consecutive interfaces)
   #define AUDIO_TX_ENDPOINT     13
   #define AUDIO_TX_SIZE         180
   #define AUDIO_RX_ENDPOINT     13
   #define AUDIO_RX_SIZE         180
   #define AUDIO_SYNC_ENDPOINT	14
-  #define MULTITOUCH_INTERFACE  11	// Touchscreen
+  #define MULTITOUCH_INTERFACE  12	// Touchscreen
   #define MULTITOUCH_ENDPOINT   15
   #define MULTITOUCH_SIZE       9
   #define MULTITOUCH_FINGERS    10
