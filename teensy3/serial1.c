@@ -35,9 +35,12 @@
 ////////////////////////////////////////////////////////////////
 // Tunable parameters (relatively safe to edit these numbers)
 ////////////////////////////////////////////////////////////////
-
-#define TX_BUFFER_SIZE     64 // number of outgoing bytes to buffer
-#define RX_BUFFER_SIZE     64 // number of incoming bytes to buffer
+#ifndef TX1_BUFFER_SIZE
+#define TX1_BUFFER_SIZE     64 // number of outgoing bytes to buffer
+#endif
+#ifndef RX1_BUFFER_SIZE
+#define RX1_BUFFER_SIZE     64 // number of incoming bytes to buffer
+#endif
 #define RTS_HIGH_WATERMARK 40 // RTS requests sender to pause
 #define RTS_LOW_WATERMARK  26 // RTS allows sender to resume
 #define IRQ_PRIORITY  64  // 0 = highest priority, 255 = lowest
@@ -55,8 +58,8 @@ static uint8_t use9Bits = 0;
 #define use9Bits 0
 #endif
 
-static volatile BUFTYPE tx_buffer[TX_BUFFER_SIZE];
-static volatile BUFTYPE rx_buffer[RX_BUFFER_SIZE];
+static volatile BUFTYPE tx_buffer[TX1_BUFFER_SIZE];
+static volatile BUFTYPE rx_buffer[RX1_BUFFER_SIZE];
 static volatile uint8_t transmitting = 0;
 #if defined(KINETISK)
   static volatile uint8_t *transmit_pin=NULL;
@@ -75,14 +78,14 @@ static volatile uint8_t transmitting = 0;
   #define rts_assert()        *(rts_pin+8) = rts_mask;
   #define rts_deassert()      *(rts_pin+4) = rts_mask;
 #endif
-#if TX_BUFFER_SIZE > 255
+#if TX1_BUFFER_SIZE > 255
 static volatile uint16_t tx_buffer_head = 0;
 static volatile uint16_t tx_buffer_tail = 0;
 #else
 static volatile uint8_t tx_buffer_head = 0;
 static volatile uint8_t tx_buffer_tail = 0;
 #endif
-#if RX_BUFFER_SIZE > 255
+#if RX1_BUFFER_SIZE > 255
 static volatile uint16_t rx_buffer_head = 0;
 static volatile uint16_t rx_buffer_tail = 0;
 #else
@@ -334,13 +337,13 @@ void serial_putchar(uint32_t c)
 	if (!(SIM_SCGC4 & SIM_SCGC4_UART0)) return;
 	if (transmit_pin) transmit_assert();
 	head = tx_buffer_head;
-	if (++head >= TX_BUFFER_SIZE) head = 0;
+	if (++head >= TX1_BUFFER_SIZE) head = 0;
 	while (tx_buffer_tail == head) {
 		int priority = nvic_execution_priority();
 		if (priority <= IRQ_PRIORITY) {
 			if ((UART0_S1 & UART_S1_TDRE)) {
 				uint32_t tail = tx_buffer_tail;
-				if (++tail >= TX_BUFFER_SIZE) tail = 0;
+				if (++tail >= TX1_BUFFER_SIZE) tail = 0;
 				n = tx_buffer[tail];
 				if (use9Bits) UART0_C3 = (UART0_C3 & ~0x40) | ((n & 0x100) >> 2);
 				UART0_D = n;
@@ -367,7 +370,7 @@ void serial_write(const void *buf, unsigned int count)
 	if (transmit_pin) transmit_assert();
 	while (p < end) {
 		head = tx_buffer_head;
-		if (++head >= TX_BUFFER_SIZE) head = 0;
+		if (++head >= TX1_BUFFER_SIZE) head = 0;
 		if (tx_buffer_tail == head) {
 			UART0_C2 = C2_TX_ACTIVE;
 			do {
@@ -375,7 +378,7 @@ void serial_write(const void *buf, unsigned int count)
 				if (priority <= IRQ_PRIORITY) {
 					if ((UART0_S1 & UART_S1_TDRE)) {
 						uint32_t tail = tx_buffer_tail;
-						if (++tail >= TX_BUFFER_SIZE) tail = 0;
+						if (++tail >= TX1_BUFFER_SIZE) tail = 0;
 						n = tx_buffer[tail];
 						if (use9Bits) UART0_C3 = (UART0_C3 & ~0x40) | ((n & 0x100) >> 2);
 						UART0_D = n;
@@ -411,7 +414,7 @@ int serial_write_buffer_free(void)
 
 	head = tx_buffer_head;
 	tail = tx_buffer_tail;
-	if (head >= tail) return TX_BUFFER_SIZE - 1 - head + tail;
+	if (head >= tail) return TX1_BUFFER_SIZE - 1 - head + tail;
 	return tail - head - 1;
 }
 
@@ -422,7 +425,7 @@ int serial_available(void)
 	head = rx_buffer_head;
 	tail = rx_buffer_tail;
 	if (head >= tail) return head - tail;
-	return RX_BUFFER_SIZE + head - tail;
+	return RX1_BUFFER_SIZE + head - tail;
 }
 
 int serial_getchar(void)
@@ -433,13 +436,13 @@ int serial_getchar(void)
 	head = rx_buffer_head;
 	tail = rx_buffer_tail;
 	if (head == tail) return -1;
-	if (++tail >= RX_BUFFER_SIZE) tail = 0;
+	if (++tail >= RX1_BUFFER_SIZE) tail = 0;
 	c = rx_buffer[tail];
 	rx_buffer_tail = tail;
 	if (rts_pin) {
 		int avail;
 		if (head >= tail) avail = head - tail;
-		else avail = RX_BUFFER_SIZE + head - tail;
+		else avail = RX1_BUFFER_SIZE + head - tail;
 		if (avail <= RTS_LOW_WATERMARK) rts_assert();
 	}
 	return c;
@@ -452,7 +455,7 @@ int serial_peek(void)
 	head = rx_buffer_head;
 	tail = rx_buffer_tail;
 	if (head == tail) return -1;
-	if (++tail >= RX_BUFFER_SIZE) tail = 0;
+	if (++tail >= RX1_BUFFER_SIZE) tail = 0;
 	return rx_buffer[tail];
 }
 
@@ -517,7 +520,7 @@ void uart0_status_isr(void)
 					n = UART0_D;
 				}
 				newhead = head + 1;
-				if (newhead >= RX_BUFFER_SIZE) newhead = 0;
+				if (newhead >= RX1_BUFFER_SIZE) newhead = 0;
 				if (newhead != tail) {
 					head = newhead;
 					rx_buffer[head] = n;
@@ -527,7 +530,7 @@ void uart0_status_isr(void)
 			if (rts_pin) {
 				int avail;
 				if (head >= tail) avail = head - tail;
-				else avail = RX_BUFFER_SIZE + head - tail;
+				else avail = RX1_BUFFER_SIZE + head - tail;
 				if (avail >= RTS_HIGH_WATERMARK) rts_deassert();
 			}
 		}
@@ -538,7 +541,7 @@ void uart0_status_isr(void)
 		tail = tx_buffer_tail;
 		do {
 			if (tail == head) break;
-			if (++tail >= TX_BUFFER_SIZE) tail = 0;
+			if (++tail >= TX1_BUFFER_SIZE) tail = 0;
 			avail = UART0_S1;
 			n = tx_buffer[tail];
 			if (use9Bits) UART0_C3 = (UART0_C3 & ~0x40) | ((n & 0x100) >> 2);
@@ -552,7 +555,7 @@ void uart0_status_isr(void)
 		n = UART0_D;
 		if (use9Bits && (UART0_C3 & 0x80)) n |= 0x100;
 		head = rx_buffer_head + 1;
-		if (head >= RX_BUFFER_SIZE) head = 0;
+		if (head >= RX1_BUFFER_SIZE) head = 0;
 		if (head != rx_buffer_tail) {
 			rx_buffer[head] = n;
 			rx_buffer_head = head;
@@ -565,7 +568,7 @@ void uart0_status_isr(void)
 		if (head == tail) {
 			UART0_C2 = C2_TX_COMPLETING;
 		} else {
-			if (++tail >= TX_BUFFER_SIZE) tail = 0;
+			if (++tail >= TX1_BUFFER_SIZE) tail = 0;
 			n = tx_buffer[tail];
 			if (use9Bits) UART0_C3 = (UART0_C3 & ~0x40) | ((n & 0x100) >> 2);
 			UART0_D = n;
