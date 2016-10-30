@@ -38,8 +38,12 @@
 // Tunable parameters (relatively safe to edit these numbers)
 ////////////////////////////////////////////////////////////////
 
-#define TX_BUFFER_SIZE     40 // number of outgoing bytes to buffer
-#define RX_BUFFER_SIZE     64 // number of incoming bytes to buffer
+#ifndef SERIAL5_TX_BUFFER_SIZE
+#define SERIAL5_TX_BUFFER_SIZE     40 // number of outgoing bytes to buffer
+#endif
+#ifndef SERIAL5_RX_BUFFER_SIZE
+#define SERIAL5_RX_BUFFER_SIZE     64 // number of incoming bytes to buffer
+#endif
 #define RTS_HIGH_WATERMARK 40 // RTS requests sender to pause
 #define RTS_LOW_WATERMARK  26 // RTS allows sender to resume
 #define IRQ_PRIORITY  64  // 0 = highest priority, 255 = lowest
@@ -57,8 +61,8 @@ static uint8_t use9Bits = 0;
 #define use9Bits 0
 #endif
 
-static volatile BUFTYPE tx_buffer[TX_BUFFER_SIZE];
-static volatile BUFTYPE rx_buffer[RX_BUFFER_SIZE];
+static volatile BUFTYPE tx_buffer[SERIAL5_TX_BUFFER_SIZE];
+static volatile BUFTYPE rx_buffer[SERIAL5_RX_BUFFER_SIZE];
 static volatile uint8_t transmitting = 0;
 static volatile uint8_t *transmit_pin=NULL;
 #define transmit_assert()   *transmit_pin = 1
@@ -66,14 +70,14 @@ static volatile uint8_t *transmit_pin=NULL;
 static volatile uint8_t *rts_pin=NULL;
 #define rts_assert()        *rts_pin = 0
 #define rts_deassert()      *rts_pin = 1
-#if TX_BUFFER_SIZE > 255
+#if SERIAL5_TX_BUFFER_SIZE > 255
 static volatile uint16_t tx_buffer_head = 0;
 static volatile uint16_t tx_buffer_tail = 0;
 #else
 static volatile uint8_t tx_buffer_head = 0;
 static volatile uint8_t tx_buffer_tail = 0;
 #endif
-#if RX_BUFFER_SIZE > 255
+#if SERIAL5_RX_BUFFER_SIZE > 255
 static volatile uint16_t rx_buffer_head = 0;
 static volatile uint16_t rx_buffer_tail = 0;
 #else
@@ -221,13 +225,13 @@ void serial5_putchar(uint32_t c)
 	if (!(SIM_SCGC1 & SIM_SCGC1_UART4)) return;
 	if (transmit_pin) transmit_assert();
 	head = tx_buffer_head;
-	if (++head >= TX_BUFFER_SIZE) head = 0;
+	if (++head >= SERIAL5_TX_BUFFER_SIZE) head = 0;
 	while (tx_buffer_tail == head) {
 		int priority = nvic_execution_priority();
 		if (priority <= IRQ_PRIORITY) {
 			if ((UART4_S1 & UART_S1_TDRE)) {
 				uint32_t tail = tx_buffer_tail;
-				if (++tail >= TX_BUFFER_SIZE) tail = 0;
+				if (++tail >= SERIAL5_TX_BUFFER_SIZE) tail = 0;
 				n = tx_buffer[tail];
 				if (use9Bits) UART4_C3 = (UART4_C3 & ~0x40) | ((n & 0x100) >> 2);
 				UART4_D = n;
@@ -260,7 +264,7 @@ int serial5_write_buffer_free(void)
 
 	head = tx_buffer_head;
 	tail = tx_buffer_tail;
-	if (head >= tail) return TX_BUFFER_SIZE - 1 - head + tail;
+	if (head >= tail) return SERIAL5_TX_BUFFER_SIZE - 1 - head + tail;
 	return tail - head - 1;
 }
 
@@ -271,7 +275,7 @@ int serial5_available(void)
 	head = rx_buffer_head;
 	tail = rx_buffer_tail;
 	if (head >= tail) return head - tail;
-	return RX_BUFFER_SIZE + head - tail;
+	return SERIAL5_RX_BUFFER_SIZE + head - tail;
 }
 
 int serial5_getchar(void)
@@ -282,13 +286,13 @@ int serial5_getchar(void)
 	head = rx_buffer_head;
 	tail = rx_buffer_tail;
 	if (head == tail) return -1;
-	if (++tail >= RX_BUFFER_SIZE) tail = 0;
+	if (++tail >= SERIAL5_RX_BUFFER_SIZE) tail = 0;
 	c = rx_buffer[tail];
 	rx_buffer_tail = tail;
 	if (rts_pin) {
 		int avail;
 		if (head >= tail) avail = head - tail;
-		else avail = RX_BUFFER_SIZE + head - tail;
+		else avail = SERIAL5_RX_BUFFER_SIZE + head - tail;
 		if (avail <= RTS_LOW_WATERMARK) rts_assert();
 	}
 	return c;
@@ -301,7 +305,7 @@ int serial5_peek(void)
 	head = rx_buffer_head;
 	tail = rx_buffer_tail;
 	if (head == tail) return -1;
-	if (++tail >= RX_BUFFER_SIZE) tail = 0;
+	if (++tail >= SERIAL5_RX_BUFFER_SIZE) tail = 0;
 	return rx_buffer[tail];
 }
 
@@ -331,7 +335,7 @@ void uart4_status_isr(void)
 			n = UART4_D;
 		}
 		head = rx_buffer_head + 1;
-		if (head >= RX_BUFFER_SIZE) head = 0;
+		if (head >= SERIAL5_RX_BUFFER_SIZE) head = 0;
 		if (head != rx_buffer_tail) {
 			rx_buffer[head] = n;
 			rx_buffer_head = head;
@@ -340,7 +344,7 @@ void uart4_status_isr(void)
 			int avail;
 			tail = tx_buffer_tail;
 			if (head >= tail) avail = head - tail;
-			else avail = RX_BUFFER_SIZE + head - tail;
+			else avail = SERIAL5_RX_BUFFER_SIZE + head - tail;
 			if (avail >= RTS_HIGH_WATERMARK) rts_deassert();
 		}
 	}
@@ -351,7 +355,7 @@ void uart4_status_isr(void)
 		if (head == tail) {
 			UART4_C2 = C2_TX_COMPLETING;
 		} else {
-			if (++tail >= TX_BUFFER_SIZE) tail = 0;
+			if (++tail >= SERIAL5_TX_BUFFER_SIZE) tail = 0;
 			n = tx_buffer[tail];
 			if (use9Bits) UART4_C3 = (UART4_C3 & ~0x40) | ((n & 0x100) >> 2);
 			UART4_D = n;
