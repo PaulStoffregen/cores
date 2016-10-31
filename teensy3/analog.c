@@ -327,7 +327,12 @@ void analogReadRes(unsigned int bits)
 	analog_right_shift = config - bits;
 	if (config != analog_config_bits) {
 		analog_config_bits = config;
-		if (calibrating) ADC0_SC3 = 0; // cancel cal
+		if (calibrating) {
+			ADC0_SC3 = 0; // cancel cal
+			#ifdef HAS_KINETIS_ADC1
+			ADC1_SC3 = 0;
+			#endif
+		}
 		analog_init();
 	}
 }
