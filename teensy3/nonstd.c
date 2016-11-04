@@ -74,6 +74,30 @@ char * dtostrf(float val, int width, unsigned int precision, char *buf)
 	const char *s, *e;
 	char *p;
 
+	if (isnan(val)) {
+		char nan[] = "NaN";    
+		e = nan;
+		p = buf;
+		pad = width;
+		while ((pad-- > 0) && e != 0)
+			*p++ = *e++;
+		*p = 0;
+		
+		return buf;
+  	}
+
+	if (isinf(val)) {
+		char inf[] = "inf";    
+		e = inf;
+		p = buf;
+		pad = width;
+		while ((pad-- > 0) && e != 0)
+			*p++ = *e++;
+		*p = 0;
+		
+		return buf;
+	}
+	
 	s = fcvtf(val, precision, &decpt, &sign);
 	if (precision == 0 && decpt == 0) {
 		s = (*s < '5') ? "0" : "1";
