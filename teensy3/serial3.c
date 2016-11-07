@@ -42,8 +42,8 @@
 #ifndef SERIAL3_RX_BUFFER_SIZE
 #define SERIAL3_RX_BUFFER_SIZE     64 // number of incoming bytes to buffer
 #endif
-#define RTS_HIGH_WATERMARK 40 // RTS requests sender to pause
-#define RTS_LOW_WATERMARK  26 // RTS allows sender to resume
+#define RTS_HIGH_WATERMARK (SERIAL3_RX_BUFFER_SIZE-24) // RTS requests sender to pause
+#define RTS_LOW_WATERMARK  (SERIAL3_RX_BUFFER_SIZE-38) // RTS allows sender to resume
 #define IRQ_PRIORITY  64  // 0 = highest priority, 255 = lowest
 
 
