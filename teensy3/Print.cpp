@@ -23,7 +23,7 @@
 //#include <stdio.h>
 //#include <string.h>
 #include <inttypes.h>
-//#include <math.h>
+#include <math.h>
 //#include <avr/pgmspace.h>
 //#include "wiring.h"
 
@@ -285,6 +285,11 @@ size_t Print::printFloat(double number, uint8_t digits)
 	uint8_t sign=0;
 	size_t count=0;
 
+	if (isnan(number)) return print("nan");
+    	if (isinf(number)) return print("inf");
+    	if (number > 4294967040.0f) return print("ovf");  // constant determined empirically
+    	if (number <-4294967040.0f) return print("ovf");  // constant determined empirically
+	
 	// Handle negative numbers
 	if (number < 0.0) {
 		sign = 1;
