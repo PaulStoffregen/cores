@@ -31,9 +31,10 @@
 #include "avr_functions.h"
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 
 
-char * ultoa(unsigned long val, char *buf, int radix) 	
+char * ultoa(unsigned long val, char *buf, int radix)
 {
 	unsigned digit;
 	int i=0, j;
@@ -66,13 +67,63 @@ char * ltoa(long val, char *buf, int radix)
 	}
 }
 
+#define DTOA_UPPER 0x04
+
 char * fcvtf(float, int, int *, int *);
+int isnanf (float x);
+int isinff (float x);
 
 char * dtostrf(float val, int width, unsigned int precision, char *buf)
 {
 	int decpt, sign, reqd, pad;
 	const char *s, *e;
 	char *p;
+
+	int awidth = abs(width);
+	if (isnanf(val)) {
+		int ndigs = (val<0) ? 4 : 3;
+		awidth = (awidth > ndigs) ? awidth - ndigs : 0;
+		if (width<0) {
+			while (awidth) {
+				*buf++ = ' ';
+				awidth--;
+			}
+		}
+		if (copysignf(1.0f, val)<0) *buf++ = '-';
+		if (DTOA_UPPER) {
+			*buf++ = 'N';  *buf++ = 'A';  *buf++ = 'N';
+		} else {
+			*buf++ = 'n';  *buf++ = 'a';  *buf++ = 'n';
+		}
+		while (awidth) {
+			*buf++ = ' ';
+			awidth--;
+		}
+		*buf = 0;
+		return buf;
+	}
+	if (isinff(val)) {
+		int ndigs = (val<0) ? 4 : 3;
+		awidth = (awidth > ndigs) ? awidth - ndigs : 0;
+		if (width<0) {
+			while (awidth) {
+				*buf++ = ' ';
+				awidth--;
+			}
+		}
+		if (val<0) *buf++ = '-';
+		if (DTOA_UPPER) {
+			*buf++ = 'I';  *buf++ = 'N';  *buf++ = 'F';
+		} else {
+			*buf++ = 'i';  *buf++ = 'n';  *buf++ = 'f';
+		}
+		while (awidth) {
+			*buf++ = ' ';
+			awidth--;
+		}
+		*buf = 0;
+		return buf;
+	}
 
 	s = fcvtf(val, precision, &decpt, &sign);
 	if (precision == 0 && decpt == 0) {
