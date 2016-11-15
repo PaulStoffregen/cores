@@ -3457,6 +3457,13 @@ typedef struct {
 #define PIT_LTMR64H             (*(volatile uint32_t *)0x400370E0) // PIT Upper Lifetime Timer Register
 #define PIT_LTMR64L             (*(volatile uint32_t *)0x400370E4) // PIT Lower Lifetime Timer Register
 #endif // defined(KINETISL)
+typedef struct {
+	volatile uint32_t	LDVAL;
+	volatile uint32_t	CVAL;
+	volatile uint32_t	TCTRL;
+	volatile uint32_t	TFLG;
+} KINETISK_PIT_CHANNEL_t;
+#define KINETISK_PIT_CHANNELS	(KINETISK_PIT_CHANNEL_t *)(0x40037100)
 #define PIT_LDVAL0		(*(volatile uint32_t *)0x40037100) // Timer Load Value Register
 #define PIT_CVAL0		(*(volatile uint32_t *)0x40037104) // Current Timer Value Register
 #define PIT_TCTRL0		(*(volatile uint32_t *)0x40037108) // Timer Control Register
