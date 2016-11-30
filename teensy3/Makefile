@@ -22,7 +22,7 @@ endif
 OPTIONS = -DF_CPU=48000000 -DUSB_SERIAL -DLAYOUT_US_ENGLISH -DUSING_MAKEFILE
 
 # options needed by many Arduino libraries to configure for Teensy 3.0
-OPTIONS += -D__$(MCU)__ -DARDUINO=10600 -DTEENSYDUINO=121
+OPTIONS += -D__$(MCU)__ -DARDUINO=10613 -DTEENSYDUINO=132
 
 
 # Other Makefiles and project templates for Teensy 3.x:
