@@ -31,20 +31,24 @@
 #ifndef AudioStream_h
 #define AudioStream_h
 
+#ifndef __ASSEMBLER__
 #include <stdio.h>  // for NULL
 #include <string.h> // for memcpy
 #include "kinetis.h"
+#endif
 
-#if defined(KINETISK)
+
+#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
 #define AUDIO_BLOCK_SAMPLES  128
 #define AUDIO_SAMPLE_RATE    44117.64706
 #define AUDIO_SAMPLE_RATE_EXACT 44117.64706 // 48 MHz / 1088, or 96 MHz * 2 / 17 / 256
-#elif defined(KINETISL)
+#elif defined(__MKL26Z64__)
 #define AUDIO_BLOCK_SAMPLES  64
 #define AUDIO_SAMPLE_RATE    22058.82353
 #define AUDIO_SAMPLE_RATE_EXACT 22058.82353 // 48 MHz / 2176, or 96 MHz * 1 / 17 / 256
 #endif
 
+#ifndef __ASSEMBLER__
 class AudioStream;
 class AudioConnection;
 
@@ -152,4 +156,5 @@ private:
 	static uint32_t memory_pool_available_mask[6];
 };
 
+#endif
 #endif
