@@ -39,7 +39,7 @@
 
 
 #if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
-#define AUDIO_BLOCK_SAMPLES  16
+#define AUDIO_BLOCK_SAMPLES  128
 #define AUDIO_SAMPLE_RATE    44117.64706
 #define AUDIO_SAMPLE_RATE_EXACT 44117.64706 // 48 MHz / 1088, or 96 MHz * 2 / 17 / 256
 #elif defined(__MKL26Z64__)
