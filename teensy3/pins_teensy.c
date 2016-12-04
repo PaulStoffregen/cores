@@ -209,7 +209,11 @@ void attachInterrupt(uint8_t pin, void (*function)(void), int mode)
 	}
 	mask = (mask << 16) | 0x01000000;
 	config = portConfigRegister(pin);
-
+	if ((*config & 0x00000700) == 0) {
+		// for compatibility with programs which depend
+		// on AVR hardware default to input mode.
+		pinMode(pin, INPUT);
+	}
 #if defined(KINETISK)
 	attachInterruptVector(IRQ_PORTA, port_A_isr);
 	attachInterruptVector(IRQ_PORTB, port_B_isr);
