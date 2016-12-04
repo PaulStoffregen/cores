@@ -1066,19 +1066,16 @@ void pinMode(uint8_t pin, uint8_t mode)
 #else
 		*portModeRegister(pin) &= ~digitalPinToBitMask(pin);
 #endif
-		if (mode == INPUT || mode == INPUT_PULLUP || mode == INPUT_PULLDOWN) {
+		if (mode == INPUT) {
 			*config = PORT_PCR_MUX(1);
-			if (mode == INPUT_PULLUP) {
-		    	*config |= (PORT_PCR_PE | PORT_PCR_PS); // pullup
-			} else if (mode == INPUT_PULLDOWN) {
-			    *config |= (PORT_PCR_PE); // pulldown
-			    *config &= ~(PORT_PCR_PS);
-			}
-		} else {
-			*config = PORT_PCR_MUX(1) | PORT_PCR_PE | PORT_PCR_PS; // pullup
+		} else if (mode == INPUT_PULLUP) {
+			*config = PORT_PCR_MUX(1) | PORT_PCR_PE | PORT_PCR_PS;
+		} else if (mode == INPUT_PULLDOWN) {
+			*config = PORT_PCR_MUX(1) | PORT_PCR_PE;
+		} else { // INPUT_DISABLE
+			*config = 0;
 		}
 	}
-
 }
 
 

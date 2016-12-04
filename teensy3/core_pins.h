@@ -41,6 +41,7 @@
 #define INPUT_PULLUP	2
 #define INPUT_PULLDOWN   3
 #define OUTPUT_OPENDRAIN 4
+#define INPUT_DISABLE   5
 #define LSBFIRST	0
 #define MSBFIRST	1
 #define _BV(n)		(1<<(n))
