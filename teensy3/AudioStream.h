@@ -37,6 +37,15 @@
 #include "kinetis.h"
 #endif
 
+// AUDIO_BLOCK_SAMPLES determines how many samples the audio library processes
+// per update.  It may be reduced to achieve lower latency response to events,
+// at the expense of higher interrupt and DMA setup overhead.
+//
+// Less than 32 may not work with some input & output objects.  Multiples of 16
+// should be used, since some synthesis objects generate 16 samples per loop.
+//
+// Some parts of the audio library may have hard-coded dependency on 128 samples.
+// Please report these on the forum with reproducible test cases.
 
 #if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
 #define AUDIO_BLOCK_SAMPLES  128
