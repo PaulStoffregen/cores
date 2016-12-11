@@ -71,7 +71,7 @@ extern volatile uint8_t usb_configuration;
 class usb_serial_class : public Stream
 {
 public:
-        void begin(long) { /* TODO: call a function that tries to wait for enumeration */ };
+        void begin(long) {  int m = millis(); while(!(usb_configuration  && (usb_cdc_line_rtsdtr & (USB_SERIAL_DTR | USB_SERIAL_RTS))) && (millis()-m < 1500) );  };
         void end() { /* TODO: flush output and shut down USB port */ };
         virtual int available() { return usb_serial_available(); }
         virtual int read() { return usb_serial_getchar(); }
