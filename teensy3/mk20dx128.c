@@ -65,7 +65,7 @@ extern unsigned long _estack;
 
 extern int main (void);
 void ResetHandler(void);
-void _init_Teensyduino_internal_(void);
+void _init_Teensyduino_internal_(void) __attribute__((noinline));
 void __libc_init_array(void);
 
 

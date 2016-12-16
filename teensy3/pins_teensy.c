@@ -513,6 +513,7 @@ extern void usb_init(void);
 #endif
 
 //void init_pins(void)
+__attribute__((noinline))
 void _init_Teensyduino_internal_(void)
 {
 #if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
