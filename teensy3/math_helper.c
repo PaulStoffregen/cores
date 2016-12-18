@@ -31,7 +31,7 @@
 /* ----------------------------------------------------------------------
 *		Include standard header files  
 * -------------------------------------------------------------------- */
-#include<math.h>
+#include <math.h>
 
 /* ----------------------------------------------------------------------
 *		Include project header files  
@@ -50,49 +50,43 @@
 
 float arm_snr_f32(float *pRef, float *pTest, uint32_t buffSize)
 {
-  float EnergySignal = 0.0, EnergyError = 0.0;
-  uint32_t i;
-  float SNR;
-  int temp;
-  int *test;
+	float EnergySignal = 0.0;
+	float EnergyError = 0.0;
+	uint32_t i;
+	float SNR;
+	int temp;
+	int *test;
 
-  for (i = 0; i < buffSize; i++)
-    {
- 	  /* Checking for a NAN value in pRef array */
-	  test =   (int *)(&pRef[i]);
-      temp =  *test;
+  	for (i = 0; i < buffSize; i++) {
+		/* Checking for a NAN value in pRef array */
+		test =   (int *)(&pRef[i]);
+		temp =  *test;
 
-	  if(temp == 0x7FC00000)
-	  {
-	  		return(0);
-	  }
+		if (temp == 0x7FC00000) {
+			return(0);
+		}
 
-	  /* Checking for a NAN value in pTest array */
-	  test =   (int *)(&pTest[i]);
-      temp =  *test;
+		/* Checking for a NAN value in pTest array */
+		test =   (int *)(&pTest[i]);
+		temp =  *test;
 
-	  if(temp == 0x7FC00000)
-	  {
-	  		return(0);
-	  }
-      EnergySignal += pRef[i] * pRef[i];
-      EnergyError += (pRef[i] - pTest[i]) * (pRef[i] - pTest[i]); 
-    }
+		if (temp == 0x7FC00000) {
+			return(0);
+		}
+		EnergySignal += pRef[i] * pRef[i];
+		EnergyError += (pRef[i] - pTest[i]) * (pRef[i] - pTest[i]); 
+	}
 
 	/* Checking for a NAN value in EnergyError */
 	test =   (int *)(&EnergyError);
-    temp =  *test;
+	temp =  *test;
 
-    if(temp == 0x7FC00000)
-    {
-  		return(0);
-    }
-	
+	if(temp == 0x7FC00000) {
+		return(0);
+	}
 
-  SNR = 10 * log10 (EnergySignal / EnergyError);
-
-  return (SNR);
-
+	SNR = 10 * log10f(EnergySignal / EnergyError);
+	return (SNR);
 }
 
 
@@ -128,18 +122,16 @@ void arm_float_to_q12_20(float *pIn, q31_t * pOut, uint32_t numSamples)
 {
   uint32_t i;
 
-  for (i = 0; i < numSamples; i++)
-    {
-	  /* 1048576.0f corresponds to pow(2, 20) */
+  for (i = 0; i < numSamples; i++) {
+      /* 1048576.0f corresponds to pow(2, 20) */
       pOut[i] = (q31_t) (pIn[i] * 1048576.0f);
 
       pOut[i] += pIn[i] > 0 ? 0.5 : -0.5;
 
-      if (pIn[i] == (float) 1.0)
-        {
+      if (pIn[i] == (float) 1.0) {
           pOut[i] = 0x000FFFFF;
-        }
-    }
+      }
+  }
 }
 
 /** 
