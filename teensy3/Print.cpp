@@ -80,7 +80,7 @@ __attribute__((weak))
 int _write(int file, char *ptr, int len)
 {
 	((class Print *)file)->write((uint8_t *)ptr, len);
-	return 0;
+	return len;
 }
 }
 
