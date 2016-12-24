@@ -77,9 +77,25 @@ typedef uint64_t prog_uint64_t;
 #define fprintf_P(fp, ...) fprintf((fp), __VA_ARGS__)
 
 #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
+#if 0
 #define pgm_read_word(addr) (*(const unsigned short *)(addr))
 #define pgm_read_dword(addr) (*(const unsigned long *)(addr))
 #define pgm_read_float(addr) (*(const float *)(addr))
+#else
+#define pgm_read_word(addr) ({ \
+	typeof(addr) _addr = (addr); \
+	*(const unsigned short *)(_addr); \
+})
+#define pgm_read_dword(addr) ({ \
+	typeof(addr) _addr = (addr); \
+	*(const unsigned long *)(_addr); \
+})
+#define pgm_read_float(addr) ({ \
+	typeof(addr) _addr = (addr); \
+	*(const float *)(_addr); \
+})
+#endif
+
 
 #define pgm_read_byte_near(addr) pgm_read_byte(addr)
 #define pgm_read_word_near(addr) pgm_read_word(addr)
