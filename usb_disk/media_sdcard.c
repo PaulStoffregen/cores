@@ -454,9 +454,9 @@ static void media_send_chunk(uint32_t lba, uint8_t chunk)
 
 static void media_send_end(void)
 {
-	uint8_t r;
+	//uint8_t r;
 
-	r = sd_command(SD_CMD_STOP_TRANSMISSION, 0);
+	/* r = */ sd_command(SD_CMD_STOP_TRANSMISSION, 0);
 	// TODO: proper handling of stop transaction.....
 	// but what is the proper way?	Older cards stop instantly,
 	// but newer ones spew 1 or 2 bytes of garbage, then maybe
