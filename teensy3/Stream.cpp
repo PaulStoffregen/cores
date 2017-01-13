@@ -256,7 +256,7 @@ size_t Stream::readBytesUntil(char terminator, char *buffer, size_t length)
 String Stream::readString(size_t max)
 {
 	String str;
-	size_t length = str.length();
+	size_t length = 0;
 	while (length < max) {
 		int c = timedRead();
 		if (c < 0) {
@@ -265,6 +265,7 @@ String Stream::readString(size_t max)
 		}
 		if (c == 0) break;
 		str += (char)c;
+		length++;
 	}
 	return str;
 }
@@ -272,7 +273,7 @@ String Stream::readString(size_t max)
 String Stream::readStringUntil(char terminator, size_t max)
 {
 	String str;
-	size_t length = str.length();
+	size_t length = 0;
 	while (length < max) {
 		int c = timedRead();
 		if (c < 0) {
@@ -281,32 +282,7 @@ String Stream::readStringUntil(char terminator, size_t max)
 		}
 		if (c == 0 || c == terminator) break;
 		str += (char)c;
+		length++;
 	}
 	return str;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
