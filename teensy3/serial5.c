@@ -85,7 +85,7 @@ static volatile uint8_t rx_buffer_head = 0;
 static volatile uint8_t rx_buffer_tail = 0;
 #endif
 
-static uint8_t tx_pin_num = 34;
+static uint8_t tx_pin_num = 33;
 
 // UART0 and UART1 are clocked by F_CPU, UART2 is clocked by F_BUS
 // UART0 has 8 byte fifo, UART1 and UART2 have 1 byte buffer
@@ -171,7 +171,7 @@ void serial5_set_tx(uint8_t pin, uint8_t opendrain)
 
 	if (opendrain) pin |= 128;
 	if (pin == tx_pin_num) return;
-	if ((SIM_SCGC4 & SIM_SCGC4_UART2)) {
+	if ((SIM_SCGC1 & SIM_SCGC1_UART4)) {
 		switch (tx_pin_num & 127) {
 			case 33:  CORE_PIN33_CONFIG = 0; break; // PTE24
 		}
