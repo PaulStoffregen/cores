@@ -1389,6 +1389,86 @@
 #endif
 
 
+#if defined(__MK20DX128__)
+#define CORE_FTM0_CH0_PIN	22
+#define CORE_FTM0_CH1_PIN	23
+#define CORE_FTM0_CH2_PIN	 9
+#define CORE_FTM0_CH3_PIN	10
+#define CORE_FTM0_CH4_PIN	 6
+#define CORE_FTM0_CH5_PIN	20
+#define CORE_FTM0_CH6_PIN	21
+#define CORE_FTM0_CH7_PIN	 5
+#define CORE_FTM1_CH0_PIN	 3
+#define CORE_FTM1_CH1_PIN	 4
+#elif defined(__MK20DX256__)
+#define CORE_FTM0_CH0_PIN	22
+#define CORE_FTM0_CH1_PIN	23
+#define CORE_FTM0_CH2_PIN	 9
+#define CORE_FTM0_CH3_PIN	10
+#define CORE_FTM0_CH4_PIN	 6
+#define CORE_FTM0_CH5_PIN	20
+#define CORE_FTM0_CH6_PIN	21
+#define CORE_FTM0_CH7_PIN	 5
+#define CORE_FTM1_CH0_PIN	 3
+#define CORE_FTM1_CH1_PIN	 4
+#define CORE_FTM2_CH0_PIN	32
+#define CORE_FTM2_CH1_PIN	25
+#elif defined(__MKL26Z64__)
+#define CORE_TPM0_CH0_PIN	22
+#define CORE_TPM0_CH1_PIN	23
+#define CORE_TPM0_CH2_PIN	 9
+#define CORE_TPM0_CH3_PIN	10
+#define CORE_TPM0_CH4_PIN	 6
+#define CORE_TPM0_CH5_PIN	20
+#define CORE_TPM1_CH0_PIN	16
+#define CORE_TPM1_CH1_PIN	17
+#define CORE_TPM2_CH0_PIN	 3
+#define CORE_TPM2_CH1_PIN	 4
+#elif defined(__MK64FX512__)
+#define CORE_FTM0_CH0_PIN	22
+#define CORE_FTM0_CH1_PIN	23
+#define CORE_FTM0_CH2_PIN	 9
+#define CORE_FTM0_CH3_PIN	10
+#define CORE_FTM0_CH4_PIN	 6
+#define CORE_FTM0_CH5_PIN	20
+#define CORE_FTM0_CH6_PIN	21
+#define CORE_FTM0_CH7_PIN	 5
+#define CORE_FTM1_CH0_PIN	 3
+#define CORE_FTM1_CH1_PIN	 4
+#define CORE_FTM2_CH0_PIN	29
+#define CORE_FTM2_CH1_PIN	30
+#define CORE_FTM3_CH0_PIN	 2
+#define CORE_FTM3_CH1_PIN	14
+#define CORE_FTM3_CH2_PIN	 7
+#define CORE_FTM3_CH3_PIN	 8
+#define CORE_FTM3_CH4_PIN	35
+#define CORE_FTM3_CH5_PIN	36
+#define CORE_FTM3_CH6_PIN	37
+#define CORE_FTM3_CH7_PIN	38
+#elif defined(__MK66FX1M0__)
+#define CORE_FTM0_CH0_PIN	22
+#define CORE_FTM0_CH1_PIN	23
+#define CORE_FTM0_CH2_PIN	 9
+#define CORE_FTM0_CH3_PIN	10
+#define CORE_FTM0_CH4_PIN	 6
+#define CORE_FTM0_CH5_PIN	20
+#define CORE_FTM0_CH6_PIN	21
+#define CORE_FTM0_CH7_PIN	 5
+#define CORE_FTM1_CH0_PIN	 3
+#define CORE_FTM1_CH1_PIN	 4
+#define CORE_FTM2_CH0_PIN	29
+#define CORE_FTM2_CH1_PIN	30
+#define CORE_FTM3_CH0_PIN	 2
+#define CORE_FTM3_CH1_PIN	14
+#define CORE_FTM3_CH2_PIN	 7
+#define CORE_FTM3_CH3_PIN	 8
+#define CORE_FTM3_CH4_PIN	35
+#define CORE_FTM3_CH5_PIN	36
+#define CORE_FTM3_CH6_PIN	37
+#define CORE_FTM3_CH7_PIN	38
+#define CORE_TPM1_CH0_PIN	16
+#define CORE_TPM1_CH1_PIN	17
+#endif
 
 
 #ifdef __cplusplus
