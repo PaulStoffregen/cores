@@ -171,7 +171,7 @@ void serial6_set_tx(uint8_t pin, uint8_t opendrain)
 
 	if (opendrain) pin |= 128;
 	if (pin == tx_pin_num) return;
-	if ((SIM_SCGC1 |= SIM_SCGC1_UART5)) {
+	if ((SIM_SCGC1 & SIM_SCGC1_UART5)) {
 		switch (tx_pin_num & 127) {
 			case 48:  CORE_PIN48_CONFIG = 0; break; // PTE24
 		}
