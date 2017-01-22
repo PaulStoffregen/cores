@@ -583,7 +583,10 @@ void _init_Teensyduino_internal_(void)
 	// for background about this startup delay, please see these conversations
 	// https://forum.pjrc.com/threads/36606-startup-time-(400ms)?p=113980&viewfull=1#post113980
 	// https://forum.pjrc.com/threads/31290-Teensey-3-2-Teensey-Loader-1-24-Issues?p=87273&viewfull=1#post87273
-	delay(400);
+#if !defined(STARTUP_DELAY_MS)
+#define	STARTUP_DELAY_MS 400
+#endif	
+	delay(STARTUP_DELAY_MS);
 	usb_init();
 }
 
