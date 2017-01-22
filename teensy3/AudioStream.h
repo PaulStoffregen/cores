@@ -76,21 +76,28 @@ public:
 	AudioConnection(AudioStream &source, AudioStream &destination) :
 		src(source), dst(destination), src_index(0), dest_index(0),
 		next_dest(NULL)
-		{ connect(); }
+		{ isConnected = false;
+		  connect(); }
 	AudioConnection(AudioStream &source, unsigned char sourceOutput,
 		AudioStream &destination, unsigned char destinationInput) :
 		src(source), dst(destination),
 		src_index(sourceOutput), dest_index(destinationInput),
 		next_dest(NULL)
-		{ connect(); }
+		{ isConnected = false;
+		  connect(); }
 	friend class AudioStream;
-protected:
+	~AudioConnection() {
+		disconnect();
+	}
+	void disconnect(void);
 	void connect(void);
+protected:
 	AudioStream &src;
 	AudioStream &dst;
 	unsigned char src_index;
 	unsigned char dest_index;
 	AudioConnection *next_dest;
+	bool isConnected;
 };
 
 
@@ -130,11 +137,13 @@ public:
 			next_update = NULL;
 			cpu_cycles = 0;
 			cpu_cycles_max = 0;
+			numConnections = 0;
 		}
 	static void initialize_memory(audio_block_t *data, unsigned int num);
 	int processorUsage(void) { return CYCLE_COUNTER_APPROX_PERCENT(cpu_cycles); }
 	int processorUsageMax(void) { return CYCLE_COUNTER_APPROX_PERCENT(cpu_cycles_max); }
 	void processorUsageMaxReset(void) { cpu_cycles_max = cpu_cycles; }
+	bool isActive(void) { return active; }
 	uint16_t cpu_cycles;
 	uint16_t cpu_cycles_max;
 	static uint16_t cpu_cycles_total;
@@ -154,6 +163,7 @@ protected:
 	static void update_all(void) { NVIC_SET_PENDING(IRQ_SOFTWARE); }
 	friend void software_isr(void);
 	friend class AudioConnection;
+	uint8_t numConnections;
 private:
 	AudioConnection *destination_list;
 	audio_block_t **inputQueue;
