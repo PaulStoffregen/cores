@@ -37,7 +37,8 @@
 #ifdef JOYSTICK_INTERFACE // defined by usb_dev.h -> usb_desc.h
 #if F_CPU >= 20000000
 
-uint32_t usb_joystick_data[3];
+
+uint32_t usb_joystick_data[(JOYSTICK_SIZE+3)/4];
 
 
 // Maximum number of transmit packets to queue so we don't starve other endpoints for memory
@@ -98,8 +99,8 @@ int usb_joystick_send(void)
                 yield();
         }
 	transmit_previous_timeout = 0;
-	memcpy(tx_packet->buf, usb_joystick_data, 12);
-        tx_packet->len = 12;
+	memcpy(tx_packet->buf, usb_joystick_data, JOYSTICK_SIZE);
+        tx_packet->len = JOYSTICK_SIZE;
         usb_tx(JOYSTICK_ENDPOINT, tx_packet);
 	//serial_print("ok\n");
         return 0;
