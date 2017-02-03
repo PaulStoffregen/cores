@@ -33,9 +33,9 @@
 #define set_sleep_mode(mode)	// TODO: actually set the mode...
 #define sleep_enable()
 #define sleep_disable()
-#define sleep_cpu()		(asm("wfi"))
+#define sleep_cpu()		({__asm__ volatile("wfi");})
 #define sleep_bod_disable()
-#define sleep_mode()		sleep_cpu()
+#define sleep_mode()		({__asm__ volatile("wfi");})
 
 // workaround for early versions of Nordic's BLE library
 // EIMSK moved to a dummy byte in avr_emulation...
