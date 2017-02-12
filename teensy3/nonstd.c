@@ -126,15 +126,58 @@ char * dtostrf(float val, int width, unsigned int precision, char *buf)
 	}
 
 	s = fcvtf(val, precision, &decpt, &sign);
+
+	// if only 1 digit in output
 	if (precision == 0 && decpt == 0) {
+		// round and move decimal point
 		s = (*s < '5') ? "0" : "1";
-		reqd = 1;
-	} else {
-		reqd = strlen(s);
-		if (reqd > decpt) reqd++;
-		if (decpt == 0) reqd++;
+		decpt++;
 	}
+
+	// if all zeros, limit to precision
+	if (-decpt  > (int)precision) {
+		s = "0";
+		decpt = -precision;
+	}
+
+	reqd = strlen(s);
+
+	// add 1 for decimal point
+	if (reqd > decpt) reqd++;
+
+	// add 1 for zero in front of decimal point
+	if (decpt == 0) reqd++;
+
+	// if leading zeros after decimal point
+	if (decpt < 0 && precision > 0) {
+		// ensure enough trailing zeros, add 2 for '0.'
+		reqd = precision + 2;
+
+		if (strlen(s) > precision + decpt) {
+			// bug in fcvtf. e.g. 0.012, precision 2 should return 1 instead of 12.
+			// However, 1.2, precision 0 returns correct value. So shift values so
+			// that decimal point is after the first digit, then convert again
+
+			int newPrecision = precision;
+			int newDecimalPoint;
+
+			// shift decimal point
+			while (newPrecision > 0) {
+				val *= 10.0;
+				newPrecision--;
+			}
+
+			// round after accounting for leading 0's
+			s = fcvtf(val, newPrecision, &newDecimalPoint, &sign);
+
+			// if rounded up to new digit (e.g. 0.09 to 0.1), move decimal point
+			if (newDecimalPoint - decpt == precision + 1) decpt++;
+		}
+	}
+
+	// add 1 for sign if negative
 	if (sign) reqd++;
+
 	p = buf;
 	e = p + reqd;
 	pad = width - reqd;
@@ -150,12 +193,13 @@ char * dtostrf(float val, int width, unsigned int precision, char *buf)
 	else if (decpt < 0 && precision > 0) {
 		*p++ = '0';
 		*p++ = '.';
-		e++;
+		// print leading zeros
 		while ( decpt < 0 ) {
 			decpt++;
 			*p++ = '0';
 		}
 	}
+	// print digits
 	while (p < e) {
 		*p++ = *s++;
 		if (p == e) break;
