@@ -47,15 +47,23 @@
 // Some parts of the audio library may have hard-coded dependency on 128 samples.
 // Please report these on the forum with reproducible test cases.
 
+#ifndef AUDIO_BLOCK_SAMPLES
 #if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
 #define AUDIO_BLOCK_SAMPLES  128
-#define AUDIO_SAMPLE_RATE    44117.64706
-#define AUDIO_SAMPLE_RATE_EXACT 44117.64706 // 48 MHz / 1088, or 96 MHz * 2 / 17 / 256
 #elif defined(__MKL26Z64__)
 #define AUDIO_BLOCK_SAMPLES  64
-#define AUDIO_SAMPLE_RATE    22058.82353
+#endif
+#endif
+
+#ifndef AUDIO_SAMPLE_RATE_EXACT
+#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
+#define AUDIO_SAMPLE_RATE_EXACT 44117.64706 // 48 MHz / 1088, or 96 MHz * 2 / 17 / 256
+#elif defined(__MKL26Z64__)
 #define AUDIO_SAMPLE_RATE_EXACT 22058.82353 // 48 MHz / 2176, or 96 MHz * 1 / 17 / 256
 #endif
+#endif
+
+#define AUDIO_SAMPLE_RATE AUDIO_SAMPLE_RATE_EXACT
 
 #ifndef __ASSEMBLER__
 class AudioStream;
