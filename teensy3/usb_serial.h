@@ -128,6 +128,7 @@ public:
         virtual int read() { return -1; }
         virtual int peek() { return -1; }
         virtual void flush() { }
+        virtual void clear() { }
         virtual size_t write(uint8_t c) { return 1; }
         virtual size_t write(const uint8_t *buffer, size_t size) { return size; }
 	size_t write(unsigned long n) { return 1; }
