@@ -32,6 +32,7 @@
 #include "core_pins.h" // testing only
 #include "ser_print.h" // testing only
 
+#include <errno.h>
 
 // Flash Security Setting. On Teensy 3.2, you can lock the MK20 chip to prevent
 // anyone from reading your code.  You CAN still reprogram your Teensy while
@@ -1137,8 +1138,20 @@ void ResetHandler(void)
 
 char *__brkval = (char *)&_ebss;
 
+int reserved_stack_size = 512;
+
+void reserve_stack(int size)
+{
+    reserved_stack_size = size;
+}
+
 void * _sbrk(int incr)
 {
+    if(__brkval + incr >= (char*) &_estack - reserved_stack_size)
+    {
+        errno = ENOMEM;
+        return (void*) -1;
+    }
 	char *prev = __brkval;
 	__brkval += incr;
 	return prev;
