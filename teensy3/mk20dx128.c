@@ -31,6 +31,7 @@
 #include "kinetis.h"
 #include "core_pins.h" // testing only
 #include "ser_print.h" // testing only
+#include <errno.h>
 
 
 // Flash Security Setting. On Teensy 3.2, you can lock the MK20 chip to prevent
@@ -1137,10 +1138,31 @@ void ResetHandler(void)
 
 char *__brkval = (char *)&_ebss;
 
+#ifndef STACK_MARGIN
+#if defined(__MKL26Z64__)
+#define STACK_MARGIN  512
+#elif defined(__MK20DX128__)
+#define STACK_MARGIN  1024
+#elif defined(__MK20DX256__)
+#define STACK_MARGIN  4096
+#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
+#define STACK_MARGIN  8192
+#endif
+#endif
+
 void * _sbrk(int incr)
 {
-	char *prev = __brkval;
-	__brkval += incr;
+	char *prev, *stack;
+
+	prev = __brkval;
+	if (incr != 0) {
+		__asm__ volatile("mov %0, sp" : "=r" (stack) ::);
+		if (prev + incr >= stack - STACK_MARGIN) {
+			errno = ENOMEM;
+			return (void *)-1;
+		}
+		__brkval = prev + incr;
+	}
 	return prev;
 }
 
