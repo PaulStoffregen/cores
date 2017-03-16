@@ -28,7 +28,11 @@
 
 #if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
 #if defined (__ARM_ARCH_7M__) || defined (__ARM_ARCH_7EM__)
-#define __ARM_FEATURE_UNALIGNED 1
+
+#ifdef __ARM_FEATURE_UNALIGNED
+#undef __ARM_FEATURE_UNALIGNED
+#endif
+//#define __ARM_FEATURE_UNALIGNED 1 //Crashes at Teensy memory-boundary 0x1FFFFFFF(rare cases) 
  
 /* This memcpy routine is optimised for Cortex-M3/M4 cores with/without
    unaligned access.
