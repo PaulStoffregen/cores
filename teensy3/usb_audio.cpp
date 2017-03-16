@@ -350,6 +350,31 @@ unsigned int usb_audio_transmit_callback(void)
 	return target * 4;
 }
 
+
+struct setup_struct {
+  union {
+    struct {
+	uint8_t bmRequestType;
+	uint8_t bRequest;
+	union {
+		struct {
+			uint8_t bChannel;  // 0=main, 1=left, 2=right
+			uint8_t bCS;       // Control Selector
+		};
+		uint16_t wValue;
+	};
+	union {
+		struct {
+			uint8_t bIfEp;     // type of entity
+			uint8_t bEntityId; // UnitID, TerminalID, etc.
+		};
+		uint16_t wIndex;
+	};
+	uint16_t wLength;
+    };
+  };
+};
+
 int usb_audio_get_feature(void *stp, uint8_t *data, uint32_t *datalen)
 {
 	struct setup_struct setup = *((struct setup_struct *)stp);
