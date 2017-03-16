@@ -49,7 +49,7 @@ audio_block_t * AudioInputUSB::ready_right;
 uint16_t AudioInputUSB::incoming_count;
 uint8_t AudioInputUSB::receive_flag;
 
-struct usb_audio_features_struct AudioInputUSB::features = {0,0,FEATURE_MAX_VOLUME};
+struct usb_audio_features_struct AudioInputUSB::features = {0,0,FEATURE_MAX_VOLUME/2};
 
 #define DMABUFATTR __attribute__ ((section(".dmabuffers"), aligned (4)))
 uint16_t usb_audio_receive_buffer[AUDIO_RX_SIZE/2] DMABUFATTR;
