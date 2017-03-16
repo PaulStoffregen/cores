@@ -1297,7 +1297,7 @@ int kinetis_hsrun_enable(void)
 	if (SMC_PMSTAT == SMC_PMSTAT_RUN) {
 		// Turn HSRUN mode on
 		SMC_PMCTRL = SMC_PMCTRL_RUNM(3);
-		while (SMC_PMSTAT != SMC_PMSTAT_HSRUN) ; // wait
+		while (SMC_PMSTAT != SMC_PMSTAT_HSRUN) {;} // wait
 		// Then configure clock for full speed
 		#if F_CPU == 240000000 && F_BUS == 60000000
 			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 3, 0, 7);
