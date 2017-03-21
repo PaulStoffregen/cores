@@ -927,6 +927,11 @@ void analogWriteFrequency(uint8_t pin, float frequency)
 		ftmClock = 16000000;
 	} else
 #endif
+#if defined(__MKL26Z64__)
+	// Teensy LC does not support slow clock source (ftmClockSource = 2)
+	ftmClockSource = 1; 	// Use default F_TIMER clock source
+	ftmClock = F_TIMER;	// Set variable for the actual timer clock frequency
+#else
 	if (frequency < (float)(F_TIMER >> 7) / 65536.0f) {
 		// frequency is too low for working with F_TIMER:
 		ftmClockSource = 2; 	// Use alternative 31250Hz clock source
@@ -935,6 +940,7 @@ void analogWriteFrequency(uint8_t pin, float frequency)
 		ftmClockSource = 1; 	// Use default F_TIMER clock source
 		ftmClock = F_TIMER;	// Set variable for the actual timer clock frequency
 	}
+#endif
 
 	
 	for (prescale = 0; prescale < 7; prescale++) {
