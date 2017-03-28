@@ -826,7 +826,7 @@ enum IRQ_NUMBER_t {
  #endif
  #define F_MEM 24000000
 #elif (F_CPU == 48000000)
- #define F_PLL 96000000
+ #define F_PLL 48000000
  #if defined(KINETISK)
  #define F_BUS 48000000
  #elif defined(KINETISL)
@@ -834,7 +834,7 @@ enum IRQ_NUMBER_t {
  #endif
  #define F_MEM 24000000
 #elif (F_CPU == 24000000)
- #define F_PLL 96000000
+ #define F_PLL 24000000
  #define F_BUS 24000000
  #define F_MEM 24000000
 #elif (F_CPU == 16000000)
