@@ -1925,8 +1925,10 @@ void analogWriteDAC0(int val);
 void analogWriteDAC1(int val);
 #ifdef __cplusplus
 void attachInterruptVector(IRQ_NUMBER_t irq, void (*function)(void));
+void detachInterruptVector(IRQ_NUMBER_t irq);
 #else
 void attachInterruptVector(enum IRQ_NUMBER_t irq, void (*function)(void));
+void detachInterruptVector(enum IRQ_NUMBER_t irq);
 #endif
 void attachInterrupt(uint8_t pin, void (*function)(void), int mode);
 void detachInterrupt(uint8_t pin);
