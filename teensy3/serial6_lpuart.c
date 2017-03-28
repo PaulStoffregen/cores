@@ -185,7 +185,11 @@ void serial6_begin(uint32_t desiredBaudRate)
 	tx_buffer_tail = 0;
 	transmitting = 0;
 	CORE_PIN47_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(5);
-	CORE_PIN48_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(5);
+	if (tx_pin_num & 128) {
+		CORE_PIN48_CONFIG = PORT_PCR_DSE | PORT_PCR_ODE | PORT_PCR_MUX(5);
+	} else {
+		CORE_PIN48_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(5);
+	}
 	LPUART0_CTRL = 0;
 	LPUART0_MATCH = 0;
 	LPUART0_STAT = 0;

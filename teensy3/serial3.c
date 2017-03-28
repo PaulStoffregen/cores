@@ -108,23 +108,30 @@ static uint8_t tx_pin_num = 8;
 
 void serial3_begin(uint32_t divisor)
 {
+	uint32_t cfg;
+	
 	SIM_SCGC4 |= SIM_SCGC4_UART2;	// turn on clock, TODO: use bitband
 	rx_buffer_head = 0;
 	rx_buffer_tail = 0;
 	tx_buffer_head = 0;
 	tx_buffer_tail = 0;
 	transmitting = 0;
+	if (tx_pin_num & 128) {
+		cfg = PORT_PCR_DSE | PORT_PCR_ODE;
+	} else {
+		cfg = PORT_PCR_DSE | PORT_PCR_SRE;
+	}
 #if defined(KINETISK)
 	CORE_PIN7_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3);
-	CORE_PIN8_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3);
+	CORE_PIN8_CONFIG = cfg | PORT_PCR_MUX(3);
 #elif defined(KINETISL)
 	switch (rx_pin_num) {
 		case 7: CORE_PIN7_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
 		case 6: CORE_PIN6_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
 	}
-	switch (tx_pin_num) {
-		case 8:  CORE_PIN8_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
-		case 20: CORE_PIN20_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
+	switch (tx_pin_num & 127) {
+		case 8:  CORE_PIN8_CONFIG = cfg | PORT_PCR_MUX(3); break;
+		case 20: CORE_PIN20_CONFIG = cfg | PORT_PCR_MUX(3); break;
 	}
 #endif
 #if defined(HAS_KINETISK_UART2)

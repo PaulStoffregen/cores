@@ -94,8 +94,9 @@ static volatile uint8_t rx_buffer_tail = 0;
 #endif
 #if defined(KINETISK)
 static uint8_t rx_pin_num = 9;
-static uint8_t tx_pin_num = 10;
 #endif
+static uint8_t tx_pin_num = 10;
+
 
 // UART0 and UART1 are clocked by F_CPU, UART2 is clocked by F_BUS
 // UART0 has 8 byte fifo, UART1 and UART2 have 1 byte buffer
@@ -111,12 +112,19 @@ static uint8_t tx_pin_num = 10;
 
 void serial2_begin(uint32_t divisor)
 {
+	uint32_t cfg;
+	
 	SIM_SCGC4 |= SIM_SCGC4_UART1;	// turn on clock, TODO: use bitband
 	rx_buffer_head = 0;
 	rx_buffer_tail = 0;
 	tx_buffer_head = 0;
 	tx_buffer_tail = 0;
 	transmitting = 0;
+	if (tx_pin_num & 128) {
+		cfg = PORT_PCR_DSE | PORT_PCR_ODE;
+	} else {
+		cfg = PORT_PCR_DSE | PORT_PCR_SRE;
+	}
 #if defined(KINETISK)
 	switch (rx_pin_num) {
 		case 9: CORE_PIN9_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
@@ -126,17 +134,17 @@ void serial2_begin(uint32_t divisor)
 		case 59: CORE_PIN59_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
 		#endif
 	}
-	switch (tx_pin_num) {
-		case 10: CORE_PIN10_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
+	switch (tx_pin_num & 127) {
+		case 10: CORE_PIN10_CONFIG = cfg | PORT_PCR_MUX(3); break;
 		#if defined(__MK20DX128__) || defined(__MK20DX256__)    // T3.0, T3.1, T3.2
-		case 31: CORE_PIN31_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
+		case 31: CORE_PIN31_CONFIG = cfg | PORT_PCR_MUX(3); break;
 		#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)  // T3.5 or T3.6
-		case 58: CORE_PIN58_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
+		case 58: CORE_PIN58_CONFIG = cfg | PORT_PCR_MUX(3); break;
 		#endif
 	}
 #elif defined(KINETISL)
 	CORE_PIN9_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3);
-	CORE_PIN10_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3);
+	CORE_PIN10_CONFIG = cfg | PORT_PCR_MUX(3);
 #endif
 #if defined(HAS_KINETISK_UART1)
 	UART1_BDH = (divisor >> 13) & 0x1F;
@@ -237,7 +245,6 @@ void serial2_set_transmit_pin(uint8_t pin)
 
 void serial2_set_tx(uint8_t pin, uint8_t opendrain)
 {
-	#if defined(KINETISK)
 	uint32_t cfg;
 
 	if (opendrain) pin |= 128;
@@ -266,7 +273,6 @@ void serial2_set_tx(uint8_t pin, uint8_t opendrain)
 		}
 	}
 	tx_pin_num = pin;
-	#endif
 }
 
 void serial2_set_rx(uint8_t pin)
