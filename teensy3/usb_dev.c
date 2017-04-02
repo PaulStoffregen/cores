@@ -41,7 +41,7 @@
 #if F_CPU >= 20000000 && defined(NUM_ENDPOINTS)
 
 #include "kinetis.h"
-#include "HardwareSerial.h"
+//#include "HardwareSerial.h"
 #include "usb_mem.h"
 #include <string.h> // for memset
 
@@ -140,7 +140,6 @@ volatile uint8_t usb_reboot_timer = 0;
 
 static void endpoint0_stall(void)
 {
-  serial_print("EP0 STALL\n");
 	USB0_ENDPT0 = USB_ENDPT_EPSTALL | USB_ENDPT_EPRXEN | USB_ENDPT_EPTXEN | USB_ENDPT_EPHSHK;
 }
 
@@ -173,10 +172,6 @@ static void usb_setup(void)
 	uint8_t epconf;
 	const uint8_t *cfg;
 	int i;
-
-	serial_print("SETUP:");
-	serial_phex16(setup.wRequestAndType);
-	serial_print("\n");
 
 	switch (setup.wRequestAndType) {
 	  case 0x0500: // SET_ADDRESS
@@ -313,9 +308,9 @@ static void usb_setup(void)
 		break;
 	  case 0x0680: // GET_DESCRIPTOR
 	  case 0x0681:
-	    serial_print("desc:");
-	serial_phex16(setup.wValue);
-	serial_print("\n");
+		//serial_print("desc:");
+		//serial_phex16(setup.wValue);
+		//serial_print("\n");
 		for (list = usb_descriptor_list; 1; list++) {
 			if (list->addr == NULL) break;
 			//if (setup.wValue == list->wValue &&
