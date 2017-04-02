@@ -360,24 +360,21 @@ static void usb_setup(void)
 
 #if defined(MTP_INTERFACE)
 	case 0x64A1: // Cancel Request (PTP spec, 5.2.1, page 8)
-	  serial_print("MTP CANCEL\n");
 		// TODO: required by PTP spec
 		endpoint0_stall();
 		return;
 	case 0x66A1: // Device Reset (PTP spec, 5.2.3, page 10)
-	  serial_print("MTP RESET\n");
 		// TODO: required by PTP spec
 		endpoint0_stall();
 		return;
 	case 0x67A1: // Get Device Statis (PTP spec, 5.2.4, page 10)
-	  serial_print("MTP STATUS\n");
-          // For now, always respond with status ok.
-	  reply_buffer[0] = 0x4;
-	  reply_buffer[1] = 0;
-	  reply_buffer[2] = 0x01;
-	  reply_buffer[3] = 0x20;
-	  endpoint0_transmit(reply_buffer, 4);
-	  return;
+		// For now, always respond with status ok.
+		reply_buffer[0] = 0x4;
+		reply_buffer[1] = 0;
+		reply_buffer[2] = 0x01;
+		reply_buffer[3] = 0x20;
+		endpoint0_transmit(reply_buffer, 4);
+		return;
 #endif
 
 // TODO: this does not work... why?
@@ -527,19 +524,17 @@ static void usb_control(uint32_t stat)
 
 	b = stat2bufferdescriptor(stat);
 	pid = BDT_PID(b->desc);
-	int count = b->desc >> 16;
+	//count = b->desc >> 16;
 	buf = b->addr;
-#if 1
-	serial_print("pid:");
-	serial_phex(pid);
-	serial_print(", count:");
-	serial_phex(count);
-	serial_print("\n");
-#endif
+	//serial_print("pid:");
+	//serial_phex(pid);
+	//serial_print(", count:");
+	//serial_phex(count);
+	//serial_print("\n");
 
 	switch (pid) {
 	case 0x0D: // Setup received from host
-	  // serial_print("PID=Setup\n");
+		//serial_print("PID=Setup\n");
 		//if (count != 8) ; // panic?
 		// grab the 8 byte setup info
 		setup.word1 = *(uint32_t *)(buf);
@@ -565,7 +560,7 @@ static void usb_control(uint32_t stat)
 		// first IN after Setup is always DATA1
 		ep0_tx_data_toggle = 1;
 
-#if 1
+#if 0
 		serial_print("bmRequestType:");
 		serial_phex(setup.bmRequestType);
 		serial_print(", bRequest:");
@@ -585,7 +580,7 @@ static void usb_control(uint32_t stat)
 		break;
 	case 0x01:  // OUT transaction received from host
 	case 0x02:
-	  // serial_print("PID=OUT\n");
+		//serial_print("PID=OUT\n");
 #ifdef CDC_STATUS_INTERFACE
 		if (setup.wRequestAndType == 0x2021 /*CDC_SET_LINE_CODING*/) {
 			int i;
@@ -624,9 +619,9 @@ static void usb_control(uint32_t stat)
 		break;
 
 	case 0x09: // IN transaction completed to host
-	  //serial_print("PID=IN:");
-	  //	serial_phex(stat);
-	  //	serial_print("\n");
+		//serial_print("PID=IN:");
+		//serial_phex(stat);
+		//serial_print("\n");
 
 		// send remaining data, if any...
 		data = ep0_tx_ptr;
@@ -649,8 +644,8 @@ static void usb_control(uint32_t stat)
 
 		break;
 	//default:
-		serial_print("PID=unknown:");
-		serial_phex(pid);
+		//serial_print("PID=unknown:");
+		//serial_phex(pid);
 		//serial_print("\n");
 	}
 	USB0_CTL = USB_CTL_USBENSOFEN; // clear TXSUSPENDTOKENBUSY bit
