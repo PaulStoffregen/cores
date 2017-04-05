@@ -5794,11 +5794,6 @@ extern void software_isr(void);
 extern void (* _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
 extern void (* const _VectorsFlash[NVIC_NUM_INTERRUPTS+16])(void);
 
-// Reserve stack memory. This is the amount of memory malloc will leave alone
-// for the stack. The stack can grow larger than this limit (growing towards /
-// into the heap). 512 bytes are reserved by default.
-extern void reserve_stack(int size);
-
 #ifdef __cplusplus
 }
 #endif
