@@ -255,6 +255,7 @@ public:
 	virtual void flush(void)        { serial_flush(); }
 	virtual void clear(void)	{ serial_clear(); }
 	virtual int availableForWrite(void) { return serial_write_buffer_free(); }
+	using Print::write;
 	virtual size_t write(uint8_t c) { serial_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
 	virtual size_t write(long n)            { return write((uint8_t)n); }
@@ -290,6 +291,7 @@ public:
 	virtual void flush(void)        { serial2_flush(); }
 	virtual void clear(void)	{ serial2_clear(); }
 	virtual int availableForWrite(void) { return serial2_write_buffer_free(); }
+	using Print::write;
 	virtual size_t write(uint8_t c) { serial2_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
 	virtual size_t write(long n)            { return write((uint8_t)n); }
@@ -325,6 +327,7 @@ public:
 	virtual void flush(void)        { serial3_flush(); }
 	virtual void clear(void)	{ serial3_clear(); }
 	virtual int availableForWrite(void) { return serial3_write_buffer_free(); }
+	using Print::write;
 	virtual size_t write(uint8_t c) { serial3_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
 	virtual size_t write(long n)            { return write((uint8_t)n); }
@@ -360,6 +363,7 @@ public:
 	virtual void flush(void)        { serial4_flush(); }
 	virtual void clear(void)	{ serial4_clear(); }
 	virtual int availableForWrite(void) { return serial4_write_buffer_free(); }
+	using Print::write;
 	virtual size_t write(uint8_t c) { serial4_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
 	virtual size_t write(long n)            { return write((uint8_t)n); }
@@ -395,6 +399,7 @@ public:
 	virtual void flush(void)        { serial5_flush(); }
 	virtual void clear(void)	{ serial5_clear(); }
 	virtual int availableForWrite(void) { return serial5_write_buffer_free(); }
+	using Print::write;
 	virtual size_t write(uint8_t c) { serial5_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
 	virtual size_t write(long n)            { return write((uint8_t)n); }
@@ -437,6 +442,7 @@ public:
 	virtual void flush(void)        { serial6_flush(); }
 	virtual void clear(void)	{ serial6_clear(); }
 	virtual int availableForWrite(void) { return serial6_write_buffer_free(); }
+	using Print::write;
 	virtual size_t write(uint8_t c) { serial6_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
 	virtual size_t write(long n)            { return write((uint8_t)n); }

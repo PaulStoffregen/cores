@@ -565,8 +565,11 @@ void uart1_status_isr(void)
 	}
 #else
 	if (UART1_S1 & UART_S1_RDRF) {
-		n = UART1_D;
-		if (use9Bits && (UART1_C3 & 0x80)) n |= 0x100;
+		if (use9Bits && (UART1_C3 & 0x80)) {
+			n = UART1_D | 0x100;
+		} else {
+			n = UART1_D;
+		}
 		head = rx_buffer_head + 1;
 		if (head >= SERIAL2_RX_BUFFER_SIZE) head = 0;
 		if (head != rx_buffer_tail) {

@@ -49,7 +49,7 @@ audio_block_t * AudioInputUSB::ready_right;
 uint16_t AudioInputUSB::incoming_count;
 uint8_t AudioInputUSB::receive_flag;
 
-struct usb_audio_features_struct AudioInputUSB::features = {0,0,FEATURE_MAX_VOLUME};
+struct usb_audio_features_struct AudioInputUSB::features = {0,0,FEATURE_MAX_VOLUME/2};
 
 #define DMABUFATTR __attribute__ ((section(".dmabuffers"), aligned (4)))
 uint16_t usb_audio_receive_buffer[AUDIO_RX_SIZE/2] DMABUFATTR;
@@ -349,6 +349,31 @@ unsigned int usb_audio_transmit_callback(void)
 	}
 	return target * 4;
 }
+
+
+struct setup_struct {
+  union {
+    struct {
+	uint8_t bmRequestType;
+	uint8_t bRequest;
+	union {
+		struct {
+			uint8_t bChannel;  // 0=main, 1=left, 2=right
+			uint8_t bCS;       // Control Selector
+		};
+		uint16_t wValue;
+	};
+	union {
+		struct {
+			uint8_t bIfEp;     // type of entity
+			uint8_t bEntityId; // UnitID, TerminalID, etc.
+		};
+		uint16_t wIndex;
+	};
+	uint16_t wLength;
+    };
+  };
+};
 
 int usb_audio_get_feature(void *stp, uint8_t *data, uint32_t *datalen)
 {

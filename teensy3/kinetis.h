@@ -909,6 +909,9 @@ enum IRQ_NUMBER_t {
 #define PORTA_GPCLR		(*(volatile uint32_t *)0x40049080) // Global Pin Control Low Register
 #define PORTA_GPCHR		(*(volatile uint32_t *)0x40049084) // Global Pin Control High Register
 #define PORTA_ISFR		(*(volatile uint32_t *)0x400490A0) // Interrupt Status Flag Register
+#define PORTA_DFER		(*(volatile uint32_t *)0x400490C0) // Digital Filter Enable
+#define PORTA_DFCR		(*(volatile uint32_t *)0x400490C4) // Digital Filter Clock
+#define PORTA_DFWR		(*(volatile uint32_t *)0x400490C8) // Digital Filter Width
 #define PORTB_PCR0		(*(volatile uint32_t *)0x4004A000) // Pin Control Register n
 #define PORTB_PCR1		(*(volatile uint32_t *)0x4004A004) // Pin Control Register n
 #define PORTB_PCR2		(*(volatile uint32_t *)0x4004A008) // Pin Control Register n
@@ -944,6 +947,9 @@ enum IRQ_NUMBER_t {
 #define PORTB_GPCLR		(*(volatile uint32_t *)0x4004A080) // Global Pin Control Low Register
 #define PORTB_GPCHR		(*(volatile uint32_t *)0x4004A084) // Global Pin Control High Register
 #define PORTB_ISFR		(*(volatile uint32_t *)0x4004A0A0) // Interrupt Status Flag Register
+#define PORTB_DFER		(*(volatile uint32_t *)0x4004A0C0) // Digital Filter Enable
+#define PORTB_DFCR		(*(volatile uint32_t *)0x4004A0C4) // Digital Filter Clock
+#define PORTB_DFWR		(*(volatile uint32_t *)0x4004A0C8) // Digital Filter Width
 #define PORTC_PCR0		(*(volatile uint32_t *)0x4004B000) // Pin Control Register n
 #define PORTC_PCR1		(*(volatile uint32_t *)0x4004B004) // Pin Control Register n
 #define PORTC_PCR2		(*(volatile uint32_t *)0x4004B008) // Pin Control Register n
@@ -979,6 +985,9 @@ enum IRQ_NUMBER_t {
 #define PORTC_GPCLR		(*(volatile uint32_t *)0x4004B080) // Global Pin Control Low Register
 #define PORTC_GPCHR		(*(volatile uint32_t *)0x4004B084) // Global Pin Control High Register
 #define PORTC_ISFR		(*(volatile uint32_t *)0x4004B0A0) // Interrupt Status Flag Register
+#define PORTC_DFER		(*(volatile uint32_t *)0x4004B0C0) // Digital Filter Enable
+#define PORTC_DFCR		(*(volatile uint32_t *)0x4004B0C4) // Digital Filter Clock
+#define PORTC_DFWR		(*(volatile uint32_t *)0x4004B0C8) // Digital Filter Width
 #define PORTD_PCR0		(*(volatile uint32_t *)0x4004C000) // Pin Control Register n
 #define PORTD_PCR1		(*(volatile uint32_t *)0x4004C004) // Pin Control Register n
 #define PORTD_PCR2		(*(volatile uint32_t *)0x4004C008) // Pin Control Register n
@@ -1014,6 +1023,9 @@ enum IRQ_NUMBER_t {
 #define PORTD_GPCLR		(*(volatile uint32_t *)0x4004C080) // Global Pin Control Low Register
 #define PORTD_GPCHR		(*(volatile uint32_t *)0x4004C084) // Global Pin Control High Register
 #define PORTD_ISFR		(*(volatile uint32_t *)0x4004C0A0) // Interrupt Status Flag Register
+#define PORTD_DFER		(*(volatile uint32_t *)0x4004C0C0) // Digital Filter Enable
+#define PORTD_DFCR		(*(volatile uint32_t *)0x4004C0C4) // Digital Filter Clock
+#define PORTD_DFWR		(*(volatile uint32_t *)0x4004C0C8) // Digital Filter Width
 #define PORTE_PCR0		(*(volatile uint32_t *)0x4004D000) // Pin Control Register n
 #define PORTE_PCR1		(*(volatile uint32_t *)0x4004D004) // Pin Control Register n
 #define PORTE_PCR2		(*(volatile uint32_t *)0x4004D008) // Pin Control Register n
@@ -1049,6 +1061,9 @@ enum IRQ_NUMBER_t {
 #define PORTE_GPCLR		(*(volatile uint32_t *)0x4004D080) // Global Pin Control Low Register
 #define PORTE_GPCHR		(*(volatile uint32_t *)0x4004D084) // Global Pin Control High Register
 #define PORTE_ISFR		(*(volatile uint32_t *)0x4004D0A0) // Interrupt Status Flag Register
+#define PORTE_DFER		(*(volatile uint32_t *)0x4004D0C0) // Digital Filter Enable
+#define PORTE_DFCR		(*(volatile uint32_t *)0x4004D0C4) // Digital Filter Clock
+#define PORTE_DFWR		(*(volatile uint32_t *)0x4004D0C8) // Digital Filter Width
 
 // System Integration Module (SIM)
 
@@ -2878,6 +2893,9 @@ typedef struct {
 #define DAC0_DAT14L		(*(volatile uint8_t  *)0x400CC01C) // DAC Data Low Register
 #define DAC0_DAT15L		(*(volatile uint8_t  *)0x400CC01E) // DAC Data Low Register
 #define DAC0_SR			(*(volatile uint8_t  *)0x400CC020) // DAC Status Register
+#define DAC_SR_DACBFWMF			0x04				// Buffer Watermark Flag
+#define DAC_SR_DACBFRTF			0x02				// Pointer Top Position Flag
+#define DAC_SR_DACBFRBF			0x01				// Pointer Bottom Position Flag
 #define DAC0_C0			(*(volatile uint8_t  *)0x400CC021) // DAC Control Register
 #define DAC_C0_DACEN			0x80				// DAC Enable
 #define DAC_C0_DACRFS			0x40				// DAC Reference Select
@@ -3031,6 +3049,8 @@ typedef struct {
 #define PDB0_CH1DLY0		(*(volatile uint32_t *)0x40036040) // Channel 1 Delay 0 Register
 #define PDB0_CH1DLY1		(*(volatile uint32_t *)0x40036044) // Channel 1 Delay 1 Register
 #define PDB0_DACINTC0		(*(volatile uint32_t *)0x40036150) // DAC Interval Trigger n Control Register
+#define PDB_DACINTC_EXT			0x02			// External Trigger Input Enable
+#define PDB_DACINTC_TOE			0x01			// Interval Trigger Enable
 #define PDB0_DACINT0		(*(volatile uint32_t *)0x40036154) // DAC Interval n Register
 #define PDB0_DACINTC1		(*(volatile uint32_t *)0x40036158) // DAC Interval Trigger n Control register
 #define PDB0_DACINT1		(*(volatile uint32_t *)0x4003615C) // DAC Interval n register

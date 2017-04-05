@@ -71,7 +71,13 @@ extern volatile uint8_t usb_configuration;
 class usb_serial_class : public Stream
 {
 public:
-        void begin(long) { /* TODO: call a function that tries to wait for enumeration */ };
+        void begin(long) {
+		uint32_t millis_begin = systick_millis_count;
+		while (!(*this)) {
+			// wait up to 1 second for Arduino Serial Monitor
+			if ((uint32_t)(systick_millis_count - millis_begin) > 1000) break;
+		}
+	}
         void end() { /* TODO: flush output and shut down USB port */ };
         virtual int available() { return usb_serial_available(); }
         virtual int read() { return usb_serial_getchar(); }
