@@ -1,6 +1,6 @@
 #include "WProgram.h"
 
-extern "C" int main(void)
+extern "C" int __attribute__((weak)) main(void)
 {
 #ifdef USING_MAKEFILE
 
