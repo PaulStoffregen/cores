@@ -590,22 +590,22 @@ class PINCemulation
 public:
 	inline int operator & (int val) const __attribute__((always_inline)) {
 		int ret = 0;
-		if ((val & (1<<0)) && digitalReadFast(8)) ret |= (1<<0);
-		if ((val & (1<<1)) && digitalReadFast(9)) ret |= (1<<1);
-		if ((val & (1<<2)) && digitalReadFast(10)) ret |= (1<<2);
-		if ((val & (1<<3)) && digitalReadFast(11)) ret |= (1<<3);
-		if ((val & (1<<4)) && digitalReadFast(12)) ret |= (1<<4);
-		if ((val & (1<<5)) && digitalReadFast(13)) ret |= (1<<5);
+		if ((val & (1<<0)) && digitalReadFast(14)) ret |= (1<<0);
+		if ((val & (1<<1)) && digitalReadFast(15)) ret |= (1<<1);
+		if ((val & (1<<2)) && digitalReadFast(16)) ret |= (1<<2);
+		if ((val & (1<<3)) && digitalReadFast(17)) ret |= (1<<3);
+		if ((val & (1<<4)) && digitalReadFast(18)) ret |= (1<<4);
+		if ((val & (1<<5)) && digitalReadFast(19)) ret |= (1<<5);
 		return ret;
 	}
 	operator int () const __attribute__((always_inline)) {
 		int ret = 0;
-		if (digitalReadFast(8)) ret |= (1<<0);
-		if (digitalReadFast(9)) ret |= (1<<1);
-		if (digitalReadFast(10)) ret |= (1<<2);
-		if (digitalReadFast(11)) ret |= (1<<3);
-		if (digitalReadFast(12)) ret |= (1<<4);
-		if (digitalReadFast(13)) ret |= (1<<5);
+		if (digitalReadFast(14)) ret |= (1<<0);
+		if (digitalReadFast(15)) ret |= (1<<1);
+		if (digitalReadFast(15)) ret |= (1<<2);
+		if (digitalReadFast(17)) ret |= (1<<3);
+		if (digitalReadFast(18)) ret |= (1<<4);
+		if (digitalReadFast(19)) ret |= (1<<5);
 		return ret;
 	}
 };
