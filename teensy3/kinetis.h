@@ -3567,6 +3567,12 @@ typedef struct {
 #define RTC_SR_TIF			((uint32_t)0x00000001)		//
 #define RTC_LR			(*(volatile uint32_t *)0x4003D018) // RTC Lock Register
 #define RTC_IER			(*(volatile uint32_t *)0x4003D01C) // RTC Interrupt Enable Register
+#define RTC_IER_WPON		((uint32_t)0x00000080)		// RTC Wakeup Pin
+#define RTC_IER_TSIE		((uint32_t)0x00000010)		// RTC Time Seconds Interrupt
+#define RTC_IER_MOIE		((uint32_t)0x00000008)		// RTC Monotonic Overflow Interrupt
+#define RTC_IER_TAIE		((uint32_t)0x00000004)		// RTC Time Alarm Interrupt
+#define RTC_IER_TOIE		((uint32_t)0x00000002)		// RTC Overflow Interrupt
+#define RTC_IER_TIIE		((uint32_t)0x00000001)		// RTC Time Invalid Interrupt
 #define RTC_WAR			(*(volatile uint32_t *)0x4003D800) // RTC Write Access Register
 #define RTC_RAR			(*(volatile uint32_t *)0x4003D804) // RTC Read Access Register
 
