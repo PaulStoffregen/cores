@@ -1312,7 +1312,7 @@ enum IRQ_NUMBER_t {
 
 #if defined(__MK66FX1M0__)
 #define SMC_STOPCTRL			SMC_VLLSCTRL // Stop Control Register (compatible to SMC_VLLSCTRL)
-#define SMC_STOPCTRL_PSTOPO(n)	((uint8_t)(((n) & 0x03) << 6)) 		//POR Power Option
+#define SMC_STOPCTRL_PSTOPO(n)	((uint8_t)(((n) & 0x03) << 6)) 		// Partial Stop Option
 #define SMC_STOPCTRL_PORPO		SMC_VLLSCTRL_PORPO		// POR Power Option
 #define SMC_STOPCTRL_RAM2PO		((uint8_t)0x10)			// RAM2 Power Option
 #define SMC_STOPCTRL_LLSM(n)		SMC_VLLSCTRL_VLLSM(n)		// VLLS Mode Control
