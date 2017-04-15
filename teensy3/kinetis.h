@@ -1309,6 +1309,15 @@ enum IRQ_NUMBER_t {
 #define SMC_VLLSCTRL		(*(volatile uint8_t  *)0x4007E002) // VLLS Control Register
 #define SMC_VLLSCTRL_PORPO		((uint8_t)0x20)			// POR Power Option
 #define SMC_VLLSCTRL_VLLSM(n)		((uint8_t)((n) & 0x07))		// VLLS Mode Control
+
+#if defined(__MK66FX1M0__)
+#define SMC_STOPCTRL			SMC_VLLSCTRL // Stop Control Register (compatible to SMC_VLLSCTRL)
+#define SMC_STOPCTRL_PSTOPO(n)	((uint8_t)(((n) & 0x03) << 6)) 		//POR Power Option
+#define SMC_STOPCTRL_PORPO		SMC_VLLSCTRL_PORPO		// POR Power Option
+#define SMC_STOPCTRL_RAM2PO		((uint8_t)0x10)			// RAM2 Power Option
+#define SMC_STOPCTRL_LLSM(n)		SMC_VLLSCTRL_VLLSM(n)		// VLLS Mode Control
+#endif
+
 #define SMC_PMSTAT		(*(volatile uint8_t  *)0x4007E003) // Power Mode Status Register
 #define SMC_PMSTAT_RUN			((uint8_t)0x01)			// Current power mode is RUN
 #define SMC_PMSTAT_STOP			((uint8_t)0x02)			// Current power mode is STOP
