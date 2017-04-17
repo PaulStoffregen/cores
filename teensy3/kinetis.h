@@ -1348,10 +1348,10 @@ enum IRQ_NUMBER_t {
 #define PMC_REGSC_BGBE			((uint8_t)0x01)			// Bandgap Buffer Enable
 
 // Low-Leakage Wakeup Unit (LLWU)
-#define LLWU_PIN_DISABLE		((uint8_t)0x00)			// Disable external input pin as wakeup pin
-#define LLWU_PIN_RISING			((uint8_t)0x01)			// Enable external input pin with rising edge detection
-#define LLWU_PIN_FALLING		((uint8_t)0x10)			// Enable external input pin with falling edge detection
-#define LLWU_PIN_ANY			((uint8_t)0x11)			// Enable external input pin with any change detection
+#define LLWU_PE_WUPE_PIN_DISABLE	((uint8_t)0x00)		// Disable external input pin as wakeup pin
+#define LLWU_PE_WUPE_PIN_RISING		((uint8_t)0x01)		// Enable external input pin with rising edge detection
+#define LLWU_PE_WUPE_PIN_FALLING	((uint8_t)0x10)		// Enable external input pin with falling edge detection
+#define LLWU_PE_WUPE_PIN_ANY		((uint8_t)0x11)		// Enable external input pin with any change detection
 
 #if defined(HAS_KINETIS_LLWU_32CH)
 #define LLWU_PE1		(*(volatile uint8_t  *)0x4007C000) // LLWU Pin Enable 1 register
