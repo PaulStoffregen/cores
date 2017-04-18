@@ -860,6 +860,14 @@ enum IRQ_NUMBER_t {
 #define NULL (0)
 #endif
 
+// System Register File 
+#define SYSR		(*(volatile uint32_t *)0x40041000) // System Register File
+
+//VBAT Register File
+#ifdef KINETISK
+#define VBATR		(*(volatile uint32_t *)0x4003E000) // VBAT Register File
+#endif 
+
 // Port control and interrupts (PORT)
 
 #define PORTA_PCR0		(*(volatile uint32_t *)0x40049000) // Pin Control Register n
