@@ -843,6 +843,8 @@ void ResetHandler(void)
 	// if we need faster than the crystal, turn on the PLL
    #if defined(__MK66FX1M0__)
     #if F_CPU > 120000000
+	extern void usb_init_serialnumber(void);
+	usb_init_serialnumber();	// see if we can call this before we are in HS mode if we get
 	SMC_PMCTRL = SMC_PMCTRL_RUNM(3); // enter HSRUN mode
 	while (SMC_PMSTAT != SMC_PMSTAT_HSRUN) ; // wait for HSRUN
     #endif
