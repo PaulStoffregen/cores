@@ -1090,6 +1090,12 @@ void pinMode(uint8_t pin, uint8_t mode)
 	}
 }
 
+void pinDisable(const uint8_t pin) {
+  volatile uint32_t *config;  
+  if (pin >= CORE_NUM_TOTAL_PINS) return;
+  config = portConfigRegister(pin);
+  *config = 0;
+}
 
 void _shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t value)
 {

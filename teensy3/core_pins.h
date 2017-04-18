@@ -1916,6 +1916,7 @@ static inline uint8_t digitalReadFast(uint8_t pin)
 
 
 void pinMode(uint8_t pin, uint8_t mode);
+void pinDisable(const uint8_t pin);
 void init_pins(void);
 void analogWrite(uint8_t pin, int val);
 void analogWriteRes(uint32_t bits);
