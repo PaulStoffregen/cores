@@ -38,6 +38,7 @@ uint32_t AudioStream::memory_pool_available_mask[6];
 
 uint16_t AudioStream::cpu_cycles_total = 0;
 uint16_t AudioStream::cpu_cycles_total_max = 0;
+uint8_t AudioStream::memory_total;
 uint8_t AudioStream::memory_used = 0;
 uint8_t AudioStream::memory_used_max = 0;
 
@@ -64,7 +65,7 @@ void AudioStream::initialize_memory(audio_block_t *data, unsigned int num)
 		data[i].memory_pool_index = i;
 	}
 	__enable_irq();
-
+	memory_total = num;
 }
 
 // Allocate 1 audio data block.  If successful

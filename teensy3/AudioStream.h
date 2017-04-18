@@ -112,6 +112,7 @@ protected:
 #define AudioProcessorUsage() (CYCLE_COUNTER_APPROX_PERCENT(AudioStream::cpu_cycles_total))
 #define AudioProcessorUsageMax() (CYCLE_COUNTER_APPROX_PERCENT(AudioStream::cpu_cycles_total_max))
 #define AudioProcessorUsageMaxReset() (AudioStream::cpu_cycles_total_max = AudioStream::cpu_cycles_total)
+#define AudioMemoryTotal() (AudioStream::memory_total)
 #define AudioMemoryUsage() (AudioStream::memory_used)
 #define AudioMemoryUsageMax() (AudioStream::memory_used_max)
 #define AudioMemoryUsageMaxReset() (AudioStream::memory_used_max = AudioStream::memory_used)
@@ -147,6 +148,7 @@ public:
 	uint16_t cpu_cycles_max;
 	static uint16_t cpu_cycles_total;
 	static uint16_t cpu_cycles_total_max;
+	static uint8_t memory_total;
 	static uint8_t memory_used;
 	static uint8_t memory_used_max;
 protected:
