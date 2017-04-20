@@ -38,6 +38,7 @@ extern "C" {
 #endif
 
 void eeprom_initialize(void);
+uint32_t eeprom_size(void) __attribute__((const));
 uint8_t eeprom_read_byte(const uint8_t *addr) __attribute__ ((pure));
 uint16_t eeprom_read_word(const uint16_t *addr) __attribute__ ((pure));
 uint32_t eeprom_read_dword(const uint32_t *addr) __attribute__ ((pure));
