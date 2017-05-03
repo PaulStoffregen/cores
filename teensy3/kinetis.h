@@ -1351,6 +1351,10 @@ enum IRQ_NUMBER_t {
 
 #if defined(HAS_KINETIS_LLWU_32CH)
 #define LLWU_PE1		(*(volatile uint8_t  *)0x4007C000) // LLWU Pin Enable 1 register
+#define LLWU_PE_WUPE_PIN_DISABLE	((uint8_t)0x00)		// Disable pin as wakeup pin
+#define LLWU_PE_WUPE_PIN_RISING		((uint8_t)0x01)		// Enable pin rising edge detect
+#define LLWU_PE_WUPE_PIN_FALLING	((uint8_t)0x10)		// Enable pin falling edge detect
+#define LLWU_PE_WUPE_PIN_ANY		((uint8_t)0x11)		// Enable pin with any change detect
 #define LLWU_PE1_WUPE0(n)       ((uint8_t)((n) & 0x03)) // Wakeup Pin Enable For LLWU_P0
 #define LLWU_PE1_WUPE1(n)       ((uint8_t)(((n) & 0x03) << 2)) // Wakeup Pin Enable For LLWU_P1
 #define LLWU_PE1_WUPE2(n)       ((uint8_t)(((n) & 0x03) << 4)) // Wakeup Pin Enable For LLWU_P2
@@ -1450,6 +1454,10 @@ enum IRQ_NUMBER_t {
 #define LLWU_FILT4		(*(volatile uint8_t  *)0x4007C011) // LLWU Pin Filter 4 register
 #elif defined(HAS_KINETIS_LLWU_16CH)
 #define LLWU_PE1		(*(volatile uint8_t  *)0x4007C000) // LLWU Pin Enable 1 register
+#define LLWU_PE_WUPE_PIN_DISABLE	((uint8_t)0x00)		// Disable pin as wakeup pin
+#define LLWU_PE_WUPE_PIN_RISING		((uint8_t)0x01)		// Enable pin rising edge detect
+#define LLWU_PE_WUPE_PIN_FALLING	((uint8_t)0x10)		// Enable pin falling edge detect
+#define LLWU_PE_WUPE_PIN_ANY		((uint8_t)0x11)		// Enable pin with any change detect
 #define LLWU_PE1_WUPE0(n)       ((uint8_t)((n) & 0x03)) // Wakeup Pin Enable For LLWU_P0
 #define LLWU_PE1_WUPE1(n)       ((uint8_t)(((n) & 0x03) << 2)) // Wakeup Pin Enable For LLWU_P1
 #define LLWU_PE1_WUPE2(n)       ((uint8_t)(((n) & 0x03) << 4)) // Wakeup Pin Enable For LLWU_P2
