@@ -1,6 +1,6 @@
 #include "HardwareSerial.h"
 
-#ifdef HAS_KINETISK_UART4
+#if defined(HAS_KINETISK_UART4) && !defined(SERIAL5_DISABLE)
 
 HardwareSerial5 Serial5;
 

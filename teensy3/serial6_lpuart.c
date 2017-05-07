@@ -30,6 +30,7 @@
 
 #include "kinetis.h"
 #include "core_pins.h"
+#ifndef SERIAL6_DISABLE
 #include "HardwareSerial.h"
 
 #ifdef HAS_KINETISK_LPUART0
@@ -461,3 +462,4 @@ void lpuart0_status_isr(void)
 }
 
 #endif // HAS_KINETISK_UART4
+#endif
