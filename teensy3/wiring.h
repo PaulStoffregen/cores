@@ -94,6 +94,14 @@ extern "C"{
   typeof(x) _x = (x); \
   _x * _x; \
 })
+
+extern double exp10(double x);
+extern float exp10f(float x);
+extern long double exp10l(long double x);
+extern double pow10(double x);
+extern float pow10f(float x);
+extern long double pow10l(long double x);
+
 #define sei() __enable_irq()
 #define cli() __disable_irq()
 #define interrupts() __enable_irq()
