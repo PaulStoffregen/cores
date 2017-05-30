@@ -102,6 +102,8 @@ extern double pow10(double x);
 extern float pow10f(float x);
 extern long double pow10l(long double x);
 
+#define stricmp(a, b) strcasecmp(a, b)
+
 #define sei() __enable_irq()
 #define cli() __disable_irq()
 #define interrupts() __enable_irq()
