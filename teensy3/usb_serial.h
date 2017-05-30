@@ -90,7 +90,7 @@ public:
 	size_t write(long n) { return write((uint8_t)n); }
 	size_t write(unsigned int n) { return write((uint8_t)n); }
 	size_t write(int n) { return write((uint8_t)n); }
-	int availableForWrite() { return usb_serial_write_buffer_free(); }
+	virtual int availableForWrite() { return usb_serial_write_buffer_free(); }
 	using Print::write;
         void send_now(void) { usb_serial_flush_output(); }
         uint32_t baud(void) { return usb_cdc_line_coding[0]; }
