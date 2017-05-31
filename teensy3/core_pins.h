@@ -1918,8 +1918,8 @@ static inline uint8_t digitalReadFast(uint8_t pin)
 void pinMode(uint8_t pin, uint8_t mode);
 void init_pins(void);
 void analogWrite(uint8_t pin, int val);
-void analogWriteRes(uint32_t bits);
-static inline void analogWriteResolution(uint32_t bits) { analogWriteRes(bits); }
+uint32_t analogWriteRes(uint32_t bits);
+static inline uint32_t analogWriteResolution(uint32_t bits) { return analogWriteRes(bits); }
 void analogWriteFrequency(uint8_t pin, float frequency);
 void analogWriteDAC0(int val);
 void analogWriteDAC1(int val);

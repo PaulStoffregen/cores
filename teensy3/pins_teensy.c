@@ -899,14 +899,17 @@ void analogWrite(uint8_t pin, int val)
 }
 
 
-void analogWriteRes(uint32_t bits)
+uint32_t analogWriteRes(uint32_t bits)
 {
+	uint32_t prior_res;
 	if (bits < 1) {
 		bits = 1;
 	} else if (bits > 16) {
 		bits = 16;
 	}
+	prior_res = analog_write_res;
 	analog_write_res = bits;
+	return prior_res;
 }
 
 
