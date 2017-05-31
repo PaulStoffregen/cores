@@ -41,7 +41,7 @@ extern uint16_t dma_channel_allocated_mask;
 
 class DMABaseClass {
 public:
-	typedef struct __attribute__((packed)) {
+	typedef struct __attribute__((packed, aligned(4))) {
 		volatile const void * volatile SADDR;
 		int16_t SOFF;
 		union { uint16_t ATTR;
@@ -312,7 +312,8 @@ public:
 	// Set the number of transfers (number of triggers until complete)
 	void transferCount(unsigned int len) {
 		if (len > 32767) return;
-		if (len >= 512) {
+//		if (len >= 512) {
+		if (!(TCD->BITER & DMA_TCD_BITER_ELINK)) {
 			TCD->BITER = len;
 			TCD->CITER = len;
 		} else {
@@ -589,7 +590,7 @@ void DMAPriorityOrder(DMAChannel &ch1, DMAChannel &ch2, DMAChannel &ch3, DMAChan
 
 class DMABaseClass {
 public:
-	typedef struct __attribute__((packed)) {
+	typedef struct __attribute__((packed, aligned(4))) {
 		volatile const void * volatile SAR;
 		volatile void * volatile       DAR;
 		volatile uint32_t              DSR_BCR;
