@@ -71,6 +71,7 @@ extern volatile uint8_t usb_configuration;
 class usb_serial_class : public Stream
 {
 public:
+	constexpr usb_serial_class() {}
         void begin(long) {
 		uint32_t millis_begin = systick_millis_count;
 		while (!(*this)) {
@@ -128,6 +129,7 @@ extern void serialEvent(void);
 class usb_serial_class : public Stream
 {
 public:
+	constexpr usb_serial_class() {}
         void begin(long) { };
         void end() { };
         virtual int available() { return 0; }

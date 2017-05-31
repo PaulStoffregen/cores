@@ -64,6 +64,7 @@ extern volatile uint8_t usb_configuration;
 class usb_seremu_class : public Stream
 {
 public:
+	constexpr usb_seremu_class() {}
         void begin(long) { /* TODO: call a function that tries to wait for enumeration */ };
         void end() { /* TODO: flush output and shut down USB port */ };
         virtual int available() { return usb_seremu_available(); }
@@ -101,6 +102,7 @@ extern void serialEvent(void);
 class usb_seremu_class : public Stream
 {
 public:
+	constexpr usb_seremu_class() {}
 	void begin(long) { };
 	void end() { };
 	virtual int available() { return 0; }
