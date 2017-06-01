@@ -2,6 +2,12 @@
 # language keywords - Arduino doesn't define these, but probably should
 volatile	LITERAL2
 constexpr	LITERAL2
+alignas	LITERAL2
+alignof	LITERAL2
+nullptr	LITERAL2
+noexcept	LITERAL2
+static_assert	LITERAL2
+thread_local	LITERAL2
 
 # teensy specific functions
 elapsedMillis	LITERAL2
