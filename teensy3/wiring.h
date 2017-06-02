@@ -39,12 +39,14 @@
 #include <type_traits>
 // when the input number is an integer type, do all math as 32 bit signed long
 template <class T, class A, class B, class C, class D>
-T map(T _x, A _in_min, B _in_max, C _out_min, D _out_max, typename std::enable_if<std::is_integral<T>::value >::type* = 0)
+long map(T _x, A _in_min, B _in_max, C _out_min, D _out_max, typename std::enable_if<std::is_integral<T>::value >::type* = 0)
 {
 	long x = _x, in_min = _in_min, in_max = _in_max, out_min = _out_min, out_max = _out_max;
 	// Arduino's traditional algorithm
 	//return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 	// st42's suggestion: https://github.com/arduino/Arduino/issues/2466#issuecomment-69873889
+	// more conversation:
+	// https://forum.pjrc.com/threads/44503-map()-function-improvements
 	if ((in_max - in_min) > (out_max - out_min)) {
 		return (x - in_min) * (out_max - out_min+1) / (in_max - in_min+1) + out_min;
 	} else {
