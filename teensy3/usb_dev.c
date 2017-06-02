@@ -274,14 +274,15 @@ static void usb_setup(void)
 		data = reply_buffer;
 		break;
 	  case 0x0082: // GET_STATUS (endpoint)
-		if (setup.wIndex > NUM_ENDPOINTS) {
+		i = setup.wIndex & 0x7F;
+		if (i > NUM_ENDPOINTS) {
 			// TODO: do we need to handle IN vs OUT here?
 			endpoint0_stall();
 			return;
 		}
 		reply_buffer[0] = 0;
 		reply_buffer[1] = 0;
-		if (*(uint8_t *)(&USB0_ENDPT0 + setup.wIndex * 4) & 0x02) reply_buffer[0] = 1;
+		if (*(uint8_t *)(&USB0_ENDPT0 + i * 4) & 0x02) reply_buffer[0] = 1;
 		data = reply_buffer;
 		datalen = 2;
 		break;
@@ -358,18 +359,23 @@ static void usb_setup(void)
 #endif
 
 #if defined(MTP_INTERFACE)
-	case 0x2164: // Cancel Request (PTP spec, 5.2.1, page 8)
+	case 0x64A1: // Cancel Request (PTP spec, 5.2.1, page 8)
 		// TODO: required by PTP spec
 		endpoint0_stall();
 		return;
-	case 0x2166: // Device Reset (PTP spec, 5.2.3, page 10)
+	case 0x66A1: // Device Reset (PTP spec, 5.2.3, page 10)
 		// TODO: required by PTP spec
 		endpoint0_stall();
 		return;
-	case 0x2167: // Get Device Statis (PTP spec, 5.2.4, page 10)
-		// TODO: required by PTP spec
-		endpoint0_stall();
-		return;
+	case 0x67A1: // Get Device Statis (PTP spec, 5.2.4, page 10)
+		// For now, always respond with status ok.
+		reply_buffer[0] = 0x4;
+		reply_buffer[1] = 0;
+		reply_buffer[2] = 0x01;
+		reply_buffer[3] = 0x20;
+		data = reply_buffer;
+		datalen = 4;
+		break;
 #endif
 
 // TODO: this does not work... why?
