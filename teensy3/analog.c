@@ -501,7 +501,7 @@ startADC1:
 #endif
 }
 
-
+typedef int16_t __attribute__((__may_alias__)) aliased_int16_t;
 
 void analogWriteDAC0(int val)
 {
@@ -514,7 +514,8 @@ void analogWriteDAC0(int val)
 	}
 	if (val < 0) val = 0;  // TODO: saturate instruction?
 	else if (val > 4095) val = 4095;
-	*(int16_t *)&(DAC0_DAT0L) = val;
+
+	*(volatile aliased_int16_t *)&(DAC0_DAT0L) = val;
 #elif defined(__MKL26Z64__)
 	SIM_SCGC6 |= SIM_SCGC6_DAC0;
 	if (analog_reference_internal == 0) {
@@ -526,7 +527,8 @@ void analogWriteDAC0(int val)
 	}
 	if (val < 0) val = 0;
 	else if (val > 4095) val = 4095;
-	*(int16_t *)&(DAC0_DAT0L) = val;
+
+	*(volatile aliased_int16_t *)&(DAC0_DAT0L) = val;
 #endif
 }
 
@@ -542,7 +544,8 @@ void analogWriteDAC1(int val)
 	}
 	if (val < 0) val = 0;  // TODO: saturate instruction?
 	else if (val > 4095) val = 4095;
-	*(int16_t *)&(DAC1_DAT0L) = val;
+
+	*(volatile aliased_int16_t *)&(DAC1_DAT0L) = val;
 }
 #endif
 
