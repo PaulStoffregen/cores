@@ -1150,6 +1150,9 @@ char *__brkval = (char *)&_ebss;
 #endif
 #endif
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 void * _sbrk(int incr)
 {
 	char *prev, *stack;
@@ -1223,9 +1226,11 @@ void __cxa_guard_release(char *g)
 	*g = 1;
 }
 
+#pragma GCC diagnostic pop
+
 int nvic_execution_priority(void)
 {
-	int priority=256;
+	uint32_t priority=256;
 	uint32_t primask, faultmask, basepri, ipsr;
 
 	// full algorithm in ARM DDI0403D, page B1-639
