@@ -1348,6 +1348,10 @@ enum IRQ_NUMBER_t {
 #define PMC_REGSC_BGBE			((uint8_t)0x01)			// Bandgap Buffer Enable
 
 // Low-Leakage Wakeup Unit (LLWU)
+#define LLWU_PE_WUPE_PIN_DISABLE	((uint8_t)0x00)		// Disable external input pin as wakeup pin
+#define LLWU_PE_WUPE_PIN_RISING		((uint8_t)0x01)		// Enable external input pin with rising edge detection
+#define LLWU_PE_WUPE_PIN_FALLING	((uint8_t)0x10)		// Enable external input pin with falling edge detection
+#define LLWU_PE_WUPE_PIN_ANY		((uint8_t)0x11)		// Enable external input pin with any change detection
 
 #if defined(HAS_KINETIS_LLWU_32CH)
 #define LLWU_PE1		(*(volatile uint8_t  *)0x4007C000) // LLWU Pin Enable 1 register
@@ -3936,7 +3940,7 @@ typedef struct {
 #define USB_CLK_RECOVER_CTRL_CLOCK_RECOVER_EN		((uint8_t)0x80)
 #define USB_CLK_RECOVER_CTRL_RESET_RESUME_ROUGH_EN	((uint8_t)0x40)
 #define USB_CLK_RECOVER_CTRL_RESTART_IFRTRIM_EN		((uint8_t)0x20)
-#define USB0_CLK_RECOVER_IRC_EN	(*(volatile uint8_t  *)0x40072144) // IRC48M oscillator enable 
+#define USB0_CLK_RECOVER_IRC_EN	(*(volatile uint8_t  *)0x40072144) // IRC48M oscillator enable
 #define USB_CLK_RECOVER_IRC_EN_IRC_EN			((uint8_t)0x02)
 #define USB_CLK_RECOVER_IRC_EN_REG_EN			((uint8_t)0x01)
 #define USB0_CLK_RECOVER_INT_EN	(*(volatile uint8_t  *)0x40072154) // Clock recovery combined interrupt enable
@@ -5317,7 +5321,7 @@ typedef struct __attribute__((packed)) {
 #define LPUART_BAUD_TDMAE		((uint32_t)0x00800000)		// Transmitter Dma Enable
 #define LPUART_BAUD_RDMAE		((uint32_t)0x00400000)		// Receiver Dma Enable
 #define LPUART_BAUD_BOTHEDGE	((uint32_t)0x00020000)		// Both edge sampling needed OSR 4-7
-#define LPUART_BAUD_SBNS		((uint32_t)0x00002000)		// UART Stop Bit Number Select 
+#define LPUART_BAUD_SBNS		((uint32_t)0x00002000)		// UART Stop Bit Number Select
 #define LPUART_BAUD_SBR(n)		((uint32_t)((n) & 0x1fff) << 0) // set baud rate divisor
 
 #define LPUART0_STAT		(KINETISK_LPUART0.STAT)		// LPUART Status register
