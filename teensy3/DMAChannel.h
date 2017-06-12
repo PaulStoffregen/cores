@@ -41,7 +41,7 @@ extern uint16_t dma_channel_allocated_mask;
 
 class DMABaseClass {
 public:
-	typedef struct __attribute__((packed)) {
+	typedef struct __attribute__((packed, aligned(4))) {
 		volatile const void * volatile SADDR;
 		int16_t SOFF;
 		union { uint16_t ATTR;
@@ -589,7 +589,7 @@ void DMAPriorityOrder(DMAChannel &ch1, DMAChannel &ch2, DMAChannel &ch3, DMAChan
 
 class DMABaseClass {
 public:
-	typedef struct __attribute__((packed)) {
+	typedef struct __attribute__((packed, aligned(4))) {
 		volatile const void * volatile SAR;
 		volatile void * volatile       DAR;
 		volatile uint32_t              DSR_BCR;
