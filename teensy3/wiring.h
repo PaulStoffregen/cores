@@ -59,11 +59,30 @@ T map(T x, A in_min, B in_max, C out_min, D out_max, typename std::enable_if<std
 {
 	return (x - (T)in_min) * ((T)out_max - (T)out_min) / ((T)in_max - (T)in_min) + (T)out_min;
 }
+#include <algorithm> // c++ min, max
+#include <utility>
+// https://forum.pjrc.com/threads/44596-Teensyduino-1-37-Beta-2-(Arduino-1-8-3-support)?p=145150&viewfull=1#post145150
+template<class A, class B>
+constexpr auto min(A&& a, B&& b) -> decltype(a < b ? std::forward<A>(a) : std::forward<B>(b)) {
+  return a < b ? std::forward<A>(a) : std::forward<B>(b);
+}
+template<class A, class B>
+constexpr auto max(A&& a, B&& b) -> decltype(a < b ? std::forward<A>(a) : std::forward<B>(b)) {
+  return a >= b ? std::forward<A>(a) : std::forward<B>(b);
+}
+#else // not C++
+#define min(a, b) ({ \
+  typeof(a) _a = (a); \
+  typeof(b) _b = (b); \
+  (_a < _b) ? _a : _b; \
+})
+#define max(a, b) ({ \
+  typeof(a) _a = (a); \
+  typeof(b) _b = (b); \
+  (_a > _b) ? _a : _b; \
+})
 #endif
 
-#ifdef __cplusplus
-extern "C"{
-#endif
 
 #ifdef PI
 #undef PI
@@ -93,16 +112,6 @@ extern "C"{
 #define typeof(a) decltype(a)
 #endif
 
-#define min(a, b) ({ \
-  typeof(a) _a = (a); \
-  typeof(b) _b = (b); \
-  (_a < _b) ? _a : _b; \
-})
-#define max(a, b) ({ \
-  typeof(a) _a = (a); \
-  typeof(b) _b = (b); \
-  (_a > _b) ? _a : _b; \
-})
 #define abs(x) ({ \
   typeof(x) _x = (x); \
   (_x > 0) ? _x : -_x; \
@@ -123,6 +132,10 @@ extern "C"{
   typeof(x) _x = (x); \
   _x * _x; \
 })
+
+#ifdef __cplusplus
+extern "C"{
+#endif
 
 extern double exp10(double x);
 extern float exp10f(float x);
