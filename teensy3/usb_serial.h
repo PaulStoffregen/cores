@@ -75,7 +75,12 @@ public:
         void begin(long) {
 		uint32_t millis_begin = systick_millis_count;
 		while (!(*this)) {
-			// wait up to 1 second for Arduino Serial Monitor
+			// wait up to 4 seconds for Arduino Serial Monitor
+			// Yes, this is a long time, but some Windows systems open
+			// the port very slowly.  This wait allows programs for
+			// Arduino Uno to "just work" (without forcing a reboot when
+			// the port is opened), and when no PC is connected the user's
+			// sketch still gets to run normally after this wait time.
 			if ((uint32_t)(systick_millis_count - millis_begin) > 4000) break;
 		}
 	}
