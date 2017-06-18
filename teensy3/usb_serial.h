@@ -76,7 +76,7 @@ public:
 		uint32_t millis_begin = systick_millis_count;
 		while (!(*this)) {
 			// wait up to 1 second for Arduino Serial Monitor
-			if ((uint32_t)(systick_millis_count - millis_begin) > 1000) break;
+			if ((uint32_t)(systick_millis_count - millis_begin) > 4000) break;
 		}
 	}
         void end() { /* TODO: flush output and shut down USB port */ };
