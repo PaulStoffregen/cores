@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -1026,7 +1026,7 @@ public:
 			}
 		}
 		pinout = newpinout;
-#endif    
+#endif
 	}
 	inline void setMISO(uint8_t pin) __attribute__((always_inline)) {
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
