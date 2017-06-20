@@ -347,15 +347,27 @@ void analogReadAveraging(unsigned int num)
 	} else if (num <= 4) {
 		num = 4;
 		ADC0_SC3 = ADC_SC3_AVGE + ADC_SC3_AVGS(0);
+#ifdef HAS_KINETIS_ADC1
+		ADC1_SC3 = ADC_SC3_AVGE + ADC_SC3_AVGS(0);
+#endif
 	} else if (num <= 8) {
 		num = 8;
 		ADC0_SC3 = ADC_SC3_AVGE + ADC_SC3_AVGS(1);
+#ifdef HAS_KINETIS_ADC1
+		ADC1_SC3 = ADC_SC3_AVGE + ADC_SC3_AVGS(1);
+#endif
 	} else if (num <= 16) {
 		num = 16;
 		ADC0_SC3 = ADC_SC3_AVGE + ADC_SC3_AVGS(2);
+#ifdef HAS_KINETIS_ADC1
+		ADC1_SC3 = ADC_SC3_AVGE + ADC_SC3_AVGS(2);
+#endif
 	} else {
 		num = 32;
 		ADC0_SC3 = ADC_SC3_AVGE + ADC_SC3_AVGS(3);
+#ifdef HAS_KINETIS_ADC1
+		ADC1_SC3 = ADC_SC3_AVGE + ADC_SC3_AVGS(3);
+#endif
 	}
 	analog_num_average = num;
 }
