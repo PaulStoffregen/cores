@@ -70,11 +70,10 @@ class AudioStream;
 class AudioConnection;
 
 typedef struct audio_block_struct {
-	unsigned char ref_count;
-	unsigned char memory_pool_index;
-	unsigned char reserved1;
-	unsigned char reserved2;
-	int16_t data[AUDIO_BLOCK_SAMPLES];
+	uint8_t  ref_count;
+	uint8_t  reserved1;
+	uint16_t memory_pool_index;
+	int16_t  data[AUDIO_BLOCK_SAMPLES];
 } audio_block_t;
 
 
@@ -170,7 +169,8 @@ private:
 	static AudioStream *first_update; // for update_all
 	AudioStream *next_update; // for update_all
 	static audio_block_t *memory_pool;
-	static uint32_t memory_pool_available_mask[6];
+	static uint32_t memory_pool_available_mask[];
+	static uint16_t memory_pool_first_mask;
 };
 
 #endif

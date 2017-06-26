@@ -31,10 +31,25 @@
 
 #include <string.h> // for memcpy
 #include "AudioStream.h"
+#include <Arduino.h>
 
+#if defined(__MKL26Z64__)
+  #define MAX_AUDIO_MEMORY 6144
+#elif defined(__MK20DX128__)
+  #define MAX_AUDIO_MEMORY 12288
+#elif defined(__MK20DX256__)
+  #define MAX_AUDIO_MEMORY 49152
+#elif defined(__MK64FX512__)
+  #define MAX_AUDIO_MEMORY 163840
+#elif defined(__MK66FX1M0__)
+  #define MAX_AUDIO_MEMORY 229376
+#endif
+
+#define NUM_MASKS  (((MAX_AUDIO_MEMORY / AUDIO_BLOCK_SAMPLES / 2) + 31) / 32)
 
 audio_block_t * AudioStream::memory_pool;
-uint32_t AudioStream::memory_pool_available_mask[6];
+uint32_t AudioStream::memory_pool_available_mask[NUM_MASKS];
+uint16_t AudioStream::memory_pool_first_mask;
 
 uint16_t AudioStream::cpu_cycles_total = 0;
 uint16_t AudioStream::cpu_cycles_total_max = 0;
@@ -43,18 +58,21 @@ uint8_t AudioStream::memory_used_max = 0;
 
 
 
+
 // Set up the pool of audio data blocks
 // placing them all onto the free list
 void AudioStream::initialize_memory(audio_block_t *data, unsigned int num)
 {
 	unsigned int i;
+	unsigned int maxnum = MAX_AUDIO_MEMORY / AUDIO_BLOCK_SAMPLES / 2;
 
 	//Serial.println("AudioStream initialize_memory");
 	//delay(10);
-	if (num > 192) num = 192;
+	if (num > maxnum) num = maxnum;
 	__disable_irq();
 	memory_pool = data;
-	for (i=0; i < 6; i++) {
+	memory_pool_first_mask = 0;
+	for (i=0; i < NUM_MASKS; i++) {
 		memory_pool_available_mask[i] = 0;
 	}
 	for (i=0; i < num; i++) {
@@ -72,25 +90,31 @@ void AudioStream::initialize_memory(audio_block_t *data, unsigned int num)
 audio_block_t * AudioStream::allocate(void)
 {
 	uint32_t n, index, avail;
-	uint32_t *p;
+	uint32_t *p, *end;
 	audio_block_t *block;
 	uint8_t used;
 
 	p = memory_pool_available_mask;
+	end = p + NUM_MASKS;
 	__disable_irq();
-	do {
-		avail = *p; if (avail) break;
-		p++; avail = *p; if (avail) break;
-		p++; avail = *p; if (avail) break;
-		p++; avail = *p; if (avail) break;
-		p++; avail = *p; if (avail) break;
-		p++; avail = *p; if (avail) break;
-		__enable_irq();
-		//Serial.println("alloc:null");
-		return NULL;
-	} while (0);
+	index = memory_pool_first_mask;
+	p += index;
+	while (1) {
+		if (p >= end) {
+			__enable_irq();
+			//Serial.println("alloc:null");
+			return NULL;
+		}
+		avail = *p;
+		if (avail) break;
+		index++;
+		p++;
+	}
 	n = __builtin_clz(avail);
-	*p = avail & ~(0x80000000 >> n);
+	avail &= ~(0x80000000 >> n);
+	*p = avail;
+	if (!avail) index++;
+	memory_pool_first_mask = index;
 	used = memory_used + 1;
 	memory_used = used;
 	__enable_irq();
@@ -108,9 +132,9 @@ audio_block_t * AudioStream::allocate(void)
 // returned to the free pool
 void AudioStream::release(audio_block_t *block)
 {
+	//if (block == NULL) return;
 	uint32_t mask = (0x80000000 >> (31 - (block->memory_pool_index & 0x1F)));
 	uint32_t index = block->memory_pool_index >> 5;
-
 
 	__disable_irq();
 	if (block->ref_count > 1) {
@@ -119,6 +143,7 @@ void AudioStream::release(audio_block_t *block)
 		//Serial.print("reles:");
 		//Serial.println((uint32_t)block, HEX);
 		memory_pool_available_mask[index] |= mask;
+		if (index < memory_pool_first_mask) memory_pool_first_mask = index;
 		memory_used--;
 	}
 	__enable_irq();
