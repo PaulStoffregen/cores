@@ -690,7 +690,13 @@ void startup_late_hook(void)		__attribute__ ((weak, alias("startup_default_late_
 // Clang seems to generate slightly larger code with Os than gcc
 __attribute__ ((optimize("-Os")))
 #else
+#if defined(__PURE_CODE__) || !defined(__OPTIMIZE__)
+// cases known to compile too large for 0-0x400 memory region
+__attribute__ ((optimize("-Os")))
+#else
+// hopefully all others fit into startup section (below 0x400)
 __attribute__ ((section(".startup"),optimize("-Os")))
+#endif
 #endif
 void ResetHandler(void)
 {
