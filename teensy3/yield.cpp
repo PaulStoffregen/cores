@@ -32,6 +32,7 @@
 #include "HardwareSerial.h"
 #include "usb_serial.h"
 #include "usb_seremu.h"
+#include "EventResponder.h"
 
 void yield(void) __attribute__ ((weak));
 void yield(void)
@@ -54,4 +55,5 @@ void yield(void)
 	if (Serial6.available()) serialEvent6();
 #endif
 	running = 0;
+	EventResponder::runFromYield();
 };
