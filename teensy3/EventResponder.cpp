@@ -159,3 +159,112 @@ void EventResponder::detach()
 }
 
 
+//-------------------------------------------------------------
+
+
+MillisTimer * MillisTimer::list = nullptr;
+
+void MillisTimer::begin(unsigned long milliseconds, EventResponderRef event)
+{
+	end();
+	if (!milliseconds) return;
+	_event = &event;
+	_ms = milliseconds;
+	_reload = 0;
+	addToList();
+}
+
+void MillisTimer::beginRepeat(unsigned long milliseconds, EventResponderRef event)
+{
+	end();
+	if (!milliseconds) return;
+	_event = &event;
+	_ms = milliseconds;
+	_reload = milliseconds;
+	addToList();
+}
+
+void MillisTimer::addToList()
+{
+	if (list == nullptr) {
+		// list is empty, easy case
+		_next = nullptr;
+		_prev = nullptr;
+		list = this;
+	} else if (_ms < list->_ms) {
+		// this timer triggers before any on the list
+		_next = list;
+		_prev = nullptr;
+		list->_prev = this;
+		list = this;
+	} else {
+		// add this timer somewhere after the first already on the list
+		MillisTimer *timer = list;
+		while (timer->_next) {
+			_ms -= timer->_ms;
+			timer = timer->_next;
+			if (_ms < timer->_ms) {
+				// found the right place in the middle of list
+				_next = timer;
+				_prev = timer->_prev;
+				timer->_prev = this;
+				_prev->_next = this;
+				isQueued = true;
+				return;
+			}
+		}
+		// add this time at the end of the list
+		_ms -= timer->_ms;
+		_next = nullptr;
+		_prev = timer;
+		timer->_next = this;
+	}
+	isQueued = true;
+}
+
+void MillisTimer::end()
+{
+	if (isQueued) {
+		if (_next) {
+			_next->_prev = _prev;
+		}
+		if (_prev) {
+			_prev->_next = _next;
+		} else {
+			list = _next;
+		}
+		isQueued = false;
+	}
+}
+
+void MillisTimer::runFromTimer()
+{
+	MillisTimer *timer = list;
+	while (timer) {
+		if (timer->_ms > 0) {
+			timer->_ms--;
+			break;
+		} else {
+			MillisTimer *next = timer->_next;
+			if (next) next->_prev = nullptr;
+			list = next;
+			timer->isQueued = false;
+			EventResponderRef event = *(timer->_event);
+			event.triggerEvent(0, timer);
+			if (timer->_reload) {
+				timer->_ms = timer->_reload;
+				timer->addToList();
+			}
+			timer = list;
+		}
+	}
+}
+
+extern "C" volatile uint32_t systick_millis_count;
+void systick_isr(void)
+{
+	systick_millis_count++;
+	MillisTimer::runFromTimer();
+}
+
+

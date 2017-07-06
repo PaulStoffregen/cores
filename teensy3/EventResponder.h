@@ -120,5 +120,27 @@ protected:
 	static bool runningFromYield;
 };
 
+class MillisTimer
+{
+public:
+	constexpr MillisTimer() {
+	}
+	~MillisTimer() {
+		end();
+	}
+	void begin(unsigned long milliseconds, EventResponderRef event);
+	void beginRepeat(unsigned long milliseconds, EventResponderRef event);
+	void end();
+	static void runFromTimer();
+private:
+	void addToList();
+	unsigned long _ms = 0;
+	unsigned long _reload = 0;
+	MillisTimer *_next = nullptr;
+	MillisTimer *_prev = nullptr;
+	EventResponder *_event = nullptr;
+	bool isQueued = false;
+	static MillisTimer *list;
+};
 
 #endif
