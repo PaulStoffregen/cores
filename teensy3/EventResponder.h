@@ -27,7 +27,7 @@
  * programs you write now using EventResponder may need to be
  * updated as EventResponder develops.
  *
- * Please post EventResponder post your feedback here:
+ * Please post your EventResponder feedback here:
  *     https://forum.pjrc.com/threads/44723-Arduino-Events
  */
 
@@ -153,7 +153,11 @@ public:
 		if (first && !runningFromYield) {
 			runningFromYield = true;
 			firstYield = first->_next;
-			if (firstYield) firstYield->_prev = nullptr;
+			if (firstYield) {
+				firstYield->_prev = nullptr;
+			} else {
+				lastYield = nullptr;
+			}
 			first->_pending = false;
 			(*(first->_function))(*first);
 			runningFromYield = false;

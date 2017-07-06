@@ -57,6 +57,7 @@ void EventResponder::triggerEventNotImmediate()
 		} else {
 			_next = nullptr;
 			_prev = lastYield;
+			_prev->_next = this;
 			lastYield = this;
 		}
 	} else if (_type == EventTypeInterrupt) {
@@ -69,6 +70,7 @@ void EventResponder::triggerEventNotImmediate()
 		} else {
 			_next = nullptr;
 			_prev = lastInterrupt;
+			_prev->_next = this;
 			lastInterrupt = this;
 		}
 		// TODO set interrupt pending
