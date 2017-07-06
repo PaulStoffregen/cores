@@ -47,6 +47,17 @@
  * for the most immediate response, even if doing so is more difficult.
  * EventResponder lets you choose how your function will be called,
  * without editing the timers or libraries which trigger the events.
+ *
+ * Event handling functions called by EventResponder should complete
+ * their work quickly.  Avoid delays or operations which may take
+ * substantial time.  While your function runs, no other event functions
+ * (attached the same way) are able to run.
+ *
+ * If your EventResponder is triggered more than once before your
+ * function can run, only the last trigger is used.  Prior triggering,
+ * including the status integer and data pointer, are overwritten and
+ * your function is called only one time, based on the last trigger
+ * event.
  */
 
 class EventResponder;

@@ -87,6 +87,9 @@ void pendablesrvreq_isr(void)
 
 void EventResponder::runFromInterrupt()
 {
+	// FIXME: this will fail if the handler function triggers
+	// its own or other EventResponder instances.  The list will
+	// change while we're holding a pointers to it.
 	for (EventResponder *first=firstInterrupt; first; first = first->_next) {
 		first->_pending = false;
 		(*(first->_function))(*first);
