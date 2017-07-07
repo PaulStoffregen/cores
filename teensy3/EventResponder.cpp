@@ -60,6 +60,7 @@ void EventResponder::triggerEventNotImmediate()
 			_prev->_next = this;
 			lastYield = this;
 		}
+		_pending = true;
 	} else if (_type == EventTypeInterrupt) {
 		// interrupt, called from software interrupt
 		if (firstInterrupt == nullptr) {
@@ -73,11 +74,12 @@ void EventResponder::triggerEventNotImmediate()
 			_prev->_next = this;
 			lastInterrupt = this;
 		}
-		// TODO set interrupt pending
+		_pending = true;
+		SCB_ICSR = SCB_ICSR_PENDSVSET; // set PendSV interrupt
 	} else {
 		// detached, easy :-)
+		_pending = true;
 	}
-	_pending = true;
 }
 
 void pendablesrvreq_isr(void)
@@ -87,15 +89,21 @@ void pendablesrvreq_isr(void)
 
 void EventResponder::runFromInterrupt()
 {
-	// FIXME: this will fail if the handler function triggers
-	// its own or other EventResponder instances.  The list will
-	// change while we're holding a pointers to it.
-	for (EventResponder *first=firstInterrupt; first; first = first->_next) {
-		first->_pending = false;
-		(*(first->_function))(*first);
+	while (1) {
+		EventResponder *first = firstInterrupt;
+		if (first) {
+			firstInterrupt = first->_next;
+			if (firstInterrupt) {
+				firstInterrupt->_prev = nullptr;
+			} else {
+				lastInterrupt = nullptr;
+			}
+			first->_pending = false;
+			(*(first->_function))(*first);
+		} else {
+			break;
+		}
 	}
-	firstInterrupt = nullptr;
-	lastInterrupt = nullptr;
 }
 
 bool EventResponder::clearEvent()

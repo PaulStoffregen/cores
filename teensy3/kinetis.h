@@ -5664,7 +5664,14 @@ typedef struct __attribute__((packed)) {
 // System Control Space (SCS), ARMv7 ref manual, B3.2, page 708
 #define SCB_CPUID		(*(const    uint32_t *)0xE000ED00) // CPUID Base Register
 #define SCB_ICSR		(*(volatile uint32_t *)0xE000ED04) // Interrupt Control and State
+#define SCB_ICSR_NMIPENDSET		((uint32_t)0x80000000)
+#define SCB_ICSR_PENDSVSET		((uint32_t)0x10000000)
+#define SCB_ICSR_PENDSVCLR		((uint32_t)0x08000000)
 #define SCB_ICSR_PENDSTSET		((uint32_t)0x04000000)
+#define SCB_ICSR_PENDSTCLR		((uint32_t)0x02000000)
+#define SCB_ICSR_ISRPREEMPT		((uint32_t)0x00800000)
+#define SCB_ICSR_ISRPENDING		((uint32_t)0x00400000)
+#define SCB_ICSR_RETTOBASE		((uint32_t)0x00000800)
 #define SCB_VTOR		(*(volatile uint32_t *)0xE000ED08) // Vector Table Offset
 #define SCB_AIRCR		(*(volatile uint32_t *)0xE000ED0C) // Application Interrupt and Reset Control
 #define SCB_SCR			(*(volatile uint32_t *)0xE000ED10) // System Control Register

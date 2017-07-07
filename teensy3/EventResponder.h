@@ -106,7 +106,7 @@ public:
 		detach();
 		_function = function;
 		_type = EventTypeInterrupt;
-		// TODO: configure PendSV
+		SCB_SHPR3 |= 0x00FF0000; // configure PendSV, lowest priority
 	}
 
 	// Attach a function to be called as its own thread.  Boards not running
@@ -161,6 +161,8 @@ public:
 
 	static void runFromYield() {
 		EventResponder *first = firstYield;
+		// FIXME: also check if yield() called from an interrupt
+		// never run these functions from any interrupt context
 		if (first && !runningFromYield) {
 			runningFromYield = true;
 			firstYield = first->_next;
