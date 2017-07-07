@@ -160,21 +160,29 @@ public:
 	EventResponder * waitForEvent(EventResponder *list, int listsize, int timeout);
 
 	static void runFromYield() {
+		// First, check if yield was called from an interrupt
+		// never call normal handler functions from any interrupt context
+		uint32_t ipsr;
+		__asm__ volatile("mrs %0, ipsr\n" : "=r" (ipsr)::);
+		if (ipsr != 0) return;
+		// Next, check if any events have been triggered
 		EventResponder *first = firstYield;
-		// FIXME: also check if yield() called from an interrupt
-		// never run these functions from any interrupt context
-		if (first && !runningFromYield) {
-			runningFromYield = true;
-			firstYield = first->_next;
-			if (firstYield) {
-				firstYield->_prev = nullptr;
-			} else {
-				lastYield = nullptr;
-			}
-			first->_pending = false;
-			(*(first->_function))(*first);
-			runningFromYield = false;
+		if (first == nullptr) return;
+		// Finally, make sure we're not being recursively called,
+		// which can happen if the user's function does anything
+		// that calls yield.
+		if (runningFromYield) return;
+		// Ok, update the runningFromYield flag and process event
+		runningFromYield = true;
+		firstYield = first->_next;
+		if (firstYield) {
+			firstYield->_prev = nullptr;
+		} else {
+			lastYield = nullptr;
 		}
+		first->_pending = false;
+		(*(first->_function))(*first);
+		runningFromYield = false;
 	}
 	static void runFromInterrupt();
 	operator bool() { return _pending; }
