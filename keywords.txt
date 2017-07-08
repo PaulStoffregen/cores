@@ -39,6 +39,18 @@ setRX	KEYWORD2
 setTX	KEYWORD2
 write9bit	KEYWORD2
 clear	KEYWORD2
+EventResponder	LITERAL2
+EventResponderRef	LITERAL2
+attachImmediate	KEYWORD2
+triggerEvent	KEYWORD2
+clearEvent	KEYWORD2
+getStatus	KEYWORD2
+getData	KEYWORD2
+setContext	KEYWORD2
+getContext	KEYWORD2
+waitForEvent	KEYWORD2
+MillisTimer	LITERAL2
+beginRepeating	KEYWORD2
 
 # removed by Arduino 1.0, but still in Teensyduino
 BYTE	LITERAL2
