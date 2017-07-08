@@ -230,7 +230,7 @@ public:
 		end();
 	}
 	void begin(unsigned long milliseconds, EventResponderRef event);
-	void beginRepeat(unsigned long milliseconds, EventResponderRef event);
+	void beginRepeating(unsigned long milliseconds, EventResponderRef event);
 	void end();
 	static void runFromTimer();
 private:

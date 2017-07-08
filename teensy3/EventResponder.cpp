@@ -194,7 +194,7 @@ void MillisTimer::begin(unsigned long milliseconds, EventResponderRef event)
 	addToList();
 }
 
-void MillisTimer::beginRepeat(unsigned long milliseconds, EventResponderRef event)
+void MillisTimer::beginRepeating(unsigned long milliseconds, EventResponderRef event)
 {
 	end();
 	if (!milliseconds) return;
