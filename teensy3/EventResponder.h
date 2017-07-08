@@ -214,7 +214,7 @@ private:
 		uint32_t primask;
 		__asm__ volatile("mrs %0, primask\n" : "=r" (primask)::);
 		__disable_irq();
-		return (primask == 0) ? false : true;
+		return (primask == 0) ? true : false;
 	}
 	static void enableInterrupts(bool doit) {
 		if (doit) __enable_irq();
@@ -242,6 +242,15 @@ private:
 	EventResponder *_event = nullptr;
 	bool isQueued = false;
 	static MillisTimer *list;
+	static bool disableTimerInterrupt() {
+		uint32_t primask;
+		__asm__ volatile("mrs %0, primask\n" : "=r" (primask)::);
+		__disable_irq();
+		return (primask == 0) ? true : false;
+	}
+	static void enableTimerInterrupt(bool doit) {
+		if (doit) __enable_irq();
+	}
 };
 
 #endif

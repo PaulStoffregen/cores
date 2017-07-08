@@ -206,6 +206,7 @@ void MillisTimer::beginRepeat(unsigned long milliseconds, EventResponderRef even
 
 void MillisTimer::addToList()
 {
+	bool irq = disableTimerInterrupt();
 	if (list == nullptr) {
 		// list is empty, easy case
 		_next = nullptr;
@@ -230,6 +231,7 @@ void MillisTimer::addToList()
 				timer->_prev = this;
 				_prev->_next = this;
 				isQueued = true;
+				enableTimerInterrupt(irq);
 				return;
 			}
 		}
@@ -240,10 +242,12 @@ void MillisTimer::addToList()
 		timer->_next = this;
 	}
 	isQueued = true;
+	enableTimerInterrupt(irq);
 }
 
 void MillisTimer::end()
 {
+	bool irq = disableTimerInterrupt();
 	if (isQueued) {
 		if (_next) {
 			_next->_prev = _prev;
@@ -255,10 +259,12 @@ void MillisTimer::end()
 		}
 		isQueued = false;
 	}
+	enableTimerInterrupt(irq);
 }
 
 void MillisTimer::runFromTimer()
 {
+	bool irq = disableTimerInterrupt();
 	MillisTimer *timer = list;
 	while (timer) {
 		if (timer->_ms > 0) {
@@ -268,6 +274,7 @@ void MillisTimer::runFromTimer()
 			MillisTimer *next = timer->_next;
 			if (next) next->_prev = nullptr;
 			list = next;
+			enableTimerInterrupt(irq);
 			timer->isQueued = false;
 			EventResponderRef event = *(timer->_event);
 			event.triggerEvent(0, timer);
@@ -275,9 +282,11 @@ void MillisTimer::runFromTimer()
 				timer->_ms = timer->_reload;
 				timer->addToList();
 			}
+			irq = disableTimerInterrupt();
 			timer = list;
 		}
 	}
+	enableTimerInterrupt(irq);
 }
 
 extern "C" volatile uint32_t systick_millis_count;
