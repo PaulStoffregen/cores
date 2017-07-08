@@ -43,43 +43,42 @@ bool EventResponder::runningFromYield = false;
 
 void EventResponder::triggerEventNotImmediate()
 {
-	if (_triggered) {
-		// already triggered
-		return;
-	}
-	if (_type == EventTypeYield) {
-		// normal type, called from yield()
-		if (firstYield == nullptr) {
-			_next = nullptr;
-			_prev = nullptr;
-			firstYield = this;
-			lastYield = this;
+	bool irq = disableInterrupts();
+	if (_triggered == false) {
+		// not already triggered
+		if (_type == EventTypeYield) {
+			// normal type, called from yield()
+			if (firstYield == nullptr) {
+				_next = nullptr;
+				_prev = nullptr;
+				firstYield = this;
+				lastYield = this;
+			} else {
+				_next = nullptr;
+				_prev = lastYield;
+				_prev->_next = this;
+				lastYield = this;
+			}
+		} else if (_type == EventTypeInterrupt) {
+			// interrupt, called from software interrupt
+			if (firstInterrupt == nullptr) {
+				_next = nullptr;
+				_prev = nullptr;
+				firstInterrupt = this;
+				lastInterrupt = this;
+			} else {
+				_next = nullptr;
+				_prev = lastInterrupt;
+				_prev->_next = this;
+				lastInterrupt = this;
+			}
+			SCB_ICSR = SCB_ICSR_PENDSVSET; // set PendSV interrupt
 		} else {
-			_next = nullptr;
-			_prev = lastYield;
-			_prev->_next = this;
-			lastYield = this;
+			// detached, easy :-)
 		}
 		_triggered = true;
-	} else if (_type == EventTypeInterrupt) {
-		// interrupt, called from software interrupt
-		if (firstInterrupt == nullptr) {
-			_next = nullptr;
-			_prev = nullptr;
-			firstInterrupt = this;
-			lastInterrupt = this;
-		} else {
-			_next = nullptr;
-			_prev = lastInterrupt;
-			_prev->_next = this;
-			lastInterrupt = this;
-		}
-		_triggered = true;
-		SCB_ICSR = SCB_ICSR_PENDSVSET; // set PendSV interrupt
-	} else {
-		// detached, easy :-)
-		_triggered = true;
 	}
+	enableInterrupts(irq);
 }
 
 void pendablesrvreq_isr(void)
@@ -90,6 +89,7 @@ void pendablesrvreq_isr(void)
 void EventResponder::runFromInterrupt()
 {
 	while (1) {
+		bool irq = disableInterrupts();
 		EventResponder *first = firstInterrupt;
 		if (first) {
 			firstInterrupt = first->_next;
@@ -98,9 +98,11 @@ void EventResponder::runFromInterrupt()
 			} else {
 				lastInterrupt = nullptr;
 			}
+			enableInterrupts(irq);
 			first->_triggered = false;
 			(*(first->_function))(*first);
 		} else {
+			enableInterrupts(irq);
 			break;
 		}
 	}
@@ -108,6 +110,8 @@ void EventResponder::runFromInterrupt()
 
 bool EventResponder::clearEvent()
 {
+	bool ret = false;
+	bool irq = disableInterrupts();
 	if (_triggered) {
 		if (_type == EventTypeYield) {
 			if (_prev) {
@@ -133,13 +137,15 @@ bool EventResponder::clearEvent()
 			}
 		}
 		_triggered = false;
-		return true;
+		ret = true;
 	}
-	return false;
+	enableInterrupts(irq);
+	return ret;
 }
 
 void EventResponder::detach()
 {
+	bool irq = disableInterrupts();
 	if (_type == EventTypeYield) {
 		if (_triggered) {
 			if (_prev) {
@@ -169,6 +175,7 @@ void EventResponder::detach()
 		}
 		_type = EventTypeDetached;
 	}
+	enableInterrupts(irq);
 }
 
 

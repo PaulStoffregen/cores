@@ -166,12 +166,19 @@ public:
 		__asm__ volatile("mrs %0, ipsr\n" : "=r" (ipsr)::);
 		if (ipsr != 0) return;
 		// Next, check if any events have been triggered
+		bool irq = disableInterrupts();
 		EventResponder *first = firstYield;
-		if (first == nullptr) return;
+		if (first == nullptr) {
+			enableInterrupts(irq);
+			return;
+		}
 		// Finally, make sure we're not being recursively called,
 		// which can happen if the user's function does anything
 		// that calls yield.
-		if (runningFromYield) return;
+		if (runningFromYield) {
+			enableInterrupts(irq);
+			return;
+		}
 		// Ok, update the runningFromYield flag and process event
 		runningFromYield = true;
 		firstYield = first->_next;
@@ -180,6 +187,7 @@ public:
 		} else {
 			lastYield = nullptr;
 		}
+		enableInterrupts(irq);
 		first->_triggered = false;
 		(*(first->_function))(*first);
 		runningFromYield = false;
@@ -201,6 +209,16 @@ protected:
 	static EventResponder *firstInterrupt;
 	static EventResponder *lastInterrupt;
 	static bool runningFromYield;
+private:
+	static bool disableInterrupts() {
+		uint32_t primask;
+		__asm__ volatile("mrs %0, primask\n" : "=r" (primask)::);
+		__disable_irq();
+		return (primask == 0) ? false : true;
+	}
+	static void enableInterrupts(bool doit) {
+		if (doit) __enable_irq();
+	}
 };
 
 class MillisTimer
