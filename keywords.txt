@@ -1,17 +1,17 @@
 
 # language keywords - Arduino doesn't define these, but probably should
-volatile	LITERAL2
-constexpr	LITERAL2
-alignas	LITERAL2
-alignof	LITERAL2
-nullptr	LITERAL2
-noexcept	LITERAL2
-static_assert	LITERAL2
-thread_local	LITERAL2
+volatile	LITERAL1
+constexpr	LITERAL1
+alignas	LITERAL1
+alignof	LITERAL1
+nullptr	LITERAL1
+noexcept	LITERAL1
+static_assert	LITERAL1
+thread_local	LITERAL1
 
 # teensy specific functions
-elapsedMillis	LITERAL2
-elapsedMicros	LITERAL2
+elapsedMillis	LITERAL1
+elapsedMicros	LITERAL1
 readString	KEYWORD2
 readStringUntil	KEYWORD2
 analogReadRes	KEYWORD2
@@ -29,9 +29,9 @@ digitalReadFast	KEYWORD2
 transmitterEnable	KEYWORD2
 attachRts	KEYWORD2
 attachCts	KEYWORD2
-PROGMEM	LITERAL2
-DMAMEM	LITERAL2
-FASTRUN	LITERAL2
+PROGMEM	LITERAL1
+DMAMEM	LITERAL1
+FASTRUN	LITERAL1
 Serial4	KEYWORD1
 Serial5	KEYWORD1
 Serial6	KEYWORD1
@@ -39,8 +39,8 @@ setRX	KEYWORD2
 setTX	KEYWORD2
 write9bit	KEYWORD2
 clear	KEYWORD2
-EventResponder	LITERAL2
-EventResponderRef	LITERAL2
+EventResponder	LITERAL1
+EventResponderRef	LITERAL1
 attachImmediate	KEYWORD2
 triggerEvent	KEYWORD2
 clearEvent	KEYWORD2
@@ -49,11 +49,11 @@ getData	KEYWORD2
 setContext	KEYWORD2
 getContext	KEYWORD2
 waitForEvent	KEYWORD2
-MillisTimer	LITERAL2
+MillisTimer	LITERAL1
 beginRepeating	KEYWORD2
 
 # removed by Arduino 1.0, but still in Teensyduino
-BYTE	LITERAL2
+BYTE	LITERAL1
 
 # Arduino constants
 A0	LITERAL1
