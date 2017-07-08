@@ -43,7 +43,7 @@ bool EventResponder::runningFromYield = false;
 
 void EventResponder::triggerEventNotImmediate()
 {
-	if (_pending) {
+	if (_triggered) {
 		// already triggered
 		return;
 	}
@@ -60,7 +60,7 @@ void EventResponder::triggerEventNotImmediate()
 			_prev->_next = this;
 			lastYield = this;
 		}
-		_pending = true;
+		_triggered = true;
 	} else if (_type == EventTypeInterrupt) {
 		// interrupt, called from software interrupt
 		if (firstInterrupt == nullptr) {
@@ -74,11 +74,11 @@ void EventResponder::triggerEventNotImmediate()
 			_prev->_next = this;
 			lastInterrupt = this;
 		}
-		_pending = true;
+		_triggered = true;
 		SCB_ICSR = SCB_ICSR_PENDSVSET; // set PendSV interrupt
 	} else {
 		// detached, easy :-)
-		_pending = true;
+		_triggered = true;
 	}
 }
 
@@ -98,7 +98,7 @@ void EventResponder::runFromInterrupt()
 			} else {
 				lastInterrupt = nullptr;
 			}
-			first->_pending = false;
+			first->_triggered = false;
 			(*(first->_function))(*first);
 		} else {
 			break;
@@ -108,7 +108,7 @@ void EventResponder::runFromInterrupt()
 
 bool EventResponder::clearEvent()
 {
-	if (_pending) {
+	if (_triggered) {
 		if (_type == EventTypeYield) {
 			if (_prev) {
 				_prev->_next = _next;
@@ -132,7 +132,7 @@ bool EventResponder::clearEvent()
 				lastInterrupt = _prev;
 			}
 		}
-		_pending = false;
+		_triggered = false;
 		return true;
 	}
 	return false;
@@ -141,7 +141,7 @@ bool EventResponder::clearEvent()
 void EventResponder::detach()
 {
 	if (_type == EventTypeYield) {
-		if (_pending) {
+		if (_triggered) {
 			if (_prev) {
 				_prev->_next = _next;
 			} else {
@@ -155,7 +155,7 @@ void EventResponder::detach()
 		}
 		_type = EventTypeDetached;
 	} else if (_type == EventTypeInterrupt) {
-		if (_pending) {
+		if (_triggered) {
 			if (_prev) {
 				_prev->_next = _next;
 			} else {

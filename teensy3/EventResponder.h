@@ -180,12 +180,12 @@ public:
 		} else {
 			lastYield = nullptr;
 		}
-		first->_pending = false;
+		first->_triggered = false;
 		(*(first->_function))(*first);
 		runningFromYield = false;
 	}
 	static void runFromInterrupt();
-	operator bool() { return _pending; }
+	operator bool() { return _triggered; }
 protected:
 	void triggerEventNotImmediate();
 	int _status = 0;
@@ -195,7 +195,7 @@ protected:
 	EventResponder *_next = nullptr;
 	EventResponder *_prev = nullptr;
 	EventType _type = EventTypeDetached;
-	bool _pending = false;
+	bool _triggered = false;
 	static EventResponder *firstYield;
 	static EventResponder *lastYield;
 	static EventResponder *firstInterrupt;
