@@ -182,45 +182,54 @@ void EventResponder::detach()
 //-------------------------------------------------------------
 
 
-MillisTimer * MillisTimer::list = nullptr;
+MillisTimer * MillisTimer::listWaiting = nullptr;
+MillisTimer * MillisTimer::listActive = nullptr;
 
 void MillisTimer::begin(unsigned long milliseconds, EventResponderRef event)
 {
-	end();
+	if (_state != TimerOff) end();
 	if (!milliseconds) return;
 	_event = &event;
 	_ms = milliseconds;
 	_reload = 0;
-	addToList();
+	addToWaitingList();
 }
 
 void MillisTimer::beginRepeating(unsigned long milliseconds, EventResponderRef event)
 {
-	end();
+	if (_state != TimerOff) end();
 	if (!milliseconds) return;
 	_event = &event;
 	_ms = milliseconds;
 	_reload = milliseconds;
-	addToList();
+	addToWaitingList();
 }
 
-void MillisTimer::addToList()
+void MillisTimer::addToWaitingList()
 {
+	_prev = nullptr;
 	bool irq = disableTimerInterrupt();
-	if (list == nullptr) {
+	_next = listWaiting;
+	listWaiting = this; // TODO: use STREX to avoid interrupt disable
+	enableTimerInterrupt(irq);
+}
+
+void MillisTimer::addToActiveList() // only called by runFromTimer()
+{
+	if (listActive == nullptr) {
 		// list is empty, easy case
 		_next = nullptr;
 		_prev = nullptr;
-		list = this;
-	} else if (_ms < list->_ms) {
+		listActive = this;
+	} else if (_ms < listActive->_ms) {
 		// this timer triggers before any on the list
-		_next = list;
+		_next = listActive;
 		_prev = nullptr;
-		list->_prev = this;
-		list = this;
+		listActive->_prev = this;
+		listActive = this;
 	} else {
 		// add this timer somewhere after the first already on the list
-		MillisTimer *timer = list;
+		MillisTimer *timer = listActive;
 		while (timer->_next) {
 			_ms -= timer->_ms;
 			timer = timer->_next;
@@ -230,8 +239,7 @@ void MillisTimer::addToList()
 				_prev = timer->_prev;
 				timer->_prev = this;
 				_prev->_next = this;
-				isQueued = true;
-				enableTimerInterrupt(irq);
+				_state = TimerActive;
 				return;
 			}
 		}
@@ -241,31 +249,44 @@ void MillisTimer::addToList()
 		_prev = timer;
 		timer->_next = this;
 	}
-	isQueued = true;
-	enableTimerInterrupt(irq);
+	_state = TimerActive;
 }
 
 void MillisTimer::end()
 {
 	bool irq = disableTimerInterrupt();
-	if (isQueued) {
+	TimerStateType s = _state;
+	if (s == TimerActive) {
 		if (_next) {
 			_next->_prev = _prev;
 		}
 		if (_prev) {
 			_prev->_next = _next;
 		} else {
-			list = _next;
+			listActive = _next;
 		}
-		isQueued = false;
+		_state = TimerOff;
+	} else if (s == TimerWaiting) {
+		if (listWaiting == this) {
+			listWaiting = _next;
+		} else {
+			MillisTimer *timer = listWaiting;
+			while (timer) {
+				if (timer->_next == this) {
+					timer->_next = _next;
+					break;
+				}
+				timer = timer->_next;
+			}
+		}
+		_state = TimerOff;
 	}
 	enableTimerInterrupt(irq);
 }
 
 void MillisTimer::runFromTimer()
 {
-	bool irq = disableTimerInterrupt();
-	MillisTimer *timer = list;
+	MillisTimer *timer = listActive;
 	while (timer) {
 		if (timer->_ms > 0) {
 			timer->_ms--;
@@ -273,20 +294,26 @@ void MillisTimer::runFromTimer()
 		} else {
 			MillisTimer *next = timer->_next;
 			if (next) next->_prev = nullptr;
-			list = next;
-			enableTimerInterrupt(irq);
-			timer->isQueued = false;
+			listActive = next;
+			timer->_state = TimerOff;
 			EventResponderRef event = *(timer->_event);
 			event.triggerEvent(0, timer);
 			if (timer->_reload) {
 				timer->_ms = timer->_reload;
-				timer->addToList();
+				timer->addToActiveList();
 			}
-			irq = disableTimerInterrupt();
-			timer = list;
+			timer = listActive;
 		}
 	}
+	bool irq = disableTimerInterrupt();
+	MillisTimer *waiting = listWaiting;
+	listWaiting = nullptr; // TODO: use STREX to avoid interrupt disable
 	enableTimerInterrupt(irq);
+	while (waiting) {
+		MillisTimer *next = waiting->_next;
+		waiting->addToActiveList();
+		waiting = next;
+	}
 }
 
 extern "C" volatile uint32_t systick_millis_count;

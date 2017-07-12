@@ -234,14 +234,21 @@ public:
 	void end();
 	static void runFromTimer();
 private:
-	void addToList();
+	void addToWaitingList();
+	void addToActiveList();
 	unsigned long _ms = 0;
 	unsigned long _reload = 0;
 	MillisTimer *_next = nullptr;
 	MillisTimer *_prev = nullptr;
 	EventResponder *_event = nullptr;
-	bool isQueued = false;
-	static MillisTimer *list;
+	enum TimerStateType {
+		TimerOff = 0,
+		TimerWaiting,
+		TimerActive
+	};
+	volatile TimerStateType _state = TimerOff;
+	static MillisTimer *listWaiting; // single linked list of waiting to start timers
+	static MillisTimer *listActive;  // double linked list of running timers
 	static bool disableTimerInterrupt() {
 		uint32_t primask;
 		__asm__ volatile("mrs %0, primask\n" : "=r" (primask)::);
