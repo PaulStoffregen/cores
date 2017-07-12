@@ -143,9 +143,9 @@ bool EventResponder::clearEvent()
 	return ret;
 }
 
-void EventResponder::detach()
+// this detach must be called with interrupts disabled
+void EventResponder::detachNoInterrupts()
 {
-	bool irq = disableInterrupts();
 	if (_type == EventTypeYield) {
 		if (_triggered) {
 			if (_prev) {
@@ -175,7 +175,6 @@ void EventResponder::detach()
 		}
 		_type = EventTypeDetached;
 	}
-	enableInterrupts(irq);
 }
 
 

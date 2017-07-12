@@ -83,18 +83,22 @@ public:
 	// default way to use EventResponder.  Calls from yield() allow use
 	// of Arduino libraries, String, Serial, etc.
 	void attach(EventResponderFunction function, uint8_t priority=128) {
-		detach();
+		bool irq = disableInterrupts();
+		detachNoInterrupts();
 		_function = function;
 		_type = EventTypeYield;
+		enableInterrupts(irq);
 	}
 
 	// Attach a function to be called immediately.  This provides the
 	// fastest possible response, but your function must be carefully
 	// designed.
 	void attachImmediate(EventResponderFunction function) {
-		detach();
+		bool irq = disableInterrupts();
+		detachNoInterrupts();
 		_function = function;
 		_type = EventTypeImmediate;
+		enableInterrupts(irq);
 	}
 
 	// Attach a function to be called from a low priority interrupt.
@@ -103,10 +107,12 @@ public:
 	// interrupts, this allow fast interrupt-based response, but with less
 	// disruption to other libraries requiring their own interrupts.
 	void attachInterrupt(EventResponderFunction function, uint8_t priority=128) {
-		detach();
+		bool irq = disableInterrupts();
+		detachNoInterrupts();
 		_function = function;
 		_type = EventTypeInterrupt;
 		SCB_SHPR3 |= 0x00FF0000; // configure PendSV, lowest priority
+		enableInterrupts(irq);
 	}
 
 	// Attach a function to be called as its own thread.  Boards not running
@@ -117,7 +123,11 @@ public:
 
 	// Do not call any function.  The user's program must occasionally check
 	// whether the event has occurred, or use one of the wait functions.
-	void detach();
+	void detach() {
+		bool irq = disableInterrupts();
+		detachNoInterrupts();
+		enableInterrupts(irq);
+	}
 
 	// Trigger the event.  An optional status code and data may be provided.
 	// The code triggering the event does NOT control which of the above
@@ -196,6 +206,7 @@ public:
 	operator bool() { return _triggered; }
 protected:
 	void triggerEventNotImmediate();
+	void detachNoInterrupts();
 	int _status = 0;
 	EventResponderFunction _function = nullptr;
 	void *_data = nullptr;
