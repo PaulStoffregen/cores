@@ -82,7 +82,7 @@ public:
 	// Attach a function to be called from yield().  This should be the
 	// default way to use EventResponder.  Calls from yield() allow use
 	// of Arduino libraries, String, Serial, etc.
-	void attach(EventResponderFunction function) {
+	void attach(EventResponderFunction function, uint8_t priority=128) {
 		detach();
 		_function = function;
 		_type = EventTypeYield;
@@ -102,7 +102,7 @@ public:
 	// this as attachImmediate.  On ARM and other platforms with software
 	// interrupts, this allow fast interrupt-based response, but with less
 	// disruption to other libraries requiring their own interrupts.
-	void attachInterrupt(EventResponderFunction function) {
+	void attachInterrupt(EventResponderFunction function, uint8_t priority=128) {
 		detach();
 		_function = function;
 		_type = EventTypeInterrupt;
