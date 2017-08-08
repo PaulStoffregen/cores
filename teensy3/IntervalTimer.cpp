@@ -84,6 +84,7 @@ bool IntervalTimer::beginCycles(void (*funct)(), uint32_t cycles)
 void IntervalTimer::end() {
 	if (channel) {
 		int index = channel - KINETISK_PIT_CHANNELS;
+		NVIC_DISABLE_IRQ(IRQ_PIT_CH0 + index);
 		funct_table[index] = dummy_funct;
 		channel->TCTRL = 0;
 #if defined(KINETISL)
