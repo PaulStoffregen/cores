@@ -225,6 +225,8 @@ void MillisTimer::addToActiveList() // only called by runFromTimer()
 		_next = listActive;
 		_prev = nullptr;
 		listActive->_prev = this;
+		// Decrement the next items wait time be our wait time as to properly handle waits for all other items...
+		listActive->_ms -= _ms;	
 		listActive = this;
 	} else {
 		// add this timer somewhere after the first already on the list
@@ -238,6 +240,7 @@ void MillisTimer::addToActiveList() // only called by runFromTimer()
 				_prev = timer->_prev;
 				timer->_prev = this;
 				_prev->_next = this;
+				timer->_ms -= _ms;
 				_state = TimerActive;
 				return;
 			}
