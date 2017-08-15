@@ -189,7 +189,7 @@ void MillisTimer::begin(unsigned long milliseconds, EventResponderRef event)
 	if (_state != TimerOff) end();
 	if (!milliseconds) return;
 	_event = &event;
-	_ms = milliseconds;
+	_ms = (milliseconds > 2)? milliseconds-2 : 0;
 	_reload = 0;
 	addToWaitingList();
 }
@@ -199,7 +199,7 @@ void MillisTimer::beginRepeating(unsigned long milliseconds, EventResponderRef e
 	if (_state != TimerOff) end();
 	if (!milliseconds) return;
 	_event = &event;
-	_ms = milliseconds;
+	_ms = (milliseconds > 2)? milliseconds-2 : 0;
 	_reload = milliseconds;
 	addToWaitingList();
 }
