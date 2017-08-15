@@ -210,6 +210,7 @@ void MillisTimer::addToWaitingList()
 	bool irq = disableTimerInterrupt();
 	_next = listWaiting;
 	listWaiting = this; // TODO: use STREX to avoid interrupt disable
+	_state = TimerWaiting;
 	enableTimerInterrupt(irq);
 }
 
@@ -261,6 +262,7 @@ void MillisTimer::end()
 	if (s == TimerActive) {
 		if (_next) {
 			_next->_prev = _prev;
+			_next->_ms += _ms;   // add in the rest of our timing to next entry...
 		}
 		if (_prev) {
 			_prev->_next = _next;
