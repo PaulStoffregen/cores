@@ -189,7 +189,7 @@ void MillisTimer::begin(unsigned long milliseconds, EventResponderRef event)
 	if (_state != TimerOff) end();
 	if (!milliseconds) return;
 	_event = &event;
-	_ms = milliseconds;
+	_ms = (milliseconds > 2)? milliseconds-2 : 0;
 	_reload = 0;
 	addToWaitingList();
 }
@@ -199,7 +199,7 @@ void MillisTimer::beginRepeating(unsigned long milliseconds, EventResponderRef e
 	if (_state != TimerOff) end();
 	if (!milliseconds) return;
 	_event = &event;
-	_ms = milliseconds;
+	_ms = (milliseconds > 2)? milliseconds-2 : 0;
 	_reload = milliseconds;
 	addToWaitingList();
 }
@@ -210,6 +210,7 @@ void MillisTimer::addToWaitingList()
 	bool irq = disableTimerInterrupt();
 	_next = listWaiting;
 	listWaiting = this; // TODO: use STREX to avoid interrupt disable
+	_state = TimerWaiting;
 	enableTimerInterrupt(irq);
 }
 
@@ -225,6 +226,8 @@ void MillisTimer::addToActiveList() // only called by runFromTimer()
 		_next = listActive;
 		_prev = nullptr;
 		listActive->_prev = this;
+		// Decrement the next items wait time be our wait time as to properly handle waits for all other items...
+		listActive->_ms -= _ms;	
 		listActive = this;
 	} else {
 		// add this timer somewhere after the first already on the list
@@ -238,6 +241,7 @@ void MillisTimer::addToActiveList() // only called by runFromTimer()
 				_prev = timer->_prev;
 				timer->_prev = this;
 				_prev->_next = this;
+				timer->_ms -= _ms;
 				_state = TimerActive;
 				return;
 			}
@@ -258,6 +262,7 @@ void MillisTimer::end()
 	if (s == TimerActive) {
 		if (_next) {
 			_next->_prev = _prev;
+			_next->_ms += _ms;   // add in the rest of our timing to next entry...
 		}
 		if (_prev) {
 			_prev->_next = _next;
