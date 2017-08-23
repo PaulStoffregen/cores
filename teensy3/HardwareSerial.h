@@ -33,8 +33,13 @@
 
 #include "kinetis.h"
 
-// uncomment to enable 9 bit formats
+// Uncomment to enable 9 bit formats.  These are default disabled to save memory.
 //#define SERIAL_9BIT_SUPPORT
+//
+// On Windows & Linux, this file is in Arduino's hardware/teensy/avr/cores/teensy3
+//   folder.  The Windows installer puts Arduino in C:\Program Files (x86)\Arduino
+// On Macintosh, you must control-click Arduino and select "Show Package Contents", then
+//   look in Contents/Java/hardware/teensy/avr/cores/teensy3 to find this file.
 
 
 #define SERIAL_7E1 0x02
