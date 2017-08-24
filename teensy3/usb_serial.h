@@ -73,7 +73,7 @@ class usb_serial_class : public Stream
 public:
 	constexpr usb_serial_class() {}
         void begin(long) {
-		uint32_t millis_begin = systick_millis_count;
+		//uint32_t millis_begin = systick_millis_count;
 		//disabled for now - causes more trouble than it solves?
 		//while (!(*this)) {
 			// wait up to 2.5 seconds for Arduino Serial Monitor
