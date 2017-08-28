@@ -146,8 +146,8 @@ public:
 	uint16_t cpu_cycles_max;
 	static uint16_t cpu_cycles_total;
 	static uint16_t cpu_cycles_total_max;
-	static uint8_t memory_used;
-	static uint8_t memory_used_max;
+	static uint16_t memory_used;
+	static uint16_t memory_used_max;
 protected:
 	bool active;
 	unsigned char num_inputs;
