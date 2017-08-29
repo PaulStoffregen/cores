@@ -31,7 +31,12 @@
 #define HEX 16
 #define OCT 8
 #define BIN 2
+
+// BYTE was defined in very old versions of Arduino
+// maybe this now causes more trouble than it's worth?
+#ifndef BYTE
 #define BYTE 0
+#endif
 
 class __FlashStringHelper;
 
