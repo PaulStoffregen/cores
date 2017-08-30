@@ -110,6 +110,10 @@ typedef uint64_t prog_uint64_t;
 	typeof(addr) _addr = (addr); \
 	*(const float *)(_addr); \
 })
+#define pgm_read_ptr(addr) ({ \
+	typeof(addr) _addr = (addr); \
+	*(void * const *)(_addr); \
+})
 #endif
 
 
@@ -117,9 +121,11 @@ typedef uint64_t prog_uint64_t;
 #define pgm_read_word_near(addr) pgm_read_word(addr)
 #define pgm_read_dword_near(addr) pgm_read_dword(addr)
 #define pgm_read_float_near(addr) pgm_read_float(addr)
+#define pgm_read_ptr_near(addr) pgm_read_float(addr)
 #define pgm_read_byte_far(addr) pgm_read_byte(addr)
 #define pgm_read_word_far(addr) pgm_read_word(addr)
 #define pgm_read_dword_far(addr) pgm_read_dword(addr)
 #define pgm_read_float_far(addr) pgm_read_float(addr)
+#define pgm_read_ptr_far(addr) pgm_read_float(addr)
 
 #endif
