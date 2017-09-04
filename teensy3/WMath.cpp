@@ -28,7 +28,7 @@ void randomSeed(uint32_t newseed)
 	if (newseed > 0) seed = newseed;
 }
 
-void srandom(uint32_t newseed)
+void srandom(unsigned int newseed)
 {
 	seed = newseed;
 }
