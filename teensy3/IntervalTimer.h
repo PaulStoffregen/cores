@@ -38,7 +38,7 @@ extern "C" {
 #endif
 
 class IntervalTimer {
-private:
+protected:
 	static const uint32_t MAX_PERIOD = UINT32_MAX / (F_BUS / 1000000.0);
 public:
 	IntervalTimer() {
@@ -104,7 +104,7 @@ public:
 		}
 		return (IRQ_NUMBER_t)NVIC_NUM_INTERRUPTS;
 	}
-private:
+protected:
 	KINETISK_PIT_CHANNEL_t *channel;
 	uint8_t nvic_priority;
 	#if defined(KINETISL)
