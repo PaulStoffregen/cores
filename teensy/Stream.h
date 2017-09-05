@@ -33,14 +33,14 @@ class Stream : public Print
 	virtual void flush() = 0;
 
 	void setTimeout(unsigned long timeout);
-	bool find(char *target);
-	bool find(uint8_t *target) { return find ((char *)target); }
-	bool find(char *target, size_t length);
-	bool find(uint8_t *target, size_t length) { return find ((char *)target, length); }
-	bool findUntil(char *target, char *terminator);
-	bool findUntil(uint8_t *target, char *terminator) { return findUntil((char *)target, terminator); }
-	bool findUntil(char *target, size_t targetLen, char *terminate, size_t termLen);
-	bool findUntil(uint8_t *target, size_t targetLen, char *terminate, size_t termLen) {return findUntil((char *)target, targetLen, terminate, termLen); }
+	bool find(const char *target);
+	bool find(const uint8_t *target) { return find ((const char *)target); }
+	bool find(const char *target, size_t length);
+	bool find(const uint8_t *target, size_t length) { return find ((const char *)target, length); }
+	bool findUntil(const char *target, char *terminator);
+	bool findUntil(const uint8_t *target, char *terminator) { return findUntil((const char *)target, terminator); }
+	bool findUntil(const char *target, size_t targetLen, char *terminate, size_t termLen);
+	bool findUntil(const uint8_t *target, size_t targetLen, char *terminate, size_t termLen) {return findUntil((const char *)target, targetLen, terminate, termLen); }
 	long parseInt();
 	long parseInt(char skipChar);
 	float parseFloat();
