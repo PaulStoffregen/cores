@@ -137,6 +137,12 @@ void unused_isr(void)
 	fault_isr();
 }
 
+extern volatile uint32_t systick_millis_count;
+void systick_default_isr(void)
+{
+	systick_millis_count++;
+}
+
 void nmi_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void hard_fault_isr(void)	__attribute__ ((weak, alias("fault_isr")));
 void memmanage_fault_isr(void)	__attribute__ ((weak, alias("fault_isr")));
@@ -145,7 +151,7 @@ void usage_fault_isr(void)	__attribute__ ((weak, alias("fault_isr")));
 void svcall_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void debugmonitor_isr(void)	__attribute__ ((weak, alias("unused_isr")));
 void pendablesrvreq_isr(void)	__attribute__ ((weak, alias("unused_isr")));
-void systick_isr(void)		__attribute__ ((weak, alias("unused_isr")));
+void systick_isr(void)		__attribute__ ((weak, alias("systick_default_isr")));
 
 void dma_ch0_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void dma_ch1_isr(void)		__attribute__ ((weak, alias("unused_isr")));

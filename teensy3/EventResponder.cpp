@@ -179,7 +179,7 @@ void EventResponder::detachNoInterrupts()
 
 
 //-------------------------------------------------------------
-
+void millisTimerSystick_isr(void);
 
 MillisTimer * MillisTimer::listWaiting = nullptr;
 MillisTimer * MillisTimer::listActive = nullptr;
@@ -187,11 +187,12 @@ MillisTimer * MillisTimer::listActive = nullptr;
 void MillisTimer::begin(unsigned long milliseconds, EventResponderRef event)
 {
 	if (_state != TimerOff) end();
-	if (!milliseconds) return;
+	if (!milliseconds) return;	
 	_event = &event;
 	_ms = (milliseconds > 2)? milliseconds-2 : 0;
 	_reload = 0;
 	addToWaitingList();
+	_VectorsRam[15] = millisTimerSystick_isr;
 }
 
 void MillisTimer::beginRepeating(unsigned long milliseconds, EventResponderRef event)
@@ -321,7 +322,7 @@ void MillisTimer::runFromTimer()
 }
 
 extern "C" volatile uint32_t systick_millis_count;
-void systick_isr(void)
+void millisTimerSystick_isr(void)
 {
 	systick_millis_count++;
 	MillisTimer::runFromTimer();
