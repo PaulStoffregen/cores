@@ -40,6 +40,9 @@
 //   folder.  The Windows installer puts Arduino in C:\Program Files (x86)\Arduino
 // On Macintosh, you must control-click Arduino and select "Show Package Contents", then
 //   look in Contents/Java/hardware/teensy/avr/cores/teensy3 to find this file.
+//
+// Teensy 3.x boards support 9 bit mode on all their serial ports
+// Teensy LC only supports 9 bit mode on Serial1.  Serial2 & Serial3 can't use 9 bits.
 
 
 #define SERIAL_7E1 0x02
