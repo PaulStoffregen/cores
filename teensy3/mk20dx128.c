@@ -145,7 +145,7 @@ void usage_fault_isr(void)	__attribute__ ((weak, alias("fault_isr")));
 void svcall_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void debugmonitor_isr(void)	__attribute__ ((weak, alias("unused_isr")));
 void pendablesrvreq_isr(void)	__attribute__ ((weak, alias("unused_isr")));
-void systick_isr(void)		__attribute__ ((weak, alias("unused_isr")));
+void systick_isr(void);
 
 void dma_ch0_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void dma_ch1_isr(void)		__attribute__ ((weak, alias("unused_isr")));

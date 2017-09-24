@@ -320,6 +320,19 @@ void MillisTimer::runFromTimer()
 	}
 }
 
+// Long ago you could install your own systick interrupt handler by just
+// creating your own systick_isr() function.  No longer.  But if you
+// *really* want to commandeer systick, you can still do so by writing
+// your function into the RAM-based vector table.
+//
+//   _VectorsRam[15] = my_systick_function;
+//
+// However, for long-term portability, use a MillisTimer object to
+// generate an event every millisecond, and attach your function to
+// its EventResponder.  You can attach as a software interrupt, so your
+// code will run at lower interrupt priority for better compatibility
+// with libraries using mid-to-high priority interrupts.
+
 extern "C" volatile uint32_t systick_millis_count;
 void systick_isr(void)
 {
