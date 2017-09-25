@@ -92,7 +92,7 @@ audio_block_t * AudioStream::allocate(void)
 	uint32_t n, index, avail;
 	uint32_t *p, *end;
 	audio_block_t *block;
-	uint8_t used;
+	uint32_t used;
 
 	p = memory_pool_available_mask;
 	end = p + NUM_MASKS;
