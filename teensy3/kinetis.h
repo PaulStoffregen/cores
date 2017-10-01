@@ -3038,6 +3038,10 @@ typedef struct {
 #define VREF_SC_VREFST			((uint8_t)0x04)			// Internal Voltage Reference stable flag
 #define VREF_SC_MODE_LV(n)		(uint8_t)(((n) & 3) << 0)	// Buffer Mode selection: 0=Bandgap on only
 									//  2=Low-power buffer mode
+#define VREF_SC_MODE_LV_BANDGAPONLY     0
+#define VREF_SC_MODE_LV_HIGHPOWERBUF    1
+#define VREF_SC_MODE_LV_LOWPOWERBUF     2
+
 
 // Programmable Delay Block (PDB)
 
