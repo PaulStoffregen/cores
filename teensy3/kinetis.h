@@ -3007,6 +3007,7 @@ typedef struct {
 #define CMP_MUXCR_PSTM          (uint8_t)0x40 // Pass Through Mode Enable
 #define CMP_MUXCR_PSEL(n)       (uint8_t)(((n) & 0x07) << 3) // Plus Input Mux Control
 #define CMP_MUXCR_MSEL(n)       (uint8_t)(((n) & 0x07) << 0) // Minus Input Mux Control
+#if defined(KINETISK)
 #define CMP1_CR0		(*(volatile uint8_t  *)0x40073008) // CMP Control Register 0
 #define CMP1_CR1		(*(volatile uint8_t  *)0x40073009) // CMP Control Register 1
 #define CMP1_FPR		(*(volatile uint8_t  *)0x4007300A) // CMP Filter Period Register
@@ -3025,7 +3026,7 @@ typedef struct {
 #define CMP3_SCR		(*(volatile uint8_t  *)0x4007301B) // CMP Status and Control Register
 #define CMP3_DACCR		(*(volatile uint8_t  *)0x4007301C) // DAC Control Register
 #define CMP3_MUXCR		(*(volatile uint8_t  *)0x4007301D) // MUX Control Register
-
+#endif
 // Analog Voltage Reference (VREFV1)
 
 #define VREF_TRM		(*(volatile uint8_t  *)0x40074000) // VREF Trim Register
