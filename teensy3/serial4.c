@@ -197,8 +197,8 @@ void serial4_set_tx(uint8_t pin, uint8_t opendrain)
 			cfg = PORT_PCR_DSE | PORT_PCR_SRE;
 		}
 		switch (pin & 127) {
-			case 32:  CORE_PIN32_CONFIG = cfg | PORT_PCR_MUX(3); break;
-			case 62: CORE_PIN62_CONFIG = cfg | PORT_PCR_MUX(3);; break;
+			case 32: CORE_PIN32_CONFIG = cfg | PORT_PCR_MUX(3); break;
+			case 62: CORE_PIN62_CONFIG = cfg | PORT_PCR_MUX(3); break;
 		}
 	}
 	tx_pin_num = pin;
