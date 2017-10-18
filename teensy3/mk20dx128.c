@@ -1221,6 +1221,12 @@ void __cxa_guard_release(char *g)
 	*g = 1;
 }
 
+__attribute__((weak))
+void abort(void)
+{
+	while (1) ;
+}
+
 #pragma GCC diagnostic pop
 
 int nvic_execution_priority(void)
