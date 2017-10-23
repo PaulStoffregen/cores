@@ -29,6 +29,9 @@
 
 # set your MCU type here, or make command line `make MCU=MK20DX256`
 MCU=MK20DX256
+#MCU=MKL26Z64
+#MCU=MK64FX512
+#MCU=MK66FX1M0
 
 # make it lower case
 LOWER_MCU := $(subst A,a,$(subst B,b,$(subst C,c,$(subst D,d,$(subst E,e,$(subst F,f,$(subst G,g,$(subst H,h,$(subst I,i,$(subst J,j,$(subst K,k,$(subst L,l,$(subst M,m,$(subst N,n,$(subst O,o,$(subst P,p,$(subst Q,q,$(subst R,r,$(subst S,s,$(subst T,t,$(subst U,u,$(subst V,v,$(subst W,w,$(subst X,x,$(subst Y,y,$(subst Z,z,$(MCU)))))))))))))))))))))))))))
@@ -44,14 +47,18 @@ TARGET = main
 ifndef NO_ARDUINO
 # Path to your arduino installation
 ARDUINOPATH ?= ../../../../..
-#ARDUINOPATH ?= ../../../..
 endif
 
 # configurable options
 OPTIONS = -DF_CPU=48000000 -DUSB_SERIAL -DLAYOUT_US_ENGLISH -DUSING_MAKEFILE
 
-# options needed by many Arduino libraries to configure for Teensy 3.0
-OPTIONS += -D__$(MCU)__ -DARDUINO=10613 -DTEENSYDUINO=132
+# options needed by many Arduino libraries to configure for Teensy 3.x
+OPTIONS += -D__$(MCU)__ -DARDUINO=10805 -DTEENSYDUINO=141
+
+# use "cortex-m4" for Teensy 3.x
+# use "cortex-m0plus" for Teensy LC
+CPUARCH = cortex-m4
+#CPUARCH = cortex-m0plus
 
 
 # Other Makefiles and project templates for Teensy 3.x:
@@ -90,16 +97,16 @@ endif
 #************************************************************************
 
 # CPPFLAGS = compiler options for C and C++
-CPPFLAGS = -Wall -g -Os -mcpu=cortex-m4 -mthumb -MMD $(OPTIONS) -I.
+CPPFLAGS = -Wall -g -Os -mcpu=$(CPUARCH) -mthumb -MMD $(OPTIONS) -I.
 
 # compiler options for C++ only
-CXXFLAGS = -std=gnu++0x -felide-constructors -fno-exceptions -fno-rtti
+CXXFLAGS = -std=gnu++14 -felide-constructors -fno-exceptions -fno-rtti
 
 # compiler options for C only
 CFLAGS =
 
 # linker options
-LDFLAGS = -Os -Wl,--gc-sections,--defsym=__rtc_localtime=0 --specs=nano.specs -mcpu=cortex-m4 -mthumb -T$(MCU_LD)
+LDFLAGS = -Os -Wl,--gc-sections,--defsym=__rtc_localtime=0 --specs=nano.specs -mcpu=$(CPUARCH) -mthumb -T$(MCU_LD)
 
 # additional libraries to link
 LIBS = -lm
