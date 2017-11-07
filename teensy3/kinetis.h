@@ -4366,7 +4366,7 @@ typedef struct {
 #define SPI_MCR_FRZ			((uint32_t)0x08000000)		//
 #define SPI_MCR_MTFE			((uint32_t)0x04000000)		//
 #define SPI_MCR_ROOE			((uint32_t)0x01000000)		//
-#define SPI_MCR_PCSIS(n)		(((n) & 0x1F) << 16)		//
+#define SPI_MCR_PCSIS(n)		(((n) & 0x3F) << 16)		//
 #define SPI_MCR_DOZE			((uint32_t)0x00008000)		//
 #define SPI_MCR_MDIS			((uint32_t)0x00004000)		//
 #define SPI_MCR_DIS_TXF			((uint32_t)0x00002000)		//
