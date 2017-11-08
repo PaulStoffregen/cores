@@ -105,6 +105,7 @@ void serial5_begin(uint32_t divisor)
 	transmitting = 0;
 	CORE_PIN34_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3);
 	CORE_PIN33_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3);
+	if (divisor < 32) divisor = 32;
 	UART4_BDH = (divisor >> 13) & 0x1F;
 	UART4_BDL = (divisor >> 5) & 0xFF;
 	UART4_C4 = divisor & 0x1F;

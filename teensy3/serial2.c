@@ -139,6 +139,7 @@ void serial2_begin(uint32_t divisor)
 	CORE_PIN10_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3);
 #endif
 #if defined(HAS_KINETISK_UART1)
+	if (divisor < 32) divisor = 32;
 	UART1_BDH = (divisor >> 13) & 0x1F;
 	UART1_BDL = (divisor >> 5) & 0xFF;
 	UART1_C4 = divisor & 0x1F;
@@ -152,6 +153,7 @@ void serial2_begin(uint32_t divisor)
 	UART1_PFIFO = 0;
 #endif
 #elif defined(HAS_KINETISL_UART1)
+	if (divisor < 1) divisor = 1;
 	UART1_BDH = (divisor >> 8) & 0x1F;
 	UART1_BDL = divisor & 0xFF;
 	UART1_C1 = 0;

@@ -128,12 +128,14 @@ void serial3_begin(uint32_t divisor)
 	}
 #endif
 #if defined(HAS_KINETISK_UART2)
+	if (divisor < 32) divisor = 32;
 	UART2_BDH = (divisor >> 13) & 0x1F;
 	UART2_BDL = (divisor >> 5) & 0xFF;
 	UART2_C4 = divisor & 0x1F;
 	UART2_C1 = 0;
 	UART2_PFIFO = 0;
 #elif defined(HAS_KINETISL_UART2)
+	if (divisor < 1) divisor = 1;
 	UART2_BDH = (divisor >> 8) & 0x1F;
 	UART2_BDL = divisor & 0xFF;
 	UART2_C1 = 0;

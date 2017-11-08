@@ -139,6 +139,7 @@ void serial_begin(uint32_t divisor)
 		#endif
 	}
 #if defined(HAS_KINETISK_UART0)
+	if (divisor < 32) divisor = 32;
 	UART0_BDH = (divisor >> 13) & 0x1F;
 	UART0_BDL = (divisor >> 5) & 0xFF;
 	UART0_C4 = divisor & 0x1F;
@@ -152,6 +153,7 @@ void serial_begin(uint32_t divisor)
 	UART0_PFIFO = 0;
 #endif
 #elif defined(HAS_KINETISL_UART0)
+	if (divisor < 1) divisor = 1;
 	UART0_BDH = (divisor >> 8) & 0x1F;
 	UART0_BDL = divisor & 0xFF;
 	UART0_C1 = 0;

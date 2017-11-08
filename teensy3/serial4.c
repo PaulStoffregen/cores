@@ -112,6 +112,7 @@ void serial4_begin(uint32_t divisor)
 		case 32: CORE_PIN32_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
 		case 62: CORE_PIN62_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3); break;
 	}
+	if (divisor < 32) divisor = 32;
 	UART3_BDH = (divisor >> 13) & 0x1F;
 	UART3_BDL = (divisor >> 5) & 0xFF;
 	UART3_C4 = divisor & 0x1F;
