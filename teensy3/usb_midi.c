@@ -281,9 +281,10 @@ int usb_midi_read(uint32_t channel)
 			// From Sebastian Tomczak, seb.tomczak at gmail.com
 			// http://little-scale.blogspot.com/2011/08/usb-midi-game-boy-sync-for-16.html
 			usb_midi_msg_type = 8;
+			usb_midi_msg_data1 = (n >> 8);
 			if (usb_midi_handleRealTimeSystem)
 				(*usb_midi_handleRealTimeSystem)(n >> 8);
-			goto return_message;
+			return 1;
 		}
 	}
 	if (type1 == 0x02) {
