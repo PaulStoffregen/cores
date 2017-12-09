@@ -1057,6 +1057,16 @@ public:
 		pinout = newpinout;
 #endif
 	}
+	inline void setMOSI_soft(uint8_t pin) __attribute__((always_inline)) {
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+		if (pin == 11) pinout &= ~3;
+		if (pin == 7)  pinout = (pinout & ~0x3) | 1;
+		if (pin == 28) pinout = (pinout & ~0x3) | 2;
+#else
+		if (pin == 11) pinout &= ~1;
+		if (pin == 7)  pinout |= 1;
+#endif
+	}
 	inline void setMISO(uint8_t pin) __attribute__((always_inline)) {
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 		uint8_t newpinout = pinout;
@@ -1094,6 +1104,16 @@ public:
 		pinout = newpinout;
 #endif
 	}
+	inline void setMISO_soft(uint8_t pin) __attribute__((always_inline)) {
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+		if (pin == 12) pinout &= ~0xc;
+		if (pin == 8)  pinout = (pinout & ~0xc) | 4;
+		if (pin == 39) pinout = (pinout & ~0xc) | 8;
+#else
+		if (pin == 12) pinout &= ~2;
+		if (pin == 8)  pinout |= 2;
+#endif
+	}
 	inline void setSCK(uint8_t pin) __attribute__((always_inline)) {
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 		uint8_t newpinout = pinout;
@@ -1129,6 +1149,16 @@ public:
 			}
 		}
 		pinout = newpinout;
+#endif
+	}
+	inline void setSCK_soft(uint8_t pin) __attribute__((always_inline)) {
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+		if (pin == 13) pinout &= ~0x30;
+		if (pin == 14) pinout = (pinout & ~0x30) | 0x10;
+		if (pin == 27) pinout = (pinout & ~0x30) | 0x20;
+#else
+		if (pin == 13) pinout &= ~4;
+		if (pin == 14) pinout |= 4;
 #endif
 	}
 	friend class SPSRemulation;
