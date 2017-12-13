@@ -35,6 +35,8 @@
 
 #ifdef KINETISK
 
+// The preferred way to set SPI speed is with SPI.beginTransaction()
+
 #if F_BUS == 120000000
 #define HAS_SPIFIFO
 #define SPI_CLOCK_24MHz   (SPI_CTAR_PBR(3) | SPI_CTAR_BR(0) | SPI_CTAR_DBR) //(120 / 5) * ((1+1)/2)
@@ -226,7 +228,7 @@ for $i (2, 3, 5, 7) {
 class SPIFIFOclass
 {
 public:
-	inline void begin(uint8_t pin, uint32_t speed, uint32_t mode=SPI_MODE0) __attribute__((always_inline)) {
+	inline void begin(uint8_t pin, uint32_t speed, uint32_t mode=SPI_MODE0) __attribute__((always_inline, deprecated)) {
 		uint32_t p, ctar = speed;
 		SIM_SCGC6 |= SIM_SCGC6_SPI0;
 
