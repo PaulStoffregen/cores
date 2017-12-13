@@ -784,7 +784,7 @@ public:
 		uint32_t mod = len2mod(len);
 		if (mod == 0) return;
 		CFG->DAR = p;
-		CFG->DCR = (CFG->DCR & 0xF0F0F0FF) | DMA_DCR_DSIZE(1) | DMA_DCR_DINC
+		CFG->DCR = (CFG->DCR & 0xF0F0F0FF) | DMA_DCR_DSIZE(2) | DMA_DCR_DINC
 			| DMA_DCR_DMOD(mod);
 		CFG->DSR_BCR = len;
 	}
@@ -798,7 +798,7 @@ public:
 		uint32_t mod = len2mod(len);
 		if (mod == 0) return;
 		CFG->DAR = p;
-		CFG->DCR = (CFG->DCR & 0xF0F0F0FF) | DMA_DCR_DSIZE(1) | DMA_DCR_DINC
+		CFG->DCR = (CFG->DCR & 0xF0F0F0FF) | DMA_DCR_DSIZE(0) | DMA_DCR_DINC
 			| DMA_DCR_DMOD(mod);
 		CFG->DSR_BCR = len;
 	}
