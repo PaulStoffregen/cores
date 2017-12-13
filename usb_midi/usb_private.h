@@ -44,7 +44,10 @@ extern "C"{
 // computer unless the vendor or product ID numbers change, or the
 // "bcdDevice" revision code is increased.
 
+#ifndef STR_PRODUCT
 #define STR_PRODUCT             L"Teensy MIDI"
+#endif
+
 #define ENDPOINT0_SIZE          64
 
 #define DEBUG_INTERFACE		1
