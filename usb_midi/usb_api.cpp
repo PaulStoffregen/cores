@@ -1,17 +1,17 @@
 /* USB API for Teensy USB Development Board
  * http://www.pjrc.com/teensy/teensyduino.html
  * Copyright (c) 2008 PJRC.COM, LLC
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -202,9 +202,11 @@ bool usb_midi_class::read(uint8_t channel)
 	if (!(UEINTX & (1<<RWAL))) UEINTX = 0x6B;
 	SREG = intr_state;
 
-	type1 = b0 & 0x0F;
+	type1 = b0 & 0x0F; //USB midi uses first 4 bits to define cable #, or port, so you can have multiple, virtual midi cables.
+	                   //This clears the cable # bits, and leaves the last 4 bits, the Code Index Number (message type). CIN defined in
+	                   //USB midi spec: http://www.usb.org/developers/docs/devclass_docs/midi10.pdf
 	type2 = b1 & 0xF0;
-	c = (b1 & 0x0F) + 1;
+	c = (b1 & 0x0F) + 1; //gets channel out of last 4 bits, and adds one, so it is channel 1-16, rather than 0-15
 	if (type1 >= 0x08 && type1 <= 0x0E) {
 		if (channel && channel != c) {
 			// ignore other channels when user wants single channel read
@@ -290,6 +292,14 @@ bool usb_midi_class::read(uint8_t channel)
 			if (handleRealTimeSystem) (*handleRealTimeSystem)(b1);
 			goto return_message;
 		}
+
+	}
+	if (type1 ==0x03 && b1 == 0xF2) { //Added by Ben Milner 8/2017
+		//https://forum.pjrc.com/threads/46093-Teensy-USB-MIDI-adding-Song-Position-Pointer-(SPP)-to-core-library?styleid=1
+	  msg_type = 9; //Song position pointer will show up as message type 9, when using the function usbMIDI.getType
+	                 //Song position pointer is 14 bit number, made from byte 2 and 3 of the midi message.
+	  if (handleSongPositionPointer) (*handleSongPositionPointer) ((b2 & 0x7F) | ((b3 & 0x7F) << 7)); //number passed on to Handle function is the assembled 14 bit number
+	  goto return_message;
 	}
 	return false;
 }
@@ -443,7 +453,7 @@ void usb_serial_class::flush()
 #if ARDUINO >= 100
 size_t usb_serial_class::write(uint8_t c)
 #else
-#define setWriteError() 
+#define setWriteError()
 void usb_serial_class::write(uint8_t c)
 #endif
 {
@@ -576,4 +586,3 @@ usb_serial_class::operator bool()
 
 usb_serial_class	Serial = usb_serial_class();
 usb_midi_class		usbMIDI = usb_midi_class();
-

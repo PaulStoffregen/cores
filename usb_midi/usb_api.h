@@ -79,6 +79,9 @@ public:
 	inline void setHandleRealTimeSystem(void (*fptr)(uint8_t realtimebyte)) {
 		handleRealTimeSystem = fptr;
 	};
+	inline void setHandleSongPositionPointer(void (*fptr)(uint16_t SPP14bit)) { //Added by Ben Milner 8/2017
+		handleSongPositionPointer = fptr;
+	};
 private:
 	void send_raw(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3);
 	void read_sysex_byte(uint8_t b);
@@ -96,6 +99,7 @@ private:
 	void (*handleAfterTouch)(uint8_t ch, uint8_t);
 	void (*handlePitchChange)(uint8_t ch, int pitch);
 	void (*handleRealTimeSystem)(uint8_t rtb);
+	void (*handleSongPositionPointer)(uint16_t spp); //Added by Ben Milner 8/2017
 };
 
 extern usb_midi_class usbMIDI;
