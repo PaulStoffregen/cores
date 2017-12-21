@@ -203,43 +203,43 @@ int usb_midi_read(uint32_t channel)
 			return 0;
 		}
 		if (type1 == 0x08 && type2 == 0x08) {
-			usb_midi_msg_type = 0;			// 0 = Note off
+			usb_midi_msg_type = 0x80;			// 0 = Note off
 			if (usb_midi_handleNoteOff)
 				(*usb_midi_handleNoteOff)(ch, (n >> 16), (n >> 24));
 		} else
 		if (type1 == 0x09 && type2 == 0x09) {
 			if ((n >> 24) > 0) {
-				usb_midi_msg_type = 1;		// 1 = Note on
+				usb_midi_msg_type = 0x90;		// 1 = Note on
 				if (usb_midi_handleNoteOn)
 					(*usb_midi_handleNoteOn)(ch, (n >> 16), (n >> 24));
 			} else {
-				usb_midi_msg_type = 0;		// 0 = Note off
+				usb_midi_msg_type = 0x80;		// 0 = Note off
 				if (usb_midi_handleNoteOff)
 					(*usb_midi_handleNoteOff)(ch, (n >> 16), (n >> 24));
 			}
 		} else
 		if (type1 == 0x0A && type2 == 0x0A) {
-			usb_midi_msg_type = 2;			// 2 = Poly Pressure
+			usb_midi_msg_type = 0xA0;			// 2 = Poly Pressure
 			if (usb_midi_handleVelocityChange)
 				(*usb_midi_handleVelocityChange)(ch, (n >> 16), (n >> 24));
 		} else
 		if (type1 == 0x0B && type2 == 0x0B) {
-			usb_midi_msg_type = 3;			// 3 = Control Change
+			usb_midi_msg_type = 0xB0;			// 3 = Control Change
 			if (usb_midi_handleControlChange)
 				(*usb_midi_handleControlChange)(ch, (n >> 16), (n >> 24));
 		} else
 		if (type1 == 0x0C && type2 == 0x0C) {
-			usb_midi_msg_type = 4;			// 4 = Program Change
+			usb_midi_msg_type = 0x0C;			// 4 = Program Change
 			if (usb_midi_handleProgramChange)
 				(*usb_midi_handleProgramChange)(ch, (n >> 16));
 		} else
 		if (type1 == 0x0D && type2 == 0x0D) {
-			usb_midi_msg_type = 5;			// 5 = After Touch
+			usb_midi_msg_type = 0xD0;			// 5 = After Touch
 			if (usb_midi_handleAfterTouch)
 				(*usb_midi_handleAfterTouch)(ch, (n >> 16));
 		} else
 		if (type1 == 0x0E && type2 == 0x0E) {
-			usb_midi_msg_type = 6;			// 6 = Pitch Bend
+			usb_midi_msg_type = 0xE0;			// 6 = Pitch Bend
 			if (usb_midi_handlePitchChange)
 				(*usb_midi_handlePitchChange)(ch,
 				  ((n >> 16) & 0x7F) | ((n >> 17) & 0x3F80));
