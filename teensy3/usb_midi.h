@@ -66,6 +66,8 @@ void usb_midi_write_packed(uint32_t n);
 void usb_midi_send_sysex(const uint8_t *data, uint32_t length);
 void usb_midi_flush_output(void);
 int usb_midi_read(uint32_t channel);
+uint32_t usb_midi_available(void);
+uint32_t usb_midi_read_message(void);
 extern uint8_t usb_midi_msg_channel;
 extern uint8_t usb_midi_msg_type;
 extern uint8_t usb_midi_msg_data1;

@@ -166,6 +166,49 @@ void static sysex_byte(uint8_t b)
 	}
 }
 
+uint32_t usb_midi_available(void)
+{
+	uint32_t index;
+
+	if (!rx_packet) {
+		if (!usb_configuration) return 0;
+		rx_packet = usb_rx(MIDI_RX_ENDPOINT);
+		if (!rx_packet) return 0;
+		if (rx_packet->len == 0) {
+			usb_free(rx_packet);
+			rx_packet = NULL;
+			return 0;
+		}
+	}
+	index = rx_packet->index;
+	return rx_packet->len - index;
+}
+
+uint32_t usb_midi_read_message(void)
+{
+	uint32_t n, index;
+
+	if (!rx_packet) {
+		if (!usb_configuration) return 0;
+		rx_packet = usb_rx(MIDI_RX_ENDPOINT);
+		if (!rx_packet) return 0;
+		if (rx_packet->len == 0) {
+			usb_free(rx_packet);
+			rx_packet = NULL;
+			return 0;
+		}
+	}
+	index = rx_packet->index;
+	n = ((uint32_t *)rx_packet->buf)[index/4];
+	index += 4;
+	if (index < rx_packet->len) {
+		rx_packet->index = index;
+	} else {
+		usb_free(rx_packet);
+		rx_packet = usb_rx(MIDI_RX_ENDPOINT);
+	}
+	return n;
+}
 
 int usb_midi_read(uint32_t channel)
 {
