@@ -36,10 +36,12 @@
 #ifdef MIDI_INTERFACE // defined by usb_dev.h -> usb_desc.h
 #if F_CPU >= 20000000
 
+uint8_t usb_midi_msg_cable;
 uint8_t usb_midi_msg_channel;
 uint8_t usb_midi_msg_type;
 uint8_t usb_midi_msg_data1;
 uint8_t usb_midi_msg_data2;
+// TODO: separate sysex buffers for each cable...
 uint8_t usb_midi_msg_sysex[USB_MIDI_SYSEX_MAX];
 uint16_t usb_midi_msg_sysex_len;
 void (*usb_midi_handleNoteOff)(uint8_t ch, uint8_t note, uint8_t vel) = NULL;
@@ -241,6 +243,7 @@ int usb_midi_read(uint32_t channel)
 	type1 = n & 15;
 	type2 = (n >> 12) & 15;
 	ch = ((n >> 8) & 15) + 1;
+	usb_midi_msg_cable = (n >> 4) & 15;
 	if (type1 >= 0x08 && type1 <= 0x0E) {
 		if (channel && channel != ch) {
 			// ignore other channels when user wants single channel read

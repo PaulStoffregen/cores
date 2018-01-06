@@ -56,6 +56,9 @@
 #ifdef PRODUCT_ID
 #undef PRODUCT_ID
 #endif
+#ifdef BCD_DEVICE
+#undef BCD_DEVICE
+#endif
 #ifdef DEVICE_CLASS
 #undef DEVICE_CLASS
 #endif
@@ -168,6 +171,15 @@
 #undef CDC_IAD_DESCRIPTOR
 #endif
 #ifdef MIDI_INTERFACE
+#undef MIDI_INTERFACE
+#endif
+#ifdef MIDI_NUM_CABLES
+#undef MIDI_NUM_CABLES
+#endif
+#ifdef MIDI_INTERFACE_JACK_PAIR
+#undef MIDI_INTERFACE_JACK_PAIR
+#endif
+#ifdef MIDI_TX_ENDPOINT
 #undef MIDI_TX_ENDPOINT
 #endif
 #ifdef MIDI_TX_SIZE

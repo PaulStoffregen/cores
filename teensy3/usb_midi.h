@@ -73,6 +73,7 @@ void usb_midi_flush_output(void);
 int usb_midi_read(uint32_t channel);
 uint32_t usb_midi_available(void);
 uint32_t usb_midi_read_message(void);
+extern uint8_t usb_midi_msg_cable;
 extern uint8_t usb_midi_msg_channel;
 extern uint8_t usb_midi_msg_type;
 extern uint8_t usb_midi_msg_data1;
@@ -148,6 +149,7 @@ class usb_midi_class
 		send(0xE0, value, value >> 7, channel, cable);
 	};
         void sendSysEx(uint32_t length, const uint8_t *data, bool hasTerm=false, uint8_t cable=0) __attribute__((always_inline)) {
+		if (cable >= MIDI_NUM_CABLES) return;
 		if (hasTerm) {
 			if (length > 2) {
 				usb_midi_send_sysex(data + 1, length - 2, cable);
@@ -231,6 +233,7 @@ class usb_midi_class
 		sendControlChange(98, 0x7F, channel, cable);
 	}
 	void send(uint8_t type, uint8_t data1, uint8_t data2, uint8_t channel, uint8_t cable) __attribute__((always_inline)) {
+		if (cable >= MIDI_NUM_CABLES) return;
 		if (type < 0xF0) {
 			if (type < 0x80) return;
 			type &= 0xF0;
@@ -251,6 +254,9 @@ class usb_midi_class
 	};
         inline uint8_t getType(void) __attribute__((always_inline)) {
                 return usb_midi_msg_type;
+        };
+        inline uint8_t getCable(void) __attribute__((always_inline)) {
+                return usb_midi_msg_cable;
         };
         inline uint8_t getChannel(void) __attribute__((always_inline)) {
                 return usb_midi_msg_channel;
