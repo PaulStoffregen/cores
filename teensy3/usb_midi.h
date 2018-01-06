@@ -63,7 +63,7 @@ used together without conflict.
 extern "C" {
 #endif
 void usb_midi_write_packed(uint32_t n);
-void usb_midi_send_sysex(const uint8_t *data, uint32_t length);
+void usb_midi_send_sysex(const uint8_t *data, uint32_t length, uint8_t cable);
 void usb_midi_flush_output(void);
 int usb_midi_read(uint32_t channel);
 uint32_t usb_midi_available(void);
@@ -89,6 +89,26 @@ extern void (*usb_midi_handleTimeCodeQuarterFrame)(uint16_t data);
 }
 #endif
 
+// To test receiving on Linux, run "aseqdump -l" to list sequencer devices.
+//
+//    Port    Client name                      Port name
+//     0:0    System                           Timer
+//     0:1    System                           Announce
+//    14:0    Midi Through                     Midi Through Port-0
+//    24:0    Teensy MIDI                      Teensy MIDI MIDI 1
+//    28:0    AKM320                           AKM320 MIDI 1
+//
+// Then run "aseqdump -p 24:0" to view the MIDI messages.
+//
+//    Waiting for data. Press Ctrl+C to end.
+//    Source  Event                  Ch  Data
+//     24:0   Note on                 0, note 61, velocity 99
+//     24:0   Note off                0, note 61, velocity 0
+//     24:0   Note on                 0, note 62, velocity 99
+//     24:0   Note off                0, note 62, velocity 0
+//     24:0   Note on                 0, note 64, velocity 99
+//     24:0   Note off                0, note 64, velocity 0
+
 // C++ interface
 #ifdef __cplusplus
 class usb_midi_class
@@ -96,78 +116,147 @@ class usb_midi_class
         public:
         void begin(void) { }
         void end(void) { }
-        void sendNoteOff(uint32_t note, uint32_t velocity, uint32_t channel) __attribute__((always_inline)) {
-		usb_midi_write_packed(0x8008 | (((channel - 1) & 0x0F) << 8)
-		  | ((note & 0x7F) << 16) | ((velocity & 0x7F) << 24));
-	}
-        void sendNoteOn(uint32_t note, uint32_t velocity, uint32_t channel) __attribute__((always_inline)) {
-		usb_midi_write_packed(0x9009 | (((channel - 1) & 0x0F) << 8)
-		  | ((note & 0x7F) << 16) | ((velocity & 0x7F) << 24));
-	}
-        void sendPolyPressure(uint32_t note, uint32_t pressure, uint32_t channel) __attribute__((always_inline)) {
-		usb_midi_write_packed(0xA00A | (((channel - 1) & 0x0F) << 8)
-		  | ((note & 0x7F) << 16) | ((pressure & 0x7F) << 24));
-	}
-        void sendControlChange(uint32_t control, uint32_t value, uint32_t channel) __attribute__((always_inline)) {
-		usb_midi_write_packed(0xB00B | (((channel - 1) & 0x0F) << 8)
-		  | ((control & 0x7F) << 16) | ((value & 0x7F) << 24));
-	}
-        void sendProgramChange(uint32_t program, uint32_t channel) __attribute__((always_inline)) {
-		usb_midi_write_packed(0xC00C | (((channel - 1) & 0x0F) << 8)
-		  | ((program & 0x7F) << 16));
-	}
-        void sendAfterTouch(uint32_t pressure, uint32_t channel) __attribute__((always_inline)) {
-		usb_midi_write_packed(0xD00D | (((channel - 1) & 0x0F) << 8)
-		  | ((pressure & 0x7F) << 16));
-	}
-        void sendPitchBend(uint32_t value, uint32_t channel) __attribute__((always_inline)) {
-		usb_midi_write_packed(0xE00E | (((channel - 1) & 0x0F) << 8)
-		  | ((value & 0x7F) << 16) | ((value & 0x3F80) << 17));
-	}
-        void sendSysEx(uint32_t length, const uint8_t *data) {
-		usb_midi_send_sysex(data, length);
-	}
-	void sendRealTime(uint32_t type) __attribute__((always_inline)) {
+        void sendNoteOff(uint8_t note, uint8_t velocity, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
+		send(0x80, note, velocity, channel, cable);
+	};
+        void sendNoteOn(uint8_t note, uint8_t velocity, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
+		send(0x90, note, velocity, channel, cable);
+	};
+        void sendPolyPressure(uint8_t note, uint8_t pressure, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
+		send(0xA0, note, pressure, channel, cable);
+	};
+	void sendAfterTouch(uint8_t note, uint8_t pressure, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
+		send(0xA0, note, pressure, channel, cable);
+	};
+        void sendControlChange(uint8_t control, uint8_t value, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
+		send(0xB0, control, value, channel, cable);
+	};
+        void sendProgramChange(uint8_t program, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
+		send(0xC0, program, 0, channel, cable);
+	};
+        void sendAfterTouch(uint8_t pressure, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
+		send(0xD0, pressure, 0, channel, cable);
+	};
+        void sendPitchBend(uint16_t value, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
+		// MIDI 4.3 takes -8192 to +8191.  We take 0 to 16383
+		// MIDI 4.3 also has version that takes float -1.0 to +1.0
+		send(0xE0, value, value >> 7, channel, cable);
+	};
+        void sendSysEx(uint32_t length, const uint8_t *data, bool hasTerm=false, uint8_t cable=0) __attribute__((always_inline)) {
+		if (hasTerm) {
+			if (length > 2) {
+				usb_midi_send_sysex(data + 1, length - 2, cable);
+			}
+		} else {
+			usb_midi_send_sysex(data, length, cable);
+		}
+	};
+	void sendRealTime(uint8_t type, uint8_t cable=0) __attribute__((always_inline)) __attribute__((always_inline)) {
 		switch (type) {
 			case 0xF8: // Clock
 			case 0xFA: // Start
-			case 0xFC: // Stop
 			case 0xFB: // Continue
+			case 0xFC: // Stop
 			case 0xFE: // ActiveSensing
 			case 0xFF: // SystemReset
-				usb_midi_write_packed((type << 8) | 0x0F);
+				send(type, 0, 0, 0, cable);
 				break;
 			default: // Invalid Real Time marker
 				break;
 		}
+	};
+	void sendTimeCodeQuarterFrame(uint8_t type, uint8_t value, uint8_t cable=0) __attribute__((always_inline)) __attribute__((always_inline)) {
+		send(0xF1, ((type & 0x07) << 4) | (value & 0x0F), 0, 0, cable);
+	};
+        //void sendTimeCodeQuarterFrame(uint8_t data, uint8_t cable=0) __attribute__((always_inline)) {
+		// MIDI 4.3 has this, but we can't implement with cable param
+		//send(0xF1, data, 0, 0, cable);
+	//};
+	void sendSongPosition(uint16_t beats, uint8_t cable=0) __attribute__((always_inline)) {
+		send(0xF2, beats, beats >> 7, 0, cable);
+	};
+	void sendSongSelect(uint8_t song, uint8_t cable=0) __attribute__((always_inline)) {
+		send(0xF4, song, 0, 0, cable);
+	};
+	void sendTuneRequest(uint8_t cable=0) __attribute__((always_inline)) {
+		send(0xF6, 0, 0, 0, cable);
+	};
+	void beginRpn(uint16_t number, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
+		sendControlChange(101, number >> 7, channel, cable);
+		sendControlChange(100, number, channel, cable);
+	};
+	void sendRpnValue(uint16_t value, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
+		sendControlChange(6, value >> 7, channel, cable);
+		sendControlChange(38, value, channel, cable);
+	};
+	void sendRpnValue(uint8_t msb, uint8_t lsb, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
+		sendControlChange(6, msb, channel, cable);
+		sendControlChange(38, lsb, channel, cable);
+	};
+	void sendRpnIncrement(uint8_t amount, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
+		sendControlChange(96, amount, channel, cable);
+	};
+	void sendRpnDecrement(uint8_t amount, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
+		sendControlChange(97, amount, channel, cable);
+	};
+	void endRpn(uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
+		sendControlChange(101, 0x7F, channel, cable);
+		sendControlChange(100, 0x7F, channel, cable);
+	};
+	void beginNrpn(uint16_t number, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
+		sendControlChange(99, number >> 7, channel, cable);
+		sendControlChange(98, number, channel, cable);
 	}
-	void sendTimeCodeQuarterFrame(uint32_t type, uint32_t value) __attribute__((always_inline)) {
-		uint32_t data = ( ((type & 0x07) << 4) | (value & 0x0F) );
-		sendTimeCodeQuarterFrame(data);	
+	void sendNrpnValue(uint16_t value, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
+		sendControlChange(6, value >> 7, channel, cable);
+		sendControlChange(38, value, channel, cable);
 	}
-        void sendTimeCodeQuarterFrame(uint32_t data) __attribute__((always_inline)) {
-		usb_midi_write_packed(0xF108 | ((data & 0x7F) << 16));
+	void sendNrpnValue(uint8_t msb, uint8_t lsb, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
+		sendControlChange(6, msb, channel, cable);
+		sendControlChange(38, lsb, channel, cable);
 	}
-        void send_now(void) {
+	void sendNrpnIncrement(uint8_t amount, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
+		sendControlChange(96, amount, channel, cable);
+	}
+	void sendNrpnDecrement(uint8_t amount, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
+		sendControlChange(97, amount, channel, cable);
+	}
+	void endNrpn(uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
+		sendControlChange(99, 0x7F, channel, cable);
+		sendControlChange(98, 0x7F, channel, cable);
+	}
+	void send(uint8_t type, uint8_t data1, uint8_t data2, uint8_t channel, uint8_t cable) __attribute__((always_inline)) {
+		if (type < 0xF0) {
+			if (type < 0x80) return;
+			type &= 0xF0;
+			usb_midi_write_packed((type << 8) | (type >> 4) | ((cable & 0x0F) << 4)
+			  | (((channel - 1) & 0x0F) << 8) | ((data1 & 0x7F) << 16)
+			  | ((data2 & 0x7F) << 24));
+		} else {
+			usb_midi_write_packed((type << 8) | 0x0F | ((cable & 0x0F) << 4)
+			  | ((data1 & 0x7F) << 16) | ((data2 & 0x7F) << 24));
+		}
+	};
+        void send_now(void) __attribute__((always_inline)) {
 		usb_midi_flush_output();
-	}
+	};
         uint8_t analog2velocity(uint16_t val, uint8_t range);
-        bool read(uint8_t channel=0) {
+        bool read(uint8_t channel=0) __attribute__((always_inline)) {
 		return usb_midi_read(channel);
-	}
-        inline uint8_t getType(void) {
+	};
+        inline uint8_t getType(void) __attribute__((always_inline)) {
                 return usb_midi_msg_type;
         };
-        inline uint8_t getChannel(void) {
+        inline uint8_t getChannel(void) __attribute__((always_inline)) {
                 return usb_midi_msg_channel;
         };
-        inline uint8_t getData1(void) {
+        inline uint8_t getData1(void) __attribute__((always_inline)) {
                 return usb_midi_msg_data1;
         };
-        inline uint8_t getData2(void) {
+        inline uint8_t getData2(void) __attribute__((always_inline)) {
                 return usb_midi_msg_data2;
         };
-        inline uint8_t * getSysExArray(void) {
+        inline uint8_t * getSysExArray(void) __attribute__((always_inline)) {
                 return usb_midi_msg_sysex;
         };
         inline void setHandleNoteOff(void (*fptr)(uint8_t channel, uint8_t note, uint8_t velocity)) {
