@@ -679,7 +679,7 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         0x01,                                   // bDescriptorSubtype = MS_HEADER
         0x00, 0x01,                             // bcdMSC = revision 01.00
 	LSB(7+(6+6+9+9)*MIDI_NUM_CABLES),       // wTotalLength
-	LSB(7+(6+6+9+9)*MIDI_NUM_CABLES),
+	MSB(7+(6+6+9+9)*MIDI_NUM_CABLES),
         // MIDI IN Jack Descriptor, B.4.3, Table B-7 (embedded), page 40
         6,                                      // bLength
         0x24,                                   // bDescriptorType = CS_INTERFACE
