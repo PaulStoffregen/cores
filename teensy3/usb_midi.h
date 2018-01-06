@@ -56,7 +56,12 @@ used together without conflict.
 #define SystemExclusive 7
 */
 
-#define USB_MIDI_SYSEX_MAX 60  // maximum sysex length we can receive
+// maximum sysex length we can receive
+#if defined(__MKL26Z64__) || defined(__MK20DX128__)
+#define USB_MIDI_SYSEX_MAX  60
+#else
+#define USB_MIDI_SYSEX_MAX 290
+#endif
 
 // C language implementation
 #ifdef __cplusplus
@@ -73,7 +78,7 @@ extern uint8_t usb_midi_msg_type;
 extern uint8_t usb_midi_msg_data1;
 extern uint8_t usb_midi_msg_data2;
 extern uint8_t usb_midi_msg_sysex[USB_MIDI_SYSEX_MAX];
-extern uint8_t usb_midi_msg_sysex_len;
+extern uint16_t usb_midi_msg_sysex_len;
 extern void (*usb_midi_handleNoteOff)(uint8_t ch, uint8_t note, uint8_t vel);
 extern void (*usb_midi_handleNoteOn)(uint8_t ch, uint8_t note, uint8_t vel);
 extern void (*usb_midi_handleVelocityChange)(uint8_t ch, uint8_t note, uint8_t vel);

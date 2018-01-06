@@ -41,7 +41,7 @@ uint8_t usb_midi_msg_type;
 uint8_t usb_midi_msg_data1;
 uint8_t usb_midi_msg_data2;
 uint8_t usb_midi_msg_sysex[USB_MIDI_SYSEX_MAX];
-uint8_t usb_midi_msg_sysex_len;
+uint16_t usb_midi_msg_sysex_len;
 void (*usb_midi_handleNoteOff)(uint8_t ch, uint8_t note, uint8_t vel) = NULL;
 void (*usb_midi_handleNoteOn)(uint8_t ch, uint8_t note, uint8_t vel) = NULL;
 void (*usb_midi_handleVelocityChange)(uint8_t ch, uint8_t note, uint8_t vel) = NULL;
@@ -307,6 +307,7 @@ int usb_midi_read(uint32_t channel)
 		if (type1 >= 0x06) sysex_byte(n >> 16);
 		if (type1 == 0x07) sysex_byte(n >> 24);
 		usb_midi_msg_data1 = usb_midi_msg_sysex_len;
+		usb_midi_msg_data2 = usb_midi_msg_sysex_len >> 8;
 		usb_midi_msg_sysex_len = 0;
 		usb_midi_msg_type = 7;				// 7 = Sys Ex
 		if (usb_midi_handleSysEx)
