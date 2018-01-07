@@ -259,43 +259,43 @@ int usb_midi_read(uint32_t channel)
 			return 0;
 		}
 		if (type1 == 0x08 && type2 == 0x08) {
-			usb_midi_msg_type = 0;			// 0 = Note off
+			usb_midi_msg_type = 0x80;		// 0x80 = usbMIDI.NoteOff
 			if (usb_midi_handleNoteOff)
 				(*usb_midi_handleNoteOff)(ch, (n >> 16), (n >> 24));
 		} else
 		if (type1 == 0x09 && type2 == 0x09) {
 			if ((n >> 24) > 0) {
-				usb_midi_msg_type = 1;		// 1 = Note on
+				usb_midi_msg_type = 0x90;	// 0x90 = usbMIDI.NoteOn
 				if (usb_midi_handleNoteOn)
 					(*usb_midi_handleNoteOn)(ch, (n >> 16), (n >> 24));
 			} else {
-				usb_midi_msg_type = 0;		// 0 = Note off
+				usb_midi_msg_type = 0x80;	// 0x80 = usbMIDI.NoteOff
 				if (usb_midi_handleNoteOff)
 					(*usb_midi_handleNoteOff)(ch, (n >> 16), (n >> 24));
 			}
 		} else
 		if (type1 == 0x0A && type2 == 0x0A) {
-			usb_midi_msg_type = 2;			// 2 = Poly Pressure
+			usb_midi_msg_type = 0xA0;		// 0xA0 = usbMIDI.AfterTouchPoly
 			if (usb_midi_handleVelocityChange)
 				(*usb_midi_handleVelocityChange)(ch, (n >> 16), (n >> 24));
 		} else
 		if (type1 == 0x0B && type2 == 0x0B) {
-			usb_midi_msg_type = 3;			// 3 = Control Change
+			usb_midi_msg_type = 0xB0;		// 0xB0 = usbMIDI.ControlChange
 			if (usb_midi_handleControlChange)
 				(*usb_midi_handleControlChange)(ch, (n >> 16), (n >> 24));
 		} else
 		if (type1 == 0x0C && type2 == 0x0C) {
-			usb_midi_msg_type = 4;			// 4 = Program Change
+			usb_midi_msg_type = 0xC0;		// 0xC0 = usbMIDI.ProgramChange
 			if (usb_midi_handleProgramChange)
 				(*usb_midi_handleProgramChange)(ch, (n >> 16));
 		} else
 		if (type1 == 0x0D && type2 == 0x0D) {
-			usb_midi_msg_type = 5;			// 5 = After Touch
+			usb_midi_msg_type = 0xD0;		// 0xD0 = usbMIDI.AfterTouchChannel
 			if (usb_midi_handleAfterTouch)
 				(*usb_midi_handleAfterTouch)(ch, (n >> 16));
 		} else
 		if (type1 == 0x0E && type2 == 0x0E) {
-			usb_midi_msg_type = 6;			// 6 = Pitch Bend
+			usb_midi_msg_type = 0xE0;		// 0xE0 = usbMIDI.PitchBend
 			if (usb_midi_handlePitchChange)
 				(*usb_midi_handlePitchChange)(ch,
 				  ((n >> 16) & 0x7F) | ((n >> 17) & 0x3F80));
@@ -314,62 +314,62 @@ int usb_midi_read(uint32_t channel)
 		system_common_or_realtime:
 		type = n >> 8;
 		switch (type) {
-		  case 0xF1: // TimeCodeQuarterFrame
+		  case 0xF1: // usbMIDI.TimeCodeQuarterFrame
 			if (usb_midi_handleTimeCodeQuarterFrame) {
 				(*usb_midi_handleTimeCodeQuarterFrame)(n >> 16);
 			}
 			break;
-		  case 0xF2: // SongPosition
+		  case 0xF2: // usbMIDI.SongPosition
 			if (usb_midi_handleSongPosition) {
 				(*usb_midi_handleSongPosition)(n >> 16);
 			}
 			break;
-		  case 0xF3: // SongSelect
+		  case 0xF3: // usbMIDI.SongSelect
 			if (usb_midi_handleSongSelect) {
 				(*usb_midi_handleSongSelect)(n >> 16);
 			}
 			break;
-		  case 0xF6: // TuneRequest
+		  case 0xF6: // usbMIDI.TuneRequest
 			if (usb_midi_handleTuneRequest) {
 				(*usb_midi_handleTuneRequest)();
 			}
 			break;
-		  case 0xF8: // Clock
+		  case 0xF8: // usbMIDI.Clock
 			if (usb_midi_handleClock) {
 				(*usb_midi_handleClock)();
 			} else if (usb_midi_handleRealTimeSystem) {
 				(*usb_midi_handleRealTimeSystem)(0xF8);
 			}
 			break;
-		  case 0xFA: // Start
+		  case 0xFA: // usbMIDI.Start
 			if (usb_midi_handleStart) {
 				(*usb_midi_handleStart)();
 			} else if (usb_midi_handleRealTimeSystem) {
 				(*usb_midi_handleRealTimeSystem)(0xFA);
 			}
 			break;
-		  case 0xFB: // Continue
+		  case 0xFB: // usbMIDI.Continue
 			if (usb_midi_handleContinue) {
 				(*usb_midi_handleContinue)();
 			} else if (usb_midi_handleRealTimeSystem) {
 				(*usb_midi_handleRealTimeSystem)(0xFB);
 			}
 			break;
-		  case 0xFC: // Stop
+		  case 0xFC: // usbMIDI.Stop
 			if (usb_midi_handleStop) {
 				(*usb_midi_handleStop)();
 			} else if (usb_midi_handleRealTimeSystem) {
 				(*usb_midi_handleRealTimeSystem)(0xFC);
 			}
 			break;
-		  case 0xFE: // ActiveSensing
+		  case 0xFE: // usbMIDI.ActiveSensing
 			if (usb_midi_handleActiveSensing) {
 				(*usb_midi_handleActiveSensing)();
 			} else if (usb_midi_handleRealTimeSystem) {
 				(*usb_midi_handleRealTimeSystem)(0xFE);
 			}
 			break;
-		  case 0xFF: // SystemReset
+		  case 0xFF: // usbMIDI.SystemReset
 			if (usb_midi_handleSystemReset) {
 				(*usb_midi_handleSystemReset)();
 			} else if (usb_midi_handleRealTimeSystem) {
@@ -396,7 +396,7 @@ int usb_midi_read(uint32_t channel)
 		usb_midi_msg_data1 = len;
 		usb_midi_msg_data2 = len >> 8;
 		usb_midi_msg_sysex_len = 0;
-		usb_midi_msg_type = 7;				// 7 = Sys Ex
+		usb_midi_msg_type = 0xF0;			// 0xF0 = usbMIDI.SystemExclusive
 		if (usb_midi_handleSysExPartial) {
 			(*usb_midi_handleSysExPartial)(usb_midi_msg_sysex, len, 1);
 		} else if (usb_midi_handleSysExComplete) {
