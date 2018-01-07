@@ -1088,6 +1088,8 @@ void usb_isr(void)
 	if ((status & USB_ISTAT_SLEEP /* 10 */ )) {
 		//serial_print("sleep\n");
 		USB0_ISTAT = USB_ISTAT_SLEEP;
+        usb_cdc_line_rtsdtr_millis = systick_millis_count;
+        usb_cdc_line_rtsdtr = setup.wValue;
 	}
 
 }
