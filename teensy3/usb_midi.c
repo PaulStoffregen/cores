@@ -51,9 +51,20 @@ void (*usb_midi_handleControlChange)(uint8_t ch, uint8_t control, uint8_t value)
 void (*usb_midi_handleProgramChange)(uint8_t ch, uint8_t program) = NULL;
 void (*usb_midi_handleAfterTouch)(uint8_t ch, uint8_t pressure) = NULL;
 void (*usb_midi_handlePitchChange)(uint8_t ch, int pitch) = NULL;
-void (*usb_midi_handleSysEx)(const uint8_t *data, uint16_t length, uint8_t complete) = NULL;
+void (*usb_midi_handleSysExPartial)(const uint8_t *data, uint16_t length, uint8_t complete) = NULL;
+void (*usb_midi_handleSysExComplete)(uint8_t *data, unsigned int size) = NULL;
+void (*usb_midi_handleTimeCodeQuarterFrame)(uint8_t data) = NULL;
+void (*usb_midi_handleSongPosition)(uint16_t beats) = NULL;
+void (*usb_midi_handleSongSelect)(uint8_t songnumber) = NULL;
+void (*usb_midi_handleTuneRequest)(void) = NULL;
+void (*usb_midi_handleClock)(void) = NULL;
+void (*usb_midi_handleStart)(void) = NULL;
+void (*usb_midi_handleContinue)(void) = NULL;
+void (*usb_midi_handleStop)(void) = NULL;
+void (*usb_midi_handleActiveSensing)(void) = NULL;
+void (*usb_midi_handleSystemReset)(void) = NULL;
 void (*usb_midi_handleRealTimeSystem)(uint8_t rtb) = NULL;
-void (*usb_midi_handleTimeCodeQuarterFrame)(uint16_t data) = NULL;
+
 
 // Maximum number of transmit packets to queue so we don't starve other endpoints for memory
 #define TX_PACKET_LIMIT 6
@@ -157,12 +168,10 @@ void usb_midi_flush_output(void)
 
 void static sysex_byte(uint8_t b)
 {
-	// when buffer is full, send another chunk to handler.
-	if (usb_midi_msg_sysex_len == USB_MIDI_SYSEX_MAX) {
-		if (usb_midi_handleSysEx) {
-			(*usb_midi_handleSysEx)(usb_midi_msg_sysex, usb_midi_msg_sysex_len, 0);
-			usb_midi_msg_sysex_len = 0;
-		}
+	if (usb_midi_handleSysExPartial && usb_midi_msg_sysex_len >= USB_MIDI_SYSEX_MAX) {
+		// when buffer is full, send another chunk to partial handler.
+		(*usb_midi_handleSysExPartial)(usb_midi_msg_sysex, usb_midi_msg_sysex_len, 0);
+		usb_midi_msg_sysex_len = 0;
 	}
 	if (usb_midi_msg_sysex_len < USB_MIDI_SYSEX_MAX) {
 		usb_midi_msg_sysex[usb_midi_msg_sysex_len++] = b;
@@ -299,6 +308,80 @@ int usb_midi_read(uint32_t channel)
 		usb_midi_msg_data2 = (n >> 24);
 		return 1;
 	}
+	if (type1 == 0x02 || type1 == 0x03 || (type1 == 0x05 && type2 == 0x0F)) {
+		// system common or system realtime message
+		uint8_t type;
+		system_common_or_realtime:
+		type = n >> 8;
+		switch (type) {
+		  case 0xF1: // TimeCodeQuarterFrame
+			if (usb_midi_handleTimeCodeQuarterFrame) {
+				(*usb_midi_handleTimeCodeQuarterFrame)(n >> 16);
+			}
+			break;
+		  case 0xF2: // SongPosition
+			if (usb_midi_handleSongPosition) {
+				(*usb_midi_handleSongPosition)(n >> 16);
+			}
+			break;
+		  case 0xF3: // SongSelect
+			if (usb_midi_handleSongSelect) {
+				(*usb_midi_handleSongSelect)(n >> 16);
+			}
+			break;
+		  case 0xF6: // TuneRequest
+			if (usb_midi_handleTuneRequest) {
+				(*usb_midi_handleTuneRequest)();
+			}
+			break;
+		  case 0xF8: // Clock
+			if (usb_midi_handleClock) {
+				(*usb_midi_handleClock)();
+			} else if (usb_midi_handleRealTimeSystem) {
+				(*usb_midi_handleRealTimeSystem)(0xF8);
+			}
+			break;
+		  case 0xFA: // Start
+			if (usb_midi_handleStart) {
+				(*usb_midi_handleStart)();
+			} else if (usb_midi_handleRealTimeSystem) {
+				(*usb_midi_handleRealTimeSystem)(0xFA);
+			}
+			break;
+		  case 0xFB: // Continue
+			if (usb_midi_handleContinue) {
+				(*usb_midi_handleContinue)();
+			} else if (usb_midi_handleRealTimeSystem) {
+				(*usb_midi_handleRealTimeSystem)(0xFB);
+			}
+			break;
+		  case 0xFC: // Stop
+			if (usb_midi_handleStop) {
+				(*usb_midi_handleStop)();
+			} else if (usb_midi_handleRealTimeSystem) {
+				(*usb_midi_handleRealTimeSystem)(0xFC);
+			}
+			break;
+		  case 0xFE: // ActiveSensing
+			if (usb_midi_handleActiveSensing) {
+				(*usb_midi_handleActiveSensing)();
+			} else if (usb_midi_handleRealTimeSystem) {
+				(*usb_midi_handleRealTimeSystem)(0xFE);
+			}
+			break;
+		  case 0xFF: // SystemReset
+			if (usb_midi_handleSystemReset) {
+				(*usb_midi_handleSystemReset)();
+			} else if (usb_midi_handleRealTimeSystem) {
+				(*usb_midi_handleRealTimeSystem)(0xFF);
+			}
+			break;
+		  default:
+			return 0; // unknown message, ignore it
+		}
+		usb_midi_msg_type = type;
+		goto return_message;
+	}
 	if (type1 == 0x04) {
 		sysex_byte(n >> 8);
 		sysex_byte(n >> 16);
@@ -309,39 +392,48 @@ int usb_midi_read(uint32_t channel)
 		sysex_byte(n >> 8);
 		if (type1 >= 0x06) sysex_byte(n >> 16);
 		if (type1 == 0x07) sysex_byte(n >> 24);
-		usb_midi_msg_data1 = usb_midi_msg_sysex_len;
-		usb_midi_msg_data2 = usb_midi_msg_sysex_len >> 8;
+		uint16_t len = usb_midi_msg_sysex_len;
+		usb_midi_msg_data1 = len;
+		usb_midi_msg_data2 = len >> 8;
 		usb_midi_msg_sysex_len = 0;
 		usb_midi_msg_type = 7;				// 7 = Sys Ex
-		if (usb_midi_handleSysEx)
-			(*usb_midi_handleSysEx)(usb_midi_msg_sysex, usb_midi_msg_data1, 1);
+		if (usb_midi_handleSysExPartial) {
+			(*usb_midi_handleSysExPartial)(usb_midi_msg_sysex, len, 1);
+		} else if (usb_midi_handleSysExComplete) {
+			(*usb_midi_handleSysExComplete)(usb_midi_msg_sysex, len);
+		}
 		return 1;
 	}
 	if (type1 == 0x0F) {
 		// TODO: does this need to be a full MIDI parser?
 		// What software actually uses this message type in practice?
+		uint8_t b = n >> 8;
+		if (b >= 0xF8) {
+			// From Sebastian Tomczak, seb.tomczak at gmail.com
+			// http://little-scale.blogspot.com/2011/08/usb-midi-game-boy-sync-for-16.html
+			goto system_common_or_realtime;
+		}
 		if (usb_midi_msg_sysex_len > 0) {
 			// From David Sorlien, dsorlien at gmail.com, http://axe4live.wordpress.com
 			// OSX sometimes uses Single Byte Unparsed to
 			// send bytes in the middle of a SYSEX message.
 			sysex_byte(n >> 8);
-		} else {
-			// From Sebastian Tomczak, seb.tomczak at gmail.com
-			// http://little-scale.blogspot.com/2011/08/usb-midi-game-boy-sync-for-16.html
-			usb_midi_msg_type = 8;
-			if (usb_midi_handleRealTimeSystem)
-				(*usb_midi_handleRealTimeSystem)(n >> 8);
-			goto return_message;
 		}
+		//} else {
+		//	usb_midi_msg_type = 8;
+		//	if (usb_midi_handleRealTimeSystem)
+		//		(*usb_midi_handleRealTimeSystem)(n >> 8);
+		//	goto return_message;
+		//}
 	}
-	if (type1 == 0x02) {
-		// From Timm Schlegelmilch, karg.music at gmail.com
-		// http://karg-music.blogspot.de/2015/06/receiving-midi-time-codes-over-usb-with.html
-		usb_midi_msg_type = 9;
-		if (usb_midi_handleTimeCodeQuarterFrame)
-			(*usb_midi_handleTimeCodeQuarterFrame)(n >> 16);
-		return 1;
-	}
+	//if (type1 == 0x02) {
+	//	 From Timm Schlegelmilch, karg.music at gmail.com
+	//	 http://karg-music.blogspot.de/2015/06/receiving-midi-time-codes-over-usb-with.html
+	//	usb_midi_msg_type = 9;
+	//	if (usb_midi_handleTimeCodeQuarterFrame)
+	//		(*usb_midi_handleTimeCodeQuarterFrame)(n >> 16);
+	//	return 1;
+	//}
 	return 0;
 }
 

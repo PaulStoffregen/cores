@@ -87,9 +87,19 @@ extern void (*usb_midi_handleControlChange)(uint8_t ch, uint8_t control, uint8_t
 extern void (*usb_midi_handleProgramChange)(uint8_t ch, uint8_t program);
 extern void (*usb_midi_handleAfterTouch)(uint8_t ch, uint8_t pressure);
 extern void (*usb_midi_handlePitchChange)(uint8_t ch, int pitch);
-extern void (*usb_midi_handleSysEx)(const uint8_t *data, uint16_t length, uint8_t complete);
+extern void (*usb_midi_handleSysExPartial)(const uint8_t *data, uint16_t length, uint8_t complete);
+extern void (*usb_midi_handleSysExComplete)(uint8_t *data, unsigned int size);
+extern void (*usb_midi_handleTimeCodeQuarterFrame)(uint8_t data);
+extern void (*usb_midi_handleSongPosition)(uint16_t beats);
+extern void (*usb_midi_handleSongSelect)(uint8_t songnumber);
+extern void (*usb_midi_handleTuneRequest)(void);
+extern void (*usb_midi_handleClock)(void);
+extern void (*usb_midi_handleStart)(void);
+extern void (*usb_midi_handleContinue)(void);
+extern void (*usb_midi_handleStop)(void);
+extern void (*usb_midi_handleActiveSensing)(void);
+extern void (*usb_midi_handleSystemReset)(void);
 extern void (*usb_midi_handleRealTimeSystem)(uint8_t rtb);
-extern void (*usb_midi_handleTimeCodeQuarterFrame)(uint16_t data);
 
 #ifdef __cplusplus
 }
@@ -252,55 +262,116 @@ class usb_midi_class
         bool read(uint8_t channel=0) __attribute__((always_inline)) {
 		return usb_midi_read(channel);
 	};
-        inline uint8_t getType(void) __attribute__((always_inline)) {
+        uint8_t getType(void) __attribute__((always_inline)) {
                 return usb_midi_msg_type;
         };
-        inline uint8_t getCable(void) __attribute__((always_inline)) {
+        uint8_t getCable(void) __attribute__((always_inline)) {
                 return usb_midi_msg_cable;
         };
-        inline uint8_t getChannel(void) __attribute__((always_inline)) {
+        uint8_t getChannel(void) __attribute__((always_inline)) {
                 return usb_midi_msg_channel;
         };
-        inline uint8_t getData1(void) __attribute__((always_inline)) {
+        uint8_t getData1(void) __attribute__((always_inline)) {
                 return usb_midi_msg_data1;
         };
-        inline uint8_t getData2(void) __attribute__((always_inline)) {
+        uint8_t getData2(void) __attribute__((always_inline)) {
                 return usb_midi_msg_data2;
         };
-        inline uint8_t * getSysExArray(void) __attribute__((always_inline)) {
+        uint8_t * getSysExArray(void) __attribute__((always_inline)) {
                 return usb_midi_msg_sysex;
         };
-        inline void setHandleNoteOff(void (*fptr)(uint8_t channel, uint8_t note, uint8_t velocity)) {
+        void setHandleNoteOff(void (*fptr)(uint8_t channel, uint8_t note, uint8_t velocity)) {
+		// type: 0x80  NoteOff
                 usb_midi_handleNoteOff = fptr;
         };
-        inline void setHandleNoteOn(void (*fptr)(uint8_t channel, uint8_t note, uint8_t velocity)) {
+        void setHandleNoteOn(void (*fptr)(uint8_t channel, uint8_t note, uint8_t velocity)) {
+		// type: 0x90  NoteOn
                 usb_midi_handleNoteOn = fptr;
         };
-        inline void setHandleVelocityChange(void (*fptr)(uint8_t channel, uint8_t note, uint8_t velocity)) {
+        void setHandleVelocityChange(void (*fptr)(uint8_t channel, uint8_t note, uint8_t velocity)) {
+		// type: 0xA0  AfterTouchPoly
                 usb_midi_handleVelocityChange = fptr;
         };
-        inline void setHandleControlChange(void (*fptr)(uint8_t channel, uint8_t control, uint8_t value)) {
+	void setHandleAfterTouchPoly(void (*fptr)(uint8_t channel, uint8_t note, uint8_t pressure)) {
+		// type: 0xA0  AfterTouchPoly
+                usb_midi_handleVelocityChange = fptr;
+        };
+        void setHandleControlChange(void (*fptr)(uint8_t channel, uint8_t control, uint8_t value)) {
+		// type: 0xB0  ControlChange
                 usb_midi_handleControlChange = fptr;
         };
-        inline void setHandleProgramChange(void (*fptr)(uint8_t channel, uint8_t program)) {
+        void setHandleProgramChange(void (*fptr)(uint8_t channel, uint8_t program)) {
+		// type: 0xC0  ProgramChange
                 usb_midi_handleProgramChange = fptr;
         };
-        inline void setHandleAfterTouch(void (*fptr)(uint8_t channel, uint8_t pressure)) {
+        void setHandleAfterTouch(void (*fptr)(uint8_t channel, uint8_t pressure)) {
+		// type: 0xD0  AfterTouchChannel
                 usb_midi_handleAfterTouch = fptr;
         };
-        inline void setHandlePitchChange(void (*fptr)(uint8_t channel, int pitch)) {
+        void setHandleAfterTouchChannel(void (*fptr)(uint8_t channel, uint8_t pressure)) {
+		// type: 0xD0  AfterTouchChannel
+                usb_midi_handleAfterTouch = fptr;
+        };
+        void setHandlePitchChange(void (*fptr)(uint8_t channel, int pitch)) {
+		// type: 0xE0  PitchBend
                 usb_midi_handlePitchChange = fptr;
         };
-        inline void setHandleSysEx(void (*fptr)(const uint8_t *data, uint16_t length, bool complete)) {
-                usb_midi_handleSysEx = (void (*)(const uint8_t *, uint16_t, uint8_t))fptr;
+        void setHandleSysEx(void (*fptr)(const uint8_t *data, uint16_t length, bool complete)) {
+		// type: 0xF0  SystemExclusive - multiple calls for message bigger than buffer
+                usb_midi_handleSysExPartial = (void (*)(const uint8_t *, uint16_t, uint8_t))fptr;
         }
-        inline void setHandleRealTimeSystem(void (*fptr)(uint8_t realtimebyte)) {
-                usb_midi_handleRealTimeSystem = fptr;
-        };
-        inline void setHandleTimeCodeQuarterFrame(void (*fptr)(uint16_t data)) {
+        void setHandleSystemExclusive(void (*fptr)(const uint8_t *data, uint16_t length, bool complete)) {
+		// type: 0xF0  SystemExclusive - multiple calls for message bigger than buffer
+                usb_midi_handleSysExPartial = (void (*)(const uint8_t *, uint16_t, uint8_t))fptr;
+        }
+	void setHandleSystemExclusive(void (*fptr)(uint8_t *data, unsigned int size)) {
+		// type: 0xF0  SystemExclusive - single call, message larger than buffer is truncated
+		usb_midi_handleSysExComplete = fptr;
+	}
+        void setHandleTimeCodeQuarterFrame(void (*fptr)(uint8_t data)) {
+		// type: 0xF1  TimeCodeQuarterFrame
                 usb_midi_handleTimeCodeQuarterFrame = fptr;
         };
-	private:
+	void setHandleSongPosition(void (*fptr)(uint16_t beats)) {
+		// type: 0xF2  SongPosition
+		usb_midi_handleSongPosition = fptr;
+	}
+	void setHandleSongSelect(void (*fptr)(uint8_t songnumber)) {
+		// type: 0xF3  SongSelect
+		usb_midi_handleSongSelect = fptr;
+	}
+	void setHandleTuneRequest(void (*fptr)(void)) {
+		// type: 0xF6  TuneRequest
+		usb_midi_handleTuneRequest = fptr;
+	}
+	void setHandleClock(void (*fptr)(void)) {
+		// type: 0xF8  Clock
+		usb_midi_handleClock = fptr;
+	}
+	void setHandleStart(void (*fptr)(void)) {
+		// type: 0xFA  Start
+		usb_midi_handleStart = fptr;
+	}
+	void setHandleContinue(void (*fptr)(void)) {
+		// type: 0xFB  Continue
+		usb_midi_handleContinue = fptr;
+	}
+	void setHandleStop(void (*fptr)(void)) {
+		// type: 0xFC  Stop
+		usb_midi_handleStop = fptr;
+	}
+	void setHandleActiveSensing(void (*fptr)(void)) {
+		// type: 0xFE  ActiveSensing
+		usb_midi_handleActiveSensing = fptr;
+	}
+	void setHandleSystemReset(void (*fptr)(void)) {
+		// type: 0xFF  SystemReset
+		usb_midi_handleSystemReset = fptr;
+	}
+        void setHandleRealTimeSystem(void (*fptr)(uint8_t realtimebyte)) {
+		// type: 0xF8-0xFF - if more specific handler not configured
+                usb_midi_handleRealTimeSystem = fptr;
+        };
 };
 
 extern usb_midi_class usbMIDI;
