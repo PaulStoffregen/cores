@@ -162,7 +162,7 @@ class usb_midi_class
 		// MIDI 4.3 also has version that takes float -1.0 to +1.0
 		send(0xE0, value, value >> 7, channel, cable);
 	}
-        void sendSysEx(uint32_t length, const uint8_t *data, bool hasTerm=true, uint8_t cable=0) __attribute__((always_inline)) {
+        void sendSysEx(uint32_t length, const uint8_t *data, bool hasTerm=false, uint8_t cable=0) __attribute__((always_inline)) {
 		if (cable >= MIDI_NUM_CABLES) return;
 		if (hasTerm) {
 			usb_midi_send_sysex_buffer_has_term(data, length, cable);
