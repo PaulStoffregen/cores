@@ -156,30 +156,30 @@ class usb_midi_class
         void end(void) { }
         void sendNoteOff(uint8_t note, uint8_t velocity, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
 		send(0x80, note, velocity, channel, cable);
-	};
+	}
         void sendNoteOn(uint8_t note, uint8_t velocity, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
 		send(0x90, note, velocity, channel, cable);
-	};
+	}
         void sendPolyPressure(uint8_t note, uint8_t pressure, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
 		send(0xA0, note, pressure, channel, cable);
-	};
+	}
 	void sendAfterTouch(uint8_t note, uint8_t pressure, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
 		send(0xA0, note, pressure, channel, cable);
-	};
+	}
         void sendControlChange(uint8_t control, uint8_t value, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
 		send(0xB0, control, value, channel, cable);
-	};
+	}
         void sendProgramChange(uint8_t program, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
 		send(0xC0, program, 0, channel, cable);
-	};
+	}
         void sendAfterTouch(uint8_t pressure, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
 		send(0xD0, pressure, 0, channel, cable);
-	};
+	}
         void sendPitchBend(uint16_t value, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
 		// MIDI 4.3 takes -8192 to +8191.  We take 0 to 16383
 		// MIDI 4.3 also has version that takes float -1.0 to +1.0
 		send(0xE0, value, value >> 7, channel, cable);
-	};
+	}
         void sendSysEx(uint32_t length, const uint8_t *data, bool hasTerm=false, uint8_t cable=0) __attribute__((always_inline)) {
 		if (cable >= MIDI_NUM_CABLES) return;
 		if (hasTerm) {
@@ -189,7 +189,7 @@ class usb_midi_class
 		} else {
 			usb_midi_send_sysex(data, length, cable);
 		}
-	};
+	}
 	void sendRealTime(uint8_t type, uint8_t cable=0) __attribute__((always_inline)) __attribute__((always_inline)) {
 		switch (type) {
 			case 0xF8: // Clock
@@ -203,45 +203,45 @@ class usb_midi_class
 			default: // Invalid Real Time marker
 				break;
 		}
-	};
+	}
 	void sendTimeCodeQuarterFrame(uint8_t type, uint8_t value, uint8_t cable=0) __attribute__((always_inline)) __attribute__((always_inline)) {
 		send(0xF1, ((type & 0x07) << 4) | (value & 0x0F), 0, 0, cable);
-	};
+	}
         //void sendTimeCodeQuarterFrame(uint8_t data, uint8_t cable=0) __attribute__((always_inline)) {
 		// MIDI 4.3 has this, but we can't implement with cable param
 		//send(0xF1, data, 0, 0, cable);
-	//};
+	//}
 	void sendSongPosition(uint16_t beats, uint8_t cable=0) __attribute__((always_inline)) {
 		send(0xF2, beats, beats >> 7, 0, cable);
-	};
+	}
 	void sendSongSelect(uint8_t song, uint8_t cable=0) __attribute__((always_inline)) {
 		send(0xF3, song, 0, 0, cable);
-	};
+	}
 	void sendTuneRequest(uint8_t cable=0) __attribute__((always_inline)) {
 		send(0xF6, 0, 0, 0, cable);
-	};
+	}
 	void beginRpn(uint16_t number, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
 		sendControlChange(101, number >> 7, channel, cable);
 		sendControlChange(100, number, channel, cable);
-	};
+	}
 	void sendRpnValue(uint16_t value, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
 		sendControlChange(6, value >> 7, channel, cable);
 		sendControlChange(38, value, channel, cable);
-	};
+	}
 	void sendRpnValue(uint8_t msb, uint8_t lsb, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
 		sendControlChange(6, msb, channel, cable);
 		sendControlChange(38, lsb, channel, cable);
-	};
+	}
 	void sendRpnIncrement(uint8_t amount, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
 		sendControlChange(96, amount, channel, cable);
-	};
+	}
 	void sendRpnDecrement(uint8_t amount, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
 		sendControlChange(97, amount, channel, cable);
-	};
+	}
 	void endRpn(uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
 		sendControlChange(101, 0x7F, channel, cable);
 		sendControlChange(100, 0x7F, channel, cable);
-	};
+	}
 	void beginNrpn(uint16_t number, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
 		sendControlChange(99, number >> 7, channel, cable);
 		sendControlChange(98, number, channel, cable);
@@ -273,8 +273,7 @@ class usb_midi_class
 			  | (((channel - 1) & 0x0F) << 8) | ((data1 & 0x7F) << 16)
 			  | ((data2 & 0x7F) << 24));
 		} else if (type >= 0xF8 || type == 0xF6) {
-			usb_midi_write_packed((type << 8) | 0x0F | ((cable & 0x0F) << 4)
-			  | ((data1 & 0x7F) << 16) | ((data2 & 0x7F) << 24));
+			usb_midi_write_packed((type << 8) | 0x0F | ((cable & 0x0F) << 4));
 		} else if (type == 0xF1 || type == 0xF3) {
 			usb_midi_write_packed((type << 8) | 0x02 | ((cable & 0x0F) << 4)
 			  | ((data1 & 0x7F) << 16));
@@ -282,68 +281,68 @@ class usb_midi_class
 			usb_midi_write_packed((type << 8) | 0x03 | ((cable & 0x0F) << 4)
 			  | ((data1 & 0x7F) << 16) | ((data2 & 0x7F) << 24));
 		}
-	};
+	}
         void send_now(void) __attribute__((always_inline)) {
 		usb_midi_flush_output();
-	};
+	}
         uint8_t analog2velocity(uint16_t val, uint8_t range);
         bool read(uint8_t channel=0) __attribute__((always_inline)) {
 		return usb_midi_read(channel);
-	};
+	}
         uint8_t getType(void) __attribute__((always_inline)) {
                 return usb_midi_msg_type;
-        };
+        }
         uint8_t getCable(void) __attribute__((always_inline)) {
                 return usb_midi_msg_cable;
-        };
+        }
         uint8_t getChannel(void) __attribute__((always_inline)) {
                 return usb_midi_msg_channel;
-        };
+        }
         uint8_t getData1(void) __attribute__((always_inline)) {
                 return usb_midi_msg_data1;
-        };
+        }
         uint8_t getData2(void) __attribute__((always_inline)) {
                 return usb_midi_msg_data2;
-        };
+        }
         uint8_t * getSysExArray(void) __attribute__((always_inline)) {
                 return usb_midi_msg_sysex;
-        };
+        }
         void setHandleNoteOff(void (*fptr)(uint8_t channel, uint8_t note, uint8_t velocity)) {
 		// type: 0x80  NoteOff
                 usb_midi_handleNoteOff = fptr;
-        };
+        }
         void setHandleNoteOn(void (*fptr)(uint8_t channel, uint8_t note, uint8_t velocity)) {
 		// type: 0x90  NoteOn
                 usb_midi_handleNoteOn = fptr;
-        };
+        }
         void setHandleVelocityChange(void (*fptr)(uint8_t channel, uint8_t note, uint8_t velocity)) {
 		// type: 0xA0  AfterTouchPoly
                 usb_midi_handleVelocityChange = fptr;
-        };
+        }
 	void setHandleAfterTouchPoly(void (*fptr)(uint8_t channel, uint8_t note, uint8_t pressure)) {
 		// type: 0xA0  AfterTouchPoly
                 usb_midi_handleVelocityChange = fptr;
-        };
+        }
         void setHandleControlChange(void (*fptr)(uint8_t channel, uint8_t control, uint8_t value)) {
 		// type: 0xB0  ControlChange
                 usb_midi_handleControlChange = fptr;
-        };
+        }
         void setHandleProgramChange(void (*fptr)(uint8_t channel, uint8_t program)) {
 		// type: 0xC0  ProgramChange
                 usb_midi_handleProgramChange = fptr;
-        };
+        }
         void setHandleAfterTouch(void (*fptr)(uint8_t channel, uint8_t pressure)) {
 		// type: 0xD0  AfterTouchChannel
                 usb_midi_handleAfterTouch = fptr;
-        };
+        }
         void setHandleAfterTouchChannel(void (*fptr)(uint8_t channel, uint8_t pressure)) {
 		// type: 0xD0  AfterTouchChannel
                 usb_midi_handleAfterTouch = fptr;
-        };
+        }
         void setHandlePitchChange(void (*fptr)(uint8_t channel, int pitch)) {
 		// type: 0xE0  PitchBend
                 usb_midi_handlePitchChange = fptr;
-        };
+        }
         void setHandleSysEx(void (*fptr)(const uint8_t *data, uint16_t length, bool complete)) {
 		// type: 0xF0  SystemExclusive - multiple calls for message bigger than buffer
                 usb_midi_handleSysExPartial = (void (*)(const uint8_t *, uint16_t, uint8_t))fptr;
@@ -359,7 +358,7 @@ class usb_midi_class
         void setHandleTimeCodeQuarterFrame(void (*fptr)(uint8_t data)) {
 		// type: 0xF1  TimeCodeQuarterFrame
                 usb_midi_handleTimeCodeQuarterFrame = fptr;
-        };
+        }
 	void setHandleSongPosition(void (*fptr)(uint16_t beats)) {
 		// type: 0xF2  SongPosition
 		usb_midi_handleSongPosition = fptr;

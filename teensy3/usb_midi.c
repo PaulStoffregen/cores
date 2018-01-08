@@ -127,7 +127,6 @@ void usb_midi_write_packed(uint32_t n)
 	}
 	transmit_previous_timeout = 0;
 	index = tx_packet->index;
-	//*((uint32_t *)(tx_packet->buf) + index++) = n;
 	((uint32_t *)(tx_packet->buf))[index++] = n;
 	if (index < MIDI_TX_SIZE/4) {
 		tx_packet->index = index;
@@ -237,7 +236,6 @@ int usb_midi_read(uint32_t channel)
 		}
 	}
 	index = rx_packet->index;
-	//n = *(uint32_t *)(rx_packet->buf + index);
 	n = ((uint32_t *)rx_packet->buf)[index/4];
 	//serial_print("midi rx, n=");
 	//serial_phex32(n);
@@ -406,8 +404,6 @@ int usb_midi_read(uint32_t channel)
 		return 1;
 	}
 	if (type1 == 0x0F) {
-		// TODO: does this need to be a full MIDI parser?
-		// What software actually uses this message type in practice?
 		uint8_t b = n >> 8;
 		if (b >= 0xF8) {
 			// From Sebastian Tomczak, seb.tomczak at gmail.com
@@ -420,21 +416,7 @@ int usb_midi_read(uint32_t channel)
 			// send bytes in the middle of a SYSEX message.
 			sysex_byte(n >> 8);
 		}
-		//} else {
-		//	usb_midi_msg_type = 8;
-		//	if (usb_midi_handleRealTimeSystem)
-		//		(*usb_midi_handleRealTimeSystem)(n >> 8);
-		//	goto return_message;
-		//}
 	}
-	//if (type1 == 0x02) {
-	//	 From Timm Schlegelmilch, karg.music at gmail.com
-	//	 http://karg-music.blogspot.de/2015/06/receiving-midi-time-codes-over-usb-with.html
-	//	usb_midi_msg_type = 9;
-	//	if (usb_midi_handleTimeCodeQuarterFrame)
-	//		(*usb_midi_handleTimeCodeQuarterFrame)(n >> 16);
-	//	return 1;
-	//}
 	return 0;
 }
 
