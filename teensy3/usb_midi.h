@@ -215,7 +215,7 @@ class usb_midi_class
 		send(0xF2, beats, beats >> 7, 0, cable);
 	};
 	void sendSongSelect(uint8_t song, uint8_t cable=0) __attribute__((always_inline)) {
-		send(0xF4, song, 0, 0, cable);
+		send(0xF3, song, 0, 0, cable);
 	};
 	void sendTuneRequest(uint8_t cable=0) __attribute__((always_inline)) {
 		send(0xF6, 0, 0, 0, cable);
@@ -272,8 +272,14 @@ class usb_midi_class
 			usb_midi_write_packed((type << 8) | (type >> 4) | ((cable & 0x0F) << 4)
 			  | (((channel - 1) & 0x0F) << 8) | ((data1 & 0x7F) << 16)
 			  | ((data2 & 0x7F) << 24));
-		} else {
+		} else if (type >= 0xF8 || type == 0xF6) {
 			usb_midi_write_packed((type << 8) | 0x0F | ((cable & 0x0F) << 4)
+			  | ((data1 & 0x7F) << 16) | ((data2 & 0x7F) << 24));
+		} else if (type == 0xF1 || type == 0xF3) {
+			usb_midi_write_packed((type << 8) | 0x02 | ((cable & 0x0F) << 4)
+			  | ((data1 & 0x7F) << 16));
+		} else if (type == 0xF2) {
+			usb_midi_write_packed((type << 8) | 0x03 | ((cable & 0x0F) << 4)
 			  | ((data1 & 0x7F) << 16) | ((data2 & 0x7F) << 24));
 		}
 	};
