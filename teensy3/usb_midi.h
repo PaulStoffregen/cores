@@ -37,25 +37,6 @@
 
 #include <inttypes.h>
 
-/*
-These were originally meant to allow programs written for
-Francois Best's MIDI library to be easily used with
-Teensy's usbMIDI which implements the same API.  However,
-the MIDI library definitions have changed, so these names
-now conflict.  They've never been documented (the PJRC web
-page documents usbMIDI.getType() in numbers) so they are
-now commented out so usbMIDI and the MIDI library can be
-used together without conflict.
-#define NoteOff 0
-#define NoteOn 1
-#define AfterTouchPoly 2
-#define ControlChange 3
-#define ProgramChange 4
-#define AfterTouchChannel 5
-#define PitchBend 6
-#define SystemExclusive 7
-*/
-
 // maximum sysex length we can receive
 #if defined(__MKL26Z64__) || defined(__MK20DX128__)
 #define USB_MIDI_SYSEX_MAX  60
@@ -68,7 +49,8 @@ used together without conflict.
 extern "C" {
 #endif
 void usb_midi_write_packed(uint32_t n);
-void usb_midi_send_sysex(const uint8_t *data, uint32_t length, uint8_t cable);
+void usb_midi_send_sysex_buffer_has_term(const uint8_t *data, uint32_t length, uint8_t cable);
+void usb_midi_send_sysex_add_term_bytes(const uint8_t *data, uint32_t length, uint8_t cable);
 void usb_midi_flush_output(void);
 int usb_midi_read(uint32_t channel);
 uint32_t usb_midi_available(void);
@@ -180,14 +162,12 @@ class usb_midi_class
 		// MIDI 4.3 also has version that takes float -1.0 to +1.0
 		send(0xE0, value, value >> 7, channel, cable);
 	}
-        void sendSysEx(uint32_t length, const uint8_t *data, bool hasTerm=false, uint8_t cable=0) __attribute__((always_inline)) {
+        void sendSysEx(uint32_t length, const uint8_t *data, bool hasTerm=true, uint8_t cable=0) __attribute__((always_inline)) {
 		if (cable >= MIDI_NUM_CABLES) return;
 		if (hasTerm) {
-			if (length > 2) {
-				usb_midi_send_sysex(data + 1, length - 2, cable);
-			}
+			usb_midi_send_sysex_buffer_has_term(data, length, cable);
 		} else {
-			usb_midi_send_sysex(data, length, cable);
+			usb_midi_send_sysex_add_term_bytes(data, length, cable);
 		}
 	}
 	void sendRealTime(uint8_t type, uint8_t cable=0) __attribute__((always_inline)) __attribute__((always_inline)) {

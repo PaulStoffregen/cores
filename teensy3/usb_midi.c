@@ -138,9 +138,8 @@ void usb_midi_write_packed(uint32_t n)
 	tx_noautoflush = 0;
 }
 
-void usb_midi_send_sysex(const uint8_t *data, uint32_t length, uint8_t cable)
+void usb_midi_send_sysex_buffer_has_term(const uint8_t *data, uint32_t length, uint8_t cable)
 {
-        // TODO: MIDI 2.5 lib automatically adds start and stop bytes
 	cable = (cable & 0x0F) << 4;
         while (length > 3) {
                 usb_midi_write_packed(0x04 | cable | (data[0] << 8) | (data[1] << 16) | (data[2] << 24));
@@ -154,6 +153,35 @@ void usb_midi_send_sysex(const uint8_t *data, uint32_t length, uint8_t cable)
         } else if (length == 1) {
                 usb_midi_write_packed(0x05 | cable | (data[0] << 8));
         }
+}
+
+void usb_midi_send_sysex_add_term_bytes(const uint8_t *data, uint32_t length, uint8_t cable)
+{
+	cable = (cable & 0x0F) << 4;
+
+	if (length == 0) {
+		usb_midi_write_packed(0x06 | cable | (0xF0 << 8) | (0xF7 << 16));
+		return;
+	} else if (length == 1) {
+		usb_midi_write_packed(0x07 | cable | (0xF0 << 8) | (data[0] << 16) | (0xF7 << 24));
+		return;
+	} else {
+		usb_midi_write_packed(0x04 | cable | (0xF0 << 8) | (data[0] << 16) | (data[1] << 24));
+		data += 2;
+		length -= 2;
+	}
+	while (length >= 3) {
+		usb_midi_write_packed(0x04 | cable | (data[0] << 8) | (data[1] << 16) | (data[2] << 24));
+		data += 3;
+		length -= 3;
+	}
+	if (length == 2) {
+		usb_midi_write_packed(0x07 | cable | (data[0] << 8) | (data[1] << 16) | (0xF7 << 24));
+	} else if (length == 1) {
+                usb_midi_write_packed(0x06 | cable | (data[0] << 8) | (0xF7 << 16));
+	} else {
+                usb_midi_write_packed(0x05 | cable | (0xF7 << 8));
+	}
 }
 
 void usb_midi_flush_output(void)
