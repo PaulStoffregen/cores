@@ -321,7 +321,8 @@ int usb_midi_read(uint32_t channel)
 			break;
 		  case 0xF2: // usbMIDI.SongPosition
 			if (usb_midi_handleSongPosition) {
-				(*usb_midi_handleSongPosition)(n >> 16);
+				(*usb_midi_handleSongPosition)(
+				  ((n >> 16) & 0x7F) | ((n >> 17) & 0x3F80));
 			}
 			break;
 		  case 0xF3: // usbMIDI.SongSelect
