@@ -7,25 +7,6 @@
 
 #define USB_MIDI_SYSEX_MAX 60  // maximum sysex length we can receive
 
-/*
-These were originally meant to allow programs written for
-Francois Best's MIDI library to be easily used with
-Teensy's usbMIDI which implements the same API.  However,
-the MIDI library definitions have changed, so these names
-now conflict.  They've never been documented (the PJRC web
-page documents usbMIDI.getType() in numbers) so they are
-now commented out so usbMIDI and the MIDI library can be
-used together without conflict.
-#define NoteOff 0
-#define NoteOn 1
-#define AfterTouchPoly 2
-#define ControlChange 3
-#define ProgramChange 4
-#define AfterTouchChannel 5
-#define PitchBend 6
-#define SystemExclusive 7
-*/
-
 class usb_midi_class
 {
 public:
@@ -120,10 +101,6 @@ public:
                 sendControlChange(6, value >> 7, channel, cable);
                 sendControlChange(38, value, channel, cable);
         }
-        void sendRpnValue(uint8_t msb, uint8_t lsb, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
-                sendControlChange(6, msb, channel, cable);
-                sendControlChange(38, lsb, channel, cable);
-        }
         void sendRpnIncrement(uint8_t amount, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
                 sendControlChange(96, amount, channel, cable);
         }
@@ -141,10 +118,6 @@ public:
         void sendNrpnValue(uint16_t value, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
                 sendControlChange(6, value >> 7, channel, cable);
                 sendControlChange(38, value, channel, cable);
-        }
-        void sendNrpnValue(uint8_t msb, uint8_t lsb, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
-                sendControlChange(6, msb, channel, cable);
-                sendControlChange(38, lsb, channel, cable);
         }
         void sendNrpnIncrement(uint8_t amount, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
                 sendControlChange(96, amount, channel, cable);

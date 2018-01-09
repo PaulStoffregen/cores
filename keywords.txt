@@ -431,6 +431,7 @@ releaseReadOnly	KEYWORD2
 usbMIDI	KEYWORD1
 sendNoteOff	KEYWORD2
 sendNoteOn	KEYWORD2
+sendAfterTouchPoly	KEYWORD2
 sendPolyPressure	KEYWORD2
 sendControlChange	KEYWORD2
 sendProgramChange	KEYWORD2

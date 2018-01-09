@@ -190,10 +190,6 @@ class usb_midi_class
 	void sendTimeCodeQuarterFrame(uint8_t type, uint8_t value, uint8_t cable=0) __attribute__((always_inline)) __attribute__((always_inline)) {
 		send(0xF1, ((type & 0x07) << 4) | (value & 0x0F), 0, 0, cable);
 	}
-        //void sendTimeCodeQuarterFrame(uint8_t data, uint8_t cable=0) __attribute__((always_inline)) {
-		// MIDI 4.3 has this, but we can't implement with cable param
-		//send(0xF1, data, 0, 0, cable);
-	//}
 	void sendSongPosition(uint16_t beats, uint8_t cable=0) __attribute__((always_inline)) {
 		send(0xF2, beats, beats >> 7, 0, cable);
 	}
@@ -210,10 +206,6 @@ class usb_midi_class
 	void sendRpnValue(uint16_t value, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
 		sendControlChange(6, value >> 7, channel, cable);
 		sendControlChange(38, value, channel, cable);
-	}
-	void sendRpnValue(uint8_t msb, uint8_t lsb, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
-		sendControlChange(6, msb, channel, cable);
-		sendControlChange(38, lsb, channel, cable);
 	}
 	void sendRpnIncrement(uint8_t amount, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
 		sendControlChange(96, amount, channel, cable);
@@ -232,10 +224,6 @@ class usb_midi_class
 	void sendNrpnValue(uint16_t value, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
 		sendControlChange(6, value >> 7, channel, cable);
 		sendControlChange(38, value, channel, cable);
-	}
-	void sendNrpnValue(uint8_t msb, uint8_t lsb, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
-		sendControlChange(6, msb, channel, cable);
-		sendControlChange(38, lsb, channel, cable);
 	}
 	void sendNrpnIncrement(uint8_t amount, uint8_t channel, uint8_t cable=0) __attribute__((always_inline)) {
 		sendControlChange(96, amount, channel, cable);
