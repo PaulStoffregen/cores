@@ -6,7 +6,7 @@
 #include "usb_midi.h"
 
 #ifdef __cplusplus
-#ifndef MIDI_INTERFACE
+#if !defined(USB_MIDI) && !defined(USB_MIDI4) && !defined(USB_MIDI16) && !defined(USB_MIDI_SERIAL) && !defined(USB_MIDI4_SERIAL) && !defined(USB_MIDI16_SERIAL) && !defined(USB_MIDI_AUDIO_SERIAL) && !defined(USB_MIDI16_AUDIO_SERIAL) && !defined(USB_EVERYTHING)
 #error "Please select MIDI in Tools > USB Type to use MIDIUSB.h"
 #endif
 
