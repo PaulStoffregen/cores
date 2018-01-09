@@ -258,6 +258,8 @@ public:
 	}
 private:
 	void send_raw(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3);
+	uint32_t midiusb_available();
+	void midiusb_read(uint8_t *buf);
 	void sendSysEx_BufferHasTerm(uint16_t length, const uint8_t *data);
 	void sendSysEx_AddTermBytes(uint16_t length, const uint8_t *data);
 	void read_sysex_byte(uint8_t b);
@@ -287,6 +289,7 @@ private:
 	void (*handleActiveSensing)(void);
 	void (*handleSystemReset)(void);
 	void (*handleRealTimeSystem)(uint8_t rtb);
+	friend class MIDI_;
 };
 
 extern usb_midi_class usbMIDI;

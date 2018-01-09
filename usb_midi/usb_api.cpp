@@ -167,7 +167,67 @@ uint8_t usb_midi_class::analog2velocity(uint16_t val, uint8_t range)
 
 
 
+uint32_t usb_midi_class::midiusb_available()
+{
+	uint8_t c, intr_state;
 
+	intr_state = SREG;
+	cli();
+	if (!usb_configuration) {
+		SREG = intr_state;
+		return 0;
+	}
+	UENUM = MIDI_RX_ENDPOINT;
+	retry:
+	c = UEINTX;
+	if (!(c & (1<<RWAL))) {
+		if (c & (1<<RXOUTI)) {
+			UEINTX = 0x6B;
+			goto retry;
+		}
+		SREG = intr_state;
+		return 0;
+	}
+	SREG = intr_state;
+	return 4;
+}
+
+void usb_midi_class::midiusb_read(uint8_t *buf)
+{
+	uint8_t c, intr_state;
+
+	intr_state = SREG;
+	cli();
+	if (!usb_configuration) {
+		SREG = intr_state;
+		buf[0] = 0;
+		buf[1] = 0;
+		buf[2] = 0;
+		buf[3] = 0;
+		return;
+	}
+	UENUM = MIDI_RX_ENDPOINT;
+	retry:
+	c = UEINTX;
+	if (!(c & (1<<RWAL))) {
+		if (c & (1<<RXOUTI)) {
+			UEINTX = 0x6B;
+			goto retry;
+		}
+		SREG = intr_state;
+		buf[0] = 0;
+		buf[1] = 0;
+		buf[2] = 0;
+		buf[3] = 0;
+		return;
+	}
+	buf[0] = UEDATX;
+	buf[1] = UEDATX;
+	buf[2] = UEDATX;
+	buf[3] = UEDATX;
+	if (!(UEINTX & (1<<RWAL))) UEINTX = 0x6B;
+	SREG = intr_state;
+}
 
 
 bool usb_midi_class::read(uint8_t channel)
