@@ -96,7 +96,9 @@ the user.  Usually, a pair of files are added for the actual code,
 and code is also added in usb_dev.c for any control transfers,
 interrupt-level code, or other very low-level stuff not possible
 from the packet send/receive functons.  Code also is added in
-usb_inst.c to create an instance of your C++ object.
+usb_inst.c to create an instance of your C++ object.  This message
+gives a quick summary of things you will need to know:
+https://forum.pjrc.com/threads/49045?p=164512&viewfull=1#post164512
 
 You may edit the Vendor and Product ID numbers, and strings.  If
 the numbers are changed, Teensyduino may not be able to automatically
