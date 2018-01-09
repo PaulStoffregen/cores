@@ -106,6 +106,9 @@ extern void (*usb_midi_handleRealTimeSystem)(uint8_t rtb);
 //     24:0   Note off                0, note 62, velocity 0
 //     24:0   Note on                 0, note 64, velocity 99
 //     24:0   Note off                0, note 64, velocity 0
+//
+// Quick-dirty way to transmit MIDI sysex:
+//     echo -n -e '\xF0abcd\xF7' > /dev/midi2
 
 // C++ interface
 #ifdef __cplusplus

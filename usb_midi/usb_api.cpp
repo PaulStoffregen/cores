@@ -30,38 +30,8 @@
 #include "wiring.h"
 
 
-void usb_midi_class::sendNoteOff(uint8_t note, uint8_t velocity, uint8_t channel)
+void usb_midi_class::sendSysEx_BufferHasTerm(uint16_t length, const uint8_t *data)
 {
-	send_raw(0x08, 0x80 | ((channel - 1) & 0x0F), note & 0x7F, velocity & 0x7F);
-}
-void usb_midi_class::sendNoteOn(uint8_t note, uint8_t velocity, uint8_t channel)
-{
-	send_raw(0x09, 0x90 | ((channel - 1) & 0x0F), note & 0x7F, velocity & 0x7F);
-}
-void usb_midi_class::sendPolyPressure(uint8_t note, uint8_t pressure, uint8_t channel)
-{
-	send_raw(0x0A, 0xA0 | ((channel - 1) & 0x0F), note & 0x7F, pressure & 0x7F);
-}
-void usb_midi_class::sendControlChange(uint8_t control, uint8_t value, uint8_t channel)
-{
-	send_raw(0x0B, 0xB0 | ((channel - 1) & 0x0F), control & 0x7F, value & 0x7F);
-}
-void usb_midi_class::sendProgramChange(uint8_t program, uint8_t channel)
-{
-	send_raw(0x0C, 0xC0 | ((channel - 1) & 0x0F), program & 0x7F, 0);
-}
-void usb_midi_class::sendAfterTouch(uint8_t pressure, uint8_t channel)
-{
-	send_raw(0x0D, 0xD0 | ((channel - 1) & 0x0F), pressure & 0x7F, 0);
-}
-void usb_midi_class::sendPitchBend(uint16_t value, uint8_t channel)
-{
-	send_raw(0x0E, 0xE0 | ((channel - 1) & 0x0F), value & 0x7F, (value >> 7) & 0x7F);
-}
-
-void usb_midi_class::sendSysEx(uint8_t length, const uint8_t *data)
-{
-	// TODO: MIDI 2.5 lib automatically adds start and stop bytes
 	while (length > 3) {
 		send_raw(0x04, data[0], data[1], data[2]);
 		data += 3;
@@ -73,6 +43,33 @@ void usb_midi_class::sendSysEx(uint8_t length, const uint8_t *data)
 		send_raw(0x06, data[0], data[1], 0);
 	} else if (length == 1) {
 		send_raw(0x05, data[0], 0, 0);
+	}
+}
+
+void usb_midi_class::sendSysEx_AddTermBytes(uint16_t length, const uint8_t *data)
+{
+	if (length == 0) {
+		send_raw(0x06, 0xF0, 0xF7, 0);
+		return;
+	} else if (length == 1) {
+		send_raw(0x07, 0xF0, data[0], 0xF7);
+		return;
+	} else {
+		send_raw(0x04, 0xF0, data[0], data[1]);
+		data += 2;
+		length -= 2;
+	}
+	while (length >= 3) {
+		send_raw(0x04, data[0], data[1], data[2]);
+		data += 3;
+		length -= 3;
+	}
+	if (length == 2) {
+		send_raw(0x07, data[0], data[1], 0xF7);
+	} else if (length == 1) {
+		send_raw(0x06, data[0], 0xF7, 0);
+	} else {
+		send_raw(0x05, 0xF7, 0, 0);
 	}
 }
 
@@ -211,47 +208,41 @@ bool usb_midi_class::read(uint8_t channel)
 			return false;
 		}
 		if (type1 == 0x08 && type2 == 0x80) {
-			msg_type = 0;				// Note off
+			msg_type = 0x80;			// 0x80 = usbMIDI.NoteOff
 			if (handleNoteOff) (*handleNoteOff)(c, b2, b3);
-			goto return_message;
-		}
+		} else
 		if (type1 == 0x09 && type2 == 0x90) {
 			if (b3) {
-				msg_type = 1;			// Note on
+				msg_type = 0x90;		// 0x90 = usbMIDI.NoteOn
 				if (handleNoteOn) (*handleNoteOn)(c, b2, b3);
 			} else {
-				msg_type = 0;			// Note off
+				msg_type = 0x80;		// 0x80 = usbMIDI.NoteOff
 				if (handleNoteOff) (*handleNoteOff)(c, b2, b3);
 			}
-			goto return_message;
-		}
+		} else
 		if (type1 == 0x0A && type2 == 0xA0) {
-			msg_type = 2;				// Poly Pressure
+			msg_type = 0xA0;			// 0xA0 = usbMIDI.AfterTouchPoly
 			if (handleVelocityChange) (*handleVelocityChange)(c, b2, b3);
-			goto return_message;
-		}
+		} else
 		if (type1 == 0x0B && type2 == 0xB0) {
-			msg_type = 3;				// Control Change
+			msg_type = 0xB0;			// 0xB0 = usbMIDI.ControlChange
 			if (handleControlChange) (*handleControlChange)(c, b2, b3);
-			goto return_message;
-		}
+		} else
 		if (type1 == 0x0C && type2 == 0xC0) {
-			msg_type = 4;				// Program Change
+			msg_type = 0xC0;			// 0xC0 = usbMIDI.ProgramChange
 			if (handleProgramChange) (*handleProgramChange)(c, b2);
-			goto return_message;
-		}
+		} else
 		if (type1 == 0x0D && type2 == 0xD0) {
-			msg_type = 5;				// After Touch
+			msg_type = 0xD0;			// 0xD0 = usbMIDI.AfterTouchChannel
 			if (handleAfterTouch) (*handleAfterTouch)(c, b2);
-			goto return_message;
-		}
+		} else
 		if (type1 == 0x0E && type2 == 0xE0) {
-			msg_type = 6;				// Pitch Bend
+			msg_type = 0xE0;			// 0xE0 = usbMIDI.PitchBend
 			if (handlePitchChange) (*handlePitchChange)(c,
 				(b2 & 0x7F) | ((b3 & 0x7F) << 7));
-			goto return_message;
+		} else {
+			return false;
 		}
-		return false;
 		return_message:
 		// only update these when returning true for a parsed message
 		// all other return cases will preserve these user-visible values
@@ -259,6 +250,79 @@ bool usb_midi_class::read(uint8_t channel)
 		msg_data1 = b2;
 		msg_data2 = b3;
 		return true;
+	}
+	if (type1 == 0x02 || type1 == 0x03 || (type1 == 0x05 && type2 == 0x0F)) {
+		// system common or system realtime message
+		system_common_or_realtime:
+		switch (b1) {
+                  case 0xF1: // usbMIDI.TimeCodeQuarterFrame
+                        if (handleTimeCodeQuarterFrame) {
+                                (*handleTimeCodeQuarterFrame)(b2);
+                        }
+                        break;
+                  case 0xF2: // usbMIDI.SongPosition
+                        if (handleSongPosition) {
+                                (*handleSongPosition)(
+				  (uint16_t)(b2 & 0x7F) | (uint16_t)(b3 & 0x7F) << 7);
+                        }
+                        break;
+                  case 0xF3: // usbMIDI.SongSelect
+                        if (handleSongSelect) {
+                                (*handleSongSelect)(b2);
+                        }
+                        break;
+                  case 0xF6: // usbMIDI.TuneRequest
+                        if (handleTuneRequest) {
+                                (*handleTuneRequest)();
+                        }
+                        break;
+                  case 0xF8: // usbMIDI.Clock
+                        if (handleClock) {
+                                (*handleClock)();
+                        } else if (handleRealTimeSystem) {
+                                (*handleRealTimeSystem)(0xF8);
+                        }
+                        break;
+                  case 0xFA: // usbMIDI.Start
+                        if (handleStart) {
+                                (*handleStart)();
+                        } else if (handleRealTimeSystem) {
+                                (*handleRealTimeSystem)(0xFA);
+                        }
+                        break;
+                  case 0xFB: // usbMIDI.Continue
+                        if (handleContinue) {
+                                (*handleContinue)();
+                        } else if (handleRealTimeSystem) {
+                                (*handleRealTimeSystem)(0xFB);
+                        }
+                        break;
+                  case 0xFC: // usbMIDI.Stop
+                        if (handleStop) {
+                                (*handleStop)();
+                        } else if (handleRealTimeSystem) {
+                                (*handleRealTimeSystem)(0xFC);
+                        }
+                        break;
+                  case 0xFE: // usbMIDI.ActiveSensing
+                        if (handleActiveSensing) {
+                                (*handleActiveSensing)();
+                        } else if (handleRealTimeSystem) {
+                                (*handleRealTimeSystem)(0xFE);
+                        }
+                        break;
+                  case 0xFF: // usbMIDI.SystemReset
+                        if (handleSystemReset) {
+                                (*handleSystemReset)();
+                        } else if (handleRealTimeSystem) {
+                                (*handleRealTimeSystem)(0xFF);
+                        }
+                        break;
+                  default:
+                        return false; // unknown message, ignore it
+                }
+		msg_type = b1;
+		goto return_message;
 	}
 	if (type1 == 0x04) {
 		read_sysex_byte(b1);
@@ -270,25 +334,29 @@ bool usb_midi_class::read(uint8_t channel)
 		read_sysex_byte(b1);
 		if (type1 >= 0x06) read_sysex_byte(b2);
 		if (type1 == 0x07) read_sysex_byte(b3);
-		msg_data1 = msg_sysex_len;
+		uint16_t len = msg_sysex_len;
+		msg_data1 = len;
+		msg_data2 = len >> 8;
 		msg_sysex_len = 0;
-		msg_type = 7;
+		msg_type = 0xF0;			// 0xF0 = usbMIDI.SystemExclusive
+                if (handleSysExPartial) {
+                        (*handleSysExPartial)(msg_sysex, len, 1);
+                } else if (handleSysExComplete) {
+                        (*handleSysExComplete)(msg_sysex, len);
+                }
 		return true;
 	}
 	if (type1 == 0x0F) {
-		// TODO: does this need to be a full MIDI parser?
-		// What software actually uses this message type in practice?
+		if (b1 >= 0xF8) {
+			// From Sebastian Tomczak, seb.tomczak at gmail.com
+			// http://little-scale.blogspot.com/2011/08/usb-midi-game-boy-sync-for-16.html
+			goto system_common_or_realtime;
+		}
 		if (msg_sysex_len > 0) {
 			// From David Sorlien, dsorlien at gmail.com, http://axe4live.wordpress.com
 			// OSX sometimes uses Single Byte Unparsed to
 			// send bytes in the middle of a SYSEX message.
 			read_sysex_byte(b1);
-		} else {
-			// From Sebastian Tomczak, seb.tomczak at gmail.com
-			// http://little-scale.blogspot.com/2011/08/usb-midi-game-boy-sync-for-16.html
-			msg_type = 8;
-			if (handleRealTimeSystem) (*handleRealTimeSystem)(b1);
-			goto return_message;
 		}
 	}
 	return false;
@@ -296,6 +364,11 @@ bool usb_midi_class::read(uint8_t channel)
 
 void usb_midi_class::read_sysex_byte(uint8_t b)
 {
+	if (handleSysExPartial && msg_sysex_len >= USB_MIDI_SYSEX_MAX) {
+		// when buffer is full, send another chunk to partial handler.
+		(*handleSysExPartial)(msg_sysex, msg_sysex_len, 0);
+		msg_sysex_len = 0;
+	}
 	if (msg_sysex_len < USB_MIDI_SYSEX_MAX) {
 		msg_sysex[msg_sysex_len++] = b;
 	}
