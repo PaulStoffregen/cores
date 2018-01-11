@@ -251,7 +251,7 @@ uint32_t usb_midi_read_message(void)
 
 int usb_midi_read(uint32_t channel)
 {
-	uint32_t n, index, ch, type1, type2;
+	uint32_t n, index, ch, type1, type2, b1;
 
 	if (!rx_packet) {
 		if (!usb_configuration) return 0;
@@ -277,7 +277,8 @@ int usb_midi_read(uint32_t channel)
 	}
 	type1 = n & 15;
 	type2 = (n >> 12) & 15;
-	ch = ((n >> 8) & 15) + 1;
+	b1 = (n >> 8) & 0xFF;
+	ch = (b1 & 15) + 1;
 	usb_midi_msg_cable = (n >> 4) & 15;
 	if (type1 >= 0x08 && type1 <= 0x0E) {
 		if (channel && channel != ch) {
@@ -334,12 +335,10 @@ int usb_midi_read(uint32_t channel)
 		usb_midi_msg_data2 = (n >> 24);
 		return 1;
 	}
-	if (type1 == 0x02 || type1 == 0x03 || (type1 == 0x05 && type2 == 0x0F)) {
+	if (type1 == 0x02 || type1 == 0x03 || (type1 == 0x05 && b1 >= 0xF1 && b1 != 0xF7)) {
 		// system common or system realtime message
-		uint8_t type;
 		system_common_or_realtime:
-		type = n >> 8;
-		switch (type) {
+		switch (b1) {
 		  case 0xF1: // usbMIDI.TimeCodeQuarterFrame
 			if (usb_midi_handleTimeCodeQuarterFrame) {
 				(*usb_midi_handleTimeCodeQuarterFrame)(n >> 16);
@@ -406,7 +405,7 @@ int usb_midi_read(uint32_t channel)
 		  default:
 			return 0; // unknown message, ignore it
 		}
-		usb_midi_msg_type = type;
+		usb_midi_msg_type = b1;
 		goto return_message;
 	}
 	if (type1 == 0x04) {
@@ -416,7 +415,7 @@ int usb_midi_read(uint32_t channel)
 		return 0;
 	}
 	if (type1 >= 0x05 && type1 <= 0x07) {
-		sysex_byte(n >> 8);
+		sysex_byte(b1);
 		if (type1 >= 0x06) sysex_byte(n >> 16);
 		if (type1 == 0x07) sysex_byte(n >> 24);
 		uint16_t len = usb_midi_msg_sysex_len;
@@ -432,17 +431,16 @@ int usb_midi_read(uint32_t channel)
 		return 1;
 	}
 	if (type1 == 0x0F) {
-		uint8_t b = n >> 8;
-		if (b >= 0xF8) {
+		if (b1 >= 0xF8) {
 			// From Sebastian Tomczak, seb.tomczak at gmail.com
 			// http://little-scale.blogspot.com/2011/08/usb-midi-game-boy-sync-for-16.html
 			goto system_common_or_realtime;
 		}
-		if (usb_midi_msg_sysex_len > 0) {
+		if (b1 == 0xF0 || usb_midi_msg_sysex_len > 0) {
 			// From David Sorlien, dsorlien at gmail.com, http://axe4live.wordpress.com
 			// OSX sometimes uses Single Byte Unparsed to
 			// send bytes in the middle of a SYSEX message.
-			sysex_byte(n >> 8);
+			sysex_byte(b1);
 		}
 	}
 	return 0;
