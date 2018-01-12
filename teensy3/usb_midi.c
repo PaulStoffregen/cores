@@ -323,9 +323,11 @@ int usb_midi_read(uint32_t channel)
 		} else
 		if (type1 == 0x0E && type2 == 0x0E) {
 			usb_midi_msg_type = 0xE0;		// 0xE0 = usbMIDI.PitchBend
-			if (usb_midi_handlePitchChange)
-				(*usb_midi_handlePitchChange)(ch,
-				  ((n >> 16) & 0x7F) | ((n >> 17) & 0x3F80));
+			if (usb_midi_handlePitchChange) {
+				int value = ((n >> 16) & 0x7F) | ((n >> 17) & 0x3F80);
+				value -= 8192; // 0 to 16383 --> -8192 to +8191
+				(*usb_midi_handlePitchChange)(ch, value);
+			}
 		} else {
 			return 0;
 		}

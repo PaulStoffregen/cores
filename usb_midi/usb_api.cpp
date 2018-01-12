@@ -298,8 +298,11 @@ bool usb_midi_class::read(uint8_t channel)
 		} else
 		if (type1 == 0x0E && type2 == 0xE0) {
 			msg_type = 0xE0;			// 0xE0 = usbMIDI.PitchBend
-			if (handlePitchChange) (*handlePitchChange)(c,
-				(b2 & 0x7F) | ((b3 & 0x7F) << 7));
+			if (handlePitchChange) {
+				int value = (b2 & 0x7F) | ((int)(b3 & 0x7F) << 7);
+				value -= 8192; // 0 to 16383 --> -8192 to +8191
+				(*handlePitchChange)(c, value);
+			}
 		} else {
 			return false;
 		}
