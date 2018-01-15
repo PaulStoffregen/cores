@@ -282,6 +282,10 @@ class usb_midi_class
         uint8_t * getSysExArray(void) __attribute__((always_inline)) {
                 return usb_midi_msg_sysex;
         }
+	uint16_t getSysExArrayLength(void) __attribute__((always_inline)) {
+                return usb_midi_msg_data2 << 8 | usb_midi_msg_data1;
+        }
+	
         void setHandleNoteOff(void (*fptr)(uint8_t channel, uint8_t note, uint8_t velocity)) {
 		// type: 0x80  NoteOff
                 usb_midi_handleNoteOff = fptr;
