@@ -85,7 +85,7 @@ void usb_touchscreen_release(uint8_t finger)
 //  5: Y msb
 //  6: scan time lsb
 //  7: scan time msb
-//  8: contact count
+//  (no longer used) 8: contact count
 
 static int usb_touchscreen_transmit(int index, int count)
 {
@@ -100,8 +100,8 @@ static int usb_touchscreen_transmit(int index, int count)
 	*(tx_packet->buf + 5) = ypos[index] >> 8;
 	*(tx_packet->buf + 6) = scan_timestamp;
 	*(tx_packet->buf + 7) = scan_timestamp >> 8;
-	*(tx_packet->buf + 8) = count;
-	tx_packet->len = 9;
+	//*(tx_packet->buf + 8) = count;
+	tx_packet->len = 8;
 	usb_tx(MULTITOUCH_ENDPOINT, tx_packet);
 	return 1;
 }
