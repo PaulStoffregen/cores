@@ -282,14 +282,10 @@ void FlightSimClass::update(void)
 				} else if (type == 2) {
 					FlightSimFloat *item = FlightSimFloat::find(id);
 					if (!item) break;
-					#ifdef KINETISK
-					data.f = *(float *)(p + 6);
-					#else
 					data.b[0] = p[6];
 					data.b[1] = p[7];
 					data.b[2] = p[8];
 					data.b[3] = p[9];
-					#endif
 					item->update(data.f);
 				}
 				break;
