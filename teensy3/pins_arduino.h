@@ -97,7 +97,7 @@ const static uint8_t A10 = PIN_A10;
 const static uint8_t A11 = PIN_A11;
 const static uint8_t A12 = PIN_A12;
 
-#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
+#elif defined(__MK64FX512__)
 #define PIN_A10 (64)
 #define PIN_A11 (65)
 #define PIN_A12 (31)
@@ -132,6 +132,38 @@ const static uint8_t A23 = PIN_A23;
 const static uint8_t A24 = PIN_A24;
 const static uint8_t A25 = PIN_A25;
 const static uint8_t A26 = PIN_A26;
+
+#elif defined(__MK66FX1M0__)
+#define PIN_A10 (64)
+#define PIN_A11 (65)
+#define PIN_A12 (31)
+#define PIN_A13 (32)
+#define PIN_A14 (33)
+#define PIN_A15 (34)
+#define PIN_A16 (35)
+#define PIN_A17 (36)
+#define PIN_A18 (37)
+#define PIN_A19 (38)
+#define PIN_A20 (39)
+#define PIN_A21 (66)
+#define PIN_A22 (67)
+#define PIN_A23 (49)
+#define PIN_A24 (50)
+const static uint8_t A10 = PIN_A10;
+const static uint8_t A11 = PIN_A11;
+const static uint8_t A12 = PIN_A12;
+const static uint8_t A13 = PIN_A13;
+const static uint8_t A14 = PIN_A14;
+const static uint8_t A15 = PIN_A15;
+const static uint8_t A16 = PIN_A16;
+const static uint8_t A17 = PIN_A17;
+const static uint8_t A18 = PIN_A18;
+const static uint8_t A19 = PIN_A19;
+const static uint8_t A20 = PIN_A20;
+const static uint8_t A21 = PIN_A21;
+const static uint8_t A22 = PIN_A22;
+const static uint8_t A23 = PIN_A23;
+const static uint8_t A24 = PIN_A24;
 #endif
 
 #define LED_BUILTIN   (13)
@@ -173,10 +205,13 @@ const static uint8_t SCL = 19;
   #define analogInputToDigitalPin(p) (((p) <= 9) ? (p) + 14 : (((p) <= 12) ? (p) + 14 : -1))
   #define digitalPinHasPWM(p) ((p) == 3 || (p) == 4 || (p) == 6 || (p) == 9 || (p) == 10 || (p) == 16 || (p) == 17 || (p) == 20 || (p) == 22 || (p) == 23)
   #define digitalPinToInterrupt(p)  ((((p) >= 2 && (p) <= 15) || ((p) >= 20 && (p) <= 23)) ? (p) : -1)
-#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
-  // TODO analogInputToDigitalPin needs update...
-  #define analogInputToDigitalPin(p) (((p) <= 9) ? (p) + 14 : (((p) >= 12 && (p) <= 20) ? (p) + 19 : -1))
+#elif defined(__MK64FX512__)
+  #define analogInputToDigitalPin(p) (((p) <= 9) ? (p) + 14 : (((p) <= 11) ? (p) + 54 : (((p) <= 20) ? (p) + 19 : (((p) <= 22) ? (p) + 45 : (((p) <= 24) ? (p) + 26 : (((p) <= 26) ? (p) + 43 : -1))))))
   #define digitalPinHasPWM(p) (((p) >= 2 && (p) <= 10) || (p) == 14 || ((p) >= 20 && (p) <= 23) || (p) == 29 || (p) == 30 || ((p) >= 35 && (p) <= 38))
+  #define digitalPinToInterrupt(p)  ((p) < NUM_DIGITAL_PINS ? (p) : -1)
+#elif defined(__MK66FX1M0__)
+  #define analogInputToDigitalPin(p) (((p) <= 9) ? (p) + 14 : (((p) <= 11) ? (p) + 54 : (((p) <= 20) ? (p) + 19 : (((p) <= 22) ? (p) + 45 : (((p) <= 24) ? (p) + 26 : -1)))))
+  #define digitalPinHasPWM(p) (((p) >= 2 && (p) <= 10) || (p) == 14 || (p) == 16 || (p) == 17 || ((p) >= 20 && (p) <= 23) || (p) == 29 || (p) == 30 || ((p) >= 35 && (p) <= 38))
   #define digitalPinToInterrupt(p)  ((p) < NUM_DIGITAL_PINS ? (p) : -1)
 #endif
 
