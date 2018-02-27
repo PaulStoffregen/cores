@@ -49,6 +49,22 @@ struct usb_string_descriptor_struct {
 extern struct usb_string_descriptor_struct usb_string_manufacturer_name;
 extern struct usb_string_descriptor_struct usb_string_product_name;
 extern struct usb_string_descriptor_struct usb_string_serial_number;
+extern struct usb_string_descriptor_struct usb_string_midi_port1;
+extern struct usb_string_descriptor_struct usb_string_midi_port2;
+extern struct usb_string_descriptor_struct usb_string_midi_port3;
+extern struct usb_string_descriptor_struct usb_string_midi_port4;
+extern struct usb_string_descriptor_struct usb_string_midi_port5;
+extern struct usb_string_descriptor_struct usb_string_midi_port6;
+extern struct usb_string_descriptor_struct usb_string_midi_port7;
+extern struct usb_string_descriptor_struct usb_string_midi_port8;
+extern struct usb_string_descriptor_struct usb_string_midi_port9;
+extern struct usb_string_descriptor_struct usb_string_midi_port10;
+extern struct usb_string_descriptor_struct usb_string_midi_port11;
+extern struct usb_string_descriptor_struct usb_string_midi_port12;
+extern struct usb_string_descriptor_struct usb_string_midi_port13;
+extern struct usb_string_descriptor_struct usb_string_midi_port14;
+extern struct usb_string_descriptor_struct usb_string_midi_port15;
+extern struct usb_string_descriptor_struct usb_string_midi_port16;
 
 #ifdef __cplusplus
 }
