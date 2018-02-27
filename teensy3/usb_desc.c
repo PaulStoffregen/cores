@@ -68,7 +68,7 @@
 static uint8_t device_descriptor[] = {
         18,                                     // bLength
         1,                                      // bDescriptorType
-        0x01, 0x01,                             // bcdUSB
+        0x10, 0x01,                             // bcdUSB
 #ifdef DEVICE_CLASS
         DEVICE_CLASS,                           // bDeviceClass
 #else
@@ -354,12 +354,12 @@ static uint8_t multitouch_report_desc[] = {
         0x75, 0x01,                     //     Report Size (1)
         0x95, 0x01,                     //     Report Count (1)
         0x81, 0x02,                     //     Input (variable,absolute)
-        0x09, 0x30,                     //     Usage (Pressure)
+        0x09, 0x51,                     //     Usage (Contact Identifier)
         0x25, 0x7F,                     //     Logical Maximum (127)
         0x75, 0x07,                     //     Report Size (7)
         0x95, 0x01,                     //     Report Count (1)
         0x81, 0x02,                     //     Input (variable,absolute)
-        0x09, 0x51,                     //     Usage (Contact Identifier)
+        0x09, 0x30,                     //     Usage (Pressure)
         0x26, 0xFF, 0x00,               //     Logical Maximum (255)
         0x75, 0x08,                     //     Report Size (8)
         0x95, 0x01,                     //     Report Count (1)
@@ -378,11 +378,6 @@ static uint8_t multitouch_report_desc[] = {
         0x75, 0x10,                     //   Report Size (16)
         0x95, 0x01,                     //   Report Count (1)
         0x09, 0x56,                     //   Usage (Scan Time)
-        0x81, 0x02,                     //   Input (variable,absolute)
-        0x09, 0x54,                     //   Usage (Contact Count)
-        0x25, MULTITOUCH_FINGERS,       //   Logical Maximum (10)
-        0x75, 0x08,                     //   Report Size (8)
-        0x95, 0x01,                     //   Report Count (1)
         0x81, 0x02,                     //   Input (variable,absolute)
         0x05, 0x0D,                     //   Usage Page (Digitizers)
         0x09, 0x55,                     //   Usage (Contact Count Maximum)
