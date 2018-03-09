@@ -106,9 +106,8 @@ public:
         uint8_t numbits(void) { return usb_cdc_line_coding[1] >> 16; }
         uint8_t dtr(void) { return (usb_cdc_line_rtsdtr & USB_SERIAL_DTR) ? 1 : 0; }
         uint8_t rts(void) { return (usb_cdc_line_rtsdtr & USB_SERIAL_RTS) ? 1 : 0; }
-        operator bool() { return usb_configuration &&
-		(usb_cdc_line_rtsdtr & (USB_SERIAL_DTR | USB_SERIAL_RTS)) &&
-		((uint32_t)(systick_millis_count - usb_cdc_line_rtsdtr_millis) >= 25);
+        operator bool() { return usb_configuration && (usb_cdc_line_rtsdtr & USB_SERIAL_DTR) &&
+		((uint32_t)(systick_millis_count - usb_cdc_line_rtsdtr_millis) >= 15);
 	}
 	size_t readBytes(char *buffer, size_t length) {
 		size_t count=0;
