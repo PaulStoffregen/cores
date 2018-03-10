@@ -64,7 +64,7 @@ T map(T x, A in_min, B in_max, C out_min, D out_max, typename std::enable_if<std
 {
 	return (x - (T)in_min) * ((T)out_max - (T)out_min) / ((T)in_max - (T)in_min) + (T)out_min;
 }
-#include <algorithm> // c++ min, max
+//#include <algorithm> // this isn't really needed, is it?  (slows down compiling)
 #include <utility>
 // https://forum.pjrc.com/threads/44596-Teensyduino-1-37-Beta-2-(Arduino-1-8-3-support)?p=145150&viewfull=1#post145150
 template<class A, class B>
