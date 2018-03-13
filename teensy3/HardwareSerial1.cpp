@@ -28,6 +28,7 @@
  * SOFTWARE.
  */
 
+#include <Arduino.h>
 #include "HardwareSerial.h"
 
 HardwareSerial Serial1;

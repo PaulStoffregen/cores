@@ -28,10 +28,7 @@
  * SOFTWARE.
  */
 
-#include "core_pins.h"
-#include "HardwareSerial.h"
-#include "usb_serial.h"
-#include "usb_seremu.h"
+#include <Arduino.h>
 #include "EventResponder.h"
 
 void yield(void) __attribute__ ((weak));

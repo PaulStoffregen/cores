@@ -31,6 +31,7 @@
  *     https://forum.pjrc.com/threads/44723-Arduino-Events
  */
 
+#include <Arduino.h>
 #include "EventResponder.h"
 
 EventResponder * EventResponder::firstYield = nullptr;

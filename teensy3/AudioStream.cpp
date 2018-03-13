@@ -29,9 +29,8 @@
  */
 
 
-#include <string.h> // for memcpy
-#include "AudioStream.h"
 #include <Arduino.h>
+#include "AudioStream.h"
 
 #if defined(__MKL26Z64__)
   #define MAX_AUDIO_MEMORY 6144

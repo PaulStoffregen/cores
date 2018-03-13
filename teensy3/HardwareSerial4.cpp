@@ -28,6 +28,7 @@
  * SOFTWARE.
  */
 
+#include <Arduino.h>
 #include "HardwareSerial.h"
 
 #ifdef HAS_KINETISK_UART3

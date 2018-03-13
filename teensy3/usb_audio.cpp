@@ -28,10 +28,8 @@
  * SOFTWARE.
  */
 
+#include <Arduino.h>
 #include "usb_dev.h"
-#include "usb_audio.h"
-#include "HardwareSerial.h"
-#include <string.h> // for memcpy()
 
 #ifdef AUDIO_INTERFACE // defined by usb_dev.h -> usb_desc.h
 #if F_CPU >= 20000000
