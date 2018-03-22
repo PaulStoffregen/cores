@@ -1,5 +1,5 @@
 /*
-  Print.h - Base class that provides print() and println()
+  Print.h - Base class that provides print() and printlf()
   Copyright (c) 2008 David A. Mellis.  All right reserved.
 
   This library is free software; you can redistribute it and/or
@@ -89,6 +89,28 @@ class Print
 
 	size_t println(double n, int digits = 2)	{ return print(n, digits) + println(); }
 	size_t println(const Printable &obj)		{ return obj.printTo(*this) + println(); }
+
+  size_t printlf(void) {return write("\n", 1); }
+  size_t printlf(const String &s)			{ return print(s) + printlf(); }
+  size_t printlf(char c)				{ return print(c) + printlf(); }
+  size_t printlf(const char s[])			{ return print(s) + printlf(); }
+  size_t printlf(const __FlashStringHelper *f)	{ return print(f) + printlf(); }
+
+  size_t printlf(uint8_t b)			{ return print(b) + printlf(); }
+  size_t printlf(int n)				{ return print(n) + printlf(); }
+  size_t printlf(unsigned int n)			{ return print(n) + printlf(); }
+  size_t printlf(long n)				{ return print(n) + printlf(); }
+  size_t printlf(unsigned long n)			{ return print(n) + printlf(); }
+
+  size_t printlf(unsigned char n, int base)	{ return print(n, base) + printlf(); }
+  size_t printlf(int n, int base)			{ return print(n, base) + printlf(); }
+  size_t printlf(unsigned int n, int base)	{ return print(n, base) + printlf(); }
+  size_t printlf(long n, int base)		{ return print(n, base) + printlf(); }
+  size_t printlf(unsigned long n, int base)	{ return print(n, base) + printlf(); }
+
+  size_t printlf(double n, int digits = 2)	{ return print(n, digits) + printlf(); }
+  size_t printlf(const Printable &obj)		{ return obj.printTo(*this) + printlf(); }
+
 	int getWriteError() { return write_error; }
 	void clearWriteError() { setWriteError(0); }
 	int printf(const char *format, ...);
