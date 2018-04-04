@@ -536,7 +536,8 @@ void analogWriteDAC0(int val)
 		// use whatever voltage is on the AREF pin
 		DAC0_C0 = DAC_C0_DACEN | DAC_C0_DACSWTRG; // 3.3V VDDA
 	}
-	__asm__ ("usat    %[value], #12, %[value]\n\t" : [value] "+r" (val));  // 0 <= val <= 4095
+	if (val < 0) val = 0;
+	else if (val > 4095) val = 4095;
 
 	*(volatile aliased_int16_t *)&(DAC0_DAT0L) = val;
 #endif
