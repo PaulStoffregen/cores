@@ -524,7 +524,7 @@ void analogWriteDAC0(int val)
 	} else {
 		DAC0_C0 = DAC_C0_DACEN | DAC_C0_DACRFS; // 3.3V VDDA is DACREF_2
 	}
-	__asm__ ("usat    %[value], #12, %[value]\n\t" : [value] "+r" (val));
+	__asm__ ("usat    %[value], #12, %[value]\n\t" : [value] "+r" (val));  // 0 <= val <= 4095
 
 	*(volatile aliased_int16_t *)&(DAC0_DAT0L) = val;
 #elif defined(__MKL26Z64__)
@@ -536,7 +536,7 @@ void analogWriteDAC0(int val)
 		// use whatever voltage is on the AREF pin
 		DAC0_C0 = DAC_C0_DACEN | DAC_C0_DACSWTRG; // 3.3V VDDA
 	}
-	__asm__ ("usat    %[value], #12, %[value]\n\t" : [value] "+r" (val));
+	__asm__ ("usat    %[value], #12, %[value]\n\t" : [value] "+r" (val));  // 0 <= val <= 4095
 
 	*(volatile aliased_int16_t *)&(DAC0_DAT0L) = val;
 #endif
@@ -552,7 +552,7 @@ void analogWriteDAC1(int val)
 	} else {
 		DAC1_C0 = DAC_C0_DACEN | DAC_C0_DACRFS; // 3.3V VDDA is DACREF_2
 	}
-	__asm__ ("usat    %[value], #12, %[value]\n\t" : [value] "+r" (val));
+	__asm__ ("usat    %[value], #12, %[value]\n\t" : [value] "+r" (val));  // 0 <= val <= 4095
 
 	*(volatile aliased_int16_t *)&(DAC1_DAT0L) = val;
 }
