@@ -727,12 +727,12 @@ void analogWrite(uint8_t pin, int val)
 
 	max = 1 << analog_write_res;
 	if (val <= 0) {
+		pinMode(pin, OUTPUT);
 		digitalWrite(pin, LOW);
-		pinMode(pin, OUTPUT);	// TODO: implement OUTPUT_LOW
 		return;
 	} else if (val >= max) {
+		pinMode(pin, OUTPUT);
 		digitalWrite(pin, HIGH);
-		pinMode(pin, OUTPUT);	// TODO: implement OUTPUT_HIGH
 		return;
 	}
 
@@ -899,8 +899,8 @@ void analogWrite(uint8_t pin, int val)
 		break;
 #endif
 	  default:
+		pinMode(pin, OUTPUT);		
 		digitalWrite(pin, (val > 127) ? HIGH : LOW);
-		pinMode(pin, OUTPUT);
 	}
 }
 
