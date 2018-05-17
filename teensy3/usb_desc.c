@@ -90,7 +90,22 @@ static uint8_t device_descriptor[] = {
 #ifdef BCD_DEVICE
 	LSB(BCD_DEVICE), MSB(BCD_DEVICE),       // bcdDevice
 #else
+  // For USB types that don't explicitly define BCD_DEVICE,
+  // use the minor version number to help teensy_ports
+  // identify which Teensy model is used.
+  #if defined(__MKL26Z64__)
+        0x73, 0x02,
+  #elif defined(__MK20DX128__)
+        0x74, 0x02,
+  #elif defined(__MK20DX256__)
+        0x75, 0x02,
+  #elif defined(__MK64FX512__)
+        0x76, 0x02,
+  #elif defined(__MK66FX1M0__)
+        0x77, 0x02,
+  #else
         0x00, 0x02,
+  #endif
 #endif
         1,                                      // iManufacturer
         2,                                      // iProduct
