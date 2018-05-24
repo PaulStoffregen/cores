@@ -589,7 +589,8 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #elif defined(USB_FLIGHTSIM_JOYSTICK)
   #define VENDOR_ID		0x16C0
-  #define PRODUCT_ID		0x04D9
+  #define PRODUCT_ID		0x0488
+  #define BCD_DEVICE		0x0211
   #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
   #define MANUFACTURER_NAME_LEN	11
   #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','F','l','i','g','h','t',' ','S','i','m',' ','C','o','n','t','r','o','l','s'}
