@@ -58,6 +58,12 @@ the "endpoints" are the actual communication channels.  Most
 interfaces use 1, 2 or 3 endpoints.  By editing only this file,
 you can customize the USB Types to be any collection of interfaces.
 
+Or, if so desired, your project can provide its own usb_user_desc.h
+header file with all of the pertinent definitions for your custom
+USB interface.  Your custom usb_user_desc.h header file will be
+included when this code is compiled with INCLUDE_USB_USER_DESC.
+Please see the usb_user_desc.h.template file as a starting point.
+
 To modify a USB Type, delete the XYZ_INTERFACE lines for any
 interfaces you wish to remove, and copy them from another USB Type
 for any you want to add.
