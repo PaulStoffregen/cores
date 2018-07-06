@@ -166,7 +166,7 @@ voidFuncPtr isr_table_portE[CORE_MAX_PIN_PORTE+1] = { [0 ... CORE_MAX_PIN_PORTE]
 
 // The Pin Config Register is used to look up the correct interrupt table
 // for the corresponding port.
-inline voidFuncPtr* getIsrTable(volatile uint32_t *config) {
+static inline voidFuncPtr* getIsrTable(volatile uint32_t *config) {
 	voidFuncPtr* isr_table = NULL;
 	if(&PORTA_PCR0 <= config && config <= &PORTA_PCR31) isr_table = isr_table_portA;
 	else if(&PORTB_PCR0 <= config && config <= &PORTB_PCR31) isr_table = isr_table_portB;
