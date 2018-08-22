@@ -133,7 +133,7 @@ void usb_midi_write_packed(uint32_t n)
 	} else {
 		tx_packet->len = MIDI_TX_SIZE;
 		usb_tx(MIDI_TX_ENDPOINT, tx_packet);
-		tx_packet = usb_malloc();
+		tx_packet = NULL;
 	}
 	tx_noautoflush = 0;
 }
@@ -189,7 +189,7 @@ void usb_midi_flush_output(void)
 	if (tx_noautoflush == 0 && tx_packet && tx_packet->index > 0) {
 		tx_packet->len = tx_packet->index * 4;
 		usb_tx(MIDI_TX_ENDPOINT, tx_packet);
-		tx_packet = usb_malloc();
+		tx_packet = NULL;
 	}
 }
 
