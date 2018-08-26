@@ -45,9 +45,9 @@
 
 // BYTE was defined in very old versions of Arduino
 // maybe this now causes more trouble than it's worth?
-#ifndef BYTE
-#define BYTE 0
-#endif
+//#ifndef BYTE
+//#define BYTE 0
+//#endif
 
 class __FlashStringHelper;
 

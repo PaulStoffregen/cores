@@ -52,8 +52,8 @@ waitForEvent	KEYWORD2
 MillisTimer	LITERAL1
 beginRepeating	KEYWORD2
 
-# removed by Arduino 1.0, but still in Teensyduino
-BYTE	LITERAL1
+# removed by Arduino 1.0, now also removed from Teensyduino
+#BYTE	LITERAL1
 
 # Arduino constants
 A0	LITERAL1
