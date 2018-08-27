@@ -45,6 +45,14 @@
 #include "usb_mem.h"
 #include <string.h> // for memset
 
+// This code has a known bug with compiled with -O2 optimization on gcc 5.4.1
+// https://forum.pjrc.com/threads/53574-Teensyduino-1-43-Beta-2?p=186177&viewfull=1#post186177
+#if defined(__MKL26Z64__)
+#pragma GCC optimize ("Os")
+#else
+#pragma GCC optimize ("O3")
+#endif
+
 // buffer descriptor table
 
 typedef struct {
