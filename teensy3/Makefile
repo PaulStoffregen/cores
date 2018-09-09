@@ -55,6 +55,10 @@ OPTIONS = -DF_CPU=48000000 -DUSB_SERIAL -DLAYOUT_US_ENGLISH -DUSING_MAKEFILE
 # options needed by many Arduino libraries to configure for Teensy 3.x
 OPTIONS += -D__$(MCU)__ -DARDUINO=10805 -DTEENSYDUINO=143
 
+ifdef NO_TYPE_TRAITS
+OPTIONS += -DNO_TYPE_TRAITS
+endif
+
 # use "cortex-m4" for Teensy 3.x
 # use "cortex-m0plus" for Teensy LC
 CPUARCH = cortex-m4
