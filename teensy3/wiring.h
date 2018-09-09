@@ -40,7 +40,8 @@
 // type_traits interferes with min() and other defines
 // include it early, so we can define these later
 // for Arduino compatibility
-#ifdef __cplusplus
+
+#if __cplusplus && !NO_TYPE_TRAITS
 #include <type_traits>
 // when the input number is an integer type, do all math as 32 bit signed long
 template <class T, class A, class B, class C, class D>
@@ -75,7 +76,7 @@ template<class A, class B>
 constexpr auto max(A&& a, B&& b) -> decltype(a < b ? std::forward<A>(a) : std::forward<B>(b)) {
   return a >= b ? std::forward<A>(a) : std::forward<B>(b);
 }
-#else // not C++
+#else // not C++, or NO_TYPE_TRAITS was defined
 #define min(a, b) ({ \
   typeof(a) _a = (a); \
   typeof(b) _b = (b); \
