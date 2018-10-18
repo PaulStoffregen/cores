@@ -761,8 +761,14 @@ enum IRQ_NUMBER_t {
 
 #endif // end of board-specific definitions
 
-
-#if (F_CPU == 240000000)
+#if (F_CPU == 256000000)
+ #define F_PLL 256000000
+ #ifndef F_BUS
+ #define F_BUS 64000000
+ //#define F_BUS 128000000  // all the usual overclocking caveats apply...
+ #endif
+ #define F_MEM 32000000
+#elif (F_CPU == 240000000)
  #define F_PLL 240000000
  #ifndef F_BUS
  #define F_BUS 60000000

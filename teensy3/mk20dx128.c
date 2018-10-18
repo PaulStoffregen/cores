@@ -841,7 +841,9 @@ void ResetHandler(void)
 	SMC_PMCTRL = SMC_PMCTRL_RUNM(3); // enter HSRUN mode
 	while (SMC_PMSTAT != SMC_PMSTAT_HSRUN) ; // wait for HSRUN
     #endif
-    #if F_CPU == 240000000
+		#if F_CPU == 256000000
+	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(16);		
+    #elif F_CPU == 240000000
 	MCG_C5 = MCG_C5_PRDIV0(0);
 	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(14);
     #elif F_CPU == 216000000
@@ -900,7 +902,18 @@ void ResetHandler(void)
   #endif
 #endif
 	// now program the clock dividers
-#if F_CPU == 240000000
+#if F_CPU == 256000000
+	// config divisors: 256 MHz core, 64 MHz bus, 32 MHz flash, USB = IRC48M
+	// TODO: gradual ramp-up for HSRUN mode
+	#if F_BUS == 64000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(3) | SIM_CLKDIV1_OUTDIV4(7);
+	#elif F_BUS == 128000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(7);
+	#else
+	#error "This F_CPU & F_BUS combination is not supported"
+	#endif
+	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(0);
+#elif F_CPU == 240000000
 	// config divisors: 240 MHz core, 60 MHz bus, 30 MHz flash, USB = 240 / 5
 	// TODO: gradual ramp-up for HSRUN mode
 	#if F_BUS == 60000000
@@ -921,7 +934,8 @@ void ResetHandler(void)
 	#elif F_BUS == 72000000
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(2) | SIM_CLKDIV1_OUTDIV4(7);
 	#elif F_BUS == 108000000
-	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(7);
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(7);	
+	
 	#else
 	#error "This F_CPU & F_BUS combination is not supported"
 	#endif
@@ -1057,7 +1071,7 @@ void ResetHandler(void)
 	// now we're in PEE mode
 	// USB uses PLL clock, trace is CPU clock, CLKOUT=OSCERCLK0
 	#if defined(KINETISK)
-	#if F_CPU == 216000000 || F_CPU == 180000000
+	#if F_CPU == 256000000 || F_CPU == 216000000 || F_CPU == 180000000
 	SIM_SOPT2 = SIM_SOPT2_USBSRC | SIM_SOPT2_IRC48SEL | SIM_SOPT2_TRACECLKSEL | SIM_SOPT2_CLKOUTSEL(6);
 	#else
 	SIM_SOPT2 = SIM_SOPT2_USBSRC | SIM_SOPT2_PLLFLLSEL | SIM_SOPT2_TRACECLKSEL | SIM_SOPT2_CLKOUTSEL(6);
@@ -1128,6 +1142,7 @@ void ResetHandler(void)
 
 	startup_late_hook();
 	main();
+	
 	while (1) ;
 }
 
@@ -1259,7 +1274,11 @@ int kinetis_hsrun_disable(void)
 		// the peripheral speed (F_BUS).  Serial1 & Serial2 baud
 		// rates will be impacted, but most other peripherals
 		// will continue functioning at the same speed.
-		#if F_CPU == 240000000 && F_BUS == 60000000
+		#if F_CPU == 256000000 && F_BUS == 64000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(1, 3, 1, 7); // TODO: TEST
+		#elif F_CPU == 256000000 && F_BUS == 128000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(1, 1, 1, 7); // TODO: TEST
+		#elif F_CPU == 240000000 && F_BUS == 60000000
 			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(1, 3, 1, 7); // ok
 		#elif F_CPU == 240000000 && F_BUS == 80000000
 			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(2, 2, 2, 8); // ok
@@ -1305,7 +1324,11 @@ int kinetis_hsrun_enable(void)
 		SMC_PMCTRL = SMC_PMCTRL_RUNM(3);
 		while (SMC_PMSTAT != SMC_PMSTAT_HSRUN) {;} // wait
 		// Then configure clock for full speed
-		#if F_CPU == 240000000 && F_BUS == 60000000
+		#if F_CPU == 256000000 && F_BUS == 64000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 3, 0, 7);
+		#elif F_CPU == 256000000 && F_BUS == 128000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 1, 0, 7);
+		#elif F_CPU == 240000000 && F_BUS == 60000000
 			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 3, 0, 7);
 		#elif F_CPU == 240000000 && F_BUS == 80000000
 			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 2, 0, 7);
