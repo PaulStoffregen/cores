@@ -456,7 +456,10 @@ extern void usb_init(void);
 
 #endif
 
-#if F_TIMER == 120000000
+#if F_TIMER == 128000000
+#define DEFAULT_FTM_MOD (65536 - 1)
+#define DEFAULT_FTM_PRESCALE 2
+#elif F_TIMER == 120000000
 #define DEFAULT_FTM_MOD (61440 - 1)
 #define DEFAULT_FTM_PRESCALE 2
 #elif F_TIMER == 108000000
