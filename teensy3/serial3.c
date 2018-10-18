@@ -196,6 +196,8 @@ void serial3_end(void)
 		case 20: CORE_PIN20_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_MUX(1); break;
 	}
 	#endif	
+	UART2_S1;
+	UART2_D; // clear leftover error status
 	rx_buffer_head = 0;
 	rx_buffer_tail = 0;
 	if (rts_pin) rts_deassert();
