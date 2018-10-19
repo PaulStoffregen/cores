@@ -842,7 +842,10 @@ void ResetHandler(void)
 	while (SMC_PMSTAT != SMC_PMSTAT_HSRUN) ; // wait for HSRUN
     #endif
 		#if F_CPU == 256000000
-	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(16);		
+	//See table in 27.4.6 MCG Control 6 Register (MCG_C6)
+	//16 -> Multiply factor 32. 32*8MHz =256MHz
+	MCG_C5 = MCG_C5_PRDIV0(0);
+	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(16);
     #elif F_CPU == 240000000
 	MCG_C5 = MCG_C5_PRDIV0(0);
 	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(14);
@@ -1060,7 +1063,7 @@ void ResetHandler(void)
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV4(1);
   #endif
 #else
-#error "Error, F_CPU must be 192, 180, 168, 144, 120, 96, 72, 48, 24, 16, 8, 4, or 2 MHz"
+#error "Error, F_CPU must be 256, 240, 216, 192, 180, 168, 144, 120, 96, 72, 48, 24, 16, 8, 4, or 2 MHz"
 #endif
 
 #if F_CPU > 16000000
@@ -1069,11 +1072,13 @@ void ResetHandler(void)
 	// wait for PLL clock to be used
 	while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(3)) ;
 	// now we're in PEE mode
-	// USB uses PLL clock, trace is CPU clock, CLKOUT=OSCERCLK0
+	// trace is CPU clock, CLKOUT=OSCERCLK0
 	#if defined(KINETISK)
 	#if F_CPU == 256000000 || F_CPU == 216000000 || F_CPU == 180000000
+	// USB uses IRC48
 	SIM_SOPT2 = SIM_SOPT2_USBSRC | SIM_SOPT2_IRC48SEL | SIM_SOPT2_TRACECLKSEL | SIM_SOPT2_CLKOUTSEL(6);
 	#else
+	// USB uses PLL clock
 	SIM_SOPT2 = SIM_SOPT2_USBSRC | SIM_SOPT2_PLLFLLSEL | SIM_SOPT2_TRACECLKSEL | SIM_SOPT2_CLKOUTSEL(6);
 	#endif
 	#elif defined(KINETISL)
