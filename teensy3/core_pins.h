@@ -2062,12 +2062,14 @@ static inline void delayMicroseconds(uint32_t usec)
 		"nop"					"\n\t"
 #endif
 #ifdef KINETISL
-		"sub    %0, #1"				"\n\t"
+        "sub    %0, #1"                "\n\t"
+        "bne    L_%=_delayMicroseconds"        "\n"
+        : "+l" (n) :            
 #else
-		"subs   %0, #1"				"\n\t"
+        "subs   %0, #1"                "\n\t"
+        "bne    L_%=_delayMicroseconds"        "\n"
+        : "+r" (n) :    
 #endif
-		"bne    L_%=_delayMicroseconds"		"\n"
-		: "+r" (n) :
 	);
 }
 
