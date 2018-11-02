@@ -460,4 +460,4 @@ void lpuart0_status_isr(void)
 	}
 }
 
-#endif // HAS_KINETISK_UART4
+#endif // HAS_KINETISK_LPUART0
