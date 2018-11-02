@@ -4551,7 +4551,7 @@ typedef struct {
 #define SPI1_MH			(KINETISL_SPI1.MH)		// Match High
 #define SPI1_DL			(KINETISL_SPI1.DL)		// Data Low
 #define SPI1_DH			(KINETISL_SPI1.DH)		// Data High
-#define SPI1_CI			(KINETISL_SPI1.CI)		// Dlear Interrupt
+#define SPI1_CI			(KINETISL_SPI1.CI)		// Clear Interrupt
 #define SPI1_C3			(KINETISL_SPI1.C3)		// Control Register 3
 #endif
 
