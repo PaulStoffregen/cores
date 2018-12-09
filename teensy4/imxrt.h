@@ -69,7 +69,7 @@ enum IRQ_NUMBER_t {
         IRQ_SAI3_TX =           59,
         IRQ_SPDIF =             60,
         IRQ_BROWNOUT0 =         61,
-        IRQ_BROWNOUT1 =         62,
+        IRQ_Reserved13 =        62,
         IRQ_TEMPERATURE =       63,
         IRQ_TEMPERATURE_PANIC = 64,
         IRQ_USBPHY0 =           65,
@@ -100,7 +100,7 @@ enum IRQ_NUMBER_t {
         IRQ_FLEXIO1 =           90,
         IRQ_FLEXIO2 =           91,
         IRQ_WDOG1 =             92,
-        IRQ_WDOG3 =             93,
+        IRQ_RTWDOG =            93,
         IRQ_EWM =               94,
         IRQ_CCM1 =              95,
         IRQ_CCM2 =              96,
@@ -114,7 +114,7 @@ enum IRQ_NUMBER_t {
         IRQ_FLEXPWM1_2 =        104,
         IRQ_FLEXPWM1_3 =        105,
         IRQ_FLEXPWM1_FAULT =    106,
-        IRQ_Reserved4 =         107,
+        IRQ_FLEXSPI2 =          107, // RT1060 only
         IRQ_FLEXSPI =           108,
         IRQ_SEMC =              109,
         IRQ_SDHC1 =             110,
@@ -159,12 +159,12 @@ enum IRQ_NUMBER_t {
         IRQ_FLEXPWM4_2 =        149,
         IRQ_FLEXPWM4_3 =        150,
         IRQ_FLEXPWM4_FAULT =    151,
-        IRQ_Reserved7 =         152,
-        IRQ_Reserved8 =         153,
+        IRQ_ENET2 =             152, // RT1060 only
+        IRQ_ENET2_TIMER =       153, // RT1060 only
         IRQ_Reserved9 =         154,
         IRQ_Reserved10 =        155,
-        IRQ_Reserved11 =        156,
-        IRQ_Reserved12 =        157,
+        IRQ_CAN3 =              156, // RT1060 only
+        IRQ_GPIO6789 =          157, // RT1060 only
         IRQ_SJC_DEBUG =         158,
         IRQ_NMI_WAKEUP =        159
 };
@@ -1436,7 +1436,7 @@ typedef struct {
 		volatile uint16_t BITER;
 		volatile uint16_t BITER_ELINKYES;
 		volatile uint16_t BITER_ELINKNO;
-	}
+	};
 } IMXRT_DMA_TCD_t;
 #define IMXRT_DMA		(*(IMXRT_DMA_t *)0x400E8000)
 #define DMA_CR				(IMXRT_DMA.CR)
@@ -2595,6 +2595,98 @@ typedef struct {
 #define FLEXIO2_SHIFTBUFNIS1		(IMXRT_FLEXIO2_b.offset384)
 #define FLEXIO2_SHIFTBUFNIS2		(IMXRT_FLEXIO2_b.offset388)
 #define FLEXIO2_SHIFTBUFNIS3		(IMXRT_FLEXIO2_b.offset38C)
+// FLEXIO3 only present in RT1062
+#define IMXRT_FLEXIO3		(*(IMXRT_REGISTER32_t *)0x42020000)
+#define IMXRT_FLEXIO3_b		(*(IMXRT_REGISTER32_t *)0x42020400)
+#define FLEXIO3_VERID			(IMXRT_FLEXIO3.offset000)
+#define FLEXIO3_PARAM			(IMXRT_FLEXIO3.offset004)
+#define FLEXIO3_CTRL			(IMXRT_FLEXIO3.offset008)
+#define FLEXIO3_PIN			(IMXRT_FLEXIO3.offset00C)
+#define FLEXIO3_SHIFTSTAT		(IMXRT_FLEXIO3.offset010)
+#define FLEXIO3_SHIFTERR		(IMXRT_FLEXIO3.offset014)
+#define FLEXIO3_TIMSTAT			(IMXRT_FLEXIO3.offset018)
+#define FLEXIO3_SHIFTSIEN		(IMXRT_FLEXIO3.offset020)
+#define FLEXIO3_SHIFTEIEN		(IMXRT_FLEXIO3.offset024)
+#define FLEXIO3_TIMIEN			(IMXRT_FLEXIO3.offset028)
+#define FLEXIO3_SHIFTSDEN		(IMXRT_FLEXIO3.offset030)
+#define FLEXIO3_SHIFTSTATE		(IMXRT_FLEXIO3.offset040)
+#define FLEXIO3_SHIFTCTL0		(IMXRT_FLEXIO3.offset080)
+#define FLEXIO3_SHIFTCTL1		(IMXRT_FLEXIO3.offset084)
+#define FLEXIO3_SHIFTCTL2		(IMXRT_FLEXIO3.offset088)
+#define FLEXIO3_SHIFTCTL3		(IMXRT_FLEXIO3.offset08C)
+#define FLEXIO3_SHIFTCFG0		(IMXRT_FLEXIO3.offset100)
+#define FLEXIO3_SHIFTCFG1		(IMXRT_FLEXIO3.offset104)
+#define FLEXIO3_SHIFTCFG2		(IMXRT_FLEXIO3.offset108)
+#define FLEXIO3_SHIFTCFG3		(IMXRT_FLEXIO3.offset10C)
+#define FLEXIO3_SHIFTBUF0		(IMXRT_FLEXIO3.offset200)
+#define FLEXIO3_SHIFTBUF1		(IMXRT_FLEXIO3.offset204)
+#define FLEXIO3_SHIFTBUF2		(IMXRT_FLEXIO3.offset208)
+#define FLEXIO3_SHIFTBUF3		(IMXRT_FLEXIO3.offset20C)
+#define FLEXIO3_SHIFTBUFBIS0		(IMXRT_FLEXIO3.offset280)
+#define FLEXIO3_SHIFTBUFBIS1		(IMXRT_FLEXIO3.offset284)
+#define FLEXIO3_SHIFTBUFBIS2		(IMXRT_FLEXIO3.offset288)
+#define FLEXIO3_SHIFTBUFBIS3		(IMXRT_FLEXIO3.offset28C)
+#define FLEXIO3_SHIFTBUFBYS0		(IMXRT_FLEXIO3.offset300)
+#define FLEXIO3_SHIFTBUFBYS1		(IMXRT_FLEXIO3.offset304)
+#define FLEXIO3_SHIFTBUFBYS2		(IMXRT_FLEXIO3.offset308)
+#define FLEXIO3_SHIFTBUFBYS3		(IMXRT_FLEXIO3.offset30C)
+#define FLEXIO3_SHIFTBUFBBS0		(IMXRT_FLEXIO3.offset380)
+#define FLEXIO3_SHIFTBUFBBS1		(IMXRT_FLEXIO3.offset384)
+#define FLEXIO3_SHIFTBUFBBS2		(IMXRT_FLEXIO3.offset388)
+#define FLEXIO3_SHIFTBUFBBS3		(IMXRT_FLEXIO3.offset38C)
+#define FLEXIO3_TIMCTL0			(IMXRT_FLEXIO3_b.offset000)
+#define FLEXIO3_TIMCTL1			(IMXRT_FLEXIO3_b.offset004)
+#define FLEXIO3_TIMCTL2			(IMXRT_FLEXIO3_b.offset008)
+#define FLEXIO3_TIMCTL3			(IMXRT_FLEXIO3_b.offset00C)
+#define FLEXIO3_TIMCFG0			(IMXRT_FLEXIO3_b.offset080)
+#define FLEXIO3_TIMCFG1			(IMXRT_FLEXIO3_b.offset084)
+#define FLEXIO3_TIMCFG2			(IMXRT_FLEXIO3_b.offset088)
+#define FLEXIO3_TIMCFG3			(IMXRT_FLEXIO3_b.offset08C)
+#define FLEXIO3_TIMCMP0			(IMXRT_FLEXIO3_b.offset100)
+#define FLEXIO3_TIMCMP1			(IMXRT_FLEXIO3_b.offset104)
+#define FLEXIO3_TIMCMP2			(IMXRT_FLEXIO3_b.offset108)
+#define FLEXIO3_TIMCMP3			(IMXRT_FLEXIO3_b.offset10C)
+#define FLEXIO3_SHIFTBUFNBS0		(IMXRT_FLEXIO3_b.offset280)
+#define FLEXIO3_SHIFTBUFNBS1		(IMXRT_FLEXIO3_b.offset284)
+#define FLEXIO3_SHIFTBUFNBS2		(IMXRT_FLEXIO3_b.offset288)
+#define FLEXIO3_SHIFTBUFNBS3		(IMXRT_FLEXIO3_b.offset28C)
+#define FLEXIO3_SHIFTBUFHWS0		(IMXRT_FLEXIO3_b.offset300)
+#define FLEXIO3_SHIFTBUFHWS1		(IMXRT_FLEXIO3_b.offset304)
+#define FLEXIO3_SHIFTBUFHWS2		(IMXRT_FLEXIO3_b.offset308)
+#define FLEXIO3_SHIFTBUFHWS3		(IMXRT_FLEXIO3_b.offset30C)
+#define FLEXIO3_SHIFTBUFNIS0		(IMXRT_FLEXIO3_b.offset380)
+#define FLEXIO3_SHIFTBUFNIS1		(IMXRT_FLEXIO3_b.offset384)
+#define FLEXIO3_SHIFTBUFNIS2		(IMXRT_FLEXIO3_b.offset388)
+#define FLEXIO3_SHIFTBUFNIS3		(IMXRT_FLEXIO3_b.offset38C)
+#define FLEXIO_CTRL_DOZEN			((uint16_t)(1<<31))
+#define FLEXIO_CTRL_DBGE			((uint16_t)(1<<30))
+#define FLEXIO_CTRL_FASTACC			((uint16_t)(1<<2))
+#define FLEXIO_CTRL_SWRST			((uint16_t)(1<<1))
+#define FLEXIO_CTRL_FLEXEN			((uint16_t)(1<<0))
+#define FLEXIO_SHIFTCTL_TIMSEL(n)		((uint16_t)(((n) & 0x03) << 24))
+#define FLEXIO_SHIFTCTL_TIMPOL			((uint16_t)(1<<23))
+#define FLEXIO_SHIFTCTL_PINCFG(n)		((uint16_t)(((n) & 0x03) << 16))
+#define FLEXIO_SHIFTCTL_PINSEL(n)		((uint16_t)(((n) & 0x1F) << 8))
+#define FLEXIO_SHIFTCTL_PINPOL			((uint16_t)(1<<7))
+#define FLEXIO_SHIFTCTL_SMOD(n)			((uint16_t)(((n) & 0x07) << 0))
+#define FLEXIO_SHIFTCFG_PWIDTH(n)		((uint16_t)(((n) & 0x1F) << 16))
+#define FLEXIO_SHIFTCFG_INSRC			((uint16_t)(1<<8))
+#define FLEXIO_SHIFTCFG_SSTOP(n)		((uint16_t)(((n) & 0x03) << 4))
+#define FLEXIO_SHIFTCFG_SSTART(n)		((uint16_t)(((n) & 0x03) << 0))
+#define FLEXIO_TIMCTL_TRGSEL(n)			((uint16_t)(((n) & 0x3F) << 24))
+#define FLEXIO_TIMCTL_TRGPOL			((uint16_t)(1<<23))
+#define FLEXIO_TIMCTL_TRGSRC			((uint16_t)(1<<22))
+#define FLEXIO_TIMCTL_PINCFG(n)			((uint16_t)(((n) & 0x03) << 16))
+#define FLEXIO_TIMCTL_PINSEL(n)			((uint16_t)(((n) & 0x1F) << 8))
+#define FLEXIO_TIMCTL_PINPOL			((uint16_t)(1<<7))
+#define FLEXIO_TIMCTL_TIMOD(n)			((uint16_t)(((n) & 0x03) << 0))
+#define FLEXIO_TIMCFG_TIMOUT(n)			((uint16_t)(((n) & 0x03) << 24))
+#define FLEXIO_TIMCFG_TIMDEC(n)			((uint16_t)(((n) & 0x03) << 20))
+#define FLEXIO_TIMCFG_TIMRST(n)			((uint16_t)(((n) & 0x07) << 16))
+#define FLEXIO_TIMCFG_TIMDIS(n)			((uint16_t)(((n) & 0x07) << 12))
+#define FLEXIO_TIMCFG_TIMENA(n)			((uint16_t)(((n) & 0x07) << 8))
+#define FLEXIO_TIMCFG_TSTOP(n)			((uint16_t)(((n) & 0x03) << 4))
+#define FLEXIO_TIMCFG_TSTART			((uint16_t)(1<<1))
 
 // 28.4.1: page 1354
 typedef struct {
@@ -4017,6 +4109,38 @@ typedef struct {
 #define GPT2_ICR1			(IMXRT_GPT2.offset01C)
 #define GPT2_ICR2			(IMXRT_GPT2.offset020)
 #define GPT2_CNT			(IMXRT_GPT2.offset024)
+#define GPT_CR_FO3				((uint32_t)(1<<31))
+#define GPT_CR_FO2				((uint32_t)(1<<30))
+#define GPT_CR_FO1				((uint32_t)(1<<29))
+#define GPT_CR_OM3(n)				((uint32_t)(((n) & 0x07) << 26))
+#define GPT_CR_OM2(n)				((uint32_t)(((n) & 0x07) << 23))
+#define GPT_CR_OM1(n)				((uint32_t)(((n) & 0x07) << 20))
+#define GPT_CR_IM2(n)				((uint32_t)(((n) & 0x03) << 18))
+#define GPT_CR_IM1(n)				((uint32_t)(((n) & 0x03) << 16))
+#define GPT_CR_SWR				((uint32_t)(1<<15))
+#define GPT_CR_EN_24M				((uint32_t)(1<<10))
+#define GPT_CR_FRR				((uint32_t)(1<<9))
+#define GPT_CR_CLKSRC(n)			((uint32_t)(((n) & 0x07) << 6))
+#define GPT_CR_STOPEN				((uint32_t)(1<<5))
+#define GPT_CR_DOZEEN				((uint32_t)(1<<4))
+#define GPT_CR_WAITEN				((uint32_t)(1<<3))
+#define GPT_CR_DBGEN				((uint32_t)(1<<2))
+#define GPT_CR_ENMOD				((uint32_t)(1<<1))
+#define GPT_CR_EN				((uint32_t)(1<<0))
+#define GPT_PR_PRESCALER24M(n)			((uint32_t)(((n) & 0x0F) << 12))
+#define GPT_PR_PRESCALER(n)			((uint32_t)(((n) & 0xFFF) << 0))
+#define GPT_SR_ROV				((uint32_t)(1<<5))
+#define GPT_SR_IF2				((uint32_t)(1<<4))
+#define GPT_SR_IF1				((uint32_t)(1<<3))
+#define GPT_SR_OF3				((uint32_t)(1<<2))
+#define GPT_SR_OF2				((uint32_t)(1<<1))
+#define GPT_SR_OF1				((uint32_t)(1<<0))
+#define GPT_IR_ROVIE				((uint32_t)(1<<5))
+#define GPT_IR_IF2IE				((uint32_t)(1<<4))
+#define GPT_IR_IF1IE				((uint32_t)(1<<3))
+#define GPT_IR_OF3IE				((uint32_t)(1<<2))
+#define GPT_IR_OF2IE				((uint32_t)(1<<1))
+#define GPT_IR_OF1IE				((uint32_t)(1<<0))
 
 // 34.4: page 1671
 #define IMXRT_IOMUXC_GPR	(*(IMXRT_REGISTER32_t *)0x400AC000)
@@ -5539,6 +5663,12 @@ typedef struct {
 #define PIT_CVAL3			(IMXRT_PIT.offset134)
 #define PIT_TCTRL3			(IMXRT_PIT.offset138)
 #define PIT_TFLG3			(IMXRT_PIT.offset13C)
+#define PIT_MCR_MDIS				((uint32_t)(1<<1))
+#define PIT_MCR_FRZ				((uint32_t)(1<<0))
+#define PIT_TCTRL_CHN				((uint32_t)(1<<2))
+#define PIT_TCTRL_TIE				((uint32_t)(1<<1))
+#define PIT_TCTRL_TEN				((uint32_t)(1<<0))
+#define PIT_TFLG_TIF				((uint32_t)(1<<0))
 
 // 45.7: page 2598
 #define IMXRT_PMU		(*(IMXRT_REGISTER32_t *)0x400D8000)
@@ -5570,6 +5700,85 @@ typedef struct {
 #define PMU_MISC2_SET			(IMXRT_PMU.offset174)
 #define PMU_MISC2_CLR			(IMXRT_PMU.offset178)
 #define PMU_MISC2_TOG			(IMXRT_PMU.offset17C)
+#define PMU_REG_1P1_SELREF_WEAK_LINREG		((uint32_t)(1<<19))
+#define PMU_REG_1P1_ENABLE_WEAK_LINREG		((uint32_t)(1<<18))
+#define PMU_REG_1P1_OK_VDD1P1			((uint32_t)(1<<17))
+#define PMU_REG_1P1_BO_VDD1P1			((uint32_t)(1<<16))
+#define PMU_REG_1P1_OUTPUT_TRG(n)		((uint32_t)(((n) & 0x0F) << 8))
+#define PMU_REG_1P1_BO_OFFSET(n)		((uint32_t)(((n) & 0x07) << 4))
+#define PMU_REG_1P1_ENABLE_PULLDOWN		((uint32_t)(1<<3))
+#define PMU_REG_1P1_ENABLE_ILIMIT		((uint32_t)(1<<2))
+#define PMU_REG_1P1_ENABLE_BO			((uint32_t)(1<<1))
+#define PMU_REG_1P1_ENABLE_LINREG		((uint32_t)(1<<0))
+#define PMU_REG_3P0_OK_VDD3P0			((uint32_t)(1<<17))
+#define PMU_REG_3P0_BO_VDD3P0			((uint32_t)(1<<16))
+#define PMU_REG_3P0_OUTPUT_TRG(n)		((uint32_t)(((n) & 0x1F) << 8))
+#define PMU_REG_3P0_VBUS_SEL			((uint32_t)(1<<7))
+#define PMU_REG_3P0_BO_OFFSET(n)		((uint32_t)(((n) & 0x07) << 4))
+#define PMU_REG_3P0_ENABLE_ILIMIT		((uint32_t)(1<<2))
+#define PMU_REG_3P0_ENABLE_BO			((uint32_t)(1<<1))
+#define PMU_REG_3P0_ENABLE_LINREG		((uint32_t)(1<<0))
+#define PMU_REG_2P5_ENABLE_WEAK_LINREG		((uint32_t)(1<<18))
+#define PMU_REG_2P5_OK_VDD2P5			((uint32_t)(1<<17))
+#define PMU_REG_2P5_BO_VDD2P5			((uint32_t)(1<<16))
+#define PMU_REG_2P5_OUTPUT_TRG(n)		((uint32_t)(((n) & 0x0F) << 8))
+#define PMU_REG_2P5_BO_OFFSET(n)		((uint32_t)(((n) & 0x07) << 4))
+#define PMU_REG_2P5_ENABLE_PULLDOWN		((uint32_t)(1<<3))
+#define PMU_REG_2P5_ENABLE_ILIMIT		((uint32_t)(1<<2))
+#define PMU_REG_2P5_ENABLE_BO			((uint32_t)(1<<1))
+#define PMU_REG_2P5_ENABLE_LINREG		((uint32_t)(1<<0))
+#define PMU_REG_CORE_FET_ODRIVE			((uint32_t)(1<<29))
+#define PMU_REG_CORE_RAMP_RATE(n)		((uint32_t)(((n) & 0x03) << 27))
+#define PMU_REG_CORE_REG2_ADJ(n)		((uint32_t)(((n) & 0x0F) << 23))
+#define PMU_REG_CORE_REG2_TARG(n)		((uint32_t)(((n) & 0x1F) << 18))
+#define PMU_REG_CORE_REG1_ADJ(n)		((uint32_t)(((n) & 0x0F) << 14))
+#define PMU_REG_CORE_REG1_TARG(n)		((uint32_t)(((n) & 0x1F) << 9))
+#define PMU_REG_CORE_REG0_ADJ(n)		((uint32_t)(((n) & 0x0F) << 5))
+#define PMU_REG_CORE_REG0_TARG(n)		((uint32_t)(((n) & 0x1F) << 0))
+#define PMU_MISC0_VID_PLL_PREDIV		((uint32_t)(1<<31))
+#define PMU_MISC0_XTAL_24M_PWD			((uint32_t)(1<<30))
+#define PMU_MISC0_RTC_XTAL_SOURCE		((uint32_t)(1<<29))
+#define PMU_MISC0_CLKGATE_DELAY(n)		((uint32_t)(((n) & 0x07) << 26))
+#define PMU_MISC0_CLKGATE_CTRL			((uint32_t)(1<<25))
+#define PMU_MISC0_OSC_XTALOK_EN			((uint32_t)(1<<16))
+#define PMU_MISC0_OSC_XTALOK			((uint32_t)(1<<15))
+#define PMU_MISC0_OSC_I(n)			((uint32_t)(((n) & 0x03) << 13))
+#define PMU_MISC0_DISCON_HIGH_SNVS		((uint32_t)(1<<12))
+#define PMU_MISC0_STOP_MODE_CONFIG(n)		((uint32_t)(((n) & 0x03) << 10))
+#define PMU_MISC0_REFTOP_VBGUP			((uint32_t)(1<<7))
+#define PMU_MISC0_REFTOP_VBGADJ(n)		((uint32_t)(((n) & 0x07) << 4))
+#define PMU_MISC0_REFTOP_SELFBIASOFF		((uint32_t)(1<<3))
+#define PMU_MISC0_REFTOP_PWD			((uint32_t)(1<<0))
+#define PMU_MISC1_IRQ_DIG_BO			((uint32_t)(1<<31))
+#define PMU_MISC1_IRQ_ANA_BO			((uint32_t)(1<<30))
+#define PMU_MISC1_IRQ_TEMPHIGH			((uint32_t)(1<<29))
+#define PMU_MISC1_IRQ_TEMPLOW			((uint32_t)(1<<28))
+#define PMU_MISC1_IRQ_TEMPPANIC			((uint32_t)(1<<27))
+#define PMU_MISC1_PFD_528_AUTOGATE_EN		((uint32_t)(1<<17))
+#define PMU_MISC1_PFD_480_AUTOGATE_EN		((uint32_t)(1<<16))
+#define PMU_MISC1_LVDSCLK2_IBEN			((uint32_t)(1<<13))
+#define PMU_MISC1_LVDSCLK1_IBEN			((uint32_t)(1<<12))
+#define PMU_MISC1_LVDSCLK2_OBEN			((uint32_t)(1<<11))
+#define PMU_MISC1_LVDSCLK1_OBEN			((uint32_t)(1<<10))
+#define PMU_MISC1_LVDS2_CLK_SEL(n)		((uint32_t)(((n) & 0x1F) << 5))
+#define PMU_MISC1_LVDS1_CLK_SEL(n)		((uint32_t)(((n) & 0x1F) << 0))
+#define PMU_MISC2_VIDEO_DIV(n)			((uint32_t)(((n) & 0x03) << 30))
+#define PMU_MISC2_REG2_STEP_TIME(n)		((uint32_t)(((n) & 0x03) << 28))
+#define PMU_MISC2_REG1_STEP_TIME(n)		((uint32_t)(((n) & 0x03) << 26))
+#define PMU_MISC2_REG0_STEP_TIME(n)		((uint32_t)(((n) & 0x03) << 24))
+#define PMU_MISC2_AUDIO_DIV_MSB			((uint32_t)(1<<23))
+#define PMU_MISC2_REG2_OK			((uint32_t)(1<<22))
+#define PMU_MISC2_REG2_ENABLE_BO		((uint32_t)(1<<21))
+#define PMU_MISC2_REG2_BO_STATUS		((uint32_t)(1<<19))
+#define PMU_MISC2_REG2_BO_OFFSET(n)		((uint32_t)(((n) & 0x07) << 16))
+#define PMU_MISC2_AUDIO_DIV_LSB			((uint32_t)(1<<15))
+#define PMU_MISC2_REG1_ENABLE_BO		((uint32_t)(1<<13))
+#define PMU_MISC2_REG1_BO_STATUS		((uint32_t)(1<<11))
+#define PMU_MISC2_REG1_BO_OFFSET(n)		((uint32_t)(((n) & 0x07) << 8))
+#define PMU_MISC2_PLL3_DISABLE			((uint32_t)(1<<7))
+#define PMU_MISC2_REG0_ENABLE_BO		((uint32_t)(1<<5))
+#define PMU_MISC2_REG0_BO_STATUS		((uint32_t)(1<<3))
+#define PMU_MISC2_REG0_BO_OFFSET(n)		((uint32_t)(((n) & 0x07) << 0))
 
 // 46.7: page 2656
 #define IMXRT_PXP		(*(IMXRT_REGISTER32_t *)0x402B4000)
