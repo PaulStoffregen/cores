@@ -231,29 +231,29 @@ void usb_keyboard_class::set_modifier(uint16_t c)
 {
 	keyboard_report_data[0] = (uint8_t)c;
 }
-void usb_keyboard_class::set_key1(uint8_t c)
+void usb_keyboard_class::set_key1(uint16_t c)
 {
-	keyboard_report_data[2] = c;
+	keyboard_report_data[2] = (uint8_t)c;
 }
-void usb_keyboard_class::set_key2(uint8_t c)
+void usb_keyboard_class::set_key2(uint16_t c)
 {
-	keyboard_report_data[3] = c;
+	keyboard_report_data[3] = (uint8_t)c;
 }
-void usb_keyboard_class::set_key3(uint8_t c)
+void usb_keyboard_class::set_key3(uint16_t c)
 {
-	keyboard_report_data[4] = c;
+	keyboard_report_data[4] = (uint8_t)c;
 }
-void usb_keyboard_class::set_key4(uint8_t c)
+void usb_keyboard_class::set_key4(uint16_t c)
 {
-	keyboard_report_data[5] = c;
+	keyboard_report_data[5] = (uint8_t)c;
 }
-void usb_keyboard_class::set_key5(uint8_t c)
+void usb_keyboard_class::set_key5(uint16_t c)
 {
-	keyboard_report_data[6] = c;
+	keyboard_report_data[6] = (uint8_t)c;
 }
-void usb_keyboard_class::set_key6(uint8_t c)
+void usb_keyboard_class::set_key6(uint16_t c)
 {
-	keyboard_report_data[7] = c;
+	keyboard_report_data[7] = (uint8_t)c;
 }
 void usb_keyboard_class::set_media(uint8_t c)
 {
