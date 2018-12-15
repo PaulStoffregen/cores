@@ -170,6 +170,17 @@ enum IRQ_NUMBER_t {
 #define NVIC_NUM_INTERRUPTS     160
 #define DMA_NUM_CHANNELS        32
 
+#ifdef __cplusplus
+extern "C" void (* _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
+static inline void attachInterruptVector(IRQ_NUMBER_t irq, void (*function)(void)) __attribute__((always_inline, unused));
+static inline void attachInterruptVector(IRQ_NUMBER_t irq, void (*function)(void)) { _VectorsRam[irq + 16] = function; }
+#else
+extern void (* _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
+static inline void attachInterruptVector(enum IRQ_NUMBER_t irq, void (*function)(void)) __attribute__((always_inline, unused));
+static inline void attachInterruptVector(enum IRQ_NUMBER_t irq, void (*function)(void)) { _VectorsRam[irq + 16] = function; }
+#endif
+
+
 #define DMAMUX_SOURCE_FLEXIO1_REQUEST0		0
 #define DMAMUX_SOURCE_FLEXIO1_REQUEST1		0
 #define DMAMUX_SOURCE_FLEXIO2_REQUEST0		1

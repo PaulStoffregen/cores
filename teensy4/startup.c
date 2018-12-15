@@ -1,5 +1,7 @@
 #include "imxrt.h"
 #include "wiring.h"
+#include "usb_dev.h"
+
 #include "debug/printf.h"
 
 // from the linker
@@ -22,6 +24,7 @@ static void configure_systick(void);
 extern void systick_isr(void);
 void configure_cache(void);
 void unused_interrupt_vector(void);
+void usb_pll_start();
 
 
 __attribute__((section(".startup")))
@@ -52,6 +55,7 @@ void ResetHandler(void)
 
 	configure_cache();
 	configure_systick();
+	usb_pll_start();
 #if 1
 
 	//uint32_t pll1;
@@ -85,7 +89,10 @@ void ResetHandler(void)
 	//set_arm_clock(300000000);
 #endif
 
+	// TODO: wait at least 20ms before starting USB
+	usb_init();
 
+	// TODO: wait tat least 300ms before calling setup
 	printf("before setup\n");
 	setup();
 	printf("after setup\n");
@@ -220,9 +227,9 @@ void usb_pll_start()
 {
 	while (1) {
 		uint32_t n = CCM_ANALOG_PLL_USB1; // pg 759
-		//printf("CCM_ANALOG_PLL_USB1=%08lX\r\n", n);
+		printf("CCM_ANALOG_PLL_USB1=%08lX\n", n);
 		if (n & CCM_ANALOG_PLL_USB1_DIV_SELECT) {
-			//print("  ERROR, 528 MHz mode!\r\n"); // never supposed to use this mode!
+			printf("  ERROR, 528 MHz mode!\n"); // never supposed to use this mode!
 			CCM_ANALOG_PLL_USB1_CLR = 0xC000;			// bypass 24 MHz
 			CCM_ANALOG_PLL_USB1_SET = CCM_ANALOG_PLL_USB1_BYPASS;	// bypass
 			CCM_ANALOG_PLL_USB1_CLR = CCM_ANALOG_PLL_USB1_POWER |	// power down
@@ -232,27 +239,27 @@ void usb_pll_start()
 			continue;
 		}
 		if (!(n & CCM_ANALOG_PLL_USB1_ENABLE)) {
-			//print("  enable PLL\r\n");
+			printf("  enable PLL\n");
 			// TODO: should this be done so early, or later??
 			CCM_ANALOG_PLL_USB1_SET = CCM_ANALOG_PLL_USB1_ENABLE;
 			continue;
 		}
 		if (!(n & CCM_ANALOG_PLL_USB1_POWER)) {
-			//print("  power up PLL\r\n");
+			printf("  power up PLL\n");
 			CCM_ANALOG_PLL_USB1_SET = CCM_ANALOG_PLL_USB1_POWER;
 			continue;
 		}
 		if (!(n & CCM_ANALOG_PLL_USB1_LOCK)) {
-			//print("  wait for lock\r\n");
+			printf("  wait for lock\n");
 			continue;
 		}
 		if (n & CCM_ANALOG_PLL_USB1_BYPASS) {
-			//print("  turn off bypass\r\n");
+			printf("  turn off bypass\n");
 			CCM_ANALOG_PLL_USB1_CLR = CCM_ANALOG_PLL_USB1_BYPASS;
 			continue;
 		}
 		if (!(n & CCM_ANALOG_PLL_USB1_EN_USB_CLKS)) {
-			//print("  enable USB clocks\r\n");
+			printf("  enable USB clocks\n");
 			CCM_ANALOG_PLL_USB1_SET = CCM_ANALOG_PLL_USB1_EN_USB_CLKS;
 			continue;
 		}

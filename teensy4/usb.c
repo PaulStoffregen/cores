@@ -1,15 +1,13 @@
 #include "usb_dev.h"
 #define USB_DESC_LIST_DEFINE
 #include "usb_desc.h"
+#include "usb_serial.h"
 #include <string.h>
-
-// Use this for access to endpoint 1 for debug
-// https://github.com/BrandonLWhite/Stellaris-LaunchPad-UsbDevBulk-AutoWinusbInstall
+#include "debug/printf.h"
 
 // device mode, page 3155
 
 typedef struct endpoint_struct endpoint_t;
-//typedef struct transfer_struct transfer_t;
 
 struct endpoint_struct {
 	uint32_t config;
@@ -73,6 +71,7 @@ static uint32_t endpointN_notify_mask=0;
 //static int reset_count=0;
 volatile uint8_t usb_configuration = 0;
 static uint8_t endpoint0_buffer[8];
+static uint8_t usb_reboot_timer = 0;
 
 
 static void isr(void);
@@ -86,7 +85,12 @@ static void endpoint0_complete(void);
 
 void usb_init(void)
 {
-	// TODO: make sure USB voltage regulator is running at full strength
+	// TODO: only enable when VBUS detected
+	// TODO: return to low power mode when VBUS removed
+	// TODO: protect PMU access with MPU
+	PMU_REG_3P0 = PMU_REG_3P0_OUTPUT_TRG(0x0F) | PMU_REG_3P0_BO_OFFSET(6)
+		| PMU_REG_3P0_ENABLE_LINREG;
+
 
 	// assume PLL3 is already running - already done by usb_pll_start() in main.c
 
@@ -95,15 +99,15 @@ void usb_init(void)
 	// Before programming this register, the PHY clocks must be enabled in registers
 	// USBPHYx_CTRLn and CCM_ANALOG_USBPHYx_PLL_480_CTRLn.
 
-	//printf("USBPHY1_PWD=%08lX\r\n", USBPHY1_PWD);
-	//printf("USBPHY1_TX=%08lX\r\n", USBPHY1_TX);
-	//printf("USBPHY1_RX=%08lX\r\n", USBPHY1_RX);
-	//printf("USBPHY1_CTRL=%08lX\r\n", USBPHY1_CTRL);
-	//printf("USB1_USBMODE=%08lX\r\n", USB1_USBMODE);
+	//printf("USBPHY1_PWD=%08lX\n", USBPHY1_PWD);
+	//printf("USBPHY1_TX=%08lX\n", USBPHY1_TX);
+	//printf("USBPHY1_RX=%08lX\n", USBPHY1_RX);
+	//printf("USBPHY1_CTRL=%08lX\n", USBPHY1_CTRL);
+	//printf("USB1_USBMODE=%08lX\n", USB1_USBMODE);
 
 	// turn on PLL3, wait for 480 MHz lock?
 	// turn on CCM clock gates?  CCGR6[CG0]
-
+#if 1
 	if ((USBPHY1_PWD & (USBPHY_PWD_RXPWDRX | USBPHY_PWD_RXPWDDIFF | USBPHY_PWD_RXPWD1PT1
 	  | USBPHY_PWD_RXPWDENV | USBPHY_PWD_TXPWDV2I | USBPHY_PWD_TXPWDIBIAS
 	  | USBPHY_PWD_TXPWDFS)) || (USB1_USBMODE & USB_USBMODE_CM_MASK)) {
@@ -116,17 +120,17 @@ void usb_init(void)
 		NVIC_CLEAR_PENDING(IRQ_USB1);
 		USBPHY1_CTRL_CLR = USBPHY_CTRL_SFTRST; // reset PHY
 		//USB1_USBSTS = USB1_USBSTS; // TODO: is this needed?
-		//printf("USB reset took %d loops\r\n", count);
+		printf("USB reset took %d loops\n", count);
 		//delay(10);
-		//print("\r\n");
-		//printf("USBPHY1_PWD=%08lX\r\n", USBPHY1_PWD);
-		//printf("USBPHY1_TX=%08lX\r\n", USBPHY1_TX);
-		//printf("USBPHY1_RX=%08lX\r\n", USBPHY1_RX);
-		//printf("USBPHY1_CTRL=%08lX\r\n", USBPHY1_CTRL);
-		//printf("USB1_USBMODE=%08lX\r\n", USB1_USBMODE);
+		//printf("\n");
+		//printf("USBPHY1_PWD=%08lX\n", USBPHY1_PWD);
+		//printf("USBPHY1_TX=%08lX\n", USBPHY1_TX);
+		//printf("USBPHY1_RX=%08lX\n", USBPHY1_RX);
+		//printf("USBPHY1_CTRL=%08lX\n", USBPHY1_CTRL);
+		//printf("USB1_USBMODE=%08lX\n", USB1_USBMODE);
 		//delay(500);
 	}
-
+#endif
 	// Device Controller Initialization, page 3161
 	// USBCMD	pg 3216
 	// USBSTS	pg 3220
@@ -143,8 +147,8 @@ void usb_init(void)
 
 	USBPHY1_CTRL_CLR = USBPHY_CTRL_CLKGATE;
 	USBPHY1_PWD = 0;
-	//printf("USBPHY1_PWD=%08lX\r\n", USBPHY1_PWD);
-	//printf("USBPHY1_CTRL=%08lX\r\n", USBPHY1_CTRL);
+	//printf("USBPHY1_PWD=%08lX\n", USBPHY1_PWD);
+	//printf("USBPHY1_CTRL=%08lX\n", USBPHY1_CTRL);
 
 	USB1_USBMODE = USB_USBMODE_CM(2) | USB_USBMODE_SLOM;
 	memset(endpoint_queue_head, 0, sizeof(endpoint_queue_head));
@@ -158,17 +162,17 @@ void usb_init(void)
 	//_VectorsRam[IRQ_USB1+16] = &isr;
 	attachInterruptVector(IRQ_USB1, &isr);
 	NVIC_ENABLE_IRQ(IRQ_USB1);
-	//printf("USB1_ENDPTCTRL0=%08lX\r\n", USB1_ENDPTCTRL0);
-	//printf("USB1_ENDPTCTRL1=%08lX\r\n", USB1_ENDPTCTRL1);
-	//printf("USB1_ENDPTCTRL2=%08lX\r\n", USB1_ENDPTCTRL2);
-	//printf("USB1_ENDPTCTRL3=%08lX\r\n", USB1_ENDPTCTRL3);
+	//printf("USB1_ENDPTCTRL0=%08lX\n", USB1_ENDPTCTRL0);
+	//printf("USB1_ENDPTCTRL1=%08lX\n", USB1_ENDPTCTRL1);
+	//printf("USB1_ENDPTCTRL2=%08lX\n", USB1_ENDPTCTRL2);
+	//printf("USB1_ENDPTCTRL3=%08lX\n", USB1_ENDPTCTRL3);
 	USB1_USBCMD |= USB_USBCMD_RS;
 }
 
 
 static void isr(void)
 {
-	//print("*");
+	//printf("*");
 
 	//  Port control in device mode is only used for
 	//  status port reset, suspend, and current connect status.
@@ -180,9 +184,9 @@ static void isr(void)
 	// USB_USBSTS_SRI - set when USB reset detected
 
 	if (status & USB_USBSTS_UI) {
-		//print("data\r\n");
+		//printf("data\n");
 		uint32_t setupstatus = USB1_ENDPTSETUPSTAT;
-		//printf("USB1_ENDPTSETUPSTAT=%X\r\n", setupstatus);
+		//printf("USB1_ENDPTSETUPSTAT=%X\n", setupstatus);
 		while (setupstatus) {
 			USB1_ENDPTSETUPSTAT = setupstatus;
 			setup_t s;
@@ -192,7 +196,7 @@ static void isr(void)
 				s.word2 = endpoint_queue_head[0].setup1;
 			} while (!(USB1_USBCMD & USB_USBCMD_SUTW));
 			USB1_USBCMD &= ~USB_USBCMD_SUTW;
-			//printf("setup %08lX %08lX\r\n", s.word1, s.word2);
+			//printf("setup %08lX %08lX\n", s.word1, s.word2);
 			USB1_ENDPTFLUSH = (1<<16) | (1<<0); // page 3174
 			while (USB1_ENDPTFLUSH & ((1<<16) | (1<<0))) ;
 			endpoint0_notify_mask = 0;
@@ -202,7 +206,7 @@ static void isr(void)
 		uint32_t completestatus = USB1_ENDPTCOMPLETE;
 		if (completestatus) {
 			USB1_ENDPTCOMPLETE = completestatus;
-			//printf("USB1_ENDPTCOMPLETE=%lX\r\n", completestatus);
+			//printf("USB1_ENDPTCOMPLETE=%lX\n", completestatus);
 			if (completestatus & endpoint0_notify_mask) {
 				endpoint0_notify_mask = 0;
 				endpoint0_complete();
@@ -218,34 +222,43 @@ static void isr(void)
 		while (USB1_ENDPTPRIME != 0) ; // Wait for any endpoint priming
 		USB1_ENDPTFLUSH = 0xFFFFFFFF;  // Cancel all endpoint primed status
 		if ((USB1_PORTSC1 & USB_PORTSC1_PR)) {
-			//print("reset\r\n");
+			//printf("reset\n");
 		} else {
 			// we took too long to respond :(
 			// TODO; is this ever really a problem?
-			//print("reset too slow\r\n");
+			//printf("reset too slow\n");
 		}
 		// TODO: Free all allocated dTDs 
 		//if (++reset_count >= 3) {
 			// shut off USB - easier to see results in protocol analyzer
 			//USB1_USBCMD &= ~USB_USBCMD_RS;
-			//print("shut off USB\r\n");
+			//printf("shut off USB\n");
 		//}
 	}
 	if (status & USB_USBSTS_PCI) {
 		if (USB1_PORTSC1 & USB_PORTSC1_HSP) {
-			//print("port at 480 Mbit\r\n");
+			//printf("port at 480 Mbit\n");
 		} else {
-			//print("port at 12 Mbit\r\n");
+			//printf("port at 12 Mbit\n");
 		}
 	}
 	if (status & USB_USBSTS_SLI) { // page 3165
-		//print("suspend\r\n");
+		//printf("suspend\n");
 	}
 	if (status & USB_USBSTS_UEI) {
-		//print("error\r\n");
+		//printf("error\n");
 	}
-
-
+	if ((USB1_USBINTR & USB_USBINTR_SRE) && (status & USB_USBSTS_SRI)) {
+		printf("sof %d\n", usb_reboot_timer);
+		if (usb_reboot_timer) {
+			if (--usb_reboot_timer == 0) {
+				asm("bkpt #251"); // run bootloader
+			}
+		} else {
+			// turn off the SOF interrupt if nothing using it
+			USB1_USBINTR &= ~USB_USBINTR_SRE;
+		}
+	}
 }
 
 
@@ -289,7 +302,7 @@ static void endpoint0_setup(uint64_t setupdata)
 			uint32_t m = n & ~(USB_ENDPTCTRL_TXR | USB_ENDPTCTRL_RXR);
 			*reg = m;
 			//uint32_t p = *reg;
-			//printf(" ep=%d: cfg=%08lX - %08lX - %08lX\r\n", i + 1, n, m, p);
+			//printf(" ep=%d: cfg=%08lX - %08lX - %08lX\n", i + 1, n, m, p);
 			reg++;
 		}
 		// TODO: configure all queue heads with max packet length, zlt & mult
@@ -303,7 +316,7 @@ static void endpoint0_setup(uint64_t setupdata)
 
 	  case 0x0680: // GET_DESCRIPTOR
 	  case 0x0681:
-		//printf("desc:\r\n");  // yay - sending device descriptor now works!!!!
+		//printf("desc:\n");  // yay - sending device descriptor now works!!!!
 		for (list = usb_descriptor_list; list->addr != NULL; list++) {
 			if (setup.wValue == list->wValue && setup.wIndex == list->wIndex) {
 				if ((setup.wValue >> 8) == 3) {
@@ -336,7 +349,7 @@ static void endpoint0_setup(uint64_t setupdata)
 
 static void endpoint0_transmit(const void *data, uint32_t len, int notify)
 {
-	//printf("tx %lu\r\n", len);
+	//printf("tx %lu\n", len);
 	if (len > 0) {
 		// Executing A Transfer Descriptor, page 3182
 		endpoint0_transfer_data.next = 1;
@@ -365,7 +378,7 @@ static void endpoint0_transmit(const void *data, uint32_t len, int notify)
 
 static void endpoint0_receive(void *data, uint32_t len, int notify)
 {
-	//printf("rx %lu\r\n", len);
+	//printf("rx %lu\n", len);
 	if (len > 0) {
 		// Executing A Transfer Descriptor, page 3182
 		endpoint0_transfer_data.next = 1;
@@ -418,11 +431,15 @@ static void endpoint0_complete(void)
 	setup_t setup;
 
 	setup.bothwords = endpoint0_setupdata.bothwords;
-	//print("complete\r\n");
+	//printf("complete\n");
 #ifdef CDC_STATUS_INTERFACE
 	if (setup.wRequestAndType == 0x2021 /*CDC_SET_LINE_CODING*/) {
-		//memcpy(usb_cdc_line_coding, endpoint0_buffer, 7);
-		//if (usb_cdc_line_coding[0] == 134) usb_reboot_timer = 15;
+		memcpy(usb_cdc_line_coding, endpoint0_buffer, 7);
+		printf("usb_cdc_line_coding, baud=%u\n", usb_cdc_line_coding[0]);
+		if (usb_cdc_line_coding[0] == 134) {
+			USB1_USBINTR |= USB_USBINTR_SRE;
+			usb_reboot_timer = 80; // TODO: 10 if only 12 Mbit/sec
+		}
 	}
 #endif
 }
@@ -444,13 +461,13 @@ void usb_transmit(int endpoint_number, transfer_t *transfer)
 {
 	// endpoint 0 reserved for control
 	// endpoint 1 reserved for debug
-//printf("usb_transmit %d\r\n", endpoint_number);
+//printf("usb_transmit %d\n", endpoint_number);
 	if (endpoint_number < 2 || endpoint_number > NUM_ENDPOINTS) return;
 	endpoint_t *endpoint = &endpoint_queue_head[endpoint_number * 2 + 1];
 	if (endpoint->callback_function) {
 		transfer->status |= (1<<15);
 	} else {
-		transfer->status |= (1<<15);
+		//transfer->status |= (1<<15);
 		// remove all inactive transfers
 	}
 	uint32_t mask = 1 << (endpoint_number + 16);
@@ -465,7 +482,7 @@ void usb_transmit(int endpoint_number, transfer_t *transfer)
 			if (USB1_ENDPTPRIME & mask) {
 				endpoint->last_transfer = transfer;
 				__enable_irq();
-				printf(" case 2a\r\n");
+				printf(" case 2a\n");
 				return;
 			}
 			uint32_t stat;
@@ -478,7 +495,7 @@ void usb_transmit(int endpoint_number, transfer_t *transfer)
 			if (stat & mask) {
 				endpoint->last_transfer = transfer;
 				__enable_irq();
-				printf(" case 2b\r\n");
+				printf(" case 2b\n");
 				return;
 			}
 		}
@@ -493,7 +510,7 @@ void usb_transmit(int endpoint_number, transfer_t *transfer)
 	USB1_ENDPTPRIME |= mask;
 	while (USB1_ENDPTPRIME & mask) ;
 	__enable_irq();
-	//printf(" case 1\r\n");
+	//printf(" case 1\n");
 
 
 	// ENDPTPRIME - momentarily set by hardware during hardware re-priming

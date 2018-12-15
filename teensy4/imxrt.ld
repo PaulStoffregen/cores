@@ -55,12 +55,13 @@ SECTIONS
 	_edata = ADDR(.data) + SIZEOF(.data);
 	_sdataload = LOADADDR(.data);
 
-	_estack = ORIGIN(DTCM) + LENGTH(DTCM) - 16;
+	_estack = ORIGIN(DTCM) + LENGTH(DTCM);
 
 	_sbss = ADDR(.bss);
 	_ebss = ADDR(.bss) + SIZEOF(.bss);
 
 	_flashimagelen = SIZEOF(.text.progmem) + SIZEOF(.text) + SIZEOF(.data);
+	_teensy_model_identifier = 0x23;
 
 	.debug_info     0 : { *(.debug_info) }
 	.debug_abbrev   0 : { *(.debug_abbrev) }

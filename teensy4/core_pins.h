@@ -617,11 +617,6 @@ void analogWrite(uint8_t pin, int val);
 uint32_t analogWriteRes(uint32_t bits);
 static inline uint32_t analogWriteResolution(uint32_t bits) { return analogWriteRes(bits); }
 void analogWriteFrequency(uint8_t pin, float frequency);
-#ifdef __cplusplus
-void attachInterruptVector(IRQ_NUMBER_t irq, void (*function)(void));
-#else
-void attachInterruptVector(enum IRQ_NUMBER_t irq, void (*function)(void));
-#endif
 void attachInterrupt(uint8_t pin, void (*function)(void), int mode);
 void detachInterrupt(uint8_t pin);
 void _init_Teensyduino_internal_(void);

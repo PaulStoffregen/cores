@@ -34,6 +34,9 @@
 //#include "HardwareSerial.h"
 #include <string.h> // for memcpy()
 
+#include "debug/printf.h"
+#include "core_pins.h"
+
 // defined by usb_dev.h -> usb_desc.h
 #if defined(CDC_STATUS_INTERFACE) && defined(CDC_DATA_INTERFACE)
 //#if F_CPU >= 20000000
@@ -201,13 +204,29 @@ int usb_serial_putchar(uint8_t c)
 }
 
 
-static transfer_t transfer __attribute__ ((used, aligned(32)));
-static uint8_t txbuffer[256];
+static transfer_t volatile transfer __attribute__ ((used, aligned(32)));
+static uint8_t txbuffer[1024];
+//static uint8_t txbuffer1[1024];
+//static uint8_t txbuffer2[1024];
+//static uint8_t txstate=0;
 
 int usb_serial_write(const void *buffer, uint32_t size)
 {
-
+	// TODO: do something so much better that this quick hack....
 	if (size > sizeof(txbuffer)) size = sizeof(txbuffer);
+	int count=0;
+	digitalWriteFast(13, HIGH);
+	while (1) {
+		uint32_t status = (volatile)(transfer.status);
+		if (count > 10) printf("status = %x\n", status);
+		if (!(status & 0x80)) break;
+		count++;
+		//if (count > 50) break; // TODO: proper timout?
+		// TODO: check for USB offline
+		delayMicroseconds(5); // polling too quickly seem to block DMA - maybe DTCM issue?
+	}
+	digitalWriteFast(13, LOW);
+	delayMicroseconds(1); // TODO: this must not be the answer!
 	memcpy(txbuffer, buffer, size);
 	usb_prepare_transfer(&transfer, txbuffer, size, 0);
 	usb_transmit(CDC_TX_ENDPOINT, &transfer);
