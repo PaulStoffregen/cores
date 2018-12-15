@@ -25,6 +25,8 @@ extern void systick_isr(void);
 void configure_cache(void);
 void unused_interrupt_vector(void);
 void usb_pll_start();
+extern void analog_init(void);
+extern void pwm_init(void);
 
 
 __attribute__((section(".startup")))
@@ -36,10 +38,10 @@ void ResetHandler(void)
 	//__asm__ volatile("mov sp, %0" : : "r" (0x20010000) : );
 
 	// pin 13 - if startup crashes, use this to turn on the LED early for troubleshooting
-	//IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_03 = 5;
-	//IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_03 = IOMUXC_PAD_DSE(7);
-	//GPIO2_GDIR |= (1<<3);
-	//GPIO2_DR_SET = (1<<3);
+	IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_03 = 5;
+	IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_03 = IOMUXC_PAD_DSE(7);
+	GPIO2_GDIR |= (1<<3);
+	GPIO2_DR_SET = (1<<3);
 
 	memory_copy(&_stext, &_stextload, &_etext);
 	memory_copy(&_sdata, &_sdataload, &_edata);
@@ -91,6 +93,8 @@ void ResetHandler(void)
 
 	// TODO: wait at least 20ms before starting USB
 	usb_init();
+	analog_init();
+	pwm_init();
 
 	// TODO: wait tat least 300ms before calling setup
 	printf("before setup\n");
