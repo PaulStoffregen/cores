@@ -35,12 +35,12 @@ const uint32_t ImageVectorTable[8] = {
 
 __attribute__ ((section(".flashconfig"), used))
 uint32_t FlexSPI_NOR_Config[128] = {
-	// 448 byte common FlexSPI configuration block , 8.6.3 page 342
+	// 448 byte common FlexSPI configuration block, 8.6.3.1 page 223 (RT1060 rev 0)
 	// MCU_Flashloader_Reference_Manual.pdf, 8.2.1, Table 8-2, page 72-75
 	0x42464346,		// Tag				0x00
 	0x56010000,		// Version
 	0,			// reserved
-	0x00030301,		// columnAdressWidth,dataSetupTime,dataHoldTime,readSampleClkSrc
+	0x00020101,		// columnAdressWidth,dataSetupTime,dataHoldTime,readSampleClkSrc
 
 	0x00000000,		// waitTimeCfgCommands,-,deviceModeCfgEnable
 	0,			// deviceModeSeq
@@ -58,7 +58,7 @@ uint32_t FlexSPI_NOR_Config[128] = {
 	0,
 
 	0x00000000,		// controllerMiscOption		0x40
-	0x00060401,		// lutCustomSeqEnable,serialClkFreq,sflashPadType,deviceType
+	0x00030401,		// lutCustomSeqEnable,serialClkFreq,sflashPadType,deviceType
 	0,			// reserved
 	0,			// reserved
 
