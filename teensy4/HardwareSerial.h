@@ -33,6 +33,78 @@
 
 #include "imxrt.h"
 
+#ifdef __cplusplus
+#include "Stream.h"
+class HardwareSerial : public Stream
+{
+public:
+	typedef struct {
+		IRQ_NUMBER_t irq;
+		volatile uint32_t &ccm_register;
+		const uint32_t ccm_value;
+		volatile uint32_t &rx_mux_register;
+		volatile uint32_t &tx_mux_register;
+		const uint8_t rx_mux_val;
+		const uint8_t tx_mux_val;
+	} hardware_t;
+public:
+	constexpr HardwareSerial(IMXRT_LPUART_t *myport, const hardware_t *myhardware) :
+		port(myport), hardware(myhardware) {
+	}
+	void begin(uint32_t baud, uint8_t format=0);
+
+	virtual int available(void);
+	virtual int peek(void);
+	virtual void flush(void);
+	virtual size_t write(uint8_t c);
+	virtual int read(void);
+	using Print::write;
+
+/*
+	virtual void begin(uint32_t baud) { serial_begin(BAUD2DIV(baud)); }
+	virtual void begin(uint32_t baud, uint32_t format) {
+					  serial_begin(BAUD2DIV(baud));
+					  serial_format(format); }
+	virtual void end(void)		{ serial_end(); }
+	virtual void transmitterEnable(uint8_t pin) { serial_set_transmit_pin(pin); }
+	virtual void setRX(uint8_t pin) { serial_set_rx(pin); }
+	virtual void setTX(uint8_t pin, bool opendrain=false) { serial_set_tx(pin, opendrain); }
+	virtual bool attachRts(uint8_t pin) { return serial_set_rts(pin); }
+	virtual bool attachCts(uint8_t pin) { return serial_set_cts(pin); }
+	virtual void clear(void)	{ serial_clear(); }
+	virtual int availableForWrite(void) { return serial_write_buffer_free(); }
+	using Print::write;
+	virtual size_t write(uint8_t c) { serial_putchar(c); return 1; }
+	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
+	virtual size_t write(long n)            { return write((uint8_t)n); }
+	virtual size_t write(unsigned int n)    { return write((uint8_t)n); }
+	virtual size_t write(int n)             { return write((uint8_t)n); }
+	virtual size_t write(const uint8_t *buffer, size_t size)
+					{ serial_write(buffer, size); return size; }
+        virtual size_t write(const char *str)	{ size_t len = strlen(str);
+					  serial_write((const uint8_t *)str, len);
+					  return len; }
+	virtual size_t write9bit(uint32_t c)	{ serial_putchar(c); return 1; }
+*/
+	operator bool()			{ return true; }
+private:
+	IMXRT_LPUART_t * const port;
+	const hardware_t * const hardware;
+};
+extern HardwareSerial Serial1;
+extern HardwareSerial Serial2;
+extern HardwareSerial Serial3;
+extern HardwareSerial Serial4;
+extern HardwareSerial Serial5;
+extern HardwareSerial Serial6;
+extern HardwareSerial Serial7;
+extern HardwareSerial Serial8;
+//extern void serialEvent1(void);
+
+
+#endif // __cplusplus
+
+
 // Uncomment to enable 9 bit formats.  These are default disabled to save memory.
 //#define SERIAL_9BIT_SUPPORT
 //
@@ -133,7 +205,7 @@
 #define BAUD2DIV3(baud) (((F_BUS / 16) + ((baud) >> 1)) / (baud))
 #endif
 */
-
+#if 0
 
 // C language implementation
 //
@@ -486,6 +558,7 @@ extern void serialEvent6(void);
 
 
 
+#endif
 
 #endif
 #endif

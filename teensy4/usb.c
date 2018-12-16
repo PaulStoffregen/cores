@@ -128,7 +128,7 @@ void usb_init(void)
 		//printf("USBPHY1_RX=%08lX\n", USBPHY1_RX);
 		//printf("USBPHY1_CTRL=%08lX\n", USBPHY1_CTRL);
 		//printf("USB1_USBMODE=%08lX\n", USB1_USBMODE);
-		//delay(500);
+		delay(100);
 	}
 #endif
 	// Device Controller Initialization, page 3161
