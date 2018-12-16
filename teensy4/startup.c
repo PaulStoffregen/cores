@@ -47,6 +47,7 @@ void ResetHandler(void)
 	memory_copy(&_sdata, &_sdataload, &_edata);
 	memory_clear(&_sbss, &_ebss);
 
+	SCB_CPACR = 0x00F00000; // enable FPU
 	for (i=0; i < 176; i++) _VectorsRam[i] = &unused_interrupt_vector;
 	SCB_VTOR = (uint32_t)_VectorsRam;
 
@@ -271,9 +272,54 @@ void usb_pll_start()
 	}
 }
 
+
+// Stack frame
+//  xPSR
+//  ReturnAddress
+//  LR (R14) - typically FFFFFFF9 for IRQ or Exception
+//  R12
+//  R3
+//  R2
+//  R1
+//  R0
 void unused_interrupt_vector(void)
 {
 	// TODO: polling Serial to complete buffered transmits
+#ifdef PRINT_DEBUG_STUFF
+	uint32_t addr;
+	asm volatile("mrs %0, ipsr\n" : "=r" (addr)::);
+	printf("\nirq %d\n", addr & 0x1FF);
+	asm("ldr %0, [sp, #52]" : "=r" (addr) ::);
+	printf(" %x\n", addr);
+	asm("ldr %0, [sp, #48]" : "=r" (addr) ::);
+	printf(" %x\n", addr);
+	asm("ldr %0, [sp, #44]" : "=r" (addr) ::);
+	printf(" %x\n", addr);
+	asm("ldr %0, [sp, #40]" : "=r" (addr) ::);
+	printf(" %x\n", addr);
+	asm("ldr %0, [sp, #36]" : "=r" (addr) ::);
+	printf(" %x\n", addr);
+	asm("ldr %0, [sp, #33]" : "=r" (addr) ::);
+	printf(" %x\n", addr);
+	asm("ldr %0, [sp, #34]" : "=r" (addr) ::);
+	printf(" %x\n", addr);
+	asm("ldr %0, [sp, #28]" : "=r" (addr) ::);
+	printf(" %x\n", addr);
+	asm("ldr %0, [sp, #24]" : "=r" (addr) ::);
+	printf(" %x\n", addr);
+	asm("ldr %0, [sp, #20]" : "=r" (addr) ::);
+	printf(" %x\n", addr);
+	asm("ldr %0, [sp, #16]" : "=r" (addr) ::);
+	printf(" %x\n", addr);
+	asm("ldr %0, [sp, #12]" : "=r" (addr) ::);
+	printf(" %x\n", addr);
+	asm("ldr %0, [sp, #8]" : "=r" (addr) ::);
+	printf(" %x\n", addr);
+	asm("ldr %0, [sp, #4]" : "=r" (addr) ::);
+	printf(" %x\n", addr);
+	asm("ldr %0, [sp, #0]" : "=r" (addr) ::);
+	printf(" %x\n", addr);
+#endif
 #if 1
 	IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_03 = 5; // pin 13
 	IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_03 = IOMUXC_PAD_DSE(7);
@@ -282,9 +328,9 @@ void unused_interrupt_vector(void)
 	while (1) {
 		volatile uint32_t n;
 		GPIO2_DR_SET = (1<<3); //digitalWrite(13, HIGH);
-		for (n=0; n < 5000000; n++) ;
+		for (n=0; n < 2000000; n++) ;
 		GPIO2_DR_CLEAR = (1<<3); //digitalWrite(13, LOW);
-		for (n=0; n < 4000000; n++) ;
+		for (n=0; n < 1500000; n++) ;
 	}
 #else
 	while (1) {
