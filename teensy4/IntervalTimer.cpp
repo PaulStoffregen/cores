@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2017 PJRC.COM, LLC.
+ * Copyright (c) 2018 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -29,8 +29,10 @@
  */
 
 #include "IntervalTimer.h"
+#include "debug/printf.h"
 
 static void dummy_funct(void);
+static void pit_isr(void);
 
 #define NUM_CHANNELS 4
 static void (*funct_table[4])(void) = {dummy_funct, dummy_funct, dummy_funct, dummy_funct};
@@ -39,71 +41,66 @@ uint8_t IntervalTimer::nvic_priorites[4] = {255, 255, 255, 255};
 
 bool IntervalTimer::beginCycles(void (*funct)(), uint32_t cycles)
 {
-#if 0
+	printf("beginCycles %u\n", cycles);
 	if (channel) {
 		channel->TCTRL = 0;
 		channel->TFLG = 1;
 	} else {
-		SIM_SCGC6 |= SIM_SCGC6_PIT;
-		__asm__ volatile("nop"); // solves timing problem on Teensy 3.5
+		CCM_CCGR1 |= CCM_CCGR1_PIT(CCM_CCGR_ON);
+		//__asm__ volatile("nop"); // solves timing problem on Teensy 3.5
 		PIT_MCR = 1;
-		channel = KINETISK_PIT_CHANNELS;
+		channel = IMXRT_PIT_CHANNELS;
 		while (1) {
 			if (channel->TCTRL == 0) break;
-			if (++channel >= KINETISK_PIT_CHANNELS + NUM_CHANNELS) {
+			if (++channel >= IMXRT_PIT_CHANNELS + NUM_CHANNELS) {
 				channel = NULL;
 				return false;
 			}
 		}
 	}
-	int index = channel - KINETISK_PIT_CHANNELS;
+	int index = channel - IMXRT_PIT_CHANNELS;
 	funct_table[index] = funct;
 	channel->LDVAL = cycles;
 	channel->TCTRL = 3;
-#if defined(KINETISK)
-	NVIC_SET_PRIORITY(IRQ_PIT_CH0 + index, nvic_priority);
-	NVIC_ENABLE_IRQ(IRQ_PIT_CH0 + index);
-#elif defined(KINETISL)
 	nvic_priorites[index] = nvic_priority;
-	if (nvic_priorites[0] <= nvic_priorites[1]) {
-		NVIC_SET_PRIORITY(IRQ_PIT, nvic_priorites[0]);
-	} else {
-		NVIC_SET_PRIORITY(IRQ_PIT, nvic_priorites[1]);
+	uint8_t top_priority = 255;
+	for (int i=0; i < NUM_CHANNELS; i++) {
+		if (top_priority > nvic_priorites[i]) top_priority = nvic_priorites[i];
 	}
+	attachInterruptVector(IRQ_PIT, &pit_isr);
+	NVIC_SET_PRIORITY(IRQ_PIT, top_priority);
 	NVIC_ENABLE_IRQ(IRQ_PIT);
-#endif
-#endif
 	return true;
 }
 
 
 void IntervalTimer::end() {
-#if 0
+#if 1
 	if (channel) {
-		int index = channel - KINETISK_PIT_CHANNELS;
-		// TODO: disable IRQ_PIT, but only if both instances ended
+		int index = channel - IMXRT_PIT_CHANNELS;
+		// TODO: disable IRQ_PIT, but only if all instances ended
 		funct_table[index] = dummy_funct;
 		channel->TCTRL = 0;
 		nvic_priorites[index] = 255;
-		if (nvic_priorites[0] <= nvic_priorites[1]) {
-			NVIC_SET_PRIORITY(IRQ_PIT, nvic_priorites[0]);
-		} else {
-			NVIC_SET_PRIORITY(IRQ_PIT, nvic_priorites[1]);
+		uint8_t top_priority = 255;
+		for (int i=0; i < NUM_CHANNELS; i++) {
+			if (top_priority > nvic_priorites[i]) top_priority = nvic_priorites[i];
 		}
+		NVIC_SET_PRIORITY(IRQ_PIT, top_priority);
 		channel = 0;
 	}
 #endif
 }
 
-
-void pit_isr() {
-	if (PIT_TFLG0) {
-		PIT_TFLG0 = 1;
-		funct_table[0]();
-	}
-	if (PIT_TFLG1) {
-		PIT_TFLG1 = 1;
-		funct_table[1]();
+//FASTRUN
+static void pit_isr()
+{
+	for (int i=0; i < NUM_CHANNELS; i++) {
+		IMXRT_PIT_CHANNEL_t *channel = IMXRT_PIT_CHANNELS + i;
+		if (channel->TFLG) {
+			channel->TFLG = 1;
+			funct_table[i]();
+		}
 	}
 }
 

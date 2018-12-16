@@ -43,13 +43,20 @@ void ResetHandler(void)
 	GPIO2_GDIR |= (1<<3);
 	GPIO2_DR_SET = (1<<3);
 
+	// Initialize memory
 	memory_copy(&_stext, &_stextload, &_etext);
 	memory_copy(&_sdata, &_sdataload, &_edata);
 	memory_clear(&_sbss, &_ebss);
 
-	SCB_CPACR = 0x00F00000; // enable FPU
+	// enable FPU
+	SCB_CPACR = 0x00F00000;
+
+	// set up blank interrupt & exception vector table
 	for (i=0; i < 176; i++) _VectorsRam[i] = &unused_interrupt_vector;
 	SCB_VTOR = (uint32_t)_VectorsRam;
+
+	// PIT & GPT timers to run from 24 MHz clock (independent of CPU speed)
+	CCM_CSCMR1 = (CCM_CSCMR1 & ~CCM_CSCMR1_PERCLK_PODF(0x3F)) | CCM_CSCMR1_PERCLK_CLK_SEL;
 
 	// must enable PRINT_DEBUG_STUFF in debug/print.h
 	printf_init();

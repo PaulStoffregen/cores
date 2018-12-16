@@ -42,9 +42,7 @@ class IntervalTimer {
 private:
 	static const uint32_t MAX_PERIOD = UINT32_MAX / (24000000 / 1000000);
 public:
-	IntervalTimer() {
-		channel = NULL;
-		nvic_priority = 128;
+	constexpr IntervalTimer() {
 	}
 	~IntervalTimer() {
 		end();
@@ -120,8 +118,8 @@ public:
 	}
 private:
 //#define IMXRT_PIT_CHANNELS              ((IMXRT_PIT_CHANNEL_t *)(&(IMXRT_PIT.offset100)))
-	IMXRT_PIT_CHANNEL_t *channel;
-	uint8_t nvic_priority;
+	IMXRT_PIT_CHANNEL_t *channel = nullptr;
+	uint8_t nvic_priority = 128;
 	static uint8_t nvic_priorites[4];
 	bool beginCycles(void (*funct)(), uint32_t cycles);
 
