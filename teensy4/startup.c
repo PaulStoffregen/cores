@@ -55,8 +55,12 @@ void ResetHandler(void)
 	for (i=0; i < 176; i++) _VectorsRam[i] = &unused_interrupt_vector;
 	SCB_VTOR = (uint32_t)_VectorsRam;
 
+	// Configure clocks
+	// TODO: make sure all affected peripherals are turned off!
 	// PIT & GPT timers to run from 24 MHz clock (independent of CPU speed)
 	CCM_CSCMR1 = (CCM_CSCMR1 & ~CCM_CSCMR1_PERCLK_PODF(0x3F)) | CCM_CSCMR1_PERCLK_CLK_SEL;
+	// UARTs run from 24 MHz clock (works if PLL3 off or bypassed)
+	CCM_CSCDR1 = (CCM_CSCDR1 & ~CCM_CSCDR1_UART_CLK_PODF(0x3F)) | CCM_CSCDR1_UART_CLK_SEL;
 
 	// must enable PRINT_DEBUG_STUFF in debug/print.h
 	printf_init();

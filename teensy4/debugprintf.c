@@ -80,10 +80,8 @@ void putchar_debug(char c)
 __attribute__((section(".progmem")))
 void printf_debug_init(void)
 {
-        // turn on Serial4, run using 24 MHz clock (works if PLL3 off or bypassed)
-        CCM_CCGR0 |= CCM_CCGR0_LPUART3(CCM_CCGR_ON);
+        CCM_CCGR0 |= CCM_CCGR0_LPUART3(CCM_CCGR_ON); // turn on Serial4
         IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_06 = 2; // Arduino pin 17
-        CCM_CSCDR1 = (CCM_CSCDR1 & ~CCM_CSCDR1_UART_CLK_PODF(0x3F)) | CCM_CSCDR1_UART_CLK_SEL;
         LPUART3_BAUD = LPUART_BAUD_OSR(25) | LPUART_BAUD_SBR(8); // ~115200 baud
         LPUART3_CTRL = LPUART_CTRL_TE;
 }
