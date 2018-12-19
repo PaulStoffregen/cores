@@ -91,6 +91,7 @@ void usb_init(void)
 	PMU_REG_3P0 = PMU_REG_3P0_OUTPUT_TRG(0x0F) | PMU_REG_3P0_BO_OFFSET(6)
 		| PMU_REG_3P0_ENABLE_LINREG;
 
+	usb_init_serialnumber();
 
 	// assume PLL3 is already running - already done by usb_pll_start() in main.c
 

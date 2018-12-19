@@ -14,6 +14,7 @@ struct transfer_struct {
 };
 
 void usb_init(void);
+void usb_init_serialnumber(void);
 
 void usb_prepare_transfer(transfer_t *transfer, const void *data, uint32_t len, uint32_t param);
 void usb_transmit(int endpoint_number, transfer_t *transfer);

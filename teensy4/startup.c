@@ -63,7 +63,7 @@ void ResetHandler(void)
 	CCM_CSCDR1 = (CCM_CSCDR1 & ~CCM_CSCDR1_UART_CLK_PODF(0x3F)) | CCM_CSCDR1_UART_CLK_SEL;
 
 	// must enable PRINT_DEBUG_STUFF in debug/print.h
-	printf_init();
+	printf_debug_init();
 	printf("\n***********IMXRT Startup**********\n");
 	printf("test %d %d %d\n", 1, -1234567, 3);
 
@@ -113,7 +113,7 @@ void ResetHandler(void)
 	setup();
 	printf("after setup\n");
 	while (1) {
-		printf("loop\n");
+		//printf("loop\n");
 		loop();
 	}
 }
