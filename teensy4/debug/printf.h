@@ -6,7 +6,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-void print_debug_init(void);
+void printf_debug_init(void);
 void printf_debug(const char *format, ...);
 #ifdef __cplusplus
 }

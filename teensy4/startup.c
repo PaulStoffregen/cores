@@ -27,6 +27,7 @@ void unused_interrupt_vector(void);
 void usb_pll_start();
 extern void analog_init(void);
 extern void pwm_init(void);
+uint32_t set_arm_clock(uint32_t frequency);
 
 
 __attribute__((section(".startup")))
@@ -70,38 +71,19 @@ void ResetHandler(void)
 	configure_cache();
 	configure_systick();
 	usb_pll_start();
-#if 1
 
-	//uint32_t pll1;
-	//uint32_t n = 
-	//pll = CCM_ANALOG_PLL_ARM;
-	printf("ARM PLL = %08lX\n", CCM_ANALOG_PLL_ARM);
+	set_arm_clock(600000000);
+	//set_arm_clock(984000000); Ludicrous Speed
 
-	uint32_t cdcdr = CCM_CBCDR;
+	uint32_t armpll = CCM_ANALOG_PLL_ARM;
+	uint32_t armdiv = CCM_CACRR;
+	uint32_t cbcdr = CCM_CBCDR;
 	uint32_t cbcmr = CCM_CBCMR;
-	printf("AHB divisor = %ld\n", ((cdcdr >> 10) & 7) + 1);
-	printf("IPG divisor = %ld\n", ((cdcdr >> 8) & 3) + 1);
 
-	if (cdcdr & CCM_CBCDR_PERIPH_CLK_SEL) {
-		printf("using  periph_clk2_clk_divided\n");
-
-	} else {
-		printf("using  pre_periph_clk_sel\n");
-		uint32_t n = (cbcmr >> 19) & 3;
-		if (n == 0) {
-			printf("using PLL2\n");
-		} else if (n == 1) {
-			printf("using PLL2 PFD2\n");
-		} else if (n == 2) {
-			printf("using PLL2 PFD0\n");
-		} else {
-			printf("using PLL1\n");
-		}
-
-
-	}
-	//set_arm_clock(300000000);
-#endif
+	printf("ARM PLL = %u MHz\n", (armpll & 0x7F) * 12);
+	printf("ARM divisor = %u\n", armdiv + 1);
+	printf("AHB divisor = %u\n", ((cbcdr >> 10) & 7) + 1);
+	printf("IPG divisor = %u\n", ((cbcdr >> 8) & 3) + 1);
 
 	// TODO: wait at least 20ms before starting USB
 	usb_init();
@@ -207,35 +189,6 @@ void configure_cache(void)
 	asm("isb");
 	SCB_CCR |= (SCB_CCR_IC | SCB_CCR_DC);
 }
-
-
-uint32_t set_arm_clock(uint32_t frequency)
-{
-	if (!(CCM_CBCDR & CCM_CBCDR_PERIPH_CLK_SEL)) {
-		//print("need to switch to stable clock while reconfigure of ARM PLL\n");
-		const uint32_t need1s = CCM_ANALOG_PLL_USB1_ENABLE | CCM_ANALOG_PLL_USB1_POWER |
-			CCM_ANALOG_PLL_USB1_LOCK | CCM_ANALOG_PLL_USB1_EN_USB_CLKS;
-		if ((CCM_ANALOG_PLL_USB1 & need1s) == need1s) {
-			//print("  run temporarily from USB/4 (120 MHz)\n");
-
-		} else {
-			//print("  run temporarily from crystal (24 MHz)\n");
-
-		}
-
-	} else {
-		//print("already running from an alternate clock, ok to mess with ARM PLL\n");
-	}
-
-	// if SYS PLL running at 528 MHz
-	//	if frequency == 528
-	//	if frequency == 396
-	//	if frequency == 352
-	//
-
-	return frequency;
-}
-
 
 
 __attribute__((section(".progmem")))
