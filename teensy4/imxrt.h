@@ -1175,7 +1175,6 @@ typedef struct {
 #define CCM_CBCMR_LCDIF_PODF_MASK		((uint32_t)(0x07 << 23))
 #define CCM_CBCMR_PRE_PERIPH_CLK_SEL_MASK	((uint32_t)(0x03 << 18))
 #define CCM_CBCMR_TRACE_CLK_SEL_MASK		((uint32_t)(0x03 << 14))
-#define CCM_CBCMR_PERIPH_CLK2_SEL_MASK		((uint32_t)(0x03 << 12))
 #define CCM_CBCMR_LPSPI_CLK_SEL_MASK		((uint32_t)(0x03 << 4))
 #define CCM_CSCMR1_FLEXSPI_CLK_SEL(n)		((uint32_t)(((n) & 0x03) << 29))
 #define CCM_CSCMR1_FLEXSPI_PODF(n)		((uint32_t)(((n) & 0x07) << 23))
@@ -6552,7 +6551,20 @@ typedef struct {
 #define SRC_GPR9			(IMXRT_SRC.offset040)
 #define SRC_GPR10			(IMXRT_SRC.offset044)
 
-// 53.3: page 2986  TODO...
+// 53.3: page 2986
+#define IMXRT_TEMPMON					(*(IMXRT_REGISTER32_t *)0x400F8180)
+#define TEMPMON_TEMPSENSE0          (IMXRT_TEMPMON.offset000)
+#define TEMPMON_TEMPSENSE0_SET		(IMXRT_TEMPMON.offset004)
+#define TEMPMON_TEMPSENSE0_CLR		(IMXRT_TEMPMON.offset008)
+#define TEMPMON_TEMPSENSE0_TOG		(IMXRT_TEMPMON.offset08c)
+#define TEMPMON_TEMPSENSE1			(IMXRT_TEMPMON.offset090)
+#define TEMPMON_TEMPSENSE1_SET		(IMXRT_TEMPMON.offset094)
+#define TEMPSENSE1_CLR				(IMXRT_TEMPMON.offset098)
+#define TEMPSENSE1_TOG				(IMXRT_TEMPMON.offset09C)
+#define TEMPMON_TEMPSENSE2			(IMXRT_TEMPMON.offset100)
+#define TEMPMON_TEMPSENSE2_SET		(IMXRT_TEMPMON.offset104)
+#define TEMPMON_TEMPSENSE2_CLR		(IMXRT_TEMPMON.offset108)
+#define TEMPMON_TEMPSENSE2_TOG		(IMXRT_TEMPMON.offset10C)
 
 // 54.3: page 2998
 #define IMXRT_TSC		(*(IMXRT_REGISTER32_t *)0x400E0000)
