@@ -1,24 +1,26 @@
 #include <errno.h>
+#include "debug/printf.h"
 
-extern unsigned long _ebss;
+// from the linker script
+extern unsigned long _edmamem;
+extern unsigned long _emallocmem;
 
-char *__brkval = (char *)&_ebss; // TODO: put heap into OCRAM, not DTCM
-#define STACK_MARGIN  8192
-
+char *__brkval = (char *)&_edmamem;
 
 void * _sbrk(int incr)
 {
-        char *prev, *stack;
+	char *prev;
 
-        prev = __brkval;
-        if (incr != 0) {
-                __asm__ volatile("mov %0, sp" : "=r" (stack) ::);
-                if (prev + incr >= stack - STACK_MARGIN) {
-                        errno = ENOMEM;
-                        return (void *)-1;
-                }
-                __brkval = prev + incr;
-        }
-        return prev;
+	printf("sbrk incr = %d\n", incr);
+
+	prev = __brkval;
+	if (incr != 0) {
+		if (prev + incr > (char *)&_emallocmem) {
+			errno = ENOMEM;
+			return (void *)-1;
+		}
+		__brkval = prev + incr;
+	}
+	return prev;
 }
 
