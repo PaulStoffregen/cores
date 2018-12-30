@@ -232,6 +232,8 @@ void usb_pll_start()
 			CCM_ANALOG_PLL_USB1_SET = CCM_ANALOG_PLL_USB1_EN_USB_CLKS;
 			continue;
 		}
+		ARM_DEMCR |= ARM_DEMCR_TRCENA;
+  		ARM_DWT_CTRL |= ARM_DWT_CTRL_CYCCNTENA; // turn on cycle counter
 		return; // everything is as it should be  :-)
 	}
 }
