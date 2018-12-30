@@ -1548,6 +1548,9 @@ typedef struct {
 #define DMAMUX_CHCFG29			(IMXRT_DMAMUX.offset074)
 #define DMAMUX_CHCFG30			(IMXRT_DMAMUX.offset078)
 #define DMAMUX_CHCFG31			(IMXRT_DMAMUX.offset07C)
+#define DMAMUX_CHCFG_ENBL			((uint32_t)(1<<31))
+#define DMAMUX_CHCFG_TRIG			((uint32_t)(1<<30))
+#define DMAMUX_CHCFG_A_ON			((uint32_t)(1<<29))
 
 // 22.3.5.1: page 864
 typedef struct {
@@ -1609,6 +1612,7 @@ typedef struct {
 	volatile uint8_t DCHPRI29;
 	volatile uint8_t DCHPRI28;
 } IMXRT_DMA_t;
+
 typedef struct {
 	volatile const void * volatile SADDR;
 	int16_t SOFF;
@@ -1690,6 +1694,43 @@ typedef struct {
 #define DMA_DCHPRI30			(IMXRT_DMA.DCHPRI30)
 #define DMA_DCHPRI29			(IMXRT_DMA.DCHPRI29)
 #define DMA_DCHPRI28			(IMXRT_DMA.DCHPRI28)
+
+#define DMA_CR_ACTIVE                   ((uint32_t)(1<<31))     // 1=DMA is executing
+#define DMA_CR_CX                       ((uint32_t)(1<<17))     // Cancel Transfer
+#define DMA_CR_ECX                      ((uint32_t)(1<<16))     // Error Cancel Transfer
+#define DMA_CR_GRP1PRI                  ((uint32_t)(1<<10))
+#define DMA_CR_GRP0PRI                  ((uint32_t)(1<<8))
+#define DMA_CR_EMLM                     ((uint32_t)(1<<7))      // Enable Minor Loop Mapping
+#define DMA_CR_CLM                      ((uint32_t)(1<<6))      // Continuous Link Mode
+#define DMA_CR_HALT                     ((uint32_t)(1<<5))      // Halt DMA Operations
+#define DMA_CR_HOE                      ((uint32_t)(1<<4))      // Halt On Error
+#define DMA_CR_ERGA                     ((uint32_t)(1<<3))      // Enable Round Robin Group Arb
+#define DMA_CR_ERCA                     ((uint32_t)(1<<2))      // Enable Round Robin Channel Arb
+#define DMA_CR_EDBG                     ((uint32_t)(1<<1))      // Enable Debug
+#define DMA_CEEI_CEEI(n)                ((uint8_t)(n & 0x1F))   // Clear Enable Error Interrupt
+#define DMA_CEEI_CAEE                   ((uint8_t)1<<6)         // Clear All Enable Error Interrupts
+#define DMA_CEEI_NOP                    ((uint8_t)1<<7)         // NOP
+#define DMA_SEEI_SEEI(n)                ((uint8_t)(n & 0x1F))   // Set Enable Error Interrupt
+#define DMA_SEEI_SAEE                   ((uint8_t)1<<6)         // Set All Enable Error Interrupts
+#define DMA_SEEI_NOP                    ((uint8_t)1<<7)         // NOP
+#define DMA_CERQ_CERQ(n)                ((uint8_t)(n & 0x1F))   // Clear Enable Request
+#define DMA_CERQ_CAER                   ((uint8_t)1<<6)         // Clear All Enable Requests
+#define DMA_CERQ_NOP                    ((uint8_t)1<<7)         // NOP
+#define DMA_SERQ_SERQ(n)                ((uint8_t)(n & 0x1F))   // Set Enable Request
+#define DMA_SERQ_SAER                   ((uint8_t)1<<6)         // Set All Enable Requests
+#define DMA_SERQ_NOP                    ((uint8_t)1<<7)         // NOP
+#define DMA_CDNE_CDNE(n)                ((uint8_t)(n & 0x1F))   // Clear Done Bit
+#define DMA_CDNE_CADN                   ((uint8_t)1<<6)         // Clear All Done Bits
+#define DMA_CDNE_NOP                    ((uint8_t)1<<7)         // NOP
+#define DMA_SSRT_SSRT(n)                ((uint8_t)(n & 0x1F))   // Set Start Bit
+#define DMA_SSRT_SAST                   ((uint8_t)1<<6)         // Set All Start Bits
+#define DMA_SSRT_NOP                    ((uint8_t)1<<7)         // NOP
+#define DMA_CERR_CERR(n)                ((uint8_t)(n & 0x1F))   // Clear Error Indicator
+#define DMA_CERR_CAEI                   ((uint8_t)1<<6)         // Clear All Error Indicators
+#define DMA_CERR_NOP                    ((uint8_t)1<<7)         // NOP
+#define DMA_CINT_CINT(n)                ((uint8_t)(n & 0x1F))   // Clear Interrupt Request
+#define DMA_CINT_CAIR                   ((uint8_t)1<<6)         // Clear All Interrupt Requests
+#define DMA_CINT_NOP                    ((uint8_t)1<<7)         // NOP
 
 #define IMXRT_DMA_TCD		((IMXRT_DMA_TCD_t *)0x400E9000)
 #define DMA_TCD0_SADDR			(IMXRT_DMA_TCD[0].SADDR)
@@ -2299,6 +2340,49 @@ typedef struct {
 #define DMA_TCD31_BITER			(IMXRT_DMA_TCD[31].BITER)
 #define DMA_TCD31_BITER_ELINKYES	(IMXRT_DMA_TCD[31].BITER_ELINKYES)
 #define DMA_TCD31_BITER_ELINKNO		(IMXRT_DMA_TCD[31].BITER_ELINKNO)
+
+// TODO: double check these defines from Teensy 3.x are still correct for IMXRT
+#define DMA_TCD_ATTR_SMOD(n)            (((n) & 0x1F) << 11)
+#define DMA_TCD_ATTR_SSIZE(n)           (((n) & 0x7) << 8)
+#define DMA_TCD_ATTR_DMOD(n)            (((n) & 0x1F) << 3)
+#define DMA_TCD_ATTR_DSIZE(n)           (((n) & 0x7) << 0)
+#define DMA_TCD_ATTR_SIZE_8BIT          0
+#define DMA_TCD_ATTR_SIZE_16BIT         1
+#define DMA_TCD_ATTR_SIZE_32BIT         2
+#define DMA_TCD_ATTR_SIZE_16BYTE        4
+#define DMA_TCD_ATTR_SIZE_32BYTE        5 // caution: this might not be supported in newer chips?
+#define DMA_TCD_CSR_BWC(n)              (((n) & 0x3) << 14)
+#define DMA_TCD_CSR_BWC_MASK            0xC000
+#define DMA_TCD_CSR_MAJORLINKCH(n)      (((n) & 0xF) << 8)
+#define DMA_TCD_CSR_MAJORLINKCH_MASK    0x0F00
+#define DMA_TCD_CSR_DONE                0x0080
+#define DMA_TCD_CSR_ACTIVE              0x0040
+#define DMA_TCD_CSR_MAJORELINK          0x0020
+#define DMA_TCD_CSR_ESG                 0x0010
+#define DMA_TCD_CSR_DREQ                0x0008
+#define DMA_TCD_CSR_INTHALF             0x0004
+#define DMA_TCD_CSR_INTMAJOR            0x0002
+#define DMA_TCD_CSR_START               0x0001
+#define DMA_TCD_CITER_MASK              ((uint16_t)0x7FFF)         // Loop count mask
+#define DMA_TCD_CITER_ELINK             ((uint16_t)1<<15)          // Enable channel linking on minor-loop complete
+#define DMA_TCD_BITER_MASK              ((uint16_t)0x7FFF)         // Loop count mask
+#define DMA_TCD_BITER_ELINK             ((uint16_t)1<<15)          // Enable channel linking on minor-loop complete
+#define DMA_TCD_BITER_ELINKYES_ELINK            0x8000
+#define DMA_TCD_BITER_ELINKYES_LINKCH(n)        (((n) & 0xF) << 9)
+#define DMA_TCD_BITER_ELINKYES_LINKCH_MASK      0x1E00
+#define DMA_TCD_BITER_ELINKYES_BITER(n)         (((n) & 0x1FF) << 0)
+#define DMA_TCD_BITER_ELINKYES_BITER_MASK       0x01FF
+#define DMA_TCD_CITER_ELINKYES_ELINK            0x8000
+#define DMA_TCD_CITER_ELINKYES_LINKCH(n)        (((n) & 0xF) << 9)
+#define DMA_TCD_CITER_ELINKYES_LINKCH_MASK      0x1E00
+#define DMA_TCD_CITER_ELINKYES_CITER(n)         (((n) & 0x1FF) << 0)
+#define DMA_TCD_CITER_ELINKYES_CITER_MASK       0x01FF
+#define DMA_TCD_NBYTES_SMLOE                ((uint32_t)1<<31)               // Source Minor Loop Offset Enable
+#define DMA_TCD_NBYTES_DMLOE                ((uint32_t)1<<30)               // Destination Minor Loop Offset Enable
+#define DMA_TCD_NBYTES_MLOFFNO_NBYTES(n)    ((uint32_t)((n) & 0x3FFFFFFF))  // NBytes transfer count when minor loop disabled
+#define DMA_TCD_NBYTES_MLOFFYES_NBYTES(n)   ((uint32_t)((n) & 0x3FF))       // NBytes transfer count when minor loop enabled
+#define DMA_TCD_NBYTES_MLOFFYES_MLOFF(n)    ((uint32_t)((n) & 0xFFFFF)<<10) // Minor loop offset
+
 
 // 23.7.1: page 1023
 #define IMXRT_ENC1		(*(IMXRT_REGISTER16_t *)0x403C8000)
