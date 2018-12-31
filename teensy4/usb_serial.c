@@ -215,7 +215,7 @@ int usb_serial_write(const void *buffer, uint32_t size)
 	// TODO: do something so much better that this quick hack....
 	if (size > sizeof(txbuffer)) size = sizeof(txbuffer);
 	int count=0;
-	digitalWriteFast(13, HIGH);
+	//digitalWriteFast(13, HIGH);
 	while (1) {
 		uint32_t status = (volatile)(transfer.status);
 		if (count > 10) printf("status = %x\n", status);
@@ -225,7 +225,7 @@ int usb_serial_write(const void *buffer, uint32_t size)
 		// TODO: check for USB offline
 		delayMicroseconds(5); // polling too quickly seem to block DMA - maybe DTCM issue?
 	}
-	digitalWriteFast(13, LOW);
+	//digitalWriteFast(13, LOW);
 	delayMicroseconds(1); // TODO: this must not be the answer!
 	memcpy(txbuffer, buffer, size);
 	usb_prepare_transfer(&transfer, txbuffer, size, 0);

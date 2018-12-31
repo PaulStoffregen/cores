@@ -39,10 +39,10 @@ void ResetHandler(void)
 	//__asm__ volatile("mov sp, %0" : : "r" (0x20010000) : );
 
 	// pin 13 - if startup crashes, use this to turn on the LED early for troubleshooting
-	IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_03 = 5;
-	IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_03 = IOMUXC_PAD_DSE(7);
-	GPIO2_GDIR |= (1<<3);
-	GPIO2_DR_SET = (1<<3);
+	//IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_03 = 5;
+	//IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_03 = IOMUXC_PAD_DSE(7);
+	//GPIO2_GDIR |= (1<<3);
+	//GPIO2_DR_SET = (1<<3); // digitalWrite(13, HIGH);
 
 	// Initialize memory
 	memory_copy(&_stext, &_stextload, &_etext);
