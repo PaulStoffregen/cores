@@ -53,7 +53,8 @@ void ResetHandler(void)
 	SCB_CPACR = 0x00F00000;
 
 	// set up blank interrupt & exception vector table
-	for (i=0; i < 176; i++) _VectorsRam[i] = &unused_interrupt_vector;
+	for (i=0; i < NVIC_NUM_INTERRUPTS + 16; i++) _VectorsRam[i] = &unused_interrupt_vector;
+	for (i=0; i < NVIC_NUM_INTERRUPTS; i++) NVIC_SET_PRIORITY(i, 128);
 	SCB_VTOR = (uint32_t)_VectorsRam;
 
 	// Configure clocks
