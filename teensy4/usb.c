@@ -334,8 +334,8 @@ static void endpoint0_setup(uint64_t setupdata)
 		}
 		break;
 	  case 0x2221: // CDC_SET_CONTROL_LINE_STATE
-		//usb_cdc_line_rtsdtr_millis = systick_millis_count;
-		//usb_cdc_line_rtsdtr = setup.wValue;
+		usb_cdc_line_rtsdtr_millis = systick_millis_count;
+		usb_cdc_line_rtsdtr = setup.wValue;
 	  case 0x2321: // CDC_SEND_BREAK
 		endpoint0_receive(NULL, 0, 0);
 		return;

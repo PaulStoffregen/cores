@@ -212,6 +212,7 @@ static uint8_t txbuffer[1024];
 
 int usb_serial_write(const void *buffer, uint32_t size)
 {
+	if (!usb_configuration) return 0;
 	// TODO: do something so much better that this quick hack....
 	if (size > sizeof(txbuffer)) size = sizeof(txbuffer);
 	int count=0;
