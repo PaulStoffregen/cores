@@ -6655,7 +6655,7 @@ These register are used by the ROM code and should not be used by application so
 #define SRC_SBMR2_SEC_CONFIG(n)		((uint32_t)(((n) & 0x03) << 0))
 
 // 53.3: page 2986
-#define IMXRT_TEMPMON		(*(IMXRT_REGISTER32_t *)0x400F8180)
+#define IMXRT_TEMPMON		(*(IMXRT_REGISTER32_t *)0x400D8180)
 #define TEMPMON_TEMPSENSE0          	(IMXRT_TEMPMON.offset000)
 #define TEMPMON_TEMPSENSE0_SET		(IMXRT_TEMPMON.offset004)
 #define TEMPMON_TEMPSENSE0_CLR		(IMXRT_TEMPMON.offset008)
