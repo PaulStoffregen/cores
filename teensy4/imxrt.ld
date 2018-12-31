@@ -73,6 +73,9 @@ SECTIONS
 	_sbss = ADDR(.bss);
 	_ebss = ADDR(.bss) + SIZEOF(.bss);
 
+	_heap_start = ADDR(.bss.dma) + SIZEOF(.bss.dma);
+	_heap_end = ORIGIN(RAM) + LENGTH(RAM);
+
 	_flashimagelen = SIZEOF(.text.progmem) + SIZEOF(.text) + SIZEOF(.data);
 	_teensy_model_identifier = 0x23;
 

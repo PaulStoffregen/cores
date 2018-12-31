@@ -334,6 +334,7 @@ void MillisTimer::runFromTimer()
 // code will run at lower interrupt priority for better compatibility
 // with libraries using mid-to-high priority interrupts.
 
+// TODO: this doesn't work for IMXRT - no longer using predefined names
 extern "C" volatile uint32_t systick_millis_count;
 void systick_isr(void)
 {

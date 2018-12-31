@@ -1548,6 +1548,9 @@ typedef struct {
 #define DMAMUX_CHCFG29			(IMXRT_DMAMUX.offset074)
 #define DMAMUX_CHCFG30			(IMXRT_DMAMUX.offset078)
 #define DMAMUX_CHCFG31			(IMXRT_DMAMUX.offset07C)
+#define DMAMUX_CHCFG_ENBL			((uint32_t)(1<<31))
+#define DMAMUX_CHCFG_TRIG			((uint32_t)(1<<30))
+#define DMAMUX_CHCFG_A_ON			((uint32_t)(1<<29))
 
 // 22.3.5.1: page 864
 typedef struct {
@@ -1609,6 +1612,7 @@ typedef struct {
 	volatile uint8_t DCHPRI29;
 	volatile uint8_t DCHPRI28;
 } IMXRT_DMA_t;
+
 typedef struct {
 	volatile const void * volatile SADDR;
 	int16_t SOFF;
@@ -1690,6 +1694,43 @@ typedef struct {
 #define DMA_DCHPRI30			(IMXRT_DMA.DCHPRI30)
 #define DMA_DCHPRI29			(IMXRT_DMA.DCHPRI29)
 #define DMA_DCHPRI28			(IMXRT_DMA.DCHPRI28)
+
+#define DMA_CR_ACTIVE                   ((uint32_t)(1<<31))     // 1=DMA is executing
+#define DMA_CR_CX                       ((uint32_t)(1<<17))     // Cancel Transfer
+#define DMA_CR_ECX                      ((uint32_t)(1<<16))     // Error Cancel Transfer
+#define DMA_CR_GRP1PRI                  ((uint32_t)(1<<10))
+#define DMA_CR_GRP0PRI                  ((uint32_t)(1<<8))
+#define DMA_CR_EMLM                     ((uint32_t)(1<<7))      // Enable Minor Loop Mapping
+#define DMA_CR_CLM                      ((uint32_t)(1<<6))      // Continuous Link Mode
+#define DMA_CR_HALT                     ((uint32_t)(1<<5))      // Halt DMA Operations
+#define DMA_CR_HOE                      ((uint32_t)(1<<4))      // Halt On Error
+#define DMA_CR_ERGA                     ((uint32_t)(1<<3))      // Enable Round Robin Group Arb
+#define DMA_CR_ERCA                     ((uint32_t)(1<<2))      // Enable Round Robin Channel Arb
+#define DMA_CR_EDBG                     ((uint32_t)(1<<1))      // Enable Debug
+#define DMA_CEEI_CEEI(n)                ((uint8_t)(n & 0x1F))   // Clear Enable Error Interrupt
+#define DMA_CEEI_CAEE                   ((uint8_t)1<<6)         // Clear All Enable Error Interrupts
+#define DMA_CEEI_NOP                    ((uint8_t)1<<7)         // NOP
+#define DMA_SEEI_SEEI(n)                ((uint8_t)(n & 0x1F))   // Set Enable Error Interrupt
+#define DMA_SEEI_SAEE                   ((uint8_t)1<<6)         // Set All Enable Error Interrupts
+#define DMA_SEEI_NOP                    ((uint8_t)1<<7)         // NOP
+#define DMA_CERQ_CERQ(n)                ((uint8_t)(n & 0x1F))   // Clear Enable Request
+#define DMA_CERQ_CAER                   ((uint8_t)1<<6)         // Clear All Enable Requests
+#define DMA_CERQ_NOP                    ((uint8_t)1<<7)         // NOP
+#define DMA_SERQ_SERQ(n)                ((uint8_t)(n & 0x1F))   // Set Enable Request
+#define DMA_SERQ_SAER                   ((uint8_t)1<<6)         // Set All Enable Requests
+#define DMA_SERQ_NOP                    ((uint8_t)1<<7)         // NOP
+#define DMA_CDNE_CDNE(n)                ((uint8_t)(n & 0x1F))   // Clear Done Bit
+#define DMA_CDNE_CADN                   ((uint8_t)1<<6)         // Clear All Done Bits
+#define DMA_CDNE_NOP                    ((uint8_t)1<<7)         // NOP
+#define DMA_SSRT_SSRT(n)                ((uint8_t)(n & 0x1F))   // Set Start Bit
+#define DMA_SSRT_SAST                   ((uint8_t)1<<6)         // Set All Start Bits
+#define DMA_SSRT_NOP                    ((uint8_t)1<<7)         // NOP
+#define DMA_CERR_CERR(n)                ((uint8_t)(n & 0x1F))   // Clear Error Indicator
+#define DMA_CERR_CAEI                   ((uint8_t)1<<6)         // Clear All Error Indicators
+#define DMA_CERR_NOP                    ((uint8_t)1<<7)         // NOP
+#define DMA_CINT_CINT(n)                ((uint8_t)(n & 0x1F))   // Clear Interrupt Request
+#define DMA_CINT_CAIR                   ((uint8_t)1<<6)         // Clear All Interrupt Requests
+#define DMA_CINT_NOP                    ((uint8_t)1<<7)         // NOP
 
 #define IMXRT_DMA_TCD		((IMXRT_DMA_TCD_t *)0x400E9000)
 #define DMA_TCD0_SADDR			(IMXRT_DMA_TCD[0].SADDR)
@@ -2299,6 +2340,49 @@ typedef struct {
 #define DMA_TCD31_BITER			(IMXRT_DMA_TCD[31].BITER)
 #define DMA_TCD31_BITER_ELINKYES	(IMXRT_DMA_TCD[31].BITER_ELINKYES)
 #define DMA_TCD31_BITER_ELINKNO		(IMXRT_DMA_TCD[31].BITER_ELINKNO)
+
+// TODO: double check these defines from Teensy 3.x are still correct for IMXRT
+#define DMA_TCD_ATTR_SMOD(n)            (((n) & 0x1F) << 11)
+#define DMA_TCD_ATTR_SSIZE(n)           (((n) & 0x7) << 8)
+#define DMA_TCD_ATTR_DMOD(n)            (((n) & 0x1F) << 3)
+#define DMA_TCD_ATTR_DSIZE(n)           (((n) & 0x7) << 0)
+#define DMA_TCD_ATTR_SIZE_8BIT          0
+#define DMA_TCD_ATTR_SIZE_16BIT         1
+#define DMA_TCD_ATTR_SIZE_32BIT         2
+#define DMA_TCD_ATTR_SIZE_16BYTE        4
+#define DMA_TCD_ATTR_SIZE_32BYTE        5 // caution: this might not be supported in newer chips?
+#define DMA_TCD_CSR_BWC(n)              (((n) & 0x3) << 14)
+#define DMA_TCD_CSR_BWC_MASK            0xC000
+#define DMA_TCD_CSR_MAJORLINKCH(n)      (((n) & 0xF) << 8)
+#define DMA_TCD_CSR_MAJORLINKCH_MASK    0x0F00
+#define DMA_TCD_CSR_DONE                0x0080
+#define DMA_TCD_CSR_ACTIVE              0x0040
+#define DMA_TCD_CSR_MAJORELINK          0x0020
+#define DMA_TCD_CSR_ESG                 0x0010
+#define DMA_TCD_CSR_DREQ                0x0008
+#define DMA_TCD_CSR_INTHALF             0x0004
+#define DMA_TCD_CSR_INTMAJOR            0x0002
+#define DMA_TCD_CSR_START               0x0001
+#define DMA_TCD_CITER_MASK              ((uint16_t)0x7FFF)         // Loop count mask
+#define DMA_TCD_CITER_ELINK             ((uint16_t)1<<15)          // Enable channel linking on minor-loop complete
+#define DMA_TCD_BITER_MASK              ((uint16_t)0x7FFF)         // Loop count mask
+#define DMA_TCD_BITER_ELINK             ((uint16_t)1<<15)          // Enable channel linking on minor-loop complete
+#define DMA_TCD_BITER_ELINKYES_ELINK            0x8000
+#define DMA_TCD_BITER_ELINKYES_LINKCH(n)        (((n) & 0xF) << 9)
+#define DMA_TCD_BITER_ELINKYES_LINKCH_MASK      0x1E00
+#define DMA_TCD_BITER_ELINKYES_BITER(n)         (((n) & 0x1FF) << 0)
+#define DMA_TCD_BITER_ELINKYES_BITER_MASK       0x01FF
+#define DMA_TCD_CITER_ELINKYES_ELINK            0x8000
+#define DMA_TCD_CITER_ELINKYES_LINKCH(n)        (((n) & 0xF) << 9)
+#define DMA_TCD_CITER_ELINKYES_LINKCH_MASK      0x1E00
+#define DMA_TCD_CITER_ELINKYES_CITER(n)         (((n) & 0x1FF) << 0)
+#define DMA_TCD_CITER_ELINKYES_CITER_MASK       0x01FF
+#define DMA_TCD_NBYTES_SMLOE                ((uint32_t)1<<31)               // Source Minor Loop Offset Enable
+#define DMA_TCD_NBYTES_DMLOE                ((uint32_t)1<<30)               // Destination Minor Loop Offset Enable
+#define DMA_TCD_NBYTES_MLOFFNO_NBYTES(n)    ((uint32_t)((n) & 0x3FFFFFFF))  // NBytes transfer count when minor loop disabled
+#define DMA_TCD_NBYTES_MLOFFYES_NBYTES(n)   ((uint32_t)((n) & 0x3FF))       // NBytes transfer count when minor loop enabled
+#define DMA_TCD_NBYTES_MLOFFYES_MLOFF(n)    ((uint32_t)((n) & 0xFFFFF)<<10) // Minor loop offset
+
 
 // 23.7.1: page 1023
 #define IMXRT_ENC1		(*(IMXRT_REGISTER16_t *)0x403C8000)
@@ -5127,172 +5211,166 @@ typedef struct {
 #define LCDIF_PIGEON_11_2		(IMXRT_LCDIF_b.offset2E0)
 
 // 37.4: page 2371
-#if 0
 typedef struct {
 	const uint32_t VERID;
 	const uint32_t PARAM;
 	const uint32_t unused1;
 	const uint32_t unused2;
-	volatile uint32_t MCR;			(IMXRT_LPI2C1.offset010)
-	volatile uint32_t MSR;			(IMXRT_LPI2C1.offset014)
-	volatile uint32_t MIER;			(IMXRT_LPI2C1.offset018)
-	volatile uint32_t MDER;			(IMXRT_LPI2C1.offset01C)
-	volatile uint32_t MCFGR0;			(IMXRT_LPI2C1.offset020)
-	volatile uint32_t MCFGR1;			(IMXRT_LPI2C1.offset024)
-	volatile uint32_t MCFGR2;			(IMXRT_LPI2C1.offset028)
-	volatile uint32_t MCFGR3;			(IMXRT_LPI2C1.offset02C)
+	volatile uint32_t MCR;			// 010
+	volatile uint32_t MSR;			// 014
+	volatile uint32_t MIER;			// 018
+	volatile uint32_t MDER;			// 01C
+	volatile uint32_t MCFGR0;		// 020
+	volatile uint32_t MCFGR1;		// 024
+	volatile uint32_t MCFGR2;		// 028
+	volatile uint32_t MCFGR3;		// 02C
 	volatile uint32_t unused3[4];
-	volatile uint32_t MDMR;			(IMXRT_LPI2C1.offset040)
+	volatile uint32_t MDMR;			// 040
 	volatile uint32_t unused4;
-	volatile uint32_t MCCR0	;		(IMXRT_LPI2C1.offset048)
-	volatile uint32_t unused4;
-	volatile uint32_t MCCR1;			(IMXRT_LPI2C1.offset050)
-	volatile uint32_t unused4;
-	volatile uint32_t MFCR;			(IMXRT_LPI2C1.offset058)
-	volatile uint32_t MFSR;			(IMXRT_LPI2C1.offset05C)
-	volatile uint32_t MTDR;			(IMXRT_LPI2C1.offset060)
-	volatile uint32_t unused4[3];
-	volatile uint32_t MRDR;			(IMXRT_LPI2C1.offset070)
-	volatile uint32_t unused4[39];
-	volatile uint32_t SCR;			(IMXRT_LPI2C1.offset110)
-	volatile uint32_t SSR;			(IMXRT_LPI2C1.offset114)
-	volatile uint32_t SIER;			(IMXRT_LPI2C1.offset118)
-	volatile uint32_t SDER;			(IMXRT_LPI2C1.offset11C)
-	volatile uint32_t unused4;
-	volatile uint32_t SCFGR1;			(IMXRT_LPI2C1.offset124)
-	volatile uint32_t SCFGR2;			(IMXRT_LPI2C1.offset128)
-	volatile uint32_t unused4[5];
-	volatile uint32_t SAMR;			(IMXRT_LPI2C1.offset140)
-	volatile uint32_t unused4[3];
-	volatile uint32_t SASR;			(IMXRT_LPI2C1.offset150)
-	volatile uint32_t unused4[3];
-	volatile uint32_t STAR;			(IMXRT_LPI2C1.offset154)
-	volatile uint32_t unused4[3];
-	volatile uint32_t STDR;			(IMXRT_LPI2C1.offset160)
-	volatile uint32_t unused4[3];
-	volatile uint32_t SRDR;			(IMXRT_LPI2C1.offset170)
+	volatile uint32_t MCCR0;		// 048
+	volatile uint32_t unused5;
+	volatile uint32_t MCCR1;		// 050
+	volatile uint32_t unused6;
+	volatile uint32_t MFCR;			// 058
+	volatile uint32_t MFSR;			// 05C
+	volatile uint32_t MTDR;			// 060
+	volatile uint32_t unused7[3];
+	volatile uint32_t MRDR;			// 070
+	volatile uint32_t unused8[39];
+	volatile uint32_t SCR;			// 110
+	volatile uint32_t SSR;			// 114
+	volatile uint32_t SIER;			// 118
+	volatile uint32_t SDER;			// 11C
+	volatile uint32_t unused9;
+	volatile uint32_t SCFGR1;		// 124
+	volatile uint32_t SCFGR2;		// 128
+	volatile uint32_t unused10[5];
+	volatile uint32_t SAMR;			// 140
+	volatile uint32_t unused11[3];
+	volatile uint32_t SASR;			// 150
+	volatile uint32_t unused12[3];
+	volatile uint32_t STAR;			// 154
+	volatile uint32_t unused13[3];
+	volatile uint32_t STDR;			// 160
+	volatile uint32_t unused14[3];
+	volatile uint32_t SRDR;			// 170
 } IMXRT_LPI2C_t;
 #define IMXRT_LPI2C1		(*(IMXRT_LPI2C_t *)0x403F0000)
-
-#else
-
-#define IMXRT_LPI2C1		(*(IMXRT_REGISTER32_t *)0x403F0000)
-#define LPI2C1_VERID			(IMXRT_LPI2C1.offset000)
-#define LPI2C1_PARAM			(IMXRT_LPI2C1.offset004)
-#define LPI2C1_MCR			(IMXRT_LPI2C1.offset010)
-#define LPI2C1_MSR			(IMXRT_LPI2C1.offset014)
-#define LPI2C1_MIER			(IMXRT_LPI2C1.offset018)
-#define LPI2C1_MDER			(IMXRT_LPI2C1.offset01C)
-#define LPI2C1_MCFGR0			(IMXRT_LPI2C1.offset020)
-#define LPI2C1_MCFGR1			(IMXRT_LPI2C1.offset024)
-#define LPI2C1_MCFGR2			(IMXRT_LPI2C1.offset028)
-#define LPI2C1_MCFGR3			(IMXRT_LPI2C1.offset02C)
-#define LPI2C1_MDMR			(IMXRT_LPI2C1.offset040)
-#define LPI2C1_MCCR0			(IMXRT_LPI2C1.offset048)
-#define LPI2C1_MCCR1			(IMXRT_LPI2C1.offset050)
-#define LPI2C1_MFCR			(IMXRT_LPI2C1.offset058)
-#define LPI2C1_MFSR			(IMXRT_LPI2C1.offset05C)
-#define LPI2C1_MTDR			(IMXRT_LPI2C1.offset060)
-#define LPI2C1_MRDR			(IMXRT_LPI2C1.offset070)
-#define LPI2C1_SCR			(IMXRT_LPI2C1.offset110)
-#define LPI2C1_SSR			(IMXRT_LPI2C1.offset114)
-#define LPI2C1_SIER			(IMXRT_LPI2C1.offset118)
-#define LPI2C1_SDER			(IMXRT_LPI2C1.offset11C)
-#define LPI2C1_SCFGR1			(IMXRT_LPI2C1.offset124)
-#define LPI2C1_SCFGR2			(IMXRT_LPI2C1.offset128)
-#define LPI2C1_SAMR			(IMXRT_LPI2C1.offset140)
-#define LPI2C1_SASR			(IMXRT_LPI2C1.offset150)
-#define LPI2C1_STAR			(IMXRT_LPI2C1.offset154)
-#define LPI2C1_STDR			(IMXRT_LPI2C1.offset160)
-#define LPI2C1_SRDR			(IMXRT_LPI2C1.offset170)
-#define IMXRT_LPI2C2		(*(IMXRT_REGISTER32_t *)0x403F4000)
-#define LPI2C2_VERID			(IMXRT_LPI2C2.offset000)
-#define LPI2C2_PARAM			(IMXRT_LPI2C2.offset004)
-#define LPI2C2_MCR			(IMXRT_LPI2C2.offset010)
-#define LPI2C2_MSR			(IMXRT_LPI2C2.offset014)
-#define LPI2C2_MIER			(IMXRT_LPI2C2.offset018)
-#define LPI2C2_MDER			(IMXRT_LPI2C2.offset01C)
-#define LPI2C2_MCFGR0			(IMXRT_LPI2C2.offset020)
-#define LPI2C2_MCFGR1			(IMXRT_LPI2C2.offset024)
-#define LPI2C2_MCFGR2			(IMXRT_LPI2C2.offset028)
-#define LPI2C2_MCFGR3			(IMXRT_LPI2C2.offset02C)
-#define LPI2C2_MDMR			(IMXRT_LPI2C2.offset040)
-#define LPI2C2_MCCR0			(IMXRT_LPI2C2.offset048)
-#define LPI2C2_MCCR1			(IMXRT_LPI2C2.offset050)
-#define LPI2C2_MFCR			(IMXRT_LPI2C2.offset058)
-#define LPI2C2_MFSR			(IMXRT_LPI2C2.offset05C)
-#define LPI2C2_MTDR			(IMXRT_LPI2C2.offset060)
-#define LPI2C2_MRDR			(IMXRT_LPI2C2.offset070)
-#define LPI2C2_SCR			(IMXRT_LPI2C2.offset110)
-#define LPI2C2_SSR			(IMXRT_LPI2C2.offset114)
-#define LPI2C2_SIER			(IMXRT_LPI2C2.offset118)
-#define LPI2C2_SDER			(IMXRT_LPI2C2.offset11C)
-#define LPI2C2_SCFGR1			(IMXRT_LPI2C2.offset124)
-#define LPI2C2_SCFGR2			(IMXRT_LPI2C2.offset128)
-#define LPI2C2_SAMR			(IMXRT_LPI2C2.offset140)
-#define LPI2C2_SASR			(IMXRT_LPI2C2.offset150)
-#define LPI2C2_STAR			(IMXRT_LPI2C2.offset154)
-#define LPI2C2_STDR			(IMXRT_LPI2C2.offset160)
-#define LPI2C2_SRDR			(IMXRT_LPI2C2.offset170)
-#define IMXRT_LPI2C3		(*(IMXRT_REGISTER32_t *)0x403F8000)
-#define LPI2C3_VERID			(IMXRT_LPI2C3.offset000)
-#define LPI2C3_PARAM			(IMXRT_LPI2C3.offset004)
-#define LPI2C3_MCR			(IMXRT_LPI2C3.offset010)
-#define LPI2C3_MSR			(IMXRT_LPI2C3.offset014)
-#define LPI2C3_MIER			(IMXRT_LPI2C3.offset018)
-#define LPI2C3_MDER			(IMXRT_LPI2C3.offset01C)
-#define LPI2C3_MCFGR0			(IMXRT_LPI2C3.offset020)
-#define LPI2C3_MCFGR1			(IMXRT_LPI2C3.offset024)
-#define LPI2C3_MCFGR2			(IMXRT_LPI2C3.offset028)
-#define LPI2C3_MCFGR3			(IMXRT_LPI2C3.offset02C)
-#define LPI2C3_MDMR			(IMXRT_LPI2C3.offset040)
-#define LPI2C3_MCCR0			(IMXRT_LPI2C3.offset048)
-#define LPI2C3_MCCR1			(IMXRT_LPI2C3.offset050)
-#define LPI2C3_MFCR			(IMXRT_LPI2C3.offset058)
-#define LPI2C3_MFSR			(IMXRT_LPI2C3.offset05C)
-#define LPI2C3_MTDR			(IMXRT_LPI2C3.offset060)
-#define LPI2C3_MRDR			(IMXRT_LPI2C3.offset070)
-#define LPI2C3_SCR			(IMXRT_LPI2C3.offset110)
-#define LPI2C3_SSR			(IMXRT_LPI2C3.offset114)
-#define LPI2C3_SIER			(IMXRT_LPI2C3.offset118)
-#define LPI2C3_SDER			(IMXRT_LPI2C3.offset11C)
-#define LPI2C3_SCFGR1			(IMXRT_LPI2C3.offset124)
-#define LPI2C3_SCFGR2			(IMXRT_LPI2C3.offset128)
-#define LPI2C3_SAMR			(IMXRT_LPI2C3.offset140)
-#define LPI2C3_SASR			(IMXRT_LPI2C3.offset150)
-#define LPI2C3_STAR			(IMXRT_LPI2C3.offset154)
-#define LPI2C3_STDR			(IMXRT_LPI2C3.offset160)
-#define LPI2C3_SRDR			(IMXRT_LPI2C3.offset170)
-#define IMXRT_LPI2C4		(*(IMXRT_REGISTER32_t *)0x403FC000)
-#define LPI2C4_VERID			(IMXRT_LPI2C4.offset000)
-#define LPI2C4_PARAM			(IMXRT_LPI2C4.offset004)
-#define LPI2C4_MCR			(IMXRT_LPI2C4.offset010)
-#define LPI2C4_MSR			(IMXRT_LPI2C4.offset014)
-#define LPI2C4_MIER			(IMXRT_LPI2C4.offset018)
-#define LPI2C4_MDER			(IMXRT_LPI2C4.offset01C)
-#define LPI2C4_MCFGR0			(IMXRT_LPI2C4.offset020)
-#define LPI2C4_MCFGR1			(IMXRT_LPI2C4.offset024)
-#define LPI2C4_MCFGR2			(IMXRT_LPI2C4.offset028)
-#define LPI2C4_MCFGR3			(IMXRT_LPI2C4.offset02C)
-#define LPI2C4_MDMR			(IMXRT_LPI2C4.offset040)
-#define LPI2C4_MCCR0			(IMXRT_LPI2C4.offset048)
-#define LPI2C4_MCCR1			(IMXRT_LPI2C4.offset050)
-#define LPI2C4_MFCR			(IMXRT_LPI2C4.offset058)
-#define LPI2C4_MFSR			(IMXRT_LPI2C4.offset05C)
-#define LPI2C4_MTDR			(IMXRT_LPI2C4.offset060)
-#define LPI2C4_MRDR			(IMXRT_LPI2C4.offset070)
-#define LPI2C4_SCR			(IMXRT_LPI2C4.offset110)
-#define LPI2C4_SSR			(IMXRT_LPI2C4.offset114)
-#define LPI2C4_SIER			(IMXRT_LPI2C4.offset118)
-#define LPI2C4_SDER			(IMXRT_LPI2C4.offset11C)
-#define LPI2C4_SCFGR1			(IMXRT_LPI2C4.offset124)
-#define LPI2C4_SCFGR2			(IMXRT_LPI2C4.offset128)
-#define LPI2C4_SAMR			(IMXRT_LPI2C4.offset140)
-#define LPI2C4_SASR			(IMXRT_LPI2C4.offset150)
-#define LPI2C4_STAR			(IMXRT_LPI2C4.offset154)
-#define LPI2C4_STDR			(IMXRT_LPI2C4.offset160)
-#define LPI2C4_SRDR			(IMXRT_LPI2C4.offset170)
-#endif
+#define LPI2C1_VERID			(IMXRT_LPI2C1.VERID)
+#define LPI2C1_PARAM			(IMXRT_LPI2C1.PARAM)
+#define LPI2C1_MCR			(IMXRT_LPI2C1.MCR)
+#define LPI2C1_MSR			(IMXRT_LPI2C1.MSR)
+#define LPI2C1_MIER			(IMXRT_LPI2C1.MIER)
+#define LPI2C1_MDER			(IMXRT_LPI2C1.MDER)
+#define LPI2C1_MCFGR0			(IMXRT_LPI2C1.MCFGR0)
+#define LPI2C1_MCFGR1			(IMXRT_LPI2C1.MCFGR1)
+#define LPI2C1_MCFGR2			(IMXRT_LPI2C1.MCFGR2)
+#define LPI2C1_MCFGR3			(IMXRT_LPI2C1.MCFGR3)
+#define LPI2C1_MDMR			(IMXRT_LPI2C1.MDMR)
+#define LPI2C1_MCCR0			(IMXRT_LPI2C1.MCCR0)
+#define LPI2C1_MCCR1			(IMXRT_LPI2C1.MCCR1)
+#define LPI2C1_MFCR			(IMXRT_LPI2C1.MFCR)
+#define LPI2C1_MFSR			(IMXRT_LPI2C1.MFSR)
+#define LPI2C1_MTDR			(IMXRT_LPI2C1.MTDR)
+#define LPI2C1_MRDR			(IMXRT_LPI2C1.MRDR)
+#define LPI2C1_SCR			(IMXRT_LPI2C1.SCR)
+#define LPI2C1_SSR			(IMXRT_LPI2C1.SSR)
+#define LPI2C1_SIER			(IMXRT_LPI2C1.SIER)
+#define LPI2C1_SDER			(IMXRT_LPI2C1.SDER)
+#define LPI2C1_SCFGR1			(IMXRT_LPI2C1.SCFGR1)
+#define LPI2C1_SCFGR2			(IMXRT_LPI2C1.SCFGR2)
+#define LPI2C1_SAMR			(IMXRT_LPI2C1.SAMR)
+#define LPI2C1_SASR			(IMXRT_LPI2C1.SASR)
+#define LPI2C1_STAR			(IMXRT_LPI2C1.STAR)
+#define LPI2C1_STDR			(IMXRT_LPI2C1.STDR)
+#define LPI2C1_SRDR			(IMXRT_LPI2C1.SRDR)
+#define IMXRT_LPI2C2		(*(IMXRT_LPI2C_t *)0x403F4000)
+#define LPI2C2_VERID			(IMXRT_LPI2C2.VERID)
+#define LPI2C2_PARAM			(IMXRT_LPI2C2.PARAM)
+#define LPI2C2_MCR			(IMXRT_LPI2C2.MCR)
+#define LPI2C2_MSR			(IMXRT_LPI2C2.MSR)
+#define LPI2C2_MIER			(IMXRT_LPI2C2.MIER)
+#define LPI2C2_MDER			(IMXRT_LPI2C2.MDER)
+#define LPI2C2_MCFGR0			(IMXRT_LPI2C2.MCFGR0)
+#define LPI2C2_MCFGR1			(IMXRT_LPI2C2.MCFGR1)
+#define LPI2C2_MCFGR2			(IMXRT_LPI2C2.MCFGR2)
+#define LPI2C2_MCFGR3			(IMXRT_LPI2C2.MCFGR3)
+#define LPI2C2_MDMR			(IMXRT_LPI2C2.MDMR)
+#define LPI2C2_MCCR0			(IMXRT_LPI2C2.MCCR0)
+#define LPI2C2_MCCR1			(IMXRT_LPI2C2.MCCR1)
+#define LPI2C2_MFCR			(IMXRT_LPI2C2.MFCR)
+#define LPI2C2_MFSR			(IMXRT_LPI2C2.MFSR)
+#define LPI2C2_MTDR			(IMXRT_LPI2C2.MTDR)
+#define LPI2C2_MRDR			(IMXRT_LPI2C2.MRDR)
+#define LPI2C2_SCR			(IMXRT_LPI2C2.SCR)
+#define LPI2C2_SSR			(IMXRT_LPI2C2.SSR)
+#define LPI2C2_SIER			(IMXRT_LPI2C2.SIER)
+#define LPI2C2_SDER			(IMXRT_LPI2C2.SDER)
+#define LPI2C2_SCFGR1			(IMXRT_LPI2C2.SCFGR1)
+#define LPI2C2_SCFGR2			(IMXRT_LPI2C2.SCFGR2)
+#define LPI2C2_SAMR			(IMXRT_LPI2C2.SAMR)
+#define LPI2C2_SASR			(IMXRT_LPI2C2.SASR)
+#define LPI2C2_STAR			(IMXRT_LPI2C2.STAR)
+#define LPI2C2_STDR			(IMXRT_LPI2C2.STDR)
+#define LPI2C2_SRDR			(IMXRT_LPI2C2.SRDR)
+#define IMXRT_LPI2C3		(*(IMXRT_LPI2C_t *)0x403F8000)
+#define LPI2C3_VERID			(IMXRT_LPI2C3.VERID)
+#define LPI2C3_PARAM			(IMXRT_LPI2C3.PARAM)
+#define LPI2C3_MCR			(IMXRT_LPI2C3.MCR)
+#define LPI2C3_MSR			(IMXRT_LPI2C3.MSR)
+#define LPI2C3_MIER			(IMXRT_LPI2C3.MIER)
+#define LPI2C3_MDER			(IMXRT_LPI2C3.MDER)
+#define LPI2C3_MCFGR0			(IMXRT_LPI2C3.MCFGR0)
+#define LPI2C3_MCFGR1			(IMXRT_LPI2C3.MCFGR1)
+#define LPI2C3_MCFGR2			(IMXRT_LPI2C3.MCFGR2)
+#define LPI2C3_MCFGR3			(IMXRT_LPI2C3.MCFGR3)
+#define LPI2C3_MDMR			(IMXRT_LPI2C3.MDMR)
+#define LPI2C3_MCCR0			(IMXRT_LPI2C3.MCCR0)
+#define LPI2C3_MCCR1			(IMXRT_LPI2C3.MCCR1)
+#define LPI2C3_MFCR			(IMXRT_LPI2C3.MFCR)
+#define LPI2C3_MFSR			(IMXRT_LPI2C3.MFSR)
+#define LPI2C3_MTDR			(IMXRT_LPI2C3.MTDR)
+#define LPI2C3_MRDR			(IMXRT_LPI2C3.MRDR)
+#define LPI2C3_SCR			(IMXRT_LPI2C3.SCR)
+#define LPI2C3_SSR			(IMXRT_LPI2C3.SSR)
+#define LPI2C3_SIER			(IMXRT_LPI2C3.SIER)
+#define LPI2C3_SDER			(IMXRT_LPI2C3.SDER)
+#define LPI2C3_SCFGR1			(IMXRT_LPI2C3.SCFGR1)
+#define LPI2C3_SCFGR2			(IMXRT_LPI2C3.SCFGR2)
+#define LPI2C3_SAMR			(IMXRT_LPI2C3.SAMR)
+#define LPI2C3_SASR			(IMXRT_LPI2C3.SASR)
+#define LPI2C3_STAR			(IMXRT_LPI2C3.STAR)
+#define LPI2C3_STDR			(IMXRT_LPI2C3.STDR)
+#define LPI2C3_SRDR			(IMXRT_LPI2C3.SRDR)
+#define IMXRT_LPI2C4		(*(IMXRT_LPI2C_t *)0x403FC000)
+#define LPI2C4_VERID			(IMXRT_LPI2C4.VERID)
+#define LPI2C4_PARAM			(IMXRT_LPI2C4.PARAM)
+#define LPI2C4_MCR			(IMXRT_LPI2C4.MCR)
+#define LPI2C4_MSR			(IMXRT_LPI2C4.MSR)
+#define LPI2C4_MIER			(IMXRT_LPI2C4.MIER)
+#define LPI2C4_MDER			(IMXRT_LPI2C4.MDER)
+#define LPI2C4_MCFGR0			(IMXRT_LPI2C4.MCFGR0)
+#define LPI2C4_MCFGR1			(IMXRT_LPI2C4.MCFGR1)
+#define LPI2C4_MCFGR2			(IMXRT_LPI2C4.MCFGR2)
+#define LPI2C4_MCFGR3			(IMXRT_LPI2C4.MCFGR3)
+#define LPI2C4_MDMR			(IMXRT_LPI2C4.MDMR)
+#define LPI2C4_MCCR0			(IMXRT_LPI2C4.MCCR0)
+#define LPI2C4_MCCR1			(IMXRT_LPI2C4.MCCR1)
+#define LPI2C4_MFCR			(IMXRT_LPI2C4.MFCR)
+#define LPI2C4_MFSR			(IMXRT_LPI2C4.MFSR)
+#define LPI2C4_MTDR			(IMXRT_LPI2C4.MTDR)
+#define LPI2C4_MRDR			(IMXRT_LPI2C4.MRDR)
+#define LPI2C4_SCR			(IMXRT_LPI2C4.SCR)
+#define LPI2C4_SSR			(IMXRT_LPI2C4.SSR)
+#define LPI2C4_SIER			(IMXRT_LPI2C4.SIER)
+#define LPI2C4_SDER			(IMXRT_LPI2C4.SDER)
+#define LPI2C4_SCFGR1			(IMXRT_LPI2C4.SCFGR1)
+#define LPI2C4_SCFGR2			(IMXRT_LPI2C4.SCFGR2)
+#define LPI2C4_SAMR			(IMXRT_LPI2C4.SAMR)
+#define LPI2C4_SASR			(IMXRT_LPI2C4.SASR)
+#define LPI2C4_STAR			(IMXRT_LPI2C4.STAR)
+#define LPI2C4_STDR			(IMXRT_LPI2C4.STDR)
+#define LPI2C4_SRDR			(IMXRT_LPI2C4.SRDR)
 #define LPI2C_MCR_RRF				((uint32_t)(1<<9))
 #define LPI2C_MCR_RTF				((uint32_t)(1<<8))
 #define LPI2C_MCR_DBGEN				((uint32_t)(1<<3))
@@ -7090,10 +7168,12 @@ typedef struct {
 #define NVIC_ISER1              (*(volatile uint32_t *)0xE000E104)
 #define NVIC_ISER2              (*(volatile uint32_t *)0xE000E108)
 #define NVIC_ISER3              (*(volatile uint32_t *)0xE000E10C)
+#define NVIC_ISER4              (*(volatile uint32_t *)0xE000E110)
 #define NVIC_ICER0              (*(volatile uint32_t *)0xE000E180)
 #define NVIC_ICER1              (*(volatile uint32_t *)0xE000E184)
 #define NVIC_ICER2              (*(volatile uint32_t *)0xE000E188)
 #define NVIC_ICER3              (*(volatile uint32_t *)0xE000E18C)
+#define NVIC_ICER4              (*(volatile uint32_t *)0xE000E190)
 #define NVIC_STIR		(*(volatile uint32_t *)0xE000EF00)
 #define NVIC_ENABLE_IRQ(n)      (*(&NVIC_ISER0 + ((n) >> 5)) = (1 << ((n) & 31)))
 #define NVIC_DISABLE_IRQ(n)     (*(&NVIC_ICER0 + ((n) >> 5)) = (1 << ((n) & 31)))
