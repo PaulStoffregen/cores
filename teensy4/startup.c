@@ -30,7 +30,7 @@ extern void pwm_init(void);
 uint32_t set_arm_clock(uint32_t frequency);
 
 
-__attribute__((section(".startup")))
+__attribute__((section(".startup"), optimize("no-tree-loop-distribute-patterns")))
 void ResetHandler(void)
 {
 	unsigned int i;
