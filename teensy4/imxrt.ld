@@ -20,18 +20,13 @@ SECTIONS
 		KEEP(*(.startup))
 		*(.progmem*)
                 . = ALIGN(4);
-/*
-		TODO: how much of this C++ stuff is really needed?
                 KEEP(*(.init))
-                . = ALIGN(4);
                 __preinit_array_start = .;
                 KEEP (*(.preinit_array))
                 __preinit_array_end = .;
                 __init_array_start = .;
-                KEEP (*(SORT(.init_array.*)))
                 KEEP (*(.init_array))
                 __init_array_end = .;
-*/
 		. = ALIGN(16);
 	} > FLASH
 

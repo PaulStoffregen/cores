@@ -86,12 +86,15 @@ void ResetHandler(void)
 	printf("AHB divisor = %u\n", ((cbcdr >> 10) & 7) + 1);
 	printf("IPG divisor = %u\n", ((cbcdr >> 8) & 3) + 1);
 
-	// TODO: wait at least 20ms before starting USB
+	while (millis() < 20) ; // wait at least 20ms before starting USB
 	usb_init();
 	analog_init();
 	pwm_init();
 
-	// TODO: wait tat least 300ms before calling setup
+	while (millis() < 300) ; // wait at least 300ms before calling user code
+	printf("before C++ constructors\n");
+	__libc_init_array();
+	printf("after C++ constructors\n");
 	printf("before setup\n");
 	setup();
 	printf("after setup\n");
