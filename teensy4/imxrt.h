@@ -68,7 +68,7 @@ enum IRQ_NUMBER_t {
         IRQ_SAI3_TX =           59,
         IRQ_SPDIF =             60,
         IRQ_BROWNOUT0 =         61,
-        IRQ_Reserved1 =		62,
+        IRQ_Reserved1 =         62,
         IRQ_TEMPERATURE =       63,
         IRQ_TEMPERATURE_PANIC = 64,
         IRQ_USBPHY0 =           65,
