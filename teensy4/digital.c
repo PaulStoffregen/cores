@@ -116,6 +116,6 @@ void pinMode(uint8_t pin, uint8_t mode)
 			*(p->pad) = IOMUXC_PAD_HYS;
 		}
 	}
-	*(p->mux) = 5;
+	*(p->mux) = 5 | 0x10;
 }
 

@@ -82,7 +82,7 @@ void EventResponder::triggerEventNotImmediate()
 	enableInterrupts(irq);
 }
 
-void pendablesrvreq_isr(void)
+extern "C" void pendablesrvreq_isr(void)
 {
 	EventResponder::runFromInterrupt();
 }
@@ -336,7 +336,7 @@ void MillisTimer::runFromTimer()
 
 // TODO: this doesn't work for IMXRT - no longer using predefined names
 extern "C" volatile uint32_t systick_millis_count;
-void systick_isr(void)
+extern "C" void systick_isr(void)
 {
 	systick_millis_count++;
 	MillisTimer::runFromTimer();

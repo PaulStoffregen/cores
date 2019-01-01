@@ -22,6 +22,7 @@ static void memory_copy(uint32_t *dest, const uint32_t *src, uint32_t *dest_end)
 static void memory_clear(uint32_t *dest, uint32_t *dest_end);
 static void configure_systick(void);
 extern void systick_isr(void);
+extern void pendablesrvreq_isr(void);
 void configure_cache(void);
 void unused_interrupt_vector(void);
 void usb_pll_start();
@@ -86,12 +87,15 @@ void ResetHandler(void)
 	printf("AHB divisor = %u\n", ((cbcdr >> 10) & 7) + 1);
 	printf("IPG divisor = %u\n", ((cbcdr >> 8) & 3) + 1);
 
-	// TODO: wait at least 20ms before starting USB
+	while (millis() < 20) ; // wait at least 20ms before starting USB
 	usb_init();
 	analog_init();
 	pwm_init();
 
-	// TODO: wait tat least 300ms before calling setup
+	while (millis() < 300) ; // wait at least 300ms before calling user code
+	printf("before C++ constructors\n");
+	__libc_init_array();
+	printf("after C++ constructors\n");
 	printf("before setup\n");
 	setup();
 	printf("after setup\n");
@@ -116,6 +120,7 @@ void ResetHandler(void)
 
 static void configure_systick(void)
 {
+	_VectorsRam[14] = pendablesrvreq_isr;
 	_VectorsRam[15] = systick_isr;
 	SYST_RVR = (SYSTICK_EXT_FREQ / 1000) - 1;
 	SYST_CVR = 0;
