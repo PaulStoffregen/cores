@@ -68,7 +68,7 @@ enum IRQ_NUMBER_t {
         IRQ_SAI3_TX =           59,
         IRQ_SPDIF =             60,
         IRQ_BROWNOUT0 =         61,
-        IRQ_Reserved13 =        62,
+        IRQ_Reserved1 =         62,
         IRQ_TEMPERATURE =       63,
         IRQ_TEMPERATURE_PANIC = 64,
         IRQ_USBPHY0 =           65,
@@ -76,7 +76,7 @@ enum IRQ_NUMBER_t {
         IRQ_ADC1 =              67,
         IRQ_ADC2 =              68,
         IRQ_DCDC =              69,
-        IRQ_Reserved1 =         70,
+        IRQ_SOFTWARE =          70,
         IRQ_Reserved2 =         71,
         IRQ_GPIO1_INT0 =        72,
         IRQ_GPIO1_INT1 =        73,
@@ -133,8 +133,8 @@ enum IRQ_NUMBER_t {
         IRQ_ACMP1 =             124,
         IRQ_ACMP2 =             125,
         IRQ_ACMP3 =             126,
-        IRQ_Reserved5 =         127,
-        IRQ_Reserved6 =         128,
+        IRQ_Reserved4 =         127,
+        IRQ_Reserved5 =         128,
         IRQ_ENC1 =              129,
         IRQ_ENC2 =              130,
         IRQ_ENC3 =              131,
@@ -160,8 +160,8 @@ enum IRQ_NUMBER_t {
         IRQ_FLEXPWM4_FAULT =    151,
         IRQ_ENET2 =             152, // RT1060 only
         IRQ_ENET2_TIMER =       153, // RT1060 only
-        IRQ_Reserved9 =         154,
-        IRQ_Reserved10 =        155,
+        IRQ_Reserved6 =         154,
+        IRQ_Reserved7 =         155,
         IRQ_CAN3 =              156, // RT1060 only
         IRQ_GPIO6789 =          157, // RT1060 only
         IRQ_SJC_DEBUG =         158,
