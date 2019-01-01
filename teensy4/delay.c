@@ -9,6 +9,8 @@ volatile uint32_t systick_millis_count = 0;
 // hide an undocumented divide-by-240 circuit in the hardware?
 #define SYSTICK_EXT_FREQ 100000
 
+#if 0
+// moved to EventResponder.cpp
 void systick_isr(void)
 {
 	systick_millis_count++;
@@ -17,6 +19,7 @@ void systick_isr(void)
 	//delayMicroseconds(1);
 	//digitalWriteFast(12, LOW);
 }
+#endif
 
 #if 0
 void millis_init(void)
@@ -37,10 +40,10 @@ void millis_init(void)
 }
 #endif
 
-void yield(void)
+/*void yield(void)
 {
 
-}
+}*/
 
 void delay(uint32_t msec)
 {
