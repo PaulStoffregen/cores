@@ -119,6 +119,7 @@ extern const struct digital_pin_bitband_and_config_table_struct digital_pin_to_i
 #define portInputRegister(pin)   ((digital_pin_to_info_PGM[(pin)].reg + 16))
 #define portModeRegister(pin)    ((digital_pin_to_info_PGM[(pin)].reg + 20))
 #define portConfigRegister(pin)  ((digital_pin_to_info_PGM[(pin)].mux))
+#define portControlRegister(pin) ((digital_pin_to_info_PGM[(pin)].pad))
 #define digitalPinToPortReg(pin) (portOutputRegister(pin))
 #define digitalPinToBit(pin)     // TODO, is this needed?
 
