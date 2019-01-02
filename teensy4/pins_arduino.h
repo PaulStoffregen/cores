@@ -113,15 +113,15 @@ extern const struct digital_pin_bitband_and_config_table_struct digital_pin_to_i
 #define digitalPinToPort(pin)    (pin)
 #define digitalPinToBitMask(pin) (digital_pin_to_info_PGM[(pin)].mask)
 #define portOutputRegister(pin)  ((digital_pin_to_info_PGM[(pin)].reg + 0))
-#define portSetRegister(pin)     ((digital_pin_to_info_PGM[(pin)].reg + 4))
-#define portClearRegister(pin)   ((digital_pin_to_info_PGM[(pin)].reg + 8))
-#define portToggleRegister(pin)  ((digital_pin_to_info_PGM[(pin)].reg + 12))
-#define portInputRegister(pin)   ((digital_pin_to_info_PGM[(pin)].reg + 16))
-#define portModeRegister(pin)    ((digital_pin_to_info_PGM[(pin)].reg + 20))
+#define portSetRegister(pin)     ((digital_pin_to_info_PGM[(pin)].reg + 33))
+#define portClearRegister(pin)   ((digital_pin_to_info_PGM[(pin)].reg + 34))
+#define portToggleRegister(pin)  ((digital_pin_to_info_PGM[(pin)].reg + 35))
+#define portInputRegister(pin)   ((digital_pin_to_info_PGM[(pin)].reg + 2))
+#define portModeRegister(pin)    ((digital_pin_to_info_PGM[(pin)].reg + 1))
 #define portConfigRegister(pin)  ((digital_pin_to_info_PGM[(pin)].mux))
 #define portControlRegister(pin) ((digital_pin_to_info_PGM[(pin)].pad))
 #define digitalPinToPortReg(pin) (portOutputRegister(pin))
-#define digitalPinToBit(pin)     // TODO, is this needed?
+#define digitalPinToBit(pin)     (__builtin_ctz(digitalPinToBitMask(pin)))
 
 
 #define NOT_ON_TIMER 0
