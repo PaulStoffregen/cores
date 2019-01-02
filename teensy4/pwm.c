@@ -24,7 +24,7 @@ const struct pwm_pin_info_struct pwm_pin_info[] = {
 	{1, M(1, 3), 2, 6},  // FlexPWM1_3_B   6  // B1_01
 	{1, M(1, 3), 1, 6},  // FlexPWM1_3_A   7  // B1_00
 	{1, M(2, 2), 1, 2},  // FlexPWM2_2_A   8  // B0_10
-	{1, M(2, 2), 1, 2},  // FlexPWM2_2_B   9  // B0_11
+	{1, M(2, 2), 2, 2},  // FlexPWM2_2_B   9  // B0_11
 	{2, M(1, 0), 0, 1},  // QuadTimer1_0  10  // B0_00
 	{2, M(1, 2), 0, 1},  // QuadTimer1_2  11  // B0_02
 	{2, M(1, 1), 0, 1},  // QuadTimer1_1  12  // B0_01
