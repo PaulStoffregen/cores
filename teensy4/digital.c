@@ -107,13 +107,13 @@ void pinMode(uint8_t pin, uint8_t mode)
 	} else {
 		*(p->reg + 1) &= ~(p->mask); // TODO: atomic
 		if (mode == INPUT) {
-			*(p->pad) = 0;
+			*(p->pad) = IOMUXC_PAD_DSE(7);
 		} else if (mode == INPUT_PULLUP) {
-			*(p->pad) = IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS;
+			*(p->pad) = IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS;
 		} else if (mode == INPUT_PULLDOWN) {
-			*(p->pad) = IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(0) | IOMUXC_PAD_HYS;
+			*(p->pad) = IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(0) | IOMUXC_PAD_HYS;
 		} else { // INPUT_DISABLE
-			*(p->pad) = IOMUXC_PAD_HYS;
+			*(p->pad) = IOMUXC_PAD_DSE(7) | IOMUXC_PAD_HYS;
 		}
 	}
 	*(p->mux) = 5 | 0x10;
