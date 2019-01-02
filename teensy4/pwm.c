@@ -296,7 +296,15 @@ void xbar_connect(unsigned int input, unsigned int output)
 
 uint32_t analogWriteRes(uint32_t bits)
 {
-	return 0;
+	uint32_t prior;
+	if (bits < 1) {
+		bits = 1;
+	} else if (bits > 16) {
+		bits = 16;
+	}
+	prior = analog_write_res;
+	analog_write_res = bits;
+	return prior;
 }
 
 
