@@ -749,7 +749,7 @@ static inline void delayMicroseconds(uint32_t) __attribute__((always_inline, unu
 static inline void delayMicroseconds(uint32_t usec)
 {
 	uint32_t begin = ARM_DWT_CYCCNT;
-	uint32_t cycles = F_CPU_ACTUAL / 1000000 * usec;
+	uint32_t cycles = (F_CPU_ACTUAL>>9) / (1000000UL>>9) * usec;
 	// TODO: check if cycles is large, do a wait with yield calls until it's smaller
 	while (ARM_DWT_CYCCNT - begin < cycles) ; // wait
 }
