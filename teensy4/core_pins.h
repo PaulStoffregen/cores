@@ -370,7 +370,69 @@
 #define CORE_PIN32_PADCONFIG	IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_12
 #define CORE_PIN33_PADCONFIG	IOMUXC_SW_PAD_CTL_PAD_GPIO_EMC_08
 
+#define CORE_ADC0_PIN		14
+#define CORE_ADC1_PIN		15
+#define CORE_ADC2_PIN		16
+#define CORE_ADC3_PIN		17
+#define CORE_ADC4_PIN		18
+#define CORE_ADC5_PIN		19
+#define CORE_ADC6_PIN		20
+#define CORE_ADC7_PIN		21
+#define CORE_ADC8_PIN		22
+#define CORE_ADC9_PIN		23
 
+#define CORE_RXD0_PIN		0
+#define CORE_TXD0_PIN		1
+#define CORE_RXD1_PIN		6
+#define CORE_TXD1_PIN		7
+#define CORE_RXD2_PIN		15
+#define CORE_TXD2_PIN		14
+#define CORE_RXD3_PIN		16
+#define CORE_TXD3_PIN		17
+#define CORE_RXD4_PIN		21
+#define CORE_TXD4_PIN		20
+#define CORE_RXD5_PIN		25
+#define CORE_TXD5_PIN		24
+#define CORE_RXD6_PIN		28
+#define CORE_TXD6_PIN		29
+#define CORE_RXD7_PIN		30
+#define CORE_TXD7_PIN		31
+
+#define CORE_INT0_PIN		0
+#define CORE_INT1_PIN		1
+#define CORE_INT2_PIN		2
+#define CORE_INT3_PIN		3
+#define CORE_INT4_PIN		4
+#define CORE_INT5_PIN		5
+#define CORE_INT6_PIN		6
+#define CORE_INT7_PIN		7
+#define CORE_INT8_PIN		8
+#define CORE_INT9_PIN		9
+#define CORE_INT10_PIN		10
+#define CORE_INT11_PIN		11
+#define CORE_INT12_PIN		12
+#define CORE_INT13_PIN		13
+#define CORE_INT14_PIN		14
+#define CORE_INT15_PIN		15
+#define CORE_INT16_PIN		16
+#define CORE_INT17_PIN		17
+#define CORE_INT18_PIN		18
+#define CORE_INT19_PIN		19
+#define CORE_INT20_PIN		20
+#define CORE_INT21_PIN		21
+#define CORE_INT22_PIN		22
+#define CORE_INT23_PIN		23
+#define CORE_INT24_PIN		24
+#define CORE_INT25_PIN		25
+#define CORE_INT26_PIN		26
+#define CORE_INT27_PIN		27
+#define CORE_INT28_PIN		28
+#define CORE_INT29_PIN		29
+#define CORE_INT30_PIN		30
+#define CORE_INT31_PIN		31
+#define CORE_INT32_PIN		32
+#define CORE_INT33_PIN		33
+#define CORE_INT_EVERY_PIN	1
 
 
 #ifdef __cplusplus
