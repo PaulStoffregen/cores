@@ -119,34 +119,6 @@ void pinMode(uint8_t pin, uint8_t mode)
 	*(p->mux) = 5 | 0x10;
 }
 
-void pinMode(uint8_t pin, uint8_t mode)
-{
-	const struct digital_pin_bitband_and_config_table_struct *p;
-
-	if (pin >= CORE_NUM_DIGITAL) return;
-	p = digital_pin_to_info_PGM + pin;
-	if (mode == OUTPUT || mode == OUTPUT_OPENDRAIN) {
-		*(p->reg + 1) |= p->mask; // TODO: atomic
-		if (mode == OUTPUT) {
-			*(p->pad) = IOMUXC_PAD_DSE(7);
-		} else { // OUTPUT_OPENDRAIN
-			*(p->pad) = IOMUXC_PAD_DSE(7) | IOMUXC_PAD_ODE;
-		}
-	} else {
-		*(p->reg + 1) &= ~(p->mask); // TODO: atomic
-		if (mode == INPUT) {
-			*(p->pad) = 0;
-		} else if (mode == INPUT_PULLUP) {
-			*(p->pad) = IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS;
-		} else if (mode == INPUT_PULLDOWN) {
-			*(p->pad) = IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(0) | IOMUXC_PAD_HYS;
-		} else { // INPUT_DISABLE
-			*(p->pad) = IOMUXC_PAD_HYS;
-		}
-	}
-	*(p->mux) = 5 | 0x10;
-}
-
 void _shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t value)
 {
         if (bitOrder == LSBFIRST) {
