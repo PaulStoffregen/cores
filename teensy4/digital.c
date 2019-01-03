@@ -119,3 +119,151 @@ void pinMode(uint8_t pin, uint8_t mode)
 	*(p->mux) = 5 | 0x10;
 }
 
+void pinMode(uint8_t pin, uint8_t mode)
+{
+	const struct digital_pin_bitband_and_config_table_struct *p;
+
+	if (pin >= CORE_NUM_DIGITAL) return;
+	p = digital_pin_to_info_PGM + pin;
+	if (mode == OUTPUT || mode == OUTPUT_OPENDRAIN) {
+		*(p->reg + 1) |= p->mask; // TODO: atomic
+		if (mode == OUTPUT) {
+			*(p->pad) = IOMUXC_PAD_DSE(7);
+		} else { // OUTPUT_OPENDRAIN
+			*(p->pad) = IOMUXC_PAD_DSE(7) | IOMUXC_PAD_ODE;
+		}
+	} else {
+		*(p->reg + 1) &= ~(p->mask); // TODO: atomic
+		if (mode == INPUT) {
+			*(p->pad) = 0;
+		} else if (mode == INPUT_PULLUP) {
+			*(p->pad) = IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS;
+		} else if (mode == INPUT_PULLDOWN) {
+			*(p->pad) = IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(0) | IOMUXC_PAD_HYS;
+		} else { // INPUT_DISABLE
+			*(p->pad) = IOMUXC_PAD_HYS;
+		}
+	}
+	*(p->mux) = 5 | 0x10;
+}
+
+void _shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t value)
+{
+        if (bitOrder == LSBFIRST) {
+                shiftOut_lsbFirst(dataPin, clockPin, value);
+        } else {
+                shiftOut_msbFirst(dataPin, clockPin, value);
+        }
+}
+
+void shiftOut_lsbFirst(uint8_t dataPin, uint8_t clockPin, uint8_t value)
+{
+        uint8_t mask;
+        for (mask=0x01; mask; mask <<= 1) {
+                digitalWrite(dataPin, value & mask);
+                digitalWrite(clockPin, HIGH);
+                digitalWrite(clockPin, LOW);
+        }
+}
+
+void shiftOut_msbFirst(uint8_t dataPin, uint8_t clockPin, uint8_t value)
+{
+        uint8_t mask;
+        for (mask=0x80; mask; mask >>= 1) {
+                digitalWrite(dataPin, value & mask);
+                digitalWrite(clockPin, HIGH);
+                digitalWrite(clockPin, LOW);
+        }
+}
+
+uint8_t _shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder)
+{
+        if (bitOrder == LSBFIRST) {
+                return shiftIn_lsbFirst(dataPin, clockPin);
+        } else {
+                return shiftIn_msbFirst(dataPin, clockPin);
+        }
+}
+
+uint8_t shiftIn_lsbFirst(uint8_t dataPin, uint8_t clockPin)
+{
+        uint8_t mask, value=0;
+        for (mask=0x01; mask; mask <<= 1) {
+                digitalWrite(clockPin, HIGH);
+                if (digitalRead(dataPin)) value |= mask;
+                digitalWrite(clockPin, LOW);
+        }
+        return value;
+}
+
+uint8_t shiftIn_msbFirst(uint8_t dataPin, uint8_t clockPin)
+{
+        uint8_t mask, value=0;
+        for (mask=0x80; mask; mask >>= 1) {
+                digitalWrite(clockPin, HIGH);
+                if (digitalRead(dataPin)) value |= mask;
+                digitalWrite(clockPin, LOW);
+        }
+        return value;
+}
+
+//(*portInputRegister(pin) & digitalPinToBitMask(pin))
+uint32_t pulseIn_high(uint8_t pin, uint32_t timeout)
+{
+	const struct digital_pin_bitband_and_config_table_struct *p;
+	p = digital_pin_to_info_PGM + pin;
+
+	uint32_t usec_start, usec_stop;
+
+	// wait for any previous pulse to end
+	usec_start = micros();
+	while ((*(p->reg + 2) & p->mask)) {
+		if (micros()-usec_start > timeout) return 0;
+	}
+	// wait for the pulse to start
+	usec_start = micros();
+	while (!(*(p->reg + 2) & p->mask)) {
+		if (micros()-usec_start > timeout) return 0;
+	}
+	usec_start = micros();
+	// wait for the pulse to stop
+	while ((*(p->reg + 2) & p->mask)) {
+		if (micros()-usec_start > timeout) return 0;
+	}
+	usec_stop = micros();
+	return usec_stop - usec_start;
+}
+
+uint32_t pulseIn_low(uint8_t pin, uint32_t timeout)
+{
+	const struct digital_pin_bitband_and_config_table_struct *p;
+	p = digital_pin_to_info_PGM + pin;
+
+	uint32_t usec_start, usec_stop;
+
+	// wait for any previous pulse to end
+	usec_start = micros();
+	while (!(*(p->reg + 2) & p->mask)) {
+		if (micros() - usec_start > timeout) return 0;
+	}
+	// wait for the pulse to start
+	usec_start = micros();
+	while ((*(p->reg + 2) & p->mask)) {
+		if (micros() - usec_start > timeout) return 0;
+	}
+	usec_start = micros();
+	// wait for the pulse to stop
+	while (!(*(p->reg + 2) & p->mask)) {
+		if (micros() - usec_start > timeout) return 0;
+	}
+	usec_stop = micros();
+	return usec_stop - usec_start;
+}
+
+// TODO: an inline version should handle the common case where state is const
+uint32_t pulseIn(uint8_t pin, uint8_t state, uint32_t timeout)
+{
+	if (pin >= CORE_NUM_DIGITAL) return 0;
+	if (state) return pulseIn_high(pin, timeout);
+	return pulseIn_low(pin, timeout);
+}
