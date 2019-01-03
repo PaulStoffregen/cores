@@ -86,7 +86,7 @@
 
 #define IRQ_PRIORITY  64  // 0 = highest priority, 255 = lowest
 
-#define CTRL_ENABLE 		(LPUART_CTRL_TE | LPUART_CTRL_RE | LPUART_CTRL_RIE)
+#define CTRL_ENABLE 		(LPUART_CTRL_TE | LPUART_CTRL_RE | LPUART_CTRL_RIE | LPUART_CTRL_ILIE)
 #define CTRL_TX_ACTIVE		(CTRL_ENABLE | LPUART_CTRL_TIE)
 #define CTRL_TX_COMPLETING	(CTRL_ENABLE | LPUART_CTRL_TCIE)
 #define CTRL_TX_INACTIVE	CTRL_ENABLE 
@@ -322,30 +322,47 @@ void HardwareSerial::IRQHandler()
 	uint32_t ctrl;
 
 	// See if we have stuff to read in.
-	if (port->STAT & LPUART_STAT_RDRF) {
+	// Todo - Check idle. 
+	if (port->STAT & (LPUART_STAT_RDRF | LPUART_STAT_IDLE)) {
+		// See how many bytes or pending. 
 		//digitalWrite(5, HIGH);
-		#if 1
-		n = port->DATA;	// get the byte... 
-		#else
-		if (use9Bits_ && (port().C3 & 0x80)) {
-			n = port().D | 0x100;
-		} else {
-			n = port().D;
-		} 
-		#endif
-		head = rx_buffer_head_ + 1;
-		if (head >= rx_buffer_total_size_) head = 0;
-		if (head != rx_buffer_tail_) {
-			if (head < rx_buffer_size_) {
-				rx_buffer_[head] = n;
-			} else {
-				rx_buffer_storage_[head-rx_buffer_size_] = n;
-			}
+		uint8_t avail = (port->WATER >> 24) & 0x7;
+		if (avail) {
+			uint32_t newhead;
+			head = rx_buffer_head_;
+			tail = rx_buffer_tail_;
+			do {
+				#if 1
+				n = port->DATA;	// get the byte... 
+				#else
+				if (use9Bits_ && (port().C3 & 0x80)) {
+					n = port().D | 0x100;
+				} else {
+					n = port().D;
+				} 
+				#endif
+				newhead = head + 1;
+
+				if (newhead >= rx_buffer_total_size_) newhead = 0;
+				if (newhead != rx_buffer_tail_) {
+					head = newhead;
+					if (newhead < rx_buffer_size_) {
+						rx_buffer_[head] = n;
+					} else {
+						rx_buffer_storage_[head-rx_buffer_size_] = n;
+					}
+				}
+			} while (--avail > 0) ;
 			rx_buffer_head_ = head;
 		}
-		//digitalWrite(5, LOW);
-	}
 
+		// If it was an idle status clear the idle
+		if (port->STAT & LPUART_STAT_IDLE) {
+			port->STAT |= LPUART_STAT_IDLE;	// writing a 1 to idle should clear it. 
+		}
+		//digitalWrite(5, LOW);
+
+	}
 
 	// See if we are transmitting and room in buffer. 
 	ctrl = port->CTRL;
