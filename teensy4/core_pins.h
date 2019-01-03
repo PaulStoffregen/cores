@@ -758,7 +758,7 @@ static inline void delayNanoseconds(uint32_t) __attribute__((always_inline, unus
 static inline void delayNanoseconds(uint32_t nsec)
 {
 	uint32_t begin = ARM_DWT_CYCCNT;
-	uint32_t cycles =  ((uint64_t)F_CPU_ACTUAL * nsec) / 1000000000UL;
+	uint32_t cycles =   ((F_CPU_ACTUAL>>16) * nsec) / (1000000000UL>>16);
 	while (ARM_DWT_CYCCNT - begin < cycles) ; // wait
 }
 
