@@ -7253,6 +7253,23 @@ These register are used by the ROM code and should not be used by application so
 #define SCB_MMFAR               (*(volatile uint32_t *)0xE000ED34) // MemManage Fault Address
 #define SCB_BFAR                (*(volatile uint32_t *)0xE000ED38) // Bus Fault Address
 #define SCB_AFAR                (*(volatile uint32_t *)0xE000ED3C) // Aux Fault Address
+#define SCB_ID_PFR0		(*(const    uint32_t *)0xE000ED40) // Processor Feature 0
+#define SCB_ID_PFR1		(*(const    uint32_t *)0xE000ED44) // Processor Feature 1
+#define SCB_ID_DFR0		(*(const    uint32_t *)0xE000ED48) // Debug Feature 0
+#define SCB_ID_AFR0		(*(const    uint32_t *)0xE000ED4C) // Auxiliary Feature 0
+#define SCB_ID_MMFR0		(*(const    uint32_t *)0xE000ED50) // Memory Model Feature 0
+#define SCB_ID_MMFR1		(*(const    uint32_t *)0xE000ED54) // Memory Model Feature 1
+#define SCB_ID_MMFR2		(*(const    uint32_t *)0xE000ED58) // Memory Model Feature 2
+#define SCB_ID_MMFR3		(*(const    uint32_t *)0xE000ED5C) // Memory Model Feature 3
+#define SCB_ID_ISAR0		(*(const    uint32_t *)0xE000ED60) // Instruction Set Attribute 0
+#define SCB_ID_ISAR1		(*(const    uint32_t *)0xE000ED64) // Instruction Set Attribute 1
+#define SCB_ID_ISAR2 		(*(const    uint32_t *)0xE000ED68) // Instruction Set Attribute 2
+#define SCB_ID_ISAR3 		(*(const    uint32_t *)0xE000ED6C) // Instruction Set Attribute 3
+#define SCB_ID_ISAR4 		(*(const    uint32_t *)0xE000ED70) // Instruction Set Attribute 4
+#define SCB_ID_CLIDR		(*(const    uint32_t *)0xE000ED78) // Cache Level ID
+#define SCB_ID_CTR		(*(const    uint32_t *)0xE000ED7C) // Cache Type
+#define SCB_ID_CCSIDR		(*(const    uint32_t *)0xE000ED80) // Cache Size ID
+#define SCB_ID_CSSELR		(*(const    uint32_t *)0xE000ED84) // Cache Size Selection
 #define SCB_CPACR               (*(volatile uint32_t *)0xE000ED88) // Coprocessor Access Control
 #define SCB_FPCCR               (*(volatile uint32_t *)0xE000EF34) // FP Context Control
 #define SCB_FPCAR               (*(volatile uint32_t *)0xE000EF38) // FP Context Address
@@ -7334,5 +7351,66 @@ These register are used by the ROM code and should not be used by application so
 #define SCB_CACHE_DCCIMVAC	(*(volatile uint32_t *)0xE000EF70)
 #define SCB_CACHE_DCCISW	(*(volatile uint32_t *)0xE000EF74)
 #define SCB_CACHE_BPIALL	(*(volatile uint32_t *)0xE000EF78)
+
+// Flush data from cache to memory
+//
+// Normally arm_dcache_flush() is used when metadata written to memory
+// will be used by a DMA or a bus-master peripheral.  Any data in the
+// cache is written to memory.  A copy remains in the cache, so this is
+// typically used with special fields you will want to quickly access
+// in the future.  For data transmission, use arm_dcache_flush_delete().
+__attribute__((always_inline, unused))
+static inline void arm_dcache_flush(void *addr, uint32_t size)
+{
+	uint32_t location = (uint32_t)addr & 0xFFFFFFE0;
+	uint32_t end_addr = (uint32_t)addr + size;
+	asm("dsb");
+	do {
+		SCB_CACHE_DCCMVAC = location;
+		location += 32;
+	} while (location < end_addr);
+	asm("dsb");
+	asm("isb");
+}
+
+// Delete data from the cache, without touching memory
+//
+// Normally arm_dcache_delete() is used before receiving data via
+// DMA or from bus-master peripherals which write to memory.  You
+// want to delete anything the cache may have stored, so your next
+// read is certain to access the physical memory.
+__attribute__((always_inline, unused))
+static inline void arm_dcache_delete(void *addr, uint32_t size)
+{
+	uint32_t location = (uint32_t)addr & 0xFFFFFFE0;
+	uint32_t end_addr = (uint32_t)addr + size;
+	asm("dsb");
+	do {
+		SCB_CACHE_DCIMVAC = location;
+		location += 32;
+	} while (location < end_addr);
+	asm("dsb");
+	asm("isb");
+}
+
+// Flush data from cache to memory, and delete it from the cache
+//
+// Normally arm_dcache_flush_delete() is used when transmitting data
+// via DMA or bus-master peripherals which read from memory.  You want
+// any cached data written to memory, and then removed from the cache,
+// because you no longer need to access the data after transmission.
+__attribute__((always_inline, unused))
+static inline void arm_dcache_flush_delete(void *addr, uint32_t size)
+{
+	uint32_t location = (uint32_t)addr & 0xFFFFFFE0;
+	uint32_t end_addr = (uint32_t)addr + size;
+	asm("dsb");
+	do {
+		SCB_CACHE_DCCIMVAC = location;
+		location += 32;
+	} while (location < end_addr);
+	asm("dsb");
+	asm("isb");
+}
 
 
