@@ -19,6 +19,18 @@
         volatile uint32_t WATER;
 } IMXRT_LPUART_t; */
 
+//. From Onewire utility files
+#define PIN_TO_BASEREG(pin)             (portOutputRegister(pin))
+#define PIN_TO_BITMASK(pin)             (digitalPinToBitMask(pin))
+#define IO_REG_TYPE uint32_t
+#define IO_REG_BASE_ATTR
+#define IO_REG_MASK_ATTR
+#define DIRECT_READ(base, mask)         ((*((base)+2) & (mask)) ? 1 : 0)
+#define DIRECT_MODE_INPUT(base, mask)   (*((base)+1) &= ~(mask))
+#define DIRECT_MODE_OUTPUT(base, mask)  (*((base)+1) |= (mask))
+#define DIRECT_WRITE_LOW(base, mask)    (*((base)+34) = (mask))
+#define DIRECT_WRITE_HIGH(base, mask)   (*((base)+33) = (mask))
+
 #define UART_CLOCK 24000000
 
 #ifndef SERIAL1_TX_BUFFER_SIZE
@@ -150,9 +162,9 @@ void HardwareSerial::transmitterEnable(uint8_t pin)
 {
 	while (transmitting_) ;
 	pinMode(pin, OUTPUT);
-	digitalWrite(pin, LOW);
-	transmit_pin_ = pin; 	// BUGBUG - Faster way? 
-
+	transmit_pin_baseReg_ = PIN_TO_BASEREG(pin);
+	transmit_pin_bitmask_ = PIN_TO_BITMASK(pin);
+	DIRECT_WRITE_LOW(transmit_pin_baseReg_, transmit_pin_bitmask_);
 }
 
 void HardwareSerial::setRX(uint8_t pin)
@@ -265,7 +277,7 @@ size_t HardwareSerial::write(uint8_t c)
 	uint32_t head, n;
 	//digitalWrite(3, HIGH);
 	//digitalWrite(5, HIGH);
-//	if (transmit_pin_) transmit_assert();
+	if (transmit_pin_baseReg_) DIRECT_WRITE_HIGH(transmit_pin_baseReg_, transmit_pin_bitmask_);
 	head = tx_buffer_head_;
 	if (++head >= tx_buffer_total_size_) head = 0;
 	while (tx_buffer_tail_ == head) {
@@ -359,10 +371,11 @@ void HardwareSerial::IRQHandler()
 		//digitalWrite(3, LOW);
 	}
 
-	if ((ctrl & LPUART_CTRL_TCIE) && (port->STAT & LPUART_STAT_TDRE))
+	if ((ctrl & LPUART_CTRL_TCIE) && (port->STAT & LPUART_STAT_TC))
 	{
 		transmitting_ = 0;
-		//if (transmit_pin_) transmit_deassert();
+		if (transmit_pin_baseReg_) DIRECT_WRITE_LOW(transmit_pin_baseReg_, transmit_pin_bitmask_);
+
 		port->CTRL = CTRL_TX_INACTIVE;
 	}
 	//digitalWrite(4, LOW);

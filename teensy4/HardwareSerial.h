@@ -127,11 +127,12 @@ private:
 	volatile uint16_t 	rx_buffer_tail_ = 0;
 
 	// Currently using digitalWWrite...
-	int 			transmit_pin_=-1;
+	volatile uint32_t 	*transmit_pin_baseReg_ = 0;
+	uint32_t 			transmit_pin_bitmask_ = 0;
+
+	//int 			transmit_pin_=-1;
 	int 			rts_pin_=-1;
 
-	inline void transmit_assert() {digitalWrite(transmit_pin_, 1);}
-	inline void transmit_deassert() {digitalWrite(transmit_pin_, 0);}
   	inline void rts_assert()   {digitalWrite(rts_pin_ , 0); }
   	inline void rts_deassert()  {digitalWrite(rts_pin_ , 1); }
 
