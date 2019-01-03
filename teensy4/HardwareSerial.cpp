@@ -440,7 +440,7 @@ static HardwareSerial::hardware_t UART4_Hardware = {
 	IOMUXC_LPUART4_RX_SELECT_INPUT,
 	2, // page 521
 	2, // page 520
-	0, // page 858
+	2, // page 858
 };
 HardwareSerial Serial2(&IMXRT_LPUART4, &UART4_Hardware, tx_buffer2, SERIAL2_TX_BUFFER_SIZE, 
 	rx_buffer2,  SERIAL2_RX_BUFFER_SIZE);
