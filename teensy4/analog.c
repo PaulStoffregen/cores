@@ -71,6 +71,29 @@ void analogReadRes(unsigned int bits)
 
 void analogReadAveraging(unsigned int num)
 {
+  uint32_t tmp32, mode, avg=0;
+  
+  //disable averaging
+  tmp32 = ADC1_GC;
+  ADC1_GC &= ~0x20;
+
+  mode = ADC1_CFG & ~0xC000;
+
+    if (num >= 32) {
+      mode |= ADC_CFG_AVGS(3);
+      //Serial.println(ADC_CFG_AVGS(3), BIN);
+    } else if (num >= 16) {
+      mode |= ADC_CFG_AVGS(2);
+    } else if (num >= 8) {
+      mode |= ADC_CFG_AVGS(1);
+    } else {
+      mode |= ADC_CFG_AVGS(0);
+    }
+
+  ADC1_CFG = mode;
+  
+  //enable averaging
+  ADC1_GC = tmp32;
 }
 
 #define MAX_ADC_CLOCK 20000000
