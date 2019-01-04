@@ -78,7 +78,6 @@ void analogReadAveraging(unsigned int num)
   ADC1_GC &= ~0x20;
 
   mode = ADC1_CFG & ~0xC000;
-
     if (num >= 32) {
       mode |= ADC_CFG_AVGS(3);
       //Serial.println(ADC_CFG_AVGS(3), BIN);
@@ -89,7 +88,6 @@ void analogReadAveraging(unsigned int num)
     } else {
       mode |= ADC_CFG_AVGS(0);
     }
-
   ADC1_CFG = mode;
   
   //enable averaging
