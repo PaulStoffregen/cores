@@ -64,12 +64,15 @@ public:
 		const uint32_t ccm_value;
 		const uint8_t rx_pin;
 		const uint8_t tx_pin;
-		//volatile uint32_t &rx_mux_register;
-		//volatile uint32_t &tx_mux_register;
+		const uint8_t cts_pin;
 		volatile uint32_t &rx_select_input_register;
 		const uint8_t rx_mux_val;
 		const uint8_t tx_mux_val;
+		const uint8_t cts_mux_val;
 		const uint8_t rx_select_val;
+		const uint16_t irq_priority;
+		const uint16_t rts_low_watermark;
+		const uint16_t rts_high_watermark;
 	} hardware_t;
 public:
 	constexpr HardwareSerial(IMXRT_LPUART_t *myport, const hardware_t *myhardware, 
@@ -95,6 +98,8 @@ public:
 	bool attachCts(uint8_t pin);
 	void clear(void);
 	int availableForWrite(void);
+	void addStorageForRead(void *buffer, size_t length);
+	void addStorageForWrite(void *buffer, size_t length);
 	size_t write9bit(uint32_t c);
 
 	using Print::write; 
@@ -120,21 +125,22 @@ private:
 	size_t				rx_buffer_size_;
 	size_t				tx_buffer_total_size_;
 	size_t				rx_buffer_total_size_;
+	size_t  			rts_low_watermark_ = 0;
+	size_t  			rts_high_watermark_ = 0;
 	volatile uint8_t 	transmitting_ = 0;
 	volatile uint16_t 	tx_buffer_head_ = 0;
 	volatile uint16_t 	tx_buffer_tail_ = 0;
 	volatile uint16_t 	rx_buffer_head_ = 0;
 	volatile uint16_t 	rx_buffer_tail_ = 0;
 
-	// Currently using digitalWWrite...
 	volatile uint32_t 	*transmit_pin_baseReg_ = 0;
 	uint32_t 			transmit_pin_bitmask_ = 0;
 
-	//int 			transmit_pin_=-1;
-	int 			rts_pin_=-1;
+	volatile uint32_t 	*rts_pin_baseReg_ = 0;
+	uint32_t 			rts_pin_bitmask_ = 0;
 
-  	inline void rts_assert()   {digitalWrite(rts_pin_ , 0); }
-  	inline void rts_deassert()  {digitalWrite(rts_pin_ , 1); }
+  	inline void rts_assert();
+  	inline void rts_deassert();
 
 	void IRQHandler();
 	friend void IRQHandler_Serial1();

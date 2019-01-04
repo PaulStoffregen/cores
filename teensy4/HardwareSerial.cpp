@@ -91,6 +91,29 @@
 #define CTRL_TX_COMPLETING	(CTRL_ENABLE | LPUART_CTRL_TCIE)
 #define CTRL_TX_INACTIVE	CTRL_ENABLE 
 
+// Copied from T3.x - probably should move to other location.
+int nvic_execution_priority(void)
+{
+	uint32_t priority=256;
+	uint32_t primask, faultmask, basepri, ipsr;
+
+	// full algorithm in ARM DDI0403D, page B1-639
+	// this isn't quite complete, but hopefully good enough
+	__asm__ volatile("mrs %0, faultmask\n" : "=r" (faultmask)::);
+	if (faultmask) return -1;
+	__asm__ volatile("mrs %0, primask\n" : "=r" (primask)::);
+	if (primask) return 0;
+	__asm__ volatile("mrs %0, ipsr\n" : "=r" (ipsr)::);
+	if (ipsr) {
+		if (ipsr < 16) priority = 0; // could be non-zero
+		else priority = NVIC_GET_PRIORITY(ipsr - 16);
+	}
+	__asm__ volatile("mrs %0, basepri\n" : "=r" (basepri)::);
+	if (basepri > 0 && basepri < priority) priority = basepri;
+	return priority;
+}
+
+
 void HardwareSerial::begin(uint32_t baud, uint8_t format)
 {
 	//printf("HardwareSerial begin\n");
@@ -116,6 +139,9 @@ void HardwareSerial::begin(uint32_t baud, uint8_t format)
 	rx_buffer_tail_ = 0;
 	tx_buffer_head_ = 0;
 	tx_buffer_tail_ = 0;
+	rts_low_watermark_ = rx_buffer_total_size_ - hardware->rts_low_watermark;
+	rts_high_watermark_ = rx_buffer_total_size_ - hardware->rts_high_watermark;
+
 	transmitting_ = 0;
 
 	hardware->ccm_register |= hardware->ccm_value;
@@ -136,7 +162,7 @@ void HardwareSerial::begin(uint32_t baud, uint8_t format)
 
 	// Enable the transmitter, receiver and enable receiver interrupt
 	attachInterruptVector(hardware->irq, hardware->irq_handler);
-	NVIC_SET_PRIORITY(hardware->irq, IRQ_PRIORITY);	// maybe should put into hardware...
+	NVIC_SET_PRIORITY(hardware->irq, hardware->irq_priority);	// maybe should put into hardware...
 	NVIC_ENABLE_IRQ(hardware->irq);
 	uint16_t tx_fifo_size = (((port->FIFO >> 4) & 0x7) << 2);
 	uint8_t tx_water = (tx_fifo_size < 16) ? tx_fifo_size >> 1 : 7;
@@ -152,6 +178,17 @@ void HardwareSerial::begin(uint32_t baud, uint8_t format)
 	port->CTRL = CTRL_TX_INACTIVE;
 	//Serial.printf("    stat:%x ctrl:%x fifo:%x water:%x\n", port->STAT, port->CTRL, port->FIFO, port->WATER );
 };
+
+inline void HardwareSerial::rts_assert() 
+{
+	DIRECT_WRITE_LOW(rts_pin_baseReg_, rts_pin_bitmask_);
+}
+
+inline void HardwareSerial::rts_deassert()
+{
+	DIRECT_WRITE_HIGH(rts_pin_baseReg_, rts_pin_bitmask_);
+}
+
 
 void HardwareSerial::end(void)
 {
@@ -169,33 +206,51 @@ void HardwareSerial::transmitterEnable(uint8_t pin)
 
 void HardwareSerial::setRX(uint8_t pin)
 {
-	// BUGBUG Implement
-	//Serial.printf("SerialX TX(%d) param:%x stat:%x ctrl:%x fifo:%x water:%x\n", hardware->tx_pin, port->PARAM, port->STAT, port->CTRL, port->FIFO, port->WATER );
+	// Currently none of these have multiple 
+	// possible RX pins
 
 }
 
 void HardwareSerial::setTX(uint8_t pin, bool opendrain)
 {
-	// BUGBUG Implement
+	// Currently none of these have multiple 
+	// possible TX pins
 }
+
 
 bool HardwareSerial::attachRts(uint8_t pin)
 {
-	// BUGBUG Implement
-	return false;
+	if (!(hardware->ccm_register & hardware->ccm_value)) return 0;
+	if (pin < CORE_NUM_DIGITAL) {
+		rts_pin_baseReg_ = PIN_TO_BASEREG(pin);
+		rts_pin_bitmask_ = PIN_TO_BITMASK(pin);
+		pinMode(pin, OUTPUT);
+		rts_assert();
+	} else {
+		rts_pin_baseReg_ = NULL;
+		return 0;
+	}
+	return 1;
 }
 
 bool HardwareSerial::attachCts(uint8_t pin)
 {
-	// BUGBUG Implement
-	return false;
+	if (!(hardware->ccm_register & hardware->ccm_value)) return false;
+	if ((pin != 0xff) && (pin == hardware->cts_pin)) {
+		*(portConfigRegister(hardware->cts_pin)) = hardware->cts_mux_val;
+		port->MODIR |= LPUART_MODIR_TXCTSE;
+		return true;
+	} else {
+		port->MODIR &= ~LPUART_MODIR_TXCTSE;
+		return false;
+	}
 }
 
 void HardwareSerial::clear(void)
 {
 	// BUGBUG:: deal with FIFO
 	rx_buffer_head_ = rx_buffer_tail_;
-	//if (rts_pin_) rts_assert();
+	if (rts_pin_baseReg_) rts_assert();
 }
 
 int HardwareSerial::availableForWrite(void)
@@ -224,6 +279,29 @@ int HardwareSerial::available(void)
 	tail = rx_buffer_tail_;
 	if (head >= tail) return head - tail;
 	return rx_buffer_total_size_ + head - tail;
+}
+
+void HardwareSerial::addStorageForRead(void *buffer, size_t length) 
+{
+	rx_buffer_storage_ = (BUFTYPE*)buffer;
+	if (buffer) {
+		rx_buffer_total_size_ = rx_buffer_total_size_ + length;
+	} else {
+		rx_buffer_total_size_ = rx_buffer_total_size_;
+	} 
+
+	rts_low_watermark_ = rx_buffer_total_size_ - hardware->rts_low_watermark;
+	rts_high_watermark_ = rx_buffer_total_size_ - hardware->rts_high_watermark;
+}
+
+void HardwareSerial::addStorageForWrite(void *buffer, size_t length) 
+{
+	tx_buffer_storage_ = (BUFTYPE*)buffer;
+	if (buffer) {
+		tx_buffer_total_size_ = tx_buffer_total_size_ + length;
+	} else {
+		tx_buffer_total_size_ = tx_buffer_total_size_;
+	} 
 }
 
 int HardwareSerial::peek(void)
@@ -256,13 +334,12 @@ int HardwareSerial::read(void)
 		c = rx_buffer_storage_[tail-rx_buffer_size_];
 	}
 	rx_buffer_tail_ = tail;
-	if (rts_pin_) {
+	if (rts_pin_baseReg_) {
 		uint32_t avail;
 		if (head >= tail) avail = head - tail;
 		else avail = rx_buffer_total_size_ + head - tail;
-		/*  
+
 		if (avail <= rts_low_watermark_) rts_assert();
-		*/
 	}
 	return c;
 }	
@@ -281,9 +358,8 @@ size_t HardwareSerial::write(uint8_t c)
 	head = tx_buffer_head_;
 	if (++head >= tx_buffer_total_size_) head = 0;
 	while (tx_buffer_tail_ == head) {
-		/*
 		int priority = nvic_execution_priority();
-		if (priority <= IRQ_PRIORITY) {
+		if (priority <= hardware->irq_priority) {
 			if ((port->STAT & LPUART_STAT_TDRE)) {
 				uint32_t tail = tx_buffer_tail_;
 				if (++tail >= tx_buffer_total_size_) tail = 0;
@@ -296,7 +372,6 @@ size_t HardwareSerial::write(uint8_t c)
 				tx_buffer_tail_ = tail;
 			}
 		} else if (priority >= 256) 
-		*/
 		{
 			yield(); // wait
 		} 
@@ -308,9 +383,11 @@ size_t HardwareSerial::write(uint8_t c)
 	} else {
 		tx_buffer_storage_[head - tx_buffer_size_] = c;
 	}
+	__disable_irq();
 	transmitting_ = 1;
 	tx_buffer_head_ = head;
 	port->CTRL |= LPUART_CTRL_TIE; // (may need to handle this issue)BITBAND_SET_BIT(LPUART0_CTRL, TIE_BIT);
+	__enable_irq();
 	//digitalWrite(3, LOW);
 	return 1;
 }
@@ -354,6 +431,12 @@ void HardwareSerial::IRQHandler()
 				}
 			} while (--avail > 0) ;
 			rx_buffer_head_ = head;
+			if (rts_pin_baseReg_) {
+				uint32_t avail;
+				if (head >= tail) avail = head - tail;
+				else avail = rx_buffer_total_size_ + head - tail;
+				if (avail >= rts_high_watermark_) rts_deassert();
+			}
 		}
 
 		// If it was an idle status clear the idle
@@ -450,10 +533,13 @@ const HardwareSerial::hardware_t UART6_Hardware = {
 	CCM_CCGR3, CCM_CCGR3_LPUART6(CCM_CCGR_ON),
 	0, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B0_03, // pin 0
 	1, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B0_02, // pin 1
+	0xff, // No CTS pin
 	IOMUXC_LPUART6_RX_SELECT_INPUT,
 	2, // page 473
 	2, // page 472
+	0, // No CTS
 	1, // page 861
+	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 };
 HardwareSerial Serial1(&IMXRT_LPUART6, &UART6_Hardware, tx_buffer1, SERIAL1_TX_BUFFER_SIZE,
 	rx_buffer1,  SERIAL1_RX_BUFFER_SIZE);
@@ -467,10 +553,13 @@ static HardwareSerial::hardware_t UART4_Hardware = {
 	CCM_CCGR1, CCM_CCGR1_LPUART4(CCM_CCGR_ON),
 	6, //IOMUXC_SW_MUX_CTL_PAD_GPIO_B1_01, // pin 6
 	7, // IOMUXC_SW_MUX_CTL_PAD_GPIO_B1_00, // pin 7
+	0xff, // No CTS pin
 	IOMUXC_LPUART4_RX_SELECT_INPUT,
 	2, // page 521
 	2, // page 520
+	0, // No CTS
 	2, // page 858
+	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 };
 HardwareSerial Serial2(&IMXRT_LPUART4, &UART4_Hardware, tx_buffer2, SERIAL2_TX_BUFFER_SIZE, 
 	rx_buffer2,  SERIAL2_RX_BUFFER_SIZE);
@@ -484,10 +573,13 @@ static HardwareSerial::hardware_t UART2_Hardware = {
 	CCM_CCGR0, CCM_CCGR0_LPUART2(CCM_CCGR_ON),
 	15, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_03, // pin 15
 	14, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_02, // pin 14
+	18, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_01, // 18
 	IOMUXC_LPUART2_RX_SELECT_INPUT,
 	2, // page 491
 	2, // page 490
+	2, // page 473 
 	1, // Page 855
+	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 };
 HardwareSerial Serial3(&IMXRT_LPUART2, &UART2_Hardware,tx_buffer3, SERIAL3_TX_BUFFER_SIZE,
 	rx_buffer3,  SERIAL3_RX_BUFFER_SIZE);
@@ -501,10 +593,13 @@ static HardwareSerial::hardware_t UART3_Hardware = {
 	CCM_CCGR0, CCM_CCGR0_LPUART3(CCM_CCGR_ON),
 	16, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_07, // pin 16
 	17, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_06, // pin 17
+	0xff, // No CTS pin
 	IOMUXC_LPUART3_RX_SELECT_INPUT,
 	2, // page 495
 	2, // page 494
+	0, // No CTS
 	0, // Page 857
+	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 };
 HardwareSerial Serial4(&IMXRT_LPUART3, &UART3_Hardware, tx_buffer4, SERIAL4_TX_BUFFER_SIZE,
 	rx_buffer4,  SERIAL4_RX_BUFFER_SIZE);
@@ -518,10 +613,13 @@ static HardwareSerial::hardware_t UART8_Hardware = {
 	CCM_CCGR6, CCM_CCGR6_LPUART8(CCM_CCGR_ON),
 	21, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_11, // pin 21
 	20, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_10, // pin 20
+	0xff, // No CTS pin
 	IOMUXC_LPUART8_RX_SELECT_INPUT,
 	2, // page 499
 	2, // page 498
+	0, // No CTS
 	1, // Page 864-5
+	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 };
 HardwareSerial Serial5(&IMXRT_LPUART8, &UART8_Hardware, tx_buffer5, SERIAL5_TX_BUFFER_SIZE,
 	rx_buffer5,  SERIAL5_RX_BUFFER_SIZE);
@@ -536,10 +634,13 @@ static HardwareSerial::hardware_t UART1_Hardware = {
 	CCM_CCGR5, CCM_CCGR5_LPUART1(CCM_CCGR_ON),
 	25, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B0_13, // pin 25
 	24, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B0_12, // pin 24
+	0xff, // No CTS pin
 	IOMUXC_LPUART1_RX_SELECT_INPUT,
 	2, // page 486
 	2, // page 485
+	0, // No CTS
 	0, // ??? Does not have one ???
+	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 
 };
 HardwareSerial Serial6(&IMXRT_LPUART1, &UART1_Hardware, tx_buffer6, SERIAL6_TX_BUFFER_SIZE,
@@ -554,11 +655,14 @@ static HardwareSerial::hardware_t UART7_Hardware = {
 	CCM_CCGR5, CCM_CCGR5_LPUART7(CCM_CCGR_ON),
 	28, //IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_32, // pin 28
 	29, //IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_31, // pin 29
+	0xff, // No CTS pin
 	IOMUXC_LPUART7_RX_SELECT_INPUT,
 	2, // page 458
 	2, // page 457
+	0, // No CTS
 	1, // Page 863
 
+	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 };
 HardwareSerial Serial7(&IMXRT_LPUART7, &UART7_Hardware, tx_buffer7, SERIAL7_TX_BUFFER_SIZE,
 	rx_buffer7,  SERIAL7_RX_BUFFER_SIZE);
@@ -572,10 +676,13 @@ static HardwareSerial::hardware_t UART5_Hardware = {
 	CCM_CCGR3, CCM_CCGR3_LPUART5(CCM_CCGR_ON),
 	30, //IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_24, // pin 30
 	31, // IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_23, // pin 31
+	0xff, // No CTS pin
 	IOMUXC_LPUART5_RX_SELECT_INPUT,
 	2, // page 450
 	2, // page 449
+	0, // No CTS
 	0,
+	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 };
 HardwareSerial Serial8(&IMXRT_LPUART5, &UART5_Hardware, tx_buffer8, SERIAL8_TX_BUFFER_SIZE,
 	rx_buffer8,  SERIAL8_RX_BUFFER_SIZE);
