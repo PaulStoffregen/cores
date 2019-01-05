@@ -1,3 +1,32 @@
+/* Teensyduino Core Library
+ * http://www.pjrc.com/teensy/
+ * Copyright (c) 2017 PJRC.COM, LLC.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * 1. The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * 2. If the Software is incorporated into a build system that allows
+ * selection among a list of target devices, then similar target
+ * devices manufactured by PJRC.COM must be included in the list of
+ * target devices and selectable in the same manner.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
 #include "HardwareSerial.h"
 #include "core_pins.h"
@@ -114,7 +143,7 @@ int nvic_execution_priority(void)
 }
 
 
-void HardwareSerial::begin(uint32_t baud, uint8_t format)
+void HardwareSerial::begin(uint32_t baud, uint16_t format)
 {
 	//printf("HardwareSerial begin\n");
 	float base = (float)UART_CLOCK / (float)baud;
@@ -175,7 +204,36 @@ void HardwareSerial::begin(uint32_t baud, uint8_t format)
 	*/
 	port->WATER = LPUART_WATER_RXWATER(rx_water) | LPUART_WATER_TXWATER(tx_water);
 	port->FIFO |= LPUART_FIFO_TXFE | LPUART_FIFO_RXFE;
-	port->CTRL = CTRL_TX_INACTIVE;
+
+
+	// lets configure up our CTRL register value
+	uint32_t ctrl = CTRL_TX_INACTIVE;
+
+	// Now process the bits in the Format value passed in
+	// Bits 0-2 - Parity plus 9  bit. 
+	ctrl |= (format & (LPUART_CTRL_PT | LPUART_CTRL_PE) );	// configure parity - turn off PT, PE, M and configure PT, PE
+	if (format & 0x04) ctrl |= LPUART_CTRL_M;		// 9 bits (might include parity)
+	if ((format & 0x0F) == 0x04) ctrl |=  LPUART_CTRL_R9T8; // 8N2 is 9 bit with 9th bit always 1
+
+	// Bit 5 TXINVERT
+	if (format & 0x20) ctrl |= LPUART_CTRL_TXINV;		// tx invert
+
+	// write out computed CTRL
+	port->CTRL = ctrl;
+
+	// Bit 3 10 bit - Will assume that begin already cleared it.
+	// process some other bits which change other registers.
+	if (format & 0x08) 	port->BAUD |= LPUART_BAUD_M10;
+
+	// Bit 4 RXINVERT 
+	uint32_t c = port->STAT & ~LPUART_STAT_RXINV;
+	if (format & 0x10) c |= LPUART_STAT_RXINV;		// rx invert
+	port->STAT = c;
+
+
+	// bit 8 can turn on 2 stop bit mote
+	if ( format & 0x100) port->BAUD |= LPUART_BAUD_SBNS;	
+
 	//Serial.printf("    stat:%x ctrl:%x fifo:%x water:%x\n", port->STAT, port->CTRL, port->FIFO, port->WATER );
 };
 
@@ -237,6 +295,8 @@ bool HardwareSerial::attachCts(uint8_t pin)
 {
 	if (!(hardware->ccm_register & hardware->ccm_value)) return false;
 	if ((pin != 0xff) && (pin == hardware->cts_pin)) {
+		// Setup the IO pin as weak PULL down. 
+		*(portControlRegister(pin)) = IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(0) | IOMUXC_PAD_HYS;
 		*(portConfigRegister(hardware->cts_pin)) = hardware->cts_mux_val;
 		port->MODIR |= LPUART_MODIR_TXCTSE;
 		return true;
@@ -261,11 +321,6 @@ int HardwareSerial::availableForWrite(void)
 	tail = tx_buffer_tail_;
 	if (head >= tail) return tx_buffer_total_size_ - 1 - head + tail;
 	return tail - head - 1;
-}
-
-size_t HardwareSerial::write9bit(uint32_t c)
-{
-	return 0;
 }
 
 
@@ -351,6 +406,12 @@ void HardwareSerial::flush(void)
 
 size_t HardwareSerial::write(uint8_t c)
 {
+	// use the 9 bit version (maybe 10 bit) do do the work. 
+	return write9bit(c);
+}
+
+size_t HardwareSerial::write9bit(uint32_t c)
+{
 	uint32_t head, n;
 	//digitalWrite(3, HIGH);
 	//digitalWrite(5, HIGH);
@@ -409,15 +470,7 @@ void HardwareSerial::IRQHandler()
 			head = rx_buffer_head_;
 			tail = rx_buffer_tail_;
 			do {
-				#if 1
-				n = port->DATA;	// get the byte... 
-				#else
-				if (use9Bits_ && (port().C3 & 0x80)) {
-					n = port().D | 0x100;
-				} else {
-					n = port().D;
-				} 
-				#endif
+				n = port->DATA & 0x3ff;		// Use only up to 10 bits of data
 				newhead = head + 1;
 
 				if (newhead >= rx_buffer_total_size_) newhead = 0;
@@ -463,11 +516,13 @@ void HardwareSerial::IRQHandler()
 			} else {
 				n = tx_buffer_storage_[tail-tx_buffer_size_];
 			}
-			//if (use9Bits_) port().C3 = (port().C3 & ~0x40) | ((n & 0x100) >> 2);
 			port->DATA = n;
 		} while (((port->WATER >> 8) & 0x7) < 4); 	// need to computer properly
 		tx_buffer_tail_ = tail;
-		if (head == tail) port->CTRL = CTRL_TX_COMPLETING;
+		if (head == tail) {
+			port->CTRL &= ~LPUART_CTRL_TIE; 
+  			port->CTRL |= LPUART_CTRL_TCIE; // Actually wondering if we can just leave this one on...
+		}
 		//digitalWrite(3, LOW);
 	}
 
@@ -476,7 +531,7 @@ void HardwareSerial::IRQHandler()
 		transmitting_ = 0;
 		if (transmit_pin_baseReg_) DIRECT_WRITE_LOW(transmit_pin_baseReg_, transmit_pin_bitmask_);
 
-		port->CTRL = CTRL_TX_INACTIVE;
+		port->CTRL &= ~LPUART_CTRL_TCIE;
 	}
 	//digitalWrite(4, LOW);
 }
