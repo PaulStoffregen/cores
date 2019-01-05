@@ -204,7 +204,7 @@ int usb_serial_putchar(uint8_t c)
 }
 
 
-static transfer_t volatile transfer __attribute__ ((used, aligned(32)));
+static transfer_t transfer __attribute__ ((used, aligned(32)));
 static uint8_t txbuffer[1024];
 //static uint8_t txbuffer1[1024];
 //static uint8_t txbuffer2[1024];
@@ -218,7 +218,7 @@ int usb_serial_write(const void *buffer, uint32_t size)
 	int count=0;
 	//digitalWriteFast(13, HIGH);
 	while (1) {
-		uint32_t status = (volatile)(transfer.status);
+		uint32_t status = transfer.status;
 		if (count > 10) printf("status = %x\n", status);
 		if (!(status & 0x80)) break;
 		count++;

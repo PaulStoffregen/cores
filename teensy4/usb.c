@@ -2,6 +2,7 @@
 #define USB_DESC_LIST_DEFINE
 #include "usb_desc.h"
 #include "usb_serial.h"
+#include "core_pins.h" // for delay()
 #include <string.h>
 #include "debug/printf.h"
 
@@ -129,7 +130,7 @@ void usb_init(void)
 		//printf("USBPHY1_RX=%08lX\n", USBPHY1_RX);
 		//printf("USBPHY1_CTRL=%08lX\n", USBPHY1_CTRL);
 		//printf("USB1_USBMODE=%08lX\n", USB1_USBMODE);
-		delay(100);
+		delay(25);
 	}
 #endif
 	// Device Controller Initialization, page 3161

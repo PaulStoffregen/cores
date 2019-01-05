@@ -26,9 +26,10 @@ extern void pendablesrvreq_isr(void);
 void configure_cache(void);
 void unused_interrupt_vector(void);
 void usb_pll_start();
-extern void analog_init(void);
-extern void pwm_init(void);
-uint32_t set_arm_clock(uint32_t frequency);
+extern void analog_init(void); // analog.c
+extern void pwm_init(void); // pwm.c
+uint32_t set_arm_clock(uint32_t frequency); // clockspeed.c
+extern void __libc_init_array(void); // C++ standard library
 
 
 __attribute__((section(".startup"), optimize("no-tree-loop-distribute-patterns")))
@@ -76,16 +77,6 @@ void ResetHandler(void)
 
 	set_arm_clock(600000000);
 	//set_arm_clock(984000000); Ludicrous Speed
-
-	uint32_t armpll = CCM_ANALOG_PLL_ARM;
-	uint32_t armdiv = CCM_CACRR;
-	uint32_t cbcdr = CCM_CBCDR;
-	uint32_t cbcmr = CCM_CBCMR;
-
-	printf("ARM PLL = %u MHz\n", (armpll & 0x7F) * 12);
-	printf("ARM divisor = %u\n", armdiv + 1);
-	printf("AHB divisor = %u\n", ((cbcdr >> 10) & 7) + 1);
-	printf("IPG divisor = %u\n", ((cbcdr >> 8) & 3) + 1);
 
 	while (millis() < 20) ; // wait at least 20ms before starting USB
 	usb_init();
