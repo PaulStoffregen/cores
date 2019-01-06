@@ -50,7 +50,7 @@ SECTIONS
 		. = . + 32; /* MPU to trap stack overflow */
 	} > DTCM
 
-	.bss.dma : {
+	.bss.dma (NOLOAD) : {
 		*(.dmabuffers)
 		. = ALIGN(16);
 	} > RAM
