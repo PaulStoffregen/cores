@@ -78,37 +78,40 @@ void analogReadRes(unsigned int bits)
     // 12 bit conversion (25 clocks) plus 24 clocks for input settling
     mode = ADC_CFG_MODE(2) | ADC_CFG_ADSTS(3) | ADC_CFG_ADLSMP;
   }
-  tmp32  = (ADC1_CFG & ((1u << 22)-1) << 10);
-  tmp32 |= (ADC1_CFG & ((1u << 2)-1) << 0);  // ADICLK
-  tmp32 |= ADC1_CFG & (((1u << 3)-1) << 5);  // ADIV & ADLPC
+
+  tmp32  = (ADC1_CFG & (0xFFFFFC00));
+  tmp32 |= (ADC1_CFG & (0x03));  // ADICLK
+  tmp32 |= (ADC1_CFG & (0xE0));  // ADIV & ADLPC
+
   tmp32 |= mode; 
   ADC1_CFG = tmp32;
-
 }
 
 void analogReadAveraging(unsigned int num)
 {
-  uint32_t tmp32, mode;
+  uint32_t tmp32, mode, avg=0;
   
   //disable averaging
   tmp32 = ADC1_GC;
   ADC1_GC &= ~0x20;
-
   mode = ADC1_CFG & ~0xC000;
+
     if (num >= 32) {
       mode |= ADC_CFG_AVGS(3);
-      //Serial.println(ADC_CFG_AVGS(3), BIN);
     } else if (num >= 16) {
       mode |= ADC_CFG_AVGS(2);
     } else if (num >= 8) {
       mode |= ADC_CFG_AVGS(1);
-    } else {
+    } else if (num >= 4) {
       mode |= ADC_CFG_AVGS(0);
+    } else {
+      mode |= 0;
     }
-  ADC1_CFG = mode;
-  
-  //enable averaging
-  ADC1_GC = tmp32;
+
+  ADC1_CFG |= mode;
+
+  if(num >= 4)
+      ADC1_GC |= ADC_GC_AVGE;// turns on averaging}
 }
 
 #define MAX_ADC_CLOCK 20000000
