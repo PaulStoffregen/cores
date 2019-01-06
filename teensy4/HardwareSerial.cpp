@@ -198,6 +198,20 @@ inline void HardwareSerial::rts_deassert()
 
 void HardwareSerial::end(void)
 {
+	if (!(hardware->ccm_register & hardware->ccm_value)) return;
+	while (transmitting_) yield();  // wait for buffered data to send
+	port->CTRL = 0;	// disable the TX and RX ...
+
+	// Not sure if this is best, but I think most IO pins default to Mode 5? which appears to be digital IO? 
+	*(portConfigRegister(hardware->rx_pin)) = 5;
+	*(portConfigRegister(hardware->tx_pin)) = 5;
+
+
+	// Might need to clear out other areas as well? 
+	rx_buffer_head_ = 0;
+	rx_buffer_tail_ = 0;
+	if (rts_pin_baseReg_) rts_deassert();
+	// 
 
 }
 

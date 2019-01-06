@@ -231,7 +231,14 @@ extern HardwareSerial Serial5;
 extern HardwareSerial Serial6;
 extern HardwareSerial Serial7;
 extern HardwareSerial Serial8;
-//extern void serialEvent1(void);
+extern void serialEvent1(void);
+extern void serialEvent2(void);
+extern void serialEvent3(void);
+extern void serialEvent4(void);
+extern void serialEvent5(void);
+extern void serialEvent6(void);
+extern void serialEvent7(void);
+extern void serialEvent8(void);
 
 
 #endif // __cplusplus
