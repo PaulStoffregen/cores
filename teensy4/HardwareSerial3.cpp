@@ -44,12 +44,17 @@ void IRQHandler_Serial3()
 	Serial3.IRQHandler();
 }
 
+void serial_event_check_serial3()
+{
+	if (Serial3.available()) serialEvent3();
+}
+
 // Serial3
 static BUFTYPE tx_buffer3[SERIAL3_TX_BUFFER_SIZE];
 static BUFTYPE rx_buffer3[SERIAL3_RX_BUFFER_SIZE];
 
 static HardwareSerial::hardware_t UART2_Hardware = {
-	IRQ_LPUART2, &IRQHandler_Serial3,
+	2, IRQ_LPUART2, &IRQHandler_Serial3, &serial_event_check_serial3, 
 	CCM_CCGR0, CCM_CCGR0_LPUART2(CCM_CCGR_ON),
 	15, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_03, // pin 15
 	14, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_02, // pin 14
@@ -65,4 +70,5 @@ HardwareSerial Serial3(&IMXRT_LPUART2, &UART2_Hardware,tx_buffer3, SERIAL3_TX_BU
 	rx_buffer3,  SERIAL3_RX_BUFFER_SIZE);
 
 void serialEvent3() __attribute__((weak));
-void serialEvent3() {}
+void serialEvent3() {Serial3.disableSerialEvents(); }		// No use calling this so disable if called...
+

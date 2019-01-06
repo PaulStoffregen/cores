@@ -44,13 +44,19 @@ void IRQHandler_Serial6()
 	Serial6.IRQHandler();
 }
 
+void serial_event_check_serial6()
+{
+	if (Serial6.available()) serialEvent6();
+}
+
+
 // Serial6
 static BUFTYPE tx_buffer6[SERIAL6_TX_BUFFER_SIZE];
 static BUFTYPE rx_buffer6[SERIAL6_RX_BUFFER_SIZE];
 uint32_t IOMUXC_LPUART1_RX_SELECT_INPUT;		// bugbug - does not exist so hack
 
 static HardwareSerial::hardware_t UART1_Hardware = {
-	IRQ_LPUART1, &IRQHandler_Serial6,
+	5, IRQ_LPUART1, &IRQHandler_Serial6, &serial_event_check_serial6,
 	CCM_CCGR5, CCM_CCGR5_LPUART1(CCM_CCGR_ON),
 	25, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B0_13, // pin 25
 	24, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B0_12, // pin 24
@@ -68,4 +74,4 @@ HardwareSerial Serial6(&IMXRT_LPUART1, &UART1_Hardware, tx_buffer6, SERIAL6_TX_B
 	rx_buffer6,  SERIAL6_RX_BUFFER_SIZE);
 
 void serialEvent6() __attribute__((weak));
-void serialEvent6() {}
+void serialEvent6() {Serial6.disableSerialEvents(); }		// No use calling this so disable if called...

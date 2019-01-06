@@ -44,12 +44,17 @@ void IRQHandler_Serial1()
 	Serial1.IRQHandler();
 }
 
+void serial_event_check_serial1()
+{
+	if (Serial1.available()) serialEvent1();
+}
+
 // Serial1
 static BUFTYPE tx_buffer1[SERIAL1_TX_BUFFER_SIZE];
 static BUFTYPE rx_buffer1[SERIAL1_RX_BUFFER_SIZE];
 
 const HardwareSerial::hardware_t UART6_Hardware = {
-	IRQ_LPUART6, &IRQHandler_Serial1,
+	0, IRQ_LPUART6, &IRQHandler_Serial1, &serial_event_check_serial1,
 	CCM_CCGR3, CCM_CCGR3_LPUART6(CCM_CCGR_ON),
 	0, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B0_03, // pin 0
 	1, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B0_02, // pin 1
@@ -65,4 +70,4 @@ HardwareSerial Serial1(&IMXRT_LPUART6, &UART6_Hardware, tx_buffer1, SERIAL1_TX_B
 	rx_buffer1,  SERIAL1_RX_BUFFER_SIZE);
 
 void serialEvent1() __attribute__((weak));
-void serialEvent1() {}
+void serialEvent1() {Serial1.disableSerialEvents(); }		// No use calling this so disable if called...

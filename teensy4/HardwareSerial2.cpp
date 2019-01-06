@@ -45,13 +45,18 @@ void IRQHandler_Serial2()
 	Serial2.IRQHandler();
 }
 
+void serial_event_check_serial2()
+{
+	if (Serial2.available()) serialEvent2();
+}
+
 
 // Serial2
 static BUFTYPE tx_buffer2[SERIAL2_TX_BUFFER_SIZE];
 static BUFTYPE rx_buffer2[SERIAL2_RX_BUFFER_SIZE];
 
 static HardwareSerial::hardware_t UART4_Hardware = {
-	IRQ_LPUART4, &IRQHandler_Serial2,
+	1, IRQ_LPUART4, &IRQHandler_Serial2, &serial_event_check_serial2,
 	CCM_CCGR1, CCM_CCGR1_LPUART4(CCM_CCGR_ON),
 	6, //IOMUXC_SW_MUX_CTL_PAD_GPIO_B1_01, // pin 6
 	7, // IOMUXC_SW_MUX_CTL_PAD_GPIO_B1_00, // pin 7
@@ -68,4 +73,4 @@ HardwareSerial Serial2(&IMXRT_LPUART4, &UART4_Hardware, tx_buffer2, SERIAL2_TX_B
 
 
 void serialEvent2() __attribute__((weak));
-void serialEvent2() {}
+void serialEvent2() {Serial2.disableSerialEvents(); }		// No use calling this so disable if called...

@@ -62,6 +62,9 @@
 
 #define UART_CLOCK 24000000
 
+SerialEventCheckingFunctionPointer HardwareSerial::serial_event_handler_checks[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+uint8_t HardwareSerial::serial_event_handlers_active = 0;
+
 
 #define CTRL_ENABLE 		(LPUART_CTRL_TE | LPUART_CTRL_RE | LPUART_CTRL_RIE | LPUART_CTRL_ILIE)
 #define CTRL_TX_ACTIVE		(CTRL_ENABLE | LPUART_CTRL_TIE)
@@ -178,11 +181,11 @@ void HardwareSerial::begin(uint32_t baud, uint16_t format)
 	if (format & 0x10) c |= LPUART_STAT_RXINV;		// rx invert
 	port->STAT = c;
 
-
 	// bit 8 can turn on 2 stop bit mote
 	if ( format & 0x100) port->BAUD |= LPUART_BAUD_SBNS;	
 
 	//Serial.printf("    stat:%x ctrl:%x fifo:%x water:%x\n", port->STAT, port->CTRL, port->FIFO, port->WATER );
+	enableSerialEvents(); 		// Enable the processing of serialEvent for this object
 };
 
 inline void HardwareSerial::rts_assert() 
@@ -212,7 +215,7 @@ void HardwareSerial::end(void)
 	rx_buffer_tail_ = 0;
 	if (rts_pin_baseReg_) rts_deassert();
 	// 
-
+	disableSerialEvents(); 		// disable the processing of serialEvent for this object
 }
 
 void HardwareSerial::transmitterEnable(uint8_t pin)
@@ -496,4 +499,33 @@ void HardwareSerial::IRQHandler()
 		port->CTRL &= ~LPUART_CTRL_TCIE;
 	}
 	//digitalWrite(4, LOW);
+}
+
+
+void HardwareSerial::processSerialEvents()
+{
+	if (!serial_event_handlers_active) return;	// bail quick if no one processing SerialEvents.
+	uint8_t handlers_still_to_process = serial_event_handlers_active;
+	for (uint8_t i = 0; i < 8; i++) {
+		if (serial_event_handler_checks[i]) {
+			(*serial_event_handler_checks[i])();
+			if (--handlers_still_to_process == 0) return;
+		}
+	}
+}
+
+void HardwareSerial::enableSerialEvents() 
+{
+	if (!serial_event_handler_checks[hardware->serial_index]) {
+		serial_event_handler_checks[hardware->serial_index] = hardware->serial_event_handler_check;	// clear it out
+		serial_event_handlers_active++;
+	}
+}
+
+void HardwareSerial::disableSerialEvents() 
+{
+	if (serial_event_handler_checks[hardware->serial_index]) {
+		serial_event_handler_checks[hardware->serial_index] = nullptr;	// clear it out
+		serial_event_handlers_active--;
+	}
 }

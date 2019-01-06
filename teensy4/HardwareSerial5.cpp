@@ -45,12 +45,17 @@ void IRQHandler_Serial5()
 	Serial5.IRQHandler();
 }
 
+void serial_event_check_serial5()
+{
+	if (Serial5.available()) serialEvent5();
+}
+
 // Serial5
 static BUFTYPE tx_buffer5[SERIAL5_TX_BUFFER_SIZE];
 static BUFTYPE rx_buffer5[SERIAL5_RX_BUFFER_SIZE];
 
 static HardwareSerial::hardware_t UART8_Hardware = {
-	IRQ_LPUART8, &IRQHandler_Serial5,
+	4, IRQ_LPUART8, &IRQHandler_Serial5, &serial_event_check_serial5,
 	CCM_CCGR6, CCM_CCGR6_LPUART8(CCM_CCGR_ON),
 	21, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_11, // pin 21
 	20, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_10, // pin 20
@@ -68,4 +73,4 @@ HardwareSerial Serial5(&IMXRT_LPUART8, &UART8_Hardware, tx_buffer5, SERIAL5_TX_B
 
 
 void serialEvent5() __attribute__((weak));
-void serialEvent5() {}
+void serialEvent5() {Serial5.disableSerialEvents(); }		// No use calling this so disable if called...

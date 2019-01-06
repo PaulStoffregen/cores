@@ -44,12 +44,18 @@ void IRQHandler_Serial7()
 	Serial7.IRQHandler();
 }
 
+void serial_event_check_serial7()
+{
+	if (Serial7.available()) serialEvent7();
+}
+
+
 // Serial7
 static BUFTYPE tx_buffer7[SERIAL7_TX_BUFFER_SIZE];
 static BUFTYPE rx_buffer7[SERIAL7_RX_BUFFER_SIZE];
 
 static HardwareSerial::hardware_t UART7_Hardware = {
-	IRQ_LPUART7, &IRQHandler_Serial7,
+	6, IRQ_LPUART7, &IRQHandler_Serial7, &serial_event_check_serial7,
 	CCM_CCGR5, CCM_CCGR5_LPUART7(CCM_CCGR_ON),
 	28, //IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_32, // pin 28
 	29, //IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_31, // pin 29
@@ -67,4 +73,4 @@ HardwareSerial Serial7(&IMXRT_LPUART7, &UART7_Hardware, tx_buffer7, SERIAL7_TX_B
 
 
 void serialEvent7() __attribute__((weak));
-void serialEvent7() {}
+void serialEvent7() {Serial7.disableSerialEvents(); }		// No use calling this so disable if called...
