@@ -66,6 +66,23 @@ void analogReference(uint8_t type)
 
 void analogReadRes(unsigned int bits)
 {
+  uint32_t tmp32, mode;
+
+   if (bits == 8) {
+    // 8 bit conversion (17 clocks) plus 8 clocks for input settling
+    mode = ADC_CFG_MODE(0) | ADC_CFG_ADSTS(3);
+  } else if (bits == 10) {
+    // 10 bit conversion (17 clocks) plus 20 clocks for input settling
+    mode = ADC_CFG_MODE(1) | ADC_CFG_ADSTS(2) | ADC_CFG_ADLSMP;
+  } else {
+    // 12 bit conversion (25 clocks) plus 24 clocks for input settling
+    mode = ADC_CFG_MODE(2) | ADC_CFG_ADSTS(3) | ADC_CFG_ADLSMP;
+  }
+  tmp32  = (ADC1_CFG & ((1u << 22)-1) << 10);
+  tmp32 |= (ADC1_CFG & ((1u << 2)-1) << 0);  // ADICLK
+  tmp32 |= ADC1_CFG & (((1u << 3)-1) << 5);  // ADIV & ADLPC
+  tmp32 |= mode; 
+  ADC1_CFG = tmp32;
 
 }
 
