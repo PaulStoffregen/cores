@@ -71,7 +71,7 @@ void analogReadRes(unsigned int bits)
 
 void analogReadAveraging(unsigned int num)
 {
-  uint32_t tmp32, mode, avg=0;
+  uint32_t tmp32, mode;
   
   //disable averaging
   tmp32 = ADC1_GC;
