@@ -89,10 +89,9 @@ void analogReadRes(unsigned int bits)
 
 void analogReadAveraging(unsigned int num)
 {
-  uint32_t tmp32, mode, avg=0;
+  uint32_t mode;
   
   //disable averaging
-  tmp32 = ADC1_GC;
   ADC1_GC &= ~0x20;
   mode = ADC1_CFG & ~0xC000;
 
@@ -111,7 +110,7 @@ void analogReadAveraging(unsigned int num)
   ADC1_CFG |= mode;
 
   if(num >= 4)
-      ADC1_GC |= ADC_GC_AVGE;// turns on averaging}
+      ADC1_GC |= ADC_GC_AVGE;// turns on averaging
 }
 
 #define MAX_ADC_CLOCK 20000000
