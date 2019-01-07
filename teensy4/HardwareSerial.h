@@ -123,12 +123,16 @@ extern "C" {
 	extern void IRQHandler_Serial8();
 }
 
+typedef void(*SerialEventCheckingFunctionPointer)();
+
 class HardwareSerial : public Stream
 {
 public:
 	typedef struct {
+		uint8_t serial_index;	// which object are we? 0 based
 		IRQ_NUMBER_t irq;
 		void (*irq_handler)(void);
+		void (*serial_event_handler_check)(void);
 		volatile uint32_t &ccm_register;
 		const uint32_t ccm_value;
 		const uint8_t rx_pin;
@@ -170,6 +174,11 @@ public:
 	void addStorageForRead(void *buffer, size_t length);
 	void addStorageForWrite(void *buffer, size_t length);
 	size_t write9bit(uint32_t c);
+	
+	// Event Handler functions and data
+	void enableSerialEvents();
+	void disableSerialEvents();
+	static void processSerialEvents();
 
 	using Print::write; 
 	// Only overwrite some of the virtualWrite functions if we are going to optimize them over Print version
@@ -221,6 +230,10 @@ private:
 	friend void IRQHandler_Serial7();
 	friend void IRQHandler_Serial8();
 
+	static SerialEventCheckingFunctionPointer serial_event_handler_checks[8];
+	static uint8_t serial_event_handlers_active;
+
+
 
 };
 extern HardwareSerial Serial1;
@@ -231,7 +244,14 @@ extern HardwareSerial Serial5;
 extern HardwareSerial Serial6;
 extern HardwareSerial Serial7;
 extern HardwareSerial Serial8;
-//extern void serialEvent1(void);
+extern void serialEvent1(void);
+extern void serialEvent2(void);
+extern void serialEvent3(void);
+extern void serialEvent4(void);
+extern void serialEvent5(void);
+extern void serialEvent6(void);
+extern void serialEvent7(void);
+extern void serialEvent8(void);
 
 
 #endif // __cplusplus

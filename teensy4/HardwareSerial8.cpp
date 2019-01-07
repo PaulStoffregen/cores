@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2017 PJRC.COM, LLC.
+ * Copyright (c) 2019 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -29,19 +29,47 @@
  */
 
 #include <Arduino.h>
-#include "EventResponder.h"
+#include "HardwareSerial.h"
 
-void yield(void) __attribute__ ((weak));
-void yield(void)
+#ifndef SERIAL8_TX_BUFFER_SIZE
+#define SERIAL8_TX_BUFFER_SIZE     40 // number of outgoing bytes to buffer
+#endif
+#ifndef SERIAL8_RX_BUFFER_SIZE
+#define SERIAL8_RX_BUFFER_SIZE     64 // number of incoming bytes to buffer
+#endif
+#define IRQ_PRIORITY  64  // 0 = highest priority, 255 = lowest
+
+void IRQHandler_Serial8()
 {
-	static uint8_t running=0;
+	Serial8.IRQHandler();
+}
 
-	if (running) return; // TODO: does this need to be atomic?
-	running = 1;
+void serial_event_check_serial8()
+{
+	if (Serial8.available()) serialEvent8();
+}
 
-	// Current workaround until integrate with EventResponder.
-	HardwareSerial::processSerialEvents();
 
-	running = 0;
-	EventResponder::runFromYield();
+
+// Serial8
+static BUFTYPE tx_buffer8[SERIAL8_TX_BUFFER_SIZE];
+static BUFTYPE rx_buffer8[SERIAL8_RX_BUFFER_SIZE];
+
+static HardwareSerial::hardware_t UART5_Hardware = {
+	7, IRQ_LPUART5, &IRQHandler_Serial8, &serial_event_check_serial8,
+	CCM_CCGR3, CCM_CCGR3_LPUART5(CCM_CCGR_ON),
+	30, //IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_24, // pin 30
+	31, // IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_23, // pin 31
+	0xff, // No CTS pin
+	IOMUXC_LPUART5_RX_SELECT_INPUT,
+	2, // page 450
+	2, // page 449
+	0, // No CTS
+	0,
+	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 };
+HardwareSerial Serial8(&IMXRT_LPUART5, &UART5_Hardware, tx_buffer8, SERIAL8_TX_BUFFER_SIZE,
+	rx_buffer8,  SERIAL8_RX_BUFFER_SIZE);
+
+void serialEvent8() __attribute__((weak));
+void serialEvent8() {Serial8.disableSerialEvents(); }		// No use calling this so disable if called...

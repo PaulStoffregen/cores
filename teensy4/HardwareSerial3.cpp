@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2017 PJRC.COM, LLC.
+ * Copyright (c) 2019 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -29,19 +29,46 @@
  */
 
 #include <Arduino.h>
-#include "EventResponder.h"
+#include "HardwareSerial.h"
 
-void yield(void) __attribute__ ((weak));
-void yield(void)
+#ifndef SERIAL3_TX_BUFFER_SIZE
+#define SERIAL3_TX_BUFFER_SIZE     40 // number of outgoing bytes to buffer
+#endif
+#ifndef SERIAL3_RX_BUFFER_SIZE
+#define SERIAL3_RX_BUFFER_SIZE     64 // number of incoming bytes to buffer
+#endif
+#define IRQ_PRIORITY  64  // 0 = highest priority, 255 = lowest
+
+void IRQHandler_Serial3()
 {
-	static uint8_t running=0;
+	Serial3.IRQHandler();
+}
 
-	if (running) return; // TODO: does this need to be atomic?
-	running = 1;
+void serial_event_check_serial3()
+{
+	if (Serial3.available()) serialEvent3();
+}
 
-	// Current workaround until integrate with EventResponder.
-	HardwareSerial::processSerialEvents();
+// Serial3
+static BUFTYPE tx_buffer3[SERIAL3_TX_BUFFER_SIZE];
+static BUFTYPE rx_buffer3[SERIAL3_RX_BUFFER_SIZE];
 
-	running = 0;
-	EventResponder::runFromYield();
+static HardwareSerial::hardware_t UART2_Hardware = {
+	2, IRQ_LPUART2, &IRQHandler_Serial3, &serial_event_check_serial3, 
+	CCM_CCGR0, CCM_CCGR0_LPUART2(CCM_CCGR_ON),
+	15, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_03, // pin 15
+	14, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_02, // pin 14
+	18, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_01, // 18
+	IOMUXC_LPUART2_RX_SELECT_INPUT,
+	2, // page 491
+	2, // page 490
+	2, // page 473 
+	1, // Page 855
+	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 };
+HardwareSerial Serial3(&IMXRT_LPUART2, &UART2_Hardware,tx_buffer3, SERIAL3_TX_BUFFER_SIZE,
+	rx_buffer3,  SERIAL3_RX_BUFFER_SIZE);
+
+void serialEvent3() __attribute__((weak));
+void serialEvent3() {Serial3.disableSerialEvents(); }		// No use calling this so disable if called...
+

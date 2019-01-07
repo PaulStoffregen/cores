@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2017 PJRC.COM, LLC.
+ * Copyright (c) 2019 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -29,19 +29,48 @@
  */
 
 #include <Arduino.h>
-#include "EventResponder.h"
+#include "HardwareSerial.h"
 
-void yield(void) __attribute__ ((weak));
-void yield(void)
+#ifndef SERIAL2_TX_BUFFER_SIZE
+#define SERIAL2_TX_BUFFER_SIZE     40 // number of outgoing bytes to buffer
+#endif
+#ifndef SERIAL2_RX_BUFFER_SIZE
+#define SERIAL2_RX_BUFFER_SIZE     64 // number of incoming bytes to buffer
+#endif
+#define IRQ_PRIORITY  64  // 0 = highest priority, 255 = lowest
+
+
+void IRQHandler_Serial2()
 {
-	static uint8_t running=0;
+	Serial2.IRQHandler();
+}
 
-	if (running) return; // TODO: does this need to be atomic?
-	running = 1;
+void serial_event_check_serial2()
+{
+	if (Serial2.available()) serialEvent2();
+}
 
-	// Current workaround until integrate with EventResponder.
-	HardwareSerial::processSerialEvents();
 
-	running = 0;
-	EventResponder::runFromYield();
+// Serial2
+static BUFTYPE tx_buffer2[SERIAL2_TX_BUFFER_SIZE];
+static BUFTYPE rx_buffer2[SERIAL2_RX_BUFFER_SIZE];
+
+static HardwareSerial::hardware_t UART4_Hardware = {
+	1, IRQ_LPUART4, &IRQHandler_Serial2, &serial_event_check_serial2,
+	CCM_CCGR1, CCM_CCGR1_LPUART4(CCM_CCGR_ON),
+	6, //IOMUXC_SW_MUX_CTL_PAD_GPIO_B1_01, // pin 6
+	7, // IOMUXC_SW_MUX_CTL_PAD_GPIO_B1_00, // pin 7
+	0xff, // No CTS pin
+	IOMUXC_LPUART4_RX_SELECT_INPUT,
+	2, // page 521
+	2, // page 520
+	0, // No CTS
+	2, // page 858
+	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 };
+HardwareSerial Serial2(&IMXRT_LPUART4, &UART4_Hardware, tx_buffer2, SERIAL2_TX_BUFFER_SIZE, 
+	rx_buffer2,  SERIAL2_RX_BUFFER_SIZE);
+
+
+void serialEvent2() __attribute__((weak));
+void serialEvent2() {Serial2.disableSerialEvents(); }		// No use calling this so disable if called...

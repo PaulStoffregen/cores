@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2017 PJRC.COM, LLC.
+ * Copyright (c) 2019 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -29,19 +29,48 @@
  */
 
 #include <Arduino.h>
-#include "EventResponder.h"
+#include "HardwareSerial.h"
 
-void yield(void) __attribute__ ((weak));
-void yield(void)
+#ifndef SERIAL7_TX_BUFFER_SIZE
+#define SERIAL7_TX_BUFFER_SIZE     40 // number of outgoing bytes to buffer
+#endif
+#ifndef SERIAL7_RX_BUFFER_SIZE
+#define SERIAL7_RX_BUFFER_SIZE     64 // number of incoming bytes to buffer
+#endif
+#define IRQ_PRIORITY  64  // 0 = highest priority, 255 = lowest
+
+void IRQHandler_Serial7()
 {
-	static uint8_t running=0;
+	Serial7.IRQHandler();
+}
 
-	if (running) return; // TODO: does this need to be atomic?
-	running = 1;
+void serial_event_check_serial7()
+{
+	if (Serial7.available()) serialEvent7();
+}
 
-	// Current workaround until integrate with EventResponder.
-	HardwareSerial::processSerialEvents();
 
-	running = 0;
-	EventResponder::runFromYield();
+// Serial7
+static BUFTYPE tx_buffer7[SERIAL7_TX_BUFFER_SIZE];
+static BUFTYPE rx_buffer7[SERIAL7_RX_BUFFER_SIZE];
+
+static HardwareSerial::hardware_t UART7_Hardware = {
+	6, IRQ_LPUART7, &IRQHandler_Serial7, &serial_event_check_serial7,
+	CCM_CCGR5, CCM_CCGR5_LPUART7(CCM_CCGR_ON),
+	28, //IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_32, // pin 28
+	29, //IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_31, // pin 29
+	0xff, // No CTS pin
+	IOMUXC_LPUART7_RX_SELECT_INPUT,
+	2, // page 458
+	2, // page 457
+	0, // No CTS
+	1, // Page 863
+
+	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 };
+HardwareSerial Serial7(&IMXRT_LPUART7, &UART7_Hardware, tx_buffer7, SERIAL7_TX_BUFFER_SIZE,
+	rx_buffer7,  SERIAL7_RX_BUFFER_SIZE);
+
+
+void serialEvent7() __attribute__((weak));
+void serialEvent7() {Serial7.disableSerialEvents(); }		// No use calling this so disable if called...

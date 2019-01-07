@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2017 PJRC.COM, LLC.
+ * Copyright (c) 2019 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -29,19 +29,48 @@
  */
 
 #include <Arduino.h>
-#include "EventResponder.h"
+#include "HardwareSerial.h"
 
-void yield(void) __attribute__ ((weak));
-void yield(void)
+#ifndef SERIAL5_TX_BUFFER_SIZE
+#define SERIAL5_TX_BUFFER_SIZE     40 // number of outgoing bytes to buffer
+#endif
+#ifndef SERIAL5_RX_BUFFER_SIZE
+#define SERIAL5_RX_BUFFER_SIZE     64 // number of incoming bytes to buffer
+#endif
+#define IRQ_PRIORITY  64  // 0 = highest priority, 255 = lowest
+
+
+void IRQHandler_Serial5()
 {
-	static uint8_t running=0;
+	Serial5.IRQHandler();
+}
 
-	if (running) return; // TODO: does this need to be atomic?
-	running = 1;
+void serial_event_check_serial5()
+{
+	if (Serial5.available()) serialEvent5();
+}
 
-	// Current workaround until integrate with EventResponder.
-	HardwareSerial::processSerialEvents();
+// Serial5
+static BUFTYPE tx_buffer5[SERIAL5_TX_BUFFER_SIZE];
+static BUFTYPE rx_buffer5[SERIAL5_RX_BUFFER_SIZE];
 
-	running = 0;
-	EventResponder::runFromYield();
+static HardwareSerial::hardware_t UART8_Hardware = {
+	4, IRQ_LPUART8, &IRQHandler_Serial5, &serial_event_check_serial5,
+	CCM_CCGR6, CCM_CCGR6_LPUART8(CCM_CCGR_ON),
+	21, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_11, // pin 21
+	20, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_10, // pin 20
+	0xff, // No CTS pin
+	IOMUXC_LPUART8_RX_SELECT_INPUT,
+	2, // page 499
+	2, // page 498
+	0, // No CTS
+	1, // Page 864-5
+	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 };
+HardwareSerial Serial5(&IMXRT_LPUART8, &UART8_Hardware, tx_buffer5, SERIAL5_TX_BUFFER_SIZE,
+	rx_buffer5,  SERIAL5_RX_BUFFER_SIZE);
+
+
+
+void serialEvent5() __attribute__((weak));
+void serialEvent5() {Serial5.disableSerialEvents(); }		// No use calling this so disable if called...
