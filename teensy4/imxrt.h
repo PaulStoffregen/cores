@@ -5501,7 +5501,41 @@ typedef struct {
 #define LPI2C_SRDR_DATA(n)			((uint32_t)(((n) & 0xFF) << 0))
 
 // 38.3.5.2: page 2422
+typedef struct {
+        const uint32_t VERID;           // 0
+        const uint32_t PARAM;           // 0x04
+        const uint32_t UNUSED0;         // 0x08
+        const uint32_t UNUSED1;         // 0x0c
+        volatile uint32_t CR;           // 0x10
+        volatile uint32_t SR;           // 0x14
+        volatile uint32_t IER;          // 0x18
+        volatile uint32_t DER;          // 0x1c
+        volatile uint32_t CFGR0;        // 0x20
+        volatile uint32_t CFGR1;        // 0x24
+        const uint32_t UNUSED3;         // 0x28
+        const uint32_t UNUSED4;         // 0x2c
+        volatile uint32_t DMR0;         // 0x30
+        volatile uint32_t DMR1;         // 0x34
+        const uint32_t UNUSED5;         // 0x38
+        const uint32_t UNUSED6;         // 0x3c
+        volatile uint32_t CCR;          // 0x40
+        const uint32_t UNUSED7;         // 0x44
+        const uint32_t UNUSED8;         // 0x48
+        const uint32_t UNUSED9;         // 0x4c
+        const uint32_t UNUSED10;        // 0x50
+        const uint32_t UNUSED11;        // 0x54
+        volatile uint32_t FCR;          // 0x58
+        volatile uint32_t FSR;          // 0x5C
+        volatile uint32_t TCR;          // 0x60
+        volatile uint32_t TDR;          // 0x64
+        const uint32_t UNUSED12;        // 0x68
+        const uint32_t UNUSED13;        // 0x6c
+        volatile uint32_t RSR;          // 0x70
+        volatile uint32_t RDR;          // 0x74
+} IMXRT_LPSPI_t;
+
 #define IMXRT_LPSPI1		(*(IMXRT_REGISTER32_t *)0x40394000)
+#define IMXRT_LPSPI1_S          (*(IMXRT_LPSPI_t *)0x40394000)
 #define LPSPI1_VERID			(IMXRT_LPSPI1.offset000)
 #define LPSPI1_PARAM			(IMXRT_LPSPI1.offset004)
 #define LPSPI1_CR			(IMXRT_LPSPI1.offset010)
@@ -5520,6 +5554,7 @@ typedef struct {
 #define LPSPI1_RSR			(IMXRT_LPSPI1.offset070)
 #define LPSPI1_RDR			(IMXRT_LPSPI1.offset074)
 #define IMXRT_LPSPI2		(*(IMXRT_REGISTER32_t *)0x40398000)
+#define IMXRT_LPSPI2_S          (*(IMXRT_LPSPI_t *)0x40398000)
 #define LPSPI2_VERID			(IMXRT_LPSPI2.offset000)
 #define LPSPI2_PARAM			(IMXRT_LPSPI2.offset004)
 #define LPSPI2_CR			(IMXRT_LPSPI2.offset010)
@@ -5538,6 +5573,7 @@ typedef struct {
 #define LPSPI2_RSR			(IMXRT_LPSPI2.offset070)
 #define LPSPI2_RDR			(IMXRT_LPSPI2.offset074)
 #define IMXRT_LPSPI3		(*(IMXRT_REGISTER32_t *)0x4039C000)
+#define IMXRT_LPSPI3_S          (*(IMXRT_LPSPI_t *)0x4039C000)
 #define LPSPI3_VERID			(IMXRT_LPSPI3.offset000)
 #define LPSPI3_PARAM			(IMXRT_LPSPI3.offset004)
 #define LPSPI3_CR			(IMXRT_LPSPI3.offset010)
@@ -5556,6 +5592,7 @@ typedef struct {
 #define LPSPI3_RSR			(IMXRT_LPSPI3.offset070)
 #define LPSPI3_RDR			(IMXRT_LPSPI3.offset074)
 #define IMXRT_LPSPI4		(*(IMXRT_REGISTER32_t *)0x403A0000)
+#define IMXRT_LPSPI4_S          (*(IMXRT_LPSPI_t *)0x403A0000)
 #define LPSPI4_VERID			(IMXRT_LPSPI4.offset000)
 #define LPSPI4_PARAM			(IMXRT_LPSPI4.offset004)
 #define LPSPI4_CR			(IMXRT_LPSPI4.offset010)
