@@ -63,7 +63,7 @@ void flexpwmWrite(IMXRT_FLEXPWM_t *p, unsigned int submodule, uint8_t channel, u
 	p->MCTRL |= FLEXPWM_MCTRL_CLDOK(mask);
 	switch (channel) {
 	  case 0: // X
-		p->SM[submodule].VAL0 = cval;
+		p->SM[submodule].VAL0 = modulo - cval;
 		p->OUTEN |= FLEXPWM_OUTEN_PWMX_EN(mask);
 		//printf(" write channel X\n");
 		break;
