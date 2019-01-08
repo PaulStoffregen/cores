@@ -37,13 +37,18 @@ SECTIONS
 		. = ALIGN(16);
 	} > ITCM  AT> FLASH
 
+	.vectorsRAM (NOLOAD) : {
+		. = ALIGN(4);
+		*(.vectorsRAM*)
+	} > DTCM 
+	
 	.data : {
 		*(.rodata*)
 		*(.data*)
 		. = ALIGN(16);
 	} > DTCM  AT> FLASH
 
-	.bss : {
+	.bss ALIGN(4) : {
 		*(.bss*)
 		*(COMMON)
 		. = ALIGN(32);
