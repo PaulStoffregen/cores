@@ -46,7 +46,7 @@
 #include "HardwareSerial.h"
 
 #define DMAMEM __attribute__ ((section(".dmabuffers"), used))
-#define FASTRUN __attribute__ ((section(".fastrun"), noinline, noclone ))
+#define FASTRUN __attribute__ ((section(".fastrun") ))
 
 #ifdef __cplusplus
 
