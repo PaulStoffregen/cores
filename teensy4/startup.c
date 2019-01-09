@@ -28,9 +28,9 @@ void unused_interrupt_vector(void);
 void usb_pll_start();
 extern void analog_init(void); // analog.c
 extern void pwm_init(void); // pwm.c
+extern void tempmon_init(void);  //tempmon.c
 uint32_t set_arm_clock(uint32_t frequency); // clockspeed.c
 extern void __libc_init_array(void); // C++ standard library
-
 
 __attribute__((section(".startup"), optimize("no-tree-loop-distribute-patterns")))
 void ResetHandler(void)
@@ -82,6 +82,7 @@ void ResetHandler(void)
 	usb_init();
 	analog_init();
 	pwm_init();
+	tempmon_init();
 
 	while (millis() < 300) ; // wait at least 300ms before calling user code
 	printf("before C++ constructors\n");
@@ -89,7 +90,7 @@ void ResetHandler(void)
 	printf("after C++ constructors\n");
 	printf("before setup\n");
 	setup();
-	printf("after setup\n");
+	printf("after setup\n");	
 	while (1) {
 		//printf("loop\n");
 		loop();
