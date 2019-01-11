@@ -31,7 +31,8 @@ private:
 	static uint8_t recv(uint8_t *buffer);
 	static void xmit(const uint8_t *p1, uint8_t n1);
 	static void xmit(const uint8_t *p1, uint8_t n1, const uint8_t *p2, uint8_t n2);
-	static void xmit(const uint8_t *p1, uint8_t n1, const _XpRefStr_ *p2, uint8_t n2);
+	static void xmit(const uint8_t *p1, uint8_t n1, const _XpRefStr_ *p2, uint16_t n2);
+	static void xmit_big_packet(const uint8_t *p1, uint8_t n1, const _XpRefStr_ *p2, uint16_t n2);
 	friend class FlightSimCommand;
 	friend class FlightSimInteger;
 	friend class FlightSimFloat;
@@ -80,13 +81,23 @@ public:
 	void identify(void);
 	void update(long val);
 	static FlightSimInteger * find(unsigned int n);
-	void onChange(void (*fptr)(long)) { change_callback = fptr; }
+	void onChange(void (*fptr)(long)) { 
+		hasCallbackInfo=false;
+		change_callback = fptr; 
+	}
+	void onChange(void (*fptr)(long,void*), void* info) {
+		hasCallbackInfo=true;
+		change_callback = (void (*)(long))fptr;
+		callbackInfo = info;
+	}
 	// TODO: math operators....  + - * / % ++ --
 private:
 	unsigned int id;
 	const _XpRefStr_ *name;
 	long value;
 	void (*change_callback)(long);
+	void* callbackInfo;
+	bool  hasCallbackInfo;
 	FlightSimInteger *next;
 	static FlightSimInteger *first;
 	static FlightSimInteger *last;
@@ -114,13 +125,23 @@ public:
 	void identify(void);
 	void update(float val);
 	static FlightSimFloat * find(unsigned int n);
-	void onChange(void (*fptr)(float)) { change_callback = fptr; }
+	void onChange(void (*fptr)(float)) {
+		hasCallbackInfo=false;
+		change_callback = fptr; 
+	}
+	void onChange(void (*fptr)(float,void*), void* info) {
+		hasCallbackInfo=true;
+		change_callback = (void (*)(float))fptr;
+		callbackInfo = info;
+	}
 	// TODO: math operators....  + - * / % ++ --
 private:
 	unsigned int id;
 	const _XpRefStr_ *name;
 	float value;
 	void (*change_callback)(float);
+	void* callbackInfo;
+	bool  hasCallbackInfo;
 	FlightSimFloat *next;
 	static FlightSimFloat *first;
 	static FlightSimFloat *last;

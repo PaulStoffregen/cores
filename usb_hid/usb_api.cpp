@@ -33,11 +33,7 @@
 
 // Step #1, decode UTF8 to Unicode code points
 //
-#if ARDUINO >= 100
 size_t usb_keyboard_class::write(uint8_t c)
-#else
-void usb_keyboard_class::write(uint8_t c)
-#endif
 {
 	if (c < 0x80) {
 		// single byte encoded, 0x00 to 0x7F
@@ -67,9 +63,7 @@ void usb_keyboard_class::write(uint8_t c)
 		// or illegal, 0xF5 to 0xFF
 		utf8_state = 255;
 	}
-#if ARDUINO >= 100
 	return 1;
-#endif
 }
 
 
@@ -80,7 +74,8 @@ KEYCODE_TYPE usb_keyboard_class::unicode_to_keycode(uint16_t cpoint)
 	// Unicode code points beyond U+FFFF are not supported
 	// technically this input should probably be called UCS-2
 	if (cpoint < 32) {
-		if (cpoint == 10) return KEY_ENTER & 0x3FFF;
+		if (cpoint == 10) return KEY_ENTER & KEYCODE_MASK;
+		if (cpoint == 11) return KEY_TAB & KEYCODE_MASK;
 		return 0;
 	}
 	if (cpoint < 128) {
@@ -225,9 +220,9 @@ uint8_t usb_keyboard_class::keycode_to_key(KEYCODE_TYPE keycode)
 
 
 
-void usb_keyboard_class::set_modifier(uint8_t c)
+void usb_keyboard_class::set_modifier(uint16_t c)
 {
-	keyboard_report_data[0] = c;
+	keyboard_report_data[0] = (uint8_t)c;
 }
 void usb_keyboard_class::set_key1(uint8_t c)
 {
@@ -252,10 +247,6 @@ void usb_keyboard_class::set_key5(uint8_t c)
 void usb_keyboard_class::set_key6(uint8_t c)
 {
 	keyboard_report_data[7] = c;
-}
-void usb_keyboard_class::set_media(uint8_t c)
-{
-	keyboard_report_data[1] = c;
 }
 
 
@@ -300,20 +291,28 @@ void usb_keyboard_class::press(uint16_t n)
 	uint8_t key, mod, msb, modrestore=0;
 
 	msb = n >> 8;
-	if (msb >= 0xC2 && msb <= 0xDF) {
-		n = (n & 0x3F) | ((uint16_t)(msb & 0x1F) << 6);
-	} else
-	if (msb == 0x80) {
-		presskey(0, n);
-		return;
-	} else
-	if (msb == 0x40) {
-		presskey(n, 0);
-		return;
+	if (msb >= 0xC2) {
+		if (msb <= 0xDF) {
+			n = (n & 0x3F) | ((uint16_t)(msb & 0x1F) << 6);
+		} else if (msb == 0xF0) {
+			presskey(n, 0);
+			return;
+		} else if (msb == 0xE0) {
+			presskey(0, n);
+			return;
+		} else if (msb == 0xE2) {
+			press_system_key(n);
+			return;
+		} else if (msb >= 0xE4 && msb <= 0xE7) {
+			press_consumer_key(n & 0x3FF);
+			return;
+		} else {
+			return;
+		}
 	}
 	KEYCODE_TYPE keycode = unicode_to_keycode(n);
 	if (!keycode) return;
-	#ifdef DEADKEYS_MASK
+#ifdef DEADKEYS_MASK
 	KEYCODE_TYPE deadkeycode = deadkey_to_keycode(keycode);
 	if (deadkeycode) {
 		modrestore = keyboard_report_data[0];
@@ -328,7 +327,7 @@ void usb_keyboard_class::press(uint16_t n)
 		presskey(key, mod);
 		releasekey(key, mod);
 	}
-	#endif
+#endif
 	mod = keycode_to_modifier(keycode);
 	key = keycode_to_key(keycode);
 	presskey(key, mod | modrestore);
@@ -339,16 +338,24 @@ void usb_keyboard_class::release(uint16_t n)
 	uint8_t key, mod, msb;
 
 	msb = n >> 8;
-	if (msb >= 0xC2 && msb <= 0xDF) {
-		n = (n & 0x3F) | ((uint16_t)(msb & 0x1F) << 6);
-	} else
-	if (msb == 0x80) {
-		releasekey(0, n);
-		return;
-	} else
-	if (msb == 0x40) {
-		releasekey(n, 0);
-		return;
+	if (msb >= 0xC2) {
+		if (msb <= 0xDF) {
+			n = (n & 0x3F) | ((uint16_t)(msb & 0x1F) << 6);
+		} else if (msb == 0xF0) {
+			releasekey(n, 0);
+			return;
+		} else if (msb == 0xE0) {
+			releasekey(0, n);
+			return;
+		} else if (msb == 0xE2) {
+			release_system_key(n);
+			return;
+		} else if (msb >= 0xE4 && msb <= 0xE7) {
+			release_consumer_key(n & 0x3FF);
+			return;
+		} else {
+			return;
+		}
 	}
 	KEYCODE_TYPE keycode = unicode_to_keycode(n);
 	if (!keycode) return;
@@ -420,9 +427,125 @@ void usb_keyboard_class::releaseAll(void)
 	send_now();
 }
 
+void usb_keyboard_class::press_consumer_key(uint16_t key)
+{
+        if (key == 0) return;
+        for (uint8_t i=0; i < 4; i++) {
+                if (keymedia_consumer_keys[i] == key) return;
+        }
+        for (uint8_t i=0; i < 4; i++) {
+                if (keymedia_consumer_keys[i] == 0) {
+                        keymedia_consumer_keys[i] = key;
+                        keymedia_send();
+                        return;
+                }
+        }
+}
+
+void usb_keyboard_class::release_consumer_key(uint16_t key)
+{
+        if (key == 0) return;
+        for (uint8_t i=0; i < 4; i++) {
+                if (keymedia_consumer_keys[i] == key) {
+                        keymedia_consumer_keys[i] = 0;
+                        keymedia_send();
+                        return;
+                }
+        }
+}
+
+void usb_keyboard_class::press_system_key(uint8_t key)
+{
+        if (key == 0) return;
+        for (uint8_t i=0; i < 3; i++) {
+                if (keymedia_system_keys[i] == key) return;
+        }
+        for (uint8_t i=0; i < 3; i++) {
+                if (keymedia_system_keys[i] == 0) {
+                        keymedia_system_keys[i] = key;
+                        keymedia_send();
+                        return;
+                }
+        }
+}
+
+void usb_keyboard_class::release_system_key(uint8_t key)
+{
+        if (key == 0) return;
+        for (uint8_t i=0; i < 3; i++) {
+                if (keymedia_system_keys[i] == key) {
+                        keymedia_system_keys[i] = 0;
+                        keymedia_send();
+                        return;
+                }
+        }
+}
+
+void usb_keyboard_class::keymedia_release_all(void)
+{
+        uint8_t anybits = 0;
+        for (uint8_t i=0; i < 4; i++) {
+                if (keymedia_consumer_keys[i] != 0) anybits = 1;
+                keymedia_consumer_keys[i] = 0;
+        }
+        for (uint8_t i=0; i < 3; i++) {
+                if (keymedia_system_keys[i] != 0) anybits = 1;
+                keymedia_system_keys[i] = 0;
+        }
+        if (anybits) keymedia_send();
+}
+
+// send the contents of keyboard_keys and keyboard_modifier_keys
+void usb_keyboard_class::keymedia_send(void)
+{
+        uint8_t intr_state, timeout;
+
+        if (!usb_configuration) return;
+        intr_state = SREG;
+        cli();
+        UENUM = KEYMEDIA_ENDPOINT;
+        timeout = UDFNUML + 50;
+        while (1) {
+                // are we ready to transmit?
+                if (UEINTX & (1<<RWAL)) break;
+                SREG = intr_state;
+                // has the USB gone offline?
+                if (!usb_configuration) return;
+                // have we waited too long?
+                if (UDFNUML == timeout) return;
+                // get ready to try checking again
+                intr_state = SREG;
+                cli();
+                UENUM = KEYMEDIA_ENDPOINT;
+        }
+        // 44444444 44333333 33332222 22222211 11111111
+        // 98765432 10987654 32109876 54321098 76543210
+        UEDATX = keymedia_consumer_keys[0];
+        UEDATX = (keymedia_consumer_keys[1] << 2) | ((keymedia_consumer_keys[0] >> 8) & 0x03);
+        UEDATX = (keymedia_consumer_keys[2] << 4) | ((keymedia_consumer_keys[1] >> 6) & 0x0F);
+        UEDATX = (keymedia_consumer_keys[3] << 6) | ((keymedia_consumer_keys[2] >> 4) & 0x3F);
+        UEDATX = keymedia_consumer_keys[3] >> 2;
+        UEDATX = keymedia_system_keys[0];
+        UEDATX = keymedia_system_keys[1];
+        UEDATX = keymedia_system_keys[2];
+	UEINTX = 0x3A;
+	SREG = intr_state;
+}
 
 
-void usb_mouse_class::move(int8_t x, int8_t y, int8_t wheel)
+
+
+
+
+
+
+
+
+
+
+
+
+void usb_mouse_class::move(int8_t x, int8_t y, int8_t wheel, int8_t horiz)
 {
         uint8_t intr_state, timeout;
 
@@ -430,6 +553,7 @@ void usb_mouse_class::move(int8_t x, int8_t y, int8_t wheel)
         if (x == -128) x = -127;
         if (y == -128) y = -127;
         if (wheel == -128) wheel = -127;
+        if (horiz == -128) horiz = -127;
         intr_state = SREG;
         cli();
         UENUM = MOUSE_ENDPOINT;
@@ -451,30 +575,33 @@ void usb_mouse_class::move(int8_t x, int8_t y, int8_t wheel)
         UEDATX = x;
         UEDATX = y;
         UEDATX = wheel;
+        UEDATX = horiz;
         UEINTX = 0x3A;
         SREG = intr_state;
 }
 
 void usb_mouse_class::click(uint8_t b)
 {
-	mouse_buttons = (b & 7);
+	mouse_buttons = b;
 	move(0, 0);
 	mouse_buttons = 0;
 	move(0, 0);
 }
 
-void usb_mouse_class::scroll(int8_t wheel)
+void usb_mouse_class::scroll(int8_t wheel, int8_t horiz)
 {
-	move(0, 0, wheel);
+	move(0, 0, wheel, horiz);
 }
 
-void usb_mouse_class::set_buttons(uint8_t left, uint8_t middle, uint8_t right)
+void usb_mouse_class::set_buttons(uint8_t left, uint8_t middle, uint8_t right, uint8_t back, uint8_t forward)
 {
         uint8_t mask=0;
 
         if (left) mask |= 1;
         if (middle) mask |= 4;
         if (right) mask |= 2;
+        if (back) mask |= 8;
+        if (forward) mask |= 16;
         mouse_buttons = mask;
         move(0, 0);
 }
@@ -498,9 +625,6 @@ bool usb_mouse_class::isPressed(uint8_t b)
 	return ((mouse_buttons & (b & 7)) != 0);
 }
 
-
-
-#if defined(__AVR_ATmega32U4__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB1286__)
 
 void usb_joystick_class::send_now(void)
 {
@@ -540,7 +664,6 @@ void usb_joystick_class::send_now(void)
         SREG = intr_state;
 }
 
-#endif
 
 
 
@@ -679,11 +802,7 @@ void usb_serial_class::flush()
 }
 
 // transmit a character.
-#if ARDUINO >= 100
 size_t usb_serial_class::write(uint8_t c)
-#else
-void usb_serial_class::write(uint8_t c)
-#endif
 {
         //static uint8_t previous_timeout=0;
         uint8_t timeout, intr_state;
@@ -736,16 +855,10 @@ void usb_serial_class::write(uint8_t c)
         	debug_flush_timer = TRANSMIT_FLUSH_TIMEOUT;
 	}
         SREG = intr_state;
-#if ARDUINO >= 100
 	return 1;
-#endif
 error:
-#if ARDUINO >= 100
 	setWriteError();
 	return 0;
-#else
-	return;
-#endif
 }
 
 
@@ -814,7 +927,5 @@ usb_serial_class::operator bool()
 usb_serial_class	Serial = usb_serial_class();
 usb_keyboard_class	Keyboard = usb_keyboard_class();
 usb_mouse_class		Mouse = usb_mouse_class();
-#if defined(__AVR_ATmega32U4__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB1286__)
 usb_joystick_class	Joystick = usb_joystick_class();
-#endif
 

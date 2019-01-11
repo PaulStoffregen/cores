@@ -36,6 +36,12 @@ const static uint8_t SCL  = CORE_SCL0_PIN;
 #define NUM_DIGITAL_PINS                CORE_NUM_TOTAL_PINS
 #define NUM_ANALOG_INPUTS               CORE_NUM_ANALOG
 
+// default CS pin to use for Ethernet library
+#if defined(__AVR_ATmega32U4__)
+#define PIN_SPI_SS_ETHERNET_LIB 0
+#elif defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB1286__)
+#define PIN_SPI_SS_ETHERNET_LIB 20
+#endif
 
 // This allows CapSense to work.  Do any libraries
 // depend on these to be zero?
@@ -147,5 +153,12 @@ static inline uint8_t digitalPinToTimer(uint8_t pin)
 	default: return NOT_ON_TIMER;
 	}
 }
+
+#define SERIAL_PORT_MONITOR             Serial
+#define SERIAL_PORT_USBVIRTUAL          Serial
+#define SERIAL_PORT_HARDWARE            Serial1
+#define SERIAL_PORT_HARDWARE_OPEN       Serial1
+
+#define SerialUSB			Serial
 
 #endif

@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -10,7 +10,7 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
  * 2. If the Software is incorporated into a build system that allows 
@@ -96,15 +96,18 @@ SECTIONS
 
 	.bss : {
 		. = ALIGN(4);
-		_sbss = .; 
+		_sbss = .;
+		__bss_start__ = .;
 		*(.bss*)
 		*(COMMON)
 		. = ALIGN(4);
 		_ebss = .;
 		__bss_end = .;
+		__bss_end__ = .;
 	} > RAM
 
 	_estack = ORIGIN(RAM) + LENGTH(RAM);
+	_teensy_model_identifier = 0x1D;
 }
 
 

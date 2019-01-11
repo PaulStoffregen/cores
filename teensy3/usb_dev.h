@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -31,8 +31,10 @@
 #ifndef _usb_dev_h_
 #define _usb_dev_h_
 
+#define USB_DESC_LIST_DEFINE
 #include "usb_desc.h"
-#if F_CPU >= 20000000 && defined(NUM_ENDPOINTS)
+
+#if F_CPU >= 20000000 && !defined(USB_DISABLED)
 
 // This header is NOT meant to be included when compiling
 // user sketches in Arduino.  The low-level functions
@@ -52,7 +54,7 @@ usb_packet_t *usb_rx(uint32_t endpoint);
 uint32_t usb_tx_byte_count(uint32_t endpoint);
 uint32_t usb_tx_packet_count(uint32_t endpoint);
 void usb_tx(uint32_t endpoint, usb_packet_t *packet);
-void usb_tx_isr(uint32_t endpoint, usb_packet_t *packet);
+void usb_tx_isochronous(uint32_t endpoint, void *data, uint32_t len);
 
 extern volatile uint8_t usb_configuration;
 
@@ -67,6 +69,8 @@ static inline uint32_t usb_rx_byte_count(uint32_t endpoint)
 
 #ifdef CDC_DATA_INTERFACE
 extern uint32_t usb_cdc_line_coding[2];
+extern volatile uint32_t usb_cdc_line_rtsdtr_millis;
+extern volatile uint32_t systick_millis_count;
 extern volatile uint8_t usb_cdc_line_rtsdtr;
 extern volatile uint8_t usb_cdc_transmit_flush_timer;
 extern void usb_serial_flush_callback(void);
@@ -94,15 +98,28 @@ extern void usb_midi_flush_output(void);
 extern void usb_flightsim_flush_callback(void);
 #endif
 
+#ifdef AUDIO_INTERFACE
+extern uint16_t usb_audio_receive_buffer[];
+extern uint16_t usb_audio_transmit_buffer[];
+extern uint32_t usb_audio_sync_feedback;
+extern uint8_t usb_audio_receive_setting;
+extern uint8_t usb_audio_transmit_setting;
+extern void usb_audio_receive_callback(unsigned int len);
+extern unsigned int usb_audio_transmit_callback(void);
+extern int usb_audio_get_feature(void *stp, uint8_t *data, uint32_t *datalen);
+extern int usb_audio_set_feature(void *stp, uint8_t *buf);
+#endif
 
-
+#ifdef MULTITOUCH_INTERFACE
+extern void usb_touchscreen_update_callback(void);
+#endif
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#else // F_CPU >= 20000000 && defined(NUM_ENDPOINTS)
+#else // F_CPU < 20000000
 
 #ifdef __cplusplus
 extern "C" {
@@ -115,6 +132,6 @@ void usb_init(void);
 #endif
 
 
-#endif // F_CPU >= 20000000 && defined(NUM_ENDPOINTS)
+#endif // F_CPU
 
 #endif

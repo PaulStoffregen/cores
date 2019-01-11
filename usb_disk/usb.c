@@ -508,7 +508,9 @@ static inline uint8_t mass_storage_isr(uint8_t need_rx, uint8_t need_tx)
 	uint8_t n, state;
 	const uint8_t *p;
 	static uint32_t tag, xfer_len, lba;
-	static uint8_t dir, cmd_len, status;
+	static uint8_t dir __attribute__ ((used));
+	static uint8_t cmd_len __attribute__ ((used));
+	static uint8_t status;
 	static uint8_t scsi_sense, scsi_asense;
 	static uint16_t sector_count;
 	static uint8_t sector_chunk;

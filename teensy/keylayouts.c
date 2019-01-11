@@ -6,7 +6,7 @@
 #ifdef M
 #undef M
 #endif
-#define M(n) ((n) & 0x3FFF)
+#define M(n) ((n) & KEYCODE_MASK)
 
 const KEYCODE_TYPE PROGMEM keycodes_ascii[] = {
         M(ASCII_20), M(ASCII_21), M(ASCII_22), M(ASCII_23),

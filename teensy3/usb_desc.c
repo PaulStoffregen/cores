@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -30,6 +30,7 @@
 
 #if F_CPU >= 20000000
 
+#define USB_DESC_LIST_DEFINE
 #include "usb_desc.h"
 #ifdef NUM_ENDPOINTS
 #include "usb_names.h"
@@ -67,7 +68,7 @@
 static uint8_t device_descriptor[] = {
         18,                                     // bLength
         1,                                      // bDescriptorType
-        0x00, 0x02,                             // bcdUSB
+        0x10, 0x01,                             // bcdUSB
 #ifdef DEVICE_CLASS
         DEVICE_CLASS,                           // bDeviceClass
 #else
@@ -86,7 +87,26 @@ static uint8_t device_descriptor[] = {
         EP0_SIZE,                               // bMaxPacketSize0
         LSB(VENDOR_ID), MSB(VENDOR_ID),         // idVendor
         LSB(PRODUCT_ID), MSB(PRODUCT_ID),       // idProduct
-        0x00, 0x01,                             // bcdDevice
+#ifdef BCD_DEVICE
+	LSB(BCD_DEVICE), MSB(BCD_DEVICE),       // bcdDevice
+#else
+  // For USB types that don't explicitly define BCD_DEVICE,
+  // use the minor version number to help teensy_ports
+  // identify which Teensy model is used.
+  #if defined(__MKL26Z64__)
+        0x73, 0x02,
+  #elif defined(__MK20DX128__)
+        0x74, 0x02,
+  #elif defined(__MK20DX256__)
+        0x75, 0x02,
+  #elif defined(__MK64FX512__)
+        0x76, 0x02,
+  #elif defined(__MK66FX1M0__)
+        0x77, 0x02,
+  #else
+        0x00, 0x02,
+  #endif
+#endif
         1,                                      // iManufacturer
         2,                                      // iProduct
         3,                                      // iSerialNumber
@@ -109,49 +129,62 @@ static uint8_t device_descriptor[] = {
 #ifdef KEYBOARD_INTERFACE
 // Keyboard Protocol 1, HID 1.11 spec, Appendix B, page 59-60
 static uint8_t keyboard_report_desc[] = {
-        0x05, 0x01,             //  Usage Page (Generic Desktop),
-        0x09, 0x06,             //  Usage (Keyboard),
-        0xA1, 0x01,             //  Collection (Application),
-        0x75, 0x01,             //  Report Size (1),
-        0x95, 0x08,             //  Report Count (8),
-        0x05, 0x07,             //  Usage Page (Key Codes),
-        0x19, 0xE0,             //  Usage Minimum (224),
-        0x29, 0xE7,             //  Usage Maximum (231),
-        0x15, 0x00,             //  Logical Minimum (0),
-        0x25, 0x01,             //  Logical Maximum (1),
-        0x81, 0x02,             //  Input (Data, Variable, Absolute), ;Modifier byte
-        0x95, 0x08,             //  Report Count (8),
-        0x75, 0x01,             //  Report Size (1),
-        0x15, 0x00,             //  Logical Minimum (0),
-        0x25, 0x01,             //  Logical Maximum (1),
-        0x05, 0x0C,             //  Usage Page (Consumer),
-        0x09, 0xE9,             //  Usage (Volume Increment),
-        0x09, 0xEA,             //  Usage (Volume Decrement),
-        0x09, 0xE2,             //  Usage (Mute),
-        0x09, 0xCD,             //  Usage (Play/Pause),
-        0x09, 0xB5,             //  Usage (Scan Next Track),
-        0x09, 0xB6,             //  Usage (Scan Previous Track),
-        0x09, 0xB7,             //  Usage (Stop),
-        0x09, 0xB8,             //  Usage (Eject),
-        0x81, 0x02,             //  Input (Data, Variable, Absolute), ;Media keys
-        0x95, 0x05,             //  Report Count (5),
-        0x75, 0x01,             //  Report Size (1),
-        0x05, 0x08,             //  Usage Page (LEDs),
-        0x19, 0x01,             //  Usage Minimum (1),
-        0x29, 0x05,             //  Usage Maximum (5),
-        0x91, 0x02,             //  Output (Data, Variable, Absolute), ;LED report
-        0x95, 0x01,             //  Report Count (1),
-        0x75, 0x03,             //  Report Size (3),
-        0x91, 0x03,             //  Output (Constant),                 ;LED report padding
-        0x95, 0x06,             //  Report Count (6),
-        0x75, 0x08,             //  Report Size (8),
-        0x15, 0x00,             //  Logical Minimum (0),
-        0x25, 0x7F,             //  Logical Maximum(104),
-        0x05, 0x07,             //  Usage Page (Key Codes),
-        0x19, 0x00,             //  Usage Minimum (0),
-        0x29, 0x7F,             //  Usage Maximum (104),
-        0x81, 0x00,             //  Input (Data, Array),                ;Normal keys
-        0xc0                    // End Collection
+        0x05, 0x01,                     // Usage Page (Generic Desktop),
+        0x09, 0x06,                     // Usage (Keyboard),
+        0xA1, 0x01,                     // Collection (Application),
+        0x75, 0x01,                     //   Report Size (1),
+        0x95, 0x08,                     //   Report Count (8),
+        0x05, 0x07,                     //   Usage Page (Key Codes),
+        0x19, 0xE0,                     //   Usage Minimum (224),
+        0x29, 0xE7,                     //   Usage Maximum (231),
+        0x15, 0x00,                     //   Logical Minimum (0),
+        0x25, 0x01,                     //   Logical Maximum (1),
+        0x81, 0x02,                     //   Input (Data, Variable, Absolute), ;Modifier keys
+        0x95, 0x01,                     //   Report Count (1),
+        0x75, 0x08,                     //   Report Size (8),
+        0x81, 0x03,                     //   Input (Constant),          ;Reserved byte
+        0x95, 0x05,                     //   Report Count (5),
+        0x75, 0x01,                     //   Report Size (1),
+        0x05, 0x08,                     //   Usage Page (LEDs),
+        0x19, 0x01,                     //   Usage Minimum (1),
+        0x29, 0x05,                     //   Usage Maximum (5),
+        0x91, 0x02,                     //   Output (Data, Variable, Absolute), ;LED report
+        0x95, 0x01,                     //   Report Count (1),
+        0x75, 0x03,                     //   Report Size (3),
+        0x91, 0x03,                     //   Output (Constant),         ;LED report padding
+        0x95, 0x06,                     //   Report Count (6),
+        0x75, 0x08,                     //   Report Size (8),
+        0x15, 0x00,                     //   Logical Minimum (0),
+        0x25, 0x7F,                     //   Logical Maximum(104),
+        0x05, 0x07,                     //   Usage Page (Key Codes),
+        0x19, 0x00,                     //   Usage Minimum (0),
+        0x29, 0x7F,                     //   Usage Maximum (104),
+        0x81, 0x00,                     //   Input (Data, Array),       ;Normal keys
+        0xC0                            // End Collection
+};
+#endif
+
+#ifdef KEYMEDIA_INTERFACE
+static uint8_t keymedia_report_desc[] = {
+        0x05, 0x0C,                     // Usage Page (Consumer)
+        0x09, 0x01,                     // Usage (Consumer Controls)
+        0xA1, 0x01,                     // Collection (Application)
+        0x75, 0x0A,                     //   Report Size (10)
+        0x95, 0x04,                     //   Report Count (4)
+        0x19, 0x00,                     //   Usage Minimum (0)
+        0x2A, 0x9C, 0x02,               //   Usage Maximum (0x29C)
+        0x15, 0x00,                     //   Logical Minimum (0)
+        0x26, 0x9C, 0x02,               //   Logical Maximum (0x29C)
+        0x81, 0x00,                     //   Input (Data, Array)
+        0x05, 0x01,                     //   Usage Page (Generic Desktop)
+        0x75, 0x08,                     //   Report Size (8)
+        0x95, 0x03,                     //   Report Count (3)
+        0x19, 0x00,                     //   Usage Minimum (0)
+        0x29, 0xB7,                     //   Usage Maximum (0xB7)
+        0x15, 0x00,                     //   Logical Minimum (0)
+        0x26, 0xB7, 0x00,               //   Logical Maximum (0xB7)
+        0x81, 0x00,                     //   Input (Data, Array)
+        0xC0                            // End Collection
 };
 #endif
 
@@ -179,6 +212,13 @@ static uint8_t mouse_report_desc[] = {
         0x75, 0x08,                     //   Report Size (8),
         0x95, 0x03,                     //   Report Count (3),
         0x81, 0x06,                     //   Input (Data, Variable, Relative)
+        0x05, 0x0C,                     //   Usage Page (Consumer)
+        0x0A, 0x38, 0x02,               //   Usage (AC Pan)
+        0x15, 0x81,                     //   Logical Minimum (-127)
+        0x25, 0x7F,                     //   Logical Maximum (127)
+        0x75, 0x08,                     //   Report Size (8),
+        0x95, 0x01,                     //   Report Count (1),
+        0x81, 0x06,                     //   Input (Data, Variable, Relative)
         0xC0,                           // End Collection
         0x05, 0x01,                     // Usage Page (Generic Desktop)
         0x09, 0x02,                     // Usage (Mouse)
@@ -197,6 +237,57 @@ static uint8_t mouse_report_desc[] = {
 #endif
 
 #ifdef JOYSTICK_INTERFACE
+#if JOYSTICK_SIZE == 12
+static uint8_t joystick_report_desc[] = {
+        0x05, 0x01,                     // Usage Page (Generic Desktop)
+        0x09, 0x04,                     // Usage (Joystick)
+        0xA1, 0x01,                     // Collection (Application)
+        0x15, 0x00,                     //   Logical Minimum (0)
+        0x25, 0x01,                     //   Logical Maximum (1)
+        0x75, 0x01,                     //   Report Size (1)
+        0x95, 0x20,                     //   Report Count (32)
+        0x05, 0x09,                     //   Usage Page (Button)
+        0x19, 0x01,                     //   Usage Minimum (Button #1)
+        0x29, 0x20,                     //   Usage Maximum (Button #32)
+        0x81, 0x02,                     //   Input (variable,absolute)
+        0x15, 0x00,                     //   Logical Minimum (0)
+        0x25, 0x07,                     //   Logical Maximum (7)
+        0x35, 0x00,                     //   Physical Minimum (0)
+        0x46, 0x3B, 0x01,               //   Physical Maximum (315)
+        0x75, 0x04,                     //   Report Size (4)
+        0x95, 0x01,                     //   Report Count (1)
+        0x65, 0x14,                     //   Unit (20)
+        0x05, 0x01,                     //   Usage Page (Generic Desktop)
+        0x09, 0x39,                     //   Usage (Hat switch)
+        0x81, 0x42,                     //   Input (variable,absolute,null_state)
+        0x05, 0x01,                     //   Usage Page (Generic Desktop)
+        0x09, 0x01,                     //   Usage (Pointer)
+        0xA1, 0x00,                     //   Collection ()
+        0x15, 0x00,                     //     Logical Minimum (0)
+        0x26, 0xFF, 0x03,               //     Logical Maximum (1023)
+        0x75, 0x0A,                     //     Report Size (10)
+        0x95, 0x04,                     //     Report Count (4)
+        0x09, 0x30,                     //     Usage (X)
+        0x09, 0x31,                     //     Usage (Y)
+        0x09, 0x32,                     //     Usage (Z)
+        0x09, 0x35,                     //     Usage (Rz)
+        0x81, 0x02,                     //     Input (variable,absolute)
+        0xC0,                           //   End Collection
+        0x15, 0x00,                     //   Logical Minimum (0)
+        0x26, 0xFF, 0x03,               //   Logical Maximum (1023)
+        0x75, 0x0A,                     //   Report Size (10)
+        0x95, 0x02,                     //   Report Count (2)
+        0x09, 0x36,                     //   Usage (Slider)
+        0x09, 0x36,                     //   Usage (Slider)
+        0x81, 0x02,                     //   Input (variable,absolute)
+        0xC0                            // End Collection
+};
+#elif JOYSTICK_SIZE == 64
+// extreme joystick  (to use this, edit JOYSTICK_SIZE to 64 in usb_desc.h)
+//  128 buttons   16
+//    6 axes      12
+//   17 sliders   34
+//    4 pov        2
 static uint8_t joystick_report_desc[] = {
         0x05, 0x01,                     // Usage Page (Generic Desktop)
         0x09, 0x04,                     // Usage (Joystick)
@@ -204,63 +295,133 @@ static uint8_t joystick_report_desc[] = {
         0x15, 0x00,                     // Logical Minimum (0)
         0x25, 0x01,                     // Logical Maximum (1)
         0x75, 0x01,                     // Report Size (1)
-        0x95, 0x20,                     // Report Count (32)
+        0x95, 0x80,                     // Report Count (128)
         0x05, 0x09,                     // Usage Page (Button)
         0x19, 0x01,                     // Usage Minimum (Button #1)
-        0x29, 0x20,                     // Usage Maximum (Button #32)
+        0x29, 0x80,                     // Usage Maximum (Button #128)
         0x81, 0x02,                     // Input (variable,absolute)
+        0x05, 0x01,                     // Usage Page (Generic Desktop)
+        0x09, 0x01,                     // Usage (Pointer)
+        0xA1, 0x00,                     // Collection ()
+        0x15, 0x00,                     // Logical Minimum (0)
+        0x27, 0xFF, 0xFF, 0, 0,         // Logical Maximum (65535)
+        0x75, 0x10,                     // Report Size (16)
+        0x95, 23,                       // Report Count (23)
+        0x09, 0x30,                     // Usage (X)
+        0x09, 0x31,                     // Usage (Y)
+        0x09, 0x32,                     // Usage (Z)
+        0x09, 0x33,                     // Usage (Rx)
+        0x09, 0x34,                     // Usage (Ry)
+        0x09, 0x35,                     // Usage (Rz)
+        0x09, 0x36,                     // Usage (Slider)
+        0x09, 0x36,                     // Usage (Slider)
+        0x09, 0x36,                     // Usage (Slider)
+        0x09, 0x36,                     // Usage (Slider)
+        0x09, 0x36,                     // Usage (Slider)
+        0x09, 0x36,                     // Usage (Slider)
+        0x09, 0x36,                     // Usage (Slider)
+        0x09, 0x36,                     // Usage (Slider)
+        0x09, 0x36,                     // Usage (Slider)
+        0x09, 0x36,                     // Usage (Slider)
+        0x09, 0x36,                     // Usage (Slider)
+        0x09, 0x36,                     // Usage (Slider)
+        0x09, 0x36,                     // Usage (Slider)
+        0x09, 0x36,                     // Usage (Slider)
+        0x09, 0x36,                     // Usage (Slider)
+        0x09, 0x36,                     // Usage (Slider)
+        0x09, 0x36,                     // Usage (Slider)
+        0x81, 0x02,                     // Input (variable,absolute)
+        0xC0,                           // End Collection
         0x15, 0x00,                     // Logical Minimum (0)
         0x25, 0x07,                     // Logical Maximum (7)
         0x35, 0x00,                     // Physical Minimum (0)
         0x46, 0x3B, 0x01,               // Physical Maximum (315)
         0x75, 0x04,                     // Report Size (4)
-        0x95, 0x01,                     // Report Count (1)
+        0x95, 0x04,                     // Report Count (4)
         0x65, 0x14,                     // Unit (20)
         0x05, 0x01,                     // Usage Page (Generic Desktop)
         0x09, 0x39,                     // Usage (Hat switch)
+        0x09, 0x39,                     // Usage (Hat switch)
+        0x09, 0x39,                     // Usage (Hat switch)
+        0x09, 0x39,                     // Usage (Hat switch)
         0x81, 0x42,                     // Input (variable,absolute,null_state)
-        0x05, 0x01,                     // Usage Page (Generic Desktop)
-        0x09, 0x01,                     // Usage (Pointer)
-        0xA1, 0x00,                     // Collection ()
-        0x15, 0x00,                     //   Logical Minimum (0)
-        0x26, 0xFF, 0x03,               //   Logical Maximum (1023)
-        0x75, 0x0A,                     //   Report Size (10)
-        0x95, 0x04,                     //   Report Count (4)
-        0x09, 0x30,                     //   Usage (X)
-        0x09, 0x31,                     //   Usage (Y)
-        0x09, 0x32,                     //   Usage (Z)
-        0x09, 0x35,                     //   Usage (Rz)
+        0xC0                            // End Collection
+};
+#endif // JOYSTICK_SIZE
+#endif // JOYSTICK_INTERFACE
+
+#ifdef MULTITOUCH_INTERFACE
+// https://forum.pjrc.com/threads/32331-USB-HID-Touchscreen-support-needed
+// https://msdn.microsoft.com/en-us/library/windows/hardware/jj151563%28v=vs.85%29.aspx
+// https://msdn.microsoft.com/en-us/library/windows/hardware/jj151565%28v=vs.85%29.aspx
+// https://msdn.microsoft.com/en-us/library/windows/hardware/ff553734%28v=vs.85%29.aspx
+// https://msdn.microsoft.com/en-us/library/windows/hardware/jj151564%28v=vs.85%29.aspx
+// download.microsoft.com/download/a/d/f/adf1347d-08dc-41a4-9084-623b1194d4b2/digitizerdrvs_touch.docx
+static uint8_t multitouch_report_desc[] = {
+        0x05, 0x0D,                     // Usage Page (Digitizer)
+        0x09, 0x04,                     // Usage (Touch Screen)
+        0xa1, 0x01,                     // Collection (Application)
+        0x09, 0x22,                     //   Usage (Finger)
+        0xA1, 0x02,                     //   Collection (Logical)
+        0x09, 0x42,                     //     Usage (Tip Switch)
+        0x15, 0x00,                     //     Logical Minimum (0)
+        0x25, 0x01,                     //     Logical Maximum (1)
+        0x75, 0x01,                     //     Report Size (1)
+        0x95, 0x01,                     //     Report Count (1)
+        0x81, 0x02,                     //     Input (variable,absolute)
+        0x09, 0x51,                     //     Usage (Contact Identifier)
+        0x25, 0x7F,                     //     Logical Maximum (127)
+        0x75, 0x07,                     //     Report Size (7)
+        0x95, 0x01,                     //     Report Count (1)
+        0x81, 0x02,                     //     Input (variable,absolute)
+        0x09, 0x30,                     //     Usage (Pressure)
+        0x26, 0xFF, 0x00,               //     Logical Maximum (255)
+        0x75, 0x08,                     //     Report Size (8)
+        0x95, 0x01,                     //     Report Count (1)
+        0x81, 0x02,                     //     Input (variable,absolute)
+        0x05, 0x01,                     //     Usage Page (Generic Desktop)
+        0x09, 0x30,                     //     Usage (X)
+        0x09, 0x31,                     //     Usage (Y)
+        0x26, 0xFF, 0x7F,               //     Logical Maximum (32767)
+        0x65, 0x00,                     //     Unit (None)  <-- probably needs real units?
+        0x75, 0x10,                     //     Report Size (16)
+        0x95, 0x02,                     //     Report Count (2)
+        0x81, 0x02,                     //     Input (variable,absolute)
+        0xC0,                           //   End Collection
+        0x05, 0x0D,                     //   Usage Page (Digitizer)
+        0x27, 0xFF, 0xFF, 0, 0,         //   Logical Maximum (65535)
+        0x75, 0x10,                     //   Report Size (16)
+        0x95, 0x01,                     //   Report Count (1)
+        0x09, 0x56,                     //   Usage (Scan Time)
         0x81, 0x02,                     //   Input (variable,absolute)
-        0xC0,                           // End Collection
-        0x15, 0x00,                     // Logical Minimum (0)
-        0x26, 0xFF, 0x03,               // Logical Maximum (1023)
-        0x75, 0x0A,                     // Report Size (10)
-        0x95, 0x02,                     // Report Count (2)
-        0x09, 0x36,                     // Usage (Slider)
-        0x09, 0x36,                     // Usage (Slider)
-        0x81, 0x02,                     // Input (variable,absolute)
+        0x05, 0x0D,                     //   Usage Page (Digitizers)
+        0x09, 0x55,                     //   Usage (Contact Count Maximum)
+        0x25, MULTITOUCH_FINGERS,       //   Logical Maximum (10)
+        0x75, 0x08,                     //   Report Size (8)
+        0x95, 0x01,                     //   Report Count (1)
+        0xB1, 0x02,                     //   Feature (variable,absolute)
         0xC0                            // End Collection
 };
 #endif
 
 #ifdef SEREMU_INTERFACE
 static uint8_t seremu_report_desc[] = {
-        0x06, 0xC9, 0xFF,                       // Usage Page 0xFFC9 (vendor defined)
-        0x09, 0x04,                             // Usage 0x04
-        0xA1, 0x5C,                             // Collection 0x5C
-        0x75, 0x08,                             // report size = 8 bits (global)
-        0x15, 0x00,                             // logical minimum = 0 (global)
-        0x26, 0xFF, 0x00,                       // logical maximum = 255 (global)
-        0x95, SEREMU_TX_SIZE,                   // report count (global)
-        0x09, 0x75,                             // usage (local)
-        0x81, 0x02,                             // Input
-        0x95, SEREMU_RX_SIZE,                   // report count (global)
-        0x09, 0x76,                             // usage (local)
-        0x91, 0x02,                             // Output
-        0x95, 0x04,                             // report count (global)
-        0x09, 0x76,                             // usage (local)
-        0xB1, 0x02,                             // Feature
-        0xC0                                    // end collection
+        0x06, 0xC9, 0xFF,               // Usage Page 0xFFC9 (vendor defined)
+        0x09, 0x04,                     // Usage 0x04
+        0xA1, 0x5C,                     // Collection 0x5C
+        0x75, 0x08,                     //   report size = 8 bits (global)
+        0x15, 0x00,                     //   logical minimum = 0 (global)
+        0x26, 0xFF, 0x00,               //   logical maximum = 255 (global)
+        0x95, SEREMU_TX_SIZE,           //   report count (global)
+        0x09, 0x75,                     //   usage (local)
+        0x81, 0x02,                     //   Input
+        0x95, SEREMU_RX_SIZE,           //   report count (global)
+        0x09, 0x76,                     //   usage (local)
+        0x91, 0x02,                     //   Output
+        0x95, 0x04,                     //   report count (global)
+        0x09, 0x76,                     //   usage (local)
+        0xB1, 0x02,                     //   Feature
+        0xC0                            // end collection
 };
 #endif
 
@@ -268,37 +429,150 @@ static uint8_t seremu_report_desc[] = {
 static uint8_t rawhid_report_desc[] = {
         0x06, LSB(RAWHID_USAGE_PAGE), MSB(RAWHID_USAGE_PAGE),
         0x0A, LSB(RAWHID_USAGE), MSB(RAWHID_USAGE),
-        0xA1, 0x01,                             // Collection 0x01
-        0x75, 0x08,                             // report size = 8 bits
-        0x15, 0x00,                             // logical minimum = 0
-        0x26, 0xFF, 0x00,                       // logical maximum = 255
-        0x95, RAWHID_TX_SIZE,                   // report count
-        0x09, 0x01,                             // usage
-        0x81, 0x02,                             // Input (array)
-        0x95, RAWHID_RX_SIZE,                   // report count
-        0x09, 0x02,                             // usage
-        0x91, 0x02,                             // Output (array)
-        0xC0                                    // end collection
+        0xA1, 0x01,                     // Collection 0x01
+        0x75, 0x08,                     //   report size = 8 bits
+        0x15, 0x00,                     //   logical minimum = 0
+        0x26, 0xFF, 0x00,               //   logical maximum = 255
+        0x95, RAWHID_TX_SIZE,           //   report count
+        0x09, 0x01,                     //   usage
+        0x81, 0x02,                     //   Input (array)
+        0x95, RAWHID_RX_SIZE,           //   report count
+        0x09, 0x02,                     //   usage
+        0x91, 0x02,                     //   Output (array)
+        0xC0                            // end collection
 };
 #endif
 
 #ifdef FLIGHTSIM_INTERFACE
 static uint8_t flightsim_report_desc[] = {
-        0x06, 0x1C, 0xFF,                       // Usage page = 0xFF1C
-        0x0A, 0x39, 0xA7,                       // Usage = 0xA739
-        0xA1, 0x01,                             // Collection 0x01
-        0x75, 0x08,                             // report size = 8 bits
-        0x15, 0x00,                             // logical minimum = 0
-        0x26, 0xFF, 0x00,                       // logical maximum = 255
-        0x95, FLIGHTSIM_TX_SIZE,                // report count
-        0x09, 0x01,                             // usage
-        0x81, 0x02,                             // Input (array)
-        0x95, FLIGHTSIM_RX_SIZE,                // report count
-        0x09, 0x02,                             // usage
-        0x91, 0x02,                             // Output (array)
-        0xC0                                    // end collection
+        0x06, 0x1C, 0xFF,               // Usage page = 0xFF1C
+        0x0A, 0x39, 0xA7,               // Usage = 0xA739
+        0xA1, 0x01,                     // Collection 0x01
+        0x75, 0x08,                     //   report size = 8 bits
+        0x15, 0x00,                     //   logical minimum = 0
+        0x26, 0xFF, 0x00,               //   logical maximum = 255
+        0x95, FLIGHTSIM_TX_SIZE,        //   report count
+        0x09, 0x01,                     //   usage
+        0x81, 0x02,                     //   Input (array)
+        0x95, FLIGHTSIM_RX_SIZE,        //   report count
+        0x09, 0x02,                     //   usage
+        0x91, 0x02,                     //   Output (array)
+        0xC0                            // end collection
 };
 #endif
+
+
+// **************************************************************
+//   USB Descriptor Sizes
+// **************************************************************
+
+// pre-compute the size and position of everything in the config descriptor
+//
+#define CONFIG_HEADER_DESCRIPTOR_SIZE	9
+
+#define CDC_IAD_DESCRIPTOR_POS		CONFIG_HEADER_DESCRIPTOR_SIZE
+#ifdef  CDC_IAD_DESCRIPTOR
+#define CDC_IAD_DESCRIPTOR_SIZE		8
+#else
+#define CDC_IAD_DESCRIPTOR_SIZE		0
+#endif
+
+#define CDC_DATA_INTERFACE_DESC_POS	CDC_IAD_DESCRIPTOR_POS+CDC_IAD_DESCRIPTOR_SIZE
+#ifdef  CDC_DATA_INTERFACE
+#define CDC_DATA_INTERFACE_DESC_SIZE	9+5+5+4+5+7+9+7+7
+#else
+#define CDC_DATA_INTERFACE_DESC_SIZE	0
+#endif
+
+#define MIDI_INTERFACE_DESC_POS		CDC_DATA_INTERFACE_DESC_POS+CDC_DATA_INTERFACE_DESC_SIZE
+#ifdef  MIDI_INTERFACE
+  #if !defined(MIDI_NUM_CABLES) || MIDI_NUM_CABLES < 1 || MIDI_NUM_CABLES > 16
+  #error "MIDI_NUM_CABLES must be defined between 1 to 16"
+  #endif
+#define MIDI_INTERFACE_DESC_SIZE	9+7+((6+6+9+9)*MIDI_NUM_CABLES)+(9+4+MIDI_NUM_CABLES)*2
+#else
+#define MIDI_INTERFACE_DESC_SIZE	0
+#endif
+
+#define KEYBOARD_INTERFACE_DESC_POS	MIDI_INTERFACE_DESC_POS+MIDI_INTERFACE_DESC_SIZE
+#ifdef  KEYBOARD_INTERFACE
+#define KEYBOARD_INTERFACE_DESC_SIZE	9+9+7
+#define KEYBOARD_HID_DESC_OFFSET	KEYBOARD_INTERFACE_DESC_POS+9
+#else
+#define KEYBOARD_INTERFACE_DESC_SIZE	0
+#endif
+
+#define MOUSE_INTERFACE_DESC_POS	KEYBOARD_INTERFACE_DESC_POS+KEYBOARD_INTERFACE_DESC_SIZE
+#ifdef  MOUSE_INTERFACE
+#define MOUSE_INTERFACE_DESC_SIZE	9+9+7
+#define MOUSE_HID_DESC_OFFSET		MOUSE_INTERFACE_DESC_POS+9
+#else
+#define MOUSE_INTERFACE_DESC_SIZE	0
+#endif
+
+#define RAWHID_INTERFACE_DESC_POS	MOUSE_INTERFACE_DESC_POS+MOUSE_INTERFACE_DESC_SIZE
+#ifdef  RAWHID_INTERFACE
+#define RAWHID_INTERFACE_DESC_SIZE	9+9+7+7
+#define RAWHID_HID_DESC_OFFSET		RAWHID_INTERFACE_DESC_POS+9
+#else
+#define RAWHID_INTERFACE_DESC_SIZE	0
+#endif
+
+#define FLIGHTSIM_INTERFACE_DESC_POS	RAWHID_INTERFACE_DESC_POS+RAWHID_INTERFACE_DESC_SIZE
+#ifdef  FLIGHTSIM_INTERFACE
+#define FLIGHTSIM_INTERFACE_DESC_SIZE	9+9+7+7
+#define FLIGHTSIM_HID_DESC_OFFSET	FLIGHTSIM_INTERFACE_DESC_POS+9
+#else
+#define FLIGHTSIM_INTERFACE_DESC_SIZE	0
+#endif
+
+#define SEREMU_INTERFACE_DESC_POS	FLIGHTSIM_INTERFACE_DESC_POS+FLIGHTSIM_INTERFACE_DESC_SIZE
+#ifdef  SEREMU_INTERFACE
+#define SEREMU_INTERFACE_DESC_SIZE	9+9+7+7
+#define SEREMU_HID_DESC_OFFSET		SEREMU_INTERFACE_DESC_POS+9
+#else
+#define SEREMU_INTERFACE_DESC_SIZE	0
+#endif
+
+#define JOYSTICK_INTERFACE_DESC_POS	SEREMU_INTERFACE_DESC_POS+SEREMU_INTERFACE_DESC_SIZE
+#ifdef  JOYSTICK_INTERFACE
+#define JOYSTICK_INTERFACE_DESC_SIZE	9+9+7
+#define JOYSTICK_HID_DESC_OFFSET	JOYSTICK_INTERFACE_DESC_POS+9
+#else
+#define JOYSTICK_INTERFACE_DESC_SIZE	0
+#endif
+
+#define MTP_INTERFACE_DESC_POS		JOYSTICK_INTERFACE_DESC_POS+JOYSTICK_INTERFACE_DESC_SIZE
+#ifdef  MTP_INTERFACE
+#define MTP_INTERFACE_DESC_SIZE		9+7+7+7
+#else
+#define MTP_INTERFACE_DESC_SIZE	0
+#endif
+
+#define KEYMEDIA_INTERFACE_DESC_POS	MTP_INTERFACE_DESC_POS+MTP_INTERFACE_DESC_SIZE
+#ifdef  KEYMEDIA_INTERFACE
+#define KEYMEDIA_INTERFACE_DESC_SIZE	9+9+7
+#define KEYMEDIA_HID_DESC_OFFSET	KEYMEDIA_INTERFACE_DESC_POS+9
+#else
+#define KEYMEDIA_INTERFACE_DESC_SIZE	0
+#endif
+
+#define AUDIO_INTERFACE_DESC_POS	KEYMEDIA_INTERFACE_DESC_POS+KEYMEDIA_INTERFACE_DESC_SIZE
+#ifdef  AUDIO_INTERFACE
+#define AUDIO_INTERFACE_DESC_SIZE	8 + 9+10+12+9+12+10+9 + 9+9+7+11+9+7 + 9+9+7+11+9+7+9
+#else
+#define AUDIO_INTERFACE_DESC_SIZE	0
+#endif
+
+#define MULTITOUCH_INTERFACE_DESC_POS	AUDIO_INTERFACE_DESC_POS+AUDIO_INTERFACE_DESC_SIZE
+#ifdef  MULTITOUCH_INTERFACE
+#define MULTITOUCH_INTERFACE_DESC_SIZE	9+9+7
+#define MULTITOUCH_HID_DESC_OFFSET	MULTITOUCH_INTERFACE_DESC_POS+9
+#else
+#define MULTITOUCH_INTERFACE_DESC_SIZE	0
+#endif
+
+#define CONFIG_DESC_SIZE		MULTITOUCH_INTERFACE_DESC_POS+MULTITOUCH_INTERFACE_DESC_SIZE
 
 
 
@@ -414,7 +688,8 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         0x24,                                   // bDescriptorType = CS_INTERFACE
         0x01,                                   // bDescriptorSubtype = MS_HEADER
         0x00, 0x01,                             // bcdMSC = revision 01.00
-        0x41, 0x00,                             // wTotalLength
+	LSB(7+(6+6+9+9)*MIDI_NUM_CABLES),       // wTotalLength
+	MSB(7+(6+6+9+9)*MIDI_NUM_CABLES),
         // MIDI IN Jack Descriptor, B.4.3, Table B-7 (embedded), page 40
         6,                                      // bLength
         0x24,                                   // bDescriptorType = CS_INTERFACE
@@ -449,6 +724,56 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         1,                                      // BaSourceID(1) = 1
         1,                                      // BaSourcePin(1) = first pin
         0,                                      // iJack
+  #if MIDI_NUM_CABLES >= 2
+	#define MIDI_INTERFACE_JACK_PAIR(a, b, c, d) \
+		6, 0x24, 0x02, 0x01, (a), 0, \
+		6, 0x24, 0x02, 0x02, (b), 0, \
+		9, 0x24, 0x03, 0x01, (c), 1, (b), 1, 0, \
+		9, 0x24, 0x03, 0x02, (d), 1, (a), 1, 0,
+	MIDI_INTERFACE_JACK_PAIR(5, 6, 7, 8)
+  #endif
+  #if MIDI_NUM_CABLES >= 3
+	MIDI_INTERFACE_JACK_PAIR(9, 10, 11, 12)
+  #endif
+  #if MIDI_NUM_CABLES >= 4
+	MIDI_INTERFACE_JACK_PAIR(13, 14, 15, 16)
+  #endif
+  #if MIDI_NUM_CABLES >= 5
+	MIDI_INTERFACE_JACK_PAIR(17, 18, 19, 20)
+  #endif
+  #if MIDI_NUM_CABLES >= 6
+	MIDI_INTERFACE_JACK_PAIR(21, 22, 23, 24)
+  #endif
+  #if MIDI_NUM_CABLES >= 7
+	MIDI_INTERFACE_JACK_PAIR(25, 26, 27, 28)
+  #endif
+  #if MIDI_NUM_CABLES >= 8
+	MIDI_INTERFACE_JACK_PAIR(29, 30, 31, 32)
+  #endif
+  #if MIDI_NUM_CABLES >= 9
+	MIDI_INTERFACE_JACK_PAIR(33, 34, 35, 36)
+  #endif
+  #if MIDI_NUM_CABLES >= 10
+	MIDI_INTERFACE_JACK_PAIR(37, 38, 39, 40)
+  #endif
+  #if MIDI_NUM_CABLES >= 11
+	MIDI_INTERFACE_JACK_PAIR(41, 42, 43, 44)
+  #endif
+  #if MIDI_NUM_CABLES >= 12
+	MIDI_INTERFACE_JACK_PAIR(45, 46, 47, 48)
+  #endif
+  #if MIDI_NUM_CABLES >= 13
+	MIDI_INTERFACE_JACK_PAIR(49, 50, 51, 52)
+  #endif
+  #if MIDI_NUM_CABLES >= 14
+	MIDI_INTERFACE_JACK_PAIR(53, 54, 55, 56)
+  #endif
+  #if MIDI_NUM_CABLES >= 15
+	MIDI_INTERFACE_JACK_PAIR(57, 58, 59, 60)
+  #endif
+  #if MIDI_NUM_CABLES >= 16
+	MIDI_INTERFACE_JACK_PAIR(61, 62, 63, 64)
+  #endif
         // Standard Bulk OUT Endpoint Descriptor, B.5.1, Table B-11, pae 42
         9,                                      // bLength
         5,                                      // bDescriptorType = ENDPOINT
@@ -459,11 +784,56 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         0,                                      // bRefresh
         0,                                      // bSynchAddress
         // Class-specific MS Bulk OUT Endpoint Descriptor, B.5.2, Table B-12, page 42
-        5,                                      // bLength
+        4+MIDI_NUM_CABLES,                      // bLength
         0x25,                                   // bDescriptorSubtype = CS_ENDPOINT
         0x01,                                   // bJackType = MS_GENERAL
-        1,                                      // bNumEmbMIDIJack = 1 jack
+        MIDI_NUM_CABLES,                        // bNumEmbMIDIJack = number of jacks
         1,                                      // BaAssocJackID(1) = jack ID #1
+  #if MIDI_NUM_CABLES >= 2
+        5,
+  #endif
+  #if MIDI_NUM_CABLES >= 3
+        9,
+  #endif
+  #if MIDI_NUM_CABLES >= 4
+        13,
+  #endif
+  #if MIDI_NUM_CABLES >= 5
+        17,
+  #endif
+  #if MIDI_NUM_CABLES >= 6
+        21,
+  #endif
+  #if MIDI_NUM_CABLES >= 7
+        25,
+  #endif
+  #if MIDI_NUM_CABLES >= 8
+        29,
+  #endif
+  #if MIDI_NUM_CABLES >= 9
+        33,
+  #endif
+  #if MIDI_NUM_CABLES >= 10
+        37,
+  #endif
+  #if MIDI_NUM_CABLES >= 11
+        41,
+  #endif
+  #if MIDI_NUM_CABLES >= 12
+        45,
+  #endif
+  #if MIDI_NUM_CABLES >= 13
+        49,
+  #endif
+  #if MIDI_NUM_CABLES >= 14
+        53,
+  #endif
+  #if MIDI_NUM_CABLES >= 15
+        57,
+  #endif
+  #if MIDI_NUM_CABLES >= 16
+        61,
+  #endif
         // Standard Bulk IN Endpoint Descriptor, B.5.1, Table B-11, pae 42
         9,                                      // bLength
         5,                                      // bDescriptorType = ENDPOINT
@@ -474,11 +844,56 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         0,                                      // bRefresh
         0,                                      // bSynchAddress
         // Class-specific MS Bulk IN Endpoint Descriptor, B.5.2, Table B-12, page 42
-        5,                                      // bLength
+        4+MIDI_NUM_CABLES,                      // bLength
         0x25,                                   // bDescriptorSubtype = CS_ENDPOINT
         0x01,                                   // bJackType = MS_GENERAL
-        1,                                      // bNumEmbMIDIJack = 1 jack
+        MIDI_NUM_CABLES,                        // bNumEmbMIDIJack = number of jacks
         3,                                      // BaAssocJackID(1) = jack ID #3
+  #if MIDI_NUM_CABLES >= 2
+        7,
+  #endif
+  #if MIDI_NUM_CABLES >= 3
+        11,
+  #endif
+  #if MIDI_NUM_CABLES >= 4
+        15,
+  #endif
+  #if MIDI_NUM_CABLES >= 5
+        19,
+  #endif
+  #if MIDI_NUM_CABLES >= 6
+        23,
+  #endif
+  #if MIDI_NUM_CABLES >= 7
+        27,
+  #endif
+  #if MIDI_NUM_CABLES >= 8
+        31,
+  #endif
+  #if MIDI_NUM_CABLES >= 9
+        35,
+  #endif
+  #if MIDI_NUM_CABLES >= 10
+        39,
+  #endif
+  #if MIDI_NUM_CABLES >= 11
+        43,
+  #endif
+  #if MIDI_NUM_CABLES >= 12
+        47,
+  #endif
+  #if MIDI_NUM_CABLES >= 13
+        51,
+  #endif
+  #if MIDI_NUM_CABLES >= 14
+        55,
+  #endif
+  #if MIDI_NUM_CABLES >= 15
+        59,
+  #endif
+  #if MIDI_NUM_CABLES >= 16
+        63,
+  #endif
 #endif // MIDI_INTERFACE
 
 #ifdef KEYBOARD_INTERFACE
@@ -676,6 +1091,316 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         JOYSTICK_INTERVAL,                      // bInterval
 #endif // JOYSTICK_INTERFACE
 
+#ifdef MTP_INTERFACE
+        // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+        9,                                      // bLength
+        4,                                      // bDescriptorType
+        MTP_INTERFACE,                          // bInterfaceNumber
+        0,                                      // bAlternateSetting
+        3,                                      // bNumEndpoints
+        0x06,                                   // bInterfaceClass (0x06 = still image)
+        0x01,                                   // bInterfaceSubClass
+        0x01,                                   // bInterfaceProtocol
+        4,                                      // iInterface
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        7,                                      // bLength
+        5,                                      // bDescriptorType
+        MTP_TX_ENDPOINT | 0x80,                 // bEndpointAddress
+        0x02,                                   // bmAttributes (0x02=bulk)
+        MTP_TX_SIZE, 0,                         // wMaxPacketSize
+        0,                                      // bInterval
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        7,                                      // bLength
+        5,                                      // bDescriptorType
+        MTP_RX_ENDPOINT,                        // bEndpointAddress
+        0x02,                                   // bmAttributes (0x02=bulk)
+        MTP_RX_SIZE, 0,                         // wMaxPacketSize
+        0,                                      // bInterval
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        7,                                      // bLength
+        5,                                      // bDescriptorType
+        MTP_EVENT_ENDPOINT | 0x80,              // bEndpointAddress
+        0x03,                                   // bmAttributes (0x03=intr)
+        MTP_EVENT_SIZE, 0,                      // wMaxPacketSize
+        MTP_EVENT_INTERVAL,                     // bInterval
+#endif // MTP_INTERFACE
+
+#ifdef KEYMEDIA_INTERFACE
+        // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+        9,                                      // bLength
+        4,                                      // bDescriptorType
+        KEYMEDIA_INTERFACE,                     // bInterfaceNumber
+        0,                                      // bAlternateSetting
+        1,                                      // bNumEndpoints
+        0x03,                                   // bInterfaceClass (0x03 = HID)
+        0x00,                                   // bInterfaceSubClass
+        0x00,                                   // bInterfaceProtocol
+        0,                                      // iInterface
+        // HID interface descriptor, HID 1.11 spec, section 6.2.1
+        9,                                      // bLength
+        0x21,                                   // bDescriptorType
+        0x11, 0x01,                             // bcdHID
+        0,                                      // bCountryCode
+        1,                                      // bNumDescriptors
+        0x22,                                   // bDescriptorType
+        LSB(sizeof(keymedia_report_desc)),      // wDescriptorLength
+        MSB(sizeof(keymedia_report_desc)),
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        7,                                      // bLength
+        5,                                      // bDescriptorType
+        KEYMEDIA_ENDPOINT | 0x80,               // bEndpointAddress
+        0x03,                                   // bmAttributes (0x03=intr)
+        KEYMEDIA_SIZE, 0,                       // wMaxPacketSize
+        KEYMEDIA_INTERVAL,                      // bInterval
+#endif // KEYMEDIA_INTERFACE
+
+#ifdef AUDIO_INTERFACE
+        // interface association descriptor, USB ECN, Table 9-Z
+        8,                                      // bLength
+        11,                                     // bDescriptorType
+        AUDIO_INTERFACE,                        // bFirstInterface
+        3,                                      // bInterfaceCount
+        0x01,                                   // bFunctionClass
+        0x01,                                   // bFunctionSubClass
+        0x00,                                   // bFunctionProtocol
+        0,                                      // iFunction
+	// Standard AudioControl (AC) Interface Descriptor
+	// USB DCD for Audio Devices 1.0, Table 4-1, page 36
+	9,					// bLength
+	4,					// bDescriptorType, 4 = INTERFACE
+	AUDIO_INTERFACE,			// bInterfaceNumber
+	0,					// bAlternateSetting
+	0,					// bNumEndpoints
+	1,					// bInterfaceClass, 1 = AUDIO
+	1,					// bInterfaceSubclass, 1 = AUDIO_CONTROL
+	0,					// bInterfaceProtocol
+	0,					// iInterface
+	// Class-specific AC Interface Header Descriptor
+	// USB DCD for Audio Devices 1.0, Table 4-2, page 37-38
+	10,					// bLength
+	0x24,					// bDescriptorType, 0x24 = CS_INTERFACE
+	0x01,					// bDescriptorSubtype, 1 = HEADER
+	0x00, 0x01,				// bcdADC (version 1.0)
+	LSB(62), MSB(62),			// wTotalLength
+	2,					// bInCollection
+	AUDIO_INTERFACE+1,			// baInterfaceNr(1) - Transmit to PC
+	AUDIO_INTERFACE+2,			// baInterfaceNr(2) - Receive from PC
+	// Input Terminal Descriptor
+	// USB DCD for Audio Devices 1.0, Table 4-3, page 39
+	12,					// bLength
+	0x24,					// bDescriptorType, 0x24 = CS_INTERFACE
+	0x02,					// bDescriptorSubType, 2 = INPUT_TERMINAL
+	1,					// bTerminalID
+	//0x01, 0x02,				// wTerminalType, 0x0201 = MICROPHONE
+	//0x03, 0x06,				// wTerminalType, 0x0603 = Line Connector
+	0x02, 0x06,				// wTerminalType, 0x0602 = Digital Audio
+	0,					// bAssocTerminal, 0 = unidirectional
+	2,					// bNrChannels
+	0x03, 0x00,				// wChannelConfig, 0x0003 = Left & Right Front
+	0,					// iChannelNames
+	0, 					// iTerminal
+	// Output Terminal Descriptor
+	// USB DCD for Audio Devices 1.0, Table 4-4, page 40
+	9,					// bLength
+	0x24,					// bDescriptorType, 0x24 = CS_INTERFACE
+	3,					// bDescriptorSubtype, 3 = OUTPUT_TERMINAL
+	2,					// bTerminalID
+	0x01, 0x01,				// wTerminalType, 0x0101 = USB_STREAMING
+	0,					// bAssocTerminal, 0 = unidirectional
+	1,					// bCSourceID, connected to input terminal, ID=1
+	0,					// iTerminal
+	// Input Terminal Descriptor
+	// USB DCD for Audio Devices 1.0, Table 4-3, page 39
+	12,					// bLength
+	0x24,					// bDescriptorType, 0x24 = CS_INTERFACE
+	2,					// bDescriptorSubType, 2 = INPUT_TERMINAL
+	3,					// bTerminalID
+	0x01, 0x01,				// wTerminalType, 0x0101 = USB_STREAMING
+	0,					// bAssocTerminal, 0 = unidirectional
+	2,					// bNrChannels
+	0x03, 0x00,				// wChannelConfig, 0x0003 = Left & Right Front
+	0,					// iChannelNames
+	0, 					// iTerminal
+	// Volume feature descriptor
+	10,					// bLength
+	0x24, 				// bDescriptorType = CS_INTERFACE
+	0x06, 				// bDescriptorSubType = FEATURE_UNIT
+	0x31, 				// bUnitID
+	0x03, 				// bSourceID (Input Terminal)
+	0x01, 				// bControlSize (each channel is 1 byte, 3 channels)
+	0x01, 				// bmaControls(0) Master: Mute
+	0x02, 				// bmaControls(1) Left: Volume
+	0x02, 				// bmaControls(2) Right: Volume
+	0x00,				// iFeature
+	// Output Terminal Descriptor
+	// USB DCD for Audio Devices 1.0, Table 4-4, page 40
+	9,					// bLength
+	0x24,					// bDescriptorType, 0x24 = CS_INTERFACE
+	3,					// bDescriptorSubtype, 3 = OUTPUT_TERMINAL
+	4,					// bTerminalID
+	//0x02, 0x03,				// wTerminalType, 0x0302 = Headphones
+	0x02, 0x06,				// wTerminalType, 0x0602 = Digital Audio
+	0,					// bAssocTerminal, 0 = unidirectional
+	0x31,				// bCSourceID, connected to feature, ID=31
+	0,					// iTerminal
+	// Standard AS Interface Descriptor
+	// USB DCD for Audio Devices 1.0, Section 4.5.1, Table 4-18, page 59
+	// Alternate 0: default setting, disabled zero bandwidth
+	9,					// bLenght
+	4,					// bDescriptorType = INTERFACE
+	AUDIO_INTERFACE+1,			// bInterfaceNumber
+	0,					// bAlternateSetting
+	0,					// bNumEndpoints
+	1,					// bInterfaceClass, 1 = AUDIO
+	2,					// bInterfaceSubclass, 2 = AUDIO_STREAMING
+	0,					// bInterfaceProtocol
+	0,					// iInterface
+	// Alternate 1: streaming data
+	9,					// bLenght
+	4,					// bDescriptorType = INTERFACE
+	AUDIO_INTERFACE+1,			// bInterfaceNumber
+	1,					// bAlternateSetting
+	1,					// bNumEndpoints
+	1,					// bInterfaceClass, 1 = AUDIO
+	2,					// bInterfaceSubclass, 2 = AUDIO_STREAMING
+	0,					// bInterfaceProtocol
+	0,					// iInterface
+	// Class-Specific AS Interface Descriptor
+	// USB DCD for Audio Devices 1.0, Section 4.5.2, Table 4-19, page 60
+	7, 					// bLength
+	0x24,					// bDescriptorType = CS_INTERFACE
+	1,					// bDescriptorSubtype, 1 = AS_GENERAL
+	2,					// bTerminalLink: Terminal ID = 2
+	3,					// bDelay (approx 3ms delay, audio lib updates)
+	0x01, 0x00,				// wFormatTag, 0x0001 = PCM
+	// Type I Format Descriptor
+	// USB DCD for Audio Data Formats 1.0, Section 2.2.5, Table 2-1, page 10
+	11,					// bLength
+	0x24,					// bDescriptorType = CS_INTERFACE
+	2,					// bDescriptorSubtype = FORMAT_TYPE
+	1,					// bFormatType = FORMAT_TYPE_I
+	2,					// bNrChannels = 2
+	2,					// bSubFrameSize = 2 byte
+	16,					// bBitResolution = 16 bits
+	1,					// bSamFreqType = 1 frequency
+	LSB(44100), MSB(44100), 0,		// tSamFreq
+	// Standard AS Isochronous Audio Data Endpoint Descriptor
+	// USB DCD for Audio Devices 1.0, Section 4.6.1.1, Table 4-20, page 61-62
+	9, 					// bLength
+	5, 					// bDescriptorType, 5 = ENDPOINT_DESCRIPTOR
+	AUDIO_TX_ENDPOINT | 0x80,		// bEndpointAddress
+	0x09, 					// bmAttributes = isochronous, adaptive
+	LSB(AUDIO_TX_SIZE), MSB(AUDIO_TX_SIZE),	// wMaxPacketSize
+	1,			 		// bInterval, 1 = every frame
+	0,					// bRefresh
+	0,					// bSynchAddress
+	// Class-Specific AS Isochronous Audio Data Endpoint Descriptor
+	// USB DCD for Audio Devices 1.0, Section 4.6.1.2, Table 4-21, page 62-63
+	7,  					// bLength
+	0x25,  					// bDescriptorType, 0x25 = CS_ENDPOINT
+	1,  					// bDescriptorSubtype, 1 = EP_GENERAL
+	0x00,  					// bmAttributes
+	0,  					// bLockDelayUnits, 1 = ms
+	0x00, 0x00,  				// wLockDelay
+	// Standard AS Interface Descriptor
+	// USB DCD for Audio Devices 1.0, Section 4.5.1, Table 4-18, page 59
+	// Alternate 0: default setting, disabled zero bandwidth
+	9,					// bLenght
+	4,					// bDescriptorType = INTERFACE
+	AUDIO_INTERFACE+2,			// bInterfaceNumber
+	0,					// bAlternateSetting
+	0,					// bNumEndpoints
+	1,					// bInterfaceClass, 1 = AUDIO
+	2,					// bInterfaceSubclass, 2 = AUDIO_STREAMING
+	0,					// bInterfaceProtocol
+	0,					// iInterface
+	// Alternate 1: streaming data
+	9,					// bLenght
+	4,					// bDescriptorType = INTERFACE
+	AUDIO_INTERFACE+2,			// bInterfaceNumber
+	1,					// bAlternateSetting
+	2,					// bNumEndpoints
+	1,					// bInterfaceClass, 1 = AUDIO
+	2,					// bInterfaceSubclass, 2 = AUDIO_STREAMING
+	0,					// bInterfaceProtocol
+	0,					// iInterface
+	// Class-Specific AS Interface Descriptor
+	// USB DCD for Audio Devices 1.0, Section 4.5.2, Table 4-19, page 60
+	7, 					// bLength
+	0x24,					// bDescriptorType = CS_INTERFACE
+	1,					// bDescriptorSubtype, 1 = AS_GENERAL
+	3,					// bTerminalLink: Terminal ID = 3
+	3,					// bDelay (approx 3ms delay, audio lib updates)
+	0x01, 0x00,				// wFormatTag, 0x0001 = PCM
+	// Type I Format Descriptor
+	// USB DCD for Audio Data Formats 1.0, Section 2.2.5, Table 2-1, page 10
+	11,					// bLength
+	0x24,					// bDescriptorType = CS_INTERFACE
+	2,					// bDescriptorSubtype = FORMAT_TYPE
+	1,					// bFormatType = FORMAT_TYPE_I
+	2,					// bNrChannels = 2
+	2,					// bSubFrameSize = 2 byte
+	16,					// bBitResolution = 16 bits
+	1,					// bSamFreqType = 1 frequency
+	LSB(44100), MSB(44100), 0,		// tSamFreq
+	// Standard AS Isochronous Audio Data Endpoint Descriptor
+	// USB DCD for Audio Devices 1.0, Section 4.6.1.1, Table 4-20, page 61-62
+	9, 					// bLength
+	5, 					// bDescriptorType, 5 = ENDPOINT_DESCRIPTOR
+	AUDIO_RX_ENDPOINT,			// bEndpointAddress
+	0x05, 					// bmAttributes = isochronous, asynchronous
+	LSB(AUDIO_RX_SIZE), MSB(AUDIO_RX_SIZE),	// wMaxPacketSize
+	1,			 		// bInterval, 1 = every frame
+	0,					// bRefresh
+	AUDIO_SYNC_ENDPOINT | 0x80,		// bSynchAddress
+	// Class-Specific AS Isochronous Audio Data Endpoint Descriptor
+	// USB DCD for Audio Devices 1.0, Section 4.6.1.2, Table 4-21, page 62-63
+	7,  					// bLength
+	0x25,  					// bDescriptorType, 0x25 = CS_ENDPOINT
+	1,  					// bDescriptorSubtype, 1 = EP_GENERAL
+	0x00,  					// bmAttributes
+	0,  					// bLockDelayUnits, 1 = ms
+	0x00, 0x00,  				// wLockDelay
+	// Standard AS Isochronous Audio Synch Endpoint Descriptor
+	// USB DCD for Audio Devices 1.0, Section 4.6.2.1, Table 4-22, page 63-64
+	9, 					// bLength
+	5, 					// bDescriptorType, 5 = ENDPOINT_DESCRIPTOR
+	AUDIO_SYNC_ENDPOINT | 0x80,		// bEndpointAddress
+	0x11, 					// bmAttributes = isochronous, feedback
+	3, 0,					// wMaxPacketSize, 3 bytes
+	1,			 		// bInterval, 1 = every frame
+	5,					// bRefresh, 5 = 32ms
+	0,					// bSynchAddress
+#endif
+
+#ifdef MULTITOUCH_INTERFACE
+        // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+        9,                                      // bLength
+        4,                                      // bDescriptorType
+        MULTITOUCH_INTERFACE,                   // bInterfaceNumber
+        0,                                      // bAlternateSetting
+        1,                                      // bNumEndpoints
+        0x03,                                   // bInterfaceClass (0x03 = HID)
+        0x00,                                   // bInterfaceSubClass
+        0x00,                                   // bInterfaceProtocol
+        0,                                      // iInterface
+        // HID interface descriptor, HID 1.11 spec, section 6.2.1
+        9,                                      // bLength
+        0x21,                                   // bDescriptorType
+        0x11, 0x01,                             // bcdHID
+        0,                                      // bCountryCode
+        1,                                      // bNumDescriptors
+        0x22,                                   // bDescriptorType
+        LSB(sizeof(multitouch_report_desc)),    // wDescriptorLength
+        MSB(sizeof(multitouch_report_desc)),
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        7,                                      // bLength
+        5,                                      // bDescriptorType
+        MULTITOUCH_ENDPOINT | 0x80,             // bEndpointAddress
+        0x03,                                   // bmAttributes (0x03=intr)
+        MULTITOUCH_SIZE, 0,                     // wMaxPacketSize
+        1,                                      // bInterval
+#endif // KEYMEDIA_INTERFACE
 };
 
 
@@ -723,6 +1448,13 @@ struct usb_string_descriptor_struct usb_string_serial_number_default = {
         3,
         {0,0,0,0,0,0,0,0,0,0}
 };
+#ifdef MTP_INTERFACE
+struct usb_string_descriptor_struct usb_string_mtp = {
+	2 + 3 * 2,
+	3,
+	{'M','T','P'}
+};
+#endif
 
 void usb_init_serialnumber(void)
 {
@@ -730,12 +1462,22 @@ void usb_init_serialnumber(void)
 	uint32_t i, num;
 
 	__disable_irq();
+#if defined(HAS_KINETIS_FLASH_FTFA) || defined(HAS_KINETIS_FLASH_FTFL)
 	FTFL_FSTAT = FTFL_FSTAT_RDCOLERR | FTFL_FSTAT_ACCERR | FTFL_FSTAT_FPVIOL;
 	FTFL_FCCOB0 = 0x41;
 	FTFL_FCCOB1 = 15;
 	FTFL_FSTAT = FTFL_FSTAT_CCIF;
 	while (!(FTFL_FSTAT & FTFL_FSTAT_CCIF)) ; // wait
 	num = *(uint32_t *)&FTFL_FCCOB7;
+#elif defined(HAS_KINETIS_FLASH_FTFE)
+	kinetis_hsrun_disable();
+	FTFL_FSTAT = FTFL_FSTAT_RDCOLERR | FTFL_FSTAT_ACCERR | FTFL_FSTAT_FPVIOL;
+	*(uint32_t *)&FTFL_FCCOB3 = 0x41070000;
+	FTFL_FSTAT = FTFL_FSTAT_CCIF;
+	while (!(FTFL_FSTAT & FTFL_FSTAT_CCIF)) ; // wait
+	num = *(uint32_t *)&FTFL_FCCOBB;
+	kinetis_hsrun_enable();
+#endif
 	__enable_irq();
 	// add extra zero to work around OS-X CDC-ACM driver bug
 	if (num < 10000000) num = num * 10;
@@ -761,35 +1503,43 @@ const usb_descriptor_list_t usb_descriptor_list[] = {
 	{0x0200, 0x0000, config_descriptor, sizeof(config_descriptor)},
 #ifdef SEREMU_INTERFACE
 	{0x2200, SEREMU_INTERFACE, seremu_report_desc, sizeof(seremu_report_desc)},
-	{0x2100, SEREMU_INTERFACE, config_descriptor+SEREMU_DESC_OFFSET, 9},
+	{0x2100, SEREMU_INTERFACE, config_descriptor+SEREMU_HID_DESC_OFFSET, 9},
 #endif
 #ifdef KEYBOARD_INTERFACE
         {0x2200, KEYBOARD_INTERFACE, keyboard_report_desc, sizeof(keyboard_report_desc)},
-        {0x2100, KEYBOARD_INTERFACE, config_descriptor+KEYBOARD_DESC_OFFSET, 9},
+        {0x2100, KEYBOARD_INTERFACE, config_descriptor+KEYBOARD_HID_DESC_OFFSET, 9},
 #endif
 #ifdef MOUSE_INTERFACE
         {0x2200, MOUSE_INTERFACE, mouse_report_desc, sizeof(mouse_report_desc)},
-        {0x2100, MOUSE_INTERFACE, config_descriptor+MOUSE_DESC_OFFSET, 9},
+        {0x2100, MOUSE_INTERFACE, config_descriptor+MOUSE_HID_DESC_OFFSET, 9},
 #endif
 #ifdef JOYSTICK_INTERFACE
         {0x2200, JOYSTICK_INTERFACE, joystick_report_desc, sizeof(joystick_report_desc)},
-        {0x2100, JOYSTICK_INTERFACE, config_descriptor+JOYSTICK_DESC_OFFSET, 9},
+        {0x2100, JOYSTICK_INTERFACE, config_descriptor+JOYSTICK_HID_DESC_OFFSET, 9},
 #endif
 #ifdef RAWHID_INTERFACE
 	{0x2200, RAWHID_INTERFACE, rawhid_report_desc, sizeof(rawhid_report_desc)},
-	{0x2100, RAWHID_INTERFACE, config_descriptor+RAWHID_DESC_OFFSET, 9},
+	{0x2100, RAWHID_INTERFACE, config_descriptor+RAWHID_HID_DESC_OFFSET, 9},
 #endif
 #ifdef FLIGHTSIM_INTERFACE
 	{0x2200, FLIGHTSIM_INTERFACE, flightsim_report_desc, sizeof(flightsim_report_desc)},
-	{0x2100, FLIGHTSIM_INTERFACE, config_descriptor+FLIGHTSIM_DESC_OFFSET, 9},
+	{0x2100, FLIGHTSIM_INTERFACE, config_descriptor+FLIGHTSIM_HID_DESC_OFFSET, 9},
+#endif
+#ifdef KEYMEDIA_INTERFACE
+        {0x2200, KEYMEDIA_INTERFACE, keymedia_report_desc, sizeof(keymedia_report_desc)},
+        {0x2100, KEYMEDIA_INTERFACE, config_descriptor+KEYMEDIA_HID_DESC_OFFSET, 9},
+#endif
+#ifdef MULTITOUCH_INTERFACE
+        {0x2200, MULTITOUCH_INTERFACE, multitouch_report_desc, sizeof(multitouch_report_desc)},
+        {0x2100, MULTITOUCH_INTERFACE, config_descriptor+MULTITOUCH_HID_DESC_OFFSET, 9},
+#endif
+#ifdef MTP_INTERFACE
+	{0x0304, 0x0409, (const uint8_t *)&usb_string_mtp, 0},
 #endif
         {0x0300, 0x0000, (const uint8_t *)&string0, 0},
         {0x0301, 0x0409, (const uint8_t *)&usb_string_manufacturer_name, 0},
         {0x0302, 0x0409, (const uint8_t *)&usb_string_product_name, 0},
         {0x0303, 0x0409, (const uint8_t *)&usb_string_serial_number, 0},
-        //{0x0301, 0x0409, (const uint8_t *)&string1, 0},
-        //{0x0302, 0x0409, (const uint8_t *)&string2, 0},
-        //{0x0303, 0x0409, (const uint8_t *)&string3, 0},
 	{0, 0, NULL, 0}
 };
 

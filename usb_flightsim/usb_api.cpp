@@ -64,10 +64,11 @@ FlightSimCommand::FlightSimCommand()
 
 void FlightSimCommand::identify(void)
 {
-	uint8_t len, buf[6];
+	uint16_t len;
+	uint8_t buf[6];
 
 	if (!FlightSim.enabled || !name) return;
-	len = strlen_P((const prog_char*)name);
+	len = strlen_P((const char *)name);
 	buf[0] = len + 6;
 	buf[1] = 1;
 	buf[2] = id;
@@ -108,10 +109,11 @@ FlightSimInteger::FlightSimInteger()
 
 void FlightSimInteger::identify(void)
 {
-	uint8_t len, buf[6];
+	uint16_t len;
+	uint8_t buf[6];
 
 	if (!FlightSim.enabled || !name) return;
-	len = strlen_P((const prog_char*)name);
+	len = strlen_P((const char *)name);
 	buf[0] = len + 6;
 	buf[1] = 1;
 	buf[2] = id;
@@ -139,7 +141,13 @@ void FlightSimInteger::write(long val)
 void FlightSimInteger::update(long val)
 {
 	value = val;
-	if (change_callback) (*change_callback)(val);
+	if (change_callback) {
+		if (!hasCallbackInfo) {
+			(*change_callback)(val);
+		} else {
+			(*(void(*)(long,void*))change_callback)(val,callbackInfo);
+		}
+	}
 }
 
 FlightSimInteger * FlightSimInteger::find(unsigned int n)
@@ -171,10 +179,11 @@ FlightSimFloat::FlightSimFloat()
 
 void FlightSimFloat::identify(void)
 {
-	uint8_t len, buf[6];
+	uint16_t len;
+	uint8_t buf[6];
 
 	if (!FlightSim.enabled || !name) return;
-	len = strlen_P((const prog_char*)name);
+	len = strlen_P((const char *)name);
 	buf[0] = len + 6;
 	buf[1] = 1;
 	buf[2] = id;
@@ -202,7 +211,13 @@ void FlightSimFloat::write(float val)
 void FlightSimFloat::update(float val)
 {
 	value = val;
-	if (change_callback) (*change_callback)(val);
+	if (change_callback) {
+		if (!hasCallbackInfo) {
+			(*change_callback)(val);
+		} else {
+			(*(void(*)(long,void*))change_callback)(val,callbackInfo);
+		}
+	}
 }
 
 FlightSimFloat * FlightSimFloat::find(unsigned int n)
@@ -337,7 +352,6 @@ void FlightSimClass::xmit(const uint8_t *p1, uint8_t n1)
 {
 	uint8_t intr_state, avail;
 
-	if (n1 > FLIGHTSIM_TX_SIZE) return;
 	if (!enabled || !usb_configuration) return;
 	intr_state = SREG;
 	cli();
@@ -374,7 +388,6 @@ void FlightSimClass::xmit(const uint8_t *p1, uint8_t n1, const uint8_t *p2, uint
 	uint8_t intr_state, total, avail;
 
 	total = n1 + n2;
-	if (total > FLIGHTSIM_TX_SIZE) return;
 	if (!enabled || !usb_configuration) return;
 	intr_state = SREG;
 	cli();
@@ -409,13 +422,15 @@ send:
 }
 
 
-void FlightSimClass::xmit(const uint8_t *p1, uint8_t n1, const _XpRefStr_ *p2, uint8_t n2)
-{
+void FlightSimClass::xmit(const uint8_t *p1, uint8_t n1, const _XpRefStr_ *p2, uint16_t n2) {
 	uint8_t intr_state, total, avail;
-	const prog_char *s2 = (const prog_char *)p2;
+	const char * PROGMEM s2 = (const char *)p2;
 
 	total = n1 + n2;
-	if (total > FLIGHTSIM_TX_SIZE) return;
+	if (total > FLIGHTSIM_TX_SIZE) {
+		xmit_big_packet(p1, n1, p2,  n2);
+		return;
+	}
 	if (!enabled || !usb_configuration) return;
 	intr_state = SREG;
 	cli();
@@ -449,6 +464,54 @@ send:
 	SREG = intr_state;
 }
 
+void FlightSimClass::xmit_big_packet(const uint8_t *p1, uint8_t n1, const _XpRefStr_ *p2, uint16_t n2) {
+	uint8_t intr_state, avail;
+	uint16_t total;
+
+	bool part1 = true;
+	const char * PROGMEM s2 = (const char *)p2;
+	uint8_t packet_id = 1;
+
+	total = n1 + n2;
+
+	if (!enabled || !usb_configuration) return;
+	intr_state = SREG;
+	cli();
+	UENUM = FLIGHTSIM_TX_ENDPOINT;
+	avail = FLIGHTSIM_TX_SIZE - UEBCLX;
+
+	while (total>0) {
+		if (part1) {
+			UEDATX = *p1++;
+			part1 = (--n1 != 0);
+		} else {
+			pgm_read_byte_postinc(UEDATX, s2);
+			n2--;
+ 		}
+		total--;
+
+		if (!--avail) {
+			// transmit packet
+			UEINTX = 0x3A;
+			while (1) {
+				if (UEINTX & (1<<RWAL)) break;
+				SREG = intr_state;
+				if (!enabled || !usb_configuration) return;
+				intr_state = SREG;
+				cli();
+				UENUM = FLIGHTSIM_TX_ENDPOINT;
+			}
+
+			// start new fragment with length and fragment ID
+			UEDATX = (total<(FLIGHTSIM_TX_SIZE-3) ? total+3 : FLIGHTSIM_TX_SIZE); // length byte
+			UEDATX = 0xff;
+			UEDATX = packet_id++;
+			avail = FLIGHTSIM_TX_SIZE - 3;
+		}
+	}
+	if (UEBCLX == FLIGHTSIM_TX_SIZE) UEINTX = 0x3A;
+	SREG = intr_state;
+}
 
 
 FlightSimClass FlightSim;

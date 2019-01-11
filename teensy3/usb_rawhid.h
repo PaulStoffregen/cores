@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -31,7 +31,9 @@
 #ifndef USBrawhid_h_
 #define USBrawhid_h_
 
-#if defined(USB_RAWHID)
+#include "usb_desc.h"
+
+#if defined(RAWHID_INTERFACE)
 
 #include <inttypes.h>
 
@@ -61,5 +63,6 @@ extern usb_rawhid_class RawHID;
 
 #endif // __cplusplus
 
-#endif // USB_HID
+#endif // RAWHID_INTERFACE
+
 #endif // USBrawhid_h_

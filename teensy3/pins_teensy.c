@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -32,34 +32,12 @@
 #include "pins_arduino.h"
 #include "HardwareSerial.h"
 
-#if 0
-// moved to pins_arduino.h
-struct digital_pin_bitband_and_config_table_struct {
-	volatile uint32_t *reg;
-	volatile uint32_t *config;
-};
-const struct digital_pin_bitband_and_config_table_struct digital_pin_to_info_PGM[];
 
-// compatibility macros
-#define digitalPinToPort(pin) (pin)
-#define digitalPinToBitMask(pin) (1)
-#define portOutputRegister(pin) ((volatile uint8_t *)(digital_pin_to_info_PGM[(pin)].reg + 0))
-#define portSetRegister(pin)    ((volatile uint8_t *)(digital_pin_to_info_PGM[(pin)].reg + 32))
-#define portClearRegister(pin)  ((volatile uint8_t *)(digital_pin_to_info_PGM[(pin)].reg + 64))
-#define portToggleRegister(pin) ((volatile uint8_t *)(digital_pin_to_info_PGM[(pin)].reg + 96))
-#define portInputRegister(pin)  ((volatile uint8_t *)(digital_pin_to_info_PGM[(pin)].reg + 128))
-#define portModeRegister(pin)   ((volatile uint8_t *)(digital_pin_to_info_PGM[(pin)].reg + 160))
-#define portConfigRegister(pin) ((volatile uint32_t *)(digital_pin_to_info_PGM[(pin)].config))
-#endif
-
-//#define digitalPinToTimer(P) ( pgm_read_byte( digital_pin_to_timer_PGM + (P) ) )
-//#define analogInPinToBit(P) (P)
-
+#if defined(KINETISK)
 #define GPIO_BITBAND_ADDR(reg, bit) (((uint32_t)&(reg) - 0x40000000) * 32 + (bit) * 4 + 0x42000000)
 #define GPIO_BITBAND_PTR(reg, bit) ((uint32_t *)GPIO_BITBAND_ADDR((reg), (bit)))
 //#define GPIO_SET_BIT(reg, bit) (*GPIO_BITBAND_PTR((reg), (bit)) = 1)
 //#define GPIO_CLR_BIT(reg, bit) (*GPIO_BITBAND_PTR((reg), (bit)) = 0)
-
 const struct digital_pin_bitband_and_config_table_struct digital_pin_to_info_PGM[] = {
 	{GPIO_BITBAND_PTR(CORE_PIN0_PORTREG, CORE_PIN0_BIT), &CORE_PIN0_CONFIG},
 	{GPIO_BITBAND_PTR(CORE_PIN1_PORTREG, CORE_PIN1_BIT), &CORE_PIN1_CONFIG},
@@ -94,27 +72,121 @@ const struct digital_pin_bitband_and_config_table_struct digital_pin_to_info_PGM
 	{GPIO_BITBAND_PTR(CORE_PIN30_PORTREG, CORE_PIN30_BIT), &CORE_PIN30_CONFIG},
 	{GPIO_BITBAND_PTR(CORE_PIN31_PORTREG, CORE_PIN31_BIT), &CORE_PIN31_CONFIG},
 	{GPIO_BITBAND_PTR(CORE_PIN32_PORTREG, CORE_PIN32_BIT), &CORE_PIN32_CONFIG},
-	{GPIO_BITBAND_PTR(CORE_PIN33_PORTREG, CORE_PIN33_BIT), &CORE_PIN33_CONFIG}
+	{GPIO_BITBAND_PTR(CORE_PIN33_PORTREG, CORE_PIN33_BIT), &CORE_PIN33_CONFIG},
+#ifdef CORE_PIN34_PORTREG
+	{GPIO_BITBAND_PTR(CORE_PIN34_PORTREG, CORE_PIN34_BIT), &CORE_PIN34_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN35_PORTREG, CORE_PIN35_BIT), &CORE_PIN35_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN36_PORTREG, CORE_PIN36_BIT), &CORE_PIN36_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN37_PORTREG, CORE_PIN37_BIT), &CORE_PIN37_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN38_PORTREG, CORE_PIN38_BIT), &CORE_PIN38_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN39_PORTREG, CORE_PIN39_BIT), &CORE_PIN39_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN40_PORTREG, CORE_PIN40_BIT), &CORE_PIN40_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN41_PORTREG, CORE_PIN41_BIT), &CORE_PIN41_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN42_PORTREG, CORE_PIN42_BIT), &CORE_PIN42_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN43_PORTREG, CORE_PIN43_BIT), &CORE_PIN43_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN44_PORTREG, CORE_PIN44_BIT), &CORE_PIN44_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN45_PORTREG, CORE_PIN45_BIT), &CORE_PIN45_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN46_PORTREG, CORE_PIN46_BIT), &CORE_PIN46_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN47_PORTREG, CORE_PIN47_BIT), &CORE_PIN47_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN48_PORTREG, CORE_PIN48_BIT), &CORE_PIN48_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN49_PORTREG, CORE_PIN49_BIT), &CORE_PIN49_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN50_PORTREG, CORE_PIN50_BIT), &CORE_PIN50_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN51_PORTREG, CORE_PIN51_BIT), &CORE_PIN51_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN52_PORTREG, CORE_PIN52_BIT), &CORE_PIN52_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN53_PORTREG, CORE_PIN53_BIT), &CORE_PIN53_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN54_PORTREG, CORE_PIN54_BIT), &CORE_PIN54_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN55_PORTREG, CORE_PIN55_BIT), &CORE_PIN55_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN56_PORTREG, CORE_PIN56_BIT), &CORE_PIN56_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN57_PORTREG, CORE_PIN57_BIT), &CORE_PIN57_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN58_PORTREG, CORE_PIN58_BIT), &CORE_PIN58_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN59_PORTREG, CORE_PIN59_BIT), &CORE_PIN59_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN60_PORTREG, CORE_PIN60_BIT), &CORE_PIN60_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN61_PORTREG, CORE_PIN61_BIT), &CORE_PIN61_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN62_PORTREG, CORE_PIN62_BIT), &CORE_PIN62_CONFIG},
+	{GPIO_BITBAND_PTR(CORE_PIN63_PORTREG, CORE_PIN63_BIT), &CORE_PIN63_CONFIG},
+#endif
 };
 
+#elif defined(KINETISL)
+const struct digital_pin_bitband_and_config_table_struct digital_pin_to_info_PGM[] = {
+	{((volatile uint8_t *)&CORE_PIN0_PORTREG + (CORE_PIN0_BIT >> 3)), &CORE_PIN0_CONFIG, (1<<(CORE_PIN0_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN1_PORTREG + (CORE_PIN1_BIT >> 3)), &CORE_PIN1_CONFIG, (1<<(CORE_PIN1_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN2_PORTREG + (CORE_PIN2_BIT >> 3)), &CORE_PIN2_CONFIG, (1<<(CORE_PIN2_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN3_PORTREG + (CORE_PIN3_BIT >> 3)), &CORE_PIN3_CONFIG, (1<<(CORE_PIN3_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN4_PORTREG + (CORE_PIN4_BIT >> 3)), &CORE_PIN4_CONFIG, (1<<(CORE_PIN4_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN5_PORTREG + (CORE_PIN5_BIT >> 3)), &CORE_PIN5_CONFIG, (1<<(CORE_PIN5_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN6_PORTREG + (CORE_PIN6_BIT >> 3)), &CORE_PIN6_CONFIG, (1<<(CORE_PIN6_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN7_PORTREG + (CORE_PIN7_BIT >> 3)), &CORE_PIN7_CONFIG, (1<<(CORE_PIN7_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN8_PORTREG + (CORE_PIN8_BIT >> 3)), &CORE_PIN8_CONFIG, (1<<(CORE_PIN8_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN9_PORTREG + (CORE_PIN9_BIT >> 3)), &CORE_PIN9_CONFIG, (1<<(CORE_PIN9_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN10_PORTREG + (CORE_PIN10_BIT >> 3)), &CORE_PIN10_CONFIG, (1<<(CORE_PIN10_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN11_PORTREG + (CORE_PIN11_BIT >> 3)), &CORE_PIN11_CONFIG, (1<<(CORE_PIN11_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN12_PORTREG + (CORE_PIN12_BIT >> 3)), &CORE_PIN12_CONFIG, (1<<(CORE_PIN12_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN13_PORTREG + (CORE_PIN13_BIT >> 3)), &CORE_PIN13_CONFIG, (1<<(CORE_PIN13_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN14_PORTREG + (CORE_PIN14_BIT >> 3)), &CORE_PIN14_CONFIG, (1<<(CORE_PIN14_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN15_PORTREG + (CORE_PIN15_BIT >> 3)), &CORE_PIN15_CONFIG, (1<<(CORE_PIN15_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN16_PORTREG + (CORE_PIN16_BIT >> 3)), &CORE_PIN16_CONFIG, (1<<(CORE_PIN16_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN17_PORTREG + (CORE_PIN17_BIT >> 3)), &CORE_PIN17_CONFIG, (1<<(CORE_PIN17_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN18_PORTREG + (CORE_PIN18_BIT >> 3)), &CORE_PIN18_CONFIG, (1<<(CORE_PIN18_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN19_PORTREG + (CORE_PIN19_BIT >> 3)), &CORE_PIN19_CONFIG, (1<<(CORE_PIN19_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN20_PORTREG + (CORE_PIN20_BIT >> 3)), &CORE_PIN20_CONFIG, (1<<(CORE_PIN20_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN21_PORTREG + (CORE_PIN21_BIT >> 3)), &CORE_PIN21_CONFIG, (1<<(CORE_PIN21_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN22_PORTREG + (CORE_PIN22_BIT >> 3)), &CORE_PIN22_CONFIG, (1<<(CORE_PIN22_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN23_PORTREG + (CORE_PIN23_BIT >> 3)), &CORE_PIN23_CONFIG, (1<<(CORE_PIN23_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN24_PORTREG + (CORE_PIN24_BIT >> 3)), &CORE_PIN24_CONFIG, (1<<(CORE_PIN24_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN25_PORTREG + (CORE_PIN25_BIT >> 3)), &CORE_PIN25_CONFIG, (1<<(CORE_PIN25_BIT & 7))},
+	{((volatile uint8_t *)&CORE_PIN26_PORTREG + (CORE_PIN26_BIT >> 3)), &CORE_PIN26_CONFIG, (1<<(CORE_PIN26_BIT & 7))}
+};
 
+#endif
 
+static void dummy_isr() {};
 
 typedef void (*voidFuncPtr)(void);
-volatile static voidFuncPtr intFunc[CORE_NUM_DIGITAL];
+#if defined(KINETISK)
+#ifdef NO_PORT_ISR_FASTRUN
+static void port_A_isr(void);
+static void port_B_isr(void);
+static void port_C_isr(void);
+static void port_D_isr(void);
+static void port_E_isr(void);
+#else
+static void port_A_isr(void) __attribute__ ((section(".fastrun"), noinline, noclone ));
+static void port_B_isr(void) __attribute__ ((section(".fastrun"), noinline, noclone ));
+static void port_C_isr(void) __attribute__ ((section(".fastrun"), noinline, noclone ));
+static void port_D_isr(void) __attribute__ ((section(".fastrun"), noinline, noclone ));
+static void port_E_isr(void) __attribute__ ((section(".fastrun"), noinline, noclone ));
+#endif
 
-void init_pin_interrupts(void)
-{
-	//SIM_SCGC5 = 0x00043F82;		// clocks active to all GPIO
-	NVIC_ENABLE_IRQ(IRQ_PORTA);
-	NVIC_ENABLE_IRQ(IRQ_PORTB);
-	NVIC_ENABLE_IRQ(IRQ_PORTC);
-	NVIC_ENABLE_IRQ(IRQ_PORTD);
-	NVIC_ENABLE_IRQ(IRQ_PORTE);
-	// TODO: maybe these should be set to a lower priority
-	// so if the user puts lots of slow code on attachInterrupt
-	// fast interrupts will still be serviced quickly?
+voidFuncPtr isr_table_portA[CORE_MAX_PIN_PORTA+1] = { [0 ... CORE_MAX_PIN_PORTA] = dummy_isr };
+voidFuncPtr isr_table_portB[CORE_MAX_PIN_PORTB+1] = { [0 ... CORE_MAX_PIN_PORTB] = dummy_isr };
+voidFuncPtr isr_table_portC[CORE_MAX_PIN_PORTC+1] = { [0 ... CORE_MAX_PIN_PORTC] = dummy_isr };
+voidFuncPtr isr_table_portD[CORE_MAX_PIN_PORTD+1] = { [0 ... CORE_MAX_PIN_PORTD] = dummy_isr };
+voidFuncPtr isr_table_portE[CORE_MAX_PIN_PORTE+1] = { [0 ... CORE_MAX_PIN_PORTE] = dummy_isr };
+
+// The Pin Config Register is used to look up the correct interrupt table
+// for the corresponding port.
+static inline voidFuncPtr* getIsrTable(volatile uint32_t *config) {
+	voidFuncPtr* isr_table = NULL;
+	if(&PORTA_PCR0 <= config && config <= &PORTA_PCR31) isr_table = isr_table_portA;
+	else if(&PORTB_PCR0 <= config && config <= &PORTB_PCR31) isr_table = isr_table_portB;
+	else if(&PORTC_PCR0 <= config && config <= &PORTC_PCR31) isr_table = isr_table_portC;
+	else if(&PORTD_PCR0 <= config && config <= &PORTD_PCR31) isr_table = isr_table_portD;
+	else if(&PORTE_PCR0 <= config && config <= &PORTE_PCR31) isr_table = isr_table_portE;
+	return isr_table;
 }
+
+inline uint32_t getPinIndex(volatile uint32_t *config) {
+	uintptr_t v = (uintptr_t) config;
+	// There are 32 pin config registers for each port, each port starting at a round address.
+	// They are spaced 4 bytes apart.
+	return (v % 128) / 4;
+}
+#elif defined(KINETISL)
+volatile static voidFuncPtr intFunc[CORE_NUM_DIGITAL] = { [0 ... CORE_NUM_DIGITAL-1] = dummy_isr };
+static void porta_interrupt(void);
+static void portcd_interrupt(void);
+#endif
 
 void attachInterruptVector(enum IRQ_NUMBER_t irq, void (*function)(void))
 {
@@ -137,7 +209,31 @@ void attachInterrupt(uint8_t pin, void (*function)(void), int mode)
 	}
 	mask = (mask << 16) | 0x01000000;
 	config = portConfigRegister(pin);
-
+	if ((*config & 0x00000700) == 0) {
+		// for compatibility with programs which depend
+		// on AVR hardware default to input mode.
+		pinMode(pin, INPUT);
+	}
+#if defined(KINETISK)
+	attachInterruptVector(IRQ_PORTA, port_A_isr);
+	attachInterruptVector(IRQ_PORTB, port_B_isr);
+	attachInterruptVector(IRQ_PORTC, port_C_isr);
+	attachInterruptVector(IRQ_PORTD, port_D_isr);
+	attachInterruptVector(IRQ_PORTE, port_E_isr);
+	voidFuncPtr* isr_table = getIsrTable(config);
+	if(!isr_table) return;
+	uint32_t pin_index = getPinIndex(config);
+	__disable_irq();
+	cfg = *config;
+	cfg &= ~0x000F0000;		// disable any previous interrupt
+	*config = cfg;
+	isr_table[pin_index] = function;	// set the function pointer
+	cfg |= mask;
+	*config = cfg;			// enable the new interrupt
+	__enable_irq();
+#elif defined(KINETISL)
+	attachInterruptVector(IRQ_PORTA, porta_interrupt);
+	attachInterruptVector(IRQ_PORTCD, portcd_interrupt);
 	__disable_irq();
 	cfg = *config;
 	cfg &= ~0x000F0000;		// disable any previous interrupt
@@ -146,6 +242,7 @@ void attachInterrupt(uint8_t pin, void (*function)(void), int mode)
 	cfg |= mask;
 	*config = cfg;			// enable the new interrupt
 	__enable_irq();
+#endif
 }
 
 void detachInterrupt(uint8_t pin)
@@ -153,80 +250,92 @@ void detachInterrupt(uint8_t pin)
 	volatile uint32_t *config;
 
 	config = portConfigRegister(pin);
+#if defined(KINETISK)
+	voidFuncPtr* isr_table = getIsrTable(config);
+	if(!isr_table) return;
+	uint32_t pin_index = getPinIndex(config);
 	__disable_irq();
 	*config = ((*config & ~0x000F0000) | 0x01000000);
-	intFunc[pin] = NULL;
+	isr_table[pin_index] = dummy_isr;
 	__enable_irq();
+#elif defined(KINETISL)
+	__disable_irq();
+	*config = ((*config & ~0x000F0000) | 0x01000000);
+	intFunc[pin] = dummy_isr;
+	__enable_irq();
+#endif
 }
 
 
-void porta_isr(void)
+typedef void (*voidFuncPtr)(void);
+
+// Using CTZ instead of CLZ is faster, since it allows more efficient bit
+// clearing and fast indexing into the pin ISR table.
+#define PORT_ISR_FUNCTION_CLZ(port_name) \
+	static void port_ ## port_name ## _isr(void) {            \
+		uint32_t isfr = PORT ## port_name ##_ISFR;            \
+		PORT ## port_name ##_ISFR = isfr;                     \
+		voidFuncPtr* isr_table = isr_table_port ## port_name; \
+		uint32_t bit_nr;                                      \
+		while(isfr) {                                         \
+			bit_nr = __builtin_ctz(isfr);                     \
+			isr_table[bit_nr]();                              \
+			isfr = isfr & (isfr-1);                           \
+			if(!isfr) return;                                 \
+		}                                                     \
+	}
+// END PORT_ISR_FUNCTION_CLZ
+
+#if defined(KINETISK)
+PORT_ISR_FUNCTION_CLZ(A)
+PORT_ISR_FUNCTION_CLZ(B)
+PORT_ISR_FUNCTION_CLZ(C)
+PORT_ISR_FUNCTION_CLZ(D)
+PORT_ISR_FUNCTION_CLZ(E)
+#elif defined(KINETISL)
+// Kinetis L (Teensy LC) is based on Cortex M0 and doesn't have hardware
+// support for CLZ.
+
+#define DISPATCH_PIN_ISR(pin_nr) { voidFuncPtr pin_isr = intFunc[pin_nr]; \
+                                   if(isfr & CORE_PIN ## pin_nr ## _BITMASK) pin_isr(); }
+
+static void porta_interrupt(void)
 {
 	uint32_t isfr = PORTA_ISFR;
 	PORTA_ISFR = isfr;
-	if ((isfr & CORE_PIN3_BITMASK) && intFunc[3]) intFunc[3]();
-	if ((isfr & CORE_PIN4_BITMASK) && intFunc[4]) intFunc[4]();
-	if ((isfr & CORE_PIN24_BITMASK) && intFunc[24]) intFunc[24]();
-	if ((isfr & CORE_PIN33_BITMASK) && intFunc[33]) intFunc[33]();
+	DISPATCH_PIN_ISR(3);
+	DISPATCH_PIN_ISR(4);
 }
 
-void portb_isr(void)
+static void portcd_interrupt(void)
 {
-	uint32_t isfr = PORTB_ISFR;
-	PORTB_ISFR = isfr;
-	if ((isfr & CORE_PIN0_BITMASK) && intFunc[0]) intFunc[0]();
-	if ((isfr & CORE_PIN1_BITMASK) && intFunc[1]) intFunc[1]();
-	if ((isfr & CORE_PIN16_BITMASK) && intFunc[16]) intFunc[16]();
-	if ((isfr & CORE_PIN17_BITMASK) && intFunc[17]) intFunc[17]();
-	if ((isfr & CORE_PIN18_BITMASK) && intFunc[18]) intFunc[18]();
-	if ((isfr & CORE_PIN19_BITMASK) && intFunc[19]) intFunc[19]();
-	if ((isfr & CORE_PIN25_BITMASK) && intFunc[25]) intFunc[25]();
-	if ((isfr & CORE_PIN32_BITMASK) && intFunc[32]) intFunc[32]();
-}
-
-void portc_isr(void)
-{
-	// TODO: these are inefficent.  Use CLZ somehow....
 	uint32_t isfr = PORTC_ISFR;
 	PORTC_ISFR = isfr;
-	if ((isfr & CORE_PIN9_BITMASK) && intFunc[9]) intFunc[9]();
-	if ((isfr & CORE_PIN10_BITMASK) && intFunc[10]) intFunc[10]();
-	if ((isfr & CORE_PIN11_BITMASK) && intFunc[11]) intFunc[11]();
-	if ((isfr & CORE_PIN12_BITMASK) && intFunc[12]) intFunc[12]();
-	if ((isfr & CORE_PIN13_BITMASK) && intFunc[13]) intFunc[13]();
-	if ((isfr & CORE_PIN15_BITMASK) && intFunc[15]) intFunc[15]();
-	if ((isfr & CORE_PIN22_BITMASK) && intFunc[22]) intFunc[22]();
-	if ((isfr & CORE_PIN23_BITMASK) && intFunc[23]) intFunc[23]();
-	if ((isfr & CORE_PIN27_BITMASK) && intFunc[27]) intFunc[27]();
-	if ((isfr & CORE_PIN28_BITMASK) && intFunc[28]) intFunc[28]();
-	if ((isfr & CORE_PIN29_BITMASK) && intFunc[29]) intFunc[29]();
-	if ((isfr & CORE_PIN30_BITMASK) && intFunc[30]) intFunc[30]();
-}
-
-void portd_isr(void)
-{
-	uint32_t isfr = PORTD_ISFR;
+	DISPATCH_PIN_ISR(9);
+	DISPATCH_PIN_ISR(10);
+	DISPATCH_PIN_ISR(11);
+	DISPATCH_PIN_ISR(12);
+	DISPATCH_PIN_ISR(13);
+	DISPATCH_PIN_ISR(15);
+	DISPATCH_PIN_ISR(22);
+	DISPATCH_PIN_ISR(23);
+	isfr = PORTD_ISFR;
 	PORTD_ISFR = isfr;
-	if ((isfr & CORE_PIN2_BITMASK) && intFunc[2]) intFunc[2]();
-	if ((isfr & CORE_PIN5_BITMASK) && intFunc[5]) intFunc[5]();
-	if ((isfr & CORE_PIN6_BITMASK) && intFunc[6]) intFunc[6]();
-	if ((isfr & CORE_PIN7_BITMASK) && intFunc[7]) intFunc[7]();
-	if ((isfr & CORE_PIN8_BITMASK) && intFunc[8]) intFunc[8]();
-	if ((isfr & CORE_PIN14_BITMASK) && intFunc[14]) intFunc[14]();
-	if ((isfr & CORE_PIN20_BITMASK) && intFunc[20]) intFunc[20]();
-	if ((isfr & CORE_PIN21_BITMASK) && intFunc[21]) intFunc[21]();
+	DISPATCH_PIN_ISR(2);
+	DISPATCH_PIN_ISR(5);
+	DISPATCH_PIN_ISR(6);
+	DISPATCH_PIN_ISR(7);
+	DISPATCH_PIN_ISR(8);
+	DISPATCH_PIN_ISR(14);
+	DISPATCH_PIN_ISR(20);
+	DISPATCH_PIN_ISR(21);
 }
+#undef DISPATCH_PIN_ISR
 
-void porte_isr(void)
-{
-	uint32_t isfr = PORTE_ISFR;
-	PORTE_ISFR = isfr;
-	if ((isfr & CORE_PIN26_BITMASK) && intFunc[26]) intFunc[26]();
-	if ((isfr & CORE_PIN31_BITMASK) && intFunc[31]) intFunc[31]();
-}
+#endif
 
 
-
+#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
 
 unsigned long rtc_get(void)
 {
@@ -240,7 +349,6 @@ void rtc_set(unsigned long t)
 	RTC_TSR = t;
 	RTC_SR = RTC_SR_TCE;
 }
-
 
 // adjust is the amount of crystal error to compensate, 1 = 0.1192 ppm
 // For example, adjust = -100 is slows the clock by 11.92 ppm
@@ -276,6 +384,16 @@ void rtc_compensate(int adjust)
 	}
 	RTC_TCR = ((interval - 1) << 8) | tcr;
 }
+
+#else
+
+unsigned long rtc_get(void) { return 0; }
+void rtc_set(unsigned long t) { }
+void rtc_compensate(int adjust) { }
+
+#endif
+
+
 
 #if 0
 // TODO: build system should define this
@@ -326,43 +444,91 @@ extern void usb_init(void);
 
 // create a default PWM at the same 488.28 Hz as Arduino Uno
 
-#if F_BUS == 60000000
+#if defined(KINETISK)
+#define F_TIMER F_BUS
+#elif defined(KINETISL)
+
+#if F_CPU > 16000000
+#define F_TIMER (F_PLL/2)
+#else 
+#define F_TIMER (F_PLL)
+#endif//Low Power
+
+#endif
+
+#if F_TIMER == 128000000
+#define DEFAULT_FTM_MOD (65536 - 1)
+#define DEFAULT_FTM_PRESCALE 2
+#elif F_TIMER == 120000000
+#define DEFAULT_FTM_MOD (61440 - 1)
+#define DEFAULT_FTM_PRESCALE 2
+#elif F_TIMER == 108000000
+#define DEFAULT_FTM_MOD (55296 - 1)
+#define DEFAULT_FTM_PRESCALE 2
+#elif F_TIMER == 96000000
+#define DEFAULT_FTM_MOD (49152 - 1)
+#define DEFAULT_FTM_PRESCALE 2
+#elif F_TIMER == 90000000
+#define DEFAULT_FTM_MOD (46080 - 1)
+#define DEFAULT_FTM_PRESCALE 2
+#elif F_TIMER == 80000000
+#define DEFAULT_FTM_MOD (40960 - 1)
+#define DEFAULT_FTM_PRESCALE 2
+#elif F_TIMER == 72000000
+#define DEFAULT_FTM_MOD (36864 - 1)
+#define DEFAULT_FTM_PRESCALE 2
+#elif F_TIMER == 64000000
+#define DEFAULT_FTM_MOD (65536 - 1)
+#define DEFAULT_FTM_PRESCALE 1
+#elif F_TIMER == 60000000
 #define DEFAULT_FTM_MOD (61440 - 1)
 #define DEFAULT_FTM_PRESCALE 1
-#elif F_BUS == 56000000
+#elif F_TIMER == 56000000
 #define DEFAULT_FTM_MOD (57344 - 1)
 #define DEFAULT_FTM_PRESCALE 1
-#elif F_BUS == 48000000
+#elif F_TIMER == 54000000
+#define DEFAULT_FTM_MOD (55296 - 1)
+#define DEFAULT_FTM_PRESCALE 1
+#elif F_TIMER == 48000000
 #define DEFAULT_FTM_MOD (49152 - 1)
 #define DEFAULT_FTM_PRESCALE 1
-#elif F_BUS == 40000000
+#elif F_TIMER == 40000000
 #define DEFAULT_FTM_MOD (40960 - 1)
 #define DEFAULT_FTM_PRESCALE 1
-#elif F_BUS == 36000000
+#elif F_TIMER == 36000000
 #define DEFAULT_FTM_MOD (36864 - 1)
 #define DEFAULT_FTM_PRESCALE 1
-#elif F_BUS == 24000000
+#elif F_TIMER == 24000000
 #define DEFAULT_FTM_MOD (49152 - 1)
 #define DEFAULT_FTM_PRESCALE 0
-#elif F_BUS == 16000000
+#elif F_TIMER == 16000000
 #define DEFAULT_FTM_MOD (32768 - 1)
 #define DEFAULT_FTM_PRESCALE 0
-#elif F_BUS == 8000000
+#elif F_TIMER == 8000000
 #define DEFAULT_FTM_MOD (16384 - 1)
 #define DEFAULT_FTM_PRESCALE 0
-#elif F_BUS == 4000000
+#elif F_TIMER == 4000000
 #define DEFAULT_FTM_MOD (8192 - 1)
 #define DEFAULT_FTM_PRESCALE 0
-#elif F_BUS == 2000000
+#elif F_TIMER == 2000000
 #define DEFAULT_FTM_MOD (4096 - 1)
 #define DEFAULT_FTM_PRESCALE 0
 #endif
 
 //void init_pins(void)
+__attribute__((noinline))
 void _init_Teensyduino_internal_(void)
 {
-	init_pin_interrupts();
-
+#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
+	NVIC_ENABLE_IRQ(IRQ_PORTA);
+	NVIC_ENABLE_IRQ(IRQ_PORTB);
+	NVIC_ENABLE_IRQ(IRQ_PORTC);
+	NVIC_ENABLE_IRQ(IRQ_PORTD);
+	NVIC_ENABLE_IRQ(IRQ_PORTE);
+#elif defined(__MKL26Z64__)
+	NVIC_ENABLE_IRQ(IRQ_PORTA);
+	NVIC_ENABLE_IRQ(IRQ_PORTCD);
+#endif
 	//SIM_SCGC6 |= SIM_SCGC6_FTM0;	// TODO: use bitband for atomic read-mod-write
 	//SIM_SCGC6 |= SIM_SCGC6_FTM1;
 	FTM0_CNT = 0;
@@ -373,29 +539,147 @@ void _init_Teensyduino_internal_(void)
 	FTM0_C3SC = 0x28;
 	FTM0_C4SC = 0x28;
 	FTM0_C5SC = 0x28;
+#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
 	FTM0_C6SC = 0x28;
 	FTM0_C7SC = 0x28;
+#endif
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+	FTM3_C0SC = 0x28;
+	FTM3_C1SC = 0x28;
+	FTM3_C2SC = 0x28;
+	FTM3_C3SC = 0x28;
+	FTM3_C4SC = 0x28;
+	FTM3_C5SC = 0x28;
+	FTM3_C6SC = 0x28;
+	FTM3_C7SC = 0x28;
+#endif
 	FTM0_SC = FTM_SC_CLKS(1) | FTM_SC_PS(DEFAULT_FTM_PRESCALE);
 	FTM1_CNT = 0;
 	FTM1_MOD = DEFAULT_FTM_MOD;
 	FTM1_C0SC = 0x28;
 	FTM1_C1SC = 0x28;
 	FTM1_SC = FTM_SC_CLKS(1) | FTM_SC_PS(DEFAULT_FTM_PRESCALE);
-#if defined(__MK20DX256__)
+#if defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__) || defined(__MKL26Z64__)
 	FTM2_CNT = 0;
 	FTM2_MOD = DEFAULT_FTM_MOD;
 	FTM2_C0SC = 0x28;
 	FTM2_C1SC = 0x28;
 	FTM2_SC = FTM_SC_CLKS(1) | FTM_SC_PS(DEFAULT_FTM_PRESCALE);
 #endif
-
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+	FTM3_CNT = 0;
+	FTM3_MOD = DEFAULT_FTM_MOD;
+	FTM3_C0SC = 0x28;
+	FTM3_C1SC = 0x28;
+	FTM3_SC = FTM_SC_CLKS(1) | FTM_SC_PS(DEFAULT_FTM_PRESCALE);
+#endif
+#if defined(__MK66FX1M0__)
+	SIM_SCGC2 |= SIM_SCGC2_TPM1;
+	SIM_SOPT2 |= SIM_SOPT2_TPMSRC(2);
+	TPM1_CNT = 0;
+	TPM1_MOD = 32767;
+	TPM1_C0SC = 0x28;
+	TPM1_C1SC = 0x28;
+	TPM1_SC = FTM_SC_CLKS(1) | FTM_SC_PS(0);
+#endif
 	analog_init();
-	//delay(100); // TODO: this is not necessary, right?
-	delay(4);
+	// for background about this startup delay, please see these conversations
+	// https://forum.pjrc.com/threads/36606-startup-time-(400ms)?p=113980&viewfull=1#post113980
+	// https://forum.pjrc.com/threads/31290-Teensey-3-2-Teensey-Loader-1-24-Issues?p=87273&viewfull=1#post87273
+#if TEENSYDUINO >= 142
+	delay(25);
 	usb_init();
+	delay(275);
+#else
+	delay(50);
+	usb_init();
+	delay(350);
+#endif
 }
 
 
+#if defined(__MK20DX128__)
+#define FTM0_CH0_PIN 22
+#define FTM0_CH1_PIN 23
+#define FTM0_CH2_PIN  9
+#define FTM0_CH3_PIN 10
+#define FTM0_CH4_PIN  6
+#define FTM0_CH5_PIN 20
+#define FTM0_CH6_PIN 21
+#define FTM0_CH7_PIN  5
+#define FTM1_CH0_PIN  3
+#define FTM1_CH1_PIN  4
+#elif defined(__MK20DX256__)
+#define FTM0_CH0_PIN 22
+#define FTM0_CH1_PIN 23
+#define FTM0_CH2_PIN  9
+#define FTM0_CH3_PIN 10
+#define FTM0_CH4_PIN  6
+#define FTM0_CH5_PIN 20
+#define FTM0_CH6_PIN 21
+#define FTM0_CH7_PIN  5
+#define FTM1_CH0_PIN  3
+#define FTM1_CH1_PIN  4
+#define FTM2_CH0_PIN 32
+#define FTM2_CH1_PIN 25
+#elif defined(__MKL26Z64__)
+#define FTM0_CH0_PIN 22
+#define FTM0_CH1_PIN 23
+#define FTM0_CH2_PIN  9
+#define FTM0_CH3_PIN 10
+#define FTM0_CH4_PIN  6
+#define FTM0_CH5_PIN 20
+#define FTM1_CH0_PIN 16
+#define FTM1_CH1_PIN 17
+#define FTM2_CH0_PIN  3
+#define FTM2_CH1_PIN  4
+#elif defined(__MK64FX512__)
+#define FTM0_CH0_PIN 22
+#define FTM0_CH1_PIN 23
+#define FTM0_CH2_PIN  9
+#define FTM0_CH3_PIN 10
+#define FTM0_CH4_PIN  6
+#define FTM0_CH5_PIN 20
+#define FTM0_CH6_PIN 21
+#define FTM0_CH7_PIN  5
+#define FTM1_CH0_PIN  3
+#define FTM1_CH1_PIN  4
+#define FTM2_CH0_PIN 29
+#define FTM2_CH1_PIN 30
+#define FTM3_CH0_PIN  2
+#define FTM3_CH1_PIN 14
+#define FTM3_CH2_PIN  7
+#define FTM3_CH3_PIN  8
+#define FTM3_CH4_PIN 35
+#define FTM3_CH5_PIN 36
+#define FTM3_CH6_PIN 37
+#define FTM3_CH7_PIN 38
+#elif defined(__MK66FX1M0__)
+#define FTM0_CH0_PIN 22
+#define FTM0_CH1_PIN 23
+#define FTM0_CH2_PIN  9
+#define FTM0_CH3_PIN 10
+#define FTM0_CH4_PIN  6
+#define FTM0_CH5_PIN 20
+#define FTM0_CH6_PIN 21
+#define FTM0_CH7_PIN  5
+#define FTM1_CH0_PIN  3
+#define FTM1_CH1_PIN  4
+#define FTM2_CH0_PIN 29
+#define FTM2_CH1_PIN 30
+#define FTM3_CH0_PIN  2
+#define FTM3_CH1_PIN 14
+#define FTM3_CH2_PIN  7
+#define FTM3_CH3_PIN  8
+#define FTM3_CH4_PIN 35
+#define FTM3_CH5_PIN 36
+#define FTM3_CH6_PIN 37
+#define FTM3_CH7_PIN 38
+#define TPM1_CH0_PIN 16
+#define TPM1_CH1_PIN 17
+#endif
+#define FTM_PINCFG(pin) FTM_PINCFG2(pin)
+#define FTM_PINCFG2(pin) CORE_PIN ## pin ## _CONFIG
 
 static uint8_t analog_write_res = 8;
 
@@ -419,6 +703,29 @@ void analogWrite(uint8_t pin, int val)
 		analogWriteDAC0(val);
 		return;
 	}
+#elif defined(__MKL26Z64__)
+	if (pin == A12) {
+		uint8_t res = analog_write_res;
+		if (res < 12) {
+			val <<= 12 - res;
+		} else if (res > 12) {
+			val >>= res - 12;
+		}
+		analogWriteDAC0(val);
+		return;
+	}
+#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
+	if (pin == A21 || pin == A22) {
+		uint8_t res = analog_write_res;
+		if (res < 12) {
+			val <<= 12 - res;
+		} else if (res > 12) {
+			val >>= res - 12;
+		}
+		if (pin == A21) analogWriteDAC0(val);
+		else analogWriteDAC1(val);
+		return;
+	}
 #endif
 
 	max = 1 << analog_write_res;
@@ -439,11 +746,21 @@ void analogWrite(uint8_t pin, int val)
 	//serial_print("analog_write_res = ");
 	//serial_phex(analog_write_res);
 	//serial_print("\n");
-	if (pin == 3 || pin == 4) {
+	if (pin == FTM1_CH0_PIN || pin == FTM1_CH1_PIN) {
 		cval = ((uint32_t)val * (uint32_t)(FTM1_MOD + 1)) >> analog_write_res;
-#if defined(__MK20DX256__)
-	} else if (pin == 25 || pin == 32) {
+#if defined(FTM2_CH0_PIN)
+	} else if (pin == FTM2_CH0_PIN || pin == FTM2_CH1_PIN) {
 		cval = ((uint32_t)val * (uint32_t)(FTM2_MOD + 1)) >> analog_write_res;
+#endif
+#if defined(FTM3_CH0_PIN)
+	} else if (pin == FTM3_CH0_PIN || pin == FTM3_CH1_PIN || pin == FTM3_CH2_PIN
+	  || pin == FTM3_CH3_PIN || pin == FTM3_CH4_PIN || pin == FTM3_CH5_PIN
+	  || pin == FTM3_CH6_PIN || pin == FTM3_CH7_PIN) {
+		cval = ((uint32_t)val * (uint32_t)(FTM3_MOD + 1)) >> analog_write_res;
+#endif
+#if defined(TPM1_CH0_PIN)
+	} else if (pin == TPM1_CH0_PIN || pin == TPM1_CH1_PIN) {
+		cval = ((uint32_t)val * (uint32_t)(TPM1_MOD + 1)) >> analog_write_res;
 #endif
 	} else {
 		cval = ((uint32_t)val * (uint32_t)(FTM0_MOD + 1)) >> analog_write_res;
@@ -452,54 +769,136 @@ void analogWrite(uint8_t pin, int val)
 	//serial_phex32(cval);
 	//serial_print("\n");
 	switch (pin) {
-	  case 3: // PTA12, FTM1_CH0
-		FTM1_C0V = cval;
-		CORE_PIN3_CONFIG = PORT_PCR_MUX(3) | PORT_PCR_DSE | PORT_PCR_SRE;
-		break;
-	  case 4: // PTA13, FTM1_CH1
-		FTM1_C1V = cval;
-		CORE_PIN4_CONFIG = PORT_PCR_MUX(3) | PORT_PCR_DSE | PORT_PCR_SRE;
-		break;
-	  case 5: // PTD7, FTM0_CH7
-		FTM0_C7V = cval;
-		CORE_PIN5_CONFIG = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
-		break;
-	  case 6: // PTD4, FTM0_CH4
-		FTM0_C4V = cval;
-		CORE_PIN6_CONFIG = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
-		break;
-	  case 9: // PTC3, FTM0_CH2
-		FTM0_C2V = cval;
-		CORE_PIN9_CONFIG = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
-		break;
-	  case 10: // PTC4, FTM0_CH3
-		FTM0_C3V = cval;
-		CORE_PIN10_CONFIG = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
-		break;
-	  case 20: // PTD5, FTM0_CH5
-		FTM0_C5V = cval;
-		CORE_PIN20_CONFIG = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
-		break;
-	  case 21: // PTD6, FTM0_CH6
-		FTM0_C6V = cval;
-		CORE_PIN21_CONFIG = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
-		break;
-	  case 22: // PTC1, FTM0_CH0
+#ifdef FTM0_CH0_PIN
+	  case FTM0_CH0_PIN: // PTC1, FTM0_CH0
 		FTM0_C0V = cval;
-		CORE_PIN22_CONFIG = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
+		FTM_PINCFG(FTM0_CH0_PIN) = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
 		break;
-	  case 23: // PTC2, FTM0_CH1
+#endif
+#ifdef FTM0_CH1_PIN
+	  case FTM0_CH1_PIN: // PTC2, FTM0_CH1
 		FTM0_C1V = cval;
-		CORE_PIN23_CONFIG = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
+		FTM_PINCFG(FTM0_CH1_PIN) = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
 		break;
-#if defined(__MK20DX256__)
-	  case 32: // PTB18, FTM2_CH0
+#endif
+#ifdef FTM0_CH2_PIN
+	  case FTM0_CH2_PIN: // PTC3, FTM0_CH2
+		FTM0_C2V = cval;
+		FTM_PINCFG(FTM0_CH2_PIN) = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef FTM0_CH3_PIN
+	  case FTM0_CH3_PIN: // PTC4, FTM0_CH3
+		FTM0_C3V = cval;
+		FTM_PINCFG(FTM0_CH3_PIN) = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef FTM0_CH4_PIN
+	  case FTM0_CH4_PIN: // PTD4, FTM0_CH4
+		FTM0_C4V = cval;
+		FTM_PINCFG(FTM0_CH4_PIN) = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef FTM0_CH5_PIN
+	  case FTM0_CH5_PIN: // PTD5, FTM0_CH5
+		FTM0_C5V = cval;
+		FTM_PINCFG(FTM0_CH5_PIN) = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef FTM0_CH6_PIN
+	  case FTM0_CH6_PIN: // PTD6, FTM0_CH6
+		FTM0_C6V = cval;
+		FTM_PINCFG(FTM0_CH6_PIN) = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef FTM0_CH7_PIN
+	  case FTM0_CH7_PIN: // PTD7, FTM0_CH7
+		FTM0_C7V = cval;
+		FTM_PINCFG(FTM0_CH7_PIN) = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef FTM1_CH0_PIN
+	  case FTM1_CH0_PIN: // PTA12, FTM1_CH0
+		FTM1_C0V = cval;
+		FTM_PINCFG(FTM1_CH0_PIN) = PORT_PCR_MUX(3) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef FTM1_CH1_PIN
+	  case FTM1_CH1_PIN: // PTA13, FTM1_CH1
+		FTM1_C1V = cval;
+		FTM_PINCFG(FTM1_CH1_PIN) = PORT_PCR_MUX(3) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef FTM2_CH0_PIN
+	  case FTM2_CH0_PIN: // PTB18, FTM2_CH0
 		FTM2_C0V = cval;
-		CORE_PIN32_CONFIG = PORT_PCR_MUX(3) | PORT_PCR_DSE | PORT_PCR_SRE;
+		FTM_PINCFG(FTM2_CH0_PIN) = PORT_PCR_MUX(3) | PORT_PCR_DSE | PORT_PCR_SRE;
 		break;
-	  case 25: // PTB19, FTM1_CH1
+#endif
+#ifdef FTM2_CH1_PIN
+	  case FTM2_CH1_PIN: // PTB19, FTM1_CH1
 		FTM2_C1V = cval;
-		CORE_PIN25_CONFIG = PORT_PCR_MUX(3) | PORT_PCR_DSE | PORT_PCR_SRE;
+		FTM_PINCFG(FTM2_CH1_PIN) = PORT_PCR_MUX(3) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef FTM3_CH0_PIN
+	  case FTM3_CH0_PIN:
+		FTM3_C0V = cval;
+		FTM_PINCFG(FTM3_CH0_PIN) = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef FTM3_CH1_PIN
+	  case FTM3_CH1_PIN:
+		FTM3_C1V = cval;
+		FTM_PINCFG(FTM3_CH1_PIN) = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef FTM3_CH2_PIN
+	  case FTM3_CH2_PIN:
+		FTM3_C2V = cval;
+		FTM_PINCFG(FTM3_CH2_PIN) = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef FTM3_CH3_PIN
+	  case FTM3_CH3_PIN:
+		FTM3_C3V = cval;
+		FTM_PINCFG(FTM3_CH3_PIN) = PORT_PCR_MUX(4) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef FTM3_CH4_PIN
+	  case FTM3_CH4_PIN:
+		FTM3_C4V = cval;
+		FTM_PINCFG(FTM3_CH4_PIN) = PORT_PCR_MUX(3) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef FTM3_CH5_PIN
+	  case FTM3_CH5_PIN:
+		FTM3_C5V = cval;
+		FTM_PINCFG(FTM3_CH5_PIN) = PORT_PCR_MUX(3) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef FTM3_CH6_PIN
+	  case FTM3_CH6_PIN:
+		FTM3_C6V = cval;
+		FTM_PINCFG(FTM3_CH6_PIN) = PORT_PCR_MUX(3) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef FTM3_CH7_PIN
+	  case FTM3_CH7_PIN:
+		FTM3_C7V = cval;
+		FTM_PINCFG(FTM3_CH7_PIN) = PORT_PCR_MUX(3) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef TPM1_CH0_PIN
+	  case TPM1_CH0_PIN:
+		TPM1_C0V = cval;
+		FTM_PINCFG(TPM1_CH0_PIN) = PORT_PCR_MUX(6) | PORT_PCR_DSE | PORT_PCR_SRE;
+		break;
+#endif
+#ifdef TPM1_CH1_PIN
+	  case TPM1_CH1_PIN:
+		TPM1_C1V = cval;
+		FTM_PINCFG(TPM1_CH1_PIN) = PORT_PCR_MUX(6) | PORT_PCR_DSE | PORT_PCR_SRE;
 		break;
 #endif
 	  default:
@@ -508,59 +907,111 @@ void analogWrite(uint8_t pin, int val)
 	}
 }
 
-void analogWriteRes(uint32_t bits)
+
+uint32_t analogWriteRes(uint32_t bits)
 {
+	uint32_t prior_res;
 	if (bits < 1) {
 		bits = 1;
 	} else if (bits > 16) {
 		bits = 16;
 	}
+	prior_res = analog_write_res;
 	analog_write_res = bits;
+	return prior_res;
 }
 
-void analogWriteFrequency(uint8_t pin, uint32_t frequency)
+
+void analogWriteFrequency(uint8_t pin, float frequency)
 {
-	uint32_t minfreq, prescale, mod;
+	uint32_t prescale, mod, ftmClock, ftmClockSource;
+	float minfreq;
 
 	//serial_print("analogWriteFrequency: pin = ");
 	//serial_phex(pin);
 	//serial_print(", freq = ");
-	//serial_phex32(frequency);
+	//serial_phex32((uint32_t)frequency);
 	//serial_print("\n");
-	for (prescale = 0; prescale < 7; prescale++) {
-		minfreq = (F_BUS >> 16) >> prescale;
-		if (frequency > minfreq) break;
+
+#ifdef TPM1_CH0_PIN
+	if (pin == TPM1_CH0_PIN || pin == TPM1_CH1_PIN) {
+		ftmClockSource = 1;
+		ftmClock = 16000000;
+	} else
+#endif
+#if defined(__MKL26Z64__)
+	// Teensy LC does not support slow clock source (ftmClockSource = 2)
+	ftmClockSource = 1; 	// Use default F_TIMER clock source
+	ftmClock = F_TIMER;	// Set variable for the actual timer clock frequency
+#else
+	if (frequency < (float)(F_TIMER >> 7) / 65536.0f) {
+		// frequency is too low for working with F_TIMER:
+		ftmClockSource = 2; 	// Use alternative 31250Hz clock source
+		ftmClock = 31250;   	// Set variable for the actual timer clock frequency
+	} else {
+		ftmClockSource = 1; 	// Use default F_TIMER clock source
+		ftmClock = F_TIMER;	// Set variable for the actual timer clock frequency
 	}
-	//serial_print("F_BUS = ");
-	//serial_phex32(F_BUS >> prescale);
+#endif
+
+	
+	for (prescale = 0; prescale < 7; prescale++) {
+		minfreq = (float)(ftmClock >> prescale) / 65536.0f;	//Use ftmClock instead of F_TIMER
+		if (frequency >= minfreq) break;
+	}
+	//serial_print("F_TIMER/ftm_Clock = ");
+	//serial_phex32(ftmClock >> prescale);
 	//serial_print("\n");
 	//serial_print("prescale = ");
 	//serial_phex(prescale);
 	//serial_print("\n");
-	//mod = ((F_BUS >> prescale) / frequency) - 1;
-	mod = (((F_BUS >> prescale) + (frequency >> 1)) / frequency) - 1;
+	mod = (float)(ftmClock >> prescale) / frequency - 0.5f;	//Use ftmClock instead of F_TIMER
 	if (mod > 65535) mod = 65535;
 	//serial_print("mod = ");
 	//serial_phex32(mod);
 	//serial_print("\n");
-	if (pin == 3 || pin == 4) {
+	if (pin == FTM1_CH0_PIN || pin == FTM1_CH1_PIN) {
 		FTM1_SC = 0;
 		FTM1_CNT = 0;
 		FTM1_MOD = mod;
-		FTM1_SC = FTM_SC_CLKS(1) | FTM_SC_PS(prescale);
-	} else if (pin == 5 || pin == 6 || pin == 9 || pin == 10 ||
-	  (pin >= 20 && pin <= 23)) {
+		FTM1_SC = FTM_SC_CLKS(ftmClockSource) | FTM_SC_PS(prescale);	//Use ftmClockSource instead of 1
+	} else if (pin == FTM0_CH0_PIN || pin == FTM0_CH1_PIN
+	  || pin == FTM0_CH2_PIN || pin == FTM0_CH3_PIN
+	  || pin == FTM0_CH4_PIN || pin == FTM0_CH5_PIN
+#ifdef FTM0_CH6_PIN
+	  || pin == FTM0_CH6_PIN || pin == FTM0_CH7_PIN
+#endif
+	  ) {
 		FTM0_SC = 0;
 		FTM0_CNT = 0;
 		FTM0_MOD = mod;
-		FTM0_SC = FTM_SC_CLKS(1) | FTM_SC_PS(prescale);
+		FTM0_SC = FTM_SC_CLKS(ftmClockSource) | FTM_SC_PS(prescale);	//Use ftmClockSource instead of 1
 	}
-#if defined(__MK20DX256__)
-	  else if (pin == 25 || pin == 32) {
+#ifdef FTM2_CH0_PIN
+	  else if (pin == FTM2_CH0_PIN || pin == FTM2_CH1_PIN) {
 		FTM2_SC = 0;
 		FTM2_CNT = 0;
 		FTM2_MOD = mod;
-		FTM2_SC = FTM_SC_CLKS(1) | FTM_SC_PS(prescale);
+		FTM2_SC = FTM_SC_CLKS(ftmClockSource) | FTM_SC_PS(prescale);	//Use ftmClockSource instead of 1
+	}
+#endif
+#ifdef FTM3_CH0_PIN
+	  else if (pin == FTM3_CH0_PIN || pin == FTM3_CH1_PIN
+	  || pin == FTM3_CH2_PIN || pin == FTM3_CH3_PIN
+	  || pin == FTM3_CH4_PIN || pin == FTM3_CH5_PIN
+	  || pin == FTM3_CH6_PIN || pin == FTM3_CH7_PIN) {
+		FTM3_SC = 0;
+		FTM3_CNT = 0;
+		FTM3_MOD = mod;
+		FTM3_SC = FTM_SC_CLKS(ftmClockSource) | FTM_SC_PS(prescale);	//Use the new ftmClockSource instead of 1
+	}
+#endif
+#ifdef TPM1_CH0_PIN
+	  else if (pin == TPM1_CH0_PIN || pin == TPM1_CH1_PIN) {
+		TPM1_SC = 0;
+		TPM1_CNT = 0;
+		TPM1_MOD = mod;
+		TPM1_SC = FTM_SC_CLKS(ftmClockSource) | FTM_SC_PS(prescale);
 	}
 #endif
 }
@@ -572,12 +1023,21 @@ void analogWriteFrequency(uint8_t pin, uint32_t frequency)
 void digitalWrite(uint8_t pin, uint8_t val)
 {
 	if (pin >= CORE_NUM_DIGITAL) return;
+#ifdef KINETISK
 	if (*portModeRegister(pin)) {
 		if (val) {
 			*portSetRegister(pin) = 1;
 		} else {
 			*portClearRegister(pin) = 1;
 		}
+#else
+	if (*portModeRegister(pin) & digitalPinToBitMask(pin)) {
+		if (val) {
+			*portSetRegister(pin) = digitalPinToBitMask(pin);
+		} else {
+			*portClearRegister(pin) = digitalPinToBitMask(pin);
+		}
+#endif
 	} else {
 		volatile uint32_t *config = portConfigRegister(pin);
 		if (val) {
@@ -596,7 +1056,11 @@ void digitalWrite(uint8_t pin, uint8_t val)
 uint8_t digitalRead(uint8_t pin)
 {
 	if (pin >= CORE_NUM_DIGITAL) return 0;
+#ifdef KINETISK
 	return *portInputRegister(pin);
+#else
+	return (*portInputRegister(pin) & digitalPinToBitMask(pin)) ? 1 : 0;
+#endif
 }
 
 
@@ -608,15 +1072,32 @@ void pinMode(uint8_t pin, uint8_t mode)
 	if (pin >= CORE_NUM_DIGITAL) return;
 	config = portConfigRegister(pin);
 
-	if (mode == OUTPUT) {
+	if (mode == OUTPUT || mode == OUTPUT_OPENDRAIN) {
+#ifdef KINETISK
 		*portModeRegister(pin) = 1;
+#else
+		*portModeRegister(pin) |= digitalPinToBitMask(pin); // TODO: atomic
+#endif
 		*config = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1);
+		if (mode == OUTPUT_OPENDRAIN) {
+		    *config |= PORT_PCR_ODE;
+		} else {
+		    *config &= ~PORT_PCR_ODE;
+                }
 	} else {
+#ifdef KINETISK
 		*portModeRegister(pin) = 0;
+#else
+		*portModeRegister(pin) &= ~digitalPinToBitMask(pin);
+#endif
 		if (mode == INPUT) {
 			*config = PORT_PCR_MUX(1);
-		} else {
-			*config = PORT_PCR_MUX(1) | PORT_PCR_PE | PORT_PCR_PS; // pullup
+		} else if (mode == INPUT_PULLUP) {
+			*config = PORT_PCR_MUX(1) | PORT_PCR_PE | PORT_PCR_PS;
+		} else if (mode == INPUT_PULLDOWN) {
+			*config = PORT_PCR_MUX(1) | PORT_PCR_PE;
+		} else { // INPUT_DISABLE
+			*config = 0;
 		}
 	}
 }
@@ -703,6 +1184,11 @@ uint32_t micros(void)
 	 //systick_istatus = istatus & SCB_ICSR_PENDSTSET ? 1 : 0;
 	if ((istatus & SCB_ICSR_PENDSTSET) && current > 50) count++;
 	current = ((F_CPU / 1000) - 1) - current;
+#if defined(KINETISL) && F_CPU == 48000000
+	return count * 1000 + ((current * (uint32_t)87381) >> 22);
+#elif defined(KINETISL) && F_CPU == 24000000
+	return count * 1000 + ((current * (uint32_t)174763) >> 22);
+#endif
 	return count * 1000 + current / (F_CPU / 1000000);
 }
 
@@ -712,7 +1198,7 @@ void delay(uint32_t ms)
 
 	if (ms > 0) {
 		while (1) {
-			if ((micros() - start) >= 1000) {
+			while ((micros() - start) >= 1000) {
 				ms--;
 				if (ms == 0) return;
 				start += 1000;
@@ -723,7 +1209,17 @@ void delay(uint32_t ms)
 }
 
 // TODO: verify these result in correct timeouts...
-#if F_CPU == 168000000
+#if F_CPU == 256000000
+#define PULSEIN_LOOPS_PER_USEC 34
+#elif F_CPU == 240000000
+#define PULSEIN_LOOPS_PER_USEC 33
+#elif F_CPU == 216000000
+#define PULSEIN_LOOPS_PER_USEC 31
+#elif F_CPU == 192000000
+#define PULSEIN_LOOPS_PER_USEC 29
+#elif F_CPU == 180000000
+#define PULSEIN_LOOPS_PER_USEC 27
+#elif F_CPU == 168000000
 #define PULSEIN_LOOPS_PER_USEC 25
 #elif F_CPU == 144000000
 #define PULSEIN_LOOPS_PER_USEC 21
@@ -747,12 +1243,12 @@ void delay(uint32_t ms)
 #define PULSEIN_LOOPS_PER_USEC 1
 #endif
 
-
+#if defined(KINETISK)
 uint32_t pulseIn_high(volatile uint8_t *reg, uint32_t timeout)
 {
 	uint32_t timeout_count = timeout * PULSEIN_LOOPS_PER_USEC;
 	uint32_t usec_start, usec_stop;
-	
+
 	// wait for any previous pulse to end
 	while (*reg) {
 		if (--timeout_count == 0) return 0;
@@ -800,30 +1296,56 @@ uint32_t pulseIn(uint8_t pin, uint8_t state, uint32_t timeout)
 	return pulseIn_low(portInputRegister(pin), timeout);;
 }
 
+#elif defined(KINETISL)
+// For TeencyLC need to use mask on the input register as the register is shared by several IO pins
+uint32_t pulseIn_high(volatile uint8_t *reg, uint8_t mask, uint32_t timeout)
+{
+	uint32_t timeout_count = timeout * PULSEIN_LOOPS_PER_USEC;
+	uint32_t usec_start, usec_stop;
+	// wait for any previous pulse to end
+	while (*reg & mask) {
+		if (--timeout_count == 0) return -1;
+	}
+	// wait for the pulse to start
+	while (!(*reg & mask)) {
+		if (--timeout_count == 0) return 0;
+	}
+	usec_start = micros();
+	// wait for the pulse to stop
+	while (*reg & mask) {
+		if (--timeout_count == 0) return 0;
+	}
+	usec_stop = micros();
+	return usec_stop - usec_start;
+}
 
+uint32_t pulseIn_low(volatile uint8_t *reg, uint8_t mask, uint32_t timeout)
+{
+	uint32_t timeout_count = timeout * PULSEIN_LOOPS_PER_USEC;
+	uint32_t usec_start, usec_stop;
+	
+	// wait for any previous pulse to end
+	while (!(*reg & mask)) {
+		if (--timeout_count == 0) return 0;
+	}
+	// wait for the pulse to start
+	while (*reg & mask) {
+		if (--timeout_count == 0) return 0;
+	}
+	usec_start = micros();
+	// wait for the pulse to stop
+	while (!(*reg & mask)) {
+		if (--timeout_count == 0) return 0;
+	}
+	usec_stop = micros();
+	return usec_stop - usec_start;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// TODO: an inline version should handle the common case where state is const
+uint32_t pulseIn(uint8_t pin, uint8_t state, uint32_t timeout)
+{
+	if (pin >= CORE_NUM_DIGITAL) return 0;
+	if (state) return pulseIn_high(portInputRegister(pin), digitalPinToBitMask(pin), timeout);
+	return pulseIn_low(portInputRegister(pin), digitalPinToBitMask(pin), timeout);;
+}
+#endif

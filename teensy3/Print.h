@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -42,17 +42,24 @@
 #define HEX 16
 #define OCT 8
 #define BIN 2
-#define BYTE 0
+
+// BYTE was defined in very old versions of Arduino
+// maybe this now causes more trouble than it's worth?
+//#ifndef BYTE
+//#define BYTE 0
+//#endif
 
 class __FlashStringHelper;
 
 class Print
 {
   public:
-	Print() : write_error(0) {}
+	constexpr Print() : write_error(0) {}
 	virtual size_t write(uint8_t b) = 0;
 	size_t write(const char *str)			{ return write((const uint8_t *)str, strlen(str)); }
 	virtual size_t write(const uint8_t *buffer, size_t size);
+	virtual int availableForWrite(void)		{ return 0; }
+	virtual void flush()				{ }
 	size_t write(const char *buffer, size_t size)	{ return write((const uint8_t *)buffer, size); }
 	size_t print(const String &s);
 	size_t print(char c)				{ return write((uint8_t)c); }
@@ -102,7 +109,23 @@ class Print
   private:
 	char write_error;
 	size_t printFloat(double n, uint8_t digits);
+#ifdef __MKL26Z64__
+	size_t printNumberDec(unsigned long n, uint8_t sign);
+	size_t printNumberHex(unsigned long n);
+	size_t printNumberBin(unsigned long n);
+	size_t printNumberAny(unsigned long n, uint8_t base);
+	inline size_t printNumber(unsigned long n, uint8_t base, uint8_t sign) __attribute__((always_inline)) {
+		// when "base" is a constant (pretty much always), the
+		// compiler optimizes this to a single function call.
+		if (base == 0) return write((uint8_t)n);
+		if (base == 10 || base < 2) return printNumberDec(n, sign);
+		if (base == 16) return printNumberHex(n);
+		if (base == 2) return printNumberBin(n);
+		return printNumberAny(n, base);
+	}
+#else
 	size_t printNumber(unsigned long n, uint8_t base, uint8_t sign);
+#endif
 };
 
 

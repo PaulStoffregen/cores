@@ -1,15 +1,59 @@
+/* Teensyduino Core Library
+ * http://www.pjrc.com/teensy/
+ * Copyright (c) 2017 PJRC.COM, LLC.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * 1. The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * 2. If the Software is incorporated into a build system that allows
+ * selection among a list of target devices, then similar target
+ * devices manufactured by PJRC.COM must be included in the list of
+ * target devices and selectable in the same manner.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #include "DMAChannel.h"
+
+#if DMA_NUM_CHANNELS <= 16
+#define DMA_MAX_CHANNELS  DMA_NUM_CHANNELS
+#else
+#define DMA_MAX_CHANNELS 16
+#endif
+
 
 // The channel allocation bitmask is accessible from "C" namespace,
 // so C-only code can reserve DMA channels
 uint16_t dma_channel_allocated_mask = 0;
+
+
+
+/****************************************************************/
+/**                     Teensy 3.0 & 3.1                       **/
+/****************************************************************/
+#if defined(KINETISK)
 
 void DMAChannel::begin(bool force_initialization)
 {
 	uint32_t ch = 0;
 
 	__disable_irq();
-	if (!force_initialization && TCD && channel < DMA_NUM_CHANNELS
+	if (!force_initialization && TCD && channel < DMA_MAX_CHANNELS
 	  && (dma_channel_allocated_mask & (1 << channel))
 	  && (uint32_t)TCD == (uint32_t)(0x40009000 + channel * 32)) {
 		// DMA channel already allocated
@@ -22,10 +66,10 @@ void DMAChannel::begin(bool force_initialization)
 			__enable_irq();
 			break;
 		}
-		if (++ch >= DMA_NUM_CHANNELS) {
+		if (++ch >= DMA_MAX_CHANNELS) {
 			__enable_irq();
 			TCD = (TCD_t *)0;
-			channel = DMA_NUM_CHANNELS;
+			channel = DMA_MAX_CHANNELS;
 			return; // no more channels available
 			// attempts to use this object will hardfault
 		}
@@ -33,7 +77,11 @@ void DMAChannel::begin(bool force_initialization)
 	channel = ch;
 	SIM_SCGC7 |= SIM_SCGC7_DMA;
 	SIM_SCGC6 |= SIM_SCGC6_DMAMUX;
-	DMA_CR = DMA_CR_EMLM | DMA_CR_EDBG ; // minor loop mapping is available
+#if DMA_NUM_CHANNELS <= 16
+	DMA_CR = DMA_CR_EMLM | DMA_CR_EDBG; // minor loop mapping is available
+#else
+	DMA_CR = DMA_CR_GRP1PRI| DMA_CR_EMLM | DMA_CR_EDBG;
+#endif
 	DMA_CERQ = ch;
 	DMA_CERR = ch;
 	DMA_CEEI = ch;
@@ -52,12 +100,12 @@ void DMAChannel::begin(bool force_initialization)
 
 void DMAChannel::release(void)
 {
-	if (channel >= DMA_NUM_CHANNELS) return;
+	if (channel >= DMA_MAX_CHANNELS) return;
 	DMA_CERQ = channel;
 	__disable_irq();
 	dma_channel_allocated_mask &= ~(1 << channel);
 	__enable_irq();
-	channel = 16;
+	channel = DMA_MAX_CHANNELS;
 	TCD = (TCD_t *)0;
 }
 
@@ -81,6 +129,85 @@ static void swap(DMAChannel &c1, DMAChannel &c2)
 	c1.TCD = c2.TCD;
 	c2.TCD = t;
 }
+
+/****************************************************************/
+/**                          Teensy-LC                         **/
+/****************************************************************/
+#elif defined(KINETISL)
+
+
+void DMAChannel::begin(bool force_initialization)
+{
+	uint32_t ch = 0;
+
+	__disable_irq();
+	if (!force_initialization && CFG && channel < DMA_MAX_CHANNELS
+	  && (dma_channel_allocated_mask & (1 << channel))
+	  && (uint32_t)CFG == (uint32_t)(0x40008100 + channel * 16)) {
+		// DMA channel already allocated
+		__enable_irq();
+		return;
+	}
+	while (1) {
+		if (!(dma_channel_allocated_mask & (1 << ch))) {
+			dma_channel_allocated_mask |= (1 << ch);
+			__enable_irq();
+			break;
+		}
+		if (++ch >= DMA_MAX_CHANNELS) {
+			__enable_irq();
+			CFG = (CFG_t *)0;
+			channel = DMA_MAX_CHANNELS;
+			return; // no more channels available
+			// attempts to use this object will hardfault
+		}
+	}
+	channel = ch;
+	SIM_SCGC7 |= SIM_SCGC7_DMA;
+	SIM_SCGC6 |= SIM_SCGC6_DMAMUX;
+	CFG = (CFG_t *)(0x40008100 + ch * 16);
+	CFG->DSR_BCR = DMA_DSR_BCR_DONE;
+	CFG->DCR = DMA_DCR_CS;
+	CFG->SAR = NULL;
+	CFG->DAR = NULL;
+}
+
+void DMAChannel::release(void)
+{
+	if (channel >= DMA_MAX_CHANNELS) return;
+	CFG->DSR_BCR = DMA_DSR_BCR_DONE;
+	__disable_irq();
+	dma_channel_allocated_mask &= ~(1 << channel);
+	__enable_irq();
+	channel = 16;
+	CFG = (CFG_t *)0;
+}
+
+static uint32_t priority(const DMAChannel &c)
+{
+	return 3 - c.channel;
+}
+
+static void swap(DMAChannel &c1, DMAChannel &c2)
+{
+	uint8_t c;
+	DMABaseClass::CFG_t *t;
+
+	c = c1.channel;
+	c1.channel = c2.channel;
+	c2.channel = c;
+	t = c1.CFG;
+	c1.CFG = c2.CFG;
+	c2.CFG = t;
+}
+
+
+
+
+#endif
+
+
+
 
 void DMAPriorityOrder(DMAChannel &ch1, DMAChannel &ch2)
 {

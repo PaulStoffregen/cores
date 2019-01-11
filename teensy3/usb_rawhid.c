@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -35,6 +35,7 @@
 //#include "HardwareSerial.h"
 
 #ifdef RAWHID_INTERFACE // defined by usb_dev.h -> usb_desc.h
+#if F_CPU >= 20000000
 
 int usb_rawhid_recv(void *buffer, uint32_t timeout)
 {
@@ -85,4 +86,5 @@ int usb_rawhid_send(const void *buffer, uint32_t timeout)
 	return RAWHID_TX_SIZE;
 }
 
+#endif // F_CPU
 #endif // RAWHID_INTERFACE

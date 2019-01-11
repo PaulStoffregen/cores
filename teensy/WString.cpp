@@ -66,7 +66,9 @@ String::String(char c)
 String::String(unsigned char c)
 {
 	init();
-	*this = (char)c;
+	char buf[4];
+	utoa(c, buf, 10);
+	*this = buf;
 }
 
 String::String(const int value, unsigned char base)

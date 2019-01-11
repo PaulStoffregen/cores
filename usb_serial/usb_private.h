@@ -15,8 +15,12 @@ extern "C"{
 
 // You can change these to give your code its own name.  On Windows,
 // these are only used before an INF file (driver install) is loaded.
+#ifndef STR_MANUFACTURER
 #define STR_MANUFACTURER        L"Teensyduino"
+#endif
+#ifndef STR_PRODUCT
 #define STR_PRODUCT             L"USB Serial"
+#endif
 
 // Some operating systems, especially Windows, may cache USB device
 // info.  Changes to the device name may not update on the same
@@ -39,7 +43,9 @@ extern "C"{
 // Udev rules (in /etc/udev/rules.d) can define persistent device
 // names linked to this serial number, as well as permissions, owner
 // and group settings.
+#ifndef STR_SERIAL_NUMBER
 #define STR_SERIAL_NUMBER       L"12345"
+#endif
 
 // Mac OS-X and Linux automatically load the correct drivers.  On
 // Windows, even though the driver is supplied by Microsoft, an

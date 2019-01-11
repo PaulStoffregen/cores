@@ -30,31 +30,13 @@
 #include "Print.h"
 
 
-#if ARDUINO >= 100
-#else
-void Print::write(const char *str)
-{
-	write((const uint8_t *)str, strlen(str));
-}
-#endif
-
-
-#if ARDUINO >= 100
 size_t Print::write(const uint8_t *buffer, size_t size)
 {
 	size_t count = 0;
 	while (size--) count += write(*buffer++);
 	return count;
 }
-#else
-void Print::write(const uint8_t *buffer, size_t size)
-{
-	while (size--) write(*buffer++);
-}
-#endif
 
-
-#if ARDUINO >= 100
 size_t Print::print(const String &s)
 {
 	uint8_t buffer[33];
@@ -71,23 +53,12 @@ size_t Print::print(const String &s)
 	}
 	return count;
 }
-#else
-void Print::print(const String &s)
-{
-	unsigned int len = s.length();
-	for (unsigned int i=0; i < len; i++) {
-		write(s[i]);
-	}
-}
-#endif
 
-
-#if ARDUINO >= 100
 size_t Print::print(const __FlashStringHelper *ifsh)
 {
 	uint8_t buffer[32];
 	size_t count = 0;
-	const char PROGMEM *p = (const char PROGMEM *)ifsh;
+	const char *p = (const char *)ifsh;
 	unsigned int len = strlen_P(p);
 	while (len > 0) {
 		unsigned int nbytes = len;
@@ -99,20 +70,7 @@ size_t Print::print(const __FlashStringHelper *ifsh)
 	}
 	return count;
 }
-#else
-void Print::print(const __FlashStringHelper *ifsh)
-{
-	const char PROGMEM *p = (const char PROGMEM *)ifsh;
-	while (1) {
-		unsigned char c = pgm_read_byte(p++);
-		if (c == 0) return;
-		write(c);
-	}
-}
-#endif
 
-
-#if ARDUINO >= 100
 size_t Print::print(long n)
 {
 	uint8_t sign=0;
@@ -123,36 +81,13 @@ size_t Print::print(long n)
 	}
 	return printNumber(n, sign, 10);
 }
-#else
-void Print::print(long n)
-{
-	uint8_t sign=0;
 
-	if (n < 0) {
-		sign = 1;
-		n = -n;
-	}
-	printNumber(n, sign, 10);
-}
-#endif
-
-
-#if ARDUINO >= 100
 size_t Print::println(void)
 {
 	uint8_t buf[2]={'\r', '\n'};
 	return write(buf, 2);
 }
-#else
-void Print::println(void)
-{
-	uint8_t buf[2]={'\r', '\n'};
-	write(buf, 2);
-}
-#endif
 
-
-#if ARDUINO >= 100
 static int printf_putchar(char c, FILE *fp)
 {
 	((class Print *)(fdev_get_udata(fp)))->write((uint8_t)c);
@@ -180,7 +115,6 @@ int Print::printf(const __FlashStringHelper *format, ...)
 	va_start(ap, format);
 	return vfprintf_P(&f, (const char *)format, ap);
 }
-#endif
 
 
 //#define USE_HACKER_DELIGHT_OPTIMIZATION
@@ -344,11 +278,7 @@ uint32_t usec_print = 0;
 #endif
 
 
-#if ARDUINO >= 100
 size_t Print::printNumberDec(unsigned long n, uint8_t sign)
-#else
-void Print::printNumberDec(unsigned long n, uint8_t sign)
-#endif
 {
 	uint8_t digit, buf[11], *p;
 #if defined(USE_HACKER_DELIGHT_OPTIMIZATION)
@@ -360,7 +290,7 @@ void Print::printNumberDec(unsigned long n, uint8_t sign)
 #ifdef USE_BENCHMARK_CODE
 	uint32_t usec = micros();
 #endif
-	p = buf + (sizeof(buf)-1);
+	p = buf + (sizeof(buf));
 	do {
 		#if defined(USE_HACKER_DELIGHT_OPTIMIZATION)
 		divmod10_asm(n, tmp32, digit);
@@ -377,66 +307,42 @@ void Print::printNumberDec(unsigned long n, uint8_t sign)
 #ifdef USE_BENCHMARK_CODE
 	usec_print += micros() - usec;
 #endif
-#if ARDUINO >= 100
-	return write(p, sizeof(buf)-1 - (p - buf));
-#else
-	write(p, sizeof(buf)-1 - (p - buf));
-#endif
+	return write(p, sizeof(buf) - (p - buf));
 }
 
-#if ARDUINO >= 100
 size_t Print::printNumberHex(unsigned long n)
-#else
-void Print::printNumberHex(unsigned long n)
-#endif
 {
 	uint8_t digit, buf[8], *p;
 
-	p = buf + (sizeof(buf)-1);
+	p = buf + (sizeof(buf));
 	do {
 		digit = n & 15;
 		*--p = (digit < 10) ? '0' + digit : 'A' + digit - 10;
 		n >>= 4;
 	} while (n);
-#if ARDUINO >= 100
-	return write(p, sizeof(buf)-1 - (p - buf));
-#else
-	write(p, sizeof(buf)-1 - (p - buf));
-#endif
+	return write(p, sizeof(buf) - (p - buf));
 }
 
-#if ARDUINO >= 100
 size_t Print::printNumberBin(unsigned long n)
-#else
-void Print::printNumberBin(unsigned long n)
-#endif
 {
 	uint8_t buf[32], *p;
 
-	p = buf + (sizeof(buf)-1);
+	p = buf + (sizeof(buf));
 	do {
 		*--p = '0' + ((uint8_t)n & 1);
 		n >>= 1;
 	} while (n);
-#if ARDUINO >= 100
-	return write(p, sizeof(buf)-1 - (p - buf));
-#else
-	write(p, sizeof(buf)-1 - (p - buf));
-#endif
+	return write(p, sizeof(buf) - (p - buf));
 }
 
-#if ARDUINO >= 100
 size_t Print::printNumberAny(unsigned long n, uint8_t base)
-#else
-void Print::printNumberAny(unsigned long n, uint8_t base)
-#endif
 {
 	uint8_t digit, buf[21], *p;
 	uint32_t tmp;
 	//uint32_t usec;
 
 	//usec = micros();
-	p = buf + (sizeof(buf)-1);
+	p = buf + sizeof(buf);
 	do {
 		tmp = n;
 		n = n / base;
@@ -444,26 +350,13 @@ void Print::printNumberAny(unsigned long n, uint8_t base)
 		*--p = (digit < 10) ? '0' + digit : 'A' + digit - 10;
 	} while (n);
 	//usec_print += micros() - usec;
-#if ARDUINO >= 100
-	return write(p, sizeof(buf)-1 - (p - buf));
-#else
-	write(p, sizeof(buf)-1 - (p - buf));
-#endif
+	return write(p, sizeof(buf) - (p - buf));
 }
 
-
-
-
-#if ARDUINO >= 100
 size_t Print::printFloat(double number, uint8_t digits)
-#else
-void Print::printFloat(double number, uint8_t digits)
-#endif
 {
 	uint8_t sign=0;
-#if ARDUINO >= 100
 	size_t count=0;
-#endif
 
 	// Handle negative numbers
 	if (number < 0.0) {
@@ -481,11 +374,7 @@ void Print::printFloat(double number, uint8_t digits)
 	// Extract the integer part of the number and print it
 	unsigned long int_part = (unsigned long)number;
 	double remainder = number - (double)int_part;
-#if ARDUINO >= 100
 	count += printNumber(int_part, sign, 10);
-#else
-	printNumber(int_part, sign, 10);
-#endif
 
 	// Print the decimal point, but only if there are digits beyond
 	if (digits > 0) {
@@ -501,15 +390,8 @@ void Print::printFloat(double number, uint8_t digits)
 			buf[count++] = '0' + n;
 			remainder -= n;
 		}
-#if ARDUINO >= 100
 		count += write(buf, count);
-#else
-		write(buf, count);
-#endif
 	}
-#if ARDUINO >= 100
 	return count;
-#endif
 }
-
 

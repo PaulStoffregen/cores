@@ -65,7 +65,13 @@ static const uint8_t PROGMEM device_descriptor[] = {
 	ENDPOINT0_SIZE,				// bMaxPacketSize0
 	LSB(VENDOR_ID), MSB(VENDOR_ID),		// idVendor
 	LSB(PRODUCT_ID), MSB(PRODUCT_ID),	// idProduct
+#if defined(__AVR_ATmega32U4__)
+	0x71, 0x02,
+#elif defined(__AVR_AT90USB1286__)
+	0x72, 0x02,
+#else
 	0x02, 0x01,				// bcdDevice
+#endif
 	1,					// iManufacturer
 	2,					// iProduct
 	3,					// iSerialNumber
@@ -126,24 +132,26 @@ static const uint8_t PROGMEM mouse_hid_report_desc[] = {
         0xA1, 0x01,                     // Collection (Application)
         0x05, 0x09,                     //   Usage Page (Button)
         0x19, 0x01,                     //   Usage Minimum (Button #1)
-        0x29, 0x03,                     //   Usage Maximum (Button #3)
+        0x29, 0x08,                     //   Usage Maximum (Button #8)
         0x15, 0x00,                     //   Logical Minimum (0)
         0x25, 0x01,                     //   Logical Maximum (1)
-        0x95, 0x03,                     //   Report Count (3)
+        0x95, 0x08,                     //   Report Count (8)
         0x75, 0x01,                     //   Report Size (1)
         0x81, 0x02,                     //   Input (Data, Variable, Absolute)
-        0x95, 0x01,                     //   Report Count (1)
-        0x75, 0x05,                     //   Report Size (5)
-        0x81, 0x03,                     //   Input (Constant)
         0x05, 0x01,                     //   Usage Page (Generic Desktop)
         0x09, 0x30,                     //   Usage (X)
         0x09, 0x31,                     //   Usage (Y)
+        0x09, 0x38,                     //   Usage (Wheel)
         0x15, 0x81,                     //   Logical Minimum (-127)
         0x25, 0x7F,                     //   Logical Maximum (127)
         0x75, 0x08,                     //   Report Size (8),
-        0x95, 0x02,                     //   Report Count (2),
+        0x95, 0x03,                     //   Report Count (3),
         0x81, 0x06,                     //   Input (Data, Variable, Relative)
-        0x09, 0x38,                     //   Usage (Wheel)
+        0x05, 0x0C,                     //   Usage Page (Consumer)
+        0x0A, 0x38, 0x02,               //   Usage (AC Pan)
+        0x15, 0x81,                     //   Logical Minimum (-127)
+        0x25, 0x7F,                     //   Logical Maximum (127)
+        0x75, 0x08,                     //   Report Size (8),
         0x95, 0x01,                     //   Report Count (1),
         0x81, 0x06,                     //   Input (Data, Variable, Relative)
         0xC0                            // End Collection
@@ -881,6 +889,7 @@ ISR(USB_COM_vect)
                                 if (bRequest == HID_GET_REPORT) {
                                         usb_wait_in_ready();
                                         UEDATX = mouse_buttons;
+                                        UEDATX = 0;
                                         UEDATX = 0;
                                         UEDATX = 0;
                                         UEDATX = 0;

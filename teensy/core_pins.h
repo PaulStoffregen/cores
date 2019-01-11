@@ -1136,6 +1136,217 @@ static inline void digitalWrite(uint8_t pin, uint8_t val)
 	}
 }
 
+static inline void digitalWriteFast(uint8_t, uint8_t) __attribute__((always_inline, unused));
+static inline void digitalWriteFast(uint8_t pin, uint8_t val)
+{
+	if (__builtin_constant_p(pin)) {
+		if (val) {
+			if (pin == 0) {
+				CORE_PIN0_PORTREG |= CORE_PIN0_BITMASK;
+			} else if (pin == 1) {
+				CORE_PIN1_PORTREG |= CORE_PIN1_BITMASK;
+			} else if (pin == 2) {
+				CORE_PIN2_PORTREG |= CORE_PIN2_BITMASK;
+			} else if (pin == 3) {
+				CORE_PIN3_PORTREG |= CORE_PIN3_BITMASK;
+			} else if (pin == 4) {
+				CORE_PIN4_PORTREG |= CORE_PIN4_BITMASK;
+			} else if (pin == 5) {
+				CORE_PIN5_PORTREG |= CORE_PIN5_BITMASK;
+			} else if (pin == 6) {
+				CORE_PIN6_PORTREG |= CORE_PIN6_BITMASK;
+			} else if (pin == 7) {
+				CORE_PIN7_PORTREG |= CORE_PIN7_BITMASK;
+			} else if (pin == 8) {
+				CORE_PIN8_PORTREG |= CORE_PIN8_BITMASK;
+			} else if (pin == 9) {
+				CORE_PIN9_PORTREG |= CORE_PIN9_BITMASK;
+			} else if (pin == 10) {
+				CORE_PIN10_PORTREG |= CORE_PIN10_BITMASK;
+			} else if (pin == 11) {
+				CORE_PIN11_PORTREG |= CORE_PIN11_BITMASK;
+			} else if (pin == 12) {
+				CORE_PIN12_PORTREG |= CORE_PIN12_BITMASK;
+			} else if (pin == 13) {
+				CORE_PIN13_PORTREG |= CORE_PIN13_BITMASK;
+			} else if (pin == 14) {
+				CORE_PIN14_PORTREG |= CORE_PIN14_BITMASK;
+			} else if (pin == 15) {
+				CORE_PIN15_PORTREG |= CORE_PIN15_BITMASK;
+			} else if (pin == 16) {
+				CORE_PIN16_PORTREG |= CORE_PIN16_BITMASK;
+			} else if (pin == 17) {
+				CORE_PIN17_PORTREG |= CORE_PIN17_BITMASK;
+			} else if (pin == 18) {
+				CORE_PIN18_PORTREG |= CORE_PIN18_BITMASK;
+			} else if (pin == 19) {
+				CORE_PIN19_PORTREG |= CORE_PIN19_BITMASK;
+			} else if (pin == 20) {
+				CORE_PIN20_PORTREG |= CORE_PIN20_BITMASK;
+			}
+			#if CORE_NUM_TOTAL_PINS > 21
+			  else if (pin == 21) {
+				CORE_PIN21_PORTREG |= CORE_PIN21_BITMASK;
+			} else if (pin == 22) {
+				CORE_PIN22_PORTREG |= CORE_PIN22_BITMASK;
+			} else if (pin == 23) {
+				CORE_PIN23_PORTREG |= CORE_PIN23_BITMASK;
+			} else if (pin == 24) {
+				CORE_PIN24_PORTREG |= CORE_PIN24_BITMASK;
+			}
+			#endif
+			#if CORE_NUM_TOTAL_PINS > 25
+			  else if (pin == 25) {
+				CORE_PIN25_PORTREG |= CORE_PIN25_BITMASK;
+			} else if (pin == 26) {
+				CORE_PIN26_PORTREG |= CORE_PIN26_BITMASK;
+			} else if (pin == 27) {
+				CORE_PIN27_PORTREG |= CORE_PIN27_BITMASK;
+			} else if (pin == 28) {
+				CORE_PIN28_PORTREG |= CORE_PIN28_BITMASK;
+			} else if (pin == 29) {
+				CORE_PIN29_PORTREG |= CORE_PIN29_BITMASK;
+			} else if (pin == 30) {
+				CORE_PIN30_PORTREG |= CORE_PIN30_BITMASK;
+			} else if (pin == 31) {
+				CORE_PIN31_PORTREG |= CORE_PIN31_BITMASK;
+			} else if (pin == 32) {
+				CORE_PIN32_PORTREG |= CORE_PIN32_BITMASK;
+			} else if (pin == 33) {
+				CORE_PIN33_PORTREG |= CORE_PIN33_BITMASK;
+			} else if (pin == 34) {
+				CORE_PIN34_PORTREG |= CORE_PIN34_BITMASK;
+			} else if (pin == 35) {
+				CORE_PIN35_PORTREG |= CORE_PIN35_BITMASK;
+			} else if (pin == 36) {
+				CORE_PIN36_PORTREG |= CORE_PIN36_BITMASK;
+			} else if (pin == 37) {
+				CORE_PIN37_PORTREG |= CORE_PIN37_BITMASK;
+			} else if (pin == 38) {
+				CORE_PIN38_PORTREG |= CORE_PIN38_BITMASK;
+			} else if (pin == 39) {
+				CORE_PIN39_PORTREG |= CORE_PIN39_BITMASK;
+			} else if (pin == 40) {
+				CORE_PIN40_PORTREG |= CORE_PIN40_BITMASK;
+			} else if (pin == 41) {
+				CORE_PIN41_PORTREG |= CORE_PIN41_BITMASK;
+			} else if (pin == 42) {
+				CORE_PIN42_PORTREG |= CORE_PIN42_BITMASK;
+			} else if (pin == 43) {
+				CORE_PIN43_PORTREG |= CORE_PIN43_BITMASK;
+			} else if (pin == 44) {
+				CORE_PIN44_PORTREG |= CORE_PIN44_BITMASK;
+			} else if (pin == 45) {
+				CORE_PIN45_PORTREG |= CORE_PIN45_BITMASK;
+			}
+			#endif
+		} else {
+			if (pin == 0) {
+				CORE_PIN0_PORTREG &= ~CORE_PIN0_BITMASK;
+			} else if (pin == 1) {
+				CORE_PIN1_PORTREG &= ~CORE_PIN1_BITMASK;
+			} else if (pin == 2) {
+				CORE_PIN2_PORTREG &= ~CORE_PIN2_BITMASK;
+			} else if (pin == 3) {
+				CORE_PIN3_PORTREG &= ~CORE_PIN3_BITMASK;
+			} else if (pin == 4) {
+				CORE_PIN4_PORTREG &= ~CORE_PIN4_BITMASK;
+			} else if (pin == 5) {
+				CORE_PIN5_PORTREG &= ~CORE_PIN5_BITMASK;
+			} else if (pin == 6) {
+				CORE_PIN6_PORTREG &= ~CORE_PIN6_BITMASK;
+			} else if (pin == 7) {
+				CORE_PIN7_PORTREG &= ~CORE_PIN7_BITMASK;
+			} else if (pin == 8) {
+				CORE_PIN8_PORTREG &= ~CORE_PIN8_BITMASK;
+			} else if (pin == 9) {
+				CORE_PIN9_PORTREG &= ~CORE_PIN9_BITMASK;
+			} else if (pin == 10) {
+				CORE_PIN10_PORTREG &= ~CORE_PIN10_BITMASK;
+			} else if (pin == 11) {
+				CORE_PIN11_PORTREG &= ~CORE_PIN11_BITMASK;
+			} else if (pin == 12) {
+				CORE_PIN12_PORTREG &= ~CORE_PIN12_BITMASK;
+			} else if (pin == 13) {
+				CORE_PIN13_PORTREG &= ~CORE_PIN13_BITMASK;
+			} else if (pin == 14) {
+				CORE_PIN14_PORTREG &= ~CORE_PIN14_BITMASK;
+			} else if (pin == 15) {
+				CORE_PIN15_PORTREG &= ~CORE_PIN15_BITMASK;
+			} else if (pin == 16) {
+				CORE_PIN16_PORTREG &= ~CORE_PIN16_BITMASK;
+			} else if (pin == 17) {
+				CORE_PIN17_PORTREG &= ~CORE_PIN17_BITMASK;
+			} else if (pin == 18) {
+				CORE_PIN18_PORTREG &= ~CORE_PIN18_BITMASK;
+			} else if (pin == 19) {
+				CORE_PIN19_PORTREG &= ~CORE_PIN19_BITMASK;
+			} else if (pin == 20) {
+				CORE_PIN20_PORTREG &= ~CORE_PIN20_BITMASK;
+			}
+			#if CORE_NUM_TOTAL_PINS > 21
+			  else if (pin == 21) {
+				CORE_PIN21_PORTREG &= ~CORE_PIN21_BITMASK;
+			} else if (pin == 22) {
+				CORE_PIN22_PORTREG &= ~CORE_PIN22_BITMASK;
+			} else if (pin == 23) {
+				CORE_PIN23_PORTREG &= ~CORE_PIN23_BITMASK;
+			} else if (pin == 24) {
+				CORE_PIN24_PORTREG &= ~CORE_PIN24_BITMASK;
+			}
+			#endif
+			#if CORE_NUM_TOTAL_PINS > 25
+			  else if (pin == 25) {
+				CORE_PIN25_PORTREG &= ~CORE_PIN25_BITMASK;
+			} else if (pin == 26) {
+				CORE_PIN26_PORTREG &= ~CORE_PIN26_BITMASK;
+			} else if (pin == 27) {
+				CORE_PIN27_PORTREG &= ~CORE_PIN27_BITMASK;
+			} else if (pin == 28) {
+				CORE_PIN28_PORTREG &= ~CORE_PIN28_BITMASK;
+			} else if (pin == 29) {
+				CORE_PIN29_PORTREG &= ~CORE_PIN29_BITMASK;
+			} else if (pin == 30) {
+				CORE_PIN30_PORTREG &= ~CORE_PIN30_BITMASK;
+			} else if (pin == 31) {
+				CORE_PIN31_PORTREG &= ~CORE_PIN31_BITMASK;
+			} else if (pin == 32) {
+				CORE_PIN32_PORTREG &= ~CORE_PIN32_BITMASK;
+			} else if (pin == 33) {
+				CORE_PIN33_PORTREG &= ~CORE_PIN33_BITMASK;
+			} else if (pin == 34) {
+				CORE_PIN34_PORTREG &= ~CORE_PIN34_BITMASK;
+			} else if (pin == 35) {
+				CORE_PIN35_PORTREG &= ~CORE_PIN35_BITMASK;
+			} else if (pin == 36) {
+				CORE_PIN36_PORTREG &= ~CORE_PIN36_BITMASK;
+			} else if (pin == 37) {
+				CORE_PIN37_PORTREG &= ~CORE_PIN37_BITMASK;
+			} else if (pin == 38) {
+				CORE_PIN38_PORTREG &= ~CORE_PIN38_BITMASK;
+			} else if (pin == 39) {
+				CORE_PIN39_PORTREG &= ~CORE_PIN39_BITMASK;
+			} else if (pin == 40) {
+				CORE_PIN40_PORTREG &= ~CORE_PIN40_BITMASK;
+			} else if (pin == 41) {
+				CORE_PIN41_PORTREG &= ~CORE_PIN41_BITMASK;
+			} else if (pin == 42) {
+				CORE_PIN42_PORTREG &= ~CORE_PIN42_BITMASK;
+			} else if (pin == 43) {
+				CORE_PIN43_PORTREG &= ~CORE_PIN43_BITMASK;
+			} else if (pin == 44) {
+				CORE_PIN44_PORTREG &= ~CORE_PIN44_BITMASK;
+			} else if (pin == 45) {
+				CORE_PIN45_PORTREG &= ~CORE_PIN45_BITMASK;
+			}
+			#endif
+		}
+	} else {
+		digitalWrite(pin, val);
+	}
+}
+
+
 extern void _digitalRead(void) __attribute__((noinline));
 
 static inline uint8_t digitalRead(uint8_t) __attribute__((always_inline, unused));
@@ -1252,6 +1463,12 @@ static inline uint8_t digitalRead(uint8_t pin)
 			:);
 		return (uint8_t)tmp;
 	}
+}
+
+static inline uint8_t digitalReadFast(uint8_t) __attribute__((always_inline, unused));
+static inline uint8_t digitalReadFast(uint8_t pin)
+{
+	return digitalRead(pin);
 }
 
 extern void _pinMode(uint8_t pin, uint8_t mode) __attribute__((noinline));
@@ -1919,7 +2136,8 @@ static inline void delayMicroseconds(uint16_t usec)
 				uint8_t tmp2 = tmp;
 				asm volatile(
 				"L_%=_loop:"				// 1 to load
-					"subi	%0, 1"		"\n\t"	// 2
+					"subi	%0, 1"		"\n\t"	// 1
+					"nop"			"\n\t"	// 1
 					"brne	L_%=_loop"	"\n\t"	// 2 (1 on last)
 					: "=d" (tmp2)
 					: "0" (tmp2)

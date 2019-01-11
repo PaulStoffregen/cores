@@ -34,9 +34,15 @@ extern "C"{
  *
  **************************************************************************/
 
+#ifndef STR_PRODUCT
 #define STR_PRODUCT             L"Teensyduino RawHID Device"
+#endif
+#ifndef STR_RAWHID
 #define STR_RAWHID		L"Teensyduino RawHID"
+#endif
+#ifndef STR_DEBUG
 #define STR_DEBUG		L"Emulated Arduino Serial"
+#endif
 #define ENDPOINT0_SIZE          64
 
 // Some operating systems, especially Windows, may cache USB device

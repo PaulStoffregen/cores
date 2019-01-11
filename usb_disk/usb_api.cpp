@@ -227,9 +227,9 @@ uint8_t usb_keyboard_class::keycode_to_key(KEYCODE_TYPE keycode)
 
 
 
-void usb_keyboard_class::set_modifier(uint8_t c)
+void usb_keyboard_class::set_modifier(uint16_t c)
 {
-	keyboard_report_data[0] = c;
+	keyboard_report_data[0] = (uint8_t)c;
 }
 void usb_keyboard_class::set_key1(uint8_t c)
 {

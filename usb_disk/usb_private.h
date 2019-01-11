@@ -15,8 +15,12 @@ extern "C"{
 
 #define VENDOR_ID		0x16C0
 #define PRODUCT_ID		0x0484
+#ifndef STR_PRODUCT
 #define STR_PRODUCT		L"Teensy Disk/Keyboard"
+#endif
+#ifndef STR_SERIAL_NUMBER
 #define STR_SERIAL_NUMBER	L"123456789ABCDEF0"
+#endif
 
 // Some operating systems, especially Windows, may cache USB device
 // info.  Changes to the device name may not update on the same

@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -36,18 +36,20 @@
 #include <string.h> // for memcpy()
 
 #ifdef KEYBOARD_INTERFACE // defined by usb_dev.h -> usb_desc.h
-
+#if F_CPU >= 20000000
 
 // which modifier keys are currently pressed
 // 1=left ctrl,	   2=left shift,   4=left alt,	  8=left gui
 // 16=right ctrl, 32=right shift, 64=right alt, 128=right gui
 uint8_t keyboard_modifier_keys=0;
 
-// which media keys are currently pressed
-uint8_t keyboard_media_keys=0;
-
 // which keys are currently pressed, up to 6 keys may be down at once
 uint8_t keyboard_keys[6]={0,0,0,0,0,0};
+
+#ifdef KEYMEDIA_INTERFACE
+uint16_t keymedia_consumer_keys[4];
+uint8_t keymedia_system_keys[3];
+#endif
 
 // protocol setting from the host.  We use exactly the same report
 // either way, so this variable only stores the setting since we
@@ -74,6 +76,13 @@ static void usb_keyboard_press_key(uint8_t key, uint8_t modifier);
 static void usb_keyboard_release_key(uint8_t key, uint8_t modifier);
 #ifdef DEADKEYS_MASK
 static KEYCODE_TYPE deadkey_to_keycode(KEYCODE_TYPE keycode);
+#endif
+#ifdef KEYMEDIA_INTERFACE
+static void usb_keymedia_press_consumer_key(uint16_t key);
+static void usb_keymedia_release_consumer_key(uint16_t key);
+static void usb_keymedia_press_system_key(uint8_t key);
+static void usb_keymedia_release_system_key(uint8_t key);
+static int usb_keymedia_send(void);
 #endif
 
 
@@ -123,8 +132,8 @@ static KEYCODE_TYPE unicode_to_keycode(uint16_t cpoint)
 	// Unicode code points beyond U+FFFF are not supported
 	// technically this input should probably be called UCS-2
 	if (cpoint < 32) {
-		if (cpoint == 10) return KEY_ENTER & 0x3FFF;
-		if (cpoint == 11) return KEY_TAB & 0x3FFF;
+		if (cpoint == 10) return KEY_ENTER & KEYCODE_MASK;
+		if (cpoint == 11) return KEY_TAB & KEYCODE_MASK;
 		return 0;
 	}
 	if (cpoint < 128) {
@@ -290,6 +299,14 @@ static uint8_t keycode_to_key(KEYCODE_TYPE keycode)
 }
 
 
+// Input can be:
+//     32 - 127     ASCII direct (U+0020 to U+007F) <-- uses layout
+//    128 - 0xC1FF  Unicode direct (U+0080 to U+C1FF) <-- uses layout
+// 0xC200 - 0xDFFF  Unicode UTF8 packed (U+0080 to U+07FF) <-- uses layout
+// 0xE000 - 0xE0FF  Modifier key (bitmap, 8 keys, shift/ctrl/alt/gui)
+// 0xE200 - 0xE2FF  System key (HID usage code, within usage page 1)
+// 0xE400 - 0xE7FF  Media/Consumer key (HID usage code, within usage page 12)
+// 0xF000 - 0xFFFF  Normal key (HID usage code, within usage page 7)
 
 void usb_keyboard_press_keycode(uint16_t n)
 {
@@ -300,20 +317,31 @@ void usb_keyboard_press_keycode(uint16_t n)
 	#endif
 
 	msb = n >> 8;
-	if (msb >= 0xC2 && msb <= 0xDF) {
-		n = (n & 0x3F) | ((uint16_t)(msb & 0x1F) << 6);
-	} else
-	if (msb == 0x80) {
-		usb_keyboard_press_key(0, n);
-		return;
-	} else
-	if (msb == 0x40) {
-		usb_keyboard_press_key(n, 0);
-		return;
+
+	if (msb >= 0xC2) {
+		if (msb <= 0xDF) {
+			n = (n & 0x3F) | ((uint16_t)(msb & 0x1F) << 6);
+		} else if (msb == 0xF0) {
+			usb_keyboard_press_key(n, 0);
+			return;
+		} else if (msb == 0xE0) {
+			usb_keyboard_press_key(0, n);
+			return;
+#ifdef KEYMEDIA_INTERFACE
+		} else if (msb == 0xE2) {
+			usb_keymedia_press_system_key(n);
+			return;
+		} else if (msb >= 0xE4 && msb <= 0xE7) {
+			usb_keymedia_press_consumer_key(n & 0x3FF);
+			return;
+#endif
+		} else {
+			return;
+		}
 	}
 	keycode = unicode_to_keycode(n);
 	if (!keycode) return;
-	#ifdef DEADKEYS_MASK
+#ifdef DEADKEYS_MASK
 	deadkeycode = deadkey_to_keycode(keycode);
 	if (deadkeycode) {
 		modrestore = keyboard_modifier_keys;
@@ -328,7 +356,7 @@ void usb_keyboard_press_keycode(uint16_t n)
 		usb_keyboard_press_key(key, mod);
 		usb_keyboard_release_key(key, mod);
 	}
-	#endif
+#endif
 	mod = keycode_to_modifier(keycode);
 	key = keycode_to_key(keycode);
 	usb_keyboard_press_key(key, mod | modrestore);
@@ -340,16 +368,26 @@ void usb_keyboard_release_keycode(uint16_t n)
 	uint8_t key, mod, msb;
 
 	msb = n >> 8;
-	if (msb >= 0xC2 && msb <= 0xDF) {
-		n = (n & 0x3F) | ((uint16_t)(msb & 0x1F) << 6);
-	} else
-	if (msb == 0x80) {
-		usb_keyboard_release_key(0, n);
-		return;
-	} else
-	if (msb == 0x40) {
-		usb_keyboard_release_key(n, 0);
-		return;
+	if (msb >= 0xC2) {
+		if (msb <= 0xDF) {
+			n = (n & 0x3F) | ((uint16_t)(msb & 0x1F) << 6);
+		} else if (msb == 0xF0) {
+			usb_keyboard_release_key(n, 0);
+			return;
+		} else if (msb == 0xE0) {
+			usb_keyboard_release_key(0, n);
+			return;
+#ifdef KEYMEDIA_INTERFACE
+		} else if (msb == 0xE2) {
+			usb_keymedia_release_system_key(n);
+			return;
+		} else if (msb >= 0xE4 && msb <= 0xE7) {
+			usb_keymedia_release_consumer_key(n & 0x3FF);
+			return;
+#endif
+		} else {
+			return;
+		}
 	}
 	KEYCODE_TYPE keycode = unicode_to_keycode(n);
 	if (!keycode) return;
@@ -413,13 +451,23 @@ void usb_keyboard_release_all(void)
 
 	anybits = keyboard_modifier_keys;
 	keyboard_modifier_keys = 0;
-	anybits |= keyboard_media_keys;
-	keyboard_media_keys = 0;
 	for (i=0; i < 6; i++) {
 		anybits |= keyboard_keys[i];
 		keyboard_keys[i] = 0;
 	}
 	if (anybits) usb_keyboard_send();
+#ifdef KEYMEDIA_INTERFACE
+	anybits = 0;
+	for (i=0; i < 4; i++) {
+		if (keymedia_consumer_keys[i] != 0) anybits = 1;
+		keymedia_consumer_keys[i] = 0;
+	}
+	for (i=0; i < 3; i++) {
+		if (keymedia_system_keys[i] != 0) anybits = 1;
+		keymedia_system_keys[i] = 0;
+	}
+	if (anybits) usb_keymedia_send();
+#endif
 }
 
 
@@ -448,8 +496,17 @@ static uint8_t transmit_previous_timeout=0;
 
 // When the PC isn't listening, how long do we wait before discarding data?
 #define TX_TIMEOUT_MSEC 50
-
-#if F_CPU == 168000000
+#if F_CPU == 256000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1706)
+#elif F_CPU == 240000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1600)
+#elif F_CPU == 216000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1440)
+#elif F_CPU == 192000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1280)
+#elif F_CPU == 180000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1200)
+#elif F_CPU == 168000000
   #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1100)
 #elif F_CPU == 144000000
   #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 932)
@@ -499,7 +556,7 @@ int usb_keyboard_send(void)
 		yield();
 	}
 	*(tx_packet->buf) = keyboard_modifier_keys;
-	*(tx_packet->buf + 1) = keyboard_media_keys;
+	*(tx_packet->buf + 1) = 0;
 	memcpy(tx_packet->buf + 2, keyboard_keys, 6);
 	tx_packet->len = 8;
 	usb_tx(KEYBOARD_ENDPOINT, tx_packet);
@@ -508,4 +565,126 @@ int usb_keyboard_send(void)
 }
 
 
+
+#ifdef KEYMEDIA_INTERFACE
+
+static void usb_keymedia_press_consumer_key(uint16_t key)
+{
+	int i;
+
+	if (key == 0) return;
+	for (i=0; i < 4; i++) {
+		if (keymedia_consumer_keys[i] == key) return;
+	}
+	for (i=0; i < 4; i++) {
+		if (keymedia_consumer_keys[i] == 0) {
+			keymedia_consumer_keys[i] = key;
+			usb_keymedia_send();
+			return;
+		}
+	}
+}
+
+static void usb_keymedia_release_consumer_key(uint16_t key)
+{
+	int i;
+
+	if (key == 0) return;
+	for (i=0; i < 4; i++) {
+		if (keymedia_consumer_keys[i] == key) {
+			keymedia_consumer_keys[i] = 0;
+			usb_keymedia_send();
+			return;
+		}
+	}
+}
+
+static void usb_keymedia_press_system_key(uint8_t key)
+{
+	int i;
+
+	if (key == 0) return;
+	for (i=0; i < 3; i++) {
+		if (keymedia_system_keys[i] == key) return;
+	}
+	for (i=0; i < 3; i++) {
+		if (keymedia_system_keys[i] == 0) {
+			keymedia_system_keys[i] = key;
+			usb_keymedia_send();
+			return;
+		}
+	}
+}
+
+static void usb_keymedia_release_system_key(uint8_t key)
+{
+	int i;
+
+	if (key == 0) return;
+	for (i=0; i < 3; i++) {
+		if (keymedia_system_keys[i] == key) {
+			keymedia_system_keys[i] = 0;
+			usb_keymedia_send();
+			return;
+		}
+	}
+}
+
+void usb_keymedia_release_all(void)
+{
+	uint8_t i, anybits;
+
+	anybits = 0;
+	for (i=0; i < 4; i++) {
+		if (keymedia_consumer_keys[i] != 0) anybits = 1;
+		keymedia_consumer_keys[i] = 0;
+	}
+	for (i=0; i < 3; i++) {
+		if (keymedia_system_keys[i] != 0) anybits = 1;
+		keymedia_system_keys[i] = 0;
+	}
+	if (anybits) usb_keymedia_send();
+}
+
+// send the contents of keyboard_keys and keyboard_modifier_keys
+static int usb_keymedia_send(void)
+{
+	uint32_t wait_count=0;
+	usb_packet_t *tx_packet;
+	const uint16_t *consumer;
+
+	while (1) {
+		if (!usb_configuration) {
+			return -1;
+		}
+		if (usb_tx_packet_count(KEYMEDIA_ENDPOINT) < TX_PACKET_LIMIT) {
+			tx_packet = usb_malloc();
+			if (tx_packet) break;
+		}
+		if (++wait_count > TX_TIMEOUT || transmit_previous_timeout) {
+			transmit_previous_timeout = 1;
+			return -1;
+		}
+		yield();
+	}
+	// 44444444 44333333 33332222 22222211 11111111
+	// 98765432 10987654 32109876 54321098 76543210
+	consumer = keymedia_consumer_keys;
+	*(tx_packet->buf + 0) = consumer[0];
+	*(tx_packet->buf + 1) = (consumer[1] << 2) | ((consumer[0] >> 8) & 0x03);
+	*(tx_packet->buf + 2) = (consumer[2] << 4) | ((consumer[1] >> 6) & 0x0F);
+	*(tx_packet->buf + 3) = (consumer[3] << 6) | ((consumer[2] >> 4) & 0x3F);
+	*(tx_packet->buf + 4) = consumer[3] >> 2;
+	*(tx_packet->buf + 5) = keymedia_system_keys[0];
+	*(tx_packet->buf + 6) = keymedia_system_keys[1];
+	*(tx_packet->buf + 7) = keymedia_system_keys[2];
+	tx_packet->len = 8;
+	usb_tx(KEYMEDIA_ENDPOINT, tx_packet);
+	return 0;
+}
+
+#endif // KEYMEDIA_INTERFACE
+
+
+#endif // F_CPU
 #endif // KEYBOARD_INTERFACE

@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -31,9 +31,13 @@
 #ifndef USBserial_h_
 #define USBserial_h_
 
-#if (F_CPU >= 20000000) && (defined(USB_SERIAL) || defined(USB_SERIAL_HID))
+#include "usb_desc.h"
+
+#if (defined(CDC_STATUS_INTERFACE) && defined(CDC_DATA_INTERFACE)) || defined(USB_DISABLED)
 
 #include <inttypes.h>
+
+#if F_CPU >= 20000000 && !defined(USB_DISABLED)
 
 // C language implementation
 #ifdef __cplusplus
@@ -49,6 +53,8 @@ int usb_serial_write(const void *buffer, uint32_t size);
 int usb_serial_write_buffer_free(void);
 void usb_serial_flush_output(void);
 extern uint32_t usb_cdc_line_coding[2];
+extern volatile uint32_t usb_cdc_line_rtsdtr_millis;
+extern volatile uint32_t systick_millis_count;
 extern volatile uint8_t usb_cdc_line_rtsdtr;
 extern volatile uint8_t usb_cdc_transmit_flush_timer;
 extern volatile uint8_t usb_configuration;
@@ -65,19 +71,33 @@ extern volatile uint8_t usb_configuration;
 class usb_serial_class : public Stream
 {
 public:
-        void begin(long) { /* TODO: call a function that tries to wait for enumeration */ };
+	constexpr usb_serial_class() {}
+        void begin(long) {
+		//uint32_t millis_begin = systick_millis_count;
+		//disabled for now - causes more trouble than it solves?
+		//while (!(*this)) {
+			// wait up to 2.5 seconds for Arduino Serial Monitor
+			// Yes, this is a long time, but some Windows systems open
+			// the port very slowly.  This wait allows programs for
+			// Arduino Uno to "just work" (without forcing a reboot when
+			// the port is opened), and when no PC is connected the user's
+			// sketch still gets to run normally after this wait time.
+			//if ((uint32_t)(systick_millis_count - millis_begin) > 2500) break;
+		//}
+	}
         void end() { /* TODO: flush output and shut down USB port */ };
         virtual int available() { return usb_serial_available(); }
         virtual int read() { return usb_serial_getchar(); }
         virtual int peek() { return usb_serial_peekchar(); }
         virtual void flush() { usb_serial_flush_output(); }  // TODO: actually wait for data to leave USB...
+        virtual void clear(void) { usb_serial_flush_input(); }
         virtual size_t write(uint8_t c) { return usb_serial_putchar(c); }
         virtual size_t write(const uint8_t *buffer, size_t size) { return usb_serial_write(buffer, size); }
 	size_t write(unsigned long n) { return write((uint8_t)n); }
 	size_t write(long n) { return write((uint8_t)n); }
 	size_t write(unsigned int n) { return write((uint8_t)n); }
 	size_t write(int n) { return write((uint8_t)n); }
-	int availableForWrite() { return usb_serial_write_buffer_free(); }
+	virtual int availableForWrite() { return usb_serial_write_buffer_free(); }
 	using Print::write;
         void send_now(void) { usb_serial_flush_output(); }
         uint32_t baud(void) { return usb_cdc_line_coding[0]; }
@@ -86,7 +106,9 @@ public:
         uint8_t numbits(void) { return usb_cdc_line_coding[1] >> 16; }
         uint8_t dtr(void) { return (usb_cdc_line_rtsdtr & USB_SERIAL_DTR) ? 1 : 0; }
         uint8_t rts(void) { return (usb_cdc_line_rtsdtr & USB_SERIAL_RTS) ? 1 : 0; }
-        operator bool() { return usb_configuration && (usb_cdc_line_rtsdtr & (USB_SERIAL_DTR | USB_SERIAL_RTS)); }
+        operator bool() { return usb_configuration && (usb_cdc_line_rtsdtr & USB_SERIAL_DTR) &&
+		((uint32_t)(systick_millis_count - usb_cdc_line_rtsdtr_millis) >= 15);
+	}
 	size_t readBytes(char *buffer, size_t length) {
 		size_t count=0;
 		unsigned long startMillis = millis();
@@ -104,7 +126,7 @@ extern void serialEvent(void);
 #endif // __cplusplus
 
 
-#else  // F_CPU < 20 MHz && !(USB_SERIAL || USB_SERIAL_HID)
+#else  // F_CPU < 20000000
 
 // Allow Arduino programs using Serial to compile, but Serial will do nothing.
 #ifdef __cplusplus
@@ -112,12 +134,14 @@ extern void serialEvent(void);
 class usb_serial_class : public Stream
 {
 public:
+	constexpr usb_serial_class() {}
         void begin(long) { };
         void end() { };
         virtual int available() { return 0; }
         virtual int read() { return -1; }
         virtual int peek() { return -1; }
         virtual void flush() { }
+        virtual void clear() { }
         virtual size_t write(uint8_t c) { return 1; }
         virtual size_t write(const uint8_t *buffer, size_t size) { return size; }
 	size_t write(unsigned long n) { return 1; }
@@ -140,6 +164,9 @@ extern usb_serial_class Serial;
 extern void serialEvent(void);
 #endif // __cplusplus
 
-#endif // F_CPU && USB_SERIAL || USB_SERIAL_HID
+
+#endif // F_CPU
+
+#endif // CDC_STATUS_INTERFACE && CDC_DATA_INTERFACE
 
 #endif // USBserial_h_

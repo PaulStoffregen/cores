@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -36,7 +36,7 @@
 #ifdef M
 #undef M
 #endif
-#define M(n) ((n) & 0x3FFF)
+#define M(n) ((n) & KEYCODE_MASK)
 
 const KEYCODE_TYPE keycodes_ascii[] = {
         M(ASCII_20), M(ASCII_21), M(ASCII_22), M(ASCII_23),

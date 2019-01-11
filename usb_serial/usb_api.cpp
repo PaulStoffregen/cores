@@ -131,7 +131,6 @@ int usb_serial_class::read(void)
         return c;
 }
 
-#if ARDUINO >= 100
 size_t usb_serial_class::readBytes(char *buffer, size_t length)
 {
 	size_t count=0;
@@ -173,17 +172,16 @@ size_t usb_serial_class::readBytes(char *buffer, size_t length)
 	setReadError();
 	return count;
 }
-#endif
 
 
-#if ARDUINO >= 100
 void usb_serial_class::flush()
 {
 	send_now();
 }
-#else
+
+
 // discard any buffered input
-void usb_serial_class::flush()
+void usb_serial_class::clear()
 {
         uint8_t intr_state;
 
@@ -198,7 +196,7 @@ void usb_serial_class::flush()
         }
 	peek_buf = -1;
 }
-#endif
+
 
 #if 0
 // transmit a character.
@@ -251,18 +249,24 @@ void usb_serial_class::write(uint8_t c)
 #endif
 
 
+int usb_serial_class::availableForWrite()
+{
+	uint8_t intr_state, write_size;
+
+	if (!usb_configuration) return 0;
+	intr_state = SREG;
+	cli();
+	UENUM = CDC_TX_ENDPOINT;
+	write_size = CDC_TX_SIZE - UEBCLX;
+	SREG = intr_state;
+	return write_size;
+}
+
 // transmit a block of data
-#if ARDUINO >= 100
 size_t usb_serial_class::write(const uint8_t *buffer, uint16_t size)
-#else
-#define setWriteError()
-void usb_serial_class::write(const uint8_t *buffer, uint16_t size)
-#endif
 {
 	uint8_t timeout, intr_state, write_size;
-#if ARDUINO >= 100
 	size_t count=0;
-#endif
 
 	// if we're not online (enumerated and configured), error
 	if (!usb_configuration) {
@@ -314,9 +318,7 @@ void usb_serial_class::write(const uint8_t *buffer, uint16_t size)
 		write_size = CDC_TX_SIZE - UEBCLX;
 		if (write_size > size) write_size = size;
 		size -= write_size;
-#if ARDUINO >= 100
 		count += write_size;
-#endif
 
 #define ASM_COPY1(src, dest, tmp) "ld " tmp ", " src "\n\t" "st " dest ", " tmp "\n\t"
 #define ASM_COPY2(src, dest, tmp) ASM_COPY1(src, dest, tmp) ASM_COPY1(src, dest, tmp)
@@ -368,11 +370,7 @@ void usb_serial_class::write(const uint8_t *buffer, uint16_t size)
 	}
 	SREG = intr_state;
 end:
-#if ARDUINO >= 100
 	return count;
-#else
-	return;
-#endif
 }
 
 // transmit a string
@@ -409,7 +407,11 @@ void usb_serial_class::send_now(void)
 
 uint32_t usb_serial_class::baud(void)
 {
-	return *(uint32_t *)cdc_line_coding;
+	//return *(uint32_t *)cdc_line_coding;
+	return (uint32_t)cdc_line_coding[0]
+	  | ((uint32_t)cdc_line_coding[1] << 8)
+	  | ((uint32_t)cdc_line_coding[2] << 16)
+	  | ((uint32_t)cdc_line_coding[3] << 24);
 }
 
 uint8_t usb_serial_class::stopbits(void)
