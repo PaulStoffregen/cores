@@ -589,7 +589,15 @@ static inline void digitalWriteFast(uint8_t pin, uint8_t val)
 			}
 		}
 	} else {
-		*portClearRegister(pin) = digitalPinToBitMask(pin);
+		if (val) {
+
+			*portSetRegister(pin) = digitalPinToBitMask(pin);
+
+		} else {
+
+			*portClearRegister(pin) = digitalPinToBitMask(pin);
+
+		}
 	}
 }
 
@@ -771,6 +779,9 @@ void rtc_compensate(int adjust);
 
 void tempmon_init(void);
 float tempmonGetTemp(void);
+void tempmon_Start();
+void tempmon_Stop();
+void tempmon_PwrDwn();
 
 #ifdef __cplusplus
 }

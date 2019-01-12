@@ -8,7 +8,7 @@ static uint32_t highAlarmTemp   = 85U;
 static uint32_t lowAlarmTemp    = 25U;
 static uint32_t panicAlarmTemp  = 90U;
 
-static uint32_t s_hotTemp, s_hotCount, roomCount, s_roomC_hotC;
+static uint32_t s_hotTemp, s_hotCount, s_roomC_hotC;
 static float s_hot_ROOM;
 
 void tempmon_init(void)
@@ -67,4 +67,19 @@ float tempmonGetTemp(void)
     tmeas = s_hotTemp - (float)((nmeas - s_hotCount) * s_hot_ROOM / s_roomC_hotC);
 
     return tmeas;
+}
+
+void tempmon_Start()
+{
+    TEMPMON_TEMPSENSE0 |= 0x2U;
+}
+
+void tempmon_Stop()
+{
+    TEMPMON_TEMPSENSE0 &= ~0x2U;
+}
+
+void tempmon_PwrDwn()
+{
+    TEMPMON_TEMPSENSE0 |= 0x1U;
 }
