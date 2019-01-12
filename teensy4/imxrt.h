@@ -5264,12 +5264,41 @@ typedef struct {
 #define WDOG2_WICR			(IMXRT_WDOG2.offset006)
 #define WDOG2_WMCR			(IMXRT_WDOG2.offset008)
 
+#define WDOG_WCR_WDZST		(1UL << 0)
+#define WDOG_WCR_WDBG			(1UL << 1)
+#define WDOG_WCR_WDE			(1UL << 2)
+#define WDOG_WCR_WDT			(1UL << 3)
+#define WDOG_WCR_SRS			(1UL << 4)
+#define WDOG_WCR_WDA			(1UL << 5)
+#define WDOG_WCR_SRE			(1UL << 6)
+#define WDOG_WCR_WDW			(1UL << 7)
+#define WDOG_WCR_WT			(0xFF00)
+
+#define WDOG_WRSR_SFTW		(1UL << 0)
+#define WDOG_WRSR_TOUT		(1UL << 1)
+#define WDOG_WRSR_POR			(1UL << 4)
+
 // page 4017
 #define IMXRT_WDOG3		(*(IMXRT_REGISTER32_t *)0x400BC000)
 #define WDOG3_CS			(IMXRT_WDOG3.offset000)
 #define WDOG3_CNT			(IMXRT_WDOG3.offset004)
 #define WDOG3_TOVAL			(IMXRT_WDOG3.offset008)
 #define WDOG3_WIN			(IMXRT_WDOG3.offset00C)
+
+#define WDOG_CS_STOP			(1UL << 0)
+#define WDOG_CS_WAIT			(1UL << 1)
+#define WDOG_CS_DBG			(1UL << 2)
+#define WDOG_CS_TST			(3UL << 3)
+#define WDOG_CS_UPDATE		(1UL << 5)
+#define WDOG_CS_INT			(1UL << 6)
+#define WDOG_CS_EN			(1UL << 7)
+#define WDOG_CS_CLK			(3UL << 8)
+#define WDOG_CS_RCS			(1UL << 10)
+#define WDOG_CS_ULK			(1UL << 11)
+#define WDOG_CS_PRES			(1UL << 12)
+#define WDOG_CS_CMD32EN		(1UL << 13)
+#define WDOG_CS_FLG			(1UL << 14)
+#define WDOG_CS_WIN			(1UL << 15)
 
 // page 4036
 #define IMXRT_XBARA1		(*(IMXRT_REGISTER16_t *)0x403BC000)
