@@ -770,6 +770,12 @@ unsigned long rtc_get(void);
 void rtc_set(unsigned long t);
 void rtc_compensate(int adjust);
 
+void tempmon_init(void);
+float tempmonGetTemp(void);
+void tempmon_Start();
+void tempmon_Stop();
+void tempmon_PwrDwn();
+
 #ifdef __cplusplus
 }
 
