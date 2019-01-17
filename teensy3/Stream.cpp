@@ -218,6 +218,7 @@ float Stream::parseFloat(char skipChar){
 //
 size_t Stream::readBytes(char *buffer, size_t length)
 {
+	if (buffer == nullptr) return 0;
 	size_t count = 0;
 	while (count < length) {
 		int c = timedRead();
@@ -238,6 +239,7 @@ size_t Stream::readBytes(char *buffer, size_t length)
 
 size_t Stream::readBytesUntil(char terminator, char *buffer, size_t length)
 {
+	if (buffer == nullptr) return 0;
 	if (length < 1) return 0;
 	length--;
 	size_t index = 0;
