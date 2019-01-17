@@ -62,7 +62,8 @@ void delay(uint32_t msec)
 	// TODO...
 }
 
-uint32_t micros(void)
+extern uint32_t ccmicros(void);
+uint32_t ccmicros(void)
 {
 	uint32_t ccdelta, usec, smc, scc;
 	do {
@@ -74,9 +75,8 @@ uint32_t micros(void)
 	return usec;
 }
 
-#if 0 // kept to compare test to cycle count micro()
-extern uint32_t otmicros(void);
-uint32_t otmicros(void)
+//#if 0 // kept to compare test to cycle count micro()
+uint32_t micros(void)
 {
 	uint32_t msec, tick, elapsed, istatus, usec;
 	//static uint32_t prev_msec=0;
@@ -133,4 +133,4 @@ uint32_t otmicros(void)
 	prev_usec = usec;
 	return usec;
 }
-#endif
+//#endif
