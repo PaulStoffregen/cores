@@ -303,6 +303,7 @@ int HardwareSerial::available(void)
 
 void HardwareSerial::addStorageForRead(void *buffer, size_t length) 
 {
+	if (buffer == NULL) return;
 	rx_buffer_storage_ = (BUFTYPE*)buffer;
 	if (buffer) {
 		rx_buffer_total_size_ = rx_buffer_total_size_ + length;
@@ -316,6 +317,7 @@ void HardwareSerial::addStorageForRead(void *buffer, size_t length)
 
 void HardwareSerial::addStorageForWrite(void *buffer, size_t length) 
 {
+	if (buffer == NULL) return;
 	tx_buffer_storage_ = (BUFTYPE*)buffer;
 	if (buffer) {
 		tx_buffer_total_size_ = tx_buffer_total_size_ + length;
