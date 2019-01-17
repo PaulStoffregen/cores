@@ -90,7 +90,7 @@ bool Stream::find(const char *target, size_t length)
 bool  Stream::findUntil(const char *target, const char *terminator)
 {
   if(target == NULL) return true;
-  if(terminator == NULL) return true;	
+  size_t tlen = (terminator==NULL)?0:strlen(terminator);
   return findUntil(target, strlen(target), terminator, strlen(terminator));
 }
 
@@ -104,7 +104,7 @@ bool Stream::findUntil(const char *target, size_t targetLen, const char *termina
   int c;
   if( target == NULL) return true;
   if( *target == 0) return true;   // return true if target is a null string
-  if(terminator == NULL) return true;
+  if (terminator == NULL) termLen = 0;
 
   while( (c = timedRead()) > 0){
     if( c == target[index]){
