@@ -89,8 +89,8 @@ bool Stream::find(const char *target, size_t length)
 // as find but search ends if the terminator string is found
 bool  Stream::findUntil(const char *target, const char *terminator)
 {
-  if(target == NULL) return true;
-  size_t tlen = (terminator==NULL)?0:strlen(terminator);
+  if(target == nullptr) return true;
+  size_t tlen = (terminator==nullptr)?0:strlen(terminator);
   return findUntil(target, strlen(target), terminator, tlen);
 }
 
@@ -103,9 +103,9 @@ bool Stream::findUntil(const char *target, size_t targetLen, const char *termina
   size_t termIndex = 0;
   int c;
 
-  if( target == NULL) return true;
+  if( target == nullptr) return true;
   if( *target == 0) return true;   // return true if target is a null string
-  if (terminator == NULL) termLen = 0;
+  if (terminator == nullptr) termLen = 0;
 	
   while( (c = timedRead()) > 0){
     if( c == target[index]){
@@ -219,6 +219,7 @@ float Stream::parseFloat(char skipChar){
 //
 size_t Stream::readBytes(char *buffer, size_t length)
 {
+	if (buffer == nullptr) return 0;
 	size_t count = 0;
 	while (count < length) {
 		int c = timedRead();
@@ -239,6 +240,7 @@ size_t Stream::readBytes(char *buffer, size_t length)
 
 size_t Stream::readBytesUntil(char terminator, char *buffer, size_t length)
 {
+	if (buffer == nullptr) return 0;
 	if (length < 1) return 0;
 	length--;
 	size_t index = 0;
