@@ -73,16 +73,6 @@ uint32_t micros(void)
 	usec = 1000*smc + (ccdelta/(F_CPU_ACTUAL/1000000));
 	return usec;
 }
-uint32_t micros(void)
-{
-	uint32_t ccdelta, usec, smc;
-	do {
-		smc = systick_millis_count;
-		ccdelta = ARM_DWT_CYCCNT - systick_cycle_count;
-	} while ( smc != systick_millis_count ); // repeat if systick_isr
-	usec = 1000*smc + (ccdelta/(F_CPU_ACTUAL/1000000));
-	return usec;
-}
 
 #if 0 // kept to compare test to cycle count micro()
 extern uint32_t otmicros(void);
