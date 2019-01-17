@@ -336,8 +336,10 @@ void MillisTimer::runFromTimer()
 
 // TODO: this doesn't work for IMXRT - no longer using predefined names
 extern "C" volatile uint32_t systick_millis_count;
+extern "C" volatile uint32_t systick_cycle_count;
 extern "C" void systick_isr(void)
 {
+	systick_cycle_count += F_CPU_ACTUAL/1000;
 	systick_millis_count++;
 	MillisTimer::runFromTimer();
 }
