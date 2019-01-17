@@ -35,7 +35,7 @@ static void dummy_funct(void);
 static void pit_isr(void);
 
 #define NUM_CHANNELS 4
-static void (*funct_table[4])(void) __attribute((aligned(32))) = {dummy_funct, dummy_funct, dummy_funct, dummy_funct} __attribute((aligned(32)));
+static void (*funct_table[4])(void) __attribute((aligned(32))) = {dummy_funct, dummy_funct, dummy_funct, dummy_funct};
 uint8_t IntervalTimer::nvic_priorites[4] = {255, 255, 255, 255};
 
 
