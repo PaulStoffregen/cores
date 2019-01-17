@@ -115,7 +115,7 @@ extern volatile uint32_t systick_cycle_count;
 static void configure_systick(void)
 {
 	_VectorsRam[14] = pendablesrvreq_isr;
-	_VectorsRam[15] = systick_isr; // Wait for CycleCounter to sync
+	_VectorsRam[15] = systick_isr;
 	SYST_RVR = (SYSTICK_EXT_FREQ / 1000) - 1;
 	SYST_CVR = 0;
 	SYST_CSR = SYST_CSR_TICKINT | SYST_CSR_ENABLE;
