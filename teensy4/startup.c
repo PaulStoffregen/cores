@@ -111,16 +111,28 @@ void ResetHandler(void)
 // the ARM clock to run at different speeds.
 #define SYSTICK_EXT_FREQ 100000
 
+extern volatile uint32_t systick_cycle_count;
+#define MAGIC_VAL 5 // empiric start value syncs signif. digits to millis()
+static void systick_isr_sync(void)
+{
+	// 1st[0] tick is sync baseline CycCnt for micros()
+	if ( 0 == systick_millis_count )
+		systick_cycle_count = ARM_DWT_CYCCNT - MAGIC_VAL*F_CPU_ACTUAL/1000;
+	else 
+		_VectorsRam[15] = systick_isr; // use CORE _isr
+	systick_millis_count++;
+}
 static void configure_systick(void)
 {
 	_VectorsRam[14] = pendablesrvreq_isr;
-	_VectorsRam[15] = systick_isr;
+	_VectorsRam[15] = systick_isr_sync; // Wait for CycleCounter to sync
 	SYST_RVR = (SYSTICK_EXT_FREQ / 1000) - 1;
 	SYST_CVR = 0;
 	SYST_CSR = SYST_CSR_TICKINT | SYST_CSR_ENABLE;
 	SCB_SHPR3 = 0x20000000;  // Systick = priority 32
 	ARM_DEMCR |= ARM_DEMCR_TRCENA;
 	ARM_DWT_CTRL |= ARM_DWT_CTRL_CYCCNTENA; // turn on cycle counter
+	systick_cycle_count = ARM_DWT_CYCCNT; // was 0, must sync w/_isr
 }
 
 
@@ -246,6 +258,7 @@ void usb_pll_start()
 //  R2
 //  R1
 //  R0
+__attribute__((weak))
 void unused_interrupt_vector(void)
 {
 	// TODO: polling Serial to complete buffered transmits

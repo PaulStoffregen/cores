@@ -3,6 +3,7 @@
 //volatile uint32_t F_CPU = 396000000;
 //volatile uint32_t F_BUS = 132000000;
 volatile uint32_t systick_millis_count = 0;
+volatile uint32_t systick_cycle_count = 0;
 
 // page 411 says "24 MHz XTALOSC can be the external clock source of SYSTICK"
 // Testing shows the frequency is actually 100 kHz - but how?  Did NXP really
@@ -63,6 +64,19 @@ void delay(uint32_t msec)
 
 uint32_t micros(void)
 {
+	uint32_t ccdelta, usec, smc;
+	do {
+		smc = systick_millis_count;
+		ccdelta = ARM_DWT_CYCCNT - systick_cycle_count;
+	} while ( smc != systick_millis_count ); // repeat if systick_isr
+	usec = 1000*smc + (ccdelta/(F_CPU_ACTUAL/1000000));
+	return usec;
+}
+
+#if 0 // kept to compare test to cycle count micro()
+extern uint32_t otmicros(void);
+uint32_t otmicros(void)
+{
 	uint32_t msec, tick, elapsed, istatus, usec;
 	//static uint32_t prev_msec=0;
 	//static uint32_t prev_istatus=0;
@@ -118,4 +132,4 @@ uint32_t micros(void)
 	prev_usec = usec;
 	return usec;
 }
-
+#endif
