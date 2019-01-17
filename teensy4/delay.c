@@ -64,6 +64,17 @@ void delay(uint32_t msec)
 
 uint32_t micros(void)
 {
+	uint32_t ccdelta, usec, smc, scc;
+	do {
+		smc = systick_millis_count;
+		scc = systick_cycle_count;
+	} while ( smc != systick_millis_count || scc != systick_cycle_count ); // repeat if systick_isr
+	ccdelta = ARM_DWT_CYCCNT - scc;
+	usec = 1000*smc + (ccdelta/(F_CPU_ACTUAL/1000000));
+	return usec;
+}
+uint32_t micros(void)
+{
 	uint32_t ccdelta, usec, smc;
 	do {
 		smc = systick_millis_count;
