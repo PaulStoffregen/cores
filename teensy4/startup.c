@@ -76,6 +76,9 @@ void ResetHandler(void)
 	configure_systick();
 	usb_pll_start();
 
+	CCM_ANALOG_PFD_528_SET = (1 << 31) | (1 << 23) | (1 << 15) | (1 << 7);
+	CCM_ANALOG_PFD_528 = 0x2018101B; // PFD0:352, PFD1:594, PFD2:396, PFD3:297 MHz 
+	
 	set_arm_clock(600000000);
 	//set_arm_clock(984000000); Ludicrous Speed
 
