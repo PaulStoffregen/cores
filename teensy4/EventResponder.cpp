@@ -337,6 +337,7 @@ void MillisTimer::runFromTimer()
 // TODO: this doesn't work for IMXRT - no longer using predefined names
 extern "C" volatile uint32_t systick_millis_count;
 extern "C" volatile uint32_t systick_cycle_count;
+extern "C" volatile uint32_t systick_safe_read; // micros() synchronization
 extern "C" void systick_isr(void)
 {
 	systick_cycle_count = ARM_DWT_CYCCNT;
