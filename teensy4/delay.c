@@ -1,9 +1,11 @@
 #include "core_pins.h"
+#include "arm_math.h"	// micros() synchronization
 
 //volatile uint32_t F_CPU = 396000000;
 //volatile uint32_t F_BUS = 132000000;
 volatile uint32_t systick_millis_count = 0;
 volatile uint32_t systick_cycle_count = 0;
+volatile uint32_t systick_safe_read;	 // micros() synchronization
 
 // page 411 says "24 MHz XTALOSC can be the external clock source of SYSTICK"
 // Testing shows the frequency is actually 100 kHz - but how?  Did NXP really
@@ -62,20 +64,20 @@ void delay(uint32_t msec)
 	// TODO...
 }
 
-extern uint32_t ccmicros(void);
-uint32_t ccmicros(void)
+uint32_t micros(void)
 {
 	uint32_t ccdelta, usec, smc, scc;
-	do {
+  do {
+    __LDREXW(&systick_safe_read);
 		smc = systick_millis_count;
 		scc = systick_cycle_count;
-	} while ( smc != systick_millis_count || scc != systick_cycle_count ); // repeat if systick_isr
+  } while ( __STREXW(1, &systick_safe_read));
 	ccdelta = ARM_DWT_CYCCNT - scc;
 	usec = 1000*smc + (ccdelta/(F_CPU_ACTUAL/1000000));
 	return usec;
 }
 
-//#if 0 // kept to compare test to cycle count micro()
+#if 0 // kept to compare test to cycle count micro()
 uint32_t micros(void)
 {
 	uint32_t msec, tick, elapsed, istatus, usec;
@@ -133,4 +135,4 @@ uint32_t micros(void)
 	prev_usec = usec;
 	return usec;
 }
-//#endif
+#endif
