@@ -5,7 +5,7 @@
 //volatile uint32_t F_BUS = 132000000;
 volatile uint32_t systick_millis_count = 0;
 volatile uint32_t systick_cycle_count = 0;
-volatile uint32_t systick_safe_read;	 // micros() synchronization
+uint32_t systick_safe_read;	 // micros() synchronization
 
 // page 411 says "24 MHz XTALOSC can be the external clock source of SYSTICK"
 // Testing shows the frequency is actually 100 kHz - but how?  Did NXP really
