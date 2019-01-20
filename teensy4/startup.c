@@ -21,6 +21,7 @@ void (* _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
 static void memory_copy(uint32_t *dest, const uint32_t *src, uint32_t *dest_end);
 static void memory_clear(uint32_t *dest, uint32_t *dest_end);
 static void configure_systick(void);
+static void reset_PFD();
 extern void systick_isr(void);
 extern void pendablesrvreq_isr(void);
 void configure_cache(void);
@@ -60,6 +61,8 @@ void ResetHandler(void)
 	for (i=0; i < NVIC_NUM_INTERRUPTS; i++) NVIC_SET_PRIORITY(i, 128);
 	SCB_VTOR = (uint32_t)_VectorsRam;
 
+	reset_PFD();
+	
 	// Configure clocks
 	// TODO: make sure all affected peripherals are turned off!
 	// PIT & GPT timers to run from 24 MHz clock (independent of CPU speed)
@@ -74,10 +77,8 @@ void ResetHandler(void)
 
 	configure_cache();
 	configure_systick();
-	usb_pll_start();
-
-	CCM_ANALOG_PFD_528_SET = (1 << 31) | (1 << 23) | (1 << 15) | (1 << 7);
-	CCM_ANALOG_PFD_528 = 0x2018101B; // PFD0:352, PFD1:594, PFD2:396, PFD3:297 MHz 
+	usb_pll_start();	
+	reset_PFD(); //TODO: is this really needed?
 	
 	set_arm_clock(600000000);
 	//set_arm_clock(984000000); Ludicrous Speed
@@ -239,6 +240,16 @@ void usb_pll_start()
 	}
 }
 
+__attribute__((section(".progmem")))
+void reset_PFD()
+{	
+	//Reset PLL2 PFDs, set default frequencies:
+	CCM_ANALOG_PFD_528_SET = (1 << 31) | (1 << 23) | (1 << 15) | (1 << 7);
+	CCM_ANALOG_PFD_528 = 0x2018101B; // PFD0:352, PFD1:594, PFD2:396, PFD3:297 MHz 	
+	//PLL3:
+	CCM_ANALOG_PFD_480_SET = (1 << 31) | (1 << 23) | (1 << 15) | (1 << 7);	
+	CCM_ANALOG_PFD_480 = 0x13110D0C; // PFD0:720, PFD1:664, PFD2:508, PFD3:454 MHz
+}
 
 // Stack frame
 //  xPSR
