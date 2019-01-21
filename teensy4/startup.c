@@ -111,6 +111,7 @@ void ResetHandler(void)
 // the ARM clock to run at different speeds.
 #define SYSTICK_EXT_FREQ 100000
 
+extern volatile uint32_t systick_cycle_count;
 static void configure_systick(void)
 {
 	_VectorsRam[14] = pendablesrvreq_isr;
@@ -121,6 +122,7 @@ static void configure_systick(void)
 	SCB_SHPR3 = 0x20000000;  // Systick = priority 32
 	ARM_DEMCR |= ARM_DEMCR_TRCENA;
 	ARM_DWT_CTRL |= ARM_DWT_CTRL_CYCCNTENA; // turn on cycle counter
+	systick_cycle_count = ARM_DWT_CYCCNT; // compiled 0, corrected w/1st systick
 }
 
 
@@ -246,6 +248,7 @@ void usb_pll_start()
 //  R2
 //  R1
 //  R0
+__attribute__((weak))
 void unused_interrupt_vector(void)
 {
 	// TODO: polling Serial to complete buffered transmits
