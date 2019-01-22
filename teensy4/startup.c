@@ -302,6 +302,8 @@ void unused_interrupt_vector(void)
 	printf(" %x\n", addr);
 #endif
 #if 1
+	if ( F_CPU_ACTUAL >= 600000000 )
+		set_arm_clock(100000000);
 	IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_03 = 5; // pin 13
 	IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_03 = IOMUXC_PAD_DSE(7);
 	GPIO2_GDIR |= (1<<3);
@@ -309,11 +311,13 @@ void unused_interrupt_vector(void)
 	while (1) {
 		volatile uint32_t n;
 		GPIO2_DR_SET = (1<<3); //digitalWrite(13, HIGH);
-		for (n=0; n < 2000000; n++) ;
+		for (n=0; n < 2000000/6; n++) ;
 		GPIO2_DR_CLEAR = (1<<3); //digitalWrite(13, LOW);
-		for (n=0; n < 1500000; n++) ;
+		for (n=0; n < 1500000/6; n++) ;
 	}
 #else
+	if ( F_CPU_ACTUAL >= 600000000 )
+		set_arm_clock(100000000);
 	while (1) {
 	}
 #endif
