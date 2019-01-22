@@ -21,6 +21,7 @@ void (* _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
 static void memory_copy(uint32_t *dest, const uint32_t *src, uint32_t *dest_end);
 static void memory_clear(uint32_t *dest, uint32_t *dest_end);
 static void configure_systick(void);
+static void reset_PFD();
 extern void systick_isr(void);
 extern void pendablesrvreq_isr(void);
 void configure_cache(void);
@@ -60,6 +61,8 @@ void ResetHandler(void)
 	for (i=0; i < NVIC_NUM_INTERRUPTS; i++) NVIC_SET_PRIORITY(i, 128);
 	SCB_VTOR = (uint32_t)_VectorsRam;
 
+	reset_PFD();
+	
 	// Configure clocks
 	// TODO: make sure all affected peripherals are turned off!
 	// PIT & GPT timers to run from 24 MHz clock (independent of CPU speed)
@@ -74,8 +77,9 @@ void ResetHandler(void)
 
 	configure_cache();
 	configure_systick();
-	usb_pll_start();
-
+	usb_pll_start();	
+	reset_PFD(); //TODO: is this really needed?
+	
 	set_arm_clock(600000000);
 	//set_arm_clock(984000000); Ludicrous Speed
 
@@ -111,6 +115,7 @@ void ResetHandler(void)
 // the ARM clock to run at different speeds.
 #define SYSTICK_EXT_FREQ 100000
 
+extern volatile uint32_t systick_cycle_count;
 static void configure_systick(void)
 {
 	_VectorsRam[14] = pendablesrvreq_isr;
@@ -121,6 +126,7 @@ static void configure_systick(void)
 	SCB_SHPR3 = 0x20000000;  // Systick = priority 32
 	ARM_DEMCR |= ARM_DEMCR_TRCENA;
 	ARM_DWT_CTRL |= ARM_DWT_CTRL_CYCCNTENA; // turn on cycle counter
+	systick_cycle_count = ARM_DWT_CYCCNT; // compiled 0, corrected w/1st systick
 }
 
 
@@ -236,6 +242,16 @@ void usb_pll_start()
 	}
 }
 
+__attribute__((section(".progmem")))
+void reset_PFD()
+{	
+	//Reset PLL2 PFDs, set default frequencies:
+	CCM_ANALOG_PFD_528_SET = (1 << 31) | (1 << 23) | (1 << 15) | (1 << 7);
+	CCM_ANALOG_PFD_528 = 0x2018101B; // PFD0:352, PFD1:594, PFD2:396, PFD3:297 MHz 	
+	//PLL3:
+	CCM_ANALOG_PFD_480_SET = (1 << 31) | (1 << 23) | (1 << 15) | (1 << 7);	
+	CCM_ANALOG_PFD_480 = 0x13110D0C; // PFD0:720, PFD1:664, PFD2:508, PFD3:454 MHz
+}
 
 // Stack frame
 //  xPSR
@@ -246,6 +262,7 @@ void usb_pll_start()
 //  R2
 //  R1
 //  R0
+__attribute__((weak))
 void unused_interrupt_vector(void)
 {
 	// TODO: polling Serial to complete buffered transmits
@@ -285,6 +302,8 @@ void unused_interrupt_vector(void)
 	printf(" %x\n", addr);
 #endif
 #if 1
+	if ( F_CPU_ACTUAL >= 600000000 )
+		set_arm_clock(100000000);
 	IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_03 = 5; // pin 13
 	IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_03 = IOMUXC_PAD_DSE(7);
 	GPIO2_GDIR |= (1<<3);
@@ -292,11 +311,13 @@ void unused_interrupt_vector(void)
 	while (1) {
 		volatile uint32_t n;
 		GPIO2_DR_SET = (1<<3); //digitalWrite(13, HIGH);
-		for (n=0; n < 2000000; n++) ;
+		for (n=0; n < 2000000/6; n++) ;
 		GPIO2_DR_CLEAR = (1<<3); //digitalWrite(13, LOW);
-		for (n=0; n < 1500000; n++) ;
+		for (n=0; n < 1500000/6; n++) ;
 	}
 #else
+	if ( F_CPU_ACTUAL >= 600000000 )
+		set_arm_clock(100000000);
 	while (1) {
 	}
 #endif

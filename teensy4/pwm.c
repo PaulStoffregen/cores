@@ -162,7 +162,7 @@ void analogWrite(uint8_t pin, int val)
 		  case 0: flexpwm = &IMXRT_FLEXPWM1; break;
 		  case 1: flexpwm = &IMXRT_FLEXPWM2; break;
 		  case 2: flexpwm = &IMXRT_FLEXPWM3; break;
-		  case 3: flexpwm = &IMXRT_FLEXPWM4;
+		  default: flexpwm = &IMXRT_FLEXPWM4;
 		}
 		flexpwmWrite(flexpwm, info->module & 0x03, info->channel, val);
 	} else if (info->type == 2) {
@@ -172,7 +172,7 @@ void analogWrite(uint8_t pin, int val)
 		  case 0: qtimer = &IMXRT_TMR1; break;
 		  case 1: qtimer = &IMXRT_TMR2; break;
 		  case 2: qtimer = &IMXRT_TMR3; break;
-		  case 3: qtimer = &IMXRT_TMR4;
+		  default: qtimer = &IMXRT_TMR4;
 		}
 		quadtimerWrite(qtimer, info->module & 0x03, val);
 	} else {
@@ -196,7 +196,7 @@ void analogWriteFrequency(uint8_t pin, float frequency)
 		  case 0: flexpwm = &IMXRT_FLEXPWM1; break;
 		  case 1: flexpwm = &IMXRT_FLEXPWM2; break;
 		  case 2: flexpwm = &IMXRT_FLEXPWM3; break;
-		  case 3: flexpwm = &IMXRT_FLEXPWM4;
+		  default: flexpwm = &IMXRT_FLEXPWM4;
 		}
 		flexpwmFrequency(flexpwm, info->module & 0x03, info->channel, frequency);
 	} else if (info->type == 2) {
@@ -206,7 +206,7 @@ void analogWriteFrequency(uint8_t pin, float frequency)
 		  case 0: qtimer = &IMXRT_TMR1; break;
 		  case 1: qtimer = &IMXRT_TMR2; break;
 		  case 2: qtimer = &IMXRT_TMR3; break;
-		  case 3: qtimer = &IMXRT_TMR4;
+		  default: qtimer = &IMXRT_TMR4;
 		}
 		quadtimerFrequency(qtimer, info->module & 0x03, frequency);
 	}
