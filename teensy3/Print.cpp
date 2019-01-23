@@ -39,6 +39,7 @@
 
 size_t Print::write(const uint8_t *buffer, size_t size)
 {
+	if (buffer == nullptr) return 0;
 	size_t count = 0;
 	while (size--) count += write(*buffer++);
 	return count;
