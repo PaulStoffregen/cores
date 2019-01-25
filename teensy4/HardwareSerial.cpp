@@ -236,8 +236,14 @@ void HardwareSerial::setRX(uint8_t pin)
 
 void HardwareSerial::setTX(uint8_t pin, bool opendrain)
 {
-	// Currently none of these have multiple 
-	// possible TX pins
+	// While all of our TX pins only have one defined pin, we can choose to 
+	// turn on or off opendrain mode.
+	if (pin == hardware->tx_pin) {
+		if (opendrain) 
+			*(portControlRegister(hardware->tx_pin)) = IOMUXC_PAD_ODE | IOMUXC_PAD_DSE(3) | IOMUXC_PAD_SPEED(3);
+		else 	
+			*(portControlRegister(hardware->tx_pin)) = IOMUXC_PAD_SRE | IOMUXC_PAD_DSE(3) | IOMUXC_PAD_SPEED(3);
+	}
 }
 
 
