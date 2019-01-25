@@ -123,7 +123,7 @@ static void configure_systick(void)
 	SYST_RVR = (SYSTICK_EXT_FREQ / 1000) - 1;
 	SYST_CVR = 0;
 	SYST_CSR = SYST_CSR_TICKINT | SYST_CSR_ENABLE;
-	SCB_SHPR3 = 0x20000000;  // Systick = priority 32
+	SCB_SHPR3 = 0x20200000;  // Systick, pendablesrvreq_isr = priority 32;
 	ARM_DEMCR |= ARM_DEMCR_TRCENA;
 	ARM_DWT_CTRL |= ARM_DWT_CTRL_CYCCNTENA; // turn on cycle counter
 	systick_cycle_count = ARM_DWT_CYCCNT; // compiled 0, corrected w/1st systick
