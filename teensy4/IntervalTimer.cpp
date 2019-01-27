@@ -31,11 +31,10 @@
 #include "IntervalTimer.h"
 #include "debug/printf.h"
 
-static void dummy_funct(void);
 static void pit_isr(void);
 
 #define NUM_CHANNELS 4
-static void (*funct_table[4])(void) __attribute((aligned(32))) = {dummy_funct, dummy_funct, dummy_funct, dummy_funct};
+static void (*funct_table[4])(void) __attribute((aligned(32))) = {nullptr, nullptr, nullptr, nullptr};
 uint8_t IntervalTimer::nvic_priorites[4] = {255, 255, 255, 255};
 
 
@@ -79,7 +78,7 @@ void IntervalTimer::end() {
 	if (channel) {
 		int index = channel - IMXRT_PIT_CHANNELS;
 		// TODO: disable IRQ_PIT, but only if all instances ended
-		funct_table[index] = dummy_funct;
+		funct_table[index] = nullptr;
 		channel->TCTRL = 0;
 		nvic_priorites[index] = 255;
 		uint8_t top_priority = 255;
@@ -95,16 +94,23 @@ void IntervalTimer::end() {
 //FASTRUN
 static void pit_isr()
 {
+#if 0
 	for (int i=0; i < NUM_CHANNELS; i++) {
 		IMXRT_PIT_CHANNEL_t *channel = IMXRT_PIT_CHANNELS + i;
-		if (channel->TFLG) {
+		if (funct_table[0] && channel->TFLG) {
 			channel->TFLG = 1;
 			funct_table[i]();
+
 		}
 	}
+#else
+	IMXRT_PIT_CHANNEL_t *channel= IMXRT_PIT_CHANNELS;
+	if (funct_table[0] != nullptr && channel->TFLG) {channel->TFLG = 1;funct_table[0]();}
+	channel++;
+	if (funct_table[1] != nullptr && channel->TFLG) {channel->TFLG = 1;funct_table[1]();}
+	channel++;
+	if (funct_table[2] != nullptr && channel->TFLG) {channel->TFLG = 1;funct_table[2]();}
+	channel++;
+	if (funct_table[3] != nullptr && channel->TFLG) {channel->TFLG = 1;funct_table[3]();}
+#endif
 }
-
-static void dummy_funct(void)
-{
-}
-
