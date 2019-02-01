@@ -190,7 +190,7 @@ public:
 					  serial_format(format); }
 	*/
 
-	operator bool()			{ return true; }
+	constexpr explicit operator bool()			{ return true; }
 private:
 	IMXRT_LPUART_t * const port;
 	const hardware_t * const hardware;
