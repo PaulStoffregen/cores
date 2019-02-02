@@ -1472,6 +1472,8 @@ typedef struct {
 
 #define CCM_ANALOG_PLL_AUDIO_NUM_MASK		(((1<<29)-1))
 #define CCM_ANALOG_PLL_AUDIO_DENOM_MASK		(((1<<29)-1))
+#define CCM_ANALOG_PLL_AUDIO_LOCK		((uint32_t)(1<<31))
+
 
 // 19.7: page 810
 #define IMXRT_CSI		(*(IMXRT_REGISTER32_t *)0x402BC000)
@@ -6582,13 +6584,16 @@ typedef struct {
 #define I2S_RCR2_SYNC(n)		((uint32_t)(n & 3)<<30)	// 0=async 1=sync with trasmitter
 #define I2S_RCR3_RCE			((uint32_t)0x10000)	// receive channel enable
 #define I2S_RCR4_FSD			((uint32_t)1)		// Frame Sync Direction
+#define I2S_RCR4_FSP			((uint32_t)1<<1)
 #define I2S_RCR4_FSE			((uint32_t)8)		// Frame Sync Early
 #define I2S_RCR4_MF			((uint32_t)0x10)	// MSB First
 #define I2S_RCR4_SYWD(n)		((uint32_t)(n & 0x1f)<<8)	// Sync Width
 #define I2S_RCR4_FRSZ(n)		((uint32_t)(n & 0x0f)<<16)	// Frame Size
+#define I2S_RCR4_FCONT			((uint32_t)1<<28)	// FIFO Continue on Error
 #define I2S_RCR5_FBT(n)			((uint32_t)(n & 0x1f)<<8)	// First Bit Shifted
 #define I2S_RCR5_W0W(n)			((uint32_t)(n & 0x1f)<<16)	// Word 0 Width
 #define I2S_RCR5_WNW(n)			((uint32_t)(n & 0x1f)<<24)	// Word N Width
+#define I2S_RCR2_BCP			((uint32_t)1<<25)
 #define I2S_RCSR_RE			((uint32_t)0x80000000)	// Receiver Enable
 #define I2S_RCSR_FR			((uint32_t)0x02000000)	// FIFO Reset
 #define I2S_RCSR_FRDE			((uint32_t)0x00000001)	// FIFO Request DMA Enable
@@ -6600,17 +6605,24 @@ typedef struct {
 #define I2S_TCR2_SYNC(n)		((uint32_t)(n & 3)<<30)	// 0=async 1=sync with receiver
 #define I2S_TCR3_TCE			((uint32_t)0x10000)	// receive channel enable
 #define I2S_TCR4_FSD			((uint32_t)1)		// Frame Sync Direction
+#define I2S_TCR4_FSP			((uint32_t)1<<1)
 #define I2S_TCR4_FSE			((uint32_t)8)		// Frame Sync Early
 #define I2S_TCR4_MF			((uint32_t)0x10)	// MSB First
 #define I2S_TCR4_SYWD(n)		((uint32_t)(n & 0x1f)<<8)	// Sync Width
 #define I2S_TCR4_FRSZ(n)		((uint32_t)(n & 0x0f)<<16)	// Frame Size
+#define I2S_TCR4_FCONT			((uint32_t)1<<28)	// FIFO Continue on Error
 #define I2S_TCR5_FBT(n)			((uint32_t)(n & 0x1f)<<8) 	// First Bit Shifted
 #define I2S_TCR5_W0W(n)			((uint32_t)(n & 0x1f)<<16)	// Word 0 Width
 #define I2S_TCR5_WNW(n)			((uint32_t)(n & 0x1f)<<24)	// Word N Width
+#define I2S_TCR2_BCP			((uint32_t)1<<25)
 #define I2S_TCSR_TE			((uint32_t)0x80000000)		// Receiver Enable
 #define I2S_TCSR_BCE			((uint32_t)0x10000000)	// Bit Clock Enable
 #define I2S_TCSR_FR			((uint32_t)0x02000000)	// FIFO Reset
 #define I2S_TCSR_FRDE			((uint32_t)0x00000001)	// FIFO Request DMA Enable
+
+
+
+
 
 // 49.3.1.1: page 2784
 #define IMXRT_SEMC		(*(IMXRT_REGISTER32_t *)0x402F0000)
