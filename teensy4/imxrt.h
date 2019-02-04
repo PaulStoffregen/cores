@@ -7055,6 +7055,10 @@ These register are used by the ROM code and should not be used by application so
 #define USB_ENDPTCTRL_RXT(n)			((uint32_t)(((n) & 0x03) << 2))
 #define USB_ENDPTCTRL_RXD			((uint32_t)(1<<0))
 #define USB_ENDPTCTRL_RXS			((uint32_t)(1<<1))
+#define USB_GPTIMERCTRL_GPTRUN			((uint32_t)(1<<31))
+#define USB_GPTIMERCTRL_GPTRST			((uint32_t)(1<<30))
+#define USB_GPTIMERCTRL_GPTMODE			((uint32_t)(1<<24))
+#define USB_GPTIMERCTRL_GPTCNT(n)		((uint32_t)(((n) & 0xFFFFFF) << 0))
 
 // 56.3: page 3283
 #define IMXRT_USBPHY1		(*(IMXRT_REGISTER32_t *)0x400D9000)
