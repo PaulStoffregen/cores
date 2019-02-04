@@ -66,7 +66,6 @@ typedef struct audio_block_struct {
 	uint8_t  reserved1;
 	uint16_t memory_pool_index;
 	int16_t  data[AUDIO_BLOCK_SAMPLES];
-	int16_t x;/////////////////////////////
 } audio_block_t;
 
 
