@@ -6927,7 +6927,7 @@ These register are used by the ROM code and should not be used by application so
 #define USB1_ENDPTCTRL5			(IMXRT_USB1.offset1D4)
 #define USB1_ENDPTCTRL6			(IMXRT_USB1.offset1D8)
 #define USB1_ENDPTCTRL7			(IMXRT_USB1.offset1DC)
-#define IMXRT_USB2		(*(IMXRT_REGISTER32_t *)0x402DC000)
+#define IMXRT_USB2		(*(IMXRT_REGISTER32_t *)0x402E0200)
 #define USB2_ID				(IMXRT_USB2.offset000)
 #define USB2_HWGENERAL			(IMXRT_USB2.offset004)
 #define USB2_HWHOST			(IMXRT_USB2.offset008)
