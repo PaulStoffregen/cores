@@ -91,7 +91,7 @@ bool  Stream::findUntil(const char *target, const char *terminator)
 {
   if(target == nullptr) return true;
   size_t tlen = (terminator==nullptr)?0:strlen(terminator);
-  return findUntil(target, strlen(target), terminator, strlen(terminator));
+  return findUntil(target, strlen(target), terminator, tlen);
 }
 
 // reads data from the stream until the target string of the given length is found
