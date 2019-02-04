@@ -123,7 +123,7 @@ static void configure_systick(void)
 	SYST_RVR = (SYSTICK_EXT_FREQ / 1000) - 1;
 	SYST_CVR = 0;
 	SYST_CSR = SYST_CSR_TICKINT | SYST_CSR_ENABLE;
-	SCB_SHPR3 = 0x20000000;  // Systick = priority 32
+	SCB_SHPR3 = 0x20200000;  // Systick, pendablesrvreq_isr = priority 32;
 	ARM_DEMCR |= ARM_DEMCR_TRCENA;
 	ARM_DWT_CTRL |= ARM_DWT_CTRL_CYCCNTENA; // turn on cycle counter
 	systick_cycle_count = ARM_DWT_CYCCNT; // compiled 0, corrected w/1st systick
@@ -262,8 +262,128 @@ void reset_PFD()
 //  R2
 //  R1
 //  R0
-__attribute__((weak))
+// Code from :: https://community.nxp.com/thread/389002
+__attribute__((naked))
 void unused_interrupt_vector(void)
+{
+  __asm( ".syntax unified\n"
+         "MOVS R0, #4 \n"
+         "MOV R1, LR \n"
+         "TST R0, R1 \n"
+         "BEQ _MSP \n"
+         "MRS R0, PSP \n"
+         "B HardFault_HandlerC \n"
+         "_MSP: \n"
+         "MRS R0, MSP \n"
+         "B HardFault_HandlerC \n"
+         ".syntax divided\n") ;
+}
+
+__attribute__((weak))
+void HardFault_HandlerC(unsigned int *hardfault_args) {
+  volatile unsigned int stacked_r0 ;
+  volatile unsigned int stacked_r1 ;
+  volatile unsigned int stacked_r2 ;
+  volatile unsigned int stacked_r3 ;
+  volatile unsigned int stacked_r12 ;
+  volatile unsigned int stacked_lr ;
+  volatile unsigned int stacked_pc ;
+  volatile unsigned int stacked_psr ;
+  volatile unsigned int _CFSR ;
+  volatile unsigned int _HFSR ;
+  volatile unsigned int _DFSR ;
+  volatile unsigned int _AFSR ;
+  volatile unsigned int _BFAR ;
+  volatile unsigned int _MMAR ;
+  volatile unsigned int addr ;
+  volatile unsigned int nn ;
+
+  stacked_r0 = ((unsigned int)hardfault_args[0]) ;
+  stacked_r1 = ((unsigned int)hardfault_args[1]) ;
+  stacked_r2 = ((unsigned int)hardfault_args[2]) ;
+  stacked_r3 = ((unsigned int)hardfault_args[3]) ;
+  stacked_r12 = ((unsigned int)hardfault_args[4]) ;
+  stacked_lr = ((unsigned int)hardfault_args[5]) ;
+  stacked_pc = ((unsigned int)hardfault_args[6]) ;
+  stacked_psr = ((unsigned int)hardfault_args[7]) ;
+  // Configurable Fault Status Register
+  // Consists of MMSR, BFSR and UFSR
+  _CFSR = (*((volatile unsigned int *)(0xE000ED28))) ;
+  // Hard Fault Status Register
+  _HFSR = (*((volatile unsigned int *)(0xE000ED2C))) ;
+  // Debug Fault Status Register
+  _DFSR = (*((volatile unsigned int *)(0xE000ED30))) ;
+  // Auxiliary Fault Status Register
+  _AFSR = (*((volatile unsigned int *)(0xE000ED3C))) ;
+  // Read the Fault Address Registers. These may not contain valid values.
+  // Check BFARVALID/MMARVALID to see if they are valid values
+  // MemManage Fault Address Register
+  _MMAR = (*((volatile unsigned int *)(0xE000ED34))) ;
+  // Bus Fault Address Register
+  _BFAR = (*((volatile unsigned int *)(0xE000ED38))) ;
+  //__asm("BKPT #0\n") ; // Break into the debugger // NO Debugger here.
+
+  asm volatile("mrs %0, ipsr\n" : "=r" (addr)::);
+  printf_debug("\nFault irq %d\n", addr & 0x1FF);
+  printf_debug(" stacked_r0 ::  %x\n", stacked_r0);
+  printf_debug(" stacked_r1 ::  %x\n", stacked_r1);
+  printf_debug(" stacked_r2 ::  %x\n", stacked_r2);
+  printf_debug(" stacked_r3 ::  %x\n", stacked_r3);
+  printf_debug(" stacked_r12 ::  %x\n", stacked_r12);
+  printf_debug(" stacked_lr ::  %x\n", stacked_lr);
+  printf_debug(" stacked_pc ::  %x\n", stacked_pc);
+  printf_debug(" stacked_psr ::  %x\n", stacked_psr);
+  printf_debug(" _CFSR ::  %x\n", _CFSR);
+  printf_debug(" _HFSR ::  %x\n", _HFSR);
+  printf_debug(" _DFSR ::  %x\n", _DFSR);
+  printf_debug(" _AFSR ::  %x\n", _AFSR);
+  printf_debug(" _BFAR ::  %x\n", _BFAR);
+  printf_debug(" _MMAR ::  %x\n", _MMAR);
+
+  IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_03 = 5; // pin 13
+  IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_03 = IOMUXC_PAD_DSE(7);
+  GPIO2_GDIR |= (1 << 3);
+  GPIO2_DR_SET = (1 << 3);
+  GPIO2_DR_CLEAR = (1 << 3); //digitalWrite(13, LOW);
+
+  if ( F_CPU_ACTUAL >= 600000000 )
+    set_arm_clock(300000000);
+
+  while (1)
+  {
+    GPIO2_DR_SET = (1 << 3); //digitalWrite(13, HIGH);
+    // digitalWrite(13, HIGH);
+    for (nn = 0; nn < 2000000; nn++) ;
+    GPIO2_DR_CLEAR = (1 << 3); //digitalWrite(13, LOW);
+    // digitalWrite(13, LOW);
+    for (nn = 0; nn < 18000000; nn++) ;
+  }
+}
+
+__attribute__((weak))
+void userDebugDump(){
+	volatile unsigned int nn;
+	printf_debug("\nuserDebugDump() in startup.c ___ \n");
+
+  while (1)
+  {
+    GPIO2_DR_SET = (1 << 3); //digitalWrite(13, HIGH);
+    // digitalWrite(13, HIGH);
+    for (nn = 0; nn < 2000000; nn++) ;
+    GPIO2_DR_CLEAR = (1 << 3); //digitalWrite(13, LOW);
+	// digitalWrite(13, LOW);
+    for (nn = 0; nn < 18000000; nn++) ;
+    GPIO2_DR_SET = (1 << 3); //digitalWrite(13, HIGH);
+    // digitalWrite(13, HIGH);
+    for (nn = 0; nn < 20000000; nn++) ;
+    GPIO2_DR_CLEAR = (1 << 3); //digitalWrite(13, LOW);
+	// digitalWrite(13, LOW);
+    for (nn = 0; nn < 10000000; nn++) ;
+  }
+}
+
+__attribute__((weak))
+void PJRCunused_interrupt_vector(void)
 {
 	// TODO: polling Serial to complete buffered transmits
 #ifdef PRINT_DEBUG_STUFF
@@ -428,4 +548,3 @@ void abort(void)
 {
 	while (1) ;
 }
-
