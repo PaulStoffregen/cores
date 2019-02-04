@@ -52,7 +52,7 @@
 #endif
 
 #ifndef AUDIO_SAMPLE_RATE_EXACT
-#define AUDIO_SAMPLE_RATE_EXACT 44100.0f
+#define AUDIO_SAMPLE_RATE_EXACT 44100
 #endif
 
 #define AUDIO_SAMPLE_RATE AUDIO_SAMPLE_RATE_EXACT
@@ -159,7 +159,7 @@ protected:
 	audio_block_t * receiveWritable(unsigned int index = 0);
 	static bool update_setup(void);
 	static void update_stop(void);
-	static void update_all(void) { NVIC_SET_PENDING(IRQ_SOFTWARE); }
+	static void update_all(void) {NVIC_SET_PENDING(IRQ_SOFTWARE);/* NVIC_TRIGGER_IRQ(IRQ_SOFTWARE);*/}
 	friend void software_isr(void);
 	friend class AudioConnection;
 	uint8_t numConnections;

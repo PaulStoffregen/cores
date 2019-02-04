@@ -32,11 +32,7 @@
 #include <Arduino.h>
 #include "AudioStream.h"
 
-#if defined(__IMXRT1052__)
-  #define MAX_AUDIO_MEMORY 229376
-#elif defined(__IMXRT1062__)
-  #define MAX_AUDIO_MEMORY 229376
-#endif
+#define MAX_AUDIO_MEMORY 229376
 
 #define NUM_MASKS  (((MAX_AUDIO_MEMORY / AUDIO_BLOCK_SAMPLES / 2) + 31) / 32)
 
@@ -196,9 +192,9 @@ audio_block_t * AudioStream::receiveWritable(unsigned int index)
 void AudioConnection::connect(void)
 {
 	AudioConnection *p;
-
 	if (isConnected) return;
 	if (dest_index > dst.num_inputs) return;
+
 	__disable_irq();
 	p = src.destination_list;
 	if (p == NULL) {
@@ -316,7 +312,6 @@ void software_isr(void) // AudioStream::update_all()
 	AudioStream *p;
 
 	uint32_t totalcycles = ARM_DWT_CYCCNT;
-	//digitalWriteFast(2, HIGH);
 	for (p = AudioStream::first_update; p; p = p->next_update) {
 		if (p->active) {
 			uint32_t cycles = ARM_DWT_CYCCNT;
@@ -328,12 +323,10 @@ void software_isr(void) // AudioStream::update_all()
 			if (cycles > p->cpu_cycles_max) p->cpu_cycles_max = cycles;
 		}
 	}
-	//digitalWriteFast(2, LOW);
+
 	totalcycles = (ARM_DWT_CYCCNT - totalcycles) >> 4;;
 	AudioStream::cpu_cycles_total = totalcycles;
 	if (totalcycles > AudioStream::cpu_cycles_total_max)
 		AudioStream::cpu_cycles_total_max = totalcycles;
-
-	asm("DSB");
 }
 
