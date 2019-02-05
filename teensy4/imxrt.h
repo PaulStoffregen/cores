@@ -2791,6 +2791,51 @@ typedef struct {
 #define FLEXCAN2_GFWR			(IMXRT_FLEXCAN2_MASK.offset1E0)
 
 // 27.3.1.1: page 1292
+typedef struct {
+        const   uint32_t VERID;                         // 0x00 (IMXRT_FLEXIO1.offset000)
+        volatile uint32_t PARAM;                        // 0x04 // (IMXRT_FLEXIO1.offset004)
+        volatile uint32_t CTRL;                         // 0x08(IMXRT_FLEXIO1.offset008)
+        volatile uint32_t PIN;                          // 0x0c (IMXRT_FLEXIO1.offset00C)
+        volatile uint32_t SHIFTSTAT;            // 0x10 (IMXRT_FLEXIO1.offset010)
+        volatile uint32_t SHIFTERR;                     // 0x14(IMXRT_FLEXIO1.offset014)
+        volatile uint32_t TIMSTAT;                      // 0x18 (IMXRT_FLEXIO1.offset018)
+        const   uint32_t UNUSED0;                       // 0x1c
+        volatile uint32_t SHIFTSIEN;            // 0x20 (IMXRT_FLEXIO1.offset020)
+        volatile uint32_t SHIFTEIEN;            // 0x24 (IMXRT_FLEXIO1.offset024)
+        volatile uint32_t TIMIEN;                       // 0x28 (IMXRT_FLEXIO1.offset028)
+        const   uint32_t UNUSED1;                       // 0x2c
+        volatile uint32_t SHIFTSDEN;            // 0x30 (IMXRT_FLEXIO1.offset030)
+        const   uint32_t UNUSED2[3];            // 0x34 38 3C
+        volatile uint32_t SHIFTSTATE;           // 0x40 (IMXRT_FLEXIO1.offset040)
+        const   uint32_t UNUSED3[15];           // 0x44..  50... 60... 70...
+        volatile uint32_t SHIFTCTL[4];          // 0x80 84 88 8C
+        const   uint32_t UNUSED4[28];           // 0x90 - 0xfc
+        volatile uint32_t SHIFTCFG[4];          // 0x100 104 108 10C (IMXRT_FLEXIO1.offset100)
+        const   uint32_t UNUSED5[60];           // 0x110 - 0x1FC
+        volatile uint32_t SHIFTBUF[4];          // 0x200 204 208 20c (IMXRT_FLEXIO1.offset200)
+        const   uint32_t UNUSED6[28];           // 
+        volatile uint32_t SHIFTBUFBIS[4];       // 0x280        // (IMXRT_FLEXIO1.offset280)
+        const   uint32_t UNUSED7[28];           // 
+        volatile uint32_t SHIFTBUFBYS[4];       // 0x300 (IMXRT_FLEXIO1.offset300)
+        const   uint32_t UNUSED8[28];           // 
+        volatile uint32_t SHIFTBUFBBS[4];       // 0x380 (IMXRT_FLEXIO1.offset380)
+        const   uint32_t UNUSED9[28];           // 
+        volatile uint32_t TIMCTL[4];            // 0x400 
+        const   uint32_t UNUSED10[28];          // 
+        volatile uint32_t TIMCFG[4];            // 0x480
+        const   uint32_t UNUSED11[28];          // 
+        volatile uint32_t TIMCMP[4];            // 0x500
+        const   uint32_t UNUSED12[28+64];       // 
+        volatile uint32_t SHIFTBUFNBS[4];       // 0x680
+        const   uint32_t UNUSED13[28];          // 
+        volatile uint32_t SHIFTBUFHWS[4];       // 0x700
+        const   uint32_t UNUSED14[28];          // 
+        volatile uint32_t SHIFTBUFNIS[4];       // 0x780
+} IMXRT_FLEXIO_t;
+
+#define IMXRT_FLEXIO1_S         (*(IMXRT_FLEXIO_t *)0x401AC000)
+#define IMXRT_FLEXIO2_S         (*(IMXRT_FLEXIO_t *)0x401B0000)
+
 #define IMXRT_FLEXIO1		(*(IMXRT_REGISTER32_t *)0x401AC000)
 #define IMXRT_FLEXIO1_b		(*(IMXRT_REGISTER32_t *)0x401AC400)
 #define FLEXIO1_VERID			(IMXRT_FLEXIO1.offset000)
