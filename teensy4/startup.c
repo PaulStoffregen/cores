@@ -353,10 +353,10 @@ void HardFault_HandlerC(unsigned int *hardfault_args) {
   {
     GPIO2_DR_SET = (1 << 3); //digitalWrite(13, HIGH);
     // digitalWrite(13, HIGH);
-    for (nn = 0; nn < 2000000; nn++) ;
+    for (nn = 0; nn < 2000000/2; nn++) ;
     GPIO2_DR_CLEAR = (1 << 3); //digitalWrite(13, LOW);
     // digitalWrite(13, LOW);
-    for (nn = 0; nn < 18000000; nn++) ;
+    for (nn = 0; nn < 18000000/2; nn++) ;
   }
 }
 
