@@ -25,7 +25,14 @@
 
 #include <inttypes.h>
 
-#define PROGMEM __attribute__((section(".progmem")))
+#define _STRINGIFY(a) #a
+#define ___in_section(a, b) __attribute__((section( "." _STRINGIFY(a) _STRINGIFY(b) )))
+#define __in_section(a, b) ___in_section(a, b)
+#define __in_section_unique(seg) ___in_section(seg, __COUNTER__)
+
+#define PROGMEM __in_section_unique(progmem)
+//#define PROGMEM __attribute__((section(".progmem")))
+
 #define PGM_P  const char *
 #define PSTR(str) ({static const char data[] PROGMEM = (str); &data[0];})
 
