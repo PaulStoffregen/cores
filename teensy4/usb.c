@@ -83,7 +83,7 @@ static void endpoint0_complete(void);
 
 
 
-
+__attribute__((section(".progmem")))
 void usb_init(void)
 {
 	// TODO: only enable when VBUS detected
