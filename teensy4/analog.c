@@ -115,6 +115,7 @@ void analogReadAveraging(unsigned int num)
 
 #define MAX_ADC_CLOCK 20000000
 
+__attribute__((section(".progmem")))
 void analog_init(void)
 {
 	uint32_t mode, avg=0;

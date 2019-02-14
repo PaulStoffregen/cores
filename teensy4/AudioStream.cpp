@@ -54,6 +54,7 @@ void software_isr(void);
 
 // Set up the pool of audio data blocks
 // placing them all onto the free list
+__attribute__((section(".progmem")))
 void AudioStream::initialize_memory(audio_block_t *data, unsigned int num)
 {
 	unsigned int i;
