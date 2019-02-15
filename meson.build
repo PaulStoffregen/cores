@@ -172,8 +172,8 @@ teensy_core_dep = declare_dependency(
     include_directories: include_directories(teensy_core_incdir),
 )
 
-ldscript = ['-T' + join_paths(meson.current_source_dir(), teensy_core,
-                              meson.get_cross_property('teensy_mcu') + '.ld')]
+ldscript = join_paths(meson.current_source_dir(), teensy_core,
+                      meson.get_cross_property('teensy_mcu') + '.ld')
 
 
 ### Teensy USB RawHID ###
