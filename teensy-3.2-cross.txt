@@ -1,0 +1,72 @@
+[binaries]
+c = 'arm-none-eabi-gcc'
+cpp = 'arm-none-eabi-g++'
+ar = 'arm-none-eabi-ar'
+strip = 'arm-none-eabi-strip'
+objcopy = 'arm-none-eabi-objcopy'
+
+[host_machine]
+system = 'bare-metal'
+cpu_family = 'arm'
+cpu = 'cortex-m4'
+endian = 'little'
+
+[properties]
+
+teensy_core = 'teensy3'
+teensy_mcu = 'mk20dx256'
+
+c_args = [
+    '-DF_CPU=72000000',
+    '-DUSB_SERIAL',
+    '-DLAYOUT_US_ENGLISH',
+    '-mthumb',
+    '-ffunction-sections',
+    '-fdata-sections',
+    '-nostdlib',
+    '-DTEENSYDUINO=138',
+    '-D__MK20DX256__',
+    '-DARDUINO=10804',
+    '-mcpu=cortex-m4',
+    '-mfloat-abi=hard',
+    '-mfpu=fpv4-sp-d16'
+    ]
+
+cpp_args = [
+    '-DF_CPU=72000000',
+    '-DUSB_SERIAL',
+    '-DLAYOUT_US_ENGLISH',
+    '-mthumb',
+    '-ffunction-sections',
+    '-fdata-sections',
+    '-nostdlib',
+    '-DTEENSYDUINO=138',
+    '-D__MK20DX256__',
+    '-DARDUINO=10804',
+    '-mcpu=cortex-m4',
+    '-mfloat-abi=hard',
+    '-mfpu=fpv4-sp-d16',
+    '-std=gnu++11',
+    '-felide-constructors',
+    '-fno-exceptions',
+    '-fno-rtti'
+    ]
+
+c_link_args = [
+    '-Os',
+    '-Wl,--gc-sections',
+    '-mthumb',
+    '-mcpu=cortex-m4',
+    '-mfloat-abi=hard',
+    '-mfpu=fpv4-sp-d16'
+    ]
+
+cpp_link_args = [
+    '-Os',
+    '-Wl,--gc-sections',
+    '-mthumb',
+    '-mcpu=cortex-m4',
+    '-mfloat-abi=hard',
+    '-mfpu=fpv4-sp-d16',
+    ]
+
