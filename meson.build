@@ -178,21 +178,21 @@ ldscript = ['-T' + join_paths(meson.current_source_dir(), teensy_core,
 
 ### Teensy USB RawHID ###
 
-teensy_usb_rawhid_incdir = teensy_core_incdir
+#teensy_usb_rawhid_incdir = teensy_core_incdir
 #teensy_usb_rawhid_incdir += teensy2_core_incdir
-teensy_usb_rawhid_incdir += 'usb_rawhid'
+#teensy_usb_rawhid_incdir += 'usb_rawhid'
 
-teensy_usb_rawhid_src = [
-    'usb_rawhid/usb.c',
-    'usb_rawhid/usb_api.cpp',
-]
+#teensy_usb_rawhid_src = [
+#    'usb_rawhid/usb.c',
+#    'usb_rawhid/usb_api.cpp',
+#]
 
-teensy_usb_rawhid_lib = static_library('teensy-usb-rawid', teensy_usb_rawhid_src,
-                                        include_directories: include_directories(teensy_usb_rawhid_incdir),
-                                        dependencies: teensy_core_dep
-)
+#teensy_usb_rawhid_lib = static_library('teensy-usb-rawid', teensy_usb_rawhid_src,
+#                                        include_directories: include_directories(teensy_usb_rawhid_incdir),
+#                                        dependencies: teensy_core_dep
+#)
 
-teensy_usb_rawhid_dep = declare_dependency(
-    link_with: teensy_usb_rawhid_lib,
-    include_directories: include_directories(teensy_usb_rawhid_incdir),
-)
+#teensy_usb_rawhid_dep = declare_dependency(
+#    link_with: teensy_usb_rawhid_lib,
+#    include_directories: include_directories(teensy_usb_rawhid_incdir),
+#)
