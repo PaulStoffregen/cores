@@ -115,13 +115,20 @@ void analogReadAveraging(unsigned int num)
 
 #define MAX_ADC_CLOCK 20000000
 
-__attribute__((section(".progmem")))
 void analog_init(void)
 {
 	uint32_t mode, avg=0;
+	const struct digital_pin_bitband_and_config_table_struct *p;
 
 	printf("analogInit\n");
-
+	
+	//Initialize analog pad configs, keeper disabled
+	for(uint8_t i = 14; i < 24; i++){
+	  p = digital_pin_to_info_PGM + i;
+	  *(p->pad) &=  ~IOMUXC_PAD_PKE;
+	}
+	
+	
 	CCM_CCGR1 |= CCM_CCGR1_ADC1(CCM_CCGR_ON);
 
 	if (analog_config_bits == 8) {
