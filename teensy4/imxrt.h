@@ -6754,7 +6754,7 @@ typedef struct {
 #define SNVS_HPVIDR2			(IMXRT_SNVS_b.offset3FC)
 
 // 51.5: page 2938
-#define IMXRT_SPDIF		(*(IMXRT_REGISTER32_t *)0x400D4000)
+#define IMXRT_SPDIF		(*(IMXRT_REGISTER32_t *)0x40380000)
 #define SPDIF_SCR			(IMXRT_SPDIF.offset000)
 #define SPDIF_SRCD			(IMXRT_SPDIF.offset004)
 #define SPDIF_SRPC			(IMXRT_SPDIF.offset008)
