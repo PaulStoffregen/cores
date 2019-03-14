@@ -745,8 +745,10 @@ void ResetHandler(void)
 	UART0_C2 = UART_C2_TE;
 	PORTB_PCR17 = PORT_PCR_MUX(3);
 #endif
-#ifdef KINETISK
-	// if the RTC oscillator isn't enabled, get it started early
+#if defined(KINETISK) && !defined(__MK66FX1M0__)
+	// If the RTC oscillator isn't enabled, get it started early.
+	// But don't do this early on Teensy 3.6 - RTC_CR depends on 3.3V+VBAT
+	// which may be ~0.4V "behind" 3.3V if the power ramps up slowly.
 	if (!(RTC_CR & RTC_CR_OSCE)) {
 		RTC_SR = 0;
 		RTC_CR = RTC_CR_SC16P | RTC_CR_SC4P | RTC_CR_OSCE;
@@ -1098,6 +1100,15 @@ void ResetHandler(void)
 #if F_CPU <= 2000000
     // since we are not going into "stop mode" i removed it
 	SMC_PMCTRL = SMC_PMCTRL_RUNM(2); // VLPR mode :-)
+#endif
+
+#if defined(__MK66FX1M0__)
+	// If the RTC oscillator isn't enabled, get it started.  For Teensy 3.6
+	// we don't do this early.  See comment above about slow rising power.
+	if (!(RTC_CR & RTC_CR_OSCE)) {
+		RTC_SR = 0;
+		RTC_CR = RTC_CR_SC16P | RTC_CR_SC4P | RTC_CR_OSCE;
+	}
 #endif
 
 	// initialize the SysTick counter
