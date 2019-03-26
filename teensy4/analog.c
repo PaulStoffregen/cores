@@ -51,13 +51,17 @@ static void wait_for_cal(void)
 
 int analogRead(uint8_t pin)
 {
-	if (pin > sizeof(pin_to_channel)) return 0;
-	if (calibrating) wait_for_cal();
-	uint8_t ch = pin_to_channel[pin];
-	if (ch > 15) return 0;
-	ADC1_HC0 = ch;
-	while (!(ADC1_HS & ADC_HS_COCO0)) ; // wait
-	return ADC1_R0;
+    const struct digital_pin_bitband_and_config_table_struct *p;
+
+    if (pin > sizeof(pin_to_channel)) return 0;
+    if (calibrating) wait_for_cal();
+    uint8_t ch = pin_to_channel[pin];
+    if (ch > 15) return 0;
+    p = digital_pin_to_info_PGM + pin;
+    *(p->pad) = IOMUXC_PAD_DSE(7);    // disable PKE
+    ADC1_HC0 = ch;
+    while (!(ADC1_HS & ADC_HS_COCO0)) ; // wait
+    return ADC1_R0;
 }
 
 void analogReference(uint8_t type)
