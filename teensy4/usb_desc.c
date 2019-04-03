@@ -103,8 +103,10 @@ static uint8_t device_descriptor[] = {
         0x76, 0x02,
   #elif defined(__MK66FX1M0__)
         0x77, 0x02,
+  #elif defined(__IMXRT1052__)
+        0x78, 0x02, // Teensy 4.0 Beta #1
   #else
-        0x78, 0x02, // Teensy 4.0 Beta
+        0x79, 0x02, // Teensy 4.0 Beta #2
         //0x00, 0x02,
   #endif
 #endif
