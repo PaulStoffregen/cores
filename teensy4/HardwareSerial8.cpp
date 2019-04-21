@@ -30,6 +30,7 @@
 
 #include <Arduino.h>
 #include "HardwareSerial.h"
+#if defined(__IMXRT1052__)   
 
 #ifndef SERIAL8_TX_BUFFER_SIZE
 #define SERIAL8_TX_BUFFER_SIZE     40 // number of outgoing bytes to buffer
@@ -73,3 +74,4 @@ HardwareSerial Serial8(&IMXRT_LPUART5, &UART5_Hardware, tx_buffer8, SERIAL8_TX_B
 
 void serialEvent8() __attribute__((weak));
 void serialEvent8() {Serial8.disableSerialEvents(); }		// No use calling this so disable if called...
+#endif

@@ -58,8 +58,13 @@ static BUFTYPE rx_buffer2[SERIAL2_RX_BUFFER_SIZE];
 static HardwareSerial::hardware_t UART4_Hardware = {
 	1, IRQ_LPUART4, &IRQHandler_Serial2, &serial_event_check_serial2,
 	CCM_CCGR1, CCM_CCGR1_LPUART4(CCM_CCGR_ON),
+	#if defined(__IMXRT1052__)   
 	6, //IOMUXC_SW_MUX_CTL_PAD_GPIO_B1_01, // pin 6
 	7, // IOMUXC_SW_MUX_CTL_PAD_GPIO_B1_00, // pin 7
+	#elif defined(__IMXRT1062__)
+	7, //IOMUXC_SW_MUX_CTL_PAD_GPIO_B1_01, // pin 6
+	8, // IOMUXC_SW_MUX_CTL_PAD_GPIO_B1_00, // pin 7
+	#endif
 	0xff, // No CTS pin
 	IOMUXC_LPUART4_RX_SELECT_INPUT,
 	2, // page 521

@@ -120,7 +120,9 @@ extern "C" {
 	extern void IRQHandler_Serial5();
 	extern void IRQHandler_Serial6();
 	extern void IRQHandler_Serial7();
+	#if defined(__IMXRT1052__)   
 	extern void IRQHandler_Serial8();
+	#endif
 }
 
 typedef void(*SerialEventCheckingFunctionPointer)();
@@ -228,9 +230,12 @@ private:
 	friend void IRQHandler_Serial5();
 	friend void IRQHandler_Serial6();
 	friend void IRQHandler_Serial7();
+	#if defined(__IMXRT1052__)   
 	friend void IRQHandler_Serial8();
-
 	static SerialEventCheckingFunctionPointer serial_event_handler_checks[8];
+	#else	
+	static SerialEventCheckingFunctionPointer serial_event_handler_checks[7];
+	#endif
 	static uint8_t serial_event_handlers_active;
 
 
@@ -243,7 +248,6 @@ extern HardwareSerial Serial4;
 extern HardwareSerial Serial5;
 extern HardwareSerial Serial6;
 extern HardwareSerial Serial7;
-extern HardwareSerial Serial8;
 extern void serialEvent1(void);
 extern void serialEvent2(void);
 extern void serialEvent3(void);
@@ -251,7 +255,11 @@ extern void serialEvent4(void);
 extern void serialEvent5(void);
 extern void serialEvent6(void);
 extern void serialEvent7(void);
+
+	#if defined(__IMXRT1052__)   
+extern HardwareSerial Serial8;
 extern void serialEvent8(void);
+#endif
 
 
 #endif // __cplusplus
