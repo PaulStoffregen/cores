@@ -14,6 +14,47 @@ uint8_t analog_write_res = 8;
 
 #define M(a, b) ((((a) - 1) << 4) | (b))
 
+#if defined(__IMXRT1062__)
+
+const struct pwm_pin_info_struct pwm_pin_info[] = {
+	{1, M(1, 1), 0, 4},  // FlexPWM1_1_X   0  // AD_B0_03
+	{1, M(1, 0), 0, 4},  // FlexPWM1_0_X   1  // AD_B0_02
+	{1, M(4, 2), 1, 1},  // FlexPWM4_2_A   2  // EMC_04
+	{1, M(4, 2), 2, 1},  // FlexPWM4_2_B   3  // EMC_05
+	{1, M(2, 0), 1, 1},  // FlexPWM2_0_A   4  // EMC_06
+	{1, M(2, 1), 1, 1},  // FlexPWM2_1_A   5  // EMC_08
+	{1, M(2, 2), 1, 2},  // FlexPWM2_2_A   6  // B0_10
+	{1, M(1, 3), 2, 6},  // FlexPWM1_3_B   7  // B1_01
+	{1, M(1, 3), 1, 6},  // FlexPWM1_3_A   8  // B1_00
+	{1, M(2, 2), 2, 2},  // FlexPWM2_2_B   9  // B0_11
+	{2, M(1, 0), 0, 1},  // QuadTimer1_0  10  // B0_00
+	{2, M(1, 2), 0, 1},  // QuadTimer1_2  11  // B0_02
+	{2, M(1, 1), 0, 1},  // QuadTimer1_1  12  // B0_01
+	{2, M(2, 0), 0, 1},  // QuadTimer2_0  13  // B0_03
+	{2, M(3, 2), 0, 1},  // QuadTimer3_2  14  // AD_B1_02
+	{2, M(3, 3), 0, 1},  // QuadTimer3_3  15  // AD_B1_03
+	{0, M(1, 0), 0, 0},
+	{0, M(1, 0), 0, 0},
+	{2, M(3, 1), 0, 1},  // QuadTimer3_1  18  // AD_B1_01
+	{2, M(3, 0), 0, 1},  // QuadTimer3_0  19  // AD_B1_00
+	{0, M(1, 0), 0, 0},
+	{0, M(1, 0), 0, 0},
+	{1, M(4, 0), 1, 1},  // FlexPWM4_0_A  22  // AD_B1_08
+	{1, M(4, 1), 1, 1},  // FlexPWM4_1_A  23  // AD_B1_09
+	{1, M(1, 2), 0, 4},  // FlexPWM1_2_X  24  // AD_B0_12
+	{1, M(1, 3), 0, 4},  // FlexPWM1_3_X  25  // AD_B0_13
+	{0, M(1, 0), 0, 0},
+	{0, M(1, 0), 0, 0},
+	{1, M(3, 1), 2, 1},  // FlexPWM3_1_B  28  // EMC_32
+	{1, M(3, 1), 1, 1},  // FlexPWM3_1_A  29  // EMC_31
+	{0, M(1, 0), 0, 0},
+	{0, M(1, 0), 0, 0},
+	{0, M(1, 0), 0, 0},
+	{1, M(2, 0), 2, 1},  // FlexPWM2_0_B  33  // EMC_07
+};
+
+#elif defined(__IMXRT1052__)
+
 const struct pwm_pin_info_struct pwm_pin_info[] = {
 	{1, M(1, 1), 0, 4},  // FlexPWM1_1_X   0  // AD_B0_03
 	{1, M(1, 0), 0, 4},  // FlexPWM1_0_X   1  // AD_B0_02
@@ -50,6 +91,8 @@ const struct pwm_pin_info_struct pwm_pin_info[] = {
 	{0, M(1, 0), 0, 0},
 	{1, M(2, 1), 1, 1},  // FlexPWM2_1_A  33  // EMC_08
 };
+
+#endif // __IMXRT1052__
 
 void flexpwmWrite(IMXRT_FLEXPWM_t *p, unsigned int submodule, uint8_t channel, uint16_t val)
 {
