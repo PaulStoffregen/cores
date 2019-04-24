@@ -82,7 +82,7 @@ const static uint8_t SCL = 19;
 #define PIN_SERIAL_TX (1)
 
 
-#define NUM_DIGITAL_PINS  39
+#define NUM_DIGITAL_PINS  40
 #define NUM_ANALOG_INPUTS 12
 
 
