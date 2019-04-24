@@ -308,7 +308,8 @@ void HardFault_HandlerC(unsigned int *hardfault_args) {
   stacked_psr = ((unsigned int)hardfault_args[7]) ;
   // Configurable Fault Status Register
   // Consists of MMSR, BFSR and UFSR
-  _CFSR = (*((volatile unsigned int *)(0xE000ED28))) ;
+  //(n & ( 1 << k )) >> k
+  _CFSR = (*((volatile unsigned int *)(0xE000ED28))) ;  
   // Hard Fault Status Register
   _HFSR = (*((volatile unsigned int *)(0xE000ED2C))) ;
   // Debug Fault Status Register
@@ -334,7 +335,66 @@ void HardFault_HandlerC(unsigned int *hardfault_args) {
   printf_debug(" stacked_pc ::  %x\n", stacked_pc);
   printf_debug(" stacked_psr ::  %x\n", stacked_psr);
   printf_debug(" _CFSR ::  %x\n", _CFSR);
+ 
+  if(_CFSR > 0){
+	  //Memory Management Faults
+	  if((_CFSR & 1) == 1){
+		printf_debug("      (IACCVIOL) Instruction Access Violation\n");
+	  } else  if(((_CFSR & (0x02))>>1) == 1){
+		printf_debug("      (DACCVIOL) Data Access Violation\n");
+	  } else if(((_CFSR & (0x08))>>3) == 1){
+		printf_debug("      (MUNSTKERR) MemMange Fault on Unstacking\n");
+	  } else if(((_CFSR & (0x10))>>4) == 1){
+		printf_debug("      (MSTKERR) MemMange Fault on stacking\n");
+	  } else if(((_CFSR & (0x20))>>5) == 1){
+		printf_debug("      (MLSPERR) MemMange Fault on FP Lazy State\n");
+	  }
+	  if(((_CFSR & (0x80))>>7) == 1){
+		printf_debug("      (MMARVALID) MemMange Fault Address Valid\n");
+	  }
+	  //Bus Fault Status Register
+	  if(((_CFSR & 0x100)>>8) == 1){
+		printf_debug("      (IBUSERR) Instruction Bus Error\n");
+	  } else  if(((_CFSR & (0x200))>>9) == 1){
+		printf_debug("      (PRECISERR) Data bus error(address in BFAR)\n");
+	  } else if(((_CFSR & (0x400))>>10) == 1){
+		printf_debug("      (IMPRECISERR) Data bus error but address not related to instruction\n");
+	  } else if(((_CFSR & (0x800))>>11) == 1){
+		printf_debug("      (UNSTKERR) Bus Fault on unstacking for a return from exception \n");
+	  } else if(((_CFSR & (0x1000))>>12) == 1){
+		printf_debug("      (STKERR) Bus Fault on stacking for exception entry\n");
+	  } else if(((_CFSR & (0x2000))>>13) == 1){
+		printf_debug("      (LSPERR) Bus Fault on FP lazy state preservation\n");
+	  }
+	  if(((_CFSR & (0x8000))>>15) == 1){
+		printf_debug("      (BFARVALID) Bus Fault Address Valid\n");
+	  }  
+	  //Usuage Fault Status Register
+	  if(((_CFSR & 0x10000)>>16) == 1){
+		printf_debug("      (UNDEFINSTR) Undefined instruction\n");
+	  } else  if(((_CFSR & (0x20000))>>17) == 1){
+		printf_debug("      (INVSTATE) Instruction makes illegal use of EPSR)\n");
+	  } else if(((_CFSR & (0x40000))>>18) == 1){
+		printf_debug("      (INVPC) Usage fault: invalid EXC_RETURN\n");
+	  } else if(((_CFSR & (0x80000))>>19) == 1){
+		printf_debug("      (NOCP) No Coprocessor \n");
+	  } else if(((_CFSR & (0x1000000))>>24) == 1){
+		printf_debug("      (UNALIGNED) Unaligned access UsageFault\n");
+	  } else if(((_CFSR & (0x2000000))>>25) == 1){
+		printf_debug("      (DIVBYZERO) Divide by zero\n");
+	  }
+  }
   printf_debug(" _HFSR ::  %x\n", _HFSR);
+  if(_HFSR > 0){
+	  //Memory Management Faults
+	  if(((_HFSR & (0x02))>>1) == 1){
+		printf_debug("      (VECTTBL) Bus Fault on Vec Table Read\n");
+	  } else if(((_HFSR & (0x40000000))>>30) == 1){
+		printf_debug("      (FORCED) Forced Hard Fault\n");
+	  } else if(((_HFSR & (0x80000000))>>31) == 31){
+		printf_debug("      (DEBUGEVT) Reserved for Debug\n");
+	  } 
+  }
   printf_debug(" _DFSR ::  %x\n", _DFSR);
   printf_debug(" _AFSR ::  %x\n", _AFSR);
   printf_debug(" _BFAR ::  %x\n", _BFAR);
