@@ -82,7 +82,7 @@ const static uint8_t SCL = 19;
 #define PIN_SERIAL_TX (1)
 
 
-#define NUM_DIGITAL_PINS  34
+#define NUM_DIGITAL_PINS  40
 #define NUM_ANALOG_INPUTS 12
 
 
@@ -164,12 +164,14 @@ static inline uint8_t digitalPinToTimer(uint8_t pin)
 #define SERIAL_PORT_HARDWARE4		Serial5
 #define SERIAL_PORT_HARDWARE5		Serial6
 #define SERIAL_PORT_HARDWARE6		Serial7
-#define SERIAL_PORT_HARDWARE7		Serial8
 #define SERIAL_PORT_HARDWARE_OPEN3	Serial4
 #define SERIAL_PORT_HARDWARE_OPEN4	Serial5
 #define SERIAL_PORT_HARDWARE_OPEN5	Serial6
 #define SERIAL_PORT_HARDWARE_OPEN6	Serial7
+#if defined(__IMXRT1052__)   
+#define SERIAL_PORT_HARDWARE7		Serial8
 #define SERIAL_PORT_HARDWARE_OPEN7	Serial8
+#endif
 
 #define SerialUSB			Serial
 
