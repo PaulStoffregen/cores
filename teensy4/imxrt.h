@@ -160,9 +160,9 @@ enum IRQ_NUMBER_t {
         IRQ_FLEXPWM4_FAULT =    151,
         IRQ_ENET2 =             152, // RT1060 only
         IRQ_ENET2_TIMER =       153, // RT1060 only
-        IRQ_Reserved6 =         154,
-        IRQ_Reserved7 =         155,
-        IRQ_CAN3 =              156, // RT1060 only
+        IRQ_CAN3 =              154, // RT1060 only
+        IRQ_Reserved6 =         155,
+        IRQ_FLEXIO3 =           156, // RT1060 only
         IRQ_GPIO6789 =          157, // RT1060 only
         IRQ_SJC_DEBUG =         158,
         IRQ_NMI_WAKEUP =        159
