@@ -1108,6 +1108,10 @@
 extern "C" {
 #endif
 
+//TODO:
+//#define analogInputToDigitalPin(p)
+//#define digitalPinHasPWM(p)
+#define digitalPinToInterrupt(p)  ((p) < NUM_DIGITAL_PINS ? (p) : -1)
 
 void digitalWrite(uint8_t pin, uint8_t val);
 static inline void digitalWriteFast(uint8_t pin, uint8_t val) __attribute__((always_inline, unused));
