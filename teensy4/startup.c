@@ -70,6 +70,14 @@ void ResetHandler(void)
 	// UARTs run from 24 MHz clock (works if PLL3 off or bypassed)
 	CCM_CSCDR1 = (CCM_CSCDR1 & ~CCM_CSCDR1_UART_CLK_PODF(0x3F)) | CCM_CSCDR1_UART_CLK_SEL;
 
+#if defined(__IMXRT1062__)
+	// Use fast GPIO6, GPIO7, GPIO8, GPIO9
+	IOMUXC_GPR_GPR26 = 0xFFFFFFFF;
+	IOMUXC_GPR_GPR27 = 0xFFFFFFFF;
+	IOMUXC_GPR_GPR28 = 0xFFFFFFFF;
+	IOMUXC_GPR_GPR29 = 0xFFFFFFFF;
+#endif
+
 	// must enable PRINT_DEBUG_STUFF in debug/print.h
 	printf_debug_init();
 	printf("\n***********IMXRT Startup**********\n");

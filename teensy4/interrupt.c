@@ -5,6 +5,8 @@
 static void dummy_isr() {};
 typedef void (*voidFuncPtr)(void);
 
+// TODO: Use of Fast GPIO6 - GPIO9 probably breaks everything about attachInterrupt()
+
 // TODO: define these properly in core_pins.h - don't waste memory
 #define CORE_MAX_PIN_PORT1 31
 #define CORE_MAX_PIN_PORT2 31
