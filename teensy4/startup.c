@@ -83,6 +83,7 @@ void ResetHandler(void)
 	printf("\n***********IMXRT Startup**********\n");
 	printf("test %d %d %d\n", 1, -1234567, 3);
 
+	rtc_init();
 	configure_cache();
 	configure_systick();
 	usb_pll_start();	
