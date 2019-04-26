@@ -2,6 +2,15 @@
 #include "pins_arduino.h"
 #include "debug/printf.h"
 
+#define DR    0
+#define GDIR  1
+#define PSR   2
+#define ICR1  3
+#define ICR2  4
+#define IMR   5
+#define ISR   6
+#define EDGE  7
+
 static void dummy_isr() {};
 typedef void (*voidFuncPtr)(void);
 
@@ -18,14 +27,32 @@ voidFuncPtr isr_table_gpio2[CORE_MAX_PIN_PORT2+1] = { [0 ... CORE_MAX_PIN_PORT2]
 voidFuncPtr isr_table_gpio3[CORE_MAX_PIN_PORT3+1] = { [0 ... CORE_MAX_PIN_PORT3] = dummy_isr };
 voidFuncPtr isr_table_gpio4[CORE_MAX_PIN_PORT4+1] = { [0 ... CORE_MAX_PIN_PORT4] = dummy_isr };
 
-#define DR    0
-#define GDIR  1
-#define PSR   2
-#define ICR1  3
-#define ICR2  4
-#define IMR   5
-#define ISR   6
-#define EDGE  7
+#if defined(__IMXRT1062__)
+FASTRUN static inline __attribute__((always_inline))
+inline void irq_anyport(volatile uint32_t *gpio, voidFuncPtr *table)
+{
+	uint32_t status = gpio[ISR] & gpio[IMR];
+	if (status) {
+		gpio[ISR] = status;
+		while (status) {
+			uint32_t index = __builtin_ctz(status);
+			table[index]();
+			status = status & ~(1 << index);
+			//status = status & (status - 1);
+		}
+	}
+}
+
+FASTRUN
+void irq_gpio6789(void)
+{
+	irq_anyport(&GPIO6_DR, isr_table_gpio1);
+	irq_anyport(&GPIO7_DR, isr_table_gpio2);
+	irq_anyport(&GPIO8_DR, isr_table_gpio3);
+	irq_anyport(&GPIO9_DR, isr_table_gpio4);
+}
+
+#elif defined(__IMXRT1052__)
 
 FASTRUN
 void irq_anyport(volatile uint32_t *gpio, voidFuncPtr *table)
@@ -33,10 +60,10 @@ void irq_anyport(volatile uint32_t *gpio, voidFuncPtr *table)
 	uint32_t status = gpio[ISR] & gpio[IMR];
 	gpio[ISR] = status;
 	while (status) {
-		uint32_t index = __builtin_ctz(status);
-		table[index]();
-		status = status & ~(1 << index);
-		//status = status & (status - 1);
+			uint32_t index = __builtin_ctz(status);
+			table[index]();
+			status = status & ~(1 << index);
+			//status = status & (status - 1);
 	}
 }
 
@@ -64,7 +91,7 @@ void irq_gpio4(void)
 	irq_anyport(&GPIO4_DR, isr_table_gpio4);
 }
 
-
+#endif
 
 void attachInterrupt(uint8_t pin, void (*function)(void), int mode)
 {
@@ -76,6 +103,30 @@ void attachInterrupt(uint8_t pin, void (*function)(void), int mode)
 	uint32_t mask = digitalPinToBitMask(pin);
 
 	voidFuncPtr *table;
+
+#if defined(__IMXRT1062__)
+
+	switch((uint32_t)gpio) {
+		case (uint32_t)&GPIO6_DR:
+			table = isr_table_gpio1;
+			break;
+		case (uint32_t)&GPIO7_DR:
+			table = isr_table_gpio2;
+			break;
+		case (uint32_t)&GPIO8_DR:
+			table = isr_table_gpio3;
+			break;
+		case (uint32_t)&GPIO9_DR:
+			table = isr_table_gpio4;
+			break;
+		default:
+			return;
+	}
+
+	attachInterruptVector(IRQ_GPIO6789, &irq_gpio6789);
+	NVIC_ENABLE_IRQ(IRQ_GPIO6789);
+
+#elif defined(__IMXRT1052__)
 	switch((uint32_t)gpio) {
 		case (uint32_t)&GPIO1_DR:
 			table = isr_table_gpio1;
@@ -108,9 +159,10 @@ void attachInterrupt(uint8_t pin, void (*function)(void), int mode)
 		default:
 			return;
 	}
+#endif
 
 	uint32_t icr;
-	switch (mode) { 
+	switch (mode) {
 		case CHANGE:  icr = 0; break;
 		case RISING:  icr = 2; break;
 		case FALLING: icr = 3; break;
@@ -148,4 +200,3 @@ void detachInterrupt(uint8_t pin)
 	uint32_t mask = digitalPinToBitMask(pin);
 	gpio[IMR] &= ~mask;
 }
-
