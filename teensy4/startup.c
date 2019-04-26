@@ -29,6 +29,7 @@ void unused_interrupt_vector(void);
 void usb_pll_start();
 extern void analog_init(void); // analog.c
 extern void pwm_init(void); // pwm.c
+extern void rtc_init(void); //rtc.c
 extern void tempmon_init(void);  //tempmon.c
 uint32_t set_arm_clock(uint32_t frequency); // clockspeed.c
 extern void __libc_init_array(void); // C++ standard library
@@ -83,6 +84,7 @@ void ResetHandler(void)
 	printf("\n***********IMXRT Startup**********\n");
 	printf("test %d %d %d\n", 1, -1234567, 3);
 
+	rtc_init();
 	configure_cache();
 	configure_systick();
 	usb_pll_start();	
