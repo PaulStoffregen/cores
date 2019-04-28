@@ -40,6 +40,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+void usb_serial_reset(void);
+void usb_serial_configure(void);
 int usb_serial_getchar(void);
 int usb_serial_peekchar(void);
 int usb_serial_available(void);

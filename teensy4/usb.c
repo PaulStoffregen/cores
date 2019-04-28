@@ -82,6 +82,31 @@ static void endpoint0_receive(void *data, uint32_t len, int notify);
 static void endpoint0_complete(void);
 
 
+static void run_callbacks(endpoint_t *ep);
+
+static void run_callbacks(endpoint_t *ep)
+{
+	transfer_t *t, *next;
+
+	printf("run_callbacks\n");
+	t = ep->first_transfer;
+	while (t && (uint32_t)t != 1) {
+		if (!(t->status & (1<<7))) {
+			// transfer not active anymore
+			next = (transfer_t *)t->next;
+			ep->callback_function(t);
+		} else {
+			// transfer still active
+			ep->first_transfer = t;
+			return;
+		}
+		t = next;
+	}
+	// all transfers completed
+	ep->first_transfer = NULL;
+	ep->last_transfer = NULL;
+}
+
 
 __attribute__((section(".progmem")))
 void usb_init(void)
@@ -213,8 +238,17 @@ static void isr(void)
 				endpoint0_notify_mask = 0;
 				endpoint0_complete();
 			}
-			if (completestatus & endpointN_notify_mask) {
-				// TODO: callback functions...
+			completestatus &= endpointN_notify_mask;
+			if (completestatus) {
+				int i;   // TODO: optimize with __builtin_ctz()
+				for (i=2; i < NUM_ENDPOINTS; i++) {
+					if (completestatus & (1 << i)) { // receive
+						run_callbacks(endpoint_queue_head + i * 2);
+					}
+					if (completestatus & (1 << (i + 16))) { // transmit
+						run_callbacks(endpoint_queue_head + i * 2 + 1);
+					}
+				}
 			}
 		}
 	}
@@ -230,6 +264,10 @@ static void isr(void)
 			// TODO; is this ever really a problem?
 			//printf("reset too slow\n");
 		}
+		#if defined(CDC_STATUS_INTERFACE) && defined(CDC_DATA_INTERFACE)
+		usb_serial_reset();
+		#endif
+		endpointN_notify_mask = 0;
 		// TODO: Free all allocated dTDs 
 		//if (++reset_count >= 3) {
 			// shut off USB - easier to see results in protocol analyzer
@@ -307,12 +345,9 @@ static void endpoint0_setup(uint64_t setupdata)
 			//printf(" ep=%d: cfg=%08lX - %08lX - %08lX\n", i + 1, n, m, p);
 			reg++;
 		}
-		// TODO: configure all queue heads with max packet length, zlt & mult
-		endpoint_queue_head[CDC_ACM_ENDPOINT*2+1].config = (CDC_ACM_ENDPOINT << 16);
-		endpoint_queue_head[CDC_RX_ENDPOINT*2+0].config = (CDC_RX_SIZE << 16) | (1 << 29);
-		endpoint_queue_head[CDC_TX_ENDPOINT*2+1].config = (CDC_TX_SIZE << 16) | (1 << 29);
-
-		// TODO: de-allocate any pending transfers?
+		#if defined(CDC_STATUS_INTERFACE) && defined(CDC_DATA_INTERFACE)
+		usb_serial_configure();
+		#endif
 		endpoint0_receive(NULL, 0, 0);
 		return;
 
@@ -446,6 +481,31 @@ static void endpoint0_complete(void)
 #endif
 }
 
+static void usb_endpoint_config(endpoint_t *qh, uint32_t config, void (*callback)(transfer_t *))
+{
+	memset(qh, 0, sizeof(endpoint_t));
+	qh->config = config;
+	qh->callback_function = callback;
+}
+
+void usb_config_rx(uint32_t ep, uint32_t packet_size, int do_zlp, void (*cb)(transfer_t *))
+{
+	uint32_t config = (packet_size << 16) | (do_zlp ? 0 : (1 << 29));
+	if (ep < 2 || ep > NUM_ENDPOINTS) return;
+	usb_endpoint_config(endpoint_queue_head + ep * 2, config, cb);
+	if (cb) endpointN_notify_mask |= (1 << ep);
+}
+
+void usb_config_tx(uint32_t ep, uint32_t packet_size, int do_zlp, void (*cb)(transfer_t *))
+{
+	uint32_t config = (packet_size << 16) | (do_zlp ? 0 : (1 << 29));
+	if (ep < 2 || ep > NUM_ENDPOINTS) return;
+	usb_endpoint_config(endpoint_queue_head + ep * 2 + 1, config, cb);
+	if (cb) endpointN_notify_mask |= (1 << (ep + 16));
+}
+
+
+
 void usb_prepare_transfer(transfer_t *transfer, const void *data, uint32_t len, uint32_t param)
 {
 	transfer->next = 1;
@@ -459,6 +519,93 @@ void usb_prepare_transfer(transfer_t *transfer, const void *data, uint32_t len, 
 	transfer->callback_param = param;
 }
 
+
+static void schedule_transfer(endpoint_t *endpoint, uint32_t epmask, transfer_t *transfer)
+{
+	if (endpoint->callback_function) {
+		transfer->status |= (1<<15);
+	} else {
+		//transfer->status |= (1<<15);
+		// remove all inactive transfers
+	}
+	__disable_irq();
+#if 0
+	if (endpoint->last_transfer) {
+		if (!(endpoint->last_transfer->status & (1<<7))) {
+			endpoint->last_transfer->next = (uint32_t)transfer;
+		} else {
+			// Case 2: Link list is not empty, page 3182
+			endpoint->last_transfer->next = (uint32_t)transfer;
+			if (USB1_ENDPTPRIME & epmask) {
+				endpoint->last_transfer = transfer;
+				__enable_irq();
+				printf(" case 2a\n");
+				return;
+			}
+			uint32_t stat;
+			uint32_t cmd = USB1_USBCMD;
+			do {
+				USB1_USBCMD = cmd | USB_USBCMD_ATDTW;
+				stat = USB1_ENDPTSTATUS;
+			} while (!(USB1_USBCMD & USB_USBCMD_ATDTW));
+			USB1_USBCMD = cmd & ~USB_USBCMD_ATDTW;
+			if (stat & epmask) {
+				endpoint->last_transfer = transfer;
+				__enable_irq();
+				printf(" case 2b\n");
+				return;
+			}
+		}
+	} else {
+		endpoint->first_transfer = transfer;
+	}
+	endpoint->last_transfer = transfer;
+#endif
+	// Case 1: Link list is empty, page 3182
+	endpoint->next = (uint32_t)transfer;
+	endpoint->status = 0;
+	endpoint->first_transfer = (uint32_t)transfer;
+	endpoint->last_transfer = (uint32_t)transfer;
+	USB1_ENDPTPRIME |= epmask;
+	while (USB1_ENDPTPRIME & epmask) ;
+	__enable_irq();
+	//printf(" case 1\n");
+
+
+	// ENDPTPRIME - momentarily set by hardware during hardware re-priming
+	//		 operations when a dTD is retired, and the dQH is updated.
+
+	// ENDPTSTAT -   Transmit Buffer Ready - set to one by the hardware as a
+	//		 response to receiving a command from a corresponding bit
+	//		 in the ENDPTPRIME register.  . Buffer ready is cleared by
+	//		 USB reset, by the USB DMA system, or through the ENDPTFLUSH
+	//		 register.  (so 0=buffer ready, 1=buffer primed for transmit)
+
+}
+
+void usb_transmit(int endpoint_number, transfer_t *transfer)
+{
+	if (endpoint_number < 2 || endpoint_number > NUM_ENDPOINTS) return;
+	endpoint_t *endpoint = endpoint_queue_head + endpoint_number * 2 + 1;
+	uint32_t mask = 1 << (endpoint_number + 16);
+	schedule_transfer(endpoint, mask, transfer);
+}
+
+void usb_receive(int endpoint_number, transfer_t *transfer)
+{
+	if (endpoint_number < 2 || endpoint_number > NUM_ENDPOINTS) return;
+	endpoint_t *endpoint = endpoint_queue_head + endpoint_number * 2;
+	uint32_t mask = 1 << endpoint_number;
+	schedule_transfer(endpoint, mask, transfer);
+}
+
+
+
+
+
+
+
+#if 0
 void usb_transmit(int endpoint_number, transfer_t *transfer)
 {
 	// endpoint 0 reserved for control
@@ -525,6 +672,7 @@ void usb_transmit(int endpoint_number, transfer_t *transfer)
 	//		 register.  (so 0=buffer ready, 1=buffer primed for transmit)
 
 }
+#endif
 
 /*struct endpoint_struct {
 	uint32_t config;

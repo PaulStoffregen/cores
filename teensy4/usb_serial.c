@@ -52,9 +52,52 @@ static volatile uint8_t tx_noautoflush=0;
 
 #define TRANSMIT_FLUSH_TIMEOUT	5   /* in milliseconds */
 
+
+
+#define RX_NUM  3
+static transfer_t rx_transfer[RX_NUM] __attribute__ ((used, aligned(32)));
+static uint8_t rx_buffer[RX_NUM * 512];
+static uint16_t rx_count[RX_NUM];
+static uint16_t rx_index[RX_NUM];
+
+static void rx_event(transfer_t *t)
+{
+	int len = 512 - ((t->status >> 16) & 0x7FFF);
+	int index = t->callback_param;
+	printf("rx event, len=%d, i=%d\n", len, index);
+	rx_count[index] = len;
+	rx_index[index] = 0;
+}
+
+void usb_serial_reset(void)
+{
+	printf("usb_serial_reset\n");
+	// deallocate all transfer descriptors
+}
+
+void usb_serial_configure(void)
+{
+	printf("usb_serial_configure\n");
+	usb_config_tx(CDC_ACM_ENDPOINT, CDC_ACM_SIZE, 0, NULL);
+	usb_config_rx(CDC_RX_ENDPOINT, CDC_RX_SIZE, 0, rx_event);
+	usb_config_tx(CDC_TX_ENDPOINT, CDC_TX_SIZE, 0, NULL);
+	usb_prepare_transfer(rx_transfer + 0, rx_buffer + 0, 512, 0);
+	usb_receive(CDC_RX_ENDPOINT, rx_transfer + 0);
+}
+
+
 // get the next character, or -1 if nothing received
 int usb_serial_getchar(void)
 {
+	if (rx_index[0] < rx_count[0]) {
+		int c = rx_buffer[rx_index[0]++];
+		if (rx_index[0] >= rx_count[0]) {
+			// reschedule transfer
+			usb_prepare_transfer(rx_transfer + 0, rx_buffer + 0, 512, 0);
+			usb_receive(CDC_RX_ENDPOINT, rx_transfer + 0);
+		}
+		return c;
+	}
 #if 0
 	unsigned int i;
 	int c;
@@ -95,6 +138,7 @@ int usb_serial_peekchar(void)
 // number of bytes available in the receive buffer
 int usb_serial_available(void)
 {
+	return rx_count[0] - rx_index[0];
 #if 0
 	int count;
 	count = usb_rx_byte_count(CDC_RX_ENDPOINT);
@@ -204,7 +248,7 @@ int usb_serial_putchar(uint8_t c)
 }
 
 
-static transfer_t transfer __attribute__ ((used, aligned(32)));
+static transfer_t txtransfer __attribute__ ((used, aligned(32)));
 static uint8_t txbuffer[1024];
 //static uint8_t txbuffer1[1024];
 //static uint8_t txbuffer2[1024];
@@ -218,7 +262,7 @@ int usb_serial_write(const void *buffer, uint32_t size)
 	int count=0;
 	//digitalWriteFast(13, HIGH);
 	while (1) {
-		uint32_t status = transfer.status;
+		uint32_t status = txtransfer.status;
 		if (count > 10) printf("status = %x\n", status);
 		if (!(status & 0x80)) break;
 		count++;
@@ -229,8 +273,8 @@ int usb_serial_write(const void *buffer, uint32_t size)
 	//digitalWriteFast(13, LOW);
 	delayMicroseconds(1); // TODO: this must not be the answer!
 	memcpy(txbuffer, buffer, size);
-	usb_prepare_transfer(&transfer, txbuffer, size, 0);
-	usb_transmit(CDC_TX_ENDPOINT, &transfer);
+	usb_prepare_transfer(&txtransfer, txbuffer, size, 0);
+	usb_transmit(CDC_TX_ENDPOINT, &txtransfer);
 
 #if 0
 	uint32_t ret = size;
