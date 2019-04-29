@@ -84,29 +84,6 @@ static void endpoint0_complete(void);
 
 static void run_callbacks(endpoint_t *ep);
 
-static void run_callbacks(endpoint_t *ep)
-{
-	transfer_t *t, *next;
-
-	printf("run_callbacks\n");
-	t = ep->first_transfer;
-	while (t && (uint32_t)t != 1) {
-		if (!(t->status & (1<<7))) {
-			// transfer not active anymore
-			next = (transfer_t *)t->next;
-			ep->callback_function(t);
-		} else {
-			// transfer still active
-			ep->first_transfer = t;
-			return;
-		}
-		t = next;
-	}
-	// all transfers completed
-	ep->first_transfer = NULL;
-	ep->last_transfer = NULL;
-}
-
 
 __attribute__((section(".progmem")))
 void usb_init(void)
@@ -332,6 +309,7 @@ static void endpoint0_setup(uint64_t setupdata)
 	  case 0x0900: // SET_CONFIGURATION
 		usb_configuration = setup.wValue;
 		// configure all other endpoints
+#if 0
 		volatile uint32_t *reg = &USB1_ENDPTCTRL1;
 		const uint32_t *cfg = usb_endpoint_config_table;
 		int i;
@@ -345,6 +323,26 @@ static void endpoint0_setup(uint64_t setupdata)
 			//printf(" ep=%d: cfg=%08lX - %08lX - %08lX\n", i + 1, n, m, p);
 			reg++;
 		}
+#else
+		#if defined(ENDPOINT2_CONFIG)
+		USB1_ENDPTCTRL2 = ENDPOINT2_CONFIG;
+		#endif
+		#if defined(ENDPOINT3_CONFIG)
+		USB1_ENDPTCTRL3 = ENDPOINT3_CONFIG;
+		#endif
+		#if defined(ENDPOINT4_CONFIG)
+		USB1_ENDPTCTRL4 = ENDPOINT4_CONFIG;
+		#endif
+		#if defined(ENDPOINT5_CONFIG)
+		USB1_ENDPTCTRL5 = ENDPOINT5_CONFIG;
+		#endif
+		#if defined(ENDPOINT6_CONFIG)
+		USB1_ENDPTCTRL6 = ENDPOINT6_CONFIG;
+		#endif
+		#if defined(ENDPOINT7_CONFIG)
+		USB1_ENDPTCTRL7 = ENDPOINT7_CONFIG;
+		#endif
+#endif
 		#if defined(CDC_STATUS_INTERFACE) && defined(CDC_DATA_INTERFACE)
 		usb_serial_configure();
 		#endif
@@ -485,6 +483,7 @@ static void usb_endpoint_config(endpoint_t *qh, uint32_t config, void (*callback
 {
 	memset(qh, 0, sizeof(endpoint_t));
 	qh->config = config;
+	qh->next = 1; // Terminate bit = 1
 	qh->callback_function = callback;
 }
 
@@ -519,69 +518,101 @@ void usb_prepare_transfer(transfer_t *transfer, const void *data, uint32_t len, 
 	transfer->callback_param = param;
 }
 
+static uint32_t get_endptstatus(void)
+{
+	uint32_t status, cmd;
+	cmd = USB1_USBCMD;
+	do {
+		USB1_USBCMD = cmd | USB_USBCMD_ATDTW;
+		status = USB1_ENDPTSTATUS;
+	} while (!(USB1_USBCMD & USB_USBCMD_ATDTW));
+	return status;
+}
 
 static void schedule_transfer(endpoint_t *endpoint, uint32_t epmask, transfer_t *transfer)
 {
+	transfer_t *last, *next;
+
+	// 41.5.6.6.3 Executing A Transfer Descriptor, page 2468 (RT1060 manual, Rev 1, 12/2018)
 	if (endpoint->callback_function) {
+		// endpoint uses interrupts and maintains linked list of all transfers
 		transfer->status |= (1<<15);
+		last = endpoint->last_transfer;
 	} else {
-		//transfer->status |= (1<<15);
-		// remove all inactive transfers
+		// endpoint has no callback, no list of transfers
+		//if ((USB1_ENDPTPRIME & epmask) || (get_endptstatus() & epmask)) {
+			last = (transfer_t *)(endpoint->next & ~0x1F);
+			if (last) {
+				while (1) {
+					next = (transfer_t *)(last->next & ~0x1F);
+					if (!next) break;
+					last = next;
+				}
+			}
+		//} else {
+			//last = NULL;
+		//}
 	}
-	__disable_irq();
-#if 0
-	if (endpoint->last_transfer) {
-		if (!(endpoint->last_transfer->status & (1<<7))) {
-			endpoint->last_transfer->next = (uint32_t)transfer;
-		} else {
-			// Case 2: Link list is not empty, page 3182
-			endpoint->last_transfer->next = (uint32_t)transfer;
-			if (USB1_ENDPTPRIME & epmask) {
-				endpoint->last_transfer = transfer;
-				__enable_irq();
-				printf(" case 2a\n");
-				return;
-			}
-			uint32_t stat;
-			uint32_t cmd = USB1_USBCMD;
-			do {
-				USB1_USBCMD = cmd | USB_USBCMD_ATDTW;
-				stat = USB1_ENDPTSTATUS;
-			} while (!(USB1_USBCMD & USB_USBCMD_ATDTW));
-			USB1_USBCMD = cmd & ~USB_USBCMD_ATDTW;
-			if (stat & epmask) {
-				endpoint->last_transfer = transfer;
-				__enable_irq();
-				printf(" case 2b\n");
-				return;
-			}
+	if (last) {
+		last->next = transfer;
+		if ((USB1_ENDPTPRIME & epmask) || (get_endptstatus() & epmask)) {
+			endpoint->last_transfer = transfer;
+			__enable_irq();
+			return;
 		}
-	} else {
-		endpoint->first_transfer = transfer;
 	}
-	endpoint->last_transfer = transfer;
-#endif
-	// Case 1: Link list is empty, page 3182
 	endpoint->next = (uint32_t)transfer;
 	endpoint->status = 0;
-	endpoint->first_transfer = (uint32_t)transfer;
-	endpoint->last_transfer = (uint32_t)transfer;
+	endpoint->first_transfer = transfer;
+	endpoint->last_transfer = transfer;
 	USB1_ENDPTPRIME |= epmask;
-	while (USB1_ENDPTPRIME & epmask) ;
 	__enable_irq();
-	//printf(" case 1\n");
-
-
-	// ENDPTPRIME - momentarily set by hardware during hardware re-priming
+	// ENDPTPRIME -  Software should write a one to the corresponding bit when
+	//		 posting a new transfer descriptor to an endpoint queue head.
+	//		 Hardware automatically uses this bit to begin parsing for a
+	//		 new transfer descriptor from the queue head and prepare a
+	//		 transmit buffer. Hardware clears this bit when the associated
+	//		 endpoint(s) is (are) successfully primed.
+	//		 Momentarily set by hardware during hardware re-priming
 	//		 operations when a dTD is retired, and the dQH is updated.
 
-	// ENDPTSTAT -   Transmit Buffer Ready - set to one by the hardware as a
+	// ENDPTSTATUS - Transmit Buffer Ready - set to one by the hardware as a
 	//		 response to receiving a command from a corresponding bit
 	//		 in the ENDPTPRIME register.  . Buffer ready is cleared by
 	//		 USB reset, by the USB DMA system, or through the ENDPTFLUSH
 	//		 register.  (so 0=buffer ready, 1=buffer primed for transmit)
 
+	//  USBCMD.ATDTW - This bit is used as a semaphore to ensure proper addition
+	//		   of a new dTD to an active (primed) endpoint's linked list.
+	//		   This bit is set and cleared by software.
+	//		   This bit would also be cleared by hardware when state machine
+	//		   is hazard region for which adding a dTD to a primed endpoint
+	//		    may go unrecognized.
 }
+
+static void run_callbacks(endpoint_t *ep)
+{
+	transfer_t *t, *next;
+
+	printf("run_callbacks\n");
+	t = ep->first_transfer;
+	while (t && (uint32_t)t != 1) {
+		if (!(t->status & (1<<7))) {
+			// transfer not active anymore
+			next = (transfer_t *)t->next;
+			ep->callback_function(t);
+		} else {
+			// transfer still active
+			ep->first_transfer = t;
+			return;
+		}
+		t = next;
+	}
+	// all transfers completed
+	ep->first_transfer = NULL;
+	ep->last_transfer = NULL;
+}
+
 
 void usb_transmit(int endpoint_number, transfer_t *transfer)
 {
@@ -599,7 +630,22 @@ void usb_receive(int endpoint_number, transfer_t *transfer)
 	schedule_transfer(endpoint, mask, transfer);
 }
 
+uint32_t usb_transfer_status(const transfer_t *transfer)
+{
+	uint32_t status, cmd;
+	//uint32_t count=0;
 
+	cmd = USB1_USBCMD;
+	do {
+		//count++;
+		USB1_USBCMD = cmd | USB_USBCMD_ATDTW;
+		status = transfer->status;
+		cmd = USB1_USBCMD;
+	} while (!(cmd & USB_USBCMD_ATDTW));
+	//if (count > 1) printf("s=%08X, count=%d\n", status, count);
+	//printf("s=%08X, count=%d\n", status, count);
+	return status;
+}
 
 
 

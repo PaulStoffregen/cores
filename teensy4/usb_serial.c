@@ -257,21 +257,19 @@ static uint8_t txbuffer[1024];
 int usb_serial_write(const void *buffer, uint32_t size)
 {
 	if (!usb_configuration) return 0;
-	// TODO: do something so much better that this quick hack....
 	if (size > sizeof(txbuffer)) size = sizeof(txbuffer);
 	int count=0;
-	//digitalWriteFast(13, HIGH);
 	while (1) {
-		uint32_t status = txtransfer.status;
-		if (count > 10) printf("status = %x\n", status);
+		uint32_t status = usb_transfer_status(&txtransfer);
+		if (count > 2000) {
+			printf("status = %x\n", status);
+			//while (1) ;
+		}
 		if (!(status & 0x80)) break;
 		count++;
 		//if (count > 50) break; // TODO: proper timout?
 		// TODO: check for USB offline
-		delayMicroseconds(5); // polling too quickly seem to block DMA - maybe DTCM issue?
 	}
-	//digitalWriteFast(13, LOW);
-	delayMicroseconds(1); // TODO: this must not be the answer!
 	memcpy(txbuffer, buffer, size);
 	usb_prepare_transfer(&txtransfer, txbuffer, size, 0);
 	usb_transmit(CDC_TX_ENDPOINT, &txtransfer);
