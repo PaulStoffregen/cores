@@ -1,8 +1,8 @@
 MEMORY
 {
-	ITCM (rwx):  ORIGIN = 0x00000000, LENGTH = 128K
-	DTCM (rwx):  ORIGIN = 0x20000000, LENGTH = 128K
-	RAM (rwx):   ORIGIN = 0x20200000, LENGTH = 256K
+	ITCM (rwx):  ORIGIN = 0x00000000, LENGTH = 512K
+	DTCM (rwx):  ORIGIN = 0x20000000, LENGTH = 512K
+	RAM (rwx):   ORIGIN = 0x20200000, LENGTH = 512K
 	FLASH (rwx): ORIGIN = 0x60000000, LENGTH = 1536K
 }
 
@@ -68,13 +68,15 @@ SECTIONS
 	_edata = ADDR(.data) + SIZEOF(.data);
 	_sdataload = LOADADDR(.data);
 
-	_estack = ORIGIN(DTCM) + LENGTH(DTCM);
-
 	_sbss = ADDR(.bss);
 	_ebss = ADDR(.bss) + SIZEOF(.bss);
 
 	_heap_start = ADDR(.bss.dma) + SIZEOF(.bss.dma);
 	_heap_end = ORIGIN(RAM) + LENGTH(RAM);
+
+	_itcm_block_count = (SIZEOF(.text) + 0x7FFE) >> 15;
+	_flexram_bank_config = 0xAAAAAAAA | ((1 << (_itcm_block_count * 2)) - 1);
+	_estack = ORIGIN(DTCM) + ((16 - _itcm_block_count) << 15);
 
 	_flashimagelen = SIZEOF(.text.progmem) + SIZEOF(.text) + SIZEOF(.data);
 	_teensy_model_identifier = 0x24;

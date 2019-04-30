@@ -13,7 +13,8 @@ extern unsigned long _sdata;
 extern unsigned long _edata;
 extern unsigned long _sbss;
 extern unsigned long _ebss;
-
+extern unsigned long _flexram_bank_config;
+extern unsigned long _estack;
 
 __attribute__ ((used, aligned(1024)))
 void (* _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
@@ -34,19 +35,23 @@ uint32_t set_arm_clock(uint32_t frequency); // clockspeed.c
 extern void __libc_init_array(void); // C++ standard library
 
 
-__attribute__((section(".startup"), optimize("no-tree-loop-distribute-patterns")))
+__attribute__((section(".startup"), optimize("no-tree-loop-distribute-patterns"), naked))
 void ResetHandler(void)
 {
 	unsigned int i;
 
-	//force the stack to begin at some arbitrary location
-	//__asm__ volatile("mov sp, %0" : : "r" (0x20010000) : );
-
+#if defined(__IMXRT1062__)
+	IOMUXC_GPR_GPR17 = (uint32_t)&_flexram_bank_config;
+	IOMUXC_GPR_GPR16 = 0x00000007;
+	IOMUXC_GPR_GPR14 = 0x00AA0000;
+	__asm__ volatile("mov sp, %0" : : "r" ((uint32_t)&_estack) : );
+#endif
 	// pin 13 - if startup crashes, use this to turn on the LED early for troubleshooting
 	//IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_03 = 5;
 	//IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_03 = IOMUXC_PAD_DSE(7);
-	//GPIO2_GDIR |= (1<<3);
-	//GPIO2_DR_SET = (1<<3); // digitalWrite(13, HIGH);
+	//IOMUXC_GPR_GPR27 = 0xFFFFFFFF;
+	//GPIO7_GDIR |= (1<<3);
+	//GPIO7_DR_SET = (1<<3); // digitalWrite(13, HIGH);
 
 	// Initialize memory
 	memory_copy(&_stext, &_stextload, &_etext);
