@@ -511,8 +511,7 @@ void PJRCunused_interrupt_vector(void)
 #else
 	if ( F_CPU_ACTUAL >= 600000000 )
 		set_arm_clock(100000000);
-	while (1) {
-	}
+	while (1) asm ("WFI");
 #endif
 }
 
@@ -595,13 +594,13 @@ int _lseek(int fd, long long offset, int whence)
 __attribute__((weak))
 void _exit(int status)
 {
-	while (1);
+	while (1) asm ("WFI");
 }
 
 __attribute__((weak))
 void __cxa_pure_virtual()
 {
-	while (1);
+	while (1) asm ("WFI");
 }
 
 __attribute__((weak))
@@ -619,5 +618,5 @@ void __cxa_guard_release(char *g)
 __attribute__((weak))
 void abort(void)
 {
-	while (1) ;
+	while (1) asm ("WFI");
 }
