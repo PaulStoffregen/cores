@@ -338,80 +338,80 @@ void HardFault_HandlerC(unsigned int *hardfault_args) {
   //__asm("BKPT #0\n") ; // Break into the debugger // NO Debugger here.
 
   asm volatile("mrs %0, ipsr\n" : "=r" (addr)::);
-  printf_debug("\nFault irq %d\n", addr & 0x1FF);
-  printf_debug(" stacked_r0 ::  %x\n", stacked_r0);
-  printf_debug(" stacked_r1 ::  %x\n", stacked_r1);
-  printf_debug(" stacked_r2 ::  %x\n", stacked_r2);
-  printf_debug(" stacked_r3 ::  %x\n", stacked_r3);
-  printf_debug(" stacked_r12 ::  %x\n", stacked_r12);
-  printf_debug(" stacked_lr ::  %x\n", stacked_lr);
-  printf_debug(" stacked_pc ::  %x\n", stacked_pc);
-  printf_debug(" stacked_psr ::  %x\n", stacked_psr);
-  printf_debug(" _CFSR ::  %x\n", _CFSR);
+  printf("\nFault irq %d\n", addr & 0x1FF);
+  printf(" stacked_r0 ::  %x\n", stacked_r0);
+  printf(" stacked_r1 ::  %x\n", stacked_r1);
+  printf(" stacked_r2 ::  %x\n", stacked_r2);
+  printf(" stacked_r3 ::  %x\n", stacked_r3);
+  printf(" stacked_r12 ::  %x\n", stacked_r12);
+  printf(" stacked_lr ::  %x\n", stacked_lr);
+  printf(" stacked_pc ::  %x\n", stacked_pc);
+  printf(" stacked_psr ::  %x\n", stacked_psr);
+  printf(" _CFSR ::  %x\n", _CFSR);
  
   if(_CFSR > 0){
 	  //Memory Management Faults
 	  if((_CFSR & 1) == 1){
-		printf_debug("      (IACCVIOL) Instruction Access Violation\n");
+		printf("      (IACCVIOL) Instruction Access Violation\n");
 	  } else  if(((_CFSR & (0x02))>>1) == 1){
-		printf_debug("      (DACCVIOL) Data Access Violation\n");
+		printf("      (DACCVIOL) Data Access Violation\n");
 	  } else if(((_CFSR & (0x08))>>3) == 1){
-		printf_debug("      (MUNSTKERR) MemMange Fault on Unstacking\n");
+		printf("      (MUNSTKERR) MemMange Fault on Unstacking\n");
 	  } else if(((_CFSR & (0x10))>>4) == 1){
-		printf_debug("      (MSTKERR) MemMange Fault on stacking\n");
+		printf("      (MSTKERR) MemMange Fault on stacking\n");
 	  } else if(((_CFSR & (0x20))>>5) == 1){
-		printf_debug("      (MLSPERR) MemMange Fault on FP Lazy State\n");
+		printf("      (MLSPERR) MemMange Fault on FP Lazy State\n");
 	  }
 	  if(((_CFSR & (0x80))>>7) == 1){
-		printf_debug("      (MMARVALID) MemMange Fault Address Valid\n");
+		printf("      (MMARVALID) MemMange Fault Address Valid\n");
 	  }
 	  //Bus Fault Status Register
 	  if(((_CFSR & 0x100)>>8) == 1){
-		printf_debug("      (IBUSERR) Instruction Bus Error\n");
+		printf("      (IBUSERR) Instruction Bus Error\n");
 	  } else  if(((_CFSR & (0x200))>>9) == 1){
-		printf_debug("      (PRECISERR) Data bus error(address in BFAR)\n");
+		printf("      (PRECISERR) Data bus error(address in BFAR)\n");
 	  } else if(((_CFSR & (0x400))>>10) == 1){
-		printf_debug("      (IMPRECISERR) Data bus error but address not related to instruction\n");
+		printf("      (IMPRECISERR) Data bus error but address not related to instruction\n");
 	  } else if(((_CFSR & (0x800))>>11) == 1){
-		printf_debug("      (UNSTKERR) Bus Fault on unstacking for a return from exception \n");
+		printf("      (UNSTKERR) Bus Fault on unstacking for a return from exception \n");
 	  } else if(((_CFSR & (0x1000))>>12) == 1){
-		printf_debug("      (STKERR) Bus Fault on stacking for exception entry\n");
+		printf("      (STKERR) Bus Fault on stacking for exception entry\n");
 	  } else if(((_CFSR & (0x2000))>>13) == 1){
-		printf_debug("      (LSPERR) Bus Fault on FP lazy state preservation\n");
+		printf("      (LSPERR) Bus Fault on FP lazy state preservation\n");
 	  }
 	  if(((_CFSR & (0x8000))>>15) == 1){
-		printf_debug("      (BFARVALID) Bus Fault Address Valid\n");
+		printf("      (BFARVALID) Bus Fault Address Valid\n");
 	  }  
 	  //Usuage Fault Status Register
 	  if(((_CFSR & 0x10000)>>16) == 1){
-		printf_debug("      (UNDEFINSTR) Undefined instruction\n");
+		printf("      (UNDEFINSTR) Undefined instruction\n");
 	  } else  if(((_CFSR & (0x20000))>>17) == 1){
-		printf_debug("      (INVSTATE) Instruction makes illegal use of EPSR)\n");
+		printf("      (INVSTATE) Instruction makes illegal use of EPSR)\n");
 	  } else if(((_CFSR & (0x40000))>>18) == 1){
-		printf_debug("      (INVPC) Usage fault: invalid EXC_RETURN\n");
+		printf("      (INVPC) Usage fault: invalid EXC_RETURN\n");
 	  } else if(((_CFSR & (0x80000))>>19) == 1){
-		printf_debug("      (NOCP) No Coprocessor \n");
+		printf("      (NOCP) No Coprocessor \n");
 	  } else if(((_CFSR & (0x1000000))>>24) == 1){
-		printf_debug("      (UNALIGNED) Unaligned access UsageFault\n");
+		printf("      (UNALIGNED) Unaligned access UsageFault\n");
 	  } else if(((_CFSR & (0x2000000))>>25) == 1){
-		printf_debug("      (DIVBYZERO) Divide by zero\n");
+		printf("      (DIVBYZERO) Divide by zero\n");
 	  }
   }
-  printf_debug(" _HFSR ::  %x\n", _HFSR);
+  printf(" _HFSR ::  %x\n", _HFSR);
   if(_HFSR > 0){
 	  //Memory Management Faults
 	  if(((_HFSR & (0x02))>>1) == 1){
-		printf_debug("      (VECTTBL) Bus Fault on Vec Table Read\n");
+		printf("      (VECTTBL) Bus Fault on Vec Table Read\n");
 	  } else if(((_HFSR & (0x40000000))>>30) == 1){
-		printf_debug("      (FORCED) Forced Hard Fault\n");
+		printf("      (FORCED) Forced Hard Fault\n");
 	  } else if(((_HFSR & (0x80000000))>>31) == 31){
-		printf_debug("      (DEBUGEVT) Reserved for Debug\n");
+		printf("      (DEBUGEVT) Reserved for Debug\n");
 	  } 
   }
-  printf_debug(" _DFSR ::  %x\n", _DFSR);
-  printf_debug(" _AFSR ::  %x\n", _AFSR);
-  printf_debug(" _BFAR ::  %x\n", _BFAR);
-  printf_debug(" _MMAR ::  %x\n", _MMAR);
+  printf(" _DFSR ::  %x\n", _DFSR);
+  printf(" _AFSR ::  %x\n", _AFSR);
+  printf(" _BFAR ::  %x\n", _BFAR);
+  printf(" _MMAR ::  %x\n", _MMAR);
 
   IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_03 = 5; // pin 13
   IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_03 = IOMUXC_PAD_DSE(7);
@@ -436,7 +436,7 @@ void HardFault_HandlerC(unsigned int *hardfault_args) {
 __attribute__((weak))
 void userDebugDump(){
 	volatile unsigned int nn;
-	printf_debug("\nuserDebugDump() in startup.c ___ \n");
+	printf("\nuserDebugDump() in startup.c ___ \n");
 
   while (1)
   {
