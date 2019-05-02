@@ -16,5 +16,6 @@ void printf_debug(const char *format, ...);
 #define printf_init()
 #define printf(...)
 #define printf_debug_init()
+#define printf_debug(...)
 
 #endif
