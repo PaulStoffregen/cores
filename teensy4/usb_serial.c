@@ -56,13 +56,13 @@ static volatile uint8_t tx_noautoflush=0;
 
 #define RX_NUM  3
 static transfer_t rx_transfer[RX_NUM] __attribute__ ((used, aligned(32)));
-static uint8_t rx_buffer[RX_NUM * 512];
+static uint8_t rx_buffer[RX_NUM * CDC_RX_SIZE];
 static uint16_t rx_count[RX_NUM];
 static uint16_t rx_index[RX_NUM];
 
 static void rx_event(transfer_t *t)
 {
-	int len = 512 - ((t->status >> 16) & 0x7FFF);
+	int len = CDC_RX_SIZE - ((t->status >> 16) & 0x7FFF);
 	int index = t->callback_param;
 	printf("rx event, len=%d, i=%d\n", len, index);
 	rx_count[index] = len;
@@ -81,7 +81,7 @@ void usb_serial_configure(void)
 	usb_config_tx(CDC_ACM_ENDPOINT, CDC_ACM_SIZE, 0, NULL);
 	usb_config_rx(CDC_RX_ENDPOINT, CDC_RX_SIZE, 0, rx_event);
 	usb_config_tx(CDC_TX_ENDPOINT, CDC_TX_SIZE, 0, NULL);
-	usb_prepare_transfer(rx_transfer + 0, rx_buffer + 0, 512, 0);
+	usb_prepare_transfer(rx_transfer + 0, rx_buffer + 0, CDC_RX_SIZE, 0);
 	usb_receive(CDC_RX_ENDPOINT, rx_transfer + 0);
 }
 
@@ -93,7 +93,7 @@ int usb_serial_getchar(void)
 		int c = rx_buffer[rx_index[0]++];
 		if (rx_index[0] >= rx_count[0]) {
 			// reschedule transfer
-			usb_prepare_transfer(rx_transfer + 0, rx_buffer + 0, 512, 0);
+			usb_prepare_transfer(rx_transfer + 0, rx_buffer + 0, CDC_RX_SIZE, 0);
 			usb_receive(CDC_RX_ENDPOINT, rx_transfer + 0);
 		}
 		return c;
