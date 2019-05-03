@@ -247,20 +247,21 @@ int usb_serial_putchar(uint8_t c)
 	return usb_serial_write(&c, 1);
 }
 
-
-static transfer_t txtransfer __attribute__ ((used, aligned(32)));
-static uint8_t txbuffer[1024];
-//static uint8_t txbuffer1[1024];
-//static uint8_t txbuffer2[1024];
-//static uint8_t txstate=0;
+#define TX_NUM   4
+#define TX_SIZE  64  /* should be a multiple of CDC_TX_SIZE */
+static transfer_t tx_transfer[TX_NUM] __attribute__ ((used, aligned(32)));
+static uint8_t txbuffer[TX_SIZE * TX_NUM];
+static uint8_t tx_head=0;
 
 int usb_serial_write(const void *buffer, uint32_t size)
 {
 	if (!usb_configuration) return 0;
-	if (size > sizeof(txbuffer)) size = sizeof(txbuffer);
+	if (size > TX_SIZE) size = TX_SIZE;
+
+	transfer_t *xfer = tx_transfer + tx_head;
 	int count=0;
 	while (1) {
-		uint32_t status = usb_transfer_status(&txtransfer);
+		uint32_t status = usb_transfer_status(xfer);
 		if (count > 2000) {
 			printf("status = %x\n", status);
 			//while (1) ;
@@ -270,10 +271,12 @@ int usb_serial_write(const void *buffer, uint32_t size)
 		//if (count > 50) break; // TODO: proper timout?
 		// TODO: check for USB offline
 	}
-	memcpy(txbuffer, buffer, size);
-	usb_prepare_transfer(&txtransfer, txbuffer, size, 0);
-	usb_transmit(CDC_TX_ENDPOINT, &txtransfer);
-
+	uint8_t *txdata = txbuffer + (tx_head * TX_SIZE);
+	memcpy(txdata, buffer, size);
+	usb_prepare_transfer(xfer, txdata, size, 0);
+	usb_transmit(CDC_TX_ENDPOINT, xfer);
+	if (++tx_head >= TX_NUM) tx_head = 0;
+	return size;
 #if 0
 	uint32_t ret = size;
 	uint32_t len;
