@@ -247,83 +247,76 @@ int usb_serial_putchar(uint8_t c)
 	return usb_serial_write(&c, 1);
 }
 
-#define TX_NUM   4
-#define TX_SIZE  64  /* should be a multiple of CDC_TX_SIZE */
+#define TX_NUM   7
+#define TX_SIZE  256  /* should be a multiple of CDC_TX_SIZE */
 static transfer_t tx_transfer[TX_NUM] __attribute__ ((used, aligned(32)));
 static uint8_t txbuffer[TX_SIZE * TX_NUM];
 static uint8_t tx_head=0;
+static uint16_t tx_available=0;
+
+extern volatile uint32_t systick_millis_count;
 
 int usb_serial_write(const void *buffer, uint32_t size)
 {
+	uint32_t sent=0;
+	const uint8_t *data = (const uint8_t *)buffer;
+
 	if (!usb_configuration) return 0;
-	if (size > TX_SIZE) size = TX_SIZE;
-
-	transfer_t *xfer = tx_transfer + tx_head;
-	int count=0;
-	while (1) {
-		uint32_t status = usb_transfer_status(xfer);
-		if (count > 2000) {
-			printf("status = %x\n", status);
-			//while (1) ;
-		}
-		if (!(status & 0x80)) break;
-		count++;
-		//if (count > 50) break; // TODO: proper timout?
-		// TODO: check for USB offline
-	}
-	uint8_t *txdata = txbuffer + (tx_head * TX_SIZE);
-	memcpy(txdata, buffer, size);
-	usb_prepare_transfer(xfer, txdata, size, 0);
-	usb_transmit(CDC_TX_ENDPOINT, xfer);
-	if (++tx_head >= TX_NUM) tx_head = 0;
-	return size;
-#if 0
-	uint32_t ret = size;
-	uint32_t len;
-	uint32_t wait_count;
-	const uint8_t *src = (const uint8_t *)buffer;
-	uint8_t *dest;
-
-	tx_noautoflush = 1;
 	while (size > 0) {
-		if (!tx_packet) {
-			wait_count = 0;
-			while (1) {
-				if (!usb_configuration) {
-					tx_noautoflush = 0;
-					return -1;
-				}
-				if (usb_tx_packet_count(CDC_TX_ENDPOINT) < TX_PACKET_LIMIT) {
-					tx_noautoflush = 1;
-					tx_packet = usb_malloc();
-					if (tx_packet) break;
-					tx_noautoflush = 0;
-				}
-				if (++wait_count > TX_TIMEOUT || transmit_previous_timeout) {
-					transmit_previous_timeout = 1;
-					return -1;
-				}
-				yield();
+		transfer_t *xfer = tx_transfer + tx_head;
+		int waiting=0;
+		uint32_t wait_begin_at=0;
+		while (!tx_available) {
+			//digitalWriteFast(3, HIGH);
+			uint32_t status = usb_transfer_status(xfer);
+			if (status & 0x7F) {
+				printf("ERROR status = %x, i=%d, ms=%u\n", status, tx_head, systick_millis_count);
 			}
+			if (!(status & 0x80)) {
+				// TODO: what if status has errors???
+				tx_available = TX_SIZE;
+				break;
+			}/*  else {
+				if (!waiting) {
+					wait_begin_at = systick_millis_count;
+					waiting = 1;
+				} else {
+					if (systick_millis_count - wait_begin_at > 250) {
+						printf("\nstop, waited too long\n");
+						printf("status = %x\n", status);
+						printf("tx head=%d\n", tx_head);
+						printf("TXFILLTUNING=%08lX\n", USB1_TXFILLTUNING);
+						usb_print_transfer_log();
+						while (1) ;
+					}
+				}
+			} */
+			// TODO: proper timout?
+			// TODO: check for USB offline
 		}
-		transmit_previous_timeout = 0;
-		len = CDC_TX_SIZE - tx_packet->index;
-		if (len > size) len = size;
-		dest = tx_packet->buf + tx_packet->index;
-		tx_packet->index += len;
-		size -= len;
-		while (len-- > 0) *dest++ = *src++;
-		if (tx_packet->index >= CDC_TX_SIZE) {
-			tx_packet->len = CDC_TX_SIZE;
-			usb_tx(CDC_TX_ENDPOINT, tx_packet);
-			tx_packet = NULL;
+		//digitalWriteFast(3, LOW);
+
+		uint8_t *txdata = txbuffer + (tx_head * TX_SIZE) + (TX_SIZE - tx_available);
+
+		if (size >= tx_available) {
+			memcpy(txdata, data, tx_available);
+			//*(txbuffer + (tx_head * TX_SIZE)) = 'A' + tx_head; // to see which buffer
+			//*(txbuffer + (tx_head * TX_SIZE) + 1) = ' '; // really see it
+			usb_prepare_transfer(xfer, txbuffer + (tx_head * TX_SIZE), TX_SIZE, 0);
+			usb_transmit(CDC_TX_ENDPOINT, xfer);
+			if (++tx_head >= TX_NUM) tx_head = 0;
+			size -= tx_available;
+			sent += tx_available;
+			data += tx_available;
+			tx_available = 0;
+		} else {
+			memcpy(txdata, data, size);
+			tx_available -= size;
+			sent += size;
+			size = 0;
 		}
-		usb_cdc_transmit_flush_timer = TRANSMIT_FLUSH_TIMEOUT;
 	}
-	tx_noautoflush = 0;
-	return ret;
-#endif
-	return 0;
+	return sent;
 }
 
 int usb_serial_write_buffer_free(void)

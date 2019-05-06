@@ -6,6 +6,11 @@
 #include <string.h>
 #include "debug/printf.h"
 
+//#define LOG_SIZE  20
+//uint32_t transfer_log_head=0;
+//uint32_t transfer_log_count=0;
+//uint32_t transfer_log[LOG_SIZE];
+
 // device mode, page 3155
 
 typedef struct endpoint_struct endpoint_t;
@@ -100,6 +105,12 @@ void usb_init(void)
 
 	CCM_CCGR6 |= CCM_CCGR6_USBOH3(CCM_CCGR_ON); // turn on clocks to USB peripheral
 	
+	printf("BURSTSIZE=%08lX\n", USB1_BURSTSIZE);
+	//USB1_BURSTSIZE = USB_BURSTSIZE_TXPBURST(4) | USB_BURSTSIZE_RXPBURST(4);
+	USB1_BURSTSIZE = 0x0404;
+	printf("BURSTSIZE=%08lX\n", USB1_BURSTSIZE);
+	printf("USB1_TXFILLTUNING=%08lX\n", USB1_TXFILLTUNING);
+
 	// Before programming this register, the PHY clocks must be enabled in registers
 	// USBPHYx_CTRLn and CCM_ANALOG_USBPHYx_PLL_480_CTRLn.
 
@@ -171,6 +182,8 @@ void usb_init(void)
 	//printf("USB1_ENDPTCTRL2=%08lX\n", USB1_ENDPTCTRL2);
 	//printf("USB1_ENDPTCTRL3=%08lX\n", USB1_ENDPTCTRL3);
 	USB1_USBCMD = USB_USBCMD_RS;
+	//transfer_log_head = 0;
+	//transfer_log_count = 0;
 }
 
 
@@ -518,34 +531,65 @@ void usb_prepare_transfer(transfer_t *transfer, const void *data, uint32_t len, 
 	transfer->callback_param = param;
 }
 
+#if 0
+void usb_print_transfer_log(void)
+{
+	uint32_t i, count;
+	printf("log %d transfers\n", transfer_log_count);
+	count = transfer_log_count;
+	if (count > LOG_SIZE) count = LOG_SIZE;
+
+	for (i=0; i < count; i++) {
+		if (transfer_log_head == 0) transfer_log_head = LOG_SIZE;
+		transfer_log_head--;
+		uint32_t log = transfer_log[transfer_log_head];
+		printf(" %c %X\n", log >> 8, (int)(log & 255));
+	}
+}
+#endif
+
 static void schedule_transfer(endpoint_t *endpoint, uint32_t epmask, transfer_t *transfer)
 {
-	transfer->next = 1;
+	// when we stop at 6, why is the last transfer missing from the USB output?
+	//if (transfer_log_count >= 6) return;
+
+	//uint32_t ret = (*(const uint8_t *)transfer->pointer0) << 8;
 	if (endpoint->callback_function) {
 		transfer->status |= (1<<15);
 	}
 	__disable_irq();
-	// 41.5.6.6.3 Executing A Transfer Descriptor, page 2468 (RT1060 manual, Rev 1, 12/2018)
-	// Not exactly the same process as NXP suggests....
-	if ((USB1_ENDPTPRIME & epmask) || (USB1_ENDPTSTATUS & epmask)) {
-		transfer_t *last = endpoint->last_transfer;
-		if (last) {
+	//digitalWriteFast(1, HIGH);
+	// Executing A Transfer Descriptor, page 2468 (RT1060 manual, Rev 1, 12/2018)
+	transfer_t *last = endpoint->last_transfer;
+	if (last) {
+		last->next = (uint32_t)transfer;
+		if (USB1_ENDPTPRIME & epmask) goto end;
+		//digitalWriteFast(2, HIGH);
+		//ret |= 0x01;
+		uint32_t status;
+		do {
 			USB1_USBCMD |= USB_USBCMD_ATDTW;
-			last->next = (uint32_t)transfer;
-			if ((USB1_ENDPTPRIME & epmask) ||
-			  ((USB1_ENDPTSTATUS & epmask) && (USB1_USBCMD & USB_USBCMD_ATDTW))) {
-				endpoint->last_transfer = transfer;
-				__enable_irq();
-				return;
-			}
-		}
+			status = USB1_ENDPTSTATUS;
+		} while (!(USB1_USBCMD & USB_USBCMD_ATDTW));
+		//USB1_USBCMD &= ~USB_USBCMD_ATDTW;
+		if (status & epmask) goto end;
+		//ret |= 0x02;
 	}
+	//digitalWriteFast(4, HIGH);
 	endpoint->next = (uint32_t)transfer;
 	endpoint->status = 0;
-	endpoint->first_transfer = transfer;
-	endpoint->last_transfer = transfer;
 	USB1_ENDPTPRIME |= epmask;
+	endpoint->first_transfer = transfer;
+end:
+	endpoint->last_transfer = transfer;
 	__enable_irq();
+	//digitalWriteFast(4, LOW);
+	//digitalWriteFast(3, LOW);
+	//digitalWriteFast(2, LOW);
+	//digitalWriteFast(1, LOW);
+	//if (transfer_log_head > LOG_SIZE) transfer_log_head = 0;
+	//transfer_log[transfer_log_head++] = ret;
+	//transfer_log_count++;
 }
 	// ENDPTPRIME -  Software should write a one to the corresponding bit when
 	//		 posting a new transfer descriptor to an endpoint queue head.
@@ -631,14 +675,19 @@ void usb_receive(int endpoint_number, transfer_t *transfer)
 uint32_t usb_transfer_status(const transfer_t *transfer)
 {
 	uint32_t status, cmd;
-
+	//int count=0;
 	cmd = USB1_USBCMD;
-	do {
+	while (1) {
+		__disable_irq();
 		USB1_USBCMD = cmd | USB_USBCMD_ATDTW;
 		status = transfer->status;
 		cmd = USB1_USBCMD;
-	} while (!(cmd & USB_USBCMD_ATDTW));
-	return status;
+		__enable_irq();
+		if (cmd & USB_USBCMD_ATDTW) return status;
+		//if (!(cmd & USB_USBCMD_ATDTW)) continue;
+		//if (status & 0x80) break; // for still active, only 1 reading needed
+		//if (++count > 1) break; // for completed, check 10 times
+	}
 }
 
 
