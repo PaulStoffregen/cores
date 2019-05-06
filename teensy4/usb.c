@@ -438,7 +438,7 @@ static void endpoint0_receive(void *data, uint32_t len, int notify)
 	if (len > 0) {
 		// Executing A Transfer Descriptor, page 3182
 		endpoint0_transfer_data.next = 1;
-		endpoint0_transfer_data.status = (len << 16) | (1<<7);
+		endpoint0_transfer_data.status = (len << 16) | (1<<7) | (notify ? (1 << 15) : 0);
 		uint32_t addr = (uint32_t)data;
 		endpoint0_transfer_data.pointer0 = addr; // format: table 55-60, pg 3159
 		endpoint0_transfer_data.pointer1 = addr + 4096;
@@ -452,7 +452,7 @@ static void endpoint0_receive(void *data, uint32_t len, int notify)
 		while (USB1_ENDPTPRIME) ;
 	}
 	endpoint0_transfer_ack.next = 1;
-	endpoint0_transfer_ack.status = (1<<7) | (notify ? (1 << 15) : 0);
+	endpoint0_transfer_ack.status = (1<<7);
 	endpoint0_transfer_ack.pointer0 = 0;
 	endpoint_queue_head[1].next = (uint32_t)&endpoint0_transfer_ack;
 	endpoint_queue_head[1].status = 0;
