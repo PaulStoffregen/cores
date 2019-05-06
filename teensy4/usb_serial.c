@@ -50,8 +50,13 @@ volatile uint8_t usb_cdc_transmit_flush_timer=0;
 //static usb_packet_t *tx_packet=NULL;
 static volatile uint8_t tx_noautoflush=0;
 
-#define TRANSMIT_FLUSH_TIMEOUT	5   /* in milliseconds */
+// TODO: should be 2 different timeouts, high speed (480) vs full speed (12)
+#define TRANSMIT_FLUSH_TIMEOUT	75   /* in microseconds */
 
+static void timer_config(void (*callback)(void), uint32_t microseconds);
+static void timer_start_oneshot();
+static void timer_stop();
+static void usb_serial_flush_callback(void);
 
 
 #define RX_NUM  3
@@ -64,7 +69,7 @@ static void rx_event(transfer_t *t)
 {
 	int len = CDC_RX_SIZE - ((t->status >> 16) & 0x7FFF);
 	int index = t->callback_param;
-	printf("rx event, len=%d, i=%d\n", len, index);
+	//printf("rx event, len=%d, i=%d\n", len, index);
 	rx_count[index] = len;
 	rx_index[index] = 0;
 }
@@ -83,6 +88,7 @@ void usb_serial_configure(void)
 	usb_config_tx(CDC_TX_ENDPOINT, CDC_TX_SIZE, 0, NULL);
 	usb_prepare_transfer(rx_transfer + 0, rx_buffer + 0, CDC_RX_SIZE, 0);
 	usb_receive(CDC_RX_ENDPOINT, rx_transfer + 0);
+	timer_config(usb_serial_flush_callback, TRANSMIT_FLUSH_TIMEOUT);
 }
 
 
@@ -256,6 +262,30 @@ static uint16_t tx_available=0;
 
 extern volatile uint32_t systick_millis_count;
 
+static void timer_config(void (*callback)(void), uint32_t microseconds);
+static void timer_start_oneshot();
+static void timer_stop();
+
+static void timer_config(void (*callback)(void), uint32_t microseconds)
+{
+	usb_timer0_callback = callback;
+	USB1_GPTIMER0CTRL = 0;
+	USB1_GPTIMER0LD = microseconds - 1;
+	USB1_USBINTR |= USB_USBINTR_TIE0;
+}
+
+static void timer_start_oneshot(void)
+{
+	// restarts timer if already running (retriggerable one-shot)
+	USB1_GPTIMER0CTRL = USB_GPTIMERCTRL_GPTRUN | USB_GPTIMERCTRL_GPTRST;
+}
+
+static void timer_stop(void)
+{
+	USB1_GPTIMER0CTRL = 0;
+}
+
+
 int usb_serial_write(const void *buffer, uint32_t size)
 {
 	uint32_t sent=0;
@@ -264,8 +294,8 @@ int usb_serial_write(const void *buffer, uint32_t size)
 	if (!usb_configuration) return 0;
 	while (size > 0) {
 		transfer_t *xfer = tx_transfer + tx_head;
-		int waiting=0;
-		uint32_t wait_begin_at=0;
+		//int waiting=0;
+		//uint32_t wait_begin_at=0;
 		while (!tx_available) {
 			//digitalWriteFast(3, HIGH);
 			uint32_t status = usb_transfer_status(xfer);
@@ -309,11 +339,13 @@ int usb_serial_write(const void *buffer, uint32_t size)
 			sent += tx_available;
 			data += tx_available;
 			tx_available = 0;
+			timer_stop();
 		} else {
 			memcpy(txdata, data, size);
 			tx_available -= size;
 			sent += size;
 			size = 0;
+			timer_start_oneshot();
 		}
 	}
 	return sent;
@@ -349,44 +381,28 @@ int usb_serial_write_buffer_free(void)
 
 void usb_serial_flush_output(void)
 {
-#if 0
 	if (!usb_configuration) return;
+	if (tx_available == 0) return;
 	tx_noautoflush = 1;
-	if (tx_packet) {
-		usb_cdc_transmit_flush_timer = 0;
-		tx_packet->len = tx_packet->index;
-		usb_tx(CDC_TX_ENDPOINT, tx_packet);
-		tx_packet = NULL;
-	} else {
-		usb_packet_t *tx = usb_malloc();
-		if (tx) {
-			usb_cdc_transmit_flush_timer = 0;
-			usb_tx(CDC_TX_ENDPOINT, tx);
-		} else {
-			usb_cdc_transmit_flush_timer = 1;
-		}
-	}
+	transfer_t *xfer = tx_transfer + tx_head;
+	usb_prepare_transfer(xfer, txbuffer + (tx_head * TX_SIZE), TX_SIZE - tx_available, 0);
+	usb_transmit(CDC_TX_ENDPOINT, xfer);
+	if (++tx_head >= TX_NUM) tx_head = 0;
+	tx_available = 0;
 	tx_noautoflush = 0;
-#endif
 }
 
-void usb_serial_flush_callback(void)
+static void usb_serial_flush_callback(void)
 {
-#if 0
 	if (tx_noautoflush) return;
-	if (tx_packet) {
-		tx_packet->len = tx_packet->index;
-		usb_tx(CDC_TX_ENDPOINT, tx_packet);
-		tx_packet = NULL;
-	} else {
-		usb_packet_t *tx = usb_malloc();
-		if (tx) {
-			usb_tx(CDC_TX_ENDPOINT, tx);
-		} else {
-			usb_cdc_transmit_flush_timer = 1;
-		}
-	}
-#endif
+	if (!usb_configuration) return;
+	if (tx_available == 0) return;
+	//printf("flush callback, %d bytes\n", TX_SIZE - tx_available);
+	transfer_t *xfer = tx_transfer + tx_head;
+	usb_prepare_transfer(xfer, txbuffer + (tx_head * TX_SIZE), TX_SIZE - tx_available, 0);
+	usb_transmit(CDC_TX_ENDPOINT, xfer);
+	if (++tx_head >= TX_NUM) tx_head = 0;
+	tx_available = 0;
 }
 
 

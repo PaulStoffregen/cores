@@ -79,6 +79,8 @@ volatile uint8_t usb_configuration = 0;
 static uint8_t endpoint0_buffer[8];
 static uint8_t usb_reboot_timer = 0;
 
+void (*usb_timer0_callback)(void) = NULL;
+void (*usb_timer1_callback)(void) = NULL;
 
 static void isr(void);
 static void endpoint0_setup(uint64_t setupdata);
@@ -264,6 +266,12 @@ static void isr(void)
 			//USB1_USBCMD &= ~USB_USBCMD_RS;
 			//printf("shut off USB\n");
 		//}
+	}
+	if (status & USB_USBSTS_TI0) {
+		if (usb_timer0_callback != NULL) usb_timer0_callback();
+	}
+	if (status & USB_USBSTS_TI1) {
+		if (usb_timer1_callback != NULL) usb_timer1_callback();
 	}
 	if (status & USB_USBSTS_PCI) {
 		if (USB1_PORTSC1 & USB_PORTSC1_HSP) {
@@ -636,7 +644,7 @@ static void run_callbacks(endpoint_t *ep)
 {
 	transfer_t *t, *next;
 
-	printf("run_callbacks\n");
+	//printf("run_callbacks\n");
 	t = ep->first_transfer;
 	while (t && (uint32_t)t != 1) {
 		if (!(t->status & (1<<7))) {
