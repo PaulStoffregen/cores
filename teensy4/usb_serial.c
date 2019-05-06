@@ -208,43 +208,17 @@ void usb_serial_flush_input(void)
 #endif
 }
 
-// Maximum number of transmit packets to queue so we don't starve other endpoints for memory
-//#define TX_PACKET_LIMIT 8
-
 // When the PC isn't listening, how long do we wait before discarding data?  If this is
 // too short, we risk losing data during the stalls that are common with ordinary desktop
 // software.  If it's too long, we stall the user's program when no software is running.
-#define TX_TIMEOUT_MSEC 70
+#define TX_TIMEOUT_MSEC 120
 
-/*#if F_CPU == 240000000
-  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1600)
-#elif F_CPU == 216000000
-  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1440)
-#elif F_CPU == 192000000
-  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1280)
-#elif F_CPU == 180000000
-  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1200)
-#elif F_CPU == 168000000
-  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1100)
-#elif F_CPU == 144000000
-  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 932)
-#elif F_CPU == 120000000
-  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 764)
-#elif F_CPU == 96000000
-  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 596)
-#elif F_CPU == 72000000
-  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 512)
-#elif F_CPU == 48000000
-  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 428)
-#elif F_CPU == 24000000
-  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 262)
-#endif */
 
 // When we've suffered the transmit timeout, don't wait again until the computer
 // begins accepting data.  If no software is running to receive, we'll just discard
 // data as rapidly as Serial.print() can generate it, until there's something to
 // actually receive it.
-//static uint8_t transmit_previous_timeout=0;
+static uint8_t transmit_previous_timeout=0;
 
 
 // transmit a character.  0 returned on success, -1 on error
@@ -294,40 +268,42 @@ int usb_serial_write(const void *buffer, uint32_t size)
 	if (!usb_configuration) return 0;
 	while (size > 0) {
 		transfer_t *xfer = tx_transfer + tx_head;
-		//int waiting=0;
-		//uint32_t wait_begin_at=0;
+		int waiting=0;
+		uint32_t wait_begin_at=0;
 		while (!tx_available) {
 			//digitalWriteFast(3, HIGH);
 			uint32_t status = usb_transfer_status(xfer);
-			if (status & 0x7F) {
-				printf("ERROR status = %x, i=%d, ms=%u\n", status, tx_head, systick_millis_count);
-			}
 			if (!(status & 0x80)) {
-				// TODO: what if status has errors???
-				tx_available = TX_SIZE;
-				break;
-			}/*  else {
-				if (!waiting) {
-					wait_begin_at = systick_millis_count;
-					waiting = 1;
-				} else {
-					if (systick_millis_count - wait_begin_at > 250) {
-						printf("\nstop, waited too long\n");
-						printf("status = %x\n", status);
-						printf("tx head=%d\n", tx_head);
-						printf("TXFILLTUNING=%08lX\n", USB1_TXFILLTUNING);
-						usb_print_transfer_log();
-						while (1) ;
-					}
+				if (status & 0x68) {
+					// TODO: what if status has errors???
+					printf("ERROR status = %x, i=%d, ms=%u\n",
+						status, tx_head, systick_millis_count);
 				}
-			} */
-			// TODO: proper timout?
-			// TODO: check for USB offline
+				tx_available = TX_SIZE;
+				transmit_previous_timeout = 0;
+				break;
+			}
+			if (!waiting) {
+				wait_begin_at = systick_millis_count;
+				waiting = 1;
+			}
+			if (transmit_previous_timeout) return sent;
+			if (systick_millis_count - wait_begin_at > TX_TIMEOUT_MSEC) {
+				// waited too long, assume the USB host isn't listening
+				transmit_previous_timeout = 1;
+				return sent;
+				//printf("\nstop, waited too long\n");
+				//printf("status = %x\n", status);
+				//printf("tx head=%d\n", tx_head);
+				//printf("TXFILLTUNING=%08lX\n", USB1_TXFILLTUNING);
+				//usb_print_transfer_log();
+				//while (1) ;
+			}
+			if (!usb_configuration) return sent;
+			yield();
 		}
 		//digitalWriteFast(3, LOW);
-
 		uint8_t *txdata = txbuffer + (tx_head * TX_SIZE) + (TX_SIZE - tx_available);
-
 		if (size >= tx_available) {
 			memcpy(txdata, data, tx_available);
 			//*(txbuffer + (tx_head * TX_SIZE)) = 'A' + tx_head; // to see which buffer
