@@ -58,6 +58,12 @@ static void timer_start_oneshot();
 static void timer_stop();
 static void usb_serial_flush_callback(void);
 
+#define TX_NUM   7
+#define TX_SIZE  256  /* should be a multiple of CDC_TX_SIZE */
+static transfer_t tx_transfer[TX_NUM] __attribute__ ((used, aligned(32)));
+static uint8_t txbuffer[TX_SIZE * TX_NUM];
+static uint8_t tx_head=0;
+static uint16_t tx_available=0;
 
 #define RX_NUM  3
 static transfer_t rx_transfer[RX_NUM] __attribute__ ((used, aligned(32)));
@@ -83,6 +89,12 @@ void usb_serial_reset(void)
 void usb_serial_configure(void)
 {
 	printf("usb_serial_configure\n");
+	memset(tx_transfer, 0, sizeof(tx_transfer));
+	tx_head = 0;
+	tx_available = 0;
+	memset(rx_transfer, 0, sizeof(rx_transfer));
+	memset(rx_count, 0, sizeof(rx_count));
+	memset(rx_index, 0, sizeof(rx_index));
 	usb_config_tx(CDC_ACM_ENDPOINT, CDC_ACM_SIZE, 0, NULL);
 	usb_config_rx(CDC_RX_ENDPOINT, CDC_RX_SIZE, 0, rx_event);
 	usb_config_tx(CDC_TX_ENDPOINT, CDC_TX_SIZE, 0, NULL);
@@ -226,13 +238,6 @@ int usb_serial_putchar(uint8_t c)
 {
 	return usb_serial_write(&c, 1);
 }
-
-#define TX_NUM   7
-#define TX_SIZE  256  /* should be a multiple of CDC_TX_SIZE */
-static transfer_t tx_transfer[TX_NUM] __attribute__ ((used, aligned(32)));
-static uint8_t txbuffer[TX_SIZE * TX_NUM];
-static uint8_t tx_head=0;
-static uint16_t tx_available=0;
 
 extern volatile uint32_t systick_millis_count;
 
