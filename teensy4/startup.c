@@ -96,6 +96,15 @@ void ResetHandler(void)
 	set_arm_clock(600000000);
 	//set_arm_clock(984000000); Ludicrous Speed
 
+	// initialize RTC
+	if (!(SNVS_LPCR & SNVS_LPCR_SRTC_ENV)) {
+		// if SRTC isn't running, start it with default Jan 1, 2019
+		SNVS_LPSRTCLR = 1546300800u << 15;
+		SNVS_LPSRTCMR = 1546300800u >> 17;
+		SNVS_LPCR |= SNVS_LPCR_SRTC_ENV;
+	}
+	SNVS_HPCR |= SNVS_HPCR_RTC_EN | SNVS_HPCR_HP_TS;
+
 	while (millis() < 20) ; // wait at least 20ms before starting USB
 	usb_init();
 	analog_init();
