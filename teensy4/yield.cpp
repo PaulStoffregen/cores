@@ -39,6 +39,9 @@ void yield(void)
 	if (running) return; // TODO: does this need to be atomic?
 	running = 1;
 
+	// USB Serail - Add hack to minimize impact...
+	if (usb_enable_serial_event_processing && Serial.available()) serialEvent();
+
 	// Current workaround until integrate with EventResponder.
 	HardwareSerial::processSerialEvents();
 

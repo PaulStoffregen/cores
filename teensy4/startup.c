@@ -112,15 +112,16 @@ void ResetHandler(void)
 	tempmon_init();
 
 	while (millis() < 300) ; // wait at least 300ms before calling user code
-	printf("before C++ constructors\n");
+	//printf("before C++ constructors\n");
 	__libc_init_array();
-	printf("after C++ constructors\n");
-	printf("before setup\n");
+	//printf("after C++ constructors\n");
+	//printf("before setup\n");
 	setup();
-	printf("after setup\n");
+	//printf("after setup\n");
 	while (1) {
 		//printf("loop\n");
 		loop();
+		yield();
 	}
 }
 
