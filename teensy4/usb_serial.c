@@ -141,6 +141,10 @@ int usb_serial_getchar(void)
 // peek at the next character, or -1 if nothing received
 int usb_serial_peekchar(void)
 {
+	if (rx_index[0] < rx_count[0]) {
+		return rx_buffer[rx_index[0]];
+	}
+
 #if 0
 	if (!rx_packet) {
 		if (!usb_configuration) return -1;
@@ -169,7 +173,20 @@ int usb_serial_available(void)
 // read a block of bytes to a buffer
 int usb_serial_read(void *buffer, uint32_t size)
 {
-#if 0
+#if 1
+	// Quick and dirty to make it at least limp...
+	uint8_t *p = (uint8_t *)buffer;
+	uint32_t count=0;
+
+	while (size) {
+		int ch = usb_serial_getchar();
+		if (ch == -1) break;
+		*p++ = (uint8_t)ch;
+		size--;
+		count++;
+	}
+	return count;
+#else	
 	uint8_t *p = (uint8_t *)buffer;
 	uint32_t qty, count=0;
 
