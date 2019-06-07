@@ -44,6 +44,10 @@
 #define PIN_A7  (21)
 #define PIN_A8  (22)
 #define PIN_A9  (23)
+#define PIN_A10 (24)
+#define PIN_A11 (25)
+#define PIN_A12 (26)
+#define PIN_A13 (27)
 const static uint8_t A0 = PIN_A0;
 const static uint8_t A1 = PIN_A1;
 const static uint8_t A2 = PIN_A2;
@@ -54,13 +58,10 @@ const static uint8_t A6 = PIN_A6;
 const static uint8_t A7 = PIN_A7;
 const static uint8_t A8 = PIN_A8;
 const static uint8_t A9 = PIN_A9;
-
-#if defined(__IMXRT1052__)
-#define PIN_A10 (24)
-#define PIN_A11 (25)
 const static uint8_t A10 = PIN_A10;
 const static uint8_t A11 = PIN_A11;
-#endif
+const static uint8_t A12 = PIN_A12;
+const static uint8_t A13 = PIN_A13;
 
 #define LED_BUILTIN   (13)
 
@@ -83,14 +84,14 @@ const static uint8_t SCL = 19;
 
 
 #define NUM_DIGITAL_PINS  40
-#define NUM_ANALOG_INPUTS 12
+#define NUM_ANALOG_INPUTS 14
 
 
 #define NOT_AN_INTERRUPT -1
 
 
-#if defined(__IMXRT1052__)
-  #define analogInputToDigitalPin(p) (((p) <= 9) ? (p) + 14 : (((p) >= 14 && (p) <= 25) ? (p) : -1))
+#if defined(__IMXRT1052__) || defined(__IMXRT1062__)
+  #define analogInputToDigitalPin(p) (((p) <= 9) ? (p) + 14 : (((p) >= 14 && (p) <= 27) ? (p) : -1))
   #define digitalPinHasPWM(p) ((p) <= 15 || (p) == 18 || (p) == 19 || ((p) >= 22 && (p) <= 25) || ((p) >= 28 && (p) <= 31) || (p) == 33)
   #define digitalPinToInterrupt(p)  ((p) < NUM_DIGITAL_PINS ? (p) : -1)
 #endif
