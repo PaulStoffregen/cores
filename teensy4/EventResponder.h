@@ -170,6 +170,7 @@ public:
 	EventResponder * waitForEvent(EventResponder *list, int listsize, int timeout);
 
 	static void runFromYield() {
+		if (!firstYield) return;
 		// First, check if yield was called from an interrupt
 		// never call normal handler functions from any interrupt context
 		uint32_t ipsr;
