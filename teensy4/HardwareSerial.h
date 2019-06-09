@@ -181,6 +181,7 @@ public:
 	void enableSerialEvents();
 	void disableSerialEvents();
 	static void processSerialEvents();
+	static uint8_t serial_event_handlers_active;
 
 	using Print::write; 
 	// Only overwrite some of the virtualWrite functions if we are going to optimize them over Print version
@@ -236,7 +237,6 @@ private:
 	#else	
 	static SerialEventCheckingFunctionPointer serial_event_handler_checks[7];
 	#endif
-	static uint8_t serial_event_handlers_active;
 
 
 
