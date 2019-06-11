@@ -71,3 +71,40 @@ HardwareSerial Serial1(&IMXRT_LPUART6, &UART6_Hardware, tx_buffer1, SERIAL1_TX_B
 
 void serialEvent1() __attribute__((weak));
 void serialEvent1() {Serial1.disableSerialEvents(); }		// No use calling this so disable if called...
+
+// C wrapper functions to help take care of places that used to call these from standard C
+void serial_print(const char *p)
+{
+	Serial1.write(p);
+}
+
+static void serial_phex1(uint32_t n)
+{
+	n &= 15;
+	if (n < 10) {
+		Serial1.write('0' + n);
+	} else {
+		Serial1.write('A' - 10 + n);
+	}
+}
+
+void serial_phex(uint32_t n)
+{
+	serial_phex1(n >> 4);
+	serial_phex1(n);
+}
+
+void serial_phex16(uint32_t n)
+{
+	serial_phex(n >> 8);
+	serial_phex(n);
+}
+
+void serial_phex32(uint32_t n)
+{
+	serial_phex(n >> 24);
+	serial_phex(n >> 16);
+	serial_phex(n >> 8);
+	serial_phex(n);
+}
+

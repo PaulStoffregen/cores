@@ -181,6 +181,7 @@ public:
 	void enableSerialEvents();
 	void disableSerialEvents();
 	static void processSerialEvents();
+	static uint8_t serial_event_handlers_active;
 
 	using Print::write; 
 	// Only overwrite some of the virtualWrite functions if we are going to optimize them over Print version
@@ -236,7 +237,6 @@ private:
 	#else	
 	static SerialEventCheckingFunctionPointer serial_event_handler_checks[7];
 	#endif
-	static uint8_t serial_event_handlers_active;
 
 
 
@@ -265,6 +265,20 @@ extern void serialEvent8(void);
 #endif // __cplusplus
 
 
+// c functions to call c++ code in case some programs call the old functions
+// Defined under extern "C" {}
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+extern void serial_print(const char *p);
+extern void serial_phex(uint32_t n);
+extern void serial_phex16(uint32_t n);
+extern void serial_phex32(uint32_t n);
+
+#ifdef __cplusplus
+}
+#endif
 
 
 // TODO: replace with proper divisor+oversample calculation
