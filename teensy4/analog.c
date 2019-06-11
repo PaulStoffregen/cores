@@ -18,10 +18,17 @@ const uint8_t pin_to_channel[] = { // pg 482
 	0,	// 7/A7  AD_B1_11
 	13,	// 8/A8  AD_B1_08
 	14,	// 9/A9  AD_B1_09
+#if 0
 	128,	// 10
 	128,	// 11
 	128,	// 12
 	128,	// 13
+#else
+	1,	// 24/A10 AD_B0_12 
+	2,	// 25/A11 AD_B0_13
+	128+3,	// 26/A12 AD_B1_14 - only on ADC2, 3
+	128+4,	// 27/A13 AD_B1_15 - only on ADC2, 4
+#endif	
 	7,	// 14/A0  AD_B1_02
 	8,	// 15/A1  AD_B1_03
 	12,	// 16/A2  AD_B1_07
@@ -33,19 +40,19 @@ const uint8_t pin_to_channel[] = { // pg 482
 	13,	// 22/A8  AD_B1_08
 	14,	// 23/A9  AD_B1_09
 	1,	// 24/A10 AD_B0_12
-	2	// 25/A11 AD_B0_13
-		// 26/A12 AD_B1_14 - only on ADC2
-		// 27/A13 AD_B1_15 - only on ADC2
+	2,	// 25/A11 AD_B0_13
+	128+3,	// 26/A12 AD_B1_14 - only on ADC2, 3
+	128+4	// 27/A13 AD_B1_15 - only on ADC2, 4
 };
 
 
 static void wait_for_cal(void)
 {
-	printf("wait_for_cal\n");
+	//printf("wait_for_cal\n");
 	while (ADC1_GC & ADC_GC_CAL) ;
 	// TODO: check CALF, but what do to about CAL failure?
 	calibrating = 0;
-	printf("cal complete\n");
+	//printf("cal complete\n");
 }
 
 
@@ -54,10 +61,17 @@ int analogRead(uint8_t pin)
 	if (pin > sizeof(pin_to_channel)) return 0;
 	if (calibrating) wait_for_cal();
 	uint8_t ch = pin_to_channel[pin];
-	if (ch > 15) return 0;
-	ADC1_HC0 = ch;
-	while (!(ADC1_HS & ADC_HS_COCO0)) ; // wait
-	return ADC1_R0;
+//	printf("%d\n", ch);
+//	if (ch > 15) return 0;
+	if(!(ch & 0x80)) {
+		ADC1_HC0 = ch;
+		while (!(ADC1_HS & ADC_HS_COCO0)) ; // wait
+		return ADC1_R0;
+	} else {
+		ADC2_HC0 = ch & 0x7f;
+		while (!(ADC2_HS & ADC_HS_COCO0)) ; // wait
+		return ADC2_R0;
+	}
 }
 
 void analogReference(uint8_t type)
@@ -85,32 +99,53 @@ void analogReadRes(unsigned int bits)
 
   tmp32 |= mode; 
   ADC1_CFG = tmp32;
+  
+  tmp32  = (ADC2_CFG & (0xFFFFFC00));
+  tmp32 |= (ADC2_CFG & (0x03));  // ADICLK
+  tmp32 |= (ADC2_CFG & (0xE0));  // ADIV & ADLPC
+
+  tmp32 |= mode; 
+  ADC2_CFG = tmp32;
 }
 
 void analogReadAveraging(unsigned int num)
 {
-  uint32_t mode;
+  uint32_t mode, mode1;
   
-  //disable averaging
+  //disable averaging, ADC1 and ADC2
   ADC1_GC &= ~0x20;
   mode = ADC1_CFG & ~0xC000;
-
+  ADC2_GC &= ~0x20;
+  mode1 = ADC2_CFG & ~0xC000;
+  
     if (num >= 32) {
       mode |= ADC_CFG_AVGS(3);
+      mode1 |= ADC_CFG_AVGS(3);
+
     } else if (num >= 16) {
       mode |= ADC_CFG_AVGS(2);
+      mode1 |= ADC_CFG_AVGS(2);
+
     } else if (num >= 8) {
       mode |= ADC_CFG_AVGS(1);
+      mode1 |= ADC_CFG_AVGS(1);
+
     } else if (num >= 4) {
       mode |= ADC_CFG_AVGS(0);
+      mode1 |= ADC_CFG_AVGS(0);
+
     } else {
       mode |= 0;
+      mode1 |= 0;
     }
 
   ADC1_CFG |= mode;
-
-  if(num >= 4)
+  ADC2_CFG |= mode1;
+  
+  if(num >= 4){
       ADC1_GC |= ADC_GC_AVGE;// turns on averaging
+      ADC2_GC |= ADC_GC_AVGE;// turns on averaging
+  }
 }
 
 #define MAX_ADC_CLOCK 20000000
@@ -123,7 +158,8 @@ void analog_init(void)
 	printf("analogInit\n");
 
 	CCM_CCGR1 |= CCM_CCGR1_ADC1(CCM_CCGR_ON);
-
+	CCM_CCGR1 |= CCM_CCGR1_ADC2(CCM_CCGR_ON);
+	
 	if (analog_config_bits == 8) {
 		// 8 bit conversion (17 clocks) plus 8 clocks for input settling
 		mode = ADC_CFG_MODE(0) | ADC_CFG_ADSTS(3);
@@ -160,10 +196,18 @@ void analog_init(void)
 		mode |= ADC_CFG_ADIV(0) | ADC_CFG_ADICLK(0); // use IPG
 	}
 #endif
-
+	//ADC1
 	ADC1_CFG = mode | ADC_HC_AIEN | ADC_CFG_ADHSC;
 	ADC1_GC = avg | ADC_GC_CAL;		// begin cal
 	calibrating = 1;
+	while (ADC1_GC & ADC_GC_CAL) ;
+	calibrating = 0;
+	//ADC2
+	ADC2_CFG = mode | ADC_HC_AIEN | ADC_CFG_ADHSC;
+	ADC2_GC = avg | ADC_GC_CAL;		// begin cal
+	calibrating = 1;
+	while (ADC1_GC & ADC_GC_CAL) ;
+	calibrating = 0;
 }
 
 
