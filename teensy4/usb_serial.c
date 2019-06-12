@@ -276,30 +276,14 @@ int usb_serial_write(const void *buffer, uint32_t size)
 
 int usb_serial_write_buffer_free(void)
 {
-#if 0
-	uint32_t len;
-
+	uint32_t sum = 0;
 	tx_noautoflush = 1;
-	if (!tx_packet) {
-		if (!usb_configuration ||
-		  usb_tx_packet_count(CDC_TX_ENDPOINT) >= TX_PACKET_LIMIT ||
-		  (tx_packet = usb_malloc()) == NULL) {
-			tx_noautoflush = 0;
-			return 0;
-		}
+	for (uint32_t i=0; i < TX_NUM; i++) {
+		if (i == tx_head) continue;
+		if (!(usb_transfer_status(tx_transfer + i) & 0x80)) sum += TX_SIZE;
 	}
-	len = CDC_TX_SIZE - tx_packet->index;
-	// TODO: Perhaps we need "usb_cdc_transmit_flush_timer = TRANSMIT_FLUSH_TIMEOUT"
-	// added here, so the SOF interrupt can't take away the available buffer
-	// space we just promised the user could write without blocking?
-	// But does this come with other performance downsides?  Could it lead to
-	// buffer data never actually transmitting in some usage cases?  More
-	// investigation is needed.
-	// https://github.com/PaulStoffregen/cores/issues/10#issuecomment-61514955
 	tx_noautoflush = 0;
-	return len;
-#endif
-	return 0;
+	return sum;
 }
 
 void usb_serial_flush_output(void)
