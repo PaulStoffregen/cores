@@ -116,25 +116,6 @@ int usb_serial_getchar(void)
 		}
 		return c;
 	}
-#if 0
-	unsigned int i;
-	int c;
-
-	if (!rx_packet) {
-		if (!usb_configuration) return -1;
-		rx_packet = usb_rx(CDC_RX_ENDPOINT);
-		if (!rx_packet) return -1;
-	}
-	i = rx_packet->index;
-	c = rx_packet->buf[i++];
-	if (i >= rx_packet->len) {
-		usb_free(rx_packet);
-		rx_packet = NULL;
-	} else {
-		rx_packet->index = i;
-	}
-	return c;
-#endif
 	return -1;
 }
 
@@ -145,15 +126,6 @@ int usb_serial_peekchar(void)
 		return rx_buffer[rx_index[0]];
 	}
 
-#if 0
-	if (!rx_packet) {
-		if (!usb_configuration) return -1;
-		rx_packet = usb_rx(CDC_RX_ENDPOINT);
-		if (!rx_packet) return -1;
-	}
-	if (!rx_packet) return -1;
-	return rx_packet->buf[rx_packet->index];
-#endif
 	return -1;
 }
 
@@ -161,19 +133,11 @@ int usb_serial_peekchar(void)
 int usb_serial_available(void)
 {
 	return rx_count[0] - rx_index[0];
-#if 0
-	int count;
-	count = usb_rx_byte_count(CDC_RX_ENDPOINT);
-	if (rx_packet) count += rx_packet->len - rx_packet->index;
-	return count;
-#endif
-	return 0;
 }
 
 // read a block of bytes to a buffer
 int usb_serial_read(void *buffer, uint32_t size)
 {
-#if 1
 	// Quick and dirty to make it at least limp...
 	uint8_t *p = (uint8_t *)buffer;
 	uint32_t count=0;
@@ -186,55 +150,16 @@ int usb_serial_read(void *buffer, uint32_t size)
 		count++;
 	}
 	return count;
-#else	
-	uint8_t *p = (uint8_t *)buffer;
-	uint32_t qty, count=0;
-
-	while (size) {
-		if (!usb_configuration) break;
-		if (!rx_packet) {
-			rx:
-			rx_packet = usb_rx(CDC_RX_ENDPOINT);
-			if (!rx_packet) break;
-			if (rx_packet->len == 0) {
-				usb_free(rx_packet);
-				goto rx;
-			}
-		}
-		qty = rx_packet->len - rx_packet->index;
-		if (qty > size) qty = size;
-		memcpy(p, rx_packet->buf + rx_packet->index, qty);
-		p += qty;
-		count += qty;
-		size -= qty;
-		rx_packet->index += qty;
-		if (rx_packet->index >= rx_packet->len) {
-			usb_free(rx_packet);
-			rx_packet = NULL;
-		}
-	}
-	return count;
-#endif
-	return 0;
 }
 
 // discard any buffered input
 void usb_serial_flush_input(void)
 {
-#if 0
-	usb_packet_t *rx;
-
-	if (!usb_configuration) return;
-	if (rx_packet) {
-		usb_free(rx_packet);
-		rx_packet = NULL;
+	if (rx_index[0] < rx_count[0]) {
+		rx_index[0] = rx_count[0];
+		usb_prepare_transfer(rx_transfer + 0, rx_buffer + 0, CDC_RX_SIZE, 0);
+		usb_receive(CDC_RX_ENDPOINT, rx_transfer + 0);
 	}
-	while (1) {
-		rx = usb_rx(CDC_RX_ENDPOINT);
-		if (!rx) break;
-		usb_free(rx);
-	}
-#endif
 }
 
 // When the PC isn't listening, how long do we wait before discarding data?  If this is
