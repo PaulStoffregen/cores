@@ -5857,6 +5857,14 @@ extern void software_isr(void);
 extern void (* _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
 extern void (* const _VectorsFlash[NVIC_NUM_INTERRUPTS+16])(void);
 
+// Cache management functions for compatibility with Teensy 4.0
+__attribute__((always_inline, unused))
+static inline void arm_dcache_flush(void *addr, uint32_t size) { }
+__attribute__((always_inline, unused))
+static inline void arm_dcache_delete(void *addr, uint32_t size) { }
+__attribute__((always_inline, unused))
+static inline void arm_dcache_flush_delete(void *addr, uint32_t size) { }
+
 #ifdef __cplusplus
 }
 #endif
