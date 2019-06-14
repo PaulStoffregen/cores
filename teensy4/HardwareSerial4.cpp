@@ -57,14 +57,10 @@ static BUFTYPE rx_buffer4[SERIAL4_RX_BUFFER_SIZE];
 static HardwareSerial::hardware_t UART3_Hardware = {
 	3, IRQ_LPUART3, &IRQHandler_Serial4, &serial_event_check_serial4,
 	CCM_CCGR0, CCM_CCGR0_LPUART3(CCM_CCGR_ON),
-	16, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_07, // pin 16
-	17, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_06, // pin 17
+	{{16,2, &IOMUXC_LPUART3_RX_SELECT_INPUT, 0}, {0xff, 0xff, nullptr, 0}},
+	{{17,2, nullptr, 0}, {0xff, 0xff, nullptr, 0}},
 	0xff, // No CTS pin
-	IOMUXC_LPUART3_RX_SELECT_INPUT,
-	2, // page 495
-	2, // page 494
 	0, // No CTS
-	0, // Page 857
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 };
 HardwareSerial Serial4(&IMXRT_LPUART3, &UART3_Hardware, tx_buffer4, SERIAL4_TX_BUFFER_SIZE,

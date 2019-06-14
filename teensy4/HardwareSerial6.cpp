@@ -53,19 +53,14 @@ void serial_event_check_serial6()
 // Serial6
 static BUFTYPE tx_buffer6[SERIAL6_TX_BUFFER_SIZE];
 static BUFTYPE rx_buffer6[SERIAL6_RX_BUFFER_SIZE];
-uint32_t IOMUXC_LPUART1_RX_SELECT_INPUT;		// bugbug - does not exist so hack
 
 static HardwareSerial::hardware_t UART1_Hardware = {
 	5, IRQ_LPUART1, &IRQHandler_Serial6, &serial_event_check_serial6,
 	CCM_CCGR5, CCM_CCGR5_LPUART1(CCM_CCGR_ON),
-	25, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B0_13, // pin 25
-	24, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B0_12, // pin 24
+	{{25,2, nullptr, 0}, {0xff, 0xff, nullptr, 0}},
+	{{24,2, nullptr, 0}, {0xff, 0xff, nullptr, 0}},
 	0xff, // No CTS pin
-	IOMUXC_LPUART1_RX_SELECT_INPUT,
-	2, // page 486
-	2, // page 485
 	0, // No CTS
-	0, // ??? Does not have one ???
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 
 };

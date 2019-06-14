@@ -59,18 +59,14 @@ static HardwareSerial::hardware_t UART4_Hardware = {
 	1, IRQ_LPUART4, &IRQHandler_Serial2, &serial_event_check_serial2,
 	CCM_CCGR1, CCM_CCGR1_LPUART4(CCM_CCGR_ON),
 	#if defined(__IMXRT1052__)   
-	6, //IOMUXC_SW_MUX_CTL_PAD_GPIO_B1_01, // pin 6
-	7, // IOMUXC_SW_MUX_CTL_PAD_GPIO_B1_00, // pin 7
+	{{6,2, &IOMUXC_LPUART4_RX_SELECT_INPUT, 2}, {0xff, 0xff, nullptr, 0}},
+	{{7,2, nullptr, 0}, {0xff, 0xff, nullptr, 0}},
 	#elif defined(__IMXRT1062__)
-	7, //IOMUXC_SW_MUX_CTL_PAD_GPIO_B1_01, // pin 6
-	8, // IOMUXC_SW_MUX_CTL_PAD_GPIO_B1_00, // pin 7
+	{{7,2, &IOMUXC_LPUART4_RX_SELECT_INPUT, 2}, {0xff, 0xff, nullptr, 0}},
+	{{8,2, nullptr, 0}, {0xff, 0xff, nullptr, 0}},
 	#endif
 	0xff, // No CTS pin
-	IOMUXC_LPUART4_RX_SELECT_INPUT,
-	2, // page 521
-	2, // page 520
 	0, // No CTS
-	2, // page 858
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 };
 HardwareSerial Serial2(&IMXRT_LPUART4, &UART4_Hardware, tx_buffer2, SERIAL2_TX_BUFFER_SIZE, 

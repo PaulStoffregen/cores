@@ -130,16 +130,19 @@ void HardwareSerial::begin(uint32_t baud, uint16_t format)
 
 	hardware->ccm_register |= hardware->ccm_value;
 
-	uint32_t fastio = IOMUXC_PAD_SRE | IOMUXC_PAD_DSE(3) | IOMUXC_PAD_SPEED(3);
-	*(portControlRegister(hardware->rx_pin)) = fastio;
-	*(portControlRegister(hardware->tx_pin)) = fastio;
+//	uint32_t fastio = IOMUXC_PAD_SRE | IOMUXC_PAD_DSE(3) | IOMUXC_PAD_SPEED(3);
 
-	*(portConfigRegister(hardware->rx_pin)) = hardware->rx_mux_val;
-	*(portConfigRegister(hardware->tx_pin)) = hardware->tx_mux_val;
+	*(portControlRegister(hardware->rx_pins[rx_pin_index_].pin)) = IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS;
+	*(portConfigRegister(hardware->rx_pins[rx_pin_index_].pin)) = hardware->rx_pins[rx_pin_index_].mux_val;
+	if (hardware->rx_pins[rx_pin_index_].select_input_register) {
+	 	*(hardware->rx_pins[rx_pin_index_].select_input_register) =  hardware->rx_pins[rx_pin_index_].select_val;		
+	}	
+
+	*(portControlRegister(hardware->tx_pins[tx_pin_index_].pin)) =  IOMUXC_PAD_SRE | IOMUXC_PAD_DSE(3) | IOMUXC_PAD_SPEED(3);
+	*(portConfigRegister(hardware->tx_pins[tx_pin_index_].pin)) = hardware->tx_pins[tx_pin_index_].mux_val;
 
 	//hardware->rx_mux_register = hardware->rx_mux_val;
 	//hardware->tx_mux_register = hardware->tx_mux_val;
-	hardware->rx_select_input_register = hardware->rx_select_val;
 
 	port->BAUD = LPUART_BAUD_OSR(bestosr - 1) | LPUART_BAUD_SBR(bestdiv);
 	port->PINCFG = 0;
@@ -210,8 +213,8 @@ void HardwareSerial::end(void)
 	port->CTRL = 0;	// disable the TX and RX ...
 
 	// Not sure if this is best, but I think most IO pins default to Mode 5? which appears to be digital IO? 
-	*(portConfigRegister(hardware->rx_pin)) = 5;
-	*(portConfigRegister(hardware->tx_pin)) = 5;
+	*(portConfigRegister(hardware->rx_pins[rx_pin_index_].pin)) = 5;
+	*(portConfigRegister(hardware->tx_pins[tx_pin_index_].pin)) = 5;
 
 
 	// Might need to clear out other areas as well? 
@@ -233,21 +236,52 @@ void HardwareSerial::transmitterEnable(uint8_t pin)
 
 void HardwareSerial::setRX(uint8_t pin)
 {
-	// Currently none of these have multiple 
-	// possible RX pins
+	if (pin != hardware->rx_pins[rx_pin_index_].pin) {
+		for (uint8_t rx_pin_new_index = 0; rx_pin_new_index < cnt_rx_pins; rx_pin_new_index++) {
+			if (pin == hardware->rx_pins[rx_pin_index_].pin) {
+				// new pin - so lets maybe reset the old pin to INPUT? and then set new pin parameters
+				*(portConfigRegister(hardware->rx_pins[rx_pin_index_].pin)) = 5;
 
+				// now set new pin info.
+				rx_pin_index_ = rx_pin_new_index;
+				*(portControlRegister(hardware->rx_pins[rx_pin_index_].pin)) =  IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS;;
+				*(portConfigRegister(hardware->rx_pins[rx_pin_index_].pin)) = hardware->rx_pins[rx_pin_index_].mux_val;
+				if (hardware->rx_pins[rx_pin_index_].select_input_register) {
+				 	*(hardware->rx_pins[rx_pin_index_].select_input_register) =  hardware->rx_pins[rx_pin_index_].select_val;		
+				}	
+				break;
+			}
+		}
+	}
 }
 
 void HardwareSerial::setTX(uint8_t pin, bool opendrain)
 {
-	// While all of our TX pins only have one defined pin, we can choose to 
-	// turn on or off opendrain mode.
-	if (pin == hardware->tx_pin) {
-		if (opendrain) 
-			*(portControlRegister(hardware->tx_pin)) = IOMUXC_PAD_ODE | IOMUXC_PAD_DSE(3) | IOMUXC_PAD_SPEED(3);
-		else 	
-			*(portControlRegister(hardware->tx_pin)) = IOMUXC_PAD_SRE | IOMUXC_PAD_DSE(3) | IOMUXC_PAD_SPEED(3);
+	uint8_t tx_pin_new_index = tx_pin_index_;
+
+	if (pin != hardware->tx_pins[tx_pin_index_].pin) {
+		for (tx_pin_new_index = 0; tx_pin_new_index < cnt_tx_pins; tx_pin_new_index++) {
+			if (pin == hardware->tx_pins[tx_pin_index_].pin) {
+				break;
+			}
+		}
+		if (tx_pin_new_index == cnt_tx_pins) return;	// not a new valid pid... 
 	}
+
+	// turn on or off opendrain mode.
+	// new pin - so lets maybe reset the old pin to INPUT? and then set new pin parameters
+	if (tx_pin_new_index != tx_pin_index_) {
+		*(portConfigRegister(hardware->tx_pins[tx_pin_index_].pin)) = 5;
+	
+		*(portConfigRegister(hardware->tx_pins[tx_pin_new_index].pin)) = hardware->tx_pins[tx_pin_new_index].mux_val;
+	}
+
+	// now set new pin info.
+	tx_pin_index_ = tx_pin_new_index;
+	if (opendrain) 
+		*(portControlRegister(pin)) = IOMUXC_PAD_ODE | IOMUXC_PAD_DSE(3) | IOMUXC_PAD_SPEED(3);
+	else 	
+		*(portControlRegister(pin)) = IOMUXC_PAD_SRE | IOMUXC_PAD_DSE(3) | IOMUXC_PAD_SPEED(3);
 }
 
 
