@@ -56,14 +56,10 @@ static BUFTYPE rx_buffer3[SERIAL3_RX_BUFFER_SIZE];
 static HardwareSerial::hardware_t UART2_Hardware = {
 	2, IRQ_LPUART2, &IRQHandler_Serial3, &serial_event_check_serial3, 
 	CCM_CCGR0, CCM_CCGR0_LPUART2(CCM_CCGR_ON),
-	15, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_03, // pin 15
-	14, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_02, // pin 14
+	{{15,2, &IOMUXC_LPUART2_RX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
+	{{14,2, nullptr, 0}, {0xff, 0xff, nullptr, 0}},
 	18, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_01, // 18
-	IOMUXC_LPUART2_RX_SELECT_INPUT,
-	2, // page 491
-	2, // page 490
 	2, // page 473 
-	1, // Page 855
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 };
 HardwareSerial Serial3(&IMXRT_LPUART2, &UART2_Hardware,tx_buffer3, SERIAL3_TX_BUFFER_SIZE,

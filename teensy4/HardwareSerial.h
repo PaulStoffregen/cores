@@ -130,6 +130,15 @@ typedef void(*SerialEventCheckingFunctionPointer)();
 class HardwareSerial : public Stream
 {
 public:
+	static const uint8_t cnt_tx_pins = 2;
+	static const uint8_t cnt_rx_pins = 2;
+	typedef struct {
+		const uint8_t 		pin;		// The pin number
+		const uint32_t 		mux_val;	// Value to set for mux;
+		volatile uint32_t	*select_input_register; // Which register controls the selection
+		const uint32_t		select_val;	// Value for that selection
+	} pin_info_t;
+
 	typedef struct {
 		uint8_t serial_index;	// which object are we? 0 based
 		IRQ_NUMBER_t irq;
@@ -137,14 +146,10 @@ public:
 		void (*serial_event_handler_check)(void);
 		volatile uint32_t &ccm_register;
 		const uint32_t ccm_value;
-		const uint8_t rx_pin;
-		const uint8_t tx_pin;
+		pin_info_t rx_pins[cnt_tx_pins];
+		pin_info_t tx_pins[cnt_tx_pins];
 		const uint8_t cts_pin;
-		volatile uint32_t &rx_select_input_register;
-		const uint8_t rx_mux_val;
-		const uint8_t tx_mux_val;
 		const uint8_t cts_mux_val;
-		const uint8_t rx_select_val;
 		const uint16_t irq_priority;
 		const uint16_t rts_low_watermark;
 		const uint16_t rts_high_watermark;
@@ -197,6 +202,8 @@ public:
 private:
 	IMXRT_LPUART_t * const port;
 	const hardware_t * const hardware;
+	uint8_t				rx_pin_index_ = 0x0;	// default is always first item
+	uint8_t				tx_pin_index_ = 0x0;
 
 	volatile BUFTYPE 	*tx_buffer_;
 	volatile BUFTYPE 	*rx_buffer_;

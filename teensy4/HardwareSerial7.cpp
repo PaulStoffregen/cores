@@ -57,15 +57,10 @@ static BUFTYPE rx_buffer7[SERIAL7_RX_BUFFER_SIZE];
 static HardwareSerial::hardware_t UART7_Hardware = {
 	6, IRQ_LPUART7, &IRQHandler_Serial7, &serial_event_check_serial7,
 	CCM_CCGR5, CCM_CCGR5_LPUART7(CCM_CCGR_ON),
-	28, //IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_32, // pin 28
-	29, //IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_31, // pin 29
+	{{28,2, &IOMUXC_LPUART7_RX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
+	{{29,2, nullptr, 0}, {0xff, 0xff, nullptr, 0}},
 	0xff, // No CTS pin
-	IOMUXC_LPUART7_RX_SELECT_INPUT,
-	2, // page 458
-	2, // page 457
 	0, // No CTS
-	1, // Page 863
-
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 };
 HardwareSerial Serial7(&IMXRT_LPUART7, &UART7_Hardware, tx_buffer7, SERIAL7_TX_BUFFER_SIZE,
