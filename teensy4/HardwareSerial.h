@@ -146,7 +146,7 @@ public:
 		void (*serial_event_handler_check)(void);
 		volatile uint32_t &ccm_register;
 		const uint32_t ccm_value;
-		pin_info_t rx_pins[cnt_tx_pins];
+		pin_info_t rx_pins[cnt_rx_pins];
 		pin_info_t tx_pins[cnt_tx_pins];
 		const uint8_t cts_pin;
 		const uint8_t cts_mux_val;
