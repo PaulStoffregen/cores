@@ -68,7 +68,7 @@
 static uint8_t device_descriptor[] = {
         18,                                     // bLength
         1,                                      // bDescriptorType
-        0x10, 0x01,                             // bcdUSB
+        0x00, 0x02,                             // bcdUSB
 #ifdef DEVICE_CLASS
         DEVICE_CLASS,                           // bDeviceClass
 #else
@@ -114,6 +114,30 @@ static uint8_t device_descriptor[] = {
         2,                                      // iProduct
         3,                                      // iSerialNumber
         1                                       // bNumConfigurations
+};
+
+static uint8_t qualifier_descriptor[] = {	// 9.6.2 Device_Qualifier, page 264
+	10,					// bLength
+	6,					// bDescriptorType
+	0x00, 0x02,				// bcdUSB
+#ifdef DEVICE_CLASS
+        DEVICE_CLASS,                           // bDeviceClass
+#else
+	0,
+#endif
+#ifdef DEVICE_SUBCLASS
+        DEVICE_SUBCLASS,                        // bDeviceSubClass
+#else
+	0,
+#endif
+#ifdef DEVICE_PROTOCOL
+        DEVICE_PROTOCOL,                        // bDeviceProtocol
+#else
+	0,
+#endif
+        EP0_SIZE,                               // bMaxPacketSize0
+        1,					// bNumConfigurations
+        0                                       // bReserved
 };
 
 // These descriptors must NOT be "const", because the USB DMA
@@ -648,7 +672,7 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         CDC_ACM_ENDPOINT | 0x80,                // bEndpointAddress
         0x03,                                   // bmAttributes (0x03=intr)
         CDC_ACM_SIZE, 0,                        // wMaxPacketSize
-        64,                                     // bInterval
+        16,                                     // bInterval
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
         4,                                      // bDescriptorType
@@ -1493,7 +1517,9 @@ void usb_init_serialnumber(void)
 const usb_descriptor_list_t usb_descriptor_list[] = {
 	//wValue, wIndex, address,          length
 	{0x0100, 0x0000, device_descriptor, sizeof(device_descriptor)},
+	{0x0600, 0x0000, qualifier_descriptor, sizeof(qualifier_descriptor)},
 	{0x0200, 0x0000, config_descriptor, sizeof(config_descriptor)},
+	{0x0700, 0x0000, config_descriptor, sizeof(config_descriptor)},
 #ifdef SEREMU_INTERFACE
 	{0x2200, SEREMU_INTERFACE, seremu_report_desc, sizeof(seremu_report_desc)},
 	{0x2100, SEREMU_INTERFACE, config_descriptor+SEREMU_HID_DESC_OFFSET, 9},

@@ -315,10 +315,12 @@ transfer_t endpoint0_transfer_data __attribute__ ((aligned(32)));;
 transfer_t endpoint0_transfer_ack  __attribute__ ((aligned(32)));;
 */
 
+static uint8_t reply_buffer[8];
+
 static void endpoint0_setup(uint64_t setupdata)
 {
 	setup_t setup;
-	uint32_t datalen = 0;
+	uint32_t endpoint, dir, ctrl, datalen = 0;
 	const usb_descriptor_list_t *list;
 
 	setup.bothwords = setupdata;
@@ -369,10 +371,51 @@ static void endpoint0_setup(uint64_t setupdata)
 		#endif
 		endpoint0_receive(NULL, 0, 0);
 		return;
-
+	  case 0x0880: // GET_CONFIGURATION
+		reply_buffer[0] = usb_configuration;
+		endpoint0_transmit(reply_buffer, 1, 0);
+		return;
+	  case 0x0080: // GET_STATUS (device)
+		reply_buffer[0] = 0;
+		reply_buffer[1] = 0;
+		endpoint0_transmit(reply_buffer, 2, 0);
+		return;
+	  case 0x0082: // GET_STATUS (endpoint)
+		endpoint = setup.wIndex & 0x7F;
+		if (endpoint > 7) break;
+		dir = setup.wIndex & 0x80;
+		ctrl = *((uint32_t *)&USB1_ENDPTCTRL0 + endpoint);
+		reply_buffer[0] = 0;
+		reply_buffer[1] = 0;
+		if ((dir && (ctrl & USB_ENDPTCTRL_TXS)) || (!dir && (ctrl & USB_ENDPTCTRL_RXS))) {
+			reply_buffer[0] = 1;
+		}
+		endpoint0_transmit(reply_buffer, 2, 0);
+		return;
+	  case 0x0302: // SET_FEATURE (endpoint)
+		endpoint = setup.wIndex & 0x7F;
+		if (endpoint > 7) break;
+		dir = setup.wIndex & 0x80;
+		if (dir) {
+			*((volatile uint32_t *)&USB1_ENDPTCTRL0 + endpoint) |= USB_ENDPTCTRL_TXS;
+		} else {
+			*((volatile uint32_t *)&USB1_ENDPTCTRL0 + endpoint) |= USB_ENDPTCTRL_RXS;
+		}
+		endpoint0_receive(NULL, 0, 0);
+		return;
+	  case 0x0102: // CLEAR_FEATURE (endpoint)
+		endpoint = setup.wIndex & 0x7F;
+		if (endpoint > 7) break;
+		dir = setup.wIndex & 0x80;
+		if (dir) {
+			*((volatile uint32_t *)&USB1_ENDPTCTRL0 + endpoint) &= ~USB_ENDPTCTRL_TXS;
+		} else {
+			*((volatile uint32_t *)&USB1_ENDPTCTRL0 + endpoint) &= ~USB_ENDPTCTRL_RXS;
+		}
+		endpoint0_receive(NULL, 0, 0);
+		return;
 	  case 0x0680: // GET_DESCRIPTOR
 	  case 0x0681:
-		//printf("desc:\n");  // yay - sending device descriptor now works!!!!
 		for (list = usb_descriptor_list; list->addr != NULL; list++) {
 			if (setup.wValue == list->wValue && setup.wIndex == list->wIndex) {
 				if ((setup.wValue >> 8) == 3) {
