@@ -216,10 +216,10 @@ private:
 	size_t  			rts_low_watermark_ = 0;
 	size_t  			rts_high_watermark_ = 0;
 	volatile uint8_t 	transmitting_ = 0;
-	volatile uint16_t 	tx_buffer_head_ = 0;
-	volatile uint16_t 	tx_buffer_tail_ = 0;
-	volatile uint16_t 	rx_buffer_head_ = 0;
-	volatile uint16_t 	rx_buffer_tail_ = 0;
+	volatile uint32_t 	tx_buffer_head_ = 0;
+	volatile uint32_t 	tx_buffer_tail_ = 0;
+	volatile uint32_t 	rx_buffer_head_ = 0;
+	volatile uint32_t 	rx_buffer_tail_ = 0;
 
 	volatile uint32_t 	*transmit_pin_baseReg_ = 0;
 	uint32_t 			transmit_pin_bitmask_ = 0;
