@@ -78,20 +78,29 @@ static volatile uint8_t transmitting = 0;
   #define rts_assert()        *(rts_pin+8) = rts_mask;
   #define rts_deassert()      *(rts_pin+4) = rts_mask;
 #endif
-#if SERIAL2_TX_BUFFER_SIZE > 255
+
+#if SERIAL2_TX_BUFFER_SIZE <= UINT8_MAX
+static volatile uint8_t tx_buffer_head = 0;
+static volatile uint8_t tx_buffer_tail = 0;
+#elif SERIAL2_TX_BUFFER_SIZE <= UINT16_MAX
 static volatile uint16_t tx_buffer_head = 0;
 static volatile uint16_t tx_buffer_tail = 0;
 #else
-static volatile uint8_t tx_buffer_head = 0;
-static volatile uint8_t tx_buffer_tail = 0;
+static volatile uint32_t tx_buffer_head = 0;
+static volatile uint32_t tx_buffer_tail = 0;
 #endif
-#if SERIAL2_RX_BUFFER_SIZE > 255
+
+#if SERIAL2_RX_BUFFER_SIZE <= UINT8_MAX
+static volatile uint8_t rx_buffer_head = 0;
+static volatile uint8_t rx_buffer_tail = 0;
+#elif SERIAL2_RX_BUFFER_SIZE <= UINT16_MAX
 static volatile uint16_t rx_buffer_head = 0;
 static volatile uint16_t rx_buffer_tail = 0;
 #else
-static volatile uint8_t rx_buffer_head = 0;
-static volatile uint8_t rx_buffer_tail = 0;
+static volatile uint32_t rx_buffer_head = 0;
+static volatile uint32_t rx_buffer_tail = 0;
 #endif
+
 #if defined(KINETISK)
 static uint8_t rx_pin_num = 9;
 static uint8_t tx_pin_num = 10;
