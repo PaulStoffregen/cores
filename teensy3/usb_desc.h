@@ -261,6 +261,32 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT6_CONFIG	ENDPOINT_TRANSMIT_ONLY
   #define ENDPOINT7_CONFIG	ENDPOINT_TRANSMIT_ONLY
 
+#elif defined(USB_NS)
+  #define VENDOR_ID		0x0f0d
+  #define PRODUCT_ID		0x0092
+  #define MANUFACTURER_NAME     {'T','e','e','n','s','y','d','u','i','n','o'}
+  #define MANUFACTURER_NAME_LEN 11
+  #define PRODUCT_NAME     {'S','w','i','t','c','h',' ','C','o','n','t','r','o','l','l','e','r'}
+  #define PRODUCT_NAME_LEN 17
+  #define EP0_SIZE		64
+  #define NUM_ENDPOINTS         3
+  #define NUM_USB_BUFFERS	24
+  #define NUM_INTERFACE		2
+  #define SEREMU_INTERFACE      1	// Serial emulation
+  #define SEREMU_TX_ENDPOINT    1
+  #define SEREMU_TX_SIZE        64
+  #define SEREMU_TX_INTERVAL    1
+  #define SEREMU_RX_ENDPOINT    2
+  #define SEREMU_RX_SIZE        32
+  #define SEREMU_RX_INTERVAL    2
+  #define JOYSTICK_INTERFACE    0	// Joystick
+  #define JOYSTICK_ENDPOINT     3
+  #define JOYSTICK_SIZE         8
+  #define JOYSTICK_INTERVAL     2
+  #define ENDPOINT1_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_ONLY
+  #define ENDPOINT3_CONFIG	ENDPOINT_TRANSMIT_ONLY
+
 #elif defined(USB_TOUCHSCREEN)
   #define VENDOR_ID		0x16C0
   #define PRODUCT_ID		0x04D3
