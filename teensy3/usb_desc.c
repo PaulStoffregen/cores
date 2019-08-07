@@ -263,9 +263,9 @@ static uint8_t joystick_report_desc[] = {
         0x65, 0x14,         // Unit (20)
         0x09, 0x39,         // Usage (Hat switch)
         0x81, 0x42,         // Input (variable,absolute,null_state)
-        // There's an additional nibble here that's utilized as part of the>
-        // I believe this -might- be separate U/D/L/R bits on the Switch Pr>
-        // as they're utilized as four button descriptors on the Switch Pro>
+        // There's an additional nibble here that's utilized as part of the Switch Pro Controller.
+        // I believe this -might- be separate U/D/L/R bits on the Switch Pro Controller,
+        // as they're utilized as four button descriptors on the Switch Pro Controller.
         0x65, 0x00,         // Unit (0)
         0x95, 0x01,         // Report Count (1)
         0x81, 0x01,         // Input (constant)
@@ -286,7 +286,7 @@ static uint8_t joystick_report_desc[] = {
         0x95, 0x01,         // Report Count (1)
         0x81, 0x02,         // Input (variable,absolute)
         // Output (8 bytes)
-        // Original observation of this suggests it to be a mirror of the i>
+        // Original observation of this suggests it to be a mirror of the inputs that we sent.
         // The Switch requires us to have these descriptors available.
         0x09, 0x21, 0x26,   // Usage (9761)
         0x95, 0x08,         // Report Count (8)
