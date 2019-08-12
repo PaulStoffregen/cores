@@ -303,7 +303,10 @@ void unused_interrupt_vector(void)
 }
 
 __attribute__((weak))
-void HardFault_HandlerC(unsigned int *hardfault_args) {
+void HardFault_HandlerC(unsigned int *hardfault_args)
+{
+  volatile unsigned int nn ;
+#ifdef PRINT_DEBUG_STUFF
   volatile unsigned int stacked_r0 ;
   volatile unsigned int stacked_r1 ;
   volatile unsigned int stacked_r2 ;
@@ -319,7 +322,6 @@ void HardFault_HandlerC(unsigned int *hardfault_args) {
   volatile unsigned int _BFAR ;
   volatile unsigned int _MMAR ;
   volatile unsigned int addr ;
-  volatile unsigned int nn ;
 
   stacked_r0 = ((unsigned int)hardfault_args[0]) ;
   stacked_r1 = ((unsigned int)hardfault_args[1]) ;
@@ -422,6 +424,7 @@ void HardFault_HandlerC(unsigned int *hardfault_args) {
   printf(" _AFSR ::  %x\n", _AFSR);
   printf(" _BFAR ::  %x\n", _BFAR);
   printf(" _MMAR ::  %x\n", _MMAR);
+#endif
 
   IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_03 = 5; // pin 13
   IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_03 = IOMUXC_PAD_DSE(7);
