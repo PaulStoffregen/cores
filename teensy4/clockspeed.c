@@ -43,7 +43,7 @@ uint32_t set_arm_clock(uint32_t frequency)
 			if (voltage > OVERCLOCK_MAX_VOLT) voltage = OVERCLOCK_MAX_VOLT;
 		}
 #endif
-	} else if (frequency <= 24) {
+	} else if (frequency <= 24000000) {
 		voltage = 950; // 0.95
 	}
 
