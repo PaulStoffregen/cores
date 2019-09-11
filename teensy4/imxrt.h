@@ -7009,31 +7009,34 @@ typedef struct {
 #define PXP_POWER			(IMXRT_PXP_b.offset000)
 #define PXP_PORTER_DUFF_CTRL		(IMXRT_PXP_b.offset040)
 
-
-// 47.5: page 2695
-typedef struct {
-	union {
-		struct {
-			volatile uint16_t COMP1;
-			volatile uint16_t COMP2;
-			volatile uint16_t CAPT;
-			volatile uint16_t LOAD;
-			volatile uint16_t HOLD;
-			volatile uint16_t CNTR;
-			volatile uint16_t CTRL;
-			volatile uint16_t SCTRL;
-			volatile uint16_t CMPLD1;
-			volatile uint16_t CMPLD2;
-			volatile uint16_t CSCTRL;
-			volatile uint16_t FILT;
-			volatile uint16_t DMA;
-			volatile uint16_t unused1[3];
-		} CH[4];
-		struct {
-			volatile uint16_t unused2[15];
-			volatile uint16_t ENBL;
-		};
-	};
+// // 47.5: page 2695
+typedef struct
+{
+   volatile uint16_t COMP1;
+   volatile uint16_t COMP2;
+   volatile uint16_t CAPT;
+   volatile uint16_t LOAD;
+   volatile uint16_t HOLD;
+   volatile uint16_t CNTR;
+   volatile uint16_t CTRL;
+   volatile uint16_t SCTRL;
+   volatile uint16_t CMPLD1;
+   volatile uint16_t CMPLD2;
+   volatile uint16_t CSCTRL;
+   volatile uint16_t FILT;
+   volatile uint16_t DMA;
+   volatile uint16_t unused1[3];
+} IMXRT_TMR_CH_t;
+typedef struct
+{
+   union {
+      IMXRT_TMR_CH_t CH[4];
+      struct
+      {
+         volatile uint16_t unused2[15];
+         volatile uint16_t ENBL;
+      };
+   };
 } IMXRT_TMR_t;
 #define IMXRT_TMR1		(*(IMXRT_TMR_t *)0x401DC000)
 #define TMR1_COMP10			(IMXRT_TMR1.CH[0].COMP1)
