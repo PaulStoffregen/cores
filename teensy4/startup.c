@@ -83,6 +83,14 @@ void ResetHandler(void)
 	IOMUXC_GPR_GPR29 = 0xFFFFFFFF;
 #endif
 
+	// Undo PIT timer usage by ROM startup
+	CCM_CCGR1 |= CCM_CCGR1_PIT(CCM_CCGR_ON);
+	PIT_MCR = 0;
+	PIT_TCTRL0 = 0;
+	PIT_TCTRL1 = 0;
+	PIT_TCTRL2 = 0;
+	PIT_TCTRL3 = 0;
+
 	// must enable PRINT_DEBUG_STUFF in debug/print.h
 	printf_debug_init();
 	printf("\n***********IMXRT Startup**********\n");
