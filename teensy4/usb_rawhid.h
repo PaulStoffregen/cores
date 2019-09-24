@@ -28,27 +28,38 @@
  * SOFTWARE.
  */
 
-#include <Arduino.h>
-#include "EventResponder.h"
+#pragma once
 
-extern uint8_t usb_enable_serial_event_processing; // from usb_inst.cpp
+#include "usb_desc.h"
 
-void yield(void) __attribute__ ((weak));
-void yield(void)
+#if defined(RAWHID_INTERFACE)
+
+#include <inttypes.h>
+
+// C language implementation
+#ifdef __cplusplus
+extern "C" {
+#endif
+int usb_rawhid_recv(void *buffer, uint32_t timeout);
+int usb_rawhid_available(void);
+int usb_rawhid_send(const void *buffer, uint32_t timeout);
+#ifdef __cplusplus
+}
+#endif
+
+
+// C++ interface
+#ifdef __cplusplus
+class usb_rawhid_class
 {
-	static uint8_t running=0;
-
-	if (running) return; // TODO: does this need to be atomic?
-	running = 1;
-
-
-	// USB Serail - Add hack to minimize impact...
-	if (usb_enable_serial_event_processing && Serial.available()) serialEvent();
-
-	// Current workaround until integrate with EventResponder.
-	if (HardwareSerial::serial_event_handlers_active) HardwareSerial::processSerialEvents();
-
-	running = 0;
-	EventResponder::runFromYield();
-	
+public:
+	int available(void) {return usb_rawhid_available(); }
+	int recv(void *buffer, uint16_t timeout) { return usb_rawhid_recv(buffer, timeout); }
+	int send(const void *buffer, uint16_t timeout) { return usb_rawhid_send(buffer, timeout); }
 };
+
+extern usb_rawhid_class RawHID;
+
+#endif // __cplusplus
+
+#endif // RAWHID_INTERFACE

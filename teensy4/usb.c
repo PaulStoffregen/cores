@@ -431,6 +431,7 @@ static void endpoint0_setup(uint64_t setupdata)
 			}
 		}
 		break;
+#if defined(CDC_STATUS_INTERFACE)
 	  case 0x2221: // CDC_SET_CONTROL_LINE_STATE
 		usb_cdc_line_rtsdtr_millis = systick_millis_count;
 		usb_cdc_line_rtsdtr = setup.wValue;
@@ -442,6 +443,7 @@ static void endpoint0_setup(uint64_t setupdata)
 		endpoint0_setupdata.bothwords = setupdata;
 		endpoint0_receive(endpoint0_buffer, 7, 1);
 		return;
+#endif
 	}
 	USB1_ENDPTCTRL0 = 0x000010001; // stall
 }
