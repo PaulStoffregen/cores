@@ -3,7 +3,7 @@ MEMORY
 	ITCM (rwx):  ORIGIN = 0x00000000, LENGTH = 512K
 	DTCM (rwx):  ORIGIN = 0x20000000, LENGTH = 512K
 	RAM (rwx):   ORIGIN = 0x20200000, LENGTH = 512K
-	FLASH (rwx): ORIGIN = 0x60000000, LENGTH = 1536K
+	FLASH (rwx): ORIGIN = 0x60000000, LENGTH = 1984K
 }
 
 ENTRY(ImageVectorTable)
@@ -30,18 +30,13 @@ SECTIONS
 		. = ALIGN(16);
 	} > FLASH
 
-	.text : {
+	.text.itcm : {
 		. = . + 32; /* MPU to trap NULL pointer deref */
 		*(.fastrun)
 		*(.text*)
 		. = ALIGN(16);
 	} > ITCM  AT> FLASH
 
-	.vectorsRAM (NOLOAD) : {
-		. = ALIGN(4);
-		*(.vectorsRAM*)
-	} > DTCM 
-	
 	.data : {
 		*(.rodata*)
 		*(.data*)
@@ -60,9 +55,9 @@ SECTIONS
 		. = ALIGN(16);
 	} > RAM
 
-	_stext = ADDR(.text);
-	_etext = ADDR(.text) + SIZEOF(.text);
-	_stextload = LOADADDR(.text);
+	_stext = ADDR(.text.itcm);
+	_etext = ADDR(.text.itcm) + SIZEOF(.text.itcm);
+	_stextload = LOADADDR(.text.itcm);
 
 	_sdata = ADDR(.data);
 	_edata = ADDR(.data) + SIZEOF(.data);
@@ -74,11 +69,11 @@ SECTIONS
 	_heap_start = ADDR(.bss.dma) + SIZEOF(.bss.dma);
 	_heap_end = ORIGIN(RAM) + LENGTH(RAM);
 
-	_itcm_block_count = (SIZEOF(.text) + 0x7FFE) >> 15;
+	_itcm_block_count = (SIZEOF(.text.itcm) + 0x7FFE) >> 15;
 	_flexram_bank_config = 0xAAAAAAAA | ((1 << (_itcm_block_count * 2)) - 1);
 	_estack = ORIGIN(DTCM) + ((16 - _itcm_block_count) << 15);
 
-	_flashimagelen = SIZEOF(.text.progmem) + SIZEOF(.text) + SIZEOF(.data);
+	_flashimagelen = SIZEOF(.text.progmem) + SIZEOF(.text.itcm) + SIZEOF(.data);
 	_teensy_model_identifier = 0x24;
 
 	.debug_info     0 : { *(.debug_info) }

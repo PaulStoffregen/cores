@@ -45,6 +45,9 @@
 #error "E2END is set larger than the maximum possible EEPROM size"
 #endif
 
+// Conversation about how this code works & what the upper limits are
+// https://forum.pjrc.com/threads/57377?p=214566&viewfull=1#post214566
+
 static void flash_write(void *addr, const void *data, uint32_t len);
 static void flash_erase_sector(void *addr);
 

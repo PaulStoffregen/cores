@@ -70,14 +70,20 @@ static volatile uint8_t *transmit_pin=NULL;
 static volatile uint8_t *rts_pin=NULL;
 #define rts_assert()        *rts_pin = 0
 #define rts_deassert()      *rts_pin = 1
-#if SERIAL6_TX_BUFFER_SIZE > 255
+#if SERIAL6_TX_BUFFER_SIZE > 65535
+static volatile uint32_t tx_buffer_head = 0;
+static volatile uint32_t tx_buffer_tail = 0;
+#elif SERIAL6_TX_BUFFER_SIZE > 255
 static volatile uint16_t tx_buffer_head = 0;
 static volatile uint16_t tx_buffer_tail = 0;
 #else
 static volatile uint8_t tx_buffer_head = 0;
 static volatile uint8_t tx_buffer_tail = 0;
 #endif
-#if SERIAL6_RX_BUFFER_SIZE > 255
+#if SERIAL6_RX_BUFFER_SIZE > 65535
+static volatile uint32_t rx_buffer_head = 0;
+static volatile uint32_t rx_buffer_tail = 0;
+#elif SERIAL6_RX_BUFFER_SIZE > 255
 static volatile uint16_t rx_buffer_head = 0;
 static volatile uint16_t rx_buffer_tail = 0;
 #else

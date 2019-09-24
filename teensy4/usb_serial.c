@@ -116,40 +116,16 @@ int usb_serial_getchar(void)
 		}
 		return c;
 	}
-#if 0
-	unsigned int i;
-	int c;
-
-	if (!rx_packet) {
-		if (!usb_configuration) return -1;
-		rx_packet = usb_rx(CDC_RX_ENDPOINT);
-		if (!rx_packet) return -1;
-	}
-	i = rx_packet->index;
-	c = rx_packet->buf[i++];
-	if (i >= rx_packet->len) {
-		usb_free(rx_packet);
-		rx_packet = NULL;
-	} else {
-		rx_packet->index = i;
-	}
-	return c;
-#endif
 	return -1;
 }
 
 // peek at the next character, or -1 if nothing received
 int usb_serial_peekchar(void)
 {
-#if 0
-	if (!rx_packet) {
-		if (!usb_configuration) return -1;
-		rx_packet = usb_rx(CDC_RX_ENDPOINT);
-		if (!rx_packet) return -1;
+	if (rx_index[0] < rx_count[0]) {
+		return rx_buffer[rx_index[0]];
 	}
-	if (!rx_packet) return -1;
-	return rx_packet->buf[rx_packet->index];
-#endif
+
 	return -1;
 }
 
@@ -157,67 +133,33 @@ int usb_serial_peekchar(void)
 int usb_serial_available(void)
 {
 	return rx_count[0] - rx_index[0];
-#if 0
-	int count;
-	count = usb_rx_byte_count(CDC_RX_ENDPOINT);
-	if (rx_packet) count += rx_packet->len - rx_packet->index;
-	return count;
-#endif
-	return 0;
 }
 
 // read a block of bytes to a buffer
 int usb_serial_read(void *buffer, uint32_t size)
 {
-#if 0
+	// Quick and dirty to make it at least limp...
 	uint8_t *p = (uint8_t *)buffer;
-	uint32_t qty, count=0;
+	uint32_t count=0;
 
 	while (size) {
-		if (!usb_configuration) break;
-		if (!rx_packet) {
-			rx:
-			rx_packet = usb_rx(CDC_RX_ENDPOINT);
-			if (!rx_packet) break;
-			if (rx_packet->len == 0) {
-				usb_free(rx_packet);
-				goto rx;
-			}
-		}
-		qty = rx_packet->len - rx_packet->index;
-		if (qty > size) qty = size;
-		memcpy(p, rx_packet->buf + rx_packet->index, qty);
-		p += qty;
-		count += qty;
-		size -= qty;
-		rx_packet->index += qty;
-		if (rx_packet->index >= rx_packet->len) {
-			usb_free(rx_packet);
-			rx_packet = NULL;
-		}
+		int ch = usb_serial_getchar();
+		if (ch == -1) break;
+		*p++ = (uint8_t)ch;
+		size--;
+		count++;
 	}
 	return count;
-#endif
-	return 0;
 }
 
 // discard any buffered input
 void usb_serial_flush_input(void)
 {
-#if 0
-	usb_packet_t *rx;
-
-	if (!usb_configuration) return;
-	if (rx_packet) {
-		usb_free(rx_packet);
-		rx_packet = NULL;
+	if (rx_index[0] < rx_count[0]) {
+		rx_index[0] = rx_count[0];
+		usb_prepare_transfer(rx_transfer + 0, rx_buffer + 0, CDC_RX_SIZE, 0);
+		usb_receive(CDC_RX_ENDPOINT, rx_transfer + 0);
 	}
-	while (1) {
-		rx = usb_rx(CDC_RX_ENDPOINT);
-		if (!rx) break;
-		usb_free(rx);
-	}
-#endif
 }
 
 // When the PC isn't listening, how long do we wait before discarding data?  If this is
@@ -334,30 +276,14 @@ int usb_serial_write(const void *buffer, uint32_t size)
 
 int usb_serial_write_buffer_free(void)
 {
-#if 0
-	uint32_t len;
-
+	uint32_t sum = 0;
 	tx_noautoflush = 1;
-	if (!tx_packet) {
-		if (!usb_configuration ||
-		  usb_tx_packet_count(CDC_TX_ENDPOINT) >= TX_PACKET_LIMIT ||
-		  (tx_packet = usb_malloc()) == NULL) {
-			tx_noautoflush = 0;
-			return 0;
-		}
+	for (uint32_t i=0; i < TX_NUM; i++) {
+		if (i == tx_head) continue;
+		if (!(usb_transfer_status(tx_transfer + i) & 0x80)) sum += TX_SIZE;
 	}
-	len = CDC_TX_SIZE - tx_packet->index;
-	// TODO: Perhaps we need "usb_cdc_transmit_flush_timer = TRANSMIT_FLUSH_TIMEOUT"
-	// added here, so the SOF interrupt can't take away the available buffer
-	// space we just promised the user could write without blocking?
-	// But does this come with other performance downsides?  Could it lead to
-	// buffer data never actually transmitting in some usage cases?  More
-	// investigation is needed.
-	// https://github.com/PaulStoffregen/cores/issues/10#issuecomment-61514955
 	tx_noautoflush = 0;
-	return len;
-#endif
-	return 0;
+	return sum;
 }
 
 void usb_serial_flush_output(void)

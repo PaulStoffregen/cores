@@ -3,6 +3,8 @@
 #include "wiring.h"
 #include "debug/printf.h"
 
+// A brief explanation of F_CPU_ACTUAL vs F_CPU
+//  https://forum.pjrc.com/threads/57236?p=212642&viewfull=1#post212642
 volatile uint32_t F_CPU_ACTUAL = 396000000;
 volatile uint32_t F_BUS_ACTUAL = 132000000;
 
@@ -41,7 +43,7 @@ uint32_t set_arm_clock(uint32_t frequency)
 			if (voltage > OVERCLOCK_MAX_VOLT) voltage = OVERCLOCK_MAX_VOLT;
 		}
 #endif
-	} else if (frequency <= 24) {
+	} else if (frequency <= 24000000) {
 		voltage = 950; // 0.95
 	}
 

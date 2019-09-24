@@ -2927,6 +2927,7 @@ typedef struct {
 #define FLEXCAN3_CRCR			(IMXRT_FLEXCAN3.offset044)
 #define FLEXCAN3_RXFGMASK		(IMXRT_FLEXCAN3.offset048)
 #define FLEXCAN3_RXFIR			(IMXRT_FLEXCAN3.offset04C)
+#define FLEXCAN3_CBT			(IMXRT_FLEXCAN3.offset050)
 #define FLEXCAN3_RXIMR0			(IMXRT_FLEXCAN3_MASK.offset080)
 #define FLEXCAN3_RXIMR1			(IMXRT_FLEXCAN3_MASK.offset084)
 #define FLEXCAN3_RXIMR2			(IMXRT_FLEXCAN3_MASK.offset088)
@@ -7008,31 +7009,34 @@ typedef struct {
 #define PXP_POWER			(IMXRT_PXP_b.offset000)
 #define PXP_PORTER_DUFF_CTRL		(IMXRT_PXP_b.offset040)
 
-
-// 47.5: page 2695
-typedef struct {
-	union {
-		struct {
-			volatile uint16_t COMP1;
-			volatile uint16_t COMP2;
-			volatile uint16_t CAPT;
-			volatile uint16_t LOAD;
-			volatile uint16_t HOLD;
-			volatile uint16_t CNTR;
-			volatile uint16_t CTRL;
-			volatile uint16_t SCTRL;
-			volatile uint16_t CMPLD1;
-			volatile uint16_t CMPLD2;
-			volatile uint16_t CSCTRL;
-			volatile uint16_t FILT;
-			volatile uint16_t DMA;
-			volatile uint16_t unused1[3];
-		} CH[4];
-		struct {
-			volatile uint16_t unused2[15];
-			volatile uint16_t ENBL;
-		};
-	};
+// // 47.5: page 2695
+typedef struct
+{
+   volatile uint16_t COMP1;
+   volatile uint16_t COMP2;
+   volatile uint16_t CAPT;
+   volatile uint16_t LOAD;
+   volatile uint16_t HOLD;
+   volatile uint16_t CNTR;
+   volatile uint16_t CTRL;
+   volatile uint16_t SCTRL;
+   volatile uint16_t CMPLD1;
+   volatile uint16_t CMPLD2;
+   volatile uint16_t CSCTRL;
+   volatile uint16_t FILT;
+   volatile uint16_t DMA;
+   volatile uint16_t unused1[3];
+} IMXRT_TMR_CH_t;
+typedef struct
+{
+   union {
+      IMXRT_TMR_CH_t CH[4];
+      struct
+      {
+         volatile uint16_t unused2[15];
+         volatile uint16_t ENBL;
+      };
+   };
 } IMXRT_TMR_t;
 #define IMXRT_TMR1		(*(IMXRT_TMR_t *)0x401DC000)
 #define TMR1_COMP10			(IMXRT_TMR1.CH[0].COMP1)
@@ -7902,8 +7906,8 @@ These register are used by the ROM code and should not be used by application so
 #define USB_ENDPTCTRL_RXR			((uint32_t)(1<<6))
 #define USB_ENDPTCTRL_RXI			((uint32_t)(1<<5))
 #define USB_ENDPTCTRL_RXT(n)			((uint32_t)(((n) & 0x03) << 2))
-#define USB_ENDPTCTRL_RXD			((uint32_t)(1<<0))
-#define USB_ENDPTCTRL_RXS			((uint32_t)(1<<1))
+#define USB_ENDPTCTRL_RXD			((uint32_t)(1<<1))
+#define USB_ENDPTCTRL_RXS			((uint32_t)(1<<0))
 #define USB_GPTIMERCTRL_GPTRUN			((uint32_t)(1<<31))
 #define USB_GPTIMERCTRL_GPTRST			((uint32_t)(1<<30))
 #define USB_GPTIMERCTRL_GPTMODE			((uint32_t)(1<<24))

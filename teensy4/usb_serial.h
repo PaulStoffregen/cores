@@ -57,6 +57,7 @@ extern volatile uint32_t systick_millis_count;
 extern volatile uint8_t usb_cdc_line_rtsdtr;
 extern volatile uint8_t usb_cdc_transmit_flush_timer;
 extern volatile uint8_t usb_configuration;
+extern uint8_t usb_enable_serial_event_processing;
 #ifdef __cplusplus
 }
 #endif

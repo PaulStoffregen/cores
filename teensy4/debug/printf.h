@@ -1,4 +1,4 @@
-#define PRINT_DEBUG_STUFF
+// #define PRINT_DEBUG_STUFF
 
 #ifdef PRINT_DEBUG_STUFF
 // defining printf this way breaks things like Serial.printf() in C++ :(

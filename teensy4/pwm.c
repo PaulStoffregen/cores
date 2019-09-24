@@ -51,6 +51,12 @@ const struct pwm_pin_info_struct pwm_pin_info[] = {
 	{0, M(1, 0), 0, 0},
 	{0, M(1, 0), 0, 0},
 	{1, M(2, 0), 2, 1},  // FlexPWM2_0_B  33  // EMC_07
+	{1, M(1, 1), 2, 1},	 // FlexPWM1_1_B  34  // SD_B0_03
+	{1, M(1, 1), 1, 1},	 // FlexPWM1_1_A  35  // SD_B0_02
+	{1, M(1, 0), 2, 1},	 // FlexPWM1_0_B  36  // SD_B0_01
+	{1, M(1, 0), 1, 1},	 // FlexPWM1_0_A  37  // SD_B0_00
+	{1, M(1, 2), 2, 1},	 // FlexPWM1_2_B  38  // SD_B0_05
+	{1, M(1, 2), 1, 1},	 // FlexPWM1_2_A  39  // SD_B0_04
 };
 
 #elif defined(__IMXRT1052__)
@@ -90,6 +96,13 @@ const struct pwm_pin_info_struct pwm_pin_info[] = {
 	{1, M(1, 0), 1, 1},  // FlexPWM1_0_A  31  // EMC_23
 	{0, M(1, 0), 0, 0},
 	{1, M(2, 1), 1, 1},  // FlexPWM2_1_A  33  // EMC_08
+	{1, M(2, 0), 2, 1},  // FlexPWM2_0_B  33  // EMC_07
+	{1, M(1, 1), 2, 1},	 // FlexPWM1_1_B  34  // SD_B0_03
+	{1, M(1, 1), 1, 1},	 // FlexPWM1_1_A  35  // SD_B0_02
+	{1, M(1, 0), 2, 1},	 // FlexPWM1_0_B  36  // SD_B0_01
+	{1, M(1, 0), 1, 1},	 // FlexPWM1_0_A  37  // SD_B0_00
+	{1, M(1, 2), 2, 1},	 // FlexPWM1_2_B  38  // SD_B0_05
+	{1, M(1, 2), 1, 1},	 // FlexPWM1_2_A  39  // SD_B0_04
 };
 
 #endif // __IMXRT1052__

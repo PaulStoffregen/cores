@@ -83,6 +83,14 @@ void ResetHandler(void)
 	IOMUXC_GPR_GPR29 = 0xFFFFFFFF;
 #endif
 
+	// Undo PIT timer usage by ROM startup
+	CCM_CCGR1 |= CCM_CCGR1_PIT(CCM_CCGR_ON);
+	PIT_MCR = 0;
+	PIT_TCTRL0 = 0;
+	PIT_TCTRL1 = 0;
+	PIT_TCTRL2 = 0;
+	PIT_TCTRL3 = 0;
+
 	// must enable PRINT_DEBUG_STUFF in debug/print.h
 	printf_debug_init();
 	printf("\n***********IMXRT Startup**********\n");
@@ -112,15 +120,16 @@ void ResetHandler(void)
 	tempmon_init();
 
 	while (millis() < 300) ; // wait at least 300ms before calling user code
-	printf("before C++ constructors\n");
+	//printf("before C++ constructors\n");
 	__libc_init_array();
-	printf("after C++ constructors\n");
-	printf("before setup\n");
+	//printf("after C++ constructors\n");
+	//printf("before setup\n");
 	setup();
-	printf("after setup\n");
+	//printf("after setup\n");
 	while (1) {
 		//printf("loop\n");
 		loop();
+		yield();
 	}
 }
 
@@ -302,7 +311,10 @@ void unused_interrupt_vector(void)
 }
 
 __attribute__((weak))
-void HardFault_HandlerC(unsigned int *hardfault_args) {
+void HardFault_HandlerC(unsigned int *hardfault_args)
+{
+  volatile unsigned int nn ;
+#ifdef PRINT_DEBUG_STUFF
   volatile unsigned int stacked_r0 ;
   volatile unsigned int stacked_r1 ;
   volatile unsigned int stacked_r2 ;
@@ -318,7 +330,6 @@ void HardFault_HandlerC(unsigned int *hardfault_args) {
   volatile unsigned int _BFAR ;
   volatile unsigned int _MMAR ;
   volatile unsigned int addr ;
-  volatile unsigned int nn ;
 
   stacked_r0 = ((unsigned int)hardfault_args[0]) ;
   stacked_r1 = ((unsigned int)hardfault_args[1]) ;
@@ -421,6 +432,7 @@ void HardFault_HandlerC(unsigned int *hardfault_args) {
   printf(" _AFSR ::  %x\n", _AFSR);
   printf(" _BFAR ::  %x\n", _BFAR);
   printf(" _MMAR ::  %x\n", _MMAR);
+#endif
 
   IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_03 = 5; // pin 13
   IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_03 = IOMUXC_PAD_DSE(7);
