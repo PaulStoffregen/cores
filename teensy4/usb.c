@@ -233,7 +233,7 @@ static void isr(void)
 			completestatus &= endpointN_notify_mask;
 			if (completestatus) {
 				int i;   // TODO: optimize with __builtin_ctz()
-				for (i=2; i < NUM_ENDPOINTS; i++) {
+				for (i=2; i <= NUM_ENDPOINTS; i++) {
 					if (completestatus & (1 << i)) { // receive
 						run_callbacks(endpoint_queue_head + i * 2);
 					}

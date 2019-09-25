@@ -43,23 +43,48 @@ static transfer_t tx_transfer[TX_NUM] __attribute__ ((used, aligned(32)));
 static uint8_t txbuffer[RAWHID_TX_SIZE * TX_NUM];
 static uint8_t tx_head=0;
 
+static transfer_t rx_transfer[1] __attribute__ ((used, aligned(32)));
+static uint8_t rx_buffer[RAWHID_RX_SIZE];
+
 extern volatile uint8_t usb_configuration;
+
 
 static void rx_event(transfer_t *t)
 {
-
+	//printf("rx\n");
 }
 
 void usb_rawhid_configure(void)
 {
 	printf("usb_rawhid_configure\n");
 	memset(tx_transfer, 0, sizeof(tx_transfer));
+	memset(rx_transfer, 0, sizeof(rx_transfer));
 	tx_head = 0;
 	usb_config_tx(RAWHID_TX_ENDPOINT, RAWHID_TX_SIZE, 0, NULL);
 	usb_config_rx(RAWHID_RX_ENDPOINT, RAWHID_RX_SIZE, 0, rx_event);
+	//usb_config_rx(RAWHID_RX_ENDPOINT, RAWHID_RX_SIZE, 0, NULL); // why does this not work?
+	usb_prepare_transfer(rx_transfer + 0, rx_buffer, RAWHID_RX_SIZE, 0);
+	usb_receive(RAWHID_RX_ENDPOINT, rx_transfer + 0);
 }
 
 int usb_rawhid_recv(void *buffer, uint32_t timeout)
+{
+	uint32_t wait_begin_at = systick_millis_count;
+	while (1) {
+		if (!usb_configuration) return -1; // usb not enumerated by host
+		uint32_t status = usb_transfer_status(rx_transfer);
+		if (!(status & 0x80)) break; // transfer descriptor ready
+		if (systick_millis_count - wait_begin_at > timeout) return 0;
+		yield();
+	}
+	memcpy(buffer, rx_buffer, RAWHID_RX_SIZE);
+	memset(rx_transfer, 0, sizeof(rx_transfer));
+	usb_prepare_transfer(rx_transfer + 0, rx_buffer, RAWHID_RX_SIZE, 0);
+	usb_receive(RAWHID_RX_ENDPOINT, rx_transfer + 0);
+	return RAWHID_RX_SIZE;
+}
+
+int usb_rawhid_send(const void *buffer, uint32_t timeout)
 {
 	transfer_t *xfer = tx_transfer + tx_head;
 	uint32_t wait_begin_at = systick_millis_count;
@@ -81,12 +106,9 @@ int usb_rawhid_recv(void *buffer, uint32_t timeout)
 
 int usb_rawhid_available(void)
 {
+	if (!usb_configuration) return 0;
+	if (!(usb_transfer_status(rx_transfer) & 0x80)) return RAWHID_RX_SIZE;
 	return 0;
-}
-
-int usb_rawhid_send(const void *buffer, uint32_t timeout)
-{
-	return -1;
 }
 
 #endif // RAWHID_INTERFACE
