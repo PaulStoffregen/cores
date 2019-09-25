@@ -34,11 +34,49 @@
 #include <string.h>    // for memcpy()
 //#include "HardwareSerial.h"
 
+#include "debug/printf.h"
+
 #ifdef RAWHID_INTERFACE // defined by usb_dev.h -> usb_desc.h
+
+#define TX_NUM   4
+static transfer_t tx_transfer[TX_NUM] __attribute__ ((used, aligned(32)));
+static uint8_t txbuffer[RAWHID_TX_SIZE * TX_NUM];
+static uint8_t tx_head=0;
+
+extern volatile uint8_t usb_configuration;
+
+static void rx_event(transfer_t *t)
+{
+
+}
+
+void usb_rawhid_configure(void)
+{
+	printf("usb_rawhid_configure\n");
+	memset(tx_transfer, 0, sizeof(tx_transfer));
+	tx_head = 0;
+	usb_config_tx(RAWHID_TX_ENDPOINT, RAWHID_TX_SIZE, 0, NULL);
+	usb_config_rx(RAWHID_RX_ENDPOINT, RAWHID_RX_SIZE, 0, rx_event);
+}
 
 int usb_rawhid_recv(void *buffer, uint32_t timeout)
 {
-	return -1;
+	transfer_t *xfer = tx_transfer + tx_head;
+	uint32_t wait_begin_at = systick_millis_count;
+
+	while (1) {
+		if (!usb_configuration) return -1; // usb not enumerated by host
+		uint32_t status = usb_transfer_status(xfer);
+		if (!(status & 0x80)) break; // transfer descriptor ready
+		if (systick_millis_count - wait_begin_at > timeout) return 0;
+		yield();
+	}
+	uint8_t *txdata = txbuffer + (tx_head * RAWHID_TX_SIZE);
+	memcpy(txdata, buffer, RAWHID_TX_SIZE);
+	usb_prepare_transfer(xfer, txdata, RAWHID_TX_SIZE, 0);
+	usb_transmit(RAWHID_TX_ENDPOINT, xfer);
+	if (++tx_head >= TX_NUM) tx_head = 0;
+	return RAWHID_TX_SIZE;
 }
 
 int usb_rawhid_available(void)

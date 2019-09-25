@@ -369,6 +369,9 @@ static void endpoint0_setup(uint64_t setupdata)
 		#if defined(CDC_STATUS_INTERFACE) && defined(CDC_DATA_INTERFACE)
 		usb_serial_configure();
 		#endif
+		#if defined(RAWHID_INTERFACE)
+		usb_rawhid_configure();
+		#endif
 		endpoint0_receive(NULL, 0, 0);
 		return;
 	  case 0x0880: // GET_CONFIGURATION
