@@ -444,6 +444,17 @@ static void endpoint0_setup(uint64_t setupdata)
 		endpoint0_receive(endpoint0_buffer, 7, 1);
 		return;
 #endif
+#if defined(SEREMU_INTERFACE) || defined(KEYBOARD_INTERFACE)
+	  case 0x0921: // HID SET_REPORT
+		if (setup.wLength <= sizeof(endpoint0_buffer)) {
+			//printf("hid set report %x %x\n", setup.word1, setup.word2);
+			endpoint0_setupdata.bothwords = setup.bothwords;
+			endpoint0_buffer[0] = 0xE9;
+			endpoint0_receive(endpoint0_buffer, setup.wLength, 1);
+			return;
+		}
+		break;
+#endif
 	}
 	USB1_ENDPTCTRL0 = 0x000010001; // stall
 }
@@ -472,6 +483,7 @@ static void endpoint0_transmit(const void *data, uint32_t len, int notify)
 	endpoint0_transfer_ack.pointer0 = 0;
 	endpoint_queue_head[0].next = (uint32_t)&endpoint0_transfer_ack;
 	endpoint_queue_head[0].status = 0;
+	USB1_ENDPTCOMPLETE |= (1<<0) | (1<<16);
 	USB1_ENDPTPRIME |= (1<<0);
 	endpoint0_notify_mask = (notify ? (1 << 0) : 0);
 	while (USB1_ENDPTPRIME) ;
@@ -483,7 +495,7 @@ static void endpoint0_receive(void *data, uint32_t len, int notify)
 	if (len > 0) {
 		// Executing A Transfer Descriptor, page 3182
 		endpoint0_transfer_data.next = 1;
-		endpoint0_transfer_data.status = (len << 16) | (1<<7) | (notify ? (1 << 15) : 0);
+		endpoint0_transfer_data.status = (len << 16) | (1<<7);
 		uint32_t addr = (uint32_t)data;
 		endpoint0_transfer_data.pointer0 = addr; // format: table 55-60, pg 3159
 		endpoint0_transfer_data.pointer1 = addr + 4096;
@@ -497,10 +509,11 @@ static void endpoint0_receive(void *data, uint32_t len, int notify)
 		while (USB1_ENDPTPRIME) ;
 	}
 	endpoint0_transfer_ack.next = 1;
-	endpoint0_transfer_ack.status = (1<<7);
+	endpoint0_transfer_ack.status = (1<<7) | (notify ? (1 << 15) : 0);
 	endpoint0_transfer_ack.pointer0 = 0;
 	endpoint_queue_head[1].next = (uint32_t)&endpoint0_transfer_ack;
 	endpoint_queue_head[1].status = 0;
+	USB1_ENDPTCOMPLETE |= (1<<0) | (1<<16);
 	USB1_ENDPTPRIME |= (1<<16);
 	endpoint0_notify_mask = (notify ? (1 << 16) : 0);
 	while (USB1_ENDPTPRIME) ;
@@ -532,7 +545,7 @@ static void endpoint0_complete(void)
 	setup_t setup;
 
 	setup.bothwords = endpoint0_setupdata.bothwords;
-	//printf("complete\n");
+	//printf("complete %x %x %x\n", setup.word1, setup.word2, endpoint0_buffer[0]);
 #ifdef CDC_STATUS_INTERFACE
 	if (setup.wRequestAndType == 0x2021 /*CDC_SET_LINE_CODING*/) {
 		memcpy(usb_cdc_line_coding, endpoint0_buffer, 7);
@@ -541,6 +554,15 @@ static void endpoint0_complete(void)
 			USB1_USBINTR |= USB_USBINTR_SRE;
 			usb_reboot_timer = 80; // TODO: 10 if only 12 Mbit/sec
 		}
+	}
+#endif
+#ifdef SEREMU_INTERFACE
+	if (setup.word1 == 0x03000921 && setup.word2 == ((4<<16)|SEREMU_INTERFACE)
+	  && endpoint0_buffer[0] == 0xA9 && endpoint0_buffer[1] == 0x45
+	  && endpoint0_buffer[2] == 0xC2 && endpoint0_buffer[3] == 0x6B) {
+		printf("seremu reboot request\n");
+		USB1_USBINTR |= USB_USBINTR_SRE;
+		usb_reboot_timer = 80; // TODO: 10 if only 12 Mbit/sec
 	}
 #endif
 }

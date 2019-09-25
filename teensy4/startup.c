@@ -104,6 +104,8 @@ void ResetHandler(void)
 	set_arm_clock(600000000);
 	//set_arm_clock(984000000); Ludicrous Speed
 
+	asm volatile("nop\n nop\n nop\n nop": : :"memory"); // why oh why?
+
 	// initialize RTC
 	if (!(SNVS_LPCR & SNVS_LPCR_SRTC_ENV)) {
 		// if SRTC isn't running, start it with default Jan 1, 2019
