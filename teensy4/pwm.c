@@ -210,6 +210,16 @@ void analogWrite(uint8_t pin, int val)
 
 	if (pin >= CORE_NUM_DIGITAL) return;
 	//printf("analogWrite, pin %d, val %d\n", pin, val);
+	uint32_t max = 1 << analog_write_res;
+	if (val <= 0) {
+		pinMode(pin, OUTPUT);	// TODO: implement OUTPUT_LOW
+		digitalWriteFast(pin, LOW);
+		return;
+	} else if (val >= max) {
+		pinMode(pin, OUTPUT);	// TODO: implement OUTPUT_HIGH
+		digitalWriteFast(pin, HIGH);
+		return;
+	}
 	info = pwm_pin_info + pin;
 	if (info->type == 1) {
 		// FlexPWM pin
