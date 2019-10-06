@@ -96,9 +96,9 @@ void ResetHandler(void)
 	configure_systick();
 	usb_pll_start();	
 	reset_PFD(); //TODO: is this really needed?
-	
-	set_arm_clock(600000000);
-	//set_arm_clock(984000000); Ludicrous Speed
+#ifdef F_CPU
+	set_arm_clock(F_CPU);
+#endif
 
 	asm volatile("nop\n nop\n nop\n nop": : :"memory"); // why oh why?
 
