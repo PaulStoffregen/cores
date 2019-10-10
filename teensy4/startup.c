@@ -35,6 +35,7 @@ uint32_t set_arm_clock(uint32_t frequency); // clockspeed.c
 extern void __libc_init_array(void); // C++ standard library
 
 
+extern int main (void);
 void startup_default_early_hook(void) {}
 void startup_early_hook(void)		__attribute__ ((weak, alias("startup_default_early_hook")));
 void startup_default_late_hook(void) {}
@@ -132,13 +133,9 @@ void ResetHandler(void)
 	__libc_init_array();
 	//printf("after C++ constructors\n");
 	//printf("before setup\n");
-	setup();
-	//printf("after setup\n");
-	while (1) {
-		//printf("loop\n");
-		loop();
-		yield();
-	}
+	main();
+	
+	while (1) ;
 }
 
 
