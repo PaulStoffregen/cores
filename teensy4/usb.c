@@ -75,9 +75,14 @@ static setup_t endpoint0_setupdata;
 static uint32_t endpoint0_notify_mask=0;
 static uint32_t endpointN_notify_mask=0;
 //static int reset_count=0;
-volatile uint8_t usb_configuration = 0;
+volatile uint8_t usb_configuration = 0; // non-zero when USB host as configured device
+volatile uint8_t usb_high_speed = 0;    // non-zero if running at 480 Mbit/sec speed
 static uint8_t endpoint0_buffer[8];
 static uint8_t usb_reboot_timer = 0;
+
+extern uint8_t usb_descriptor_buffer[]; // defined in usb_desc.c
+extern const uint8_t usb_config_descriptor_480[];
+extern const uint8_t usb_config_descriptor_12[];
 
 void (*usb_timer0_callback)(void) = NULL;
 void (*usb_timer1_callback)(void) = NULL;
@@ -276,8 +281,10 @@ static void isr(void)
 	if (status & USB_USBSTS_PCI) {
 		if (USB1_PORTSC1 & USB_PORTSC1_HSP) {
 			//printf("port at 480 Mbit\n");
+			usb_high_speed = 1;
 		} else {
 			//printf("port at 12 Mbit\n");
+			usb_high_speed = 0;
 		}
 	}
 	if (status & USB_USBSTS_SLI) { // page 3165
@@ -320,7 +327,7 @@ static uint8_t reply_buffer[8];
 static void endpoint0_setup(uint64_t setupdata)
 {
 	setup_t setup;
-	uint32_t endpoint, dir, ctrl, datalen = 0;
+	uint32_t endpoint, dir, ctrl;
 	const usb_descriptor_list_t *list;
 
 	setup.bothwords = setupdata;
@@ -332,21 +339,6 @@ static void endpoint0_setup(uint64_t setupdata)
 	  case 0x0900: // SET_CONFIGURATION
 		usb_configuration = setup.wValue;
 		// configure all other endpoints
-#if 0
-		volatile uint32_t *reg = &USB1_ENDPTCTRL1;
-		const uint32_t *cfg = usb_endpoint_config_table;
-		int i;
-		for (i=0; i < NUM_ENDPOINTS; i++) {
-			uint32_t n = *cfg++;
-			*reg = n;
-			// TODO: do the TRX & RXR bits self clear??
-			uint32_t m = n & ~(USB_ENDPTCTRL_TXR | USB_ENDPTCTRL_RXR);
-			*reg = m;
-			//uint32_t p = *reg;
-			//printf(" ep=%d: cfg=%08lX - %08lX - %08lX\n", i + 1, n, m, p);
-			reg++;
-		}
-#else
 		#if defined(ENDPOINT2_CONFIG)
 		USB1_ENDPTCTRL2 = ENDPOINT2_CONFIG;
 		#endif
@@ -365,7 +357,6 @@ static void endpoint0_setup(uint64_t setupdata)
 		#if defined(ENDPOINT7_CONFIG)
 		USB1_ENDPTCTRL7 = ENDPOINT7_CONFIG;
 		#endif
-#endif
 		#if defined(CDC_STATUS_INTERFACE) && defined(CDC_DATA_INTERFACE)
 		usb_serial_configure();
 		#endif
@@ -421,6 +412,7 @@ static void endpoint0_setup(uint64_t setupdata)
 	  case 0x0681:
 		for (list = usb_descriptor_list; list->addr != NULL; list++) {
 			if (setup.wValue == list->wValue && setup.wIndex == list->wIndex) {
+				uint32_t datalen;
 				if ((setup.wValue >> 8) == 3) {
 					// for string descriptors, use the descriptor's
 					// length field, allowing runtime configured length.
@@ -429,7 +421,25 @@ static void endpoint0_setup(uint64_t setupdata)
 					datalen = list->length;
 				}
 				if (datalen > setup.wLength) datalen = setup.wLength;
-				endpoint0_transmit(list->addr, datalen, 0);
+
+				// copy the descriptor, from PROGMEM to DMAMEM
+				if (setup.wValue == 0x200) {
+					// config descriptor needs to adapt to speed
+					const uint8_t *src = usb_config_descriptor_12;
+					if (usb_high_speed) src = usb_config_descriptor_480;
+					memcpy(usb_descriptor_buffer, src, datalen);
+				} else if (setup.wValue == 0x700) {
+					// other speed config also needs to adapt
+					const uint8_t *src = usb_config_descriptor_480;
+					if (usb_high_speed) src = usb_config_descriptor_12;
+					memcpy(usb_descriptor_buffer, src, datalen);
+					usb_descriptor_buffer[1] = 7;
+				} else {
+					memcpy(usb_descriptor_buffer, list->addr, datalen);
+				}
+				// prep transmit
+				arm_dcache_flush_delete(usb_descriptor_buffer, datalen);
+				endpoint0_transmit(usb_descriptor_buffer, datalen, 0);
 				return;
 			}
 		}
