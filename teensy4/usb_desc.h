@@ -135,8 +135,10 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define CDC_RX_ENDPOINT       3
   #define CDC_TX_ENDPOINT       4
   #define CDC_ACM_SIZE          16
-  #define CDC_RX_SIZE           64
-  #define CDC_TX_SIZE           64
+  #define CDC_RX_SIZE_480       512
+  #define CDC_TX_SIZE_480       512
+  #define CDC_RX_SIZE_12        64
+  #define CDC_TX_SIZE_12        64
   #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
   #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_UNUSED
   #define ENDPOINT4_CONFIG      ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_BULK

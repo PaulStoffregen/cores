@@ -49,6 +49,7 @@ volatile uint8_t usb_cdc_transmit_flush_timer=0;
 //static usb_packet_t *rx_packet=NULL;
 //static usb_packet_t *tx_packet=NULL;
 static volatile uint8_t tx_noautoflush=0;
+extern volatile uint8_t usb_high_speed;
 
 // TODO: should be 2 different timeouts, high speed (480) vs full speed (12)
 #define TRANSMIT_FLUSH_TIMEOUT	75   /* in microseconds */
@@ -59,21 +60,23 @@ static void timer_stop();
 static void usb_serial_flush_callback(void);
 
 #define TX_NUM   7
-#define TX_SIZE  256  /* should be a multiple of CDC_TX_SIZE */
+#define TX_SIZE  1024 /* should be a multiple of CDC_TX_SIZE */
 static transfer_t tx_transfer[TX_NUM] __attribute__ ((used, aligned(32)));
 static uint8_t txbuffer[TX_SIZE * TX_NUM];
 static uint8_t tx_head=0;
 static uint16_t tx_available=0;
+static uint16_t tx_packet_size=0;
 
 #define RX_NUM  3
 static transfer_t rx_transfer[RX_NUM] __attribute__ ((used, aligned(32)));
-static uint8_t rx_buffer[RX_NUM * CDC_RX_SIZE];
+static uint8_t rx_buffer[RX_NUM * CDC_RX_SIZE_480];
 static uint16_t rx_count[RX_NUM];
 static uint16_t rx_index[RX_NUM];
+static uint16_t rx_packet_size=0;
 
 static void rx_event(transfer_t *t)
 {
-	int len = CDC_RX_SIZE - ((t->status >> 16) & 0x7FFF);
+	int len = rx_packet_size - ((t->status >> 16) & 0x7FFF);
 	int index = t->callback_param;
 	//printf("rx event, len=%d, i=%d\n", len, index);
 	rx_count[index] = len;
@@ -89,16 +92,23 @@ void usb_serial_reset(void)
 void usb_serial_configure(void)
 {
 	printf("usb_serial_configure\n");
+	if (usb_high_speed) {
+		tx_packet_size = CDC_TX_SIZE_480;
+		rx_packet_size = CDC_RX_SIZE_480;
+	} else {
+		tx_packet_size = CDC_TX_SIZE_12;
+		rx_packet_size = CDC_RX_SIZE_12;
+	}
 	memset(tx_transfer, 0, sizeof(tx_transfer));
 	tx_head = 0;
 	tx_available = 0;
 	memset(rx_transfer, 0, sizeof(rx_transfer));
 	memset(rx_count, 0, sizeof(rx_count));
 	memset(rx_index, 0, sizeof(rx_index));
-	usb_config_tx(CDC_ACM_ENDPOINT, CDC_ACM_SIZE, 0, NULL);
-	usb_config_rx(CDC_RX_ENDPOINT, CDC_RX_SIZE, 0, rx_event);
-	usb_config_tx(CDC_TX_ENDPOINT, CDC_TX_SIZE, 0, NULL);
-	usb_prepare_transfer(rx_transfer + 0, rx_buffer + 0, CDC_RX_SIZE, 0);
+	usb_config_tx(CDC_ACM_ENDPOINT, CDC_ACM_SIZE, 0, NULL); // size same 12 & 480
+	usb_config_rx(CDC_RX_ENDPOINT, rx_packet_size, 0, rx_event);
+	usb_config_tx(CDC_TX_ENDPOINT, tx_packet_size, 0, NULL);
+	usb_prepare_transfer(rx_transfer + 0, rx_buffer + 0, rx_packet_size, 0);
 	usb_receive(CDC_RX_ENDPOINT, rx_transfer + 0);
 	timer_config(usb_serial_flush_callback, TRANSMIT_FLUSH_TIMEOUT);
 }
@@ -111,7 +121,7 @@ int usb_serial_getchar(void)
 		int c = rx_buffer[rx_index[0]++];
 		if (rx_index[0] >= rx_count[0]) {
 			// reschedule transfer
-			usb_prepare_transfer(rx_transfer + 0, rx_buffer + 0, CDC_RX_SIZE, 0);
+			usb_prepare_transfer(rx_transfer + 0, rx_buffer + 0, rx_packet_size, 0);
 			usb_receive(CDC_RX_ENDPOINT, rx_transfer + 0);
 		}
 		return c;
@@ -157,7 +167,7 @@ void usb_serial_flush_input(void)
 {
 	if (rx_index[0] < rx_count[0]) {
 		rx_index[0] = rx_count[0];
-		usb_prepare_transfer(rx_transfer + 0, rx_buffer + 0, CDC_RX_SIZE, 0);
+		usb_prepare_transfer(rx_transfer + 0, rx_buffer + 0, rx_packet_size, 0);
 		usb_receive(CDC_RX_ENDPOINT, rx_transfer + 0);
 	}
 }

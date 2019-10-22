@@ -662,7 +662,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
         5,                                      // bDescriptorType
         CDC_ACM_ENDPOINT | 0x80,                // bEndpointAddress
         0x03,                                   // bmAttributes (0x03=intr)
-        CDC_ACM_SIZE, 0,                        // wMaxPacketSize
+        LSB(CDC_ACM_SIZE),MSB(CDC_ACM_SIZE),    // wMaxPacketSize
         16,                                     // bInterval
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
@@ -679,14 +679,14 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
         5,                                      // bDescriptorType
         CDC_RX_ENDPOINT,                        // bEndpointAddress
         0x02,                                   // bmAttributes (0x02=bulk)
-        CDC_RX_SIZE, 0,                         // wMaxPacketSize
+        LSB(CDC_RX_SIZE_480),MSB(CDC_RX_SIZE_480),// wMaxPacketSize
         0,                                      // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         7,                                      // bLength
         5,                                      // bDescriptorType
         CDC_TX_ENDPOINT | 0x80,                 // bEndpointAddress
         0x02,                                   // bmAttributes (0x02=bulk)
-        CDC_TX_SIZE, 0,                         // wMaxPacketSize
+        LSB(CDC_TX_SIZE_480),MSB(CDC_TX_SIZE_480),// wMaxPacketSize
         0,                                      // bInterval
 #endif // CDC_DATA_INTERFACE
 
@@ -1501,14 +1501,14 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
         5,                                      // bDescriptorType
         CDC_RX_ENDPOINT,                        // bEndpointAddress
         0x02,                                   // bmAttributes (0x02=bulk)
-        CDC_RX_SIZE, 0,                         // wMaxPacketSize
+        LSB(CDC_RX_SIZE_12),MSB(CDC_RX_SIZE_12),// wMaxPacketSize
         0,                                      // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         7,                                      // bLength
         5,                                      // bDescriptorType
         CDC_TX_ENDPOINT | 0x80,                 // bEndpointAddress
         0x02,                                   // bmAttributes (0x02=bulk)
-        CDC_TX_SIZE, 0,                         // wMaxPacketSize
+        LSB(CDC_TX_SIZE_12),MSB(CDC_TX_SIZE_12),// wMaxPacketSize
         0,                                      // bInterval
 #endif // CDC_DATA_INTERFACE
 
