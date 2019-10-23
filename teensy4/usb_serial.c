@@ -33,6 +33,7 @@
 #include "core_pins.h"// for delay()
 //#include "HardwareSerial.h"
 #include <string.h> // for memcpy()
+#include "avr/pgmspace.h" // for PROGMEM, DMAMEM, FASTRUN
 
 #include "debug/printf.h"
 #include "core_pins.h"
@@ -46,8 +47,6 @@ volatile uint32_t usb_cdc_line_rtsdtr_millis;
 volatile uint8_t usb_cdc_line_rtsdtr=0;
 volatile uint8_t usb_cdc_transmit_flush_timer=0;
 
-//static usb_packet_t *rx_packet=NULL;
-//static usb_packet_t *tx_packet=NULL;
 static volatile uint8_t tx_noautoflush=0;
 extern volatile uint8_t usb_high_speed;
 
@@ -59,10 +58,10 @@ static void timer_start_oneshot();
 static void timer_stop();
 static void usb_serial_flush_callback(void);
 
-#define TX_NUM   7
-#define TX_SIZE  1024 /* should be a multiple of CDC_TX_SIZE */
+#define TX_NUM   4
+#define TX_SIZE  2048 /* should be a multiple of CDC_TX_SIZE */
 static transfer_t tx_transfer[TX_NUM] __attribute__ ((used, aligned(32)));
-static uint8_t txbuffer[TX_SIZE * TX_NUM];
+DMAMEM static uint8_t txbuffer[TX_SIZE * TX_NUM];
 static uint8_t tx_head=0;
 static uint16_t tx_available=0;
 static uint16_t tx_packet_size=0;
@@ -265,7 +264,9 @@ int usb_serial_write(const void *buffer, uint32_t size)
 			memcpy(txdata, data, tx_available);
 			//*(txbuffer + (tx_head * TX_SIZE)) = 'A' + tx_head; // to see which buffer
 			//*(txbuffer + (tx_head * TX_SIZE) + 1) = ' '; // really see it
-			usb_prepare_transfer(xfer, txbuffer + (tx_head * TX_SIZE), TX_SIZE, 0);
+			uint8_t *txbuf = txbuffer + (tx_head * TX_SIZE);
+			usb_prepare_transfer(xfer, txbuf, TX_SIZE, 0);
+			arm_dcache_flush_delete(txbuf, TX_SIZE);
 			usb_transmit(CDC_TX_ENDPOINT, xfer);
 			if (++tx_head >= TX_NUM) tx_head = 0;
 			size -= tx_available;
@@ -298,11 +299,15 @@ int usb_serial_write_buffer_free(void)
 
 void usb_serial_flush_output(void)
 {
+
 	if (!usb_configuration) return;
 	if (tx_available == 0) return;
 	tx_noautoflush = 1;
 	transfer_t *xfer = tx_transfer + tx_head;
-	usb_prepare_transfer(xfer, txbuffer + (tx_head * TX_SIZE), TX_SIZE - tx_available, 0);
+	uint8_t *txbuf = txbuffer + (tx_head * TX_SIZE);
+	uint32_t txnum = TX_SIZE - tx_available;
+	usb_prepare_transfer(xfer, txbuf, txnum, 0);
+	arm_dcache_flush_delete(txbuf, txnum);
 	usb_transmit(CDC_TX_ENDPOINT, xfer);
 	if (++tx_head >= TX_NUM) tx_head = 0;
 	tx_available = 0;
@@ -316,7 +321,10 @@ static void usb_serial_flush_callback(void)
 	if (tx_available == 0) return;
 	//printf("flush callback, %d bytes\n", TX_SIZE - tx_available);
 	transfer_t *xfer = tx_transfer + tx_head;
-	usb_prepare_transfer(xfer, txbuffer + (tx_head * TX_SIZE), TX_SIZE - tx_available, 0);
+	uint8_t *txbuf = txbuffer + (tx_head * TX_SIZE);
+	uint32_t txnum = TX_SIZE - tx_available;
+	usb_prepare_transfer(xfer, txbuf, txnum, 0);
+	arm_dcache_flush_delete(txbuf, txnum);
 	usb_transmit(CDC_TX_ENDPOINT, xfer);
 	if (++tx_head >= TX_NUM) tx_head = 0;
 	tx_available = 0;

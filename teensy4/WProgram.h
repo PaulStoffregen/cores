@@ -45,9 +45,6 @@
 #include "wiring.h"
 #include "HardwareSerial.h"
 
-#define DMAMEM __attribute__ ((section(".dmabuffers"), used))
-#define FASTRUN __attribute__ ((section(".fastrun") ))
-
 #ifdef __cplusplus
 
 #include "avr_emulation.h"
