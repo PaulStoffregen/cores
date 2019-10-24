@@ -1,6 +1,7 @@
 #include "imxrt.h"
 #include "core_pins.h"
 #include "debug/printf.h"
+#include "avr/pgmspace.h"
 
 static uint8_t calibrating;
 static uint8_t analog_config_bits = 10;
@@ -150,8 +151,7 @@ void analogReadAveraging(unsigned int num)
 
 #define MAX_ADC_CLOCK 20000000
 
-__attribute__((section(".progmem")))
-void analog_init(void)
+FLASHMEM void analog_init(void)
 {
 	uint32_t mode, avg=0;
 
