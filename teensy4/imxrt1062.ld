@@ -18,6 +18,7 @@ SECTIONS
 		KEEP(*(.bootdata))
 		KEEP(*(.vectors))
 		KEEP(*(.startup))
+		*(.flashmem*)
 		*(.progmem*)
                 . = ALIGN(4);
                 KEEP(*(.init))
