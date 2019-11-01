@@ -32,9 +32,7 @@
 #include <Arduino.h>
 #include "AudioStream.h"
 
-#if defined(__IMXRT1052__)
-  #define MAX_AUDIO_MEMORY 229376
-#elif defined(__IMXRT1062__)
+#if defined(__IMXRT1062__)
   #define MAX_AUDIO_MEMORY 229376
 #endif
 
@@ -54,8 +52,7 @@ void software_isr(void);
 
 // Set up the pool of audio data blocks
 // placing them all onto the free list
-__attribute__((section(".progmem")))
-void AudioStream::initialize_memory(audio_block_t *data, unsigned int num)
+FLASHMEM void AudioStream::initialize_memory(audio_block_t *data, unsigned int num)
 {
 	unsigned int i;
 	unsigned int maxnum = MAX_AUDIO_MEMORY / AUDIO_BLOCK_SAMPLES / 2;

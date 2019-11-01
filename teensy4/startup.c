@@ -1,6 +1,7 @@
 #include "imxrt.h"
 #include "wiring.h"
 #include "usb_dev.h"
+#include "avr/pgmspace.h"
 
 #include "debug/printf.h"
 
@@ -191,8 +192,7 @@ static void configure_systick(void)
 #define SIZE_64M	(SCB_MPU_RASR_SIZE(25) | SCB_MPU_RASR_ENABLE)
 #define REGION(n)	(SCB_MPU_RBAR_REGION(n) | SCB_MPU_RBAR_VALID)
 
-__attribute__((section(".progmem")))
-void configure_cache(void)
+FLASHMEM void configure_cache(void)
 {
 	//printf("MPU_TYPE = %08lX\n", SCB_MPU_TYPE);
 	//printf("CCR = %08lX\n", SCB_CCR);
@@ -236,8 +236,7 @@ void configure_cache(void)
 }
 
 
-__attribute__((section(".progmem")))
-void usb_pll_start()
+FLASHMEM void usb_pll_start()
 {
 	while (1) {
 		uint32_t n = CCM_ANALOG_PLL_USB1; // pg 759
@@ -281,8 +280,7 @@ void usb_pll_start()
 	}
 }
 
-__attribute__((section(".progmem")))
-void reset_PFD()
+FLASHMEM void reset_PFD()
 {	
 	//Reset PLL2 PFDs, set default frequencies:
 	CCM_ANALOG_PFD_528_SET = (1 << 31) | (1 << 23) | (1 << 15) | (1 << 7);

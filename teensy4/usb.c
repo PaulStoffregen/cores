@@ -3,6 +3,7 @@
 #include "usb_desc.h"
 #include "usb_serial.h"
 #include "core_pins.h" // for delay()
+#include "avr/pgmspace.h"
 #include <string.h>
 #include "debug/printf.h"
 
@@ -97,8 +98,7 @@ static void endpoint0_complete(void);
 static void run_callbacks(endpoint_t *ep);
 
 
-__attribute__((section(".progmem")))
-void usb_init(void)
+FLASHMEM void usb_init(void)
 {
 	// TODO: only enable when VBUS detected
 	// TODO: return to low power mode when VBUS removed

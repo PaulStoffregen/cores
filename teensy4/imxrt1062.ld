@@ -18,6 +18,7 @@ SECTIONS
 		KEEP(*(.bootdata))
 		KEEP(*(.vectors))
 		KEEP(*(.startup))
+		*(.flashmem*)
 		*(.progmem*)
                 . = ALIGN(4);
                 KEEP(*(.init))
@@ -36,6 +37,10 @@ SECTIONS
 		*(.text*)
 		. = ALIGN(16);
 	} > ITCM  AT> FLASH
+
+	.text.itcm.padding (NOLOAD) : {
+		. = ALIGN(32768);
+	} > ITCM
 
 	.data : {
 		*(.rodata*)
@@ -69,7 +74,7 @@ SECTIONS
 	_heap_start = ADDR(.bss.dma) + SIZEOF(.bss.dma);
 	_heap_end = ORIGIN(RAM) + LENGTH(RAM);
 
-	_itcm_block_count = (SIZEOF(.text.itcm) + 0x7FFE) >> 15;
+	_itcm_block_count = (SIZEOF(.text.itcm) + 0x7FFF) >> 15;
 	_flexram_bank_config = 0xAAAAAAAA | ((1 << (_itcm_block_count * 2)) - 1);
 	_estack = ORIGIN(DTCM) + ((16 - _itcm_block_count) << 15);
 

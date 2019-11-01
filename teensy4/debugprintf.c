@@ -2,6 +2,7 @@
 
 #ifdef PRINT_DEBUG_STUFF
 
+#include "avr/pgmspace.h"
 #include <stdarg.h>
 #include "imxrt.h"
 
@@ -9,8 +10,7 @@ void putchar_debug(char c);
 static void puint_debug(unsigned int num);
 
 
-__attribute__((section(".progmem")))
-void printf_debug(const char *format, ...)
+FLASHMEM void printf_debug(const char *format, ...)
 {
 	va_list args;
 	unsigned int val;
@@ -70,15 +70,13 @@ static void puint_debug(unsigned int num)
 	printf_debug(buf + i);
 }
 
-__attribute__((section(".progmem")))
-void putchar_debug(char c)
+FLASHMEM void putchar_debug(char c)
 {
 	while (!(LPUART3_STAT & LPUART_STAT_TDRE)) ; // wait
 	LPUART3_DATA = c;
 }
 
-__attribute__((section(".progmem")))
-void printf_debug_init(void)
+FLASHMEM void printf_debug_init(void)
 {
         CCM_CCGR0 |= CCM_CCGR0_LPUART3(CCM_CCGR_ON); // turn on Serial4
         IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_06 = 2; // Arduino pin 17

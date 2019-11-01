@@ -34,6 +34,7 @@ MEMORY
 	RAM  (rwx) : ORIGIN = 0x1FFF8000, LENGTH = 64K
 }
 
+ENTRY(_VectorsFlash)
 
 SECTIONS
 {

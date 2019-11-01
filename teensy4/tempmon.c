@@ -1,5 +1,6 @@
 #include "imxrt.h"
 #include "core_pins.h"
+#include "avr/pgmspace.h"
 #include "debug/printf.h"
 
 
@@ -11,8 +12,7 @@ static uint32_t panicAlarmTemp  = 90U;
 static uint32_t s_hotTemp, s_hotCount, s_roomC_hotC;
 static float s_hot_ROOM;
 
-__attribute__((section(".progmem")))
-void tempmon_init(void)
+FLASHMEM void tempmon_init(void)
 {
   // Notes:
   //    TEMPMON_TEMPSENSE0 &= ~0x2U;  Stops temp monitoring

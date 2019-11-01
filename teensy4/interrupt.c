@@ -52,45 +52,6 @@ void irq_gpio6789(void)
 	irq_anyport(&GPIO9_DR, isr_table_gpio4);
 }
 
-#elif defined(__IMXRT1052__)
-
-FASTRUN
-void irq_anyport(volatile uint32_t *gpio, voidFuncPtr *table)
-{
-	uint32_t status = gpio[ISR] & gpio[IMR];
-	gpio[ISR] = status;
-	while (status) {
-			uint32_t index = __builtin_ctz(status);
-			table[index]();
-			status = status & ~(1 << index);
-			//status = status & (status - 1);
-	}
-}
-
-FASTRUN
-void irq_gpio1(void)
-{
-	irq_anyport(&GPIO1_DR, isr_table_gpio1);
-}
-
-FASTRUN
-void irq_gpio2(void)
-{
-	irq_anyport(&GPIO2_DR, isr_table_gpio2);
-}
-
-FASTRUN
-void irq_gpio3(void)
-{
-	irq_anyport(&GPIO3_DR, isr_table_gpio3);
-}
-
-FASTRUN
-void irq_gpio4(void)
-{
-	irq_anyport(&GPIO4_DR, isr_table_gpio4);
-}
-
 #endif
 
 void attachInterrupt(uint8_t pin, void (*function)(void), int mode)
@@ -126,39 +87,6 @@ void attachInterrupt(uint8_t pin, void (*function)(void), int mode)
 	attachInterruptVector(IRQ_GPIO6789, &irq_gpio6789);
 	NVIC_ENABLE_IRQ(IRQ_GPIO6789);
 
-#elif defined(__IMXRT1052__)
-	switch((uint32_t)gpio) {
-		case (uint32_t)&GPIO1_DR:
-			table = isr_table_gpio1;
-			attachInterruptVector(IRQ_GPIO1_0_15, &irq_gpio1);
-			attachInterruptVector(IRQ_GPIO1_16_31, &irq_gpio1);
-			NVIC_ENABLE_IRQ(IRQ_GPIO1_0_15);
-			NVIC_ENABLE_IRQ(IRQ_GPIO1_16_31);
-			break;
-		case (uint32_t)&GPIO2_DR:
-			table = isr_table_gpio2;
-			attachInterruptVector(IRQ_GPIO2_0_15, &irq_gpio2);
-			attachInterruptVector(IRQ_GPIO2_16_31, &irq_gpio2);
-			NVIC_ENABLE_IRQ(IRQ_GPIO2_0_15);
-			NVIC_ENABLE_IRQ(IRQ_GPIO2_16_31);
-			break;
-		case (uint32_t)&GPIO3_DR:
-			table = isr_table_gpio3;
-			attachInterruptVector(IRQ_GPIO3_0_15, &irq_gpio3);
-			attachInterruptVector(IRQ_GPIO3_16_31, &irq_gpio3);
-			NVIC_ENABLE_IRQ(IRQ_GPIO3_0_15);
-			NVIC_ENABLE_IRQ(IRQ_GPIO3_16_31);
-			break;
-		case (uint32_t)&GPIO4_DR:
-			table = isr_table_gpio4;
-			attachInterruptVector(IRQ_GPIO4_0_15, &irq_gpio4);
-			attachInterruptVector(IRQ_GPIO4_16_31, &irq_gpio4);
-			NVIC_ENABLE_IRQ(IRQ_GPIO4_0_15);
-			NVIC_ENABLE_IRQ(IRQ_GPIO4_16_31);
-			break;
-		default:
-			return;
-	}
 #endif
 
 	uint32_t icr;
