@@ -2427,90 +2427,33 @@ typedef struct {
 
 
 // 23.7.1: page 1023
-#define IMXRT_ENC1		(*(IMXRT_REGISTER16_t *)0x403C8000)
-#define ENC1_CTRL			(IMXRT_ENC1.offset000)
-#define ENC1_FILT			(IMXRT_ENC1.offset002)
-#define ENC1_WTR			(IMXRT_ENC1.offset004)
-#define ENC1_POSD			(IMXRT_ENC1.offset006)
-#define ENC1_POSDH			(IMXRT_ENC1.offset008)
-#define ENC1_REV			(IMXRT_ENC1.offset00A)
-#define ENC1_REVH			(IMXRT_ENC1.offset00C)
-#define ENC1_UPOS			(IMXRT_ENC1.offset00E)
-#define ENC1_LPOS			(IMXRT_ENC1.offset010)
-#define ENC1_UPOSH			(IMXRT_ENC1.offset012)
-#define ENC1_LPOSH			(IMXRT_ENC1.offset014)
-#define ENC1_UINIT			(IMXRT_ENC1.offset016)
-#define ENC1_LINIT			(IMXRT_ENC1.offset018)
-#define ENC1_IMR			(IMXRT_ENC1.offset01A)
-#define ENC1_TST			(IMXRT_ENC1.offset01C)
-#define ENC1_CTRL2			(IMXRT_ENC1.offset01E)
-#define ENC1_UMOD			(IMXRT_ENC1.offset020)
-#define ENC1_LMOD			(IMXRT_ENC1.offset022)
-#define ENC1_UCOMP			(IMXRT_ENC1.offset024)
-#define ENC1_LCOMP			(IMXRT_ENC1.offset026)
-#define IMXRT_ENC2		(*(IMXRT_REGISTER16_t *)0x403CC000)
-#define ENC2_CTRL			(IMXRT_ENC2.offset000)
-#define ENC2_FILT			(IMXRT_ENC2.offset002)
-#define ENC2_WTR			(IMXRT_ENC2.offset004)
-#define ENC2_POSD			(IMXRT_ENC2.offset006)
-#define ENC2_POSDH			(IMXRT_ENC2.offset008)
-#define ENC2_REV			(IMXRT_ENC2.offset00A)
-#define ENC2_REVH			(IMXRT_ENC2.offset00C)
-#define ENC2_UPOS			(IMXRT_ENC2.offset00E)
-#define ENC2_LPOS			(IMXRT_ENC2.offset010)
-#define ENC2_UPOSH			(IMXRT_ENC2.offset012)
-#define ENC2_LPOSH			(IMXRT_ENC2.offset014)
-#define ENC2_UINIT			(IMXRT_ENC2.offset016)
-#define ENC2_LINIT			(IMXRT_ENC2.offset018)
-#define ENC2_IMR			(IMXRT_ENC2.offset01A)
-#define ENC2_TST			(IMXRT_ENC2.offset01C)
-#define ENC2_CTRL2			(IMXRT_ENC2.offset01E)
-#define ENC2_UMOD			(IMXRT_ENC2.offset020)
-#define ENC2_LMOD			(IMXRT_ENC2.offset022)
-#define ENC2_UCOMP			(IMXRT_ENC2.offset024)
-#define ENC2_LCOMP			(IMXRT_ENC2.offset026)
-#define IMXRT_ENC3		(*(IMXRT_REGISTER16_t *)0x403D0000)
-#define ENC3_CTRL			(IMXRT_ENC3.offset000)
-#define ENC3_FILT			(IMXRT_ENC3.offset002)
-#define ENC3_WTR			(IMXRT_ENC3.offset004)
-#define ENC3_POSD			(IMXRT_ENC3.offset006)
-#define ENC3_POSDH			(IMXRT_ENC3.offset008)
-#define ENC3_REV			(IMXRT_ENC3.offset00A)
-#define ENC3_REVH			(IMXRT_ENC3.offset00C)
-#define ENC3_UPOS			(IMXRT_ENC3.offset00E)
-#define ENC3_LPOS			(IMXRT_ENC3.offset010)
-#define ENC3_UPOSH			(IMXRT_ENC3.offset012)
-#define ENC3_LPOSH			(IMXRT_ENC3.offset014)
-#define ENC3_UINIT			(IMXRT_ENC3.offset016)
-#define ENC3_LINIT			(IMXRT_ENC3.offset018)
-#define ENC3_IMR			(IMXRT_ENC3.offset01A)
-#define ENC3_TST			(IMXRT_ENC3.offset01C)
-#define ENC3_CTRL2			(IMXRT_ENC3.offset01E)
-#define ENC3_UMOD			(IMXRT_ENC3.offset020)
-#define ENC3_LMOD			(IMXRT_ENC3.offset022)
-#define ENC3_UCOMP			(IMXRT_ENC3.offset024)
-#define ENC3_LCOMP			(IMXRT_ENC3.offset026)
-#define IMXRT_ENC4		(*(IMXRT_REGISTER16_t *)0x403D4000)
-#define ENC4_CTRL			(IMXRT_ENC4.offset000)
-#define ENC4_FILT			(IMXRT_ENC4.offset002)
-#define ENC4_WTR			(IMXRT_ENC4.offset004)
-#define ENC4_POSD			(IMXRT_ENC4.offset006)
-#define ENC4_POSDH			(IMXRT_ENC4.offset008)
-#define ENC4_REV			(IMXRT_ENC4.offset00A)
-#define ENC4_REVH			(IMXRT_ENC4.offset00C)
-#define ENC4_UPOS			(IMXRT_ENC4.offset00E)
-#define ENC4_LPOS			(IMXRT_ENC4.offset010)
-#define ENC4_UPOSH			(IMXRT_ENC4.offset012)
-#define ENC4_LPOSH			(IMXRT_ENC4.offset014)
-#define ENC4_UINIT			(IMXRT_ENC4.offset016)
-#define ENC4_LINIT			(IMXRT_ENC4.offset018)
-#define ENC4_IMR			(IMXRT_ENC4.offset01A)
-#define ENC4_TST			(IMXRT_ENC4.offset01C)
-#define ENC4_CTRL2			(IMXRT_ENC4.offset01E)
-#define ENC4_UMOD			(IMXRT_ENC4.offset020)
-#define ENC4_LMOD			(IMXRT_ENC4.offset022)
-#define ENC4_UCOMP			(IMXRT_ENC4.offset024)
-#define ENC4_LCOMP			(IMXRT_ENC4.offset026)
+typedef struct {
+  volatile uint16_t CTRL;		/**< Control Register, offset: 0x0 */
+  volatile uint16_t FILT;		/**< Input Filter Register, offset: 0x2 */
+  volatile uint16_t WTR;		/**< Watchdog Timeout Register, offset: 0x4 */
+  volatile uint16_t POSD;		/**< Position Difference Counter Register, offset: 0x6 */
+  volatile uint16_t POSDH;		/**< Position Difference Hold Register, offset: 0x8 */
+  volatile uint16_t REV;		/**< Revolution Counter Register, offset: 0xA */
+  volatile uint16_t REVH;		/**< Revolution Hold Register, offset: 0xC */
+  volatile uint16_t UPOS;		/**< Upper Position Counter Register, offset: 0xE */
+  volatile uint16_t LPOS;		/**< Lower Position Counter Register, offset: 0x10 */
+  volatile uint16_t UPOSH;		/**< Upper Position Hold Register, offset: 0x12 */
+  volatile uint16_t LPOSH;		/**< Lower Position Hold Register, offset: 0x14 */
+  volatile uint16_t UINIT;		/**< Upper Initialization Register, offset: 0x16 */
+  volatile uint16_t LINIT;		/**< Lower Initialization Register, offset: 0x18 */
+  volatile uint16_t IMR;		/**< Input Monitor Register, offset: 0x1A */
+  volatile uint16_t TST;		/**< Test Register, offset: 0x1C */
+  volatile uint16_t CTRL2;		/**< Control 2 Register, offset: 0x1E */
+  volatile uint16_t UMOD;		/**< Upper Modulus Register, offset: 0x20 */
+  volatile uint16_t LMOD;		/**< Lower Modulus Register, offset: 0x22 */
+  volatile uint16_t UCOMP;		/**< Upper Position Compare Register, offset: 0x24 */
+  volatile uint16_t LCOMP;		/**< Lower Position Compare Register, offset: 0x26 */
+} IMXRT_ENC_t;
+
+#define IMXRT_ENC1		(*(IMXRT_ENC_t *)0x403C8000)
+#define IMXRT_ENC2		(*(IMXRT_ENC_t *)0x403CC000)
+#define IMXRT_ENC3		(*(IMXRT_ENC_t *)0x403D0000)
+#define IMXRT_ENC4		(*(IMXRT_ENC_t *)0x403D4000)
 
 // 24.5: page 1060
 #define IMXRT_ENET		(*(IMXRT_REGISTER32_t *)0x402D8000)
