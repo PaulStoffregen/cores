@@ -6025,7 +6025,7 @@ typedef struct {
 #define LCDIF_PIGEON_11_1		(IMXRT_LCDIF_b.offset2D0)
 #define LCDIF_PIGEON_11_2		(IMXRT_LCDIF_b.offset2E0)
 
-// 37.4: page 2371
+// 46.4: page 2886
 typedef struct {
 	const uint32_t VERID;
 	const uint32_t PARAM;
@@ -6063,11 +6063,10 @@ typedef struct {
 	volatile uint32_t SAMR;			// 140
 	volatile uint32_t unused11[3];
 	volatile uint32_t SASR;			// 150
-	volatile uint32_t unused12[3];
 	volatile uint32_t STAR;			// 154
-	volatile uint32_t unused13[3];
+	volatile uint32_t unused12[2];
 	volatile uint32_t STDR;			// 160
-	volatile uint32_t unused14[3];
+	volatile uint32_t unused13[3];
 	volatile uint32_t SRDR;			// 170
 } IMXRT_LPI2C_t;
 #define IMXRT_LPI2C1		(*(IMXRT_LPI2C_t *)0x403F0000)
