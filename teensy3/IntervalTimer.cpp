@@ -46,9 +46,11 @@ uint8_t IntervalTimer::nvic_priorites[2] = {255, 255};
 #endif
 
 
-bool IntervalTimer::beginCycles(void (*funct)(),
+bool IntervalTimer::beginCycles(
+		void (*funct)(),
 		void (*funct_w_state)(void *state), void *state,
-		uint32_t cycles) {
+		uint32_t cycles)
+{
 	if (channel) {
 		channel->TCTRL = 0;
 		channel->TFLG = 1;

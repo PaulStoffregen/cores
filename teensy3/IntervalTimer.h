@@ -162,7 +162,8 @@ private:
 	#endif
 
 	// Either pass funct, or funct_w_state and state
-	bool beginCycles(void (*funct)(),
+	bool beginCycles(
+			void (*funct)(),
 			void (*funct_w_state)(void *state), void *state,
 			uint32_t cycles);
 
