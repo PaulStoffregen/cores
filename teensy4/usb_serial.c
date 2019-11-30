@@ -106,7 +106,7 @@ void usb_serial_configure(void)
 	memset(rx_index, 0, sizeof(rx_index));
 	usb_config_tx(CDC_ACM_ENDPOINT, CDC_ACM_SIZE, 0, NULL); // size same 12 & 480
 	usb_config_rx(CDC_RX_ENDPOINT, rx_packet_size, 0, rx_event);
-	usb_config_tx(CDC_TX_ENDPOINT, tx_packet_size, 0, NULL);
+	usb_config_tx(CDC_TX_ENDPOINT, tx_packet_size, 1, NULL);
 	usb_prepare_transfer(rx_transfer + 0, rx_buffer + 0, rx_packet_size, 0);
 	usb_receive(CDC_RX_ENDPOINT, rx_transfer + 0);
 	timer_config(usb_serial_flush_callback, TRANSMIT_FLUSH_TIMEOUT);
