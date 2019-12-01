@@ -66,7 +66,7 @@ static uint8_t tx_head=0;
 static uint16_t tx_available=0;
 static uint16_t tx_packet_size=0;
 
-#define RX_NUM  3
+#define RX_NUM  8
 static transfer_t rx_transfer[RX_NUM] __attribute__ ((used, aligned(32)));
 DMAMEM static uint8_t rx_buffer[RX_NUM * CDC_RX_SIZE_480] __attribute__ ((aligned(32)));
 static uint16_t rx_count[RX_NUM];
