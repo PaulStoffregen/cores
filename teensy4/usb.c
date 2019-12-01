@@ -773,6 +773,7 @@ void usb_receive(int endpoint_number, transfer_t *transfer)
 
 uint32_t usb_transfer_status(const transfer_t *transfer)
 {
+#if 0
 	uint32_t status, cmd;
 	//int count=0;
 	cmd = USB1_USBCMD;
@@ -787,6 +788,9 @@ uint32_t usb_transfer_status(const transfer_t *transfer)
 		//if (status & 0x80) break; // for still active, only 1 reading needed
 		//if (++count > 1) break; // for completed, check 10 times
 	}
+#else
+	return transfer->status;
+#endif
 }
 
 
