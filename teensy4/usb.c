@@ -722,26 +722,37 @@ end:
 
 static void run_callbacks(endpoint_t *ep)
 {
-	transfer_t *t, *next;
-
 	//printf("run_callbacks\n");
-	t = ep->first_transfer;
-	while (t && (uint32_t)t != 1) {
-		if (!(t->status & (1<<7))) {
-			// transfer not active anymore
-			next = (transfer_t *)t->next;
-			ep->callback_function(t);
-		} else {
-			// transfer still active
+	transfer_t *first = ep->first_transfer;
+	if (first == NULL) return;
+
+	// count how many transfers are completed, then remove them from the endpoint's list
+	uint32_t count = 0;
+	transfer_t *t = first;
+	while (1) {
+		if (t->status & (1<<7)) {
+			// found a still-active transfer, new list begins here
+			//printf(" still active\n");
 			ep->first_transfer = t;
-			return;
+			break;
 		}
-		if (next == ep->last_transfer) break;
-		t = next;
+		count++;
+		t = (transfer_t *)t->next;
+		if ((uint32_t)t == 1) {
+			// reached end of list, all need callbacks, new list is empty
+			//printf(" end of list\n");
+			ep->first_transfer = NULL;
+			ep->last_transfer = NULL;
+			break;
+		}
 	}
-	// all transfers completed
-	ep->first_transfer = NULL;
-	ep->last_transfer = NULL;
+	// do all the callbacks
+	while (count) {
+		transfer_t *next = (transfer_t *)first->next;
+		ep->callback_function(first);
+		first = next;
+		count--;
+	}
 }
 
 void usb_transmit(int endpoint_number, transfer_t *transfer)
