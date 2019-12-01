@@ -61,14 +61,14 @@ static void usb_serial_flush_callback(void);
 #define TX_NUM   4
 #define TX_SIZE  2048 /* should be a multiple of CDC_TX_SIZE */
 static transfer_t tx_transfer[TX_NUM] __attribute__ ((used, aligned(32)));
-DMAMEM static uint8_t txbuffer[TX_SIZE * TX_NUM];
+DMAMEM static uint8_t txbuffer[TX_SIZE * TX_NUM] __attribute__ ((aligned(32)));
 static uint8_t tx_head=0;
 static uint16_t tx_available=0;
 static uint16_t tx_packet_size=0;
 
 #define RX_NUM  3
 static transfer_t rx_transfer[RX_NUM] __attribute__ ((used, aligned(32)));
-static uint8_t rx_buffer[RX_NUM * CDC_RX_SIZE_480];
+DMAMEM static uint8_t rx_buffer[RX_NUM * CDC_RX_SIZE_480] __attribute__ ((aligned(32)));
 static uint16_t rx_count[RX_NUM];
 static uint16_t rx_index[RX_NUM];
 static uint16_t rx_packet_size=0;
@@ -123,7 +123,9 @@ static void rx_queue_transfer(int i)
 {
 	NVIC_DISABLE_IRQ(IRQ_USB1);
 	printf("rx queue i=%d\n", i);
-	usb_prepare_transfer(rx_transfer + i, rx_buffer + i * CDC_RX_SIZE_480, rx_packet_size, i);
+	void *buffer = rx_buffer + i * CDC_RX_SIZE_480;
+	usb_prepare_transfer(rx_transfer + i, buffer, rx_packet_size, i);
+	arm_dcache_delete(buffer, rx_packet_size);
 	usb_receive(CDC_RX_ENDPOINT, rx_transfer + i);
 	NVIC_ENABLE_IRQ(IRQ_USB1);
 }
