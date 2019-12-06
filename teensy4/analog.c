@@ -19,17 +19,10 @@ const uint8_t pin_to_channel[] = { // pg 482
 	0,	// 7/A7  AD_B1_11
 	13,	// 8/A8  AD_B1_08
 	14,	// 9/A9  AD_B1_09
-#if 0
-	128,	// 10
-	128,	// 11
-	128,	// 12
-	128,	// 13
-#else
 	1,	// 24/A10 AD_B0_12 
 	2,	// 25/A11 AD_B0_13
 	128+3,	// 26/A12 AD_B1_14 - only on ADC2, 3
 	128+4,	// 27/A13 AD_B1_15 - only on ADC2, 4
-#endif	
 	7,	// 14/A0  AD_B1_02
 	8,	// 15/A1  AD_B1_03
 	12,	// 16/A2  AD_B1_07
@@ -51,6 +44,7 @@ static void wait_for_cal(void)
 {
 	//printf("wait_for_cal\n");
 	while (ADC1_GC & ADC_GC_CAL) ;
+	while (ADC2_GC & ADC_GC_CAL) ;
 	// TODO: check CALF, but what do to about CAL failure?
 	calibrating = 0;
 	//printf("cal complete\n");
@@ -140,8 +134,8 @@ void analogReadAveraging(unsigned int num)
       mode1 |= 0;
     }
 
-  ADC1_CFG |= mode;
-  ADC2_CFG |= mode1;
+  ADC1_CFG = mode;
+  ADC2_CFG = mode1;
   
   if(num >= 4){
       ADC1_GC |= ADC_GC_AVGE;// turns on averaging
@@ -206,7 +200,7 @@ FLASHMEM void analog_init(void)
 	ADC2_CFG = mode | ADC_HC_AIEN | ADC_CFG_ADHSC;
 	ADC2_GC = avg | ADC_GC_CAL;		// begin cal
 	calibrating = 1;
-	while (ADC1_GC & ADC_GC_CAL) ;
+	while (ADC2_GC & ADC_GC_CAL) ;
 	calibrating = 0;
 }
 
