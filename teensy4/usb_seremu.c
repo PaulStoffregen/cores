@@ -43,7 +43,6 @@ extern volatile uint8_t usb_high_speed;
 
 // TODO: should be 2 different timeouts, high speed (480) vs full speed (12)
 #define TRANSMIT_FLUSH_TIMEOUT  75   /* in microseconds */
-volatile uint8_t usb_seremu_transmit_flush_timer=0;
 static void timer_config(void (*callback)(void), uint32_t microseconds);
 static void timer_start_oneshot();
 static void timer_stop();

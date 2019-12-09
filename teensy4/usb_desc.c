@@ -625,6 +625,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 #endif
 
 #ifdef CDC_DATA_INTERFACE
+	// configuration for 480 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
         4,                                      // bDescriptorType
@@ -691,6 +692,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 #endif // CDC_DATA_INTERFACE
 
 #ifdef MIDI_INTERFACE
+	// configuration for 480 Mbit/sec speed
         // Standard MS Interface Descriptor,
         9,                                      // bLength
         4,                                      // bDescriptorType
@@ -915,6 +917,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 #endif // MIDI_INTERFACE
 
 #ifdef KEYBOARD_INTERFACE
+	// configuration for 480 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
         4,                                      // bDescriptorType
@@ -944,6 +947,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 #endif // KEYBOARD_INTERFACE
 
 #ifdef MOUSE_INTERFACE
+	// configuration for 480 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
         4,                                      // bDescriptorType
@@ -973,6 +977,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 #endif // MOUSE_INTERFACE
 
 #ifdef RAWHID_INTERFACE
+	// configuration for 480 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
         4,                                      // bDescriptorType
@@ -1009,6 +1014,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 #endif // RAWHID_INTERFACE
 
 #ifdef FLIGHTSIM_INTERFACE
+	// configuration for 480 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
         4,                                      // bDescriptorType
@@ -1045,6 +1051,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 #endif // FLIGHTSIM_INTERFACE
 
 #ifdef SEREMU_INTERFACE
+	// configuration for 480 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
         4,                                      // bDescriptorType
@@ -1081,6 +1088,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 #endif // SEREMU_INTERFACE
 
 #ifdef JOYSTICK_INTERFACE
+	// configuration for 480 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
         4,                                      // bDescriptorType
@@ -1110,6 +1118,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 #endif // JOYSTICK_INTERFACE
 
 #ifdef MTP_INTERFACE
+	// configuration for 480 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
         4,                                      // bDescriptorType
@@ -1144,6 +1153,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 #endif // MTP_INTERFACE
 
 #ifdef KEYMEDIA_INTERFACE
+	// configuration for 480 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
         4,                                      // bDescriptorType
@@ -1173,6 +1183,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 #endif // KEYMEDIA_INTERFACE
 
 #ifdef AUDIO_INTERFACE
+	// configuration for 480 Mbit/sec speed
         // interface association descriptor, USB ECN, Table 9-Z
         8,                                      // bLength
         11,                                     // bDescriptorType
@@ -1392,6 +1403,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 #endif
 
 #ifdef MULTITOUCH_INTERFACE
+	// configuration for 480 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
         4,                                      // bDescriptorType
@@ -1447,6 +1459,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 #endif
 
 #ifdef CDC_DATA_INTERFACE
+	// configuration for 12 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
         4,                                      // bDescriptorType
@@ -1513,6 +1526,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 #endif // CDC_DATA_INTERFACE
 
 #ifdef MIDI_INTERFACE
+	// configuration for 12 Mbit/sec speed
         // Standard MS Interface Descriptor,
         9,                                      // bLength
         4,                                      // bDescriptorType
@@ -1737,6 +1751,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 #endif // MIDI_INTERFACE
 
 #ifdef KEYBOARD_INTERFACE
+	// configuration for 12 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
         4,                                      // bDescriptorType
@@ -1766,6 +1781,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 #endif // KEYBOARD_INTERFACE
 
 #ifdef MOUSE_INTERFACE
+	// configuration for 12 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
         4,                                      // bDescriptorType
@@ -1795,6 +1811,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 #endif // MOUSE_INTERFACE
 
 #ifdef RAWHID_INTERFACE
+	// configuration for 12 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
         4,                                      // bDescriptorType
@@ -1831,6 +1848,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 #endif // RAWHID_INTERFACE
 
 #ifdef FLIGHTSIM_INTERFACE
+	// configuration for 12 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
         4,                                      // bDescriptorType
@@ -1867,6 +1885,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 #endif // FLIGHTSIM_INTERFACE
 
 #ifdef SEREMU_INTERFACE
+	// configuration for 12 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
         4,                                      // bDescriptorType
@@ -1903,6 +1922,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 #endif // SEREMU_INTERFACE
 
 #ifdef JOYSTICK_INTERFACE
+	// configuration for 12 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
         4,                                      // bDescriptorType
@@ -1932,6 +1952,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 #endif // JOYSTICK_INTERFACE
 
 #ifdef MTP_INTERFACE
+	// configuration for 12 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
         4,                                      // bDescriptorType
@@ -1966,6 +1987,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 #endif // MTP_INTERFACE
 
 #ifdef KEYMEDIA_INTERFACE
+	// configuration for 12 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
         4,                                      // bDescriptorType
@@ -1995,6 +2017,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 #endif // KEYMEDIA_INTERFACE
 
 #ifdef AUDIO_INTERFACE
+	// configuration for 12 Mbit/sec speed
         // interface association descriptor, USB ECN, Table 9-Z
         8,                                      // bLength
         11,                                     // bDescriptorType
@@ -2214,6 +2237,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 #endif
 
 #ifdef MULTITOUCH_INTERFACE
+	// configuration for 12 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
         4,                                      // bDescriptorType

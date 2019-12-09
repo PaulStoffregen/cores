@@ -2,6 +2,8 @@
 #define USB_DESC_LIST_DEFINE
 #include "usb_desc.h"
 #include "usb_serial.h"
+#include "usb_seremu.h"
+#include "usb_keyboard.h"
 #include "core_pins.h" // for delay()
 #include "avr/pgmspace.h"
 #include <string.h>
@@ -364,6 +366,9 @@ static void endpoint0_setup(uint64_t setupdata)
 		#endif
 		#if defined(RAWHID_INTERFACE)
 		usb_rawhid_configure();
+		#endif
+		#if defined(KEYBOARD_INTERFACE)
+		usb_keyboard_configure();
 		#endif
 		endpoint0_receive(NULL, 0, 0);
 		return;
