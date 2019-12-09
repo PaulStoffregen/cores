@@ -799,7 +799,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
         5,                                      // bDescriptorType = ENDPOINT
         MIDI_RX_ENDPOINT,                       // bEndpointAddress
         0x02,                                   // bmAttributes (0x02=bulk)
-        MIDI_RX_SIZE, 0,                        // wMaxPacketSize
+        LSB(MIDI_RX_SIZE_480),MSB(MIDI_RX_SIZE_480),// wMaxPacketSize
         0,                                      // bInterval
         0,                                      // bRefresh
         0,                                      // bSynchAddress
@@ -859,7 +859,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
         5,                                      // bDescriptorType = ENDPOINT
         MIDI_TX_ENDPOINT | 0x80,                // bEndpointAddress
         0x02,                                   // bmAttributes (0x02=bulk)
-        MIDI_TX_SIZE, 0,                        // wMaxPacketSize
+        LSB(MIDI_TX_SIZE_480),MSB(MIDI_TX_SIZE_480),// wMaxPacketSize
         0,                                      // bInterval
         0,                                      // bRefresh
         0,                                      // bSynchAddress
@@ -1633,7 +1633,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
         5,                                      // bDescriptorType = ENDPOINT
         MIDI_RX_ENDPOINT,                       // bEndpointAddress
         0x02,                                   // bmAttributes (0x02=bulk)
-        MIDI_RX_SIZE, 0,                        // wMaxPacketSize
+        LSB(MIDI_RX_SIZE_12),MSB(MIDI_RX_SIZE_12),// wMaxPacketSize
         0,                                      // bInterval
         0,                                      // bRefresh
         0,                                      // bSynchAddress
@@ -1693,7 +1693,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
         5,                                      // bDescriptorType = ENDPOINT
         MIDI_TX_ENDPOINT | 0x80,                // bEndpointAddress
         0x02,                                   // bmAttributes (0x02=bulk)
-        MIDI_TX_SIZE, 0,                        // wMaxPacketSize
+        LSB(MIDI_TX_SIZE_12),MSB(MIDI_TX_SIZE_12),// wMaxPacketSize
         0,                                      // bInterval
         0,                                      // bRefresh
         0,                                      // bSynchAddress
@@ -2269,7 +2269,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 
 
 __attribute__ ((section(".dmabuffers"), aligned(32)))
-uint8_t usb_descriptor_buffer[CONFIG_DESC_SIZE];
+uint8_t usb_descriptor_buffer[CONFIG_DESC_SIZE + 4096];
 
 
 
