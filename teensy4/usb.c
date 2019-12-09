@@ -6,6 +6,7 @@
 #include "usb_keyboard.h"
 #include "usb_mouse.h"
 #include "usb_joystick.h"
+#include "usb_touch.h"
 #include "core_pins.h" // for delay()
 #include "avr/pgmspace.h"
 #include <string.h>
@@ -377,6 +378,9 @@ static void endpoint0_setup(uint64_t setupdata)
 		#endif
 		#if defined(JOYSTICK_INTERFACE)
 		usb_joystick_configure();
+		#endif
+		#if defined(MULTITOUCH_INTERFACE)
+		usb_touchscreen_configure();
 		#endif
 		endpoint0_receive(NULL, 0, 0);
 		return;
