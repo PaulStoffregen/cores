@@ -518,7 +518,7 @@ static uint8_t transmit_previous_timeout=0;
 // When the PC isn't listening, how long do we wait before discarding data?
 #define TX_TIMEOUT_MSEC 50
 
-int usb_keyboard_transmit(int endpoint, const uint8_t *data, uint32_t len)
+static int usb_keyboard_transmit(int endpoint, const uint8_t *data, uint32_t len)
 {
 	if (!usb_configuration) return -1;
 	uint32_t head = tx_head;

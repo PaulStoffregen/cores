@@ -4,6 +4,8 @@
 #include "usb_serial.h"
 #include "usb_seremu.h"
 #include "usb_keyboard.h"
+#include "usb_mouse.h"
+#include "usb_joystick.h"
 #include "core_pins.h" // for delay()
 #include "avr/pgmspace.h"
 #include <string.h>
@@ -369,6 +371,12 @@ static void endpoint0_setup(uint64_t setupdata)
 		#endif
 		#if defined(KEYBOARD_INTERFACE)
 		usb_keyboard_configure();
+		#endif
+		#if defined(MOUSE_INTERFACE)
+		usb_mouse_configure();
+		#endif
+		#if defined(JOYSTICK_INTERFACE)
+		usb_joystick_configure();
 		#endif
 		endpoint0_receive(NULL, 0, 0);
 		return;
