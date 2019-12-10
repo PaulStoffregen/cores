@@ -2269,7 +2269,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 
 
 __attribute__ ((section(".dmabuffers"), aligned(32)))
-uint8_t usb_descriptor_buffer[CONFIG_DESC_SIZE + 4096];
+uint8_t usb_descriptor_buffer[CONFIG_DESC_SIZE];
 
 
 

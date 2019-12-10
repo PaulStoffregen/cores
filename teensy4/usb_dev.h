@@ -24,6 +24,9 @@ void usb_transmit(int endpoint_number, transfer_t *transfer);
 void usb_receive(int endpoint_number, transfer_t *transfer);
 uint32_t usb_transfer_status(const transfer_t *transfer);
 
+void usb_start_sof_interrupts(int interface);
+void usb_stop_sof_interrupts(int interface);
+
 extern void (*usb_timer0_callback)(void);
 extern void (*usb_timer1_callback)(void);
 

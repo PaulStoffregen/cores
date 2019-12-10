@@ -117,8 +117,8 @@ void usb_midi_configure(void)
 	rx_tail = 0;
 	rx_available = 0;
 	usb_config_rx(MIDI_RX_ENDPOINT, rx_packet_size, 0, rx_event);
-	usb_config_tx(MIDI_TX_ENDPOINT, tx_packet_size, 1, NULL);
-	int i;
+	usb_config_tx(MIDI_TX_ENDPOINT, tx_packet_size, 0, NULL); // TODO: is ZLP needed?
+	//int i;
 	//for (i=0; i < RX_NUM; i++) rx_queue_transfer(i);
 	// TODO: set up SOF interrupt....
 	transmit_previous_timeout = 0;
@@ -166,13 +166,16 @@ void usb_midi_write_packed(uint32_t n)
 		usb_transmit(MIDI_TX_ENDPOINT, xfer);
 		if (++head >= TX_NUM) head = 0;
 		tx_head = head;
+		usb_stop_sof_interrupts(MIDI_INTERFACE);
+	} else {
+		usb_start_sof_interrupts(MIDI_INTERFACE);
 	}
 	tx_noautoflush = 0;
 }
 
 void usb_midi_flush_output(void)
 {
-	printf("usb_midi_flush_output\n");
+	//printf("usb_midi_flush_output\n");
 	if (tx_noautoflush == 0 && tx_available > 0) {
 		printf(" tx, %d %d\n", tx_packet_size, tx_available);
 		uint32_t head = tx_head;
@@ -185,6 +188,7 @@ void usb_midi_flush_output(void)
 		if (++head >= TX_NUM) head = 0;
 		tx_head = head;
 		tx_available = 0;
+		usb_stop_sof_interrupts(MIDI_INTERFACE);
 	}
 }
 
@@ -305,7 +309,8 @@ uint32_t usb_midi_read_message(void)
 
 int usb_midi_read(uint32_t channel)
 {
-	uint32_t n, index, ch, type1, type2, b1;
+	//uint32_t n, index, ch, type1, type2, b1;
+	uint32_t n, ch, type1, type2, b1;
 	
 	return 0;
 #if 0
