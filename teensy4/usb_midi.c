@@ -118,9 +118,8 @@ void usb_midi_configure(void)
 	rx_available = 0;
 	usb_config_rx(MIDI_RX_ENDPOINT, rx_packet_size, 0, rx_event);
 	usb_config_tx(MIDI_TX_ENDPOINT, tx_packet_size, 0, NULL); // TODO: is ZLP needed?
-	//int i;
-	//for (i=0; i < RX_NUM; i++) rx_queue_transfer(i);
-	// TODO: set up SOF interrupt....
+	int i;
+	for (i=0; i < RX_NUM; i++) rx_queue_transfer(i);
 	transmit_previous_timeout = 0;
 	tx_noautoflush = 0;
 }
@@ -251,92 +250,77 @@ void static sysex_byte(uint8_t b)
 }
 
 
+
+
+
+
+static void rx_queue_transfer(int i)
+{
+	NVIC_DISABLE_IRQ(IRQ_USB1);
+	void *buffer = rx_buffer + i * MIDI_RX_SIZE_480;
+	usb_prepare_transfer(rx_transfer + i, buffer, rx_packet_size, i);
+	arm_dcache_delete(buffer, rx_packet_size);
+	usb_receive(MIDI_RX_ENDPOINT, rx_transfer + i);
+	NVIC_ENABLE_IRQ(IRQ_USB1);
+}
+
+
+
 // called by USB interrupt when any packet is received
 static void rx_event(transfer_t *t)
 {
+	int len = rx_packet_size - ((t->status >> 16) & 0x7FFF);
+	len &= 0xFFFC; // MIDI packets must be multiple of 4 bytes
+	int i = t->callback_param;
+	printf("rx event, len=%d, i=%d\n", len, i);
+	if (len > 0) {
+		uint32_t head = rx_head;
+		rx_count[i] = len;
+		rx_index[i] = 0;
+		if (++head > RX_NUM) head = 0;
+		rx_list[head] = i;
+		rx_head = head;
+		rx_available += len;
+	} else {
+		// received a zero length packet
+		rx_queue_transfer(i);
+	}
 }
 
 
 uint32_t usb_midi_available(void)
 {
-#if 0
-	uint32_t index;
-
-	if (!rx_packet) {
-		if (!usb_configuration) return 0;
-		rx_packet = usb_rx(MIDI_RX_ENDPOINT);
-		if (!rx_packet) return 0;
-		if (rx_packet->len == 0) {
-			usb_free(rx_packet);
-			rx_packet = NULL;
-			return 0;
-		}
-	}
-	index = rx_packet->index;
-	return rx_packet->len - index;
-#endif
-	return 0;
+	return rx_available / 4;
 }
 
 uint32_t usb_midi_read_message(void)
 {
-#if 0
-	uint32_t n, index;
-
-	if (!rx_packet) {
-		if (!usb_configuration) return 0;
-		rx_packet = usb_rx(MIDI_RX_ENDPOINT);
-		if (!rx_packet) return 0;
-		if (rx_packet->len == 0) {
-			usb_free(rx_packet);
-			rx_packet = NULL;
-			return 0;
+	uint32_t n = 0;
+	NVIC_DISABLE_IRQ(IRQ_USB1);
+	uint32_t tail = rx_tail;
+	if (tail != rx_head) {
+		if (++tail > RX_NUM) tail = 0;
+		uint32_t i = rx_list[tail];
+		//uint32_t avail = (rx_count[i] - rx_index[i]) / 4;
+		void *p = rx_buffer + i * MIDI_RX_SIZE_480 + rx_index[i];
+		n = *(uint32_t *)p;
+		rx_available -= 4;
+		rx_index[i] += 4;
+		if (rx_index[i] >= rx_count[i]) {
+			rx_tail = tail;
+			rx_queue_transfer(i);
 		}
 	}
-	index = rx_packet->index;
-	n = ((uint32_t *)rx_packet->buf)[index/4];
-	index += 4;
-	if (index < rx_packet->len) {
-		rx_packet->index = index;
-	} else {
-		usb_free(rx_packet);
-		rx_packet = usb_rx(MIDI_RX_ENDPOINT);
-	}
+	NVIC_ENABLE_IRQ(IRQ_USB1);
 	return n;
-#endif
-	return 0;
 }
 
 int usb_midi_read(uint32_t channel)
 {
-	//uint32_t n, index, ch, type1, type2, b1;
 	uint32_t n, ch, type1, type2, b1;
 	
-	return 0;
-#if 0
-	if (!rx_packet) {
-		if (!usb_configuration) return 0;
-		rx_packet = usb_rx(MIDI_RX_ENDPOINT);
-		if (!rx_packet) return 0;
-		if (rx_packet->len == 0) {
-			usb_free(rx_packet);
-			rx_packet = NULL;
-			return 0;
-		}
-	}
-	index = rx_packet->index;
-	n = ((uint32_t *)rx_packet->buf)[index/4];
-	//serial_print("midi rx, n=");
-	//serial_phex32(n);
-	//serial_print("\n");
-	index += 4;
-	if (index < rx_packet->len) {
-		rx_packet->index = index;
-	} else {
-		usb_free(rx_packet);
-		rx_packet = usb_rx(MIDI_RX_ENDPOINT);
-	}
-#endif
+	n = usb_midi_read_message();
+	if (n == 0) return 0;
 	type1 = n & 15;
 	type2 = (n >> 12) & 15;
 	b1 = (n >> 8) & 0xFF;
