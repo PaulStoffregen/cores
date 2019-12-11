@@ -719,6 +719,9 @@ uint32_t usb_tx_byte_count(uint32_t endpoint)
 	return usb_queue_byte_count(tx_first[endpoint]);
 }
 
+// Discussion about using this function and USB transmit latency
+// https://forum.pjrc.com/threads/58663?p=223513&viewfull=1#post223513
+//
 uint32_t usb_tx_packet_count(uint32_t endpoint)
 {
 	const usb_packet_t *p;
