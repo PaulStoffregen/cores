@@ -159,6 +159,7 @@ static int usb_mouse_transmit(const uint8_t *data, uint32_t len)
                 if (!usb_configuration) return -1;
                 yield();
         }
+	delayNanoseconds(30); // TODO: why is status ready too soon?
         uint8_t *buffer = txbuffer + head * TX_BUFSIZE;
         memcpy(buffer, data, len);
         usb_prepare_transfer(xfer, buffer, len, 0);

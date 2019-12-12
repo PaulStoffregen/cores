@@ -95,6 +95,7 @@ int usb_joystick_send()
                 if (!usb_configuration) return -1;
                 yield();
         }
+	delayNanoseconds(30); // TODO: why is status ready too soon?
         uint8_t *buffer = txbuffer + head * TX_BUFSIZE;
 	memcpy(buffer, usb_joystick_data, JOYSTICK_SIZE);
         usb_prepare_transfer(xfer, buffer, JOYSTICK_SIZE, 0);

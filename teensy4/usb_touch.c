@@ -109,6 +109,7 @@ static int transmit(const uint8_t *data)
 	if (status & 0x68) {
 		// TODO: what if status has errors???
 	}
+	delayNanoseconds(30); // TODO: is this needed?  (probably not)
 	uint8_t *buffer = txbuffer + head * TX_BUFSIZE;
 	memcpy(buffer, data, MULTITOUCH_SIZE);
 	usb_prepare_transfer(xfer, buffer, MULTITOUCH_SIZE, 0);
