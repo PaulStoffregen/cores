@@ -430,8 +430,10 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define CDC_RX_ENDPOINT       3
   #define CDC_TX_ENDPOINT       3
   #define CDC_ACM_SIZE          16
-  #define CDC_RX_SIZE           64
-  #define CDC_TX_SIZE           64
+  #define CDC_RX_SIZE_480       512
+  #define CDC_TX_SIZE_480       512
+  #define CDC_RX_SIZE_12        64
+  #define CDC_TX_SIZE_12        64
   #define MIDI_INTERFACE        2	// MIDI
   #define MIDI_NUM_CABLES       1
   #define MIDI_TX_ENDPOINT      4
@@ -462,8 +464,10 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define CDC_RX_ENDPOINT       3
   #define CDC_TX_ENDPOINT       3
   #define CDC_ACM_SIZE          16
-  #define CDC_RX_SIZE           64
-  #define CDC_TX_SIZE           64
+  #define CDC_RX_SIZE_480       512
+  #define CDC_TX_SIZE_480       512
+  #define CDC_RX_SIZE_12        64
+  #define CDC_TX_SIZE_12        64
   #define MIDI_INTERFACE        2	// MIDI
   #define MIDI_NUM_CABLES       4
   #define MIDI_TX_ENDPOINT      4
@@ -494,8 +498,10 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define CDC_RX_ENDPOINT       3
   #define CDC_TX_ENDPOINT       3
   #define CDC_ACM_SIZE          16
-  #define CDC_RX_SIZE           64
-  #define CDC_TX_SIZE           64
+  #define CDC_RX_SIZE_480       512
+  #define CDC_TX_SIZE_480       512
+  #define CDC_RX_SIZE_12        64
+  #define CDC_TX_SIZE_12        64
   #define MIDI_INTERFACE        2	// MIDI
   #define MIDI_NUM_CABLES       16
   #define MIDI_TX_ENDPOINT      4
