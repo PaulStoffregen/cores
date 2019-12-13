@@ -120,11 +120,11 @@ void quadtimerWrite(IMXRT_TMR_t *p, unsigned int submodule, uint16_t val)
 {
 	uint32_t modulo = 65537 - p->CH[submodule].LOAD + p->CH[submodule].CMPLD1;
 	uint32_t high = ((uint32_t)val * (modulo - 1)) >> analog_write_res;
-	if (high >= modulo) high = modulo - 1; // TODO: is this check correct?
+	if (high >= modulo - 1) high = modulo - 2;
 
 	//printf(" modulo=%lu\n", modulo);
 	//printf(" high=%lu\n", high);
-	uint32_t low = modulo - high; // TODO: low must never be 0 or 1 - can it be??
+	uint32_t low = modulo - high; // low must 2 or higher
 	//printf(" low=%lu\n", low);
 
 	p->CH[submodule].LOAD = 65537 - low;
