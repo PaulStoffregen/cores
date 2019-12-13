@@ -48,11 +48,10 @@ static uint16_t xpos[MULTITOUCH_FINGERS];
 static uint16_t ypos[MULTITOUCH_FINGERS];
 static uint16_t scan_timestamp;
 
-#define TX_NUM     20
 #define TX_BUFSIZE 32
-static transfer_t tx_transfer[TX_NUM] __attribute__ ((used, aligned(32)));
-DMAMEM static uint8_t txbuffer[TX_NUM * TX_BUFSIZE] __attribute__ ((aligned(32)));
-static uint8_t tx_head=0;
+static transfer_t tx_transfer __attribute__ ((used, aligned(32)));
+DMAMEM static uint8_t txbuffer[TX_BUFSIZE] __attribute__ ((aligned(32)));
+extern volatile uint8_t usb_high_speed;
 #if MULTITOUCH_SIZE > TX_BUFSIZE
 #error "Internal error, transmit buffer size is too small for touchscreen endpoint"
 #endif
@@ -60,10 +59,9 @@ static uint8_t tx_head=0;
 
 void usb_touchscreen_configure(void)
 {
-	memset(tx_transfer, 0, sizeof(tx_transfer));
-	tx_head = 0;
+	memset(&tx_transfer, 0, sizeof(tx_transfer));
 	usb_config_tx(MULTITOUCH_ENDPOINT, MULTITOUCH_SIZE, 0, NULL);
-	// TODO: need to cause usb_touchscreen_update_callback to be run on SOF
+	usb_start_sof_interrupts(MULTITOUCH_INTERFACE);
 }
 
 
@@ -98,28 +96,6 @@ void usb_touchscreen_release(uint8_t finger)
 	pressure[finger] = 0;
 }
 
-
-static int transmit(const uint8_t *data)
-{
-	if (!usb_configuration) return 0;
-	uint32_t head = tx_head;
-	transfer_t *xfer = tx_transfer + head;
-	uint32_t status = usb_transfer_status(xfer);
-	if ((status & 0x80)) return 0;
-	if (status & 0x68) {
-		// TODO: what if status has errors???
-	}
-	delayNanoseconds(30); // TODO: is this needed?  (probably not)
-	uint8_t *buffer = txbuffer + head * TX_BUFSIZE;
-	memcpy(buffer, data, MULTITOUCH_SIZE);
-	usb_prepare_transfer(xfer, buffer, MULTITOUCH_SIZE, 0);
-	arm_dcache_flush_delete(buffer, TX_BUFSIZE);
-	usb_transmit(MULTITOUCH_ENDPOINT, xfer);
-	if (++head >= TX_NUM) head = 0;
-	tx_head = head;
-	return 1;
-}
-
 // touch report
 //  0: contact id + on/off
 //  1: pressure
@@ -130,19 +106,28 @@ static int transmit(const uint8_t *data)
 //  6: scan time lsb
 //  7: scan time msb
 
-
 // Called by the start-of-frame interrupt.
 //
 void usb_touchscreen_update_callback(void)
 {
-	// TODO: if 480 speed, run only every 8th time
+	static uint8_t microframe_count=0;
+
+	if (usb_high_speed) {
+		// if 480 speed, run only every 8th micro-frame
+		if (++microframe_count < 8) return;
+		microframe_count = 0;
+	}
+
+	// do nothing if previous packet not yet sent
+	uint32_t status = usb_transfer_status(&tx_transfer);
+	if ((status & 0x80)) {
+		return;
+	}
+	if (status & 0x68) {
+		// TODO: what if status has errors???
+	}
 
 	if (scan_index == 0) {
-		if (usb_tx_packet_count(MULTITOUCH_ENDPOINT) > 1) {
-			// wait to begin another scan if if more than
-			// one prior packet remains to transmit
-			return;
-		}
 		scan_timestamp = millis() * 10;
 		scan_count = 0;
 	}
@@ -158,15 +143,19 @@ void usb_touchscreen_update_callback(void)
 				contactid[scan_index] = 0;
 			}
 			uint8_t buffer[MULTITOUCH_SIZE]; // MULTITOUCH_SIZE = 8
-			buffer[0] = id;
-			buffer[1] = press;
-			buffer[2] = xpos[scan_index];
-			buffer[3] = xpos[scan_index] >> 8;
-			buffer[4] = ypos[scan_index];
-			buffer[5] = ypos[scan_index] >> 8;
-			buffer[6] = scan_timestamp;
-			buffer[7] = scan_timestamp >> 8;
-			if (transmit(buffer)) scan_index++;
+			txbuffer[0] = id;
+			txbuffer[1] = press;
+			txbuffer[2] = xpos[scan_index];
+			txbuffer[3] = xpos[scan_index] >> 8;
+			txbuffer[4] = ypos[scan_index];
+			txbuffer[5] = ypos[scan_index] >> 8;
+			txbuffer[6] = scan_timestamp;
+			txbuffer[7] = scan_timestamp >> 8;
+			//delayNanoseconds(30);
+			usb_prepare_transfer(&tx_transfer, txbuffer, MULTITOUCH_SIZE, 0);
+			arm_dcache_flush_delete(txbuffer, TX_BUFSIZE);
+			usb_transmit(MULTITOUCH_ENDPOINT, &tx_transfer);
+			scan_index++;
 			return;
 		}
 		scan_index++;

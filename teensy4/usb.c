@@ -301,7 +301,7 @@ static void isr(void)
 		//printf("error\n");
 	}
 	if ((USB1_USBINTR & USB_USBINTR_SRE) && (status & USB_USBSTS_SRI)) {
-		printf("sof %d\n", usb_reboot_timer);
+		//printf("sof %d\n", usb_reboot_timer);
 		if (usb_reboot_timer) {
 			if (--usb_reboot_timer == 0) {
 				usb_stop_sof_interrupts(NUM_INTERFACE);
@@ -310,6 +310,9 @@ static void isr(void)
 		}
 		#ifdef MIDI_INTERFACE
 		usb_midi_flush_output();
+		#endif
+		#ifdef MULTITOUCH_INTERFACE
+		usb_touchscreen_update_callback();
 		#endif
 	}
 }

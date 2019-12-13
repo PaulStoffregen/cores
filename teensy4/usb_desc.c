@@ -1429,7 +1429,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
         MULTITOUCH_ENDPOINT | 0x80,             // bEndpointAddress
         0x03,                                   // bmAttributes (0x03=intr)
         MULTITOUCH_SIZE, 0,                     // wMaxPacketSize
-        1,                                      // bInterval
+        4,                                      // bInterval, 4 = 1ms
 #endif // KEYMEDIA_INTERFACE
 };
 
