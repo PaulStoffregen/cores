@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2017 PJRC.COM, LLC.
+ * Copyright (c) 2019 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -33,78 +33,6 @@
 
 #include "imxrt.h"
 
-#ifdef __cplusplus
-#include "Stream.h"
-class HardwareSerial : public Stream
-{
-public:
-	typedef struct {
-		IRQ_NUMBER_t irq;
-		volatile uint32_t &ccm_register;
-		const uint32_t ccm_value;
-		volatile uint32_t &rx_mux_register;
-		volatile uint32_t &tx_mux_register;
-		const uint8_t rx_mux_val;
-		const uint8_t tx_mux_val;
-	} hardware_t;
-public:
-	constexpr HardwareSerial(IMXRT_LPUART_t *myport, const hardware_t *myhardware) :
-		port(myport), hardware(myhardware) {
-	}
-	void begin(uint32_t baud, uint8_t format=0);
-
-	virtual int available(void);
-	virtual int peek(void);
-	virtual void flush(void);
-	virtual size_t write(uint8_t c);
-	virtual int read(void);
-	using Print::write;
-
-/*
-	virtual void begin(uint32_t baud) { serial_begin(BAUD2DIV(baud)); }
-	virtual void begin(uint32_t baud, uint32_t format) {
-					  serial_begin(BAUD2DIV(baud));
-					  serial_format(format); }
-	virtual void end(void)		{ serial_end(); }
-	virtual void transmitterEnable(uint8_t pin) { serial_set_transmit_pin(pin); }
-	virtual void setRX(uint8_t pin) { serial_set_rx(pin); }
-	virtual void setTX(uint8_t pin, bool opendrain=false) { serial_set_tx(pin, opendrain); }
-	virtual bool attachRts(uint8_t pin) { return serial_set_rts(pin); }
-	virtual bool attachCts(uint8_t pin) { return serial_set_cts(pin); }
-	virtual void clear(void)	{ serial_clear(); }
-	virtual int availableForWrite(void) { return serial_write_buffer_free(); }
-	using Print::write;
-	virtual size_t write(uint8_t c) { serial_putchar(c); return 1; }
-	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
-	virtual size_t write(long n)            { return write((uint8_t)n); }
-	virtual size_t write(unsigned int n)    { return write((uint8_t)n); }
-	virtual size_t write(int n)             { return write((uint8_t)n); }
-	virtual size_t write(const uint8_t *buffer, size_t size)
-					{ serial_write(buffer, size); return size; }
-        virtual size_t write(const char *str)	{ size_t len = strlen(str);
-					  serial_write((const uint8_t *)str, len);
-					  return len; }
-	virtual size_t write9bit(uint32_t c)	{ serial_putchar(c); return 1; }
-*/
-	operator bool()			{ return true; }
-private:
-	IMXRT_LPUART_t * const port;
-	const hardware_t * const hardware;
-};
-extern HardwareSerial Serial1;
-extern HardwareSerial Serial2;
-extern HardwareSerial Serial3;
-extern HardwareSerial Serial4;
-extern HardwareSerial Serial5;
-extern HardwareSerial Serial6;
-extern HardwareSerial Serial7;
-extern HardwareSerial Serial8;
-//extern void serialEvent1(void);
-
-
-#endif // __cplusplus
-
-
 // Uncomment to enable 9 bit formats.  These are default disabled to save memory.
 //#define SERIAL_9BIT_SUPPORT
 //
@@ -113,8 +41,7 @@ extern HardwareSerial Serial8;
 // On Macintosh, you must control-click Arduino and select "Show Package Contents", then
 //   look in Contents/Java/hardware/teensy/avr/cores/teensy3 to find this file.
 //
-// Teensy 3.x boards support 9 bit mode on all their serial ports
-// Teensy LC only supports 9 bit mode on Serial1.  Serial2 & Serial3 can't use 9 bits.
+// Teensy 4.x boards support 9 bit mode on all their serial ports
 
 
 #define SERIAL_7E1 0x02
@@ -151,8 +78,7 @@ extern HardwareSerial Serial8;
 #define SERIAL_9E1_RXINV_TXINV 0xBE
 #define SERIAL_9O1_RXINV_TXINV 0xBF
 #endif
-// Teensy LC and 3.5 and 3.6 Uarts have 1/2 bit stop setting
-#if defined(__MK64FX512__) || defined(__MK66FX1M0__) || defined(KINETISL)
+// We have 1/2 bit stop setting
 #define SERIAL_2STOP_BITS 0x100
 #define SERIAL_8E2 (SERIAL_8E1 | SERIAL_2STOP_BITS)
 #define SERIAL_8O2 (SERIAL_8O1 | SERIAL_2STOP_BITS)
@@ -166,13 +92,6 @@ extern HardwareSerial Serial8;
 #define SERIAL_8N2_RXINV (SERIAL_8N1_RXINV | SERIAL_2STOP_BITS)
 #define SERIAL_8N2_TXINV (SERIAL_8N1_TXINV | SERIAL_2STOP_BITS)
 #define SERIAL_8N2_RXINV_TXINV (SERIAL_8N1_RXINV_TXINV | SERIAL_2STOP_BITS)
-#else
-// for Teensy 3.0-3.2 we can fake 2 stop bits by using 9 bit mode
-#define SERIAL_8N2 0x04
-#define SERIAL_8N2_RXINV 0x14
-#define SERIAL_8N2_TXINV 0x24
-#define SERIAL_8N2_RXINV_TXINV 0x34
-#endif
 // bit0: parity, 0=even, 1=odd
 // bit1: parity, 0=disable, 1=enable
 // bit2: mode, 1=9bit, 0=8bit
@@ -181,6 +100,197 @@ extern HardwareSerial Serial8;
 // bit5: txinv, 0=normal, 1=inverted
 // bit6: unused
 // bit7: actual data goes into 9th bit
+
+
+#ifdef __cplusplus
+#include "Stream.h"
+#include "core_pins.h"
+
+#ifdef SERIAL_9BIT_SUPPORT
+#define BUFTYPE uint16_t
+#else
+#define BUFTYPE uint8_t
+#endif
+
+extern "C" {
+	extern void IRQHandler_Serial1();
+	extern void IRQHandler_Serial2();
+	extern void IRQHandler_Serial3();
+	extern void IRQHandler_Serial4();
+	extern void IRQHandler_Serial5();
+	extern void IRQHandler_Serial6();
+	extern void IRQHandler_Serial7();
+	#if defined(__IMXRT1052__)   
+	extern void IRQHandler_Serial8();
+	#endif
+}
+
+typedef void(*SerialEventCheckingFunctionPointer)();
+
+class HardwareSerial : public Stream
+{
+public:
+	static const uint8_t cnt_tx_pins = 2;
+	static const uint8_t cnt_rx_pins = 2;
+	typedef struct {
+		const uint8_t 		pin;		// The pin number
+		const uint32_t 		mux_val;	// Value to set for mux;
+		volatile uint32_t	*select_input_register; // Which register controls the selection
+		const uint32_t		select_val;	// Value for that selection
+	} pin_info_t;
+
+	typedef struct {
+		uint8_t serial_index;	// which object are we? 0 based
+		IRQ_NUMBER_t irq;
+		void (*irq_handler)(void);
+		void (*serial_event_handler_check)(void);
+		volatile uint32_t &ccm_register;
+		const uint32_t ccm_value;
+		pin_info_t rx_pins[cnt_rx_pins];
+		pin_info_t tx_pins[cnt_tx_pins];
+		const uint8_t cts_pin;
+		const uint8_t cts_mux_val;
+		const uint16_t irq_priority;
+		const uint16_t rts_low_watermark;
+		const uint16_t rts_high_watermark;
+	} hardware_t;
+public:
+	constexpr HardwareSerial(IMXRT_LPUART_t *myport, const hardware_t *myhardware, 
+		volatile BUFTYPE *_tx_buffer, size_t _tx_buffer_size, 
+		volatile BUFTYPE *_rx_buffer, size_t _rx_buffer_size) :
+		port(myport), hardware(myhardware),
+		tx_buffer_(_tx_buffer), rx_buffer_(_rx_buffer), tx_buffer_size_(_tx_buffer_size),  rx_buffer_size_(_rx_buffer_size),
+		tx_buffer_total_size_(_tx_buffer_size), rx_buffer_total_size_(_rx_buffer_size) {
+	}
+	void begin(uint32_t baud, uint16_t format=0);
+	void end(void);
+
+	virtual int available(void);
+	virtual int peek(void);
+	virtual void flush(void);
+	virtual size_t write(uint8_t c);
+	virtual int read(void);
+
+	void transmitterEnable(uint8_t pin);
+	void setRX(uint8_t pin);
+	void setTX(uint8_t pin, bool opendrain=false);
+	bool attachRts(uint8_t pin);
+	bool attachCts(uint8_t pin);
+	void clear(void);
+	int availableForWrite(void);
+	void addStorageForRead(void *buffer, size_t length);
+	void addStorageForWrite(void *buffer, size_t length);
+	size_t write9bit(uint32_t c);
+	
+	// Event Handler functions and data
+	void enableSerialEvents();
+	void disableSerialEvents();
+	static void processSerialEvents();
+	static uint8_t serial_event_handlers_active;
+
+	using Print::write; 
+	size_t write(unsigned long n) { return write((uint8_t)n); }
+	size_t write(long n) { return write((uint8_t)n); }
+	size_t write(unsigned int n) { return write((uint8_t)n); }
+	size_t write(int n) { return write((uint8_t)n); }
+
+	// Only overwrite some of the virtualWrite functions if we are going to optimize them over Print version
+
+	/*
+	virtual void begin(uint32_t baud) { serial_begin(BAUD2DIV(baud)); }
+	virtual void begin(uint32_t baud, uint32_t format) {
+					  serial_begin(BAUD2DIV(baud));
+					  serial_format(format); }
+	*/
+
+	operator bool()			{ return true; }
+private:
+	IMXRT_LPUART_t * const port;
+	const hardware_t * const hardware;
+	uint8_t				rx_pin_index_ = 0x0;	// default is always first item
+	uint8_t				tx_pin_index_ = 0x0;
+
+	volatile BUFTYPE 	*tx_buffer_;
+	volatile BUFTYPE 	*rx_buffer_;
+	volatile BUFTYPE	*rx_buffer_storage_ = nullptr;
+	volatile BUFTYPE	*tx_buffer_storage_ = nullptr;
+	size_t				tx_buffer_size_;
+	size_t				rx_buffer_size_;
+	size_t				tx_buffer_total_size_;
+	size_t				rx_buffer_total_size_;
+	size_t  			rts_low_watermark_ = 0;
+	size_t  			rts_high_watermark_ = 0;
+	volatile uint8_t 	transmitting_ = 0;
+	volatile uint16_t 	tx_buffer_head_ = 0;
+	volatile uint16_t 	tx_buffer_tail_ = 0;
+	volatile uint16_t 	rx_buffer_head_ = 0;
+	volatile uint16_t 	rx_buffer_tail_ = 0;
+
+	volatile uint32_t 	*transmit_pin_baseReg_ = 0;
+	uint32_t 			transmit_pin_bitmask_ = 0;
+
+	volatile uint32_t 	*rts_pin_baseReg_ = 0;
+	uint32_t 			rts_pin_bitmask_ = 0;
+
+  	inline void rts_assert();
+  	inline void rts_deassert();
+
+	void IRQHandler();
+	friend void IRQHandler_Serial1();
+	friend void IRQHandler_Serial2();
+	friend void IRQHandler_Serial3();
+	friend void IRQHandler_Serial4();
+	friend void IRQHandler_Serial5();
+	friend void IRQHandler_Serial6();
+	friend void IRQHandler_Serial7();
+	#if defined(__IMXRT1052__)   
+	friend void IRQHandler_Serial8();
+	static SerialEventCheckingFunctionPointer serial_event_handler_checks[8];
+	#else	
+	static SerialEventCheckingFunctionPointer serial_event_handler_checks[7];
+	#endif
+
+
+
+};
+extern HardwareSerial Serial1;
+extern HardwareSerial Serial2;
+extern HardwareSerial Serial3;
+extern HardwareSerial Serial4;
+extern HardwareSerial Serial5;
+extern HardwareSerial Serial6;
+extern HardwareSerial Serial7;
+extern void serialEvent1(void);
+extern void serialEvent2(void);
+extern void serialEvent3(void);
+extern void serialEvent4(void);
+extern void serialEvent5(void);
+extern void serialEvent6(void);
+extern void serialEvent7(void);
+
+	#if defined(__IMXRT1052__)   
+extern HardwareSerial Serial8;
+extern void serialEvent8(void);
+#endif
+
+
+#endif // __cplusplus
+
+
+// c functions to call c++ code in case some programs call the old functions
+// Defined under extern "C" {}
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+extern void serial_print(const char *p);
+extern void serial_phex(uint32_t n);
+extern void serial_phex16(uint32_t n);
+extern void serial_phex32(uint32_t n);
+
+#ifdef __cplusplus
+}
+#endif
 
 
 // TODO: replace with proper divisor+oversample calculation
@@ -205,360 +315,5 @@ extern HardwareSerial Serial8;
 #define BAUD2DIV3(baud) (((F_BUS / 16) + ((baud) >> 1)) / (baud))
 #endif
 */
-#if 0
 
-// C language implementation
-//
-#ifdef __cplusplus
-extern "C" {
-#endif
-void serial_begin(uint32_t divisor);
-void serial_format(uint32_t format);
-void serial_end(void);
-void serial_set_transmit_pin(uint8_t pin);
-void serial_set_rx(uint8_t pin);
-void serial_set_tx(uint8_t pin, uint8_t opendrain);
-int serial_set_rts(uint8_t pin);
-int serial_set_cts(uint8_t pin);
-void serial_putchar(uint32_t c);
-void serial_write(const void *buf, unsigned int count);
-void serial_flush(void);
-int serial_write_buffer_free(void);
-int serial_available(void);
-int serial_getchar(void);
-int serial_peek(void);
-void serial_clear(void);
-void serial_print(const char *p);
-void serial_phex(uint32_t n);
-void serial_phex16(uint32_t n);
-void serial_phex32(uint32_t n);
-
-void serial2_begin(uint32_t divisor);
-void serial2_format(uint32_t format);
-void serial2_end(void);
-void serial2_set_transmit_pin(uint8_t pin);
-void serial2_set_rx(uint8_t pin);
-void serial2_set_tx(uint8_t pin, uint8_t opendrain);
-int serial2_set_rts(uint8_t pin);
-int serial2_set_cts(uint8_t pin);
-void serial2_putchar(uint32_t c);
-void serial2_write(const void *buf, unsigned int count);
-void serial2_flush(void);
-int serial2_write_buffer_free(void);
-int serial2_available(void);
-int serial2_getchar(void);
-int serial2_peek(void);
-void serial2_clear(void);
-
-void serial3_begin(uint32_t divisor);
-void serial3_format(uint32_t format);
-void serial3_end(void);
-void serial3_set_transmit_pin(uint8_t pin);
-void serial3_set_rx(uint8_t pin);
-void serial3_set_tx(uint8_t pin, uint8_t opendrain);
-int serial3_set_rts(uint8_t pin);
-int serial3_set_cts(uint8_t pin);
-void serial3_putchar(uint32_t c);
-void serial3_write(const void *buf, unsigned int count);
-void serial3_flush(void);
-int serial3_write_buffer_free(void);
-int serial3_available(void);
-int serial3_getchar(void);
-int serial3_peek(void);
-void serial3_clear(void);
-
-void serial4_begin(uint32_t divisor);
-void serial4_format(uint32_t format);
-void serial4_end(void);
-void serial4_set_transmit_pin(uint8_t pin);
-void serial4_set_rx(uint8_t pin);
-void serial4_set_tx(uint8_t pin, uint8_t opendrain);
-int serial4_set_rts(uint8_t pin);
-int serial4_set_cts(uint8_t pin);
-void serial4_putchar(uint32_t c);
-void serial4_write(const void *buf, unsigned int count);
-void serial4_flush(void);
-int serial4_write_buffer_free(void);
-int serial4_available(void);
-int serial4_getchar(void);
-int serial4_peek(void);
-void serial4_clear(void);
-
-void serial5_begin(uint32_t divisor);
-void serial5_format(uint32_t format);
-void serial5_end(void);
-void serial5_set_transmit_pin(uint8_t pin);
-void serial5_set_rx(uint8_t pin);
-void serial5_set_tx(uint8_t pin, uint8_t opendrain);
-int serial5_set_rts(uint8_t pin);
-int serial5_set_cts(uint8_t pin);
-void serial5_putchar(uint32_t c);
-void serial5_write(const void *buf, unsigned int count);
-void serial5_flush(void);
-int serial5_write_buffer_free(void);
-int serial5_available(void);
-int serial5_getchar(void);
-int serial5_peek(void);
-void serial5_clear(void);
-
-void serial6_begin(uint32_t divisor);
-void serial6_format(uint32_t format);
-void serial6_end(void);
-void serial6_set_transmit_pin(uint8_t pin);
-void serial6_set_rx(uint8_t pin);
-void serial6_set_tx(uint8_t pin, uint8_t opendrain);
-int serial6_set_rts(uint8_t pin);
-int serial6_set_cts(uint8_t pin);
-void serial6_putchar(uint32_t c);
-void serial6_write(const void *buf, unsigned int count);
-void serial6_flush(void);
-int serial6_write_buffer_free(void);
-int serial6_available(void);
-int serial6_getchar(void);
-int serial6_peek(void);
-void serial6_clear(void);
-
-#ifdef __cplusplus
-}
-#endif
-
-
-// C++ interface
-//
-#ifdef __cplusplus
-#include "Stream.h"
-class HardwareSerial : public Stream
-{
-public:
-	constexpr HardwareSerial() {}
-	virtual void begin(uint32_t baud) { serial_begin(BAUD2DIV(baud)); }
-	virtual void begin(uint32_t baud, uint32_t format) {
-					  serial_begin(BAUD2DIV(baud));
-					  serial_format(format); }
-	virtual void end(void)		{ serial_end(); }
-	virtual void transmitterEnable(uint8_t pin) { serial_set_transmit_pin(pin); }
-	virtual void setRX(uint8_t pin) { serial_set_rx(pin); }
-	virtual void setTX(uint8_t pin, bool opendrain=false) { serial_set_tx(pin, opendrain); }
-	virtual bool attachRts(uint8_t pin) { return serial_set_rts(pin); }
-	virtual bool attachCts(uint8_t pin) { return serial_set_cts(pin); }
-	virtual int available(void)     { return serial_available(); }
-	virtual int peek(void)          { return serial_peek(); }
-	virtual int read(void)          { return serial_getchar(); }
-	virtual void flush(void)        { serial_flush(); }
-	virtual void clear(void)	{ serial_clear(); }
-	virtual int availableForWrite(void) { return serial_write_buffer_free(); }
-	using Print::write;
-	virtual size_t write(uint8_t c) { serial_putchar(c); return 1; }
-	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
-	virtual size_t write(long n)            { return write((uint8_t)n); }
-	virtual size_t write(unsigned int n)    { return write((uint8_t)n); }
-	virtual size_t write(int n)             { return write((uint8_t)n); }
-	virtual size_t write(const uint8_t *buffer, size_t size)
-					{ serial_write(buffer, size); return size; }
-        virtual size_t write(const char *str)	{ size_t len = strlen(str);
-					  serial_write((const uint8_t *)str, len);
-					  return len; }
-	virtual size_t write9bit(uint32_t c)	{ serial_putchar(c); return 1; }
-	operator bool()			{ return true; }
-};
-extern HardwareSerial Serial1;
-extern void serialEvent1(void);
-
-class HardwareSerial2 : public HardwareSerial
-{
-public:
-	constexpr HardwareSerial2() {}
-	virtual void begin(uint32_t baud) { serial2_begin(BAUD2DIV(baud)); }
-	virtual void begin(uint32_t baud, uint32_t format) {
-					  serial2_begin(BAUD2DIV(baud));
-					  serial2_format(format); }
-	virtual void end(void)		{ serial2_end(); }
-	virtual void transmitterEnable(uint8_t pin) { serial2_set_transmit_pin(pin); }
-	virtual void setRX(uint8_t pin) { serial2_set_rx(pin); }
-	virtual void setTX(uint8_t pin, bool opendrain=false) { serial2_set_tx(pin, opendrain); }
-	virtual bool attachRts(uint8_t pin) { return serial2_set_rts(pin); }
-	virtual bool attachCts(uint8_t pin) { return serial2_set_cts(pin); }
-	virtual int available(void)     { return serial2_available(); }
-	virtual int peek(void)          { return serial2_peek(); }
-	virtual int read(void)          { return serial2_getchar(); }
-	virtual void flush(void)        { serial2_flush(); }
-	virtual void clear(void)	{ serial2_clear(); }
-	virtual int availableForWrite(void) { return serial2_write_buffer_free(); }
-	using Print::write;
-	virtual size_t write(uint8_t c) { serial2_putchar(c); return 1; }
-	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
-	virtual size_t write(long n)            { return write((uint8_t)n); }
-	virtual size_t write(unsigned int n)    { return write((uint8_t)n); }
-	virtual size_t write(int n)             { return write((uint8_t)n); }
-	virtual size_t write(const uint8_t *buffer, size_t size)
-					{ serial2_write(buffer, size); return size; }
-        virtual size_t write(const char *str)	{ size_t len = strlen(str);
-					  serial2_write((const uint8_t *)str, len);
-					  return len; }
-	virtual size_t write9bit(uint32_t c)	{ serial2_putchar(c); return 1; }
-	operator bool()			{ return true; }
-};
-extern HardwareSerial2 Serial2;
-extern void serialEvent2(void);
-
-class HardwareSerial3 : public HardwareSerial
-{
-public:
-	constexpr HardwareSerial3() {}
-	virtual void begin(uint32_t baud) { serial3_begin(BAUD2DIV(baud)); }
-	virtual void begin(uint32_t baud, uint32_t format) {
-					  serial3_begin(BAUD2DIV(baud));
-					  serial3_format(format); }
-	virtual void end(void)          { serial3_end(); }
-	virtual void transmitterEnable(uint8_t pin) { serial3_set_transmit_pin(pin); }
-	virtual void setRX(uint8_t pin) { serial3_set_rx(pin); }
-	virtual void setTX(uint8_t pin, bool opendrain=false) { serial3_set_tx(pin, opendrain); }
-	virtual bool attachRts(uint8_t pin) { return serial3_set_rts(pin); }
-	virtual bool attachCts(uint8_t pin) { return serial3_set_cts(pin); }
-	virtual int available(void)     { return serial3_available(); }
-	virtual int peek(void)          { return serial3_peek(); }
-	virtual int read(void)          { return serial3_getchar(); }
-	virtual void flush(void)        { serial3_flush(); }
-	virtual void clear(void)	{ serial3_clear(); }
-	virtual int availableForWrite(void) { return serial3_write_buffer_free(); }
-	using Print::write;
-	virtual size_t write(uint8_t c) { serial3_putchar(c); return 1; }
-	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
-	virtual size_t write(long n)            { return write((uint8_t)n); }
-	virtual size_t write(unsigned int n)    { return write((uint8_t)n); }
-	virtual size_t write(int n)             { return write((uint8_t)n); }
-	virtual size_t write(const uint8_t *buffer, size_t size)
-					{ serial3_write(buffer, size); return size; }
-        virtual size_t write(const char *str)	{ size_t len = strlen(str);
-					  serial3_write((const uint8_t *)str, len);
-					  return len; }
-	virtual size_t write9bit(uint32_t c)	{ serial3_putchar(c); return 1; }
-	operator bool()			{ return true; }
-};
-extern HardwareSerial3 Serial3;
-extern void serialEvent3(void);
-
-class HardwareSerial4 : public HardwareSerial
-{
-public:
-	constexpr HardwareSerial4() {}
-	virtual void begin(uint32_t baud) { serial4_begin(BAUD2DIV(baud)); }
-	virtual void begin(uint32_t baud, uint32_t format) {
-					  serial4_begin(BAUD2DIV(baud));
-					  serial4_format(format); }
-	virtual void end(void)          { serial4_end(); }
-	virtual void transmitterEnable(uint8_t pin) { serial4_set_transmit_pin(pin); }
-	virtual void setRX(uint8_t pin) { serial4_set_rx(pin); }
-	virtual void setTX(uint8_t pin, bool opendrain=false) { serial4_set_tx(pin, opendrain); }
-	virtual bool attachRts(uint8_t pin) { return serial4_set_rts(pin); }
-	virtual bool attachCts(uint8_t pin) { return serial4_set_cts(pin); }
-	virtual int available(void)     { return serial4_available(); }
-	virtual int peek(void)          { return serial4_peek(); }
-	virtual int read(void)          { return serial4_getchar(); }
-	virtual void flush(void)        { serial4_flush(); }
-	virtual void clear(void)	{ serial4_clear(); }
-	virtual int availableForWrite(void) { return serial4_write_buffer_free(); }
-	using Print::write;
-	virtual size_t write(uint8_t c) { serial4_putchar(c); return 1; }
-	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
-	virtual size_t write(long n)            { return write((uint8_t)n); }
-	virtual size_t write(unsigned int n)    { return write((uint8_t)n); }
-	virtual size_t write(int n)             { return write((uint8_t)n); }
-	virtual size_t write(const uint8_t *buffer, size_t size)
-					{ serial4_write(buffer, size); return size; }
-        virtual size_t write(const char *str)	{ size_t len = strlen(str);
-					  serial4_write((const uint8_t *)str, len);
-					  return len; }
-	virtual size_t write9bit(uint32_t c)	{ serial4_putchar(c); return 1; }
-	operator bool()			{ return true; }
-};
-extern HardwareSerial4 Serial4;
-extern void serialEvent4(void);
-
-class HardwareSerial5 : public HardwareSerial
-{
-public:
-	constexpr HardwareSerial5() {}
-	virtual void begin(uint32_t baud) { serial5_begin(BAUD2DIV(baud)); }
-	virtual void begin(uint32_t baud, uint32_t format) {
-					  serial5_begin(BAUD2DIV(baud));
-					  serial5_format(format); }
-	virtual void end(void)          { serial5_end(); }
-	virtual void transmitterEnable(uint8_t pin) { serial5_set_transmit_pin(pin); }
-	virtual void setRX(uint8_t pin) { serial5_set_rx(pin); }
-	virtual void setTX(uint8_t pin, bool opendrain=false) { serial5_set_tx(pin, opendrain); }
-	virtual bool attachRts(uint8_t pin) { return serial5_set_rts(pin); }
-	virtual bool attachCts(uint8_t pin) { return serial5_set_cts(pin); }
-	virtual int available(void)     { return serial5_available(); }
-	virtual int peek(void)          { return serial5_peek(); }
-	virtual int read(void)          { return serial5_getchar(); }
-	virtual void flush(void)        { serial5_flush(); }
-	virtual void clear(void)	{ serial5_clear(); }
-	virtual int availableForWrite(void) { return serial5_write_buffer_free(); }
-	using Print::write;
-	virtual size_t write(uint8_t c) { serial5_putchar(c); return 1; }
-	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
-	virtual size_t write(long n)            { return write((uint8_t)n); }
-	virtual size_t write(unsigned int n)    { return write((uint8_t)n); }
-	virtual size_t write(int n)             { return write((uint8_t)n); }
-	virtual size_t write(const uint8_t *buffer, size_t size)
-					{ serial5_write(buffer, size); return size; }
-        virtual size_t write(const char *str)	{ size_t len = strlen(str);
-					  serial5_write((const uint8_t *)str, len);
-					  return len; }
-	virtual size_t write9bit(uint32_t c)	{ serial5_putchar(c); return 1; }
-	operator bool()			{ return true; }
-};
-extern HardwareSerial5 Serial5;
-extern void serialEvent5(void);
-
-class HardwareSerial6 : public HardwareSerial
-{
-public:
-	constexpr HardwareSerial6() {}
-#if defined(__MK66FX1M0__)	// For LPUART just pass baud straight in. 
-	virtual void begin(uint32_t baud) { serial6_begin(baud); }
-	virtual void begin(uint32_t baud, uint32_t format) {
-					  serial6_begin(baud);
-					  serial6_format(format); }
-#else
-	virtual void begin(uint32_t baud) { serial6_begin(BAUD2DIV(baud)); }
-	virtual void begin(uint32_t baud, uint32_t format) {
-					  serial6_begin(BAUD2DIV(baud));
-					  serial6_format(format); }
-#endif
-	virtual void end(void)          { serial6_end(); }
-	virtual void transmitterEnable(uint8_t pin) { serial6_set_transmit_pin(pin); }
-	virtual void setRX(uint8_t pin) { serial6_set_rx(pin); }
-	virtual void setTX(uint8_t pin, bool opendrain=false) { serial6_set_tx(pin, opendrain); }
-	virtual bool attachRts(uint8_t pin) { return serial6_set_rts(pin); }
-	virtual bool attachCts(uint8_t pin) { return serial6_set_cts(pin); }
-	virtual int available(void)     { return serial6_available(); }
-	virtual int peek(void)          { return serial6_peek(); }
-	virtual int read(void)          { return serial6_getchar(); }
-	virtual void flush(void)        { serial6_flush(); }
-	virtual void clear(void)	{ serial6_clear(); }
-	virtual int availableForWrite(void) { return serial6_write_buffer_free(); }
-	using Print::write;
-	virtual size_t write(uint8_t c) { serial6_putchar(c); return 1; }
-	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
-	virtual size_t write(long n)            { return write((uint8_t)n); }
-	virtual size_t write(unsigned int n)    { return write((uint8_t)n); }
-	virtual size_t write(int n)             { return write((uint8_t)n); }
-	virtual size_t write(const uint8_t *buffer, size_t size)
-					{ serial6_write(buffer, size); return size; }
-        virtual size_t write(const char *str)	{ size_t len = strlen(str);
-					  serial6_write((const uint8_t *)str, len);
-					  return len; }
-	virtual size_t write9bit(uint32_t c)	{ serial6_putchar(c); return 1; }
-	operator bool()			{ return true; }
-};
-extern HardwareSerial6 Serial6;
-extern void serialEvent6(void);
-
-
-
-#endif
-
-#endif
 #endif

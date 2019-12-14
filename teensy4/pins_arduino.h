@@ -44,6 +44,10 @@
 #define PIN_A7  (21)
 #define PIN_A8  (22)
 #define PIN_A9  (23)
+#define PIN_A10 (24)
+#define PIN_A11 (25)
+#define PIN_A12 (26)
+#define PIN_A13 (27)
 const static uint8_t A0 = PIN_A0;
 const static uint8_t A1 = PIN_A1;
 const static uint8_t A2 = PIN_A2;
@@ -54,13 +58,10 @@ const static uint8_t A6 = PIN_A6;
 const static uint8_t A7 = PIN_A7;
 const static uint8_t A8 = PIN_A8;
 const static uint8_t A9 = PIN_A9;
-
-#if defined(__IMXRT1052__)
-#define PIN_A10 (24)
-#define PIN_A11 (25)
 const static uint8_t A10 = PIN_A10;
 const static uint8_t A11 = PIN_A11;
-#endif
+const static uint8_t A12 = PIN_A12;
+const static uint8_t A13 = PIN_A13;
 
 #define LED_BUILTIN   (13)
 
@@ -82,15 +83,15 @@ const static uint8_t SCL = 19;
 #define PIN_SERIAL_TX (1)
 
 
-#define NUM_DIGITAL_PINS  34
-#define NUM_ANALOG_INPUTS 12
+#define NUM_DIGITAL_PINS  40
+#define NUM_ANALOG_INPUTS 14
 
 
 #define NOT_AN_INTERRUPT -1
 
 
-#if defined(__IMXRT1052__)
-  #define analogInputToDigitalPin(p) (((p) <= 9) ? (p) + 14 : (((p) >= 14 && (p) <= 25) ? (p) : -1))
+#if defined(__IMXRT1062__)
+  #define analogInputToDigitalPin(p) (((p) <= 9) ? (p) + 14 : (((p) >= 14 && (p) <= 27) ? (p) : -1))
   #define digitalPinHasPWM(p) ((p) <= 15 || (p) == 18 || (p) == 19 || ((p) >= 22 && (p) <= 25) || ((p) >= 28 && (p) <= 31) || (p) == 33)
   #define digitalPinToInterrupt(p)  ((p) < NUM_DIGITAL_PINS ? (p) : -1)
 #endif
@@ -113,15 +114,15 @@ extern const struct digital_pin_bitband_and_config_table_struct digital_pin_to_i
 #define digitalPinToPort(pin)    (pin)
 #define digitalPinToBitMask(pin) (digital_pin_to_info_PGM[(pin)].mask)
 #define portOutputRegister(pin)  ((digital_pin_to_info_PGM[(pin)].reg + 0))
-#define portSetRegister(pin)     ((digital_pin_to_info_PGM[(pin)].reg + 4))
-#define portClearRegister(pin)   ((digital_pin_to_info_PGM[(pin)].reg + 8))
-#define portToggleRegister(pin)  ((digital_pin_to_info_PGM[(pin)].reg + 12))
-#define portInputRegister(pin)   ((digital_pin_to_info_PGM[(pin)].reg + 16))
-#define portModeRegister(pin)    ((digital_pin_to_info_PGM[(pin)].reg + 20))
+#define portSetRegister(pin)     ((digital_pin_to_info_PGM[(pin)].reg + 33))
+#define portClearRegister(pin)   ((digital_pin_to_info_PGM[(pin)].reg + 34))
+#define portToggleRegister(pin)  ((digital_pin_to_info_PGM[(pin)].reg + 35))
+#define portInputRegister(pin)   ((digital_pin_to_info_PGM[(pin)].reg + 2))
+#define portModeRegister(pin)    ((digital_pin_to_info_PGM[(pin)].reg + 1))
 #define portConfigRegister(pin)  ((digital_pin_to_info_PGM[(pin)].mux))
 #define portControlRegister(pin) ((digital_pin_to_info_PGM[(pin)].pad))
 #define digitalPinToPortReg(pin) (portOutputRegister(pin))
-#define digitalPinToBit(pin)     // TODO, is this needed?
+#define digitalPinToBit(pin)     (__builtin_ctz(digitalPinToBitMask(pin)))
 
 
 #define NOT_ON_TIMER 0
@@ -164,12 +165,14 @@ static inline uint8_t digitalPinToTimer(uint8_t pin)
 #define SERIAL_PORT_HARDWARE4		Serial5
 #define SERIAL_PORT_HARDWARE5		Serial6
 #define SERIAL_PORT_HARDWARE6		Serial7
-#define SERIAL_PORT_HARDWARE7		Serial8
 #define SERIAL_PORT_HARDWARE_OPEN3	Serial4
 #define SERIAL_PORT_HARDWARE_OPEN4	Serial5
 #define SERIAL_PORT_HARDWARE_OPEN5	Serial6
 #define SERIAL_PORT_HARDWARE_OPEN6	Serial7
+#if defined(__IMXRT1052__)   
+#define SERIAL_PORT_HARDWARE7		Serial8
 #define SERIAL_PORT_HARDWARE_OPEN7	Serial8
+#endif
 
 #define SerialUSB			Serial
 

@@ -3,16 +3,18 @@
 #include "wiring.h"
 #include "debug/printf.h"
 
+// A brief explanation of F_CPU_ACTUAL vs F_CPU
+//  https://forum.pjrc.com/threads/57236?p=212642&viewfull=1#post212642
 volatile uint32_t F_CPU_ACTUAL = 396000000;
 volatile uint32_t F_BUS_ACTUAL = 132000000;
 
 // Define these to increase the voltage when attempting overclocking
 // The frequency step is how quickly to increase voltage per frequency
-// The datasheet says 1300 is the absolute maximum voltage.  The hardware
-// can actually create up to 1575, but going over 1300 risks damage!
+// The datasheet says 1600 is the absolute maximum voltage.  The hardware
+// can actually create up to 1575.  But 1300 is the recommended limit.
+//  (earlier versions of the datasheet said 1300 was the absolute max)
 #define OVERCLOCK_STEPSIZE  28000000
-#define OVERCLOCK_MAX_VOLT  1300
-//#define OVERCLOCK_MAX_VOLT  1575 // Danger Will Robinson!
+#define OVERCLOCK_MAX_VOLT  1575
 
 
 uint32_t set_arm_clock(uint32_t frequency);
@@ -41,7 +43,7 @@ uint32_t set_arm_clock(uint32_t frequency)
 			if (voltage > OVERCLOCK_MAX_VOLT) voltage = OVERCLOCK_MAX_VOLT;
 		}
 #endif
-	} else if (frequency <= 24) {
+	} else if (frequency <= 24000000) {
 		voltage = 950; // 0.95
 	}
 

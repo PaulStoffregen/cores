@@ -8,7 +8,9 @@ extern unsigned long _flashimagelen;
 
 __attribute__ ((section(".vectors"), used))
 const uint32_t vector_table[2] = {
-	(uint32_t)&_estack,
+#if defined(__IMXRT1062__)
+	0x20010000, // 64K DTCM for boot, ResetHandler configures stack after ITCM/DTCM setup
+#endif
 	(uint32_t)&ResetHandler
 };
 

@@ -25,7 +25,11 @@
 
 #include <inttypes.h>
 
+#define DMAMEM __attribute__ ((section(".dmabuffers"), used))
+#define FASTRUN __attribute__ ((section(".fastrun") ))
 #define PROGMEM __attribute__((section(".progmem")))
+#define FLASHMEM __attribute__((section(".flashmem")))
+
 #define PGM_P  const char *
 #define PSTR(str) ({static const char data[] PROGMEM = (str); &data[0];})
 

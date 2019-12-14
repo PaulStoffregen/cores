@@ -380,6 +380,7 @@ protected:
 	DMABaseClass() {}
 
 	static inline void copy_tcd(TCD_t *dst, const TCD_t *src) {
+		dst->CSR = 0;
 		const uint32_t *p = (const uint32_t *)src;
 		uint32_t *q = (uint32_t *)dst;
 		uint32_t t1, t2, t3, t4;
