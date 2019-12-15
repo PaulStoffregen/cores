@@ -32,7 +32,7 @@
 
 #include "usb_desc.h"
 
-#if defined(SEREMU_INTERFACE)
+#if defined(SEREMU_INTERFACE) && !defined(CDC_STATUS_INTERFACE) && !defined(CDC_DATA_INTERFACE)
 
 #include <stdint.h>
 
@@ -40,6 +40,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+void usb_seremu_reset(void);
+void usb_seremu_configure(void);
 int usb_seremu_getchar(void);
 int usb_seremu_peekchar(void);
 int usb_seremu_available(void);
@@ -48,8 +50,6 @@ int usb_seremu_putchar(uint8_t c);
 int usb_seremu_write(const void *buffer, uint32_t size);
 int usb_seremu_write_buffer_free(void);
 void usb_seremu_flush_output(void);
-void usb_seremu_flush_callback(void);
-extern volatile uint8_t usb_seremu_transmit_flush_timer;
 extern volatile uint8_t usb_configuration;
 #ifdef __cplusplus
 }

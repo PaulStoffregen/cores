@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2019 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -28,43 +28,47 @@
  * SOFTWARE.
  */
 
-#include <Arduino.h>
-#include "HardwareSerial.h"
+#ifndef USBtouchscreen_h_
+#define USBtouchscreen_h_
 
-#ifndef SERIAL3_TX_BUFFER_SIZE
-#define SERIAL3_TX_BUFFER_SIZE     40 // number of outgoing bytes to buffer
+#include "usb_desc.h"
+
+#if defined(MULTITOUCH_INTERFACE)
+
+#include <inttypes.h>
+
+// C language implementation
+#ifdef __cplusplus
+extern "C" {
 #endif
-#ifndef SERIAL3_RX_BUFFER_SIZE
-#define SERIAL3_RX_BUFFER_SIZE     64 // number of incoming bytes to buffer
+void usb_touchscreen_configure(void);
+void usb_touchscreen_press(uint8_t finger, uint32_t x, uint32_t y, uint32_t pressure);
+void usb_touchscreen_release(uint8_t finger);
+void usb_touchscreen_update_callback(void);
+extern volatile uint8_t usb_configuration;
+#ifdef __cplusplus
+}
 #endif
-#define IRQ_PRIORITY  64  // 0 = highest priority, 255 = lowest
 
-void IRQHandler_Serial3()
+// C++ interface
+#ifdef __cplusplus
+class usb_touchscreen_class
 {
-	Serial3.IRQHandler();
-}
-
-void serial_event_check_serial3()
-{
-	if (Serial3.available()) serialEvent3();
-}
-
-// Serial3
-static BUFTYPE tx_buffer3[SERIAL3_TX_BUFFER_SIZE];
-static BUFTYPE rx_buffer3[SERIAL3_RX_BUFFER_SIZE];
-
-static HardwareSerial::hardware_t UART2_Hardware = {
-	2, IRQ_LPUART2, &IRQHandler_Serial3, &serial_event_check_serial3, 
-	CCM_CCGR0, CCM_CCGR0_LPUART2(CCM_CCGR_ON),
-	{{15,2, &IOMUXC_LPUART2_RX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
-	{{14,2, nullptr, 0}, {0xff, 0xff, nullptr, 0}},
-	19, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_00, // 19
-	2, // page 473 
-	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
+        public:
+        void begin(void) { }
+        void end(void) { }
+	void press(uint8_t finger, uint32_t x, uint32_t y, uint32_t pressure=128) {
+		usb_touchscreen_press(finger, x, y, pressure);
+	}
+	void release(uint8_t finger) {
+		usb_touchscreen_release(finger);
+	}
 };
-HardwareSerial Serial3(&IMXRT_LPUART2, &UART2_Hardware,tx_buffer3, SERIAL3_TX_BUFFER_SIZE,
-	rx_buffer3,  SERIAL3_RX_BUFFER_SIZE);
+extern usb_touchscreen_class TouchscreenUSB;
 
-void serialEvent3() __attribute__((weak));
-void serialEvent3() {Serial3.disableSerialEvents(); }		// No use calling this so disable if called...
+#endif // __cplusplus
+
+#endif // MULTITOUCH_INTERFACE
+
+#endif // USBtouchscreen_h_
 

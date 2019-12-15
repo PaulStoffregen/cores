@@ -144,7 +144,8 @@ void HardwareSerial::begin(uint32_t baud, uint16_t format)
 	//hardware->rx_mux_register = hardware->rx_mux_val;
 	//hardware->tx_mux_register = hardware->tx_mux_val;
 
-	port->BAUD = LPUART_BAUD_OSR(bestosr - 1) | LPUART_BAUD_SBR(bestdiv);
+	port->BAUD = LPUART_BAUD_OSR(bestosr - 1) | LPUART_BAUD_SBR(bestdiv)
+		| (bestosr <= 8 ? LPUART_BAUD_BOTHEDGE : 0);
 	port->PINCFG = 0;
 
 	// Enable the transmitter, receiver and enable receiver interrupt

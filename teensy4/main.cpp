@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2019 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -29,42 +29,30 @@
  */
 
 #include <Arduino.h>
-#include "HardwareSerial.h"
 
-#ifndef SERIAL3_TX_BUFFER_SIZE
-#define SERIAL3_TX_BUFFER_SIZE     40 // number of outgoing bytes to buffer
-#endif
-#ifndef SERIAL3_RX_BUFFER_SIZE
-#define SERIAL3_RX_BUFFER_SIZE     64 // number of incoming bytes to buffer
-#endif
-#define IRQ_PRIORITY  64  // 0 = highest priority, 255 = lowest
-
-void IRQHandler_Serial3()
+extern "C" int main(void)
 {
-	Serial3.IRQHandler();
+#ifdef USING_MAKEFILE
+
+	// To use Teensy 4.0 without Arduino, simply put your code here.
+	// For example:
+
+	pinMode(13, OUTPUT);
+	while (1) {
+		digitalWriteFast(13, HIGH);
+		delay(500);
+		digitalWriteFast(13, LOW);
+		delay(500);
+	}
+
+
+#else
+	// Arduino's main() function just calls setup() and loop()....
+	setup();
+	while (1) {
+		loop();
+		yield();
+	}
+#endif
 }
-
-void serial_event_check_serial3()
-{
-	if (Serial3.available()) serialEvent3();
-}
-
-// Serial3
-static BUFTYPE tx_buffer3[SERIAL3_TX_BUFFER_SIZE];
-static BUFTYPE rx_buffer3[SERIAL3_RX_BUFFER_SIZE];
-
-static HardwareSerial::hardware_t UART2_Hardware = {
-	2, IRQ_LPUART2, &IRQHandler_Serial3, &serial_event_check_serial3, 
-	CCM_CCGR0, CCM_CCGR0_LPUART2(CCM_CCGR_ON),
-	{{15,2, &IOMUXC_LPUART2_RX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
-	{{14,2, nullptr, 0}, {0xff, 0xff, nullptr, 0}},
-	19, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_00, // 19
-	2, // page 473 
-	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
-};
-HardwareSerial Serial3(&IMXRT_LPUART2, &UART2_Hardware,tx_buffer3, SERIAL3_TX_BUFFER_SIZE,
-	rx_buffer3,  SERIAL3_RX_BUFFER_SIZE);
-
-void serialEvent3() __attribute__((weak));
-void serialEvent3() {Serial3.disableSerialEvents(); }		// No use calling this so disable if called...
 

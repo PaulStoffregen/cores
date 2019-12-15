@@ -61,26 +61,24 @@ static void usb_serial_flush_callback(void);
 #define TX_NUM   4
 #define TX_SIZE  2048 /* should be a multiple of CDC_TX_SIZE */
 static transfer_t tx_transfer[TX_NUM] __attribute__ ((used, aligned(32)));
-DMAMEM static uint8_t txbuffer[TX_SIZE * TX_NUM];
+DMAMEM static uint8_t txbuffer[TX_SIZE * TX_NUM] __attribute__ ((aligned(32)));
 static uint8_t tx_head=0;
 static uint16_t tx_available=0;
 static uint16_t tx_packet_size=0;
 
-#define RX_NUM  3
+#define RX_NUM  8
 static transfer_t rx_transfer[RX_NUM] __attribute__ ((used, aligned(32)));
-static uint8_t rx_buffer[RX_NUM * CDC_RX_SIZE_480];
+DMAMEM static uint8_t rx_buffer[RX_NUM * CDC_RX_SIZE_480] __attribute__ ((aligned(32)));
 static uint16_t rx_count[RX_NUM];
 static uint16_t rx_index[RX_NUM];
 static uint16_t rx_packet_size=0;
+static volatile uint8_t rx_head;
+static volatile uint8_t rx_tail;
+static uint8_t rx_list[RX_NUM + 1];
+static volatile uint32_t rx_available;
+static void rx_queue_transfer(int i);
+static void rx_event(transfer_t *t);
 
-static void rx_event(transfer_t *t)
-{
-	int len = rx_packet_size - ((t->status >> 16) & 0x7FFF);
-	int index = t->callback_param;
-	//printf("rx event, len=%d, i=%d\n", len, index);
-	rx_count[index] = len;
-	rx_index[index] = 0;
-}
 
 void usb_serial_reset(void)
 {
@@ -90,6 +88,8 @@ void usb_serial_reset(void)
 
 void usb_serial_configure(void)
 {
+	int i;
+
 	printf("usb_serial_configure\n");
 	if (usb_high_speed) {
 		tx_packet_size = CDC_TX_SIZE_480;
@@ -104,72 +104,163 @@ void usb_serial_configure(void)
 	memset(rx_transfer, 0, sizeof(rx_transfer));
 	memset(rx_count, 0, sizeof(rx_count));
 	memset(rx_index, 0, sizeof(rx_index));
+	rx_head = 0;
+	rx_tail = 0;
+	rx_available = 0;
 	usb_config_tx(CDC_ACM_ENDPOINT, CDC_ACM_SIZE, 0, NULL); // size same 12 & 480
 	usb_config_rx(CDC_RX_ENDPOINT, rx_packet_size, 0, rx_event);
-	usb_config_tx(CDC_TX_ENDPOINT, tx_packet_size, 0, NULL);
-	usb_prepare_transfer(rx_transfer + 0, rx_buffer + 0, rx_packet_size, 0);
-	usb_receive(CDC_RX_ENDPOINT, rx_transfer + 0);
+	usb_config_tx(CDC_TX_ENDPOINT, tx_packet_size, 1, NULL);
+	for (i=0; i < RX_NUM; i++) rx_queue_transfer(i);
 	timer_config(usb_serial_flush_callback, TRANSMIT_FLUSH_TIMEOUT);
+}
+
+
+/*************************************************************************/
+/**                               Receive                               **/
+/*************************************************************************/
+
+static void rx_queue_transfer(int i)
+{
+	NVIC_DISABLE_IRQ(IRQ_USB1);
+	printf("rx queue i=%d\n", i);
+	void *buffer = rx_buffer + i * CDC_RX_SIZE_480;
+	usb_prepare_transfer(rx_transfer + i, buffer, rx_packet_size, i);
+	arm_dcache_delete(buffer, rx_packet_size);
+	usb_receive(CDC_RX_ENDPOINT, rx_transfer + i);
+	NVIC_ENABLE_IRQ(IRQ_USB1);
+}
+
+// called by USB interrupt when any packet is received
+static void rx_event(transfer_t *t)
+{
+	int len = rx_packet_size - ((t->status >> 16) & 0x7FFF);
+	int i = t->callback_param;
+	printf("rx event, len=%d, i=%d\n", len, i);
+	if (len > 0) {
+		// received a packet with data
+		uint32_t head = rx_head;
+		if (head != rx_tail) {
+			// a previous packet is still buffered
+			uint32_t ii = rx_list[head];
+			uint32_t count = rx_count[ii];
+			if (len <= CDC_RX_SIZE_480 - count) {
+				// previous buffer has enough free space for this packet's data
+				memcpy(rx_buffer + ii * CDC_RX_SIZE_480 + count,
+					rx_buffer + i * CDC_RX_SIZE_480, len);
+				rx_count[ii] = count + len;
+				rx_available += len;
+				rx_queue_transfer(i);
+				// TODO: trigger serialEvent
+				return;
+			}
+		}
+		// add this packet to rx_list
+		rx_count[i] = len;
+		rx_index[i] = 0;
+		if (++head > RX_NUM) head = 0;
+		rx_list[head] = i;
+		rx_head = head;
+		rx_available += len;
+		// TODO: trigger serialEvent
+	} else {
+		// received a zero length packet
+		rx_queue_transfer(i);
+	}
+}
+
+//static int maxtimes=0;
+
+// read a block of bytes to a buffer
+int usb_serial_read(void *buffer, uint32_t size)
+{
+	uint8_t *p = (uint8_t *)buffer;
+	uint32_t count=0;
+
+	NVIC_DISABLE_IRQ(IRQ_USB1);
+	//if (++maxtimes > 15) while (1) ;
+	uint32_t tail = rx_tail;
+	//printf("usb_serial_read, size=%d, tail=%d, head=%d\n", size, tail, rx_head);
+	while (count < size && tail != rx_head) {
+		if (++tail > RX_NUM) tail = 0;
+		uint32_t i = rx_list[tail];
+		uint32_t len = size - count;
+		uint32_t avail = rx_count[i] - rx_index[i];
+		 //printf("usb_serial_read, count=%d, size=%d, i=%d, index=%d, len=%d, avail=%d, c=%c\n",
+		  //count, size, i, rx_index[i], len, avail, rx_buffer[i * CDC_RX_SIZE_480]);
+		if (avail > len) {
+			// partially consume this packet
+			memcpy(p, rx_buffer + i * CDC_RX_SIZE_480 + rx_index[i], len);
+			rx_available -= len;
+			rx_index[i] += len;
+			count += len;
+		} else {
+			// fully consume this packet
+			memcpy(p, rx_buffer + i * CDC_RX_SIZE_480 + rx_index[i], avail);
+			p += avail;
+			rx_available -= avail;
+			count += avail;
+			rx_tail = tail;
+			rx_queue_transfer(i);
+		}
+	}
+	NVIC_ENABLE_IRQ(IRQ_USB1);
+	return count;
+}
+
+// peek at the next character, or -1 if nothing received
+int usb_serial_peekchar(void)
+{
+	uint32_t tail = rx_tail;
+	if (tail == rx_head) return -1;
+	if (++tail > RX_NUM) tail = 0;
+	uint32_t i = rx_list[tail];
+	return rx_buffer[i * CDC_RX_SIZE_480 + rx_index[i]];
+}
+
+// number of bytes available in the receive buffer
+int usb_serial_available(void)
+{
+	return rx_available;
+}
+
+// discard any buffered input
+void usb_serial_flush_input(void)
+{
+	uint32_t tail = rx_tail;
+	while (tail != rx_head) {
+		if (++tail > RX_NUM) tail = 0;
+		uint32_t i = rx_list[tail];
+		rx_available -= rx_count[i] - rx_index[i];
+		rx_queue_transfer(i);
+		rx_tail = tail;
+	}
 }
 
 
 // get the next character, or -1 if nothing received
 int usb_serial_getchar(void)
 {
-	if (rx_index[0] < rx_count[0]) {
-		int c = rx_buffer[rx_index[0]++];
-		if (rx_index[0] >= rx_count[0]) {
-			// reschedule transfer
-			usb_prepare_transfer(rx_transfer + 0, rx_buffer + 0, rx_packet_size, 0);
-			usb_receive(CDC_RX_ENDPOINT, rx_transfer + 0);
-		}
-		return c;
-	}
+	uint8_t c;
+	if (usb_serial_read(&c, 1)) return c;
 	return -1;
 }
 
-// peek at the next character, or -1 if nothing received
-int usb_serial_peekchar(void)
-{
-	if (rx_index[0] < rx_count[0]) {
-		return rx_buffer[rx_index[0]];
-	}
 
-	return -1;
-}
 
-// number of bytes available in the receive buffer
-int usb_serial_available(void)
-{
-	return rx_count[0] - rx_index[0];
-}
 
-// read a block of bytes to a buffer
-int usb_serial_read(void *buffer, uint32_t size)
-{
-	// Quick and dirty to make it at least limp...
-	uint8_t *p = (uint8_t *)buffer;
-	uint32_t count=0;
 
-	while (size) {
-		int ch = usb_serial_getchar();
-		if (ch == -1) break;
-		*p++ = (uint8_t)ch;
-		size--;
-		count++;
-	}
-	return count;
-}
 
-// discard any buffered input
-void usb_serial_flush_input(void)
-{
-	if (rx_index[0] < rx_count[0]) {
-		rx_index[0] = rx_count[0];
-		usb_prepare_transfer(rx_transfer + 0, rx_buffer + 0, rx_packet_size, 0);
-		usb_receive(CDC_RX_ENDPOINT, rx_transfer + 0);
-	}
-}
+
+
+
+
+
+
+
+/*************************************************************************/
+/**                               Transmit                              **/
+/*************************************************************************/
+
 
 // When the PC isn't listening, how long do we wait before discarding data?  If this is
 // too short, we risk losing data during the stalls that are common with ordinary desktop
