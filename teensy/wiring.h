@@ -40,9 +40,6 @@
 extern "C"{
 #endif
 
-#define true 1
-#define false 0
-
 #define PI 3.1415926535897932384626433832795
 #define HALF_PI 1.5707963267948966192313216916398
 #define TWO_PI 6.283185307179586476925286766559
@@ -94,7 +91,7 @@ typedef unsigned int word;
 
 #define bit(b) (1UL << (b))
 
-typedef uint8_t boolean;
+typedef bool boolean;
 typedef uint8_t byte;
 
 unsigned long pulseIn(uint8_t pin, uint8_t state, unsigned long timeout);
