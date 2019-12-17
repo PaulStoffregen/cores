@@ -160,6 +160,7 @@ uint32_t set_arm_clock(uint32_t frequency)
 
 	F_CPU_ACTUAL = frequency;
 	F_BUS_ACTUAL = frequency / div_ipg;
+	scale_cpu_cycles_to_microseconds = 0xFFFFFFFFu / (uint32_t)(frequency / 1000000u);
 
 	printf("New Frequency: ARM=%u, IPG=%u\n", frequency, frequency / div_ipg);
 
