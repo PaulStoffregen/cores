@@ -67,13 +67,15 @@ void delay(uint32_t msec)
 uint32_t micros(void)
 {
 	uint32_t ccdelta, usec, smc, scc;
-  do {
-    __LDREXW(&systick_safe_read);
+	do {
+		__LDREXW(&systick_safe_read);
 		smc = systick_millis_count;
 		scc = systick_cycle_count;
-  } while ( __STREXW(1, &systick_safe_read));
+	} while ( __STREXW(1, &systick_safe_read));
 	ccdelta = ARM_DWT_CYCCNT - scc;
-	usec = 1000*smc + (ccdelta/(F_CPU_ACTUAL/1000000));
+	uint32_t frac = ccdelta/(F_CPU_ACTUAL/1000000);
+	if (frac > 999) frac = 999;
+	usec = 1000*smc + frac;
 	return usec;
 }
 
