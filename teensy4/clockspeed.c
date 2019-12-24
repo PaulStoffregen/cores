@@ -153,12 +153,14 @@ uint32_t set_arm_clock(uint32_t frequency)
 		CCM_CBCDR = cbcdr;
 	}
 
-	cbcdr &= ~CCM_CBCDR_PERIPH_CLK_SEL;
-	CCM_CBCDR = cbcdr;
+	//cbcdr &= ~CCM_CBCDR_PERIPH_CLK_SEL;
+	//CCM_CBCDR = cbcdr;  // why does this not work at 24 MHz?
+	CCM_CBCDR &= ~CCM_CBCDR_PERIPH_CLK_SEL;
 	while (CCM_CDHIPR & CCM_CDHIPR_PERIPH_CLK_SEL_BUSY) ; // wait
 
 	F_CPU_ACTUAL = frequency;
 	F_BUS_ACTUAL = frequency / div_ipg;
+	scale_cpu_cycles_to_microseconds = 0xFFFFFFFFu / (uint32_t)(frequency / 1000000u);
 
 	printf("New Frequency: ARM=%u, IPG=%u\n", frequency, frequency / div_ipg);
 
