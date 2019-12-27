@@ -45,8 +45,9 @@ CPUOPTIONS = -mcpu=cortex-m7 -mfloat-abi=hard -mfpu=fpv5-d16 -mthumb
 # use this for a smaller, no-float printf
 #SPECS = --specs=nano.specs
 
-# Other Makefiles and project templates for Teensy 3.x:
+# Other Makefiles and project templates for Teensy
 #
+# https://forum.pjrc.com/threads/57251?p=213332&viewfull=1#post213332
 # https://github.com/apmorton/teensy-template
 # https://github.com/xxxajk/Arduino_Makefile_master
 # https://github.com/JonHylands/uCee
