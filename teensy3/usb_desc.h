@@ -140,6 +140,41 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_ONLY
   #define ENDPOINT4_CONFIG	ENDPOINT_TRANSMIT_ONLY
 
+#elif defined(USB_DUAL_SERIAL)
+  #define VENDOR_ID		0x16C0
+  #define PRODUCT_ID		0x0483
+  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
+  #define MANUFACTURER_NAME_LEN	11
+  #define PRODUCT_NAME		{'D','u','a','l',' ','S','e','r','i','a','l'}
+  #define PRODUCT_NAME_LEN	11
+  #define EP0_SIZE		64
+  #define NUM_ENDPOINTS		7
+  #define NUM_USB_BUFFERS	22
+  #define NUM_INTERFACE		4
+  #define CDC_IAD_DESCRIPTOR	1	// Serial
+  #define CDC_STATUS_INTERFACE	0
+  #define CDC_DATA_INTERFACE	1
+  #define CDC_ACM_ENDPOINT	2
+  #define CDC_RX_ENDPOINT	3
+  #define CDC_TX_ENDPOINT	4
+  #define CDC_ACM_SIZE		16
+  #define CDC_RX_SIZE		64
+  #define CDC_TX_SIZE		64
+  #define CDC2_STATUS_INTERFACE	2	// SerialA
+  #define CDC2_DATA_INTERFACE	3
+  #define CDC2_ACM_ENDPOINT	5
+  #define CDC2_RX_ENDPOINT	6
+  #define CDC2_TX_ENDPOINT	7
+  #define CDC2_ACM_SIZE		16
+  #define CDC2_RX_SIZE		64
+  #define CDC2_TX_SIZE		64
+  #define ENDPOINT2_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_ONLY
+  #define ENDPOINT4_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  #define ENDPOINT5_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  #define ENDPOINT6_CONFIG	ENDPOINT_RECEIVE_ONLY
+  #define ENDPOINT7_CONFIG	ENDPOINT_TRANSMIT_ONLY
+
 #elif defined(USB_KEYBOARDONLY)
   #define VENDOR_ID		0x16C0
   #define PRODUCT_ID		0x04D0

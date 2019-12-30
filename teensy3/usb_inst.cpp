@@ -39,6 +39,12 @@ usb_serial_class Serial;
 #endif
 #endif
 
+#ifdef CDC2_DATA_INTERFACE
+#ifdef CDC2_STATUS_INTERFACE
+usb_serial2_class SerialA;
+#endif
+#endif
+
 #ifdef MIDI_INTERFACE
 usb_midi_class usbMIDI;
 #endif
@@ -75,7 +81,7 @@ usb_serial_class Serial;
 
 #else // F_CPU < 20 MHz
 
-#if defined(USB_SERIAL) || defined(USB_SERIAL_HID)
+#if defined(USB_SERIAL) || defined(USB_DUAL_SERIAL) || defined(USB_SERIAL_HID)
 usb_serial_class Serial;
 #elif (USB_DISABLED)
 usb_serial_class Serial;
@@ -87,3 +93,5 @@ usb_seremu_class Serial;
 
 void serialEvent() __attribute__((weak));
 void serialEvent() {}
+void serialEventA() __attribute__((weak));
+void serialEventA() {}
