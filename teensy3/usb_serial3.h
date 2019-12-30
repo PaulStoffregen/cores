@@ -28,35 +28,21 @@
  * SOFTWARE.
  */
 
-#include <Arduino.h>
-#include "EventResponder.h"
+#ifndef USBserial3_h_
+#define USBserial3_h_
 
-void yield(void) __attribute__ ((weak));
-void yield(void)
-{
-	static uint8_t running=0;
+#include "usb_desc.h"
 
-	if (running) return; // TODO: does this need to be atomic?
-	running = 1;
-	if (Serial.available()) serialEvent();
-#if defined(USB_DUAL_SERIAL) || defined(USB_TRIPLE_SERIAL)
-	if (SerialA.available()) serialEventA();
-#endif
-#ifdef USB_TRIPLE_SERIAL
-	if (SerialB.available()) serialEventB();
-#endif
-	if (Serial1.available()) serialEvent1();
-	if (Serial2.available()) serialEvent2();
-	if (Serial3.available()) serialEvent3();
-#ifdef HAS_KINETISK_UART3
-	if (Serial4.available()) serialEvent4();
-#endif
-#ifdef HAS_KINETISK_UART4
-	if (Serial5.available()) serialEvent5();
-#endif
-#if defined(HAS_KINETISK_UART5) || defined (HAS_KINETISK_LPUART0)
-	if (Serial6.available()) serialEvent6();
-#endif
-	running = 0;
-	EventResponder::runFromYield();
-};
+#if defined(CDC3_STATUS_INTERFACE) && defined(CDC3_DATA_INTERFACE)
+#define USB_SERIAL_SUFFIX	3
+#define SERIAL_CLASS_SUFFIX	B
+
+#include "usb_serial_template.h"
+
+#define usb_cdc3_line_coding		usb_serial3_instance.cdc_line_coding
+#define usb_cdc3_line_rtsdtr_millis	usb_serial3_instance.cdc_line_rtsdtr_millis
+#define usb_cdc3_line_rtsdtr		usb_serial3_instance.cdc_line_rtsdtr
+#define usb_cdc3_transmit_flush_timer	usb_serial3_instance.cdc_transmit_flush_timer
+#endif // CDC_STATUS_INTERFACE && CDC_DATA_INTERFACE
+
+#endif // USBserial3_h_

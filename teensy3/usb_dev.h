@@ -118,6 +118,10 @@ extern void usb_touchscreen_update_callback(void);
 #include "usb_serial2.h"
 #endif
 
+#ifdef CDC3_DATA_INTERFACE
+#include "usb_serial3.h"
+#endif
+
 #else // F_CPU < 20000000
 
 #ifdef __cplusplus

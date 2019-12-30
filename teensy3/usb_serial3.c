@@ -28,35 +28,19 @@
  * SOFTWARE.
  */
 
-#include <Arduino.h>
-#include "EventResponder.h"
+#include "usb_dev.h"
 
-void yield(void) __attribute__ ((weak));
-void yield(void)
-{
-	static uint8_t running=0;
+// defined by usb_dev.h -> usb_desc.h
+#if defined(CDC3_STATUS_INTERFACE) && defined(CDC3_DATA_INTERFACE)
 
-	if (running) return; // TODO: does this need to be atomic?
-	running = 1;
-	if (Serial.available()) serialEvent();
-#if defined(USB_DUAL_SERIAL) || defined(USB_TRIPLE_SERIAL)
-	if (SerialA.available()) serialEventA();
-#endif
-#ifdef USB_TRIPLE_SERIAL
-	if (SerialB.available()) serialEventB();
-#endif
-	if (Serial1.available()) serialEvent1();
-	if (Serial2.available()) serialEvent2();
-	if (Serial3.available()) serialEvent3();
-#ifdef HAS_KINETISK_UART3
-	if (Serial4.available()) serialEvent4();
-#endif
-#ifdef HAS_KINETISK_UART4
-	if (Serial5.available()) serialEvent5();
-#endif
-#if defined(HAS_KINETISK_UART5) || defined (HAS_KINETISK_LPUART0)
-	if (Serial6.available()) serialEvent6();
-#endif
-	running = 0;
-	EventResponder::runFromYield();
+#if F_CPU >= 20000000
+#include "usb_serial_port.h"
+
+struct usb_serial_port usb_serial3_instance = {
+	.cdc_rx_endpoint	= CDC3_RX_ENDPOINT,
+	.cdc_tx_endpoint	= CDC3_TX_ENDPOINT,
+	.cdc_tx_size		= CDC3_TX_SIZE,
 };
+#endif
+
+#endif // CDC3_STATUS_INTERFACE && CDC3_DATA_INTERFACE

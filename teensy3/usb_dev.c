@@ -367,6 +367,12 @@ static void usb_setup(void)
 			usb_cdc2_line_rtsdtr = setup.wValue;
 			break;
 #endif
+#ifdef CDC3_STATUS_INTERFACE
+		  case CDC3_STATUS_INTERFACE:
+			usb_cdc3_line_rtsdtr_millis = systick_millis_count;
+			usb_cdc3_line_rtsdtr = setup.wValue;
+			break;
+#endif
 		}
 		//serial_print("set control line state\n");
 		break;
@@ -618,6 +624,11 @@ static void usb_control(uint32_t stat)
 #ifdef CDC2_STATUS_INTERFACE
 			  case CDC2_STATUS_INTERFACE:
 				dst = (uint8_t *)usb_cdc2_line_coding;
+				break;
+#endif
+#ifdef CDC3_STATUS_INTERFACE
+			  case CDC3_STATUS_INTERFACE:
+				dst = (uint8_t *)usb_cdc3_line_coding;
 				break;
 #endif
 			}
@@ -923,6 +934,13 @@ void usb_isr(void)
 			if (t) {
 				usb_cdc2_transmit_flush_timer = --t;
 				if (t == 0) usb_serial2_flush_callback();
+			}
+#endif
+#ifdef CDC3_DATA_INTERFACE
+			t = usb_cdc3_transmit_flush_timer;
+			if (t) {
+				usb_cdc3_transmit_flush_timer = --t;
+				if (t == 0) usb_serial3_flush_callback();
 			}
 #endif
 #ifdef SEREMU_INTERFACE
