@@ -130,6 +130,13 @@ void usb_midi_configure(void)
 #define TX_TIMEOUT_MSEC 40
 
 
+// This 32 bit input format is documented in the "Universal Serial Bus Device Class
+// Definition for MIDI Devices" specification, version 1.0, Nov 1, 1999.  It can be
+// downloaded from www.usb.org.  https://www.usb.org/sites/default/files/midi10.pdf
+// If the USB-IF reorganizes their website and this link no longer works, Google
+// search the name to find it.  This data format is shown on page 16 in Figure #8.
+// Byte 0 (shown on the left hand side of Figure #8) is the least significant byte
+// of this 32 bit input.
 void usb_midi_write_packed(uint32_t n)
 {
 	printf("usb_midi_write_packed\n");
