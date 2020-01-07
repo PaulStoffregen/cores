@@ -1129,20 +1129,23 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
         0x01,                                   // bInterfaceSubClass
         0x01,                                   // bInterfaceProtocol
         4,                                      // iInterface
+
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         7,                                      // bLength
         5,                                      // bDescriptorType
         MTP_TX_ENDPOINT | 0x80,                 // bEndpointAddress
         0x02,                                   // bmAttributes (0x02=bulk)
-        MTP_TX_SIZE, 0,                         // wMaxPacketSize
+        LSB(MTP_TX_SIZE_480),MSB(MTP_TX_SIZE_480),  // wMaxPacketSize
         0,                                      // bInterval
+
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         7,                                      // bLength
         5,                                      // bDescriptorType
         MTP_RX_ENDPOINT,                        // bEndpointAddress
-        0x02,                                   // bmAttributes (0x02=bulk)
-        MTP_RX_SIZE, 0,                         // wMaxPacketSize
+        0x02,                                   // bmAttributes (0x02=intr)
+        LSB(MTP_RX_SIZE_480),MSB(MTP_RX_SIZE_480),  // wMaxPacketSize
         0,                                      // bInterval
+
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         7,                                      // bLength
         5,                                      // bDescriptorType
@@ -1967,21 +1970,21 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
         7,                                      // bLength
         5,                                      // bDescriptorType
         MTP_TX_ENDPOINT | 0x80,                 // bEndpointAddress
-        0x02,                                   // bmAttributes (0x02=bulk)
-        MTP_TX_SIZE, 0,                         // wMaxPacketSize
+        0x02,                                   // bmAttributes (0x02=bulk,0x03=intr)
+        LSB(MTP_TX_SIZE_12),MSB(MTP_TX_SIZE_12),   // wMaxPacketSize
         0,                                      // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         7,                                      // bLength
         5,                                      // bDescriptorType
         MTP_RX_ENDPOINT,                        // bEndpointAddress
-        0x02,                                   // bmAttributes (0x02=bulk)
-        MTP_RX_SIZE, 0,                         // wMaxPacketSize
+        0x02,                                   // bmAttributes (0x02=bulk,0x03=intr)
+        LSB(MTP_RX_SIZE_12),MSB(MTP_RX_SIZE_12),   // wMaxPacketSize
         0,                                      // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         7,                                      // bLength
         5,                                      // bDescriptorType
         MTP_EVENT_ENDPOINT | 0x80,              // bEndpointAddress
-        0x03,                                   // bmAttributes (0x03=intr)
+        0x03,                                   // bmAttributes (0x02=bulk,0x03=intr)
         MTP_EVENT_SIZE, 0,                      // wMaxPacketSize
         MTP_EVENT_INTERVAL,                     // bInterval
 #endif // MTP_INTERFACE

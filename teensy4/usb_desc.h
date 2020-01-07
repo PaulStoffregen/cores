@@ -135,7 +135,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define CDC_TX_SIZE_12        64
   #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
   #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_UNUSED
-  #define ENDPOINT4_CONFIG      ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_BULK
+  #define ENDPOINT4_CONFIG  ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_BULK
 
 #elif defined(USB_KEYBOARDONLY)
   #define VENDOR_ID		0x16C0
@@ -608,8 +608,42 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_ONLY
   #define ENDPOINT5_CONFIG	ENDPOINT_TRANSMIT_ONLY
 
-
 #elif defined(USB_MTPDISK)
+  #define VENDOR_ID             0x16C0
+  #define PRODUCT_ID            0x04D1
+  #define MANUFACTURER_NAME     {'T','e','e','n','s','y','d','u','i','n','o'}
+  #define MANUFACTURER_NAME_LEN 11
+  #define PRODUCT_NAME          {'T','e','e','n','s','y',' ','M','T','P',' ','D','i','s','k'}
+  #define PRODUCT_NAME_LEN      15
+  #define EP0_SIZE              64
+
+
+  #define NUM_INTERFACE		      2
+  #define NUM_ENDPOINTS         4
+  #define SEREMU_INTERFACE      1	// Serial emulation
+  #define SEREMU_TX_ENDPOINT    2
+  #define SEREMU_RX_ENDPOINT    2
+  #define SEREMU_TX_SIZE        64
+  #define SEREMU_RX_SIZE        32
+  #define SEREMU_TX_INTERVAL    1	 // TODO: is this ok for 480 Mbit speed
+  #define SEREMU_RX_INTERVAL    2	 // TODO: is this ok for 480 Mbit speed
+  #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_INTERRUPT + ENDPOINT_TRANSMIT_INTERRUPT
+
+  #define MTP_INTERFACE         2 // MTP Disk
+  #define MTP_TX_ENDPOINT       3
+  #define MTP_RX_ENDPOINT       3
+  #define MTP_EVENT_ENDPOINT    4
+  #define MTP_TX_SIZE_480       512
+  #define MTP_RX_SIZE_480       512
+  #define MTP_TX_SIZE_12        64
+  #define MTP_RX_SIZE_12        64
+  #define MTP_EVENT_SIZE        16
+  #define MTP_EVENT_INTERVAL    1
+
+  #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
+  #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_INTERRUPT + ENDPOINT_TRANSMIT_INTERRUPT  // ????
+
+#elif defined(USB_MTPDISK_)
   #define VENDOR_ID		0x16C0
   #define PRODUCT_ID		0x04D1
   #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
@@ -619,7 +653,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         4
   #define NUM_INTERFACE		2
-  #define MTP_INTERFACE		0	// MTP Disk
+  #define MTP_INTERFACE		1	// MTP Disk
   #define MTP_TX_ENDPOINT	3
   #define MTP_TX_SIZE		64
   #define MTP_RX_ENDPOINT	3
@@ -627,7 +661,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define MTP_EVENT_ENDPOINT	4
   #define MTP_EVENT_SIZE	16
   #define MTP_EVENT_INTERVAL	10
-  #define SEREMU_INTERFACE      1	// Serial emulation
+  #define SEREMU_INTERFACE      2	// Serial emulation
   #define SEREMU_TX_ENDPOINT    1
   #define SEREMU_TX_SIZE        64
   #define SEREMU_TX_INTERVAL    1
