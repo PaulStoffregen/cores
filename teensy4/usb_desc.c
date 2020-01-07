@@ -621,7 +621,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
         0x02,                                   // bFunctionClass
         0x02,                                   // bFunctionSubClass
         0x01,                                   // bFunctionProtocol
-        4,                                      // iFunction
+        0,                                      // iFunction
 #endif
 
 #ifdef CDC_DATA_INTERFACE
@@ -1455,7 +1455,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
         0x02,                                   // bFunctionClass
         0x02,                                   // bFunctionSubClass
         0x01,                                   // bFunctionProtocol
-        4,                                      // iFunction
+        0,                                      // iFunction
 #endif
 
 #ifdef CDC_DATA_INTERFACE
