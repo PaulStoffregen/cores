@@ -580,6 +580,17 @@ static uint8_t flightsim_report_desc[] = {
 //   USB Configuration
 // **************************************************************
 
+#define EMIT_CDC_IAD_DESCRIPTOR(prefix)                                        \
+        /* interface association descriptor, USB ECN, Table 9-Z */             \
+        8,                                      /* bLength */                  \
+        11,                                     /* bDescriptorType */          \
+        prefix ## _STATUS_INTERFACE,            /* bFirstInterface */          \
+        2,                                      /* bInterfaceCount */          \
+        0x02,                                   /* bFunctionClass */           \
+        0x02,                                   /* bFunctionSubClass */        \
+        0x01,                                   /* bFunctionProtocol */        \
+        0                                       /* iFunction */
+
 #define EMIT_CDC_DESCRIPTORS(prefix)                                           \
         /* interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12 */   \
         9,                                      /* bLength */                  \
@@ -660,15 +671,7 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         50,                                     // bMaxPower
 
 #ifdef CDC_IAD_DESCRIPTOR
-        // interface association descriptor, USB ECN, Table 9-Z
-        8,                                      // bLength
-        11,                                     // bDescriptorType
-        CDC_STATUS_INTERFACE,                   // bFirstInterface
-        2,                                      // bInterfaceCount
-        0x02,                                   // bFunctionClass
-        0x02,                                   // bFunctionSubClass
-        0x01,                                   // bFunctionProtocol
-        0,                                      // iFunction
+        EMIT_CDC_IAD_DESCRIPTOR(CDC),
 #endif
 
 #ifdef CDC_DATA_INTERFACE
