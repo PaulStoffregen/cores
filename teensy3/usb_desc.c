@@ -603,7 +603,7 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         0x02,                                   // bFunctionClass
         0x02,                                   // bFunctionSubClass
         0x01,                                   // bFunctionProtocol
-        4,                                      // iFunction
+        0,                                      // iFunction
 #endif
 
 #ifdef CDC_DATA_INTERFACE
