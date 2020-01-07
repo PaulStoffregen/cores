@@ -1426,6 +1426,8 @@ extern struct usb_string_descriptor_struct usb_string_product_name
         __attribute__ ((weak, alias("usb_string_product_name_default")));
 extern struct usb_string_descriptor_struct usb_string_serial_number
         __attribute__ ((weak, alias("usb_string_serial_number_default")));
+extern struct usb_string_descriptor_struct usb_string_serial_name
+        __attribute__ ((weak, alias("usb_string_serial_name_default")));
 
 struct usb_string_descriptor_struct string0 = {
         4,
@@ -1448,6 +1450,13 @@ struct usb_string_descriptor_struct usb_string_serial_number_default = {
         3,
         {0,0,0,0,0,0,0,0,0,0}
 };
+#ifdef CDC_IAD_DESCRIPTOR
+struct usb_string_descriptor_struct usb_string_serial_name_default = {
+        2 + 6 * 2,
+        3,
+        {'S','e','r','i','a','l'}
+};
+#endif
 #ifdef MTP_INTERFACE
 struct usb_string_descriptor_struct usb_string_mtp = {
 	2 + 3 * 2,
@@ -1540,6 +1549,9 @@ const usb_descriptor_list_t usb_descriptor_list[] = {
         {0x0301, 0x0409, (const uint8_t *)&usb_string_manufacturer_name, 0},
         {0x0302, 0x0409, (const uint8_t *)&usb_string_product_name, 0},
         {0x0303, 0x0409, (const uint8_t *)&usb_string_serial_number, 0},
+#ifdef CDC_IAD_DESCRIPTOR
+        {0x0304, 0x0409, (const uint8_t *)&usb_string_serial_name, 0},
+#endif
 	{0, 0, NULL, 0}
 };
 
