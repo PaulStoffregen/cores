@@ -51,51 +51,26 @@ public:
 		if (microseconds == 0 || microseconds > MAX_PERIOD) return false;
 		uint32_t cycles = (24000000 / 1000000) * microseconds - 1;
 		if (cycles < 36) return false;
-		return beginCycles(funct, nullptr, nullptr, cycles);
-	}
-	bool begin(void (*funct)(void *state), void *state, unsigned int microseconds) {
-		if (microseconds == 0 || microseconds > MAX_PERIOD) return false;
-		uint32_t cycles = (24000000 / 1000000) * microseconds - 1;
-		if (cycles < 36) return false;
-		return beginCycles(nullptr, funct, state, cycles);
+		return beginCycles(funct, cycles);
 	}
 	bool begin(void (*funct)(), int microseconds) {
 		if (microseconds < 0) return false;
 		return begin(funct, (unsigned int)microseconds);
 	}
-	bool begin(void (*funct)(void *state), void *state, int microseconds) {
-		if (microseconds < 0) return false;
-		return begin(funct, state, (unsigned int)microseconds);
-	}
 	bool begin(void (*funct)(), unsigned long microseconds) {
 		return begin(funct, (unsigned int)microseconds);
 	}
-	bool begin(void (*funct)(void *state), void *state, unsigned long microseconds) {
-		return begin(funct, state, (unsigned int)microseconds);
-	}
 	bool begin(void (*funct)(), long microseconds) {
 		return begin(funct, (int)microseconds);
-	}
-	bool begin(void (*funct)(void *state), void *state, long microseconds) {
-		return begin(funct, state, (int)microseconds);
 	}
 	bool begin(void (*funct)(), float microseconds) {
 		if (microseconds <= 0 || microseconds > MAX_PERIOD) return false;
 		uint32_t cycles = (float)(24000000 / 1000000) * microseconds - 0.5;
 		if (cycles < 36) return false;
-		return beginCycles(funct, nullptr, nullptr, cycles);
-	}
-	bool begin(void (*funct)(void *state), void *state, float microseconds) {
-		if (microseconds <= 0 || microseconds > MAX_PERIOD) return false;
-		uint32_t cycles = (float)(24000000 / 1000000) * microseconds - 0.5;
-		if (cycles < 36) return false;
-		return beginCycles(nullptr, funct, state, cycles);
+		return beginCycles(funct, cycles);
 	}
 	bool begin(void (*funct)(), double microseconds) {
 		return begin(funct, (float)microseconds);
-	}
-	bool begin(void (*funct)(void *state), void *state, double microseconds) {
-		return begin(funct, state, (float)microseconds);
 	}
 	void update(unsigned int microseconds) {
 		if (microseconds == 0 || microseconds > MAX_PERIOD) return;
@@ -146,12 +121,7 @@ private:
 	IMXRT_PIT_CHANNEL_t *channel = nullptr;
 	uint8_t nvic_priority = 128;
 	static uint8_t nvic_priorites[4];
-
-	// Either pass funct, or funct_w_state and state
-	bool beginCycles(
-			void (*funct)(),
-			void (*funct_w_state)(void *state), void *state,
-			uint32_t cycles);
+	bool beginCycles(void (*funct)(), uint32_t cycles);
 
 };
 
