@@ -103,11 +103,11 @@ public:
 		if (channel) {
 			int index = channel - IMXRT_PIT_CHANNELS;
 			nvic_priorites[index] = nvic_priority;
-			if (nvic_priorites[0] <= nvic_priorites[1]) {
-				NVIC_SET_PRIORITY(IRQ_PIT, nvic_priorites[0]);
-			} else {
-				NVIC_SET_PRIORITY(IRQ_PIT, nvic_priorites[1]);
+			uint8_t top_priority = nvic_priorites[0];
+			for (uint8_t i=1; i < (sizeof(nvic_priorites)/sizeof(nvic_priorites[0])); i++) {
+				if (top_priority > nvic_priorites[i]) top_priority = nvic_priorites[i];
 			}
+			NVIC_SET_PRIORITY(IRQ_PIT, top_priority);
 		}
 	}
 	operator IRQ_NUMBER_t() {
