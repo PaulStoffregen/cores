@@ -34,6 +34,9 @@
 
 #if defined(MTP_INTERFACE)
 
+#define MTP_TX_SIZE MTP_TX_SIZE_480
+#define MTP_RX_SIZE MTP_RX_SIZE_480
+
 #include <inttypes.h>
 
 // C language implementation
