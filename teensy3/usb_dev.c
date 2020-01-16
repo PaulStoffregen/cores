@@ -353,12 +353,18 @@ static void usb_setup(void)
 		//serial_print("desc: not found\n");
 		endpoint0_stall();
 		return;
-#if defined(CDC_STATUS_INTERFACE)
 	  case 0x2221: // CDC_SET_CONTROL_LINE_STATE
-		usb_cdc_line_rtsdtr_millis = systick_millis_count;
-		usb_cdc_line_rtsdtr = setup.wValue;
+		switch (setup.wIndex) {
+#ifdef CDC_STATUS_INTERFACE
+		  case CDC_STATUS_INTERFACE:
+			usb_cdc_line_rtsdtr_millis = systick_millis_count;
+			usb_cdc_line_rtsdtr = setup.wValue;
+			break;
+#endif
+		}
 		//serial_print("set control line state\n");
 		break;
+#ifdef CDC_STATUS_INTERFACE
 	  case 0x2321: // CDC_SEND_BREAK
 		break;
 	  case 0x2021: // CDC_SET_LINE_CODING
@@ -594,10 +600,19 @@ static void usb_control(uint32_t stat)
 	case 0x01:  // OUT transaction received from host
 	case 0x02:
 		//serial_print("PID=OUT\n");
-#ifdef CDC_STATUS_INTERFACE
 		if (setup.wRequestAndType == 0x2021 /*CDC_SET_LINE_CODING*/) {
 			int i;
-			uint8_t *dst = (uint8_t *)usb_cdc_line_coding;
+			uint8_t *dst = NULL;
+			switch (setup.wIndex) {
+#ifdef CDC_STATUS_INTERFACE
+			  case CDC_STATUS_INTERFACE:
+				dst = (uint8_t *)usb_cdc_line_coding;
+				break;
+#endif
+			}
+			if (!dst)
+				break;
+
 			//serial_print("set line coding ");
 			for (i=0; i<7; i++) {
 				//serial_phex(*buf);
@@ -605,10 +620,13 @@ static void usb_control(uint32_t stat)
 			}
 			//serial_phex32(usb_cdc_line_coding[0]);
 			//serial_print("\n");
-			if (usb_cdc_line_coding[0] == 134) usb_reboot_timer = 15;
+#ifdef CDC_STATUS_INTERFACE
+			if (setup.wIndex == CDC_STATUS_INTERFACE &&
+			    usb_cdc_line_coding[0] == 134)
+				usb_reboot_timer = 15;
+#endif
 			endpoint0_transmit(NULL, 0);
 		}
-#endif
 #ifdef KEYBOARD_INTERFACE
 		if (setup.word1 == 0x02000921 && setup.word2 == ((1<<16)|KEYBOARD_INTERFACE)) {
 			keyboard_leds = buf[0];
