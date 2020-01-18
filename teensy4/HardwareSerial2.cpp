@@ -63,7 +63,7 @@ static HardwareSerial::hardware_t UART4_Hardware = {
 	{{7,2, nullptr, 0}, {0xff, 0xff, nullptr, 0}},
 	#elif defined(__IMXRT1062__)
 	{{7,2, &IOMUXC_LPUART4_RX_SELECT_INPUT, 2}, {0xff, 0xff, nullptr, 0}},
-	{{8,2, nullptr, 0}, {0xff, 0xff, nullptr, 0}},
+	{{8,2, &IOMUXC_LPUART4_TX_SELECT_INPUT, 2}, {0xff, 0xff, nullptr, 0}},
 	#endif
 	0xff, // No CTS pin
 	0, // No CTS

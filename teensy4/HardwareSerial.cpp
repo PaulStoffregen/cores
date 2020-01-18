@@ -140,6 +140,9 @@ void HardwareSerial::begin(uint32_t baud, uint16_t format)
 
 	*(portControlRegister(hardware->tx_pins[tx_pin_index_].pin)) =  IOMUXC_PAD_SRE | IOMUXC_PAD_DSE(3) | IOMUXC_PAD_SPEED(3);
 	*(portConfigRegister(hardware->tx_pins[tx_pin_index_].pin)) = hardware->tx_pins[tx_pin_index_].mux_val;
+	if (hardware->tx_pins[tx_pin_index_].select_input_register) {
+	 	*(hardware->tx_pins[tx_pin_index_].select_input_register) =  hardware->tx_pins[tx_pin_index_].select_val;		
+	}	
 
 	//hardware->rx_mux_register = hardware->rx_mux_val;
 	//hardware->tx_mux_register = hardware->tx_mux_val;

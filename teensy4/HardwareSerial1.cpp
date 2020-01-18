@@ -57,7 +57,7 @@ const HardwareSerial::hardware_t UART6_Hardware = {
 	0, IRQ_LPUART6, &IRQHandler_Serial1, &serial_event_check_serial1,
 	CCM_CCGR3, CCM_CCGR3_LPUART6(CCM_CCGR_ON),
 	{{0,2, &IOMUXC_LPUART6_RX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
-	{{1,2, nullptr, 0}, {0xff, 0xff, nullptr, 0}},
+	{{1,2, &IOMUXC_LPUART6_TX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
 	0xff, // No CTS pin
 	0, // No CTS
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
