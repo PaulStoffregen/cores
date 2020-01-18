@@ -132,6 +132,9 @@ void HardwareSerial::begin(uint32_t baud, uint16_t format)
 
 //	uint32_t fastio = IOMUXC_PAD_SRE | IOMUXC_PAD_DSE(3) | IOMUXC_PAD_SPEED(3);
 
+	// Maybe different pin configs if half duplex
+	half_duplex_mode_ = (format & SERIAL_HALF_DUPLEX) != 0;
+	if (!half_duplex_mode_)  {
 	*(portControlRegister(hardware->rx_pins[rx_pin_index_].pin)) = IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS;
 	*(portConfigRegister(hardware->rx_pins[rx_pin_index_].pin)) = hardware->rx_pins[rx_pin_index_].mux_val;
 	if (hardware->rx_pins[rx_pin_index_].select_input_register) {
@@ -140,6 +143,12 @@ void HardwareSerial::begin(uint32_t baud, uint16_t format)
 
 	*(portControlRegister(hardware->tx_pins[tx_pin_index_].pin)) =  IOMUXC_PAD_SRE | IOMUXC_PAD_DSE(3) | IOMUXC_PAD_SPEED(3);
 	*(portConfigRegister(hardware->tx_pins[tx_pin_index_].pin)) = hardware->tx_pins[tx_pin_index_].mux_val;
+	} else {
+		// Half duplex maybe different pin pad config like PU...		
+		*(portControlRegister(hardware->tx_pins[tx_pin_index_].pin)) =  IOMUXC_PAD_SRE | IOMUXC_PAD_DSE(3) | IOMUXC_PAD_SPEED(3) 
+				| IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3);
+		*(portConfigRegister(hardware->tx_pins[tx_pin_index_].pin)) = hardware->tx_pins[tx_pin_index_].mux_val;
+	}
 	if (hardware->tx_pins[tx_pin_index_].select_input_register) {
 	 	*(hardware->tx_pins[tx_pin_index_].select_input_register) =  hardware->tx_pins[tx_pin_index_].select_val;		
 	}	
@@ -157,8 +166,8 @@ void HardwareSerial::begin(uint32_t baud, uint16_t format)
 	NVIC_ENABLE_IRQ(hardware->irq);
 	uint16_t tx_fifo_size = (((port->FIFO >> 4) & 0x7) << 2);
 	uint8_t tx_water = (tx_fifo_size < 16) ? tx_fifo_size >> 1 : 7;
-	uint16_t rx_fifo_size = (((port->FIFO >> 0) & 0x7) << 2);
-	uint8_t rx_water = (rx_fifo_size < 16) ? rx_fifo_size >> 1 : 7;
+	//uint16_t rx_fifo_size = (((port->FIFO >> 0) & 0x7) << 2);
+	uint8_t rx_water = 0; //(rx_fifo_size < 16) ? rx_fifo_size >> 1 : 7;
 	/*
 	Serial.printf("SerialX::begin stat:%x ctrl:%x fifo:%x water:%x\n", port->STAT, port->CTRL, port->FIFO, port->WATER );
 	Serial.printf("  FIFO sizes: tx:%d rx:%d\n",tx_fifo_size, rx_fifo_size);	
@@ -179,6 +188,9 @@ void HardwareSerial::begin(uint32_t baud, uint16_t format)
 
 	// Bit 5 TXINVERT
 	if (format & 0x20) ctrl |= LPUART_CTRL_TXINV;		// tx invert
+
+	// Now see if the user asked for Half duplex:
+	if (half_duplex_mode_) ctrl |= (LPUART_CTRL_LOOPS | LPUART_CTRL_RSRC);
 
 	// write out computed CTRL
 	port->CTRL = ctrl;
@@ -429,6 +441,12 @@ size_t HardwareSerial::write9bit(uint32_t c)
 	//digitalWrite(3, HIGH);
 	//digitalWrite(5, HIGH);
 	if (transmit_pin_baseReg_) DIRECT_WRITE_HIGH(transmit_pin_baseReg_, transmit_pin_bitmask_);
+	if(half_duplex_mode_) {		
+		__disable_irq();
+	    port->CTRL |= LPUART_CTRL_TXDIR;
+		__enable_irq();
+	}
+
 	head = tx_buffer_head_;
 	if (++head >= tx_buffer_total_size_) head = 0;
 	while (tx_buffer_tail_ == head) {
@@ -543,6 +561,11 @@ void HardwareSerial::IRQHandler()
 	{
 		transmitting_ = 0;
 		if (transmit_pin_baseReg_) DIRECT_WRITE_LOW(transmit_pin_baseReg_, transmit_pin_bitmask_);
+		if(half_duplex_mode_) {		
+			__disable_irq();
+		    port->CTRL &= ~LPUART_CTRL_TXDIR;
+			__enable_irq();
+		}
 
 		port->CTRL &= ~LPUART_CTRL_TCIE;
 	}
