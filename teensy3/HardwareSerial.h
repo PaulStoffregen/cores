@@ -101,6 +101,9 @@
 #define SERIAL_8N2_TXINV 0x24
 #define SERIAL_8N2_RXINV_TXINV 0x34
 #endif
+
+#define SERIAL_HALF_DUPLEX 0x200
+
 // bit0: parity, 0=even, 1=odd
 // bit1: parity, 0=disable, 1=enable
 // bit2: mode, 1=9bit, 0=8bit

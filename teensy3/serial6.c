@@ -101,6 +101,11 @@ static uint8_t tx_pin_num = 48;
 #define C2_TX_COMPLETING	C2_ENABLE | UART_C2_TCIE
 #define C2_TX_INACTIVE		C2_ENABLE
 
+// BITBAND Support
+#define GPIO_BITBAND_ADDR(reg, bit) (((uint32_t)&(reg) - 0x40000000) * 32 + (bit) * 4 + 0x42000000)
+#define GPIO_BITBAND_PTR(reg, bit) ((uint32_t *)GPIO_BITBAND_ADDR((reg), (bit)))
+#define C3_TXDIR_BIT 5
+
 void serial6_begin(uint32_t divisor)
 {
 	SIM_SCGC1 |= SIM_SCGC1_UART5;	// turn on clock, TODO: use bitband
@@ -148,6 +153,18 @@ void serial6_format(uint32_t format)
 		uint8_t bdl = UART5_BDL;
 		UART5_BDH |= UART_BDH_SBNS;		// Turn on 2 stop bits - was turned off by set baud
 		UART5_BDL = bdl;		// Says BDH not acted on until BDL is written
+	}
+	// process request for half duplex.
+	if ((format & SERIAL_HALF_DUPLEX) != 0) {
+		UART5_C1 |= UART_C1_LOOPS | UART_C1_RSRC;
+		volatile uint32_t *reg = portConfigRegister(tx_pin_num);
+		*reg = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3) | PORT_PCR_PE | PORT_PCR_PS; // pullup on output pin;
+
+		// Lets try to make use of bitband address to set the direction for ue...
+		transmit_pin = (uint8_t*)GPIO_BITBAND_PTR(UART5_C3, C3_TXDIR_BIT);
+
+	} else {
+		if (transmit_pin == (uint8_t*)GPIO_BITBAND_PTR(UART5_C3, C3_TXDIR_BIT)) transmit_pin = NULL;
 	}
 }
 
