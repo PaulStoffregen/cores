@@ -48,7 +48,7 @@ void ResetHandler(void)
 
 #if defined(__IMXRT1062__)
 	IOMUXC_GPR_GPR17 = (uint32_t)&_flexram_bank_config;
-	IOMUXC_GPR_GPR16 = 0x00000007;
+	IOMUXC_GPR_GPR16 = 0x00200007;
 	IOMUXC_GPR_GPR14 = 0x00AA0000;
 	__asm__ volatile("mov sp, %0" : : "r" ((uint32_t)&_estack) : );
 #endif
