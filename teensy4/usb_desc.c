@@ -94,8 +94,10 @@ static uint8_t device_descriptor[] = {
   // For USB types that don't explicitly define BCD_DEVICE,
   // use the minor version number to help teensy_ports
   // identify which Teensy model is used.
-  #if defined(__IMXRT1062__)
+  #if defined(__IMXRT1062__) && defined(ARDUINO_TEENSY40)
         0x79, 0x02, // Teensy 4.0
+  #elif defined(__IMXRT1062__) && defined(ARDUINO_TEENSY41)
+        0x80, 0x02, // Teensy 4.1
   #else
         0x00, 0x02,
   #endif
