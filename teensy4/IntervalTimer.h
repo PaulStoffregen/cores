@@ -33,14 +33,13 @@
 
 #include <stddef.h>
 #include "imxrt.h"
+#include "core_pins.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 class IntervalTimer {
-private:
-	static const uint32_t MAX_PERIOD = UINT32_MAX / (24000000 / 1000000);
 public:
 	constexpr IntervalTimer() {
 	}
@@ -48,8 +47,10 @@ public:
 		end();
 	}
 	bool begin(void (*funct)(), unsigned int microseconds) {
-		if (microseconds == 0 || microseconds > MAX_PERIOD) return false;
-		uint32_t cycles = (24000000 / 1000000) * microseconds - 1;
+		uint32_t pid_clock_mhz = (CCM_CSCMR1 & CCM_CSCMR1_PERCLK_CLK_SEL)? 24 : (F_BUS_ACTUAL / 1000000);
+		uint32_t max_period = UINT32_MAX / pid_clock_mhz;
+		if (microseconds == 0 || microseconds > max_period) return false;
+		uint32_t cycles = pid_clock_mhz * microseconds - 1;
 		if (cycles < 17) return false;
 		return beginCycles(funct, cycles);
 	}
@@ -64,8 +65,10 @@ public:
 		return begin(funct, (int)microseconds);
 	}
 	bool begin(void (*funct)(), float microseconds) {
-		if (microseconds <= 0 || microseconds > MAX_PERIOD) return false;
-		uint32_t cycles = (float)(24000000 / 1000000) * microseconds - 0.5;
+		uint32_t pid_clock_mhz = (CCM_CSCMR1 & CCM_CSCMR1_PERCLK_CLK_SEL)? 24 : (F_BUS_ACTUAL / 1000000);
+		uint32_t max_period = UINT32_MAX / pid_clock_mhz;
+		if (microseconds <= 0 || microseconds > max_period) return false;
+		uint32_t cycles = (float)pid_clock_mhz * microseconds - 0.5;
 		if (cycles < 17) return false;
 		return beginCycles(funct, cycles);
 	}
@@ -73,8 +76,10 @@ public:
 		return begin(funct, (float)microseconds);
 	}
 	void update(unsigned int microseconds) {
-		if (microseconds == 0 || microseconds > MAX_PERIOD) return;
-		uint32_t cycles = (24000000 / 1000000) * microseconds - 1;
+		uint32_t pid_clock_mhz = (CCM_CSCMR1 & CCM_CSCMR1_PERCLK_CLK_SEL)? 24 : (F_BUS_ACTUAL / 1000000);
+		uint32_t max_period = UINT32_MAX / pid_clock_mhz;
+		if (microseconds == 0 || microseconds > max_period) return;
+		uint32_t cycles = pid_clock_mhz * microseconds - 1;
 		if (cycles < 17) return;
 		if (channel) channel->LDVAL = cycles;
 	}
@@ -89,8 +94,10 @@ public:
 		return update((int)microseconds);
 	}
 	void update(float microseconds) {
-		if (microseconds <= 0 || microseconds > MAX_PERIOD) return;
-		uint32_t cycles = (float)(24000000 / 1000000) * microseconds - 0.5;
+		uint32_t pid_clock_mhz = (CCM_CSCMR1 & CCM_CSCMR1_PERCLK_CLK_SEL)? 24 : (F_BUS_ACTUAL / 1000000);
+		uint32_t max_period = UINT32_MAX / pid_clock_mhz;
+		if (microseconds <= 0 || microseconds > max_period) return;
+		uint32_t cycles = (float)pid_clock_mhz * microseconds - 0.5;
 		if (cycles < 17) return;
 		if (channel) channel->LDVAL = cycles;
 	}
