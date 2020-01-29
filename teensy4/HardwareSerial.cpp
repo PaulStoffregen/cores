@@ -141,6 +141,9 @@ void HardwareSerial::begin(uint32_t baud, uint16_t format)
 	*(portControlRegister(hardware->tx_pins[tx_pin_index_].pin)) =  IOMUXC_PAD_SRE | IOMUXC_PAD_DSE(3) | IOMUXC_PAD_SPEED(3);
 	*(portConfigRegister(hardware->tx_pins[tx_pin_index_].pin)) = hardware->tx_pins[tx_pin_index_].mux_val;
 
+	if (hardware->tx_pins[tx_pin_index_].select_input_register) {
+	 	*(hardware->tx_pins[tx_pin_index_].select_input_register) =  hardware->tx_pins[tx_pin_index_].select_val;		
+	}	
 	//hardware->rx_mux_register = hardware->rx_mux_val;
 	//hardware->tx_mux_register = hardware->tx_mux_val;
 
@@ -340,10 +343,16 @@ int HardwareSerial::available(void)
 {
 	uint32_t head, tail;
 
+	// WATER> 0 so IDLE involved may want to check if port has already has RX data to retrieve
+	__disable_irq();
 	head = rx_buffer_head_;
 	tail = rx_buffer_tail_;
-	if (head >= tail) return head - tail;
-	return rx_buffer_total_size_ + head - tail;
+	int avail;
+	if (head >= tail) avail = head - tail;
+	else avail = rx_buffer_total_size_ + head - tail;	
+	avail += (port->WATER >> 24) & 0x7;
+	__enable_irq();
+	return avail;
 }
 
 void HardwareSerial::addStorageForRead(void *buffer, size_t length) 
@@ -375,7 +384,26 @@ int HardwareSerial::peek(void)
 
 	head = rx_buffer_head_;
 	tail = rx_buffer_tail_;
-	if (head == tail) return -1;
+	if (head == tail) {
+		__disable_irq();
+		head = rx_buffer_head_;  // reread head to make sure no ISR happened
+		if (head == tail) {
+			// Still empty Now check for stuff in FIFO Queue.
+			int c = -1;	// assume nothing to return
+			if (port->WATER & 0x7000000) {
+				c = port->DATA & 0x3ff;		// Use only up to 10 bits of data
+				// But we don't want to throw it away...
+				// since queue is empty, just going to reset to front of queue...
+				rx_buffer_head_ = 1;
+				rx_buffer_tail_ = 0; 
+				rx_buffer_[1] = c;
+			}
+			__enable_irq();
+			return c;
+		}
+		__enable_irq();
+
+	} 
 	if (++tail >= rx_buffer_total_size_) tail = 0;
 	if (tail < rx_buffer_size_) {
 		return rx_buffer_[tail];
@@ -391,7 +419,21 @@ int HardwareSerial::read(void)
 
 	head = rx_buffer_head_;
 	tail = rx_buffer_tail_;
-	if (head == tail) return -1;
+	if (head == tail) {
+		__disable_irq();
+		head = rx_buffer_head_;  // reread head to make sure no ISR happened
+		if (head == tail) {
+			// Still empty Now check for stuff in FIFO Queue.
+			c = -1;	// assume nothing to return
+			if (port->WATER & 0x7000000) {
+				c = port->DATA & 0x3ff;		// Use only up to 10 bits of data
+			}
+			__enable_irq();
+			return c;
+		}
+		__enable_irq();
+
+	}
 	if (++tail >= rx_buffer_total_size_) tail = 0;
 	if (tail < rx_buffer_size_) {
 		c = rx_buffer_[tail];
