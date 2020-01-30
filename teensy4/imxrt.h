@@ -8955,7 +8955,7 @@ These register are used by the ROM code and should not be used by application so
 #define SCB_ID_CLIDR		(*(const    uint32_t *)0xE000ED78) // Cache Level ID
 #define SCB_ID_CTR		(*(const    uint32_t *)0xE000ED7C) // Cache Type
 #define SCB_ID_CCSIDR		(*(const    uint32_t *)0xE000ED80) // Cache Size ID
-#define SCB_ID_CSSELR		(*(const    uint32_t *)0xE000ED84) // Cache Size Selection
+#define SCB_ID_CSSELR		(*(volatile uint32_t *)0xE000ED84) // Cache Size Selection
 #define SCB_CPACR               (*(volatile uint32_t *)0xE000ED88) // Coprocessor Access Control
 #define SCB_FPCCR               (*(volatile uint32_t *)0xE000EF34) // FP Context Control
 #define SCB_FPCAR               (*(volatile uint32_t *)0xE000EF38) // FP Context Address
