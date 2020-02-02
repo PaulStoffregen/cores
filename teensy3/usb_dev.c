@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2016 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -43,6 +43,15 @@
 #include "kinetis.h"
 //#include "HardwareSerial.h"
 #include "usb_mem.h"
+#include <string.h> // for memset
+
+// This code has a known bug with compiled with -O2 optimization on gcc 5.4.1
+// https://forum.pjrc.com/threads/53574-Teensyduino-1-43-Beta-2?p=186177&viewfull=1#post186177
+#if defined(__MKL26Z64__)
+#pragma GCC optimize ("Os")
+#else
+#pragma GCC optimize ("O3")
+#endif
 
 // buffer descriptor table
 
@@ -273,14 +282,15 @@ static void usb_setup(void)
 		data = reply_buffer;
 		break;
 	  case 0x0082: // GET_STATUS (endpoint)
-		if (setup.wIndex > NUM_ENDPOINTS) {
+		i = setup.wIndex & 0x7F;
+		if (i > NUM_ENDPOINTS) {
 			// TODO: do we need to handle IN vs OUT here?
 			endpoint0_stall();
 			return;
 		}
 		reply_buffer[0] = 0;
 		reply_buffer[1] = 0;
-		if (*(uint8_t *)(&USB0_ENDPT0 + setup.wIndex * 4) & 0x02) reply_buffer[0] = 1;
+		if (*(uint8_t *)(&USB0_ENDPT0 + i * 4) & 0x02) reply_buffer[0] = 1;
 		data = reply_buffer;
 		datalen = 2;
 		break;
@@ -357,18 +367,23 @@ static void usb_setup(void)
 #endif
 
 #if defined(MTP_INTERFACE)
-	case 0x2164: // Cancel Request (PTP spec, 5.2.1, page 8)
+	case 0x64A1: // Cancel Request (PTP spec, 5.2.1, page 8)
 		// TODO: required by PTP spec
 		endpoint0_stall();
 		return;
-	case 0x2166: // Device Reset (PTP spec, 5.2.3, page 10)
+	case 0x66A1: // Device Reset (PTP spec, 5.2.3, page 10)
 		// TODO: required by PTP spec
 		endpoint0_stall();
 		return;
-	case 0x2167: // Get Device Statis (PTP spec, 5.2.4, page 10)
-		// TODO: required by PTP spec
-		endpoint0_stall();
-		return;
+	case 0x67A1: // Get Device Statis (PTP spec, 5.2.4, page 10)
+		// For now, always respond with status ok.
+		reply_buffer[0] = 0x4;
+		reply_buffer[1] = 0;
+		reply_buffer[2] = 0x01;
+		reply_buffer[3] = 0x20;
+		data = reply_buffer;
+		datalen = 4;
+		break;
 #endif
 
 // TODO: this does not work... why?
@@ -454,6 +469,10 @@ static void usb_setup(void)
 			reply_buffer[0] = MULTITOUCH_FINGERS;
 			data = reply_buffer;
 			datalen = 1;
+		} else if (setup.wValue == 0x0100 && setup.wIndex == MULTITOUCH_INTERFACE) {
+			memset(reply_buffer, 0, 8);
+			data = reply_buffer;
+			datalen = 8;
 		} else {
 			endpoint0_stall();
 			return;
@@ -700,6 +719,9 @@ uint32_t usb_tx_byte_count(uint32_t endpoint)
 	return usb_queue_byte_count(tx_first[endpoint]);
 }
 
+// Discussion about using this function and USB transmit latency
+// https://forum.pjrc.com/threads/58663?p=223513&viewfull=1#post223513
+//
 uint32_t usb_tx_packet_count(uint32_t endpoint)
 {
 	const usb_packet_t *p;
@@ -1110,7 +1132,12 @@ void usb_init(void)
 #ifdef HAS_KINETIS_MPU
 	MPU_RGDAAC0 |= 0x03000000;
 #endif
-
+#if F_CPU == 180000000 || F_CPU == 216000000 || F_CPU == 256000000
+	// if using IRC48M, turn on the USB clock recovery hardware
+	USB0_CLK_RECOVER_IRC_EN = USB_CLK_RECOVER_IRC_EN_IRC_EN | USB_CLK_RECOVER_IRC_EN_REG_EN;
+	USB0_CLK_RECOVER_CTRL = USB_CLK_RECOVER_CTRL_CLOCK_RECOVER_EN |
+		USB_CLK_RECOVER_CTRL_RESTART_IFRTRIM_EN;
+#endif
 	// reset USB module
 	//USB0_USBTRC0 = USB_USBTRC_USBRESET;
 	//while ((USB0_USBTRC0 & USB_USBTRC_USBRESET) != 0) ; // wait for reset to end

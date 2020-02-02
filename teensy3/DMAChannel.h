@@ -1,3 +1,33 @@
+/* Teensyduino Core Library
+ * http://www.pjrc.com/teensy/
+ * Copyright (c) 2017 PJRC.COM, LLC.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * 1. The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * 2. If the Software is incorporated into a build system that allows
+ * selection among a list of target devices, then similar target
+ * devices manufactured by PJRC.COM must be included in the list of
+ * target devices and selectable in the same manner.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #ifndef DMAChannel_h_
 #define DMAChannel_h_
 
@@ -41,7 +71,7 @@ extern uint16_t dma_channel_allocated_mask;
 
 class DMABaseClass {
 public:
-	typedef struct __attribute__((packed)) {
+	typedef struct __attribute__((packed, aligned(4))) {
 		volatile const void * volatile SADDR;
 		int16_t SOFF;
 		union { uint16_t ATTR;
@@ -311,11 +341,12 @@ public:
 
 	// Set the number of transfers (number of triggers until complete)
 	void transferCount(unsigned int len) {
-		if (len > 32767) return;
-		if (len >= 512) {
+		if (!(TCD->BITER & DMA_TCD_BITER_ELINK)) {
+			if (len > 32767) return;
 			TCD->BITER = len;
 			TCD->CITER = len;
 		} else {
+			if (len > 511) return;
 			TCD->BITER = (TCD->BITER & 0xFE00) | len;
 			TCD->CITER = (TCD->CITER & 0xFE00) | len;
 		}
@@ -349,6 +380,7 @@ protected:
 	DMABaseClass() {}
 
 	static inline void copy_tcd(TCD_t *dst, const TCD_t *src) {
+		dst->CSR = 0;
 		const uint32_t *p = (const uint32_t *)src;
 		uint32_t *q = (uint32_t *)dst;
 		uint32_t t1, t2, t3, t4;
@@ -589,7 +621,7 @@ void DMAPriorityOrder(DMAChannel &ch1, DMAChannel &ch2, DMAChannel &ch3, DMAChan
 
 class DMABaseClass {
 public:
-	typedef struct __attribute__((packed)) {
+	typedef struct __attribute__((packed, aligned(4))) {
 		volatile const void * volatile SAR;
 		volatile void * volatile       DAR;
 		volatile uint32_t              DSR_BCR;
@@ -753,7 +785,7 @@ public:
 		uint32_t mod = len2mod(len);
 		if (mod == 0) return;
 		CFG->DAR = p;
-		CFG->DCR = (CFG->DCR & 0xF0F0F0FF) | DMA_DCR_DSIZE(1) | DMA_DCR_DINC
+		CFG->DCR = (CFG->DCR & 0xF0F0F0FF) | DMA_DCR_DSIZE(2) | DMA_DCR_DINC
 			| DMA_DCR_DMOD(mod);
 		CFG->DSR_BCR = len;
 	}
@@ -767,7 +799,7 @@ public:
 		uint32_t mod = len2mod(len);
 		if (mod == 0) return;
 		CFG->DAR = p;
-		CFG->DCR = (CFG->DCR & 0xF0F0F0FF) | DMA_DCR_DSIZE(1) | DMA_DCR_DINC
+		CFG->DCR = (CFG->DCR & 0xF0F0F0FF) | DMA_DCR_DSIZE(0) | DMA_DCR_DINC
 			| DMA_DCR_DMOD(mod);
 		CFG->DSR_BCR = len;
 	}
@@ -780,11 +812,11 @@ public:
 	void transferSize(unsigned int len) {
 		uint32_t dcr = CFG->DCR & 0xF0C8FFFF;
 		if (len == 4) {
-			CFG->DCR = dcr | DMA_DCR_DSIZE(0) | DMA_DCR_DSIZE(0);
+			CFG->DCR = dcr | DMA_DCR_SSIZE(0) | DMA_DCR_DSIZE(0);
 		} else if (len == 2) {
-			CFG->DCR = dcr | DMA_DCR_DSIZE(2) | DMA_DCR_DSIZE(2);
+			CFG->DCR = dcr | DMA_DCR_SSIZE(2) | DMA_DCR_DSIZE(2);
 		} else {
-			CFG->DCR = dcr | DMA_DCR_DSIZE(1) | DMA_DCR_DSIZE(1);
+			CFG->DCR = dcr | DMA_DCR_SSIZE(1) | DMA_DCR_DSIZE(1);
 		}
 	}
 

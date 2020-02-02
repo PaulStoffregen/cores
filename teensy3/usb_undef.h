@@ -1,3 +1,33 @@
+/* Teensyduino Core Library
+ * http://www.pjrc.com/teensy/
+ * Copyright (c) 2017 PJRC.COM, LLC.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * 1. The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * 2. If the Software is incorporated into a build system that allows
+ * selection among a list of target devices, then similar target
+ * devices manufactured by PJRC.COM must be included in the list of
+ * target devices and selectable in the same manner.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 // This header is meant to undo the effect of having included
 // usb_desc.h.  Everything usb_desc.h, usb_undef.h undefines.
 // This stuff is not supposed to be made visible to user level
@@ -11,8 +41,8 @@
 #ifdef ENDPOINT_UNUSED
 #undef ENDPOINT_UNUSED
 #endif
-#ifdef ENDPOINT_TRANSIMIT_ONLY
-#undef ENDPOINT_TRANSIMIT_ONLY
+#ifdef ENDPOINT_TRANSMIT_ONLY
+#undef ENDPOINT_TRANSMIT_ONLY
 #endif
 #ifdef ENDPOINT_RECEIVE_ONLY
 #undef ENDPOINT_RECEIVE_ONLY
@@ -26,6 +56,9 @@
 #ifdef PRODUCT_ID
 #undef PRODUCT_ID
 #endif
+#ifdef BCD_DEVICE
+#undef BCD_DEVICE
+#endif
 #ifdef DEVICE_CLASS
 #undef DEVICE_CLASS
 #endif
@@ -36,7 +69,7 @@
 #undef MANUFACTURER_NAME_LEN
 #endif
 #ifdef PRODUCT_NAME
-#undef PRODUCT_NAME 
+#undef PRODUCT_NAME
 #endif
 #ifdef PRODUCT_NAME_LEN
 #undef PRODUCT_NAME_LEN
@@ -138,6 +171,15 @@
 #undef CDC_IAD_DESCRIPTOR
 #endif
 #ifdef MIDI_INTERFACE
+#undef MIDI_INTERFACE
+#endif
+#ifdef MIDI_NUM_CABLES
+#undef MIDI_NUM_CABLES
+#endif
+#ifdef MIDI_INTERFACE_JACK_PAIR
+#undef MIDI_INTERFACE_JACK_PAIR
+#endif
+#ifdef MIDI_TX_ENDPOINT
 #undef MIDI_TX_ENDPOINT
 #endif
 #ifdef MIDI_TX_SIZE

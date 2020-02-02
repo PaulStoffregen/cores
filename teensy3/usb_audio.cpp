@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2016 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -28,13 +28,16 @@
  * SOFTWARE.
  */
 
+#include <Arduino.h>
 #include "usb_dev.h"
-#include "usb_audio.h"
-#include "HardwareSerial.h"
-#include <string.h> // for memcpy()
 
 #ifdef AUDIO_INTERFACE // defined by usb_dev.h -> usb_desc.h
 #if F_CPU >= 20000000
+
+// Uncomment this to work around a limitation in Macintosh adaptive rates
+// This is not a perfect solution.  Details here:
+// https://forum.pjrc.com/threads/34855-Distorted-audio-when-using-USB-input-on-Teensy-3-1
+//#define MACOSX_ADAPTIVE_LIMIT
 
 bool AudioInputUSB::update_responsibility;
 audio_block_t * AudioInputUSB::incoming_left;
@@ -44,7 +47,7 @@ audio_block_t * AudioInputUSB::ready_right;
 uint16_t AudioInputUSB::incoming_count;
 uint8_t AudioInputUSB::receive_flag;
 
-struct usb_audio_features_struct AudioInputUSB::features = {0,0,FEATURE_MAX_VOLUME};
+struct usb_audio_features_struct AudioInputUSB::features = {0,0,FEATURE_MAX_VOLUME/2};
 
 #define DMABUFATTR __attribute__ ((section(".dmabuffers"), aligned (4)))
 uint16_t usb_audio_receive_buffer[AUDIO_RX_SIZE/2] DMABUFATTR;
@@ -67,9 +70,7 @@ void AudioInputUSB::begin(void)
 	// but also because the PC may stop transmitting data, which
 	// means we no longer get receive callbacks from usb_dev.
 	update_responsibility = false;
-	//usb_audio_sync_feedback = 722824;
-	//usb_audio_sync_feedback = 723700; // too fast?
-	usb_audio_sync_feedback = 722534; // too slow
+	usb_audio_sync_feedback = feedback_accumulator >> 8;
 }
 
 static void copy_to_buffers(const uint32_t *src, int16_t *left, int16_t *right, unsigned int len)
@@ -84,7 +85,7 @@ static void copy_to_buffers(const uint32_t *src, int16_t *left, int16_t *right, 
 	while ((src < target - 2)) {
 		uint32_t n1 = *src++;
 		uint32_t n = *src++;
-		*(uint32_t *)left = n1 & 0xFFFF | ((n & 0xFFFF) << 16);
+		*(uint32_t *)left = (n1 & 0xFFFF) | ((n & 0xFFFF) << 16);
 		left+=2;
 		*(uint32_t *)right = (n1 >> 16) | ((n & 0xFFFF0000)) ;
 		right+=2;
@@ -187,9 +188,12 @@ void AudioInputUSB::update(void)
 	__enable_irq();
 	if (f) {
 		int diff = AUDIO_BLOCK_SAMPLES/2 - (int)c;
-		feedback_accumulator += diff;
-		// TODO: min/max sanity check for feedback_accumulator??
-		usb_audio_sync_feedback = (feedback_accumulator >> 8) + diff * 3;
+		feedback_accumulator += diff / 3;
+		uint32_t feedback = (feedback_accumulator >> 8) + diff * 100;
+#ifdef MACOSX_ADAPTIVE_LIMIT
+		if (feedback > 722698) feedback = 722698;
+#endif
+		usb_audio_sync_feedback = feedback;
 		//if (diff > 0) {
 			//serial_print(".");
 		//} else if (diff < 0) {
@@ -200,7 +204,7 @@ void AudioInputUSB::update(void)
 	//serial_print(".");
 	if (!left || !right) {
 		//serial_print("#"); // buffer underrun - PC sending too slow
-		if (f) feedback_accumulator += 10 << 8;
+		//if (f) feedback_accumulator += 10 << 8;
 	}
 	if (left) {
 		transmit(left, 0);
@@ -249,8 +253,11 @@ void AudioOutputUSB::update(void)
 {
 	audio_block_t *left, *right;
 
-	left = receiveReadOnly(0); // input 0 = left channel
-	right = receiveReadOnly(1); // input 1 = right channel
+	// TODO: we shouldn't be writing to these......
+	//left = receiveReadOnly(0); // input 0 = left channel
+	//right = receiveReadOnly(1); // input 1 = right channel
+	left = receiveWritable(0); // input 0 = left channel
+	right = receiveWritable(1); // input 1 = right channel
 	if (usb_audio_transmit_setting == 0) {
 		if (left) release(left);
 		if (right) release(right);
@@ -262,12 +269,20 @@ void AudioOutputUSB::update(void)
 		return;
 	}
 	if (left == NULL) {
-		if (right == NULL) return;
-		right->ref_count++;
-		left = right;
-	} else if (right == NULL) {
-		left->ref_count++;
-		right = left;
+		left = allocate();
+		if (left == NULL) {
+			if (right) release(right);
+			return;
+		}
+		memset(left->data, 0, sizeof(left->data));
+	}
+	if (right == NULL) {
+		right = allocate();
+		if (right == NULL) {
+			release(left);
+			return;
+		}
+		memset(right->data, 0, sizeof(right->data));
 	}
 	__disable_irq();
 	if (left_1st == NULL) {
@@ -343,6 +358,31 @@ unsigned int usb_audio_transmit_callback(void)
 	}
 	return target * 4;
 }
+
+
+struct setup_struct {
+  union {
+    struct {
+	uint8_t bmRequestType;
+	uint8_t bRequest;
+	union {
+		struct {
+			uint8_t bChannel;  // 0=main, 1=left, 2=right
+			uint8_t bCS;       // Control Selector
+		};
+		uint16_t wValue;
+	};
+	union {
+		struct {
+			uint8_t bIfEp;     // type of entity
+			uint8_t bEntityId; // UnitID, TerminalID, etc.
+		};
+		uint16_t wIndex;
+	};
+	uint16_t wLength;
+    };
+  };
+};
 
 int usb_audio_get_feature(void *stp, uint8_t *data, uint32_t *datalen)
 {

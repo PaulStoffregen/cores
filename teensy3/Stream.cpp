@@ -20,8 +20,7 @@
  parsing functions based on TextFinder library by Michael Margolis
  */
 
-#include "Arduino.h"
-#include "Stream.h"
+#include <Arduino.h>
 
 #define PARSE_TIMEOUT 1000  // default number of milli-seconds to wait
 #define NO_SKIP_CHAR  1  // a magic char not found in a valid ASCII numeric field
@@ -75,35 +74,38 @@ void Stream::setTimeout(unsigned long timeout)  // sets the maximum number of mi
 }
 
  // find returns true if the target string is found
-bool  Stream::find(char *target)
+bool  Stream::find(const char *target)
 {
   return findUntil(target, NULL);
 }
 
 // reads data from the stream until the target string of given length is found
 // returns true if target string is found, false if timed out
-bool Stream::find(char *target, size_t length)
+bool Stream::find(const char *target, size_t length)
 {
   return findUntil(target, length, NULL, 0);
 }
 
 // as find but search ends if the terminator string is found
-bool  Stream::findUntil(char *target, char *terminator)
+bool  Stream::findUntil(const char *target, const char *terminator)
 {
-  return findUntil(target, strlen(target), terminator, strlen(terminator));
+  if(target == nullptr) return true;
+  size_t tlen = (terminator==nullptr)?0:strlen(terminator);
+  return findUntil(target, strlen(target), terminator, tlen);
 }
 
 // reads data from the stream until the target string of the given length is found
 // search terminated if the terminator string is found
 // returns true if target string is found, false if terminated or timed out
-bool Stream::findUntil(char *target, size_t targetLen, char *terminator, size_t termLen)
+bool Stream::findUntil(const char *target, size_t targetLen, const char *terminator, size_t termLen)
 {
   size_t index = 0;  // maximum target string length is 64k bytes!
   size_t termIndex = 0;
   int c;
+  if( target == nullptr) return true;
+  if( *target == 0) return true;   // return true if target is a null string
+  if (terminator == nullptr) termLen = 0;
 
-  if( *target == 0)
-     return true;   // return true if target is a null string
   while( (c = timedRead()) > 0){
     if( c == target[index]){
     //////Serial.print("found "); Serial.write(c); Serial.print("index now"); Serial.println(index+1);
@@ -176,7 +178,7 @@ float Stream::parseFloat(char skipChar){
   boolean isNegative = false;
   boolean isFraction = false;
   long value = 0;
-  char c;
+  int c;
   float fraction = 1.0;
 
   c = peekNextDigit();
@@ -216,6 +218,7 @@ float Stream::parseFloat(char skipChar){
 //
 size_t Stream::readBytes(char *buffer, size_t length)
 {
+	if (buffer == nullptr) return 0;
 	size_t count = 0;
 	while (count < length) {
 		int c = timedRead();
@@ -236,6 +239,7 @@ size_t Stream::readBytes(char *buffer, size_t length)
 
 size_t Stream::readBytesUntil(char terminator, char *buffer, size_t length)
 {
+	if (buffer == nullptr) return 0;
 	if (length < 1) return 0;
 	length--;
 	size_t index = 0;
@@ -256,7 +260,7 @@ size_t Stream::readBytesUntil(char terminator, char *buffer, size_t length)
 String Stream::readString(size_t max)
 {
 	String str;
-	size_t length = str.length();
+	size_t length = 0;
 	while (length < max) {
 		int c = timedRead();
 		if (c < 0) {
@@ -265,6 +269,7 @@ String Stream::readString(size_t max)
 		}
 		if (c == 0) break;
 		str += (char)c;
+		length++;
 	}
 	return str;
 }
@@ -272,7 +277,7 @@ String Stream::readString(size_t max)
 String Stream::readStringUntil(char terminator, size_t max)
 {
 	String str;
-	size_t length = str.length();
+	size_t length = 0;
 	while (length < max) {
 		int c = timedRead();
 		if (c < 0) {
@@ -281,32 +286,7 @@ String Stream::readStringUntil(char terminator, size_t max)
 		}
 		if (c == 0 || c == terminator) break;
 		str += (char)c;
+		length++;
 	}
 	return str;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

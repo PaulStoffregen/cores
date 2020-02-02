@@ -75,19 +75,57 @@ typedef uint64_t prog_uint64_t;
 #define vsprintf_P(s, ...) vsprintf((s), __VA_ARGS__)
 #define vsnprintf_P(s, n, ...) vsnprintf((s), (n), __VA_ARGS__)
 #define fprintf_P(fp, ...) fprintf((fp), __VA_ARGS__)
+#define strlen_PF(a) strlen((a))
+#define strnlen_PF(src, len) strnlen((src), (len))
+#define memcpy_PF(dest, src, len) memcpy((dest), (src), (len))
+#define strcpy_PF(dest, src) strcpy((dest), (src))
+#define strncpy_PF(dest, src, len) strncpy((dest), (src), (len))
+#define strcat_PF(dest, src) strcat((dest), (src))
+#define strlcat_PF(dest, src, len) strlcat((dest), (src), (len))
+#define strncat_PF(dest, src, len) strncat((dest), (src), (len))
+#define strcmp_PF(s1, s2) strcmp((s1), (s2))
+#define strncmp_PF(s1, s2, n) strncmp((s1), (s2), (n))
+#define strcasecmp_PF(s1, s2) strcasecmp((s1), (s2))
+#define strncasecmp_PF(s1, s2, n) strncasecmp((s1), (s2), (n))
+#define strstr_PF(s1, s2) strstr((s1), (s2))
+#define strlcpy_PF(dest, src, n) strlcpy((dest), (src), (n))
+#define memcmp_PF(s1, s2, n) memcmp((s1), (s2), (n))
+
 
 #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
+#if 0
 #define pgm_read_word(addr) (*(const unsigned short *)(addr))
 #define pgm_read_dword(addr) (*(const unsigned long *)(addr))
 #define pgm_read_float(addr) (*(const float *)(addr))
+#else
+#define pgm_read_word(addr) ({ \
+	typeof(addr) _addr = (addr); \
+	*(const unsigned short *)(_addr); \
+})
+#define pgm_read_dword(addr) ({ \
+	typeof(addr) _addr = (addr); \
+	*(const unsigned long *)(_addr); \
+})
+#define pgm_read_float(addr) ({ \
+	typeof(addr) _addr = (addr); \
+	*(const float *)(_addr); \
+})
+#define pgm_read_ptr(addr) ({ \
+	typeof(addr) _addr = (addr); \
+	*(void * const *)(_addr); \
+})
+#endif
+
 
 #define pgm_read_byte_near(addr) pgm_read_byte(addr)
 #define pgm_read_word_near(addr) pgm_read_word(addr)
 #define pgm_read_dword_near(addr) pgm_read_dword(addr)
 #define pgm_read_float_near(addr) pgm_read_float(addr)
+#define pgm_read_ptr_near(addr) pgm_read_ptr(addr)
 #define pgm_read_byte_far(addr) pgm_read_byte(addr)
 #define pgm_read_word_far(addr) pgm_read_word(addr)
 #define pgm_read_dword_far(addr) pgm_read_dword(addr)
 #define pgm_read_float_far(addr) pgm_read_float(addr)
+#define pgm_read_ptr_far(addr) pgm_read_ptr(addr)
 
 #endif

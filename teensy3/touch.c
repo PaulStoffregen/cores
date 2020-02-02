@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -30,6 +30,8 @@
 
 #include "core_pins.h"
 //#include "HardwareSerial.h"
+
+#if defined(HAS_KINETIS_TSI) || defined(HAS_KINETIS_TSI_LITE)
 
 #if defined(__MK20DX128__) || defined(__MK20DX256__)
 // These settings give approx 0.02 pF sensitivity and 1200 pF range
@@ -48,7 +50,6 @@ static const uint8_t pin2tsi[] = {
 };
 
 #elif defined(__MK66FX1M0__)
-#define CURRENT   2
 #define NSCAN     9
 #define PRESCALE  2
 static const uint8_t pin2tsi[] = {
@@ -78,9 +79,6 @@ static const uint8_t pin2tsi[] = {
 
 int touchRead(uint8_t pin)
 {
-#if defined(__MK64FX512__)
-	return 0; // no Touch sensing :(
-#else
 	uint32_t ch;
 
 	if (pin >= NUM_DIGITAL_PINS) return 0;
@@ -89,7 +87,7 @@ int touchRead(uint8_t pin)
 
 	*portConfigRegister(pin) = PORT_PCR_MUX(0);
 	SIM_SCGC5 |= SIM_SCGC5_TSI;
-#if defined(KINETISK)
+#if defined(HAS_KINETIS_TSI)
 	TSI0_GENCS = 0;
 	TSI0_PEN = (1 << ch);
 	TSI0_SCANC = TSI_SCANC_REFCHRG(3) | TSI_SCANC_EXTCHRG(CURRENT);
@@ -98,7 +96,7 @@ int touchRead(uint8_t pin)
 	while (TSI0_GENCS & TSI_GENCS_SCNIP) ; // wait
 	delayMicroseconds(1);
 	return *((volatile uint16_t *)(&TSI0_CNTR1) + ch);
-#elif defined(KINETISL)
+#elif defined(HAS_KINETIS_TSI_LITE)
 	TSI0_GENCS = TSI_GENCS_REFCHRG(4) | TSI_GENCS_EXTCHRG(3) | TSI_GENCS_PS(PRESCALE)
 		| TSI_GENCS_NSCN(NSCAN) | TSI_GENCS_TSIEN | TSI_GENCS_EOSF;
 	TSI0_DATA = TSI_DATA_TSICH(ch) | TSI_DATA_SWTS;
@@ -107,9 +105,15 @@ int touchRead(uint8_t pin)
 	delayMicroseconds(1);
 	return TSI0_DATA & 0xFFFF;
 #endif
-#endif
 }
 
+#else
 
+int touchRead(uint8_t pin)
+{
+        return 0; // no Touch sensing :(
+}
+
+#endif
 
 

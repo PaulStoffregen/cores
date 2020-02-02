@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -36,10 +36,14 @@
 // Tunable parameters (relatively safe to edit these numbers)
 ////////////////////////////////////////////////////////////////
 
-#define TX_BUFFER_SIZE     40 // number of outgoing bytes to buffer
-#define RX_BUFFER_SIZE     64 // number of incoming bytes to buffer
-#define RTS_HIGH_WATERMARK 40 // RTS requests sender to pause
-#define RTS_LOW_WATERMARK  26 // RTS allows sender to resume
+#ifndef SERIAL3_TX_BUFFER_SIZE
+#define SERIAL3_TX_BUFFER_SIZE     40 // number of outgoing bytes to buffer
+#endif
+#ifndef SERIAL3_RX_BUFFER_SIZE
+#define SERIAL3_RX_BUFFER_SIZE     64 // number of incoming bytes to buffer
+#endif
+#define RTS_HIGH_WATERMARK (SERIAL3_RX_BUFFER_SIZE-24) // RTS requests sender to pause
+#define RTS_LOW_WATERMARK  (SERIAL3_RX_BUFFER_SIZE-38) // RTS allows sender to resume
 #define IRQ_PRIORITY  64  // 0 = highest priority, 255 = lowest
 
 
@@ -55,8 +59,8 @@ static uint8_t use9Bits = 0;
 #define use9Bits 0
 #endif
 
-static volatile BUFTYPE tx_buffer[TX_BUFFER_SIZE];
-static volatile BUFTYPE rx_buffer[RX_BUFFER_SIZE];
+static volatile BUFTYPE tx_buffer[SERIAL3_TX_BUFFER_SIZE];
+static volatile BUFTYPE rx_buffer[SERIAL3_RX_BUFFER_SIZE];
 static volatile uint8_t transmitting = 0;
 #if defined(KINETISK)
   static volatile uint8_t *transmit_pin=NULL;
@@ -75,14 +79,20 @@ static volatile uint8_t transmitting = 0;
   #define rts_assert()        *(rts_pin+8) = rts_mask;
   #define rts_deassert()      *(rts_pin+4) = rts_mask;
 #endif
-#if TX_BUFFER_SIZE > 255
+#if SERIAL3_TX_BUFFER_SIZE > 65535
+static volatile uint32_t tx_buffer_head = 0;
+static volatile uint32_t tx_buffer_tail = 0;
+#elif SERIAL3_TX_BUFFER_SIZE > 255
 static volatile uint16_t tx_buffer_head = 0;
 static volatile uint16_t tx_buffer_tail = 0;
 #else
 static volatile uint8_t tx_buffer_head = 0;
 static volatile uint8_t tx_buffer_tail = 0;
 #endif
-#if RX_BUFFER_SIZE > 255
+#if SERIAL3_RX_BUFFER_SIZE > 65535
+static volatile uint32_t rx_buffer_head = 0;
+static volatile uint32_t rx_buffer_tail = 0;
+#elif SERIAL3_RX_BUFFER_SIZE > 255
 static volatile uint16_t rx_buffer_head = 0;
 static volatile uint16_t rx_buffer_tail = 0;
 #else
@@ -91,8 +101,8 @@ static volatile uint8_t rx_buffer_tail = 0;
 #endif
 #if defined(KINETISL)
 static uint8_t rx_pin_num = 7;
-static uint8_t tx_pin_num = 8;
 #endif
+static uint8_t tx_pin_num = 8;
 
 // UART0 and UART1 are clocked by F_CPU, UART2 is clocked by F_BUS
 // UART0 has 8 byte fifo, UART1 and UART2 have 1 byte buffer
@@ -124,12 +134,14 @@ void serial3_begin(uint32_t divisor)
 	}
 #endif
 #if defined(HAS_KINETISK_UART2)
+	if (divisor < 32) divisor = 32;
 	UART2_BDH = (divisor >> 13) & 0x1F;
 	UART2_BDL = (divisor >> 5) & 0xFF;
 	UART2_C4 = divisor & 0x1F;
 	UART2_C1 = 0;
 	UART2_PFIFO = 0;
 #elif defined(HAS_KINETISL_UART2)
+	if (divisor < 1) divisor = 1;
 	UART2_BDH = (divisor >> 8) & 0x1F;
 	UART2_BDL = divisor & 0xFF;
 	UART2_C1 = 0;
@@ -154,12 +166,21 @@ void serial3_format(uint32_t format)
 	c = UART2_C3 & ~0x10;
 	if (format & 0x20) c |= 0x10;		// tx invert
 	UART2_C3 = c;
-#ifdef SERIAL_9BIT_SUPPORT
+#if defined(SERIAL_9BIT_SUPPORT) && !defined(KINETISL)
 	c = UART2_C4 & 0x1F;
 	if (format & 0x08) c |= 0x20;		// 9 bit mode with parity (requires 10 bits)
 	UART2_C4 = c;
 	use9Bits = format & 0x80;
 #endif
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__) || defined(KINETISL)
+	// For T3.5/T3.6/TLC See about turning on 2 stop bit mode
+	if ( format & 0x100) {
+		uint8_t bdl = UART2_BDL;
+		UART2_BDH |= UART_BDH_SBNS;		// Turn on 2 stop bits - was turned off by set baud
+		UART2_BDL = bdl;		// Says BDH not acted on until BDL is written
+	}
+#endif
+
 }
 
 void serial3_end(void)
@@ -168,8 +189,21 @@ void serial3_end(void)
 	while (transmitting) yield();  // wait for buffered data to send
 	NVIC_DISABLE_IRQ(IRQ_UART2_STATUS);
 	UART2_C2 = 0;
+	#if defined(KINETISK)
 	CORE_PIN7_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_MUX(1);
 	CORE_PIN8_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_MUX(1);
+	#elif defined(KINETISL)
+	switch (rx_pin_num) {
+		case 7: CORE_PIN7_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_MUX(1); break;
+		case 6: CORE_PIN6_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_MUX(1); break;
+	}
+	switch (tx_pin_num & 127) {
+		case 8:  CORE_PIN8_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_MUX(1); break;
+		case 20: CORE_PIN20_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_MUX(1); break;
+	}
+	#endif	
+	UART2_S1;
+	UART2_D; // clear leftover error status
 	rx_buffer_head = 0;
 	rx_buffer_tail = 0;
 	if (rts_pin) rts_deassert();
@@ -188,7 +222,6 @@ void serial3_set_transmit_pin(uint8_t pin)
 
 void serial3_set_tx(uint8_t pin, uint8_t opendrain)
 {
-	#if defined(KINETISL)
 	uint32_t cfg;
 
 	if (opendrain) pin |= 128;
@@ -196,7 +229,9 @@ void serial3_set_tx(uint8_t pin, uint8_t opendrain)
 	if ((SIM_SCGC4 & SIM_SCGC4_UART2)) {
 		switch (tx_pin_num & 127) {
 			case 8:  CORE_PIN8_CONFIG = 0; break; // PTD3
+	#if defined(KINETISL)
 			case 20: CORE_PIN20_CONFIG = 0; break; // PTD5
+	#endif
 		}
 		if (opendrain) {
 			cfg = PORT_PCR_DSE | PORT_PCR_ODE;
@@ -205,11 +240,12 @@ void serial3_set_tx(uint8_t pin, uint8_t opendrain)
 		}
 		switch (pin & 127) {
 			case 8:  CORE_PIN8_CONFIG = cfg | PORT_PCR_MUX(3); break;
+	#if defined(KINETISL)
 			case 20: CORE_PIN20_CONFIG = cfg | PORT_PCR_MUX(3); break;
+	#endif
 		}
 	}
 	tx_pin_num = pin;
-	#endif
 }
 
 void serial3_set_rx(uint8_t pin)
@@ -280,13 +316,13 @@ void serial3_putchar(uint32_t c)
 	if (!(SIM_SCGC4 & SIM_SCGC4_UART2)) return;
 	if (transmit_pin) transmit_assert();
 	head = tx_buffer_head;
-	if (++head >= TX_BUFFER_SIZE) head = 0;
+	if (++head >= SERIAL3_TX_BUFFER_SIZE) head = 0;
 	while (tx_buffer_tail == head) {
 		int priority = nvic_execution_priority();
 		if (priority <= IRQ_PRIORITY) {
 			if ((UART2_S1 & UART_S1_TDRE)) {
 				uint32_t tail = tx_buffer_tail;
-				if (++tail >= TX_BUFFER_SIZE) tail = 0;
+				if (++tail >= SERIAL3_TX_BUFFER_SIZE) tail = 0;
 				n = tx_buffer[tail];
 				if (use9Bits) UART2_C3 = (UART2_C3 & ~0x40) | ((n & 0x100) >> 2);
 				UART2_D = n;
@@ -319,7 +355,7 @@ int serial3_write_buffer_free(void)
 
 	head = tx_buffer_head;
 	tail = tx_buffer_tail;
-	if (head >= tail) return TX_BUFFER_SIZE - 1 - head + tail;
+	if (head >= tail) return SERIAL3_TX_BUFFER_SIZE - 1 - head + tail;
 	return tail - head - 1;
 }
 
@@ -330,7 +366,7 @@ int serial3_available(void)
 	head = rx_buffer_head;
 	tail = rx_buffer_tail;
 	if (head >= tail) return head - tail;
-	return RX_BUFFER_SIZE + head - tail;
+	return SERIAL3_RX_BUFFER_SIZE + head - tail;
 }
 
 int serial3_getchar(void)
@@ -341,13 +377,13 @@ int serial3_getchar(void)
 	head = rx_buffer_head;
 	tail = rx_buffer_tail;
 	if (head == tail) return -1;
-	if (++tail >= RX_BUFFER_SIZE) tail = 0;
+	if (++tail >= SERIAL3_RX_BUFFER_SIZE) tail = 0;
 	c = rx_buffer[tail];
 	rx_buffer_tail = tail;
 	if (rts_pin) {
 		int avail;
 		if (head >= tail) avail = head - tail;
-		else avail = RX_BUFFER_SIZE + head - tail;
+		else avail = SERIAL3_RX_BUFFER_SIZE + head - tail;
 		if (avail <= RTS_LOW_WATERMARK) rts_assert();
 	}
 	return c;
@@ -360,7 +396,7 @@ int serial3_peek(void)
 	head = rx_buffer_head;
 	tail = rx_buffer_tail;
 	if (head == tail) return -1;
-	if (++tail >= RX_BUFFER_SIZE) tail = 0;
+	if (++tail >= SERIAL3_RX_BUFFER_SIZE) tail = 0;
 	return rx_buffer[tail];
 }
 
@@ -370,7 +406,7 @@ void serial3_clear(void)
 	if (rts_pin) rts_assert();
 }
 
-// status interrupt combines 
+// status interrupt combines
 //   Transmit data below watermark  UART_S1_TDRE
 //   Transmit complete		    UART_S1_TC
 //   Idle line			    UART_S1_IDLE
@@ -390,16 +426,16 @@ void uart2_status_isr(void)
 			n = UART2_D;
 		}
 		head = rx_buffer_head + 1;
-		if (head >= RX_BUFFER_SIZE) head = 0;
+		if (head >= SERIAL3_RX_BUFFER_SIZE) head = 0;
 		if (head != rx_buffer_tail) {
 			rx_buffer[head] = n;
-			rx_buffer_head = head; 
+			rx_buffer_head = head;
 		}
 		if (rts_pin) {
 			int avail;
 			tail = tx_buffer_tail;
 			if (head >= tail) avail = head - tail;
-			else avail = RX_BUFFER_SIZE + head - tail;
+			else avail = SERIAL3_RX_BUFFER_SIZE + head - tail;
 			if (avail >= RTS_HIGH_WATERMARK) rts_deassert();
 		}
 	}
@@ -410,7 +446,7 @@ void uart2_status_isr(void)
 		if (head == tail) {
 			UART2_C2 = C2_TX_COMPLETING;
 		} else {
-			if (++tail >= TX_BUFFER_SIZE) tail = 0;
+			if (++tail >= SERIAL3_TX_BUFFER_SIZE) tail = 0;
 			n = tx_buffer[tail];
 			if (use9Bits) UART2_C3 = (UART2_C3 & ~0x40) | ((n & 0x100) >> 2);
 			UART2_D = n;

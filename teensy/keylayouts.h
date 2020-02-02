@@ -93,7 +93,7 @@ extern "C"{
 #define KEY_MEDIA_PREV_TRACK    ( 0xB6 | 0xE400 )
 #define KEY_MEDIA_STOP          ( 0xB7 | 0xE400 )
 #define KEY_MEDIA_EJECT         ( 0xB8 | 0xE400 )
-#define KEY_MEDIA_RANDOM_PLAY   ( 0xB0 | 0xE400 )
+#define KEY_MEDIA_RANDOM_PLAY   ( 0xB9 | 0xE400 )
 #define KEY_MEDIA_PLAY_PAUSE    ( 0xCD | 0xE400 )
 #define KEY_MEDIA_PLAY_SKIP     ( 0xCE | 0xE400 )
 #define KEY_MEDIA_MUTE          ( 0xE2 | 0xE400 )
@@ -196,6 +196,7 @@ extern "C"{
 #define KEYPAD_9                (  97  | 0xF000 )
 #define KEYPAD_0                (  98  | 0xF000 )
 #define KEYPAD_PERIOD           (  99  | 0xF000 )
+#define KEY_NON_US_BS           ( 100  | 0xF000 )
 #define KEY_MENU        	( 101  | 0xF000 )
 #define KEY_F13                 ( 104  | 0xF000 )
 #define KEY_F14                 ( 105  | 0xF000 )
@@ -1450,7 +1451,7 @@ extern "C"{
 #define ASCII_20	KEY_SPACE				// 32  
 #define ASCII_21	KEY_1 + SHIFT_MASK			// 33 !
 #define ASCII_22	KEY_2 + SHIFT_MASK			// 34 "
-#define ASCII_23	KEY_BACKSPACE				// 35 #
+#define ASCII_23	KEY_BACKSLASH				// 35 #
 #define ASCII_24	KEY_4 + SHIFT_MASK			// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_7 + SHIFT_MASK			// 38 &
@@ -4532,7 +4533,7 @@ extern "C"{
 #define ASCII_20	KEY_SPACE				// 32  
 #define ASCII_21	KEY_1 + SHIFT_MASK			// 33 !
 #define ASCII_22	KEY_2 + SHIFT_MASK			// 34 "
-#define ASCII_23	KEY_BACKSPACE				// 35 #
+#define ASCII_23	KEY_BACKSLASH				// 35 #
 #define ASCII_24	KEY_4 + SHIFT_MASK			// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_7 + SHIFT_MASK			// 38 &

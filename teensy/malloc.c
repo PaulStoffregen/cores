@@ -73,7 +73,7 @@ struct __freelist *__flp;	// freelist pointer (head of freelist)
 void *
 malloc(size_t len)
 {
-	struct __freelist *fp1, *fp2, *sfp1, *sfp2;
+	struct __freelist *fp1, *fp2, *sfp1=NULL, *sfp2=NULL;
 	char *cp;
 	size_t s, avail;
 

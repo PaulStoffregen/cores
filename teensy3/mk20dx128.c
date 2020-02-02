@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -31,6 +31,26 @@
 #include "kinetis.h"
 #include "core_pins.h" // testing only
 #include "ser_print.h" // testing only
+#include <errno.h>
+
+
+// Flash Security Setting. On Teensy 3.2, you can lock the MK20 chip to prevent
+// anyone from reading your code.  You CAN still reprogram your Teensy while
+// security is set, but the bootloader will be unable to respond to auto-reboot
+// requests from Arduino. Pressing the program button will cause a full chip
+// erase to gain access, because the bootloader chip is locked out.  Normally,
+// erase occurs when uploading begins, so if you press the Program button
+// accidentally, simply power cycling will run your program again.  When
+// security is locked, any Program button press causes immediate full erase.
+// Special care must be used with the Program button, because it must be made
+// accessible to initiate reprogramming, but it must not be accidentally
+// pressed when Teensy Loader is not being used to reprogram.  To set lock the
+// security change this to 0xDC.  Teensy 3.0 and 3.1 do not support security lock.
+#define FSEC 0xDE
+
+// Flash Options
+#define FOPT 0xF9
+
 
 extern unsigned long _stext;
 extern unsigned long _etext;
@@ -46,7 +66,7 @@ extern unsigned long _estack;
 
 extern int main (void);
 void ResetHandler(void);
-void _init_Teensyduino_internal_(void);
+void _init_Teensyduino_internal_(void) __attribute__((noinline));
 void __libc_init_array(void);
 
 
@@ -117,12 +137,6 @@ void unused_isr(void)
 	fault_isr();
 }
 
-extern volatile uint32_t systick_millis_count;
-void systick_default_isr(void)
-{
-	systick_millis_count++;
-}
-
 void nmi_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void hard_fault_isr(void)	__attribute__ ((weak, alias("fault_isr")));
 void memmanage_fault_isr(void)	__attribute__ ((weak, alias("fault_isr")));
@@ -131,7 +145,7 @@ void usage_fault_isr(void)	__attribute__ ((weak, alias("fault_isr")));
 void svcall_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void debugmonitor_isr(void)	__attribute__ ((weak, alias("unused_isr")));
 void pendablesrvreq_isr(void)	__attribute__ ((weak, alias("unused_isr")));
-void systick_isr(void)		__attribute__ ((weak, alias("systick_default_isr")));
+void systick_isr(void);
 
 void dma_ch0_isr(void)		__attribute__ ((weak, alias("unused_isr")));
 void dma_ch1_isr(void)		__attribute__ ((weak, alias("unused_isr")));
@@ -640,7 +654,7 @@ void (* const _VectorsFlash[NVIC_NUM_INTERRUPTS+16])(void) =
 __attribute__ ((section(".flashconfig"), used))
 const uint8_t flashconfigbytes[16] = {
 	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-	0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFF, 0xFF, 0xFF
+	0xFF, 0xFF, 0xFF, 0xFF, FSEC, FOPT, 0xFF, 0xFF
 };
 
 
@@ -666,10 +680,11 @@ void startup_early_hook(void)		__attribute__ ((weak, alias("startup_default_earl
 void startup_late_hook(void)		__attribute__ ((weak, alias("startup_default_late_hook")));
 
 
-#ifdef __clang__
-// Clang seems to generate slightly larger code with Os than gcc
+#if defined(__PURE_CODE__) || !defined(__OPTIMIZE__) || defined(__clang__)
+// cases known to compile too large for 0-0x400 memory region
 __attribute__ ((optimize("-Os")))
 #else
+// hopefully all others fit into startup section (below 0x400)
 __attribute__ ((section(".startup"),optimize("-Os")))
 #endif
 void ResetHandler(void)
@@ -704,9 +719,9 @@ void ResetHandler(void)
 	SIM_SCGC3 = SIM_SCGC3_ADC1 | SIM_SCGC3_FTM2 | SIM_SCGC3_FTM3;
 	SIM_SCGC5 = 0x00043F82;		// clocks active to all GPIO
 	SIM_SCGC6 = SIM_SCGC6_RTC | SIM_SCGC6_FTM0 | SIM_SCGC6_FTM1 | SIM_SCGC6_ADC0 | SIM_SCGC6_FTFL;
-	PORTC_PCR5 = PORT_PCR_MUX(1) | PORT_PCR_DSE | PORT_PCR_SRE;
-	GPIOC_PDDR |= (1<<5);
-	GPIOC_PSOR = (1<<5);
+	//PORTC_PCR5 = PORT_PCR_MUX(1) | PORT_PCR_DSE | PORT_PCR_SRE;
+	//GPIOC_PDDR |= (1<<5);
+	//GPIOC_PSOR = (1<<5);
 	//while (1);
 #elif defined(__MKL26Z64__)
 	SIM_SCGC4 = SIM_SCGC4_USBOTG | 0xF0000030;
@@ -730,8 +745,10 @@ void ResetHandler(void)
 	UART0_C2 = UART_C2_TE;
 	PORTB_PCR17 = PORT_PCR_MUX(3);
 #endif
-#ifdef KINETISK
-	// if the RTC oscillator isn't enabled, get it started early
+#if defined(KINETISK) && !defined(__MK66FX1M0__)
+	// If the RTC oscillator isn't enabled, get it started early.
+	// But don't do this early on Teensy 3.6 - RTC_CR depends on 3.3V+VBAT
+	// which may be ~0.4V "behind" 3.3V if the power ramps up slowly.
 	if (!(RTC_CR & RTC_CR_OSCE)) {
 		RTC_SR = 0;
 		RTC_CR = RTC_CR_SC16P | RTC_CR_SC4P | RTC_CR_OSCE;
@@ -790,7 +807,7 @@ void ResetHandler(void)
 #else
     #if defined(KINETISK)
     // enable capacitors for crystal
-    OSC0_CR = OSC_SC8P | OSC_SC2P;
+    OSC0_CR = OSC_SC8P | OSC_SC2P | OSC_ERCLKEN;
     #elif defined(KINETISL)
     // enable capacitors for crystal
     OSC0_CR = OSC_SC8P | OSC_SC2P | OSC_ERCLKEN;
@@ -826,7 +843,18 @@ void ResetHandler(void)
 	SMC_PMCTRL = SMC_PMCTRL_RUNM(3); // enter HSRUN mode
 	while (SMC_PMSTAT != SMC_PMSTAT_HSRUN) ; // wait for HSRUN
     #endif
-    #if F_CPU == 192000000
+		#if F_CPU == 256000000
+	//See table in 27.4.6 MCG Control 6 Register (MCG_C6)
+	//16 -> Multiply factor 32. 32*8MHz =256MHz
+	MCG_C5 = MCG_C5_PRDIV0(0);
+	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(16);
+    #elif F_CPU == 240000000
+	MCG_C5 = MCG_C5_PRDIV0(0);
+	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(14);
+    #elif F_CPU == 216000000
+	MCG_C5 = MCG_C5_PRDIV0(0);
+	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(11);
+    #elif F_CPU == 192000000
 	MCG_C5 = MCG_C5_PRDIV0(0);
 	MCG_C6 = MCG_C6_PLLS | MCG_C6_VDIV0(8);
     #elif F_CPU == 180000000
@@ -879,39 +907,115 @@ void ResetHandler(void)
   #endif
 #endif
 	// now program the clock dividers
-#if F_CPU == 192000000
-	// config divisors: 192 MHz core, 48 MHz bus, 27.4 MHz flash, USB = 192 * 4
+#if F_CPU == 256000000
+	// config divisors: 256 MHz core, 64 MHz bus, 32 MHz flash, USB = IRC48M
 	// TODO: gradual ramp-up for HSRUN mode
+	#if F_BUS == 64000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(3) | SIM_CLKDIV1_OUTDIV4(7);
+	#elif F_BUS == 128000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(7);
+	#else
+	#error "This F_CPU & F_BUS combination is not supported"
+	#endif
+	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(0);
+#elif F_CPU == 240000000
+	// config divisors: 240 MHz core, 60 MHz bus, 30 MHz flash, USB = 240 / 5
+	// TODO: gradual ramp-up for HSRUN mode
+	#if F_BUS == 60000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(3) | SIM_CLKDIV1_OUTDIV4(7);
+	#elif F_BUS == 80000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(2) | SIM_CLKDIV1_OUTDIV4(7);
+	#elif F_BUS == 120000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(7);
+	#else
+	#error "This F_CPU & F_BUS combination is not supported"
+	#endif
+	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(4);
+#elif F_CPU == 216000000
+	// config divisors: 216 MHz core, 54 MHz bus, 27 MHz flash, USB = IRC48M
+	// TODO: gradual ramp-up for HSRUN mode
+	#if F_BUS == 54000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(3) | SIM_CLKDIV1_OUTDIV4(7);
+	#elif F_BUS == 72000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(2) | SIM_CLKDIV1_OUTDIV4(7);
+	#elif F_BUS == 108000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(7);	
+	
+	#else
+	#error "This F_CPU & F_BUS combination is not supported"
+	#endif
+	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(0);
+#elif F_CPU == 192000000
+	// config divisors: 192 MHz core, 48 MHz bus, 27.4 MHz flash, USB = 192 / 4
+	// TODO: gradual ramp-up for HSRUN mode
+	#if F_BUS == 48000000
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(3) | SIM_CLKDIV1_OUTDIV4(6);
+	#elif F_BUS == 64000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(2) | SIM_CLKDIV1_OUTDIV4(6);
+	#elif F_BUS == 96000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(6);
+	#else
+	#error "This F_CPU & F_BUS combination is not supported"
+	#endif
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(3);
 #elif F_CPU == 180000000
-	// config divisors: 180 MHz core, 60 MHz bus, 25.7 MHz flash, USB = not feasible
+	// config divisors: 180 MHz core, 60 MHz bus, 25.7 MHz flash, USB = IRC48M
+	#if F_BUS == 60000000
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(2) | SIM_CLKDIV1_OUTDIV4(6);
-	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(6) | SIM_CLKDIV2_USBFRAC;
+	#elif F_BUS == 90000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(6);
+	#else
+	#error "This F_CPU & F_BUS combination is not supported"
+	#endif
+	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(0);
 #elif F_CPU == 168000000
 	// config divisors: 168 MHz core, 56 MHz bus, 28 MHz flash, USB = 168 * 2 / 7
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(2) | SIM_CLKDIV1_OUTDIV4(5);
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(6) | SIM_CLKDIV2_USBFRAC;
 #elif F_CPU == 144000000
 	// config divisors: 144 MHz core, 48 MHz bus, 28.8 MHz flash, USB = 144 / 3
+	#if F_BUS == 48000000
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(2) | SIM_CLKDIV1_OUTDIV4(4);
+	#elif F_BUS == 72000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(4);
+	#else
+	#error "This F_CPU & F_BUS combination is not supported"
+	#endif
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(2);
 #elif F_CPU == 120000000
 	// config divisors: 120 MHz core, 60 MHz bus, 24 MHz flash, USB = 128 * 2 / 5
+	#if F_BUS == 60000000
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(4);
+	#elif F_BUS == 120000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(0) | SIM_CLKDIV1_OUTDIV4(4);
+	#else
+	#error "This F_CPU & F_BUS combination is not supported"
+	#endif
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(4) | SIM_CLKDIV2_USBFRAC;
 #elif F_CPU == 96000000
 	// config divisors: 96 MHz core, 48 MHz bus, 24 MHz flash, USB = 96 / 2
+	#if F_BUS == 48000000
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(3);
+	#elif F_BUS == 96000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(0) | SIM_CLKDIV1_OUTDIV4(3);
+	#else
+	#error "This F_CPU & F_BUS combination is not supported"
+	#endif
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(1);
 #elif F_CPU == 72000000
 	// config divisors: 72 MHz core, 36 MHz bus, 24 MHz flash, USB = 72 * 2 / 3
+	#if F_BUS == 36000000
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(2);
+	#elif F_BUS == 72000000
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(0) | SIM_CLKDIV1_OUTDIV4(2);
+	#else
+	#error "This F_CPU & F_BUS combination is not supported"
+	#endif
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(2) | SIM_CLKDIV2_USBFRAC;
 #elif F_CPU == 48000000
 	// config divisors: 48 MHz core, 48 MHz bus, 24 MHz flash, USB = 96 / 2
   #if defined(KINETISK)
-	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(1) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(3);
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(1) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV3(1) |  SIM_CLKDIV1_OUTDIV4(3);
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(1);
   #elif defined(KINETISL)
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(1) | SIM_CLKDIV1_OUTDIV4(1);
@@ -919,7 +1023,7 @@ void ResetHandler(void)
 #elif F_CPU == 24000000
 	// config divisors: 24 MHz core, 24 MHz bus, 24 MHz flash, USB = 96 / 2
 	#if defined(KINETISK)
-	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(3) | SIM_CLKDIV1_OUTDIV2(3) | SIM_CLKDIV1_OUTDIV4(3);
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(3) | SIM_CLKDIV1_OUTDIV2(3) | SIM_CLKDIV1_OUTDIV3(3) | SIM_CLKDIV1_OUTDIV4(3);
 	SIM_CLKDIV2 = SIM_CLKDIV2_USBDIV(1);
 	#elif defined(KINETISL)
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(3) | SIM_CLKDIV1_OUTDIV4(0);
@@ -927,14 +1031,14 @@ void ResetHandler(void)
 #elif F_CPU == 16000000
 	// config divisors: 16 MHz core, 16 MHz bus, 16 MHz flash
   #if defined(KINETISK)
-	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(0) | SIM_CLKDIV1_OUTDIV4(0);
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(0) | SIM_CLKDIV1_OUTDIV3(0) | SIM_CLKDIV1_OUTDIV4(0);
   #elif defined(KINETISL)
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV4(0);
   #endif
 #elif F_CPU == 8000000
 	// config divisors: 8 MHz core, 8 MHz bus, 8 MHz flash
   #if defined(KINETISK)
-	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(1) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(1);
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(1) | SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV3(1) | SIM_CLKDIV1_OUTDIV4(1);
   #elif defined(KINETISL)
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(1) | SIM_CLKDIV1_OUTDIV4(0);
   #endif
@@ -945,7 +1049,7 @@ void ResetHandler(void)
 	// here we can go into vlpr?
 	// config divisors: 4 MHz core, 4 MHz bus, 4 MHz flash
   #if defined(KINETISK)
-	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(3) | SIM_CLKDIV1_OUTDIV2(3) | SIM_CLKDIV1_OUTDIV4(3);
+	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(3) | SIM_CLKDIV1_OUTDIV2(3) | SIM_CLKDIV1_OUTDIV3(3) | SIM_CLKDIV1_OUTDIV4(3);
   #elif defined(KINETISL)
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(3) | SIM_CLKDIV1_OUTDIV4(0);
   #endif
@@ -961,7 +1065,7 @@ void ResetHandler(void)
 	SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV4(1);
   #endif
 #else
-#error "Error, F_CPU must be 192, 180, 168, 144, 120, 96, 72, 48, 24, 16, 8, 4, or 2 MHz"
+#error "Error, F_CPU must be 256, 240, 216, 192, 180, 168, 144, 120, 96, 72, 48, 24, 16, 8, 4, or 2 MHz"
 #endif
 
 #if F_CPU > 16000000
@@ -970,10 +1074,15 @@ void ResetHandler(void)
 	// wait for PLL clock to be used
 	while ((MCG_S & MCG_S_CLKST_MASK) != MCG_S_CLKST(3)) ;
 	// now we're in PEE mode
-	// USB uses PLL clock, trace is CPU clock, CLKOUT=OSCERCLK0
+	// trace is CPU clock, CLKOUT=OSCERCLK0
 	#if defined(KINETISK)
-	SIM_SOPT2 = SIM_SOPT2_USBSRC | SIM_SOPT2_PLLFLLSEL | SIM_SOPT2_TRACECLKSEL
-		| SIM_SOPT2_CLKOUTSEL(6);
+	#if F_CPU == 256000000 || F_CPU == 216000000 || F_CPU == 180000000
+	// USB uses IRC48
+	SIM_SOPT2 = SIM_SOPT2_USBSRC | SIM_SOPT2_IRC48SEL | SIM_SOPT2_TRACECLKSEL | SIM_SOPT2_CLKOUTSEL(6);
+	#else
+	// USB uses PLL clock
+	SIM_SOPT2 = SIM_SOPT2_USBSRC | SIM_SOPT2_PLLFLLSEL | SIM_SOPT2_TRACECLKSEL | SIM_SOPT2_CLKOUTSEL(6);
+	#endif
 	#elif defined(KINETISL)
 	SIM_SOPT2 = SIM_SOPT2_USBSRC | SIM_SOPT2_PLLFLLSEL | SIM_SOPT2_CLKOUTSEL(6)
 		| SIM_SOPT2_UART0SRC(1) | SIM_SOPT2_TPMSRC(1);
@@ -991,6 +1100,15 @@ void ResetHandler(void)
 #if F_CPU <= 2000000
     // since we are not going into "stop mode" i removed it
 	SMC_PMCTRL = SMC_PMCTRL_RUNM(2); // VLPR mode :-)
+#endif
+
+#if defined(__MK66FX1M0__)
+	// If the RTC oscillator isn't enabled, get it started.  For Teensy 3.6
+	// we don't do this early.  See comment above about slow rising power.
+	if (!(RTC_CR & RTC_CR_OSCE)) {
+		RTC_SR = 0;
+		RTC_CR = RTC_CR_SC16P | RTC_CR_SC4P | RTC_CR_OSCE;
+	}
 #endif
 
 	// initialize the SysTick counter
@@ -1040,15 +1158,40 @@ void ResetHandler(void)
 
 	startup_late_hook();
 	main();
+	
 	while (1) ;
 }
 
 char *__brkval = (char *)&_ebss;
 
+#ifndef STACK_MARGIN
+#if defined(__MKL26Z64__)
+#define STACK_MARGIN  512
+#elif defined(__MK20DX128__)
+#define STACK_MARGIN  1024
+#elif defined(__MK20DX256__)
+#define STACK_MARGIN  4096
+#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
+#define STACK_MARGIN  8192
+#endif
+#endif
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 void * _sbrk(int incr)
 {
-	char *prev = __brkval;
-	__brkval += incr;
+	char *prev, *stack;
+
+	prev = __brkval;
+	if (incr != 0) {
+		__asm__ volatile("mov %0, sp" : "=r" (stack) ::);
+		if (prev + incr >= stack - STACK_MARGIN) {
+			errno = ENOMEM;
+			return (void *)-1;
+		}
+		__brkval = prev + incr;
+	}
 	return prev;
 }
 
@@ -1109,9 +1252,17 @@ void __cxa_guard_release(char *g)
 	*g = 1;
 }
 
+__attribute__((weak))
+void abort(void)
+{
+	while (1) ;
+}
+
+#pragma GCC diagnostic pop
+
 int nvic_execution_priority(void)
 {
-	int priority=256;
+	uint32_t priority=256;
 	uint32_t primask, faultmask, basepri, ipsr;
 
 	// full algorithm in ARM DDI0403D, page B1-639
@@ -1129,4 +1280,104 @@ int nvic_execution_priority(void)
 	if (basepri > 0 && basepri < priority) priority = basepri;
 	return priority;
 }
+
+
+#if defined(HAS_KINETIS_HSRUN) && F_CPU > 120000000
+int kinetis_hsrun_disable(void)
+{
+	if (SMC_PMSTAT == SMC_PMSTAT_HSRUN) {
+		// First, reduce the CPU clock speed, but do not change
+		// the peripheral speed (F_BUS).  Serial1 & Serial2 baud
+		// rates will be impacted, but most other peripherals
+		// will continue functioning at the same speed.
+		#if F_CPU == 256000000 && F_BUS == 64000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(1, 3, 1, 7); // TODO: TEST
+		#elif F_CPU == 256000000 && F_BUS == 128000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(1, 1, 1, 7); // TODO: TEST
+		#elif F_CPU == 240000000 && F_BUS == 60000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(1, 3, 1, 7); // ok
+		#elif F_CPU == 240000000 && F_BUS == 80000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(2, 2, 2, 8); // ok
+		#elif F_CPU == 240000000 && F_BUS == 120000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(1, 1, 1, 7); // ok
+		#elif F_CPU == 216000000 && F_BUS == 54000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(1, 3, 1, 7); // ok
+		#elif F_CPU == 216000000 && F_BUS == 72000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(2, 2, 2, 8); // ok
+		#elif F_CPU == 216000000 && F_BUS == 108000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(1, 1, 1, 7); // ok
+		#elif F_CPU == 192000000 && F_BUS == 48000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(1, 3, 1, 7); // ok
+		#elif F_CPU == 192000000 && F_BUS == 64000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(2, 2, 2, 8); // ok
+		#elif F_CPU == 192000000 && F_BUS == 96000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(1, 1, 1, 7); // ok
+		#elif F_CPU == 180000000 && F_BUS == 60000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(2, 2, 2, 8); // ok
+		#elif F_CPU == 180000000 && F_BUS == 90000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(1, 1, 1, 7); // ok
+		#elif F_CPU == 168000000 && F_BUS == 56000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(2, 2, 2, 5); // ok
+		#elif F_CPU == 144000000 && F_BUS == 48000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(2, 2, 2, 5); // ok
+		#elif F_CPU == 144000000 && F_BUS == 72000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(1, 1, 1, 5); // ok
+		#else
+			return 0;
+		#endif
+		// Then turn off HSRUN mode
+		SMC_PMCTRL = SMC_PMCTRL_RUNM(0);
+		while (SMC_PMSTAT == SMC_PMSTAT_HSRUN) ; // wait
+		return 1;
+	}
+	return 0;
+}
+
+int kinetis_hsrun_enable(void)
+{
+	if (SMC_PMSTAT == SMC_PMSTAT_RUN) {
+		// Turn HSRUN mode on
+		SMC_PMCTRL = SMC_PMCTRL_RUNM(3);
+		while (SMC_PMSTAT != SMC_PMSTAT_HSRUN) {;} // wait
+		// Then configure clock for full speed
+		#if F_CPU == 256000000 && F_BUS == 64000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 3, 0, 7);
+		#elif F_CPU == 256000000 && F_BUS == 128000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 1, 0, 7);
+		#elif F_CPU == 240000000 && F_BUS == 60000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 3, 0, 7);
+		#elif F_CPU == 240000000 && F_BUS == 80000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 2, 0, 7);
+		#elif F_CPU == 240000000 && F_BUS == 120000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 1, 0, 7);
+		#elif F_CPU == 216000000 && F_BUS == 54000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 3, 0, 7);
+		#elif F_CPU == 216000000 && F_BUS == 72000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 2, 0, 7);
+		#elif F_CPU == 216000000 && F_BUS == 108000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 1, 0, 7);
+		#elif F_CPU == 192000000 && F_BUS == 48000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 3, 0, 6);
+		#elif F_CPU == 192000000 && F_BUS == 64000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 2, 0, 6);
+		#elif F_CPU == 192000000 && F_BUS == 96000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 1, 0, 6);
+		#elif F_CPU == 180000000 && F_BUS == 60000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 2, 0, 6);
+		#elif F_CPU == 180000000 && F_BUS == 90000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 1, 0, 6);
+		#elif F_CPU == 168000000 && F_BUS == 56000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 2, 0, 5);
+		#elif F_CPU == 144000000 && F_BUS == 48000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 2, 0, 4);
+		#elif F_CPU == 144000000 && F_BUS == 72000000
+			SIM_CLKDIV1 = SIM_CLKDIV1_OUTDIVS(0, 1, 0, 4);
+		#else
+			return 0;
+		#endif
+		return 1;
+	}
+	return 0;
+}
+#endif // HAS_KINETIS_HSRUN && F_CPU > 120000000
 

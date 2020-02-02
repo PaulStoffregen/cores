@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -428,14 +428,10 @@ void FlightSimClass::update(void)
 				} else if (type == 2) {
 					FlightSimFloat *item = FlightSimFloat::find(id);
 					if (!item) break;
-					#ifdef KINETISK
-					data.f = *(float *)(p + 6);
-					#else
 					data.b[0] = p[6];
 					data.b[1] = p[7];
 					data.b[2] = p[8];
 					data.b[3] = p[9];
-					#endif
 					item->update(data.f);
 /// JB
 				} else if (type == 3) {

@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -136,8 +136,12 @@ enum IRQ_NUMBER_t {
 #define HAS_KINETISK_UART2
 #define HAS_KINETIS_I2C0
 #define HAS_KINETIS_LLWU_16CH
+#define HAS_KINETIS_ADC0
+#define HAS_KINETIS_TSI
+#define HAS_KINETIS_FLASH_FTFL
 
-// Teensy 3.1
+
+// Teensy 3.1 & 3.2
 #elif defined(__MK20DX256__)
 enum IRQ_NUMBER_t {
 	IRQ_DMA_CH0 =		0,
@@ -273,6 +277,10 @@ enum IRQ_NUMBER_t {
 #define HAS_KINETIS_I2C0
 #define HAS_KINETIS_I2C1
 #define HAS_KINETIS_LLWU_16CH
+#define HAS_KINETIS_ADC0
+#define HAS_KINETIS_ADC1
+#define HAS_KINETIS_TSI
+#define HAS_KINETIS_FLASH_FTFL
 
 // Teensy-LC
 #elif defined(__MKL26Z64__)
@@ -361,6 +369,9 @@ enum IRQ_NUMBER_t {
 #define HAS_KINETIS_I2C1
 #define HAS_KINETIS_I2C1_STOPF
 #define HAS_KINETIS_LLWU_16CH
+#define HAS_KINETIS_ADC0
+#define HAS_KINETIS_TSI_LITE
+#define HAS_KINETIS_FLASH_FTFA
 
 
 #elif defined(__MK64FX512__)
@@ -467,9 +478,9 @@ enum IRQ_NUMBER_t {
 #define DMAMUX_SOURCE_I2S0_RX		12
 #define DMAMUX_SOURCE_I2S0_TX		13
 #define DMAMUX_SOURCE_SPI0_RX		14
-#define DMAMUX_SOURCE_SPI0_TX		14
-#define DMAMUX_SOURCE_SPI1_RX		16
-#define DMAMUX_SOURCE_SPI1_TX		17
+#define DMAMUX_SOURCE_SPI0_TX		15
+#define DMAMUX_SOURCE_SPI1		16
+#define DMAMUX_SOURCE_SPI2		17
 #define DMAMUX_SOURCE_I2C0		18
 #define DMAMUX_SOURCE_I2C1		19
 #define DMAMUX_SOURCE_I2C2		19
@@ -534,8 +545,12 @@ enum IRQ_NUMBER_t {
 #define HAS_KINETIS_I2C1_STOPF
 #define HAS_KINETIS_I2C2
 #define HAS_KINETIS_I2C2_STOPF
-#define HAS_KINETIS_LLWU_32CH
+#define HAS_KINETIS_LLWU_16CH
 #define HAS_KINETIS_MPU
+#define HAS_KINETIS_ADC0
+#define HAS_KINETIS_ADC1
+#define HAS_KINETIS_FLASH_FTFE
+#define HAS_KINETIS_SDHC
 
 
 #elif defined(__MK66FX1M0__)
@@ -654,13 +669,13 @@ enum IRQ_NUMBER_t {
 #define DMAMUX_SOURCE_I2S0_RX		12
 #define DMAMUX_SOURCE_I2S0_TX		13
 #define DMAMUX_SOURCE_SPI0_RX		14
-#define DMAMUX_SOURCE_SPI0_TX		14
+#define DMAMUX_SOURCE_SPI0_TX		15
 #define DMAMUX_SOURCE_SPI1_RX		16
 #define DMAMUX_SOURCE_SPI1_TX		17
 #define DMAMUX_SOURCE_I2C0		18
-#define DMAMUX_SOURCE_I2C2		18
+#define DMAMUX_SOURCE_I2C3		18
 #define DMAMUX_SOURCE_I2C1		19
-#define DMAMUX_SOURCE_I2C3		19
+#define DMAMUX_SOURCE_I2C2		19
 #define DMAMUX_SOURCE_FTM0_CH0		20
 #define DMAMUX_SOURCE_FTM0_CH1		21
 #define DMAMUX_SOURCE_FTM0_CH2		22
@@ -735,19 +750,54 @@ enum IRQ_NUMBER_t {
 #define HAS_KINETIS_I2C3_STOPF
 #define HAS_KINETIS_LLWU_32CH
 #define HAS_KINETIS_MPU
+#define HAS_KINETIS_ADC0
+#define HAS_KINETIS_ADC1
+#define HAS_KINETIS_TSI_LITE
+#define HAS_KINETIS_FLASH_FTFE
+#define HAS_KINETIS_SDHC
+#define HAS_KINETIS_HSRUN
 
 
 
 #endif // end of board-specific definitions
 
-
-#if (F_CPU == 192000000)
+#if (F_CPU == 256000000)
+ #define F_PLL 256000000
+ #ifndef F_BUS
+ #define F_BUS 64000000
+ //#define F_BUS 128000000  // all the usual overclocking caveats apply...
+ #endif
+ #define F_MEM 32000000
+#elif (F_CPU == 240000000)
+ #define F_PLL 240000000
+ #ifndef F_BUS
+ #define F_BUS 60000000
+ //#define F_BUS 80000000   // uncomment these to try peripheral overclocking
+ //#define F_BUS 120000000  // all the usual overclocking caveats apply...
+ #endif
+ #define F_MEM 30000000
+#elif (F_CPU == 216000000)
+ #define F_PLL 216000000
+ #ifndef F_BUS
+ #define F_BUS 54000000
+ //#define F_BUS 72000000
+ //#define F_BUS 108000000
+ #endif
+ #define F_MEM 27000000
+#elif (F_CPU == 192000000)
  #define F_PLL 192000000
+ #ifndef F_BUS
  #define F_BUS 48000000
+ //#define F_BUS 64000000
+ //#define F_BUS 96000000
+ #endif
  #define F_MEM 27428571
 #elif (F_CPU == 180000000)
  #define F_PLL 180000000
+ #ifndef F_BUS
  #define F_BUS 60000000
+ //#define F_BUS 90000000
+ #endif
  #define F_MEM 25714286
 #elif (F_CPU == 168000000)
  #define F_PLL 168000000
@@ -755,19 +805,31 @@ enum IRQ_NUMBER_t {
  #define F_MEM 28000000
 #elif (F_CPU == 144000000)
  #define F_PLL 144000000
+ #ifndef F_BUS
  #define F_BUS 48000000
+ //#define F_BUS 72000000
+ #endif
  #define F_MEM 28800000
 #elif (F_CPU == 120000000)
  #define F_PLL 120000000
+ #ifndef F_BUS
  #define F_BUS 60000000
+ //#define F_BUS 120000000
+ #endif
  #define F_MEM 24000000
 #elif (F_CPU == 96000000)
  #define F_PLL 96000000
+ #ifndef F_BUS
  #define F_BUS 48000000
+ //#define F_BUS 96000000
+ #endif
  #define F_MEM 24000000
 #elif (F_CPU == 72000000)
  #define F_PLL 72000000
+ #ifndef F_BUS
  #define F_BUS 36000000
+ //#define F_BUS 72000000
+ #endif
  #define F_MEM 24000000
 #elif (F_CPU == 48000000)
  #define F_PLL 96000000
@@ -808,6 +870,7 @@ enum IRQ_NUMBER_t {
 
 #define PORTA_PCR0		(*(volatile uint32_t *)0x40049000) // Pin Control Register n
 #define PORT_PCR_ISF			((uint32_t)0x01000000)		// Interrupt Status Flag
+	// how to use PORT_PCR_ISF with polling: https://forum.pjrc.com/threads/58193
 #define PORT_PCR_IRQC(n)		((uint32_t)(((n) & 15) << 16))	// Interrupt Configuration
 #define PORT_PCR_IRQC_MASK		((uint32_t)0x000F0000)
 #define PORT_PCR_LK			((uint32_t)0x00008000)		// Lock Register
@@ -853,6 +916,9 @@ enum IRQ_NUMBER_t {
 #define PORTA_GPCLR		(*(volatile uint32_t *)0x40049080) // Global Pin Control Low Register
 #define PORTA_GPCHR		(*(volatile uint32_t *)0x40049084) // Global Pin Control High Register
 #define PORTA_ISFR		(*(volatile uint32_t *)0x400490A0) // Interrupt Status Flag Register
+#define PORTA_DFER		(*(volatile uint32_t *)0x400490C0) // Digital Filter Enable
+#define PORTA_DFCR		(*(volatile uint32_t *)0x400490C4) // Digital Filter Clock
+#define PORTA_DFWR		(*(volatile uint32_t *)0x400490C8) // Digital Filter Width
 #define PORTB_PCR0		(*(volatile uint32_t *)0x4004A000) // Pin Control Register n
 #define PORTB_PCR1		(*(volatile uint32_t *)0x4004A004) // Pin Control Register n
 #define PORTB_PCR2		(*(volatile uint32_t *)0x4004A008) // Pin Control Register n
@@ -888,6 +954,9 @@ enum IRQ_NUMBER_t {
 #define PORTB_GPCLR		(*(volatile uint32_t *)0x4004A080) // Global Pin Control Low Register
 #define PORTB_GPCHR		(*(volatile uint32_t *)0x4004A084) // Global Pin Control High Register
 #define PORTB_ISFR		(*(volatile uint32_t *)0x4004A0A0) // Interrupt Status Flag Register
+#define PORTB_DFER		(*(volatile uint32_t *)0x4004A0C0) // Digital Filter Enable
+#define PORTB_DFCR		(*(volatile uint32_t *)0x4004A0C4) // Digital Filter Clock
+#define PORTB_DFWR		(*(volatile uint32_t *)0x4004A0C8) // Digital Filter Width
 #define PORTC_PCR0		(*(volatile uint32_t *)0x4004B000) // Pin Control Register n
 #define PORTC_PCR1		(*(volatile uint32_t *)0x4004B004) // Pin Control Register n
 #define PORTC_PCR2		(*(volatile uint32_t *)0x4004B008) // Pin Control Register n
@@ -923,6 +992,9 @@ enum IRQ_NUMBER_t {
 #define PORTC_GPCLR		(*(volatile uint32_t *)0x4004B080) // Global Pin Control Low Register
 #define PORTC_GPCHR		(*(volatile uint32_t *)0x4004B084) // Global Pin Control High Register
 #define PORTC_ISFR		(*(volatile uint32_t *)0x4004B0A0) // Interrupt Status Flag Register
+#define PORTC_DFER		(*(volatile uint32_t *)0x4004B0C0) // Digital Filter Enable
+#define PORTC_DFCR		(*(volatile uint32_t *)0x4004B0C4) // Digital Filter Clock
+#define PORTC_DFWR		(*(volatile uint32_t *)0x4004B0C8) // Digital Filter Width
 #define PORTD_PCR0		(*(volatile uint32_t *)0x4004C000) // Pin Control Register n
 #define PORTD_PCR1		(*(volatile uint32_t *)0x4004C004) // Pin Control Register n
 #define PORTD_PCR2		(*(volatile uint32_t *)0x4004C008) // Pin Control Register n
@@ -958,6 +1030,9 @@ enum IRQ_NUMBER_t {
 #define PORTD_GPCLR		(*(volatile uint32_t *)0x4004C080) // Global Pin Control Low Register
 #define PORTD_GPCHR		(*(volatile uint32_t *)0x4004C084) // Global Pin Control High Register
 #define PORTD_ISFR		(*(volatile uint32_t *)0x4004C0A0) // Interrupt Status Flag Register
+#define PORTD_DFER		(*(volatile uint32_t *)0x4004C0C0) // Digital Filter Enable
+#define PORTD_DFCR		(*(volatile uint32_t *)0x4004C0C4) // Digital Filter Clock
+#define PORTD_DFWR		(*(volatile uint32_t *)0x4004C0C8) // Digital Filter Width
 #define PORTE_PCR0		(*(volatile uint32_t *)0x4004D000) // Pin Control Register n
 #define PORTE_PCR1		(*(volatile uint32_t *)0x4004D004) // Pin Control Register n
 #define PORTE_PCR2		(*(volatile uint32_t *)0x4004D008) // Pin Control Register n
@@ -993,12 +1068,15 @@ enum IRQ_NUMBER_t {
 #define PORTE_GPCLR		(*(volatile uint32_t *)0x4004D080) // Global Pin Control Low Register
 #define PORTE_GPCHR		(*(volatile uint32_t *)0x4004D084) // Global Pin Control High Register
 #define PORTE_ISFR		(*(volatile uint32_t *)0x4004D0A0) // Interrupt Status Flag Register
+#define PORTE_DFER		(*(volatile uint32_t *)0x4004D0C0) // Digital Filter Enable
+#define PORTE_DFCR		(*(volatile uint32_t *)0x4004D0C4) // Digital Filter Clock
+#define PORTE_DFWR		(*(volatile uint32_t *)0x4004D0C8) // Digital Filter Width
 
 // System Integration Module (SIM)
 
 #define SIM_SOPT1		(*(volatile uint32_t *)0x40047000) // System Options Register 1
 #define SIM_SOPT1_USBREGEN		((uint32_t)0x80000000)		// USB regulator enable
-#define SIM_SOPT1_USBSSTBY		((uint32_t)0x40000000)		// USB regulator standby in Stop, VLPS, LLS and VLLS 
+#define SIM_SOPT1_USBSSTBY		((uint32_t)0x40000000)		// USB regulator standby in Stop, VLPS, LLS and VLLS
 #define SIM_SOPT1_USBVSTBY		((uint32_t)0x20000000)		// USB regulator standby in  VLPR and VLPW
 #define SIM_SOPT1_OSC32KSEL(n)		((uint32_t)(((n) & 3) << 18))	// 32K oscillator clock, 0=system osc, 2=rtc osc, 3=lpo
 #define SIM_SOPT1CFG		(*(volatile uint32_t *)0x40047004) // SOPT1 Configuration Register
@@ -1019,6 +1097,7 @@ enum IRQ_NUMBER_t {
 #define SIM_SOPT2_RMIISRC		((uint32_t)0x00080000)		// 0=external, 1=external 1588
 #define SIM_SOPT2_USBSRC		((uint32_t)0x00040000)		// 0=USB_CLKIN, 1=FFL/PLL
 #define SIM_SOPT2_PLLFLLSEL		((uint32_t)0x00010000)		// 0=FLL, 1=PLL
+#define SIM_SOPT2_IRC48SEL		((uint32_t)0x00030000)		// 0=FLL, 1=PLL
 #define SIM_SOPT2_TRACECLKSEL		((uint32_t)0x00001000)		// 0=MCGOUTCLK, 1=CPU
 #define SIM_SOPT2_PTD7PAD		((uint32_t)0x00000800)		// 0=normal, 1=double drive PTD7
 #define SIM_SOPT2_FBSL(n)		((uint32_t)(((n) & 3) << 8))	// FlexBus security level
@@ -1087,6 +1166,7 @@ enum IRQ_NUMBER_t {
 #define SIM_SOPT9_TPM1CH0SRC(n)		(uint32_t)(((n) & 3) << 18)	// TPM1 channel 0 input capture source select
 #define SIM_SDID		(*(const uint32_t *)0x40048024)    // System Device Identification Register
 #define SIM_SCGC1		(*(volatile uint32_t *)0x40048028) // System Clock Gating Control Register 1
+#define SIM_SCGC1_UART5			((uint32_t)0x00000800)		// UART5 Clock Gate Control
 #define SIM_SCGC1_UART4			((uint32_t)0x00000400)		// UART4 Clock Gate Control
 #define SIM_SCGC1_I2C3			((uint32_t)0x00000080)		// I2C3 Clock Gate Control
 #define SIM_SCGC1_I2C2			((uint32_t)0x00000040)		// I2C2 Clock Gate Control
@@ -1109,7 +1189,7 @@ enum IRQ_NUMBER_t {
 #define SIM_SCGC3_USBHSDCD		((uint32_t)0x00000008)		// USBHSDCD Clock Gate Control
 #define SIM_SCGC3_USBHSPHY		((uint32_t)0x00000004)		// USBHSPHY Clock Gate Control
 #define SIM_SCGC3_USBHS			((uint32_t)0x00000002)		// USBHS Clock Gate Control
-#define SIM_SCGC3_RNGA			((uint32_t)0x00000001)		// RNGA Clock on APIS1 (base addr 400A0000)
+//#define SIM_SCGC3_RNGA		((uint32_t)0x00000001)		// RNGA Clock on APIS1 (base addr 400A0000)
 #define SIM_SCGC4		(*(volatile uint32_t *)0x40048034) // System Clock Gating Control Register 4
 #define SIM_SCGC4_VREF			((uint32_t)0x00100000)		// VREF Clock Gate Control
 #define SIM_SCGC4_CMP			((uint32_t)0x00080000)		// Comparator Clock Gate Control
@@ -1123,8 +1203,8 @@ enum IRQ_NUMBER_t {
 #define SIM_SCGC4_CMT			((uint32_t)0x00000004)		// CMT Clock Gate Control
 #define SIM_SCGC4_EWM			((uint32_t)0x00000002)		// EWM Clock Gate Control
 #ifdef KINETISL
-#define SIM_SCGC4_SPI1			((uint32_t)0x00800000)		// 
-#define SIM_SCGC4_SPI0			((uint32_t)0x00400000)		// 
+#define SIM_SCGC4_SPI1			((uint32_t)0x00800000)		//
+#define SIM_SCGC4_SPI0			((uint32_t)0x00400000)		//
 #endif
 #define SIM_SCGC5		(*(volatile uint32_t *)0x40048038) // System Clock Gating Control Register 5
 #define SIM_SCGC5_PORTE			((uint32_t)0x00002000)		// Port E Clock Gate Control
@@ -1147,7 +1227,7 @@ enum IRQ_NUMBER_t {
 #define SIM_SCGC6_USBDCD		((uint32_t)0x00200000)		// USB DCD Clock Gate Control
 #define SIM_SCGC6_SPI1			((uint32_t)0x00002000)		// SPI1 Clock Gate Control
 #define SIM_SCGC6_SPI0			((uint32_t)0x00001000)		// SPI0 Clock Gate Control
-//#define SIM_SCGC6_RNGA		((uint32_t)0x00000200)		// RNGA Clock on APIS0 (base addr 40029000)
+#define SIM_SCGC6_RNGA			((uint32_t)0x00000200)		// RNGA Clock on APIS0 (base addr 40029000)
 #define SIM_SCGC6_FLEXCAN0		((uint32_t)0x00000010)		// FlexCAN0 Clock Gate Control
 #define SIM_SCGC6_CRC			((uint32_t)0x00040000)		// CRC Clock Gate Control
 #endif
@@ -1173,6 +1253,9 @@ enum IRQ_NUMBER_t {
 #define SIM_CLKDIV1_OUTDIV2(n)		((uint32_t)(((n) & 0x0F) << 24)) // divide value for the peripheral clock
 #define SIM_CLKDIV1_OUTDIV3(n)		((uint32_t)(((n) & 0x0F) << 20)) // divide value for the flexbus clock
 #define SIM_CLKDIV1_OUTDIV4(n)		((uint32_t)(((n) & 0x0F) << 16)) // divide value for the flash clock
+#define SIM_CLKDIV1_OUTDIVS(n1, n2, n3, n4) \
+					(SIM_CLKDIV1_OUTDIV1(n1) | SIM_CLKDIV1_OUTDIV2(n2) | \
+					SIM_CLKDIV1_OUTDIV3(n3) | SIM_CLKDIV1_OUTDIV4(n4))
 #define SIM_CLKDIV2		(*(volatile uint32_t *)0x40048048) // System Clock Divider Register 2
 #define SIM_CLKDIV2_USBDIV(n)		((uint32_t)(((n) & 0x07) << 1))
 #define SIM_CLKDIV2_USBFRAC		((uint32_t)0x01)
@@ -1215,8 +1298,8 @@ enum IRQ_NUMBER_t {
 #define RCM_RPFC		(*(volatile uint8_t  *)0x4007F004) // Reset Pin Filter Control Register
 #define RCM_RPFW		(*(volatile uint8_t  *)0x4007F005) // Reset Pin Filter Width Register
 #define RCM_MR			(*(volatile uint8_t  *)0x4007F007) // Mode Register
-#define RCM_SSRS0		(*(volatile uint8_t  *)0x4007F008) // Sticky System Reset Status Register 0 
-#define RCM_SSRS1		(*(volatile uint8_t  *)0x4007F009) // Sticky System Reset Status Register 0 
+#define RCM_SSRS0		(*(volatile uint8_t  *)0x4007F008) // Sticky System Reset Status Register 0
+#define RCM_SSRS1		(*(volatile uint8_t  *)0x4007F009) // Sticky System Reset Status Register 0
 
 // System Mode Controller
 
@@ -1233,6 +1316,15 @@ enum IRQ_NUMBER_t {
 #define SMC_VLLSCTRL		(*(volatile uint8_t  *)0x4007E002) // VLLS Control Register
 #define SMC_VLLSCTRL_PORPO		((uint8_t)0x20)			// POR Power Option
 #define SMC_VLLSCTRL_VLLSM(n)		((uint8_t)((n) & 0x07))		// VLLS Mode Control
+
+#if defined(__MK66FX1M0__)
+#define SMC_STOPCTRL			SMC_VLLSCTRL // Stop Control Register (compatible to SMC_VLLSCTRL)
+#define SMC_STOPCTRL_PSTOPO(n)	((uint8_t)(((n) & 0x03) << 6)) 		// Partial Stop Option
+#define SMC_STOPCTRL_PORPO		SMC_VLLSCTRL_PORPO		// POR Power Option
+#define SMC_STOPCTRL_RAM2PO		((uint8_t)0x10)			// RAM2 Power Option
+#define SMC_STOPCTRL_LLSM(n)		SMC_VLLSCTRL_VLLSM(n)		// VLLS Mode Control
+#endif
+
 #define SMC_PMSTAT		(*(volatile uint8_t  *)0x4007E003) // Power Mode Status Register
 #define SMC_PMSTAT_RUN			((uint8_t)0x01)			// Current power mode is RUN
 #define SMC_PMSTAT_STOP			((uint8_t)0x02)			// Current power mode is STOP
@@ -1266,25 +1358,113 @@ enum IRQ_NUMBER_t {
 
 #if defined(HAS_KINETIS_LLWU_32CH)
 #define LLWU_PE1		(*(volatile uint8_t  *)0x4007C000) // LLWU Pin Enable 1 register
+#define LLWU_PE_WUPE_PIN_DISABLE	((uint8_t)0x00)		// Disable pin as wakeup pin
+#define LLWU_PE_WUPE_PIN_RISING		((uint8_t)0x01)		// Enable pin rising edge detect
+#define LLWU_PE_WUPE_PIN_FALLING	((uint8_t)0x10)		// Enable pin falling edge detect
+#define LLWU_PE_WUPE_PIN_ANY		((uint8_t)0x11)		// Enable pin with any change detect
+#define LLWU_PE1_WUPE0(n)       ((uint8_t)((n) & 0x03)) // Wakeup Pin Enable For LLWU_P0
+#define LLWU_PE1_WUPE1(n)       ((uint8_t)(((n) & 0x03) << 2)) // Wakeup Pin Enable For LLWU_P1
+#define LLWU_PE1_WUPE2(n)       ((uint8_t)(((n) & 0x03) << 4)) // Wakeup Pin Enable For LLWU_P2
+#define LLWU_PE1_WUPE3(n)       ((uint8_t)(((n) & 0x03) << 6)) // Wakeup Pin Enable For LLWU_P3
 #define LLWU_PE2		(*(volatile uint8_t  *)0x4007C001) // LLWU Pin Enable 2 register
+#define LLWU_PE2_WUPE4(n)       ((uint8_t)((n) & 0x03)) // Wakeup Pin Enable For LLWU_P4
+#define LLWU_PE2_WUPE5(n)       ((uint8_t)(((n) & 0x03) << 2)) // Wakeup Pin Enable For LLWU_P5
+#define LLWU_PE2_WUPE6(n)       ((uint8_t)(((n) & 0x03) << 4)) // Wakeup Pin Enable For LLWU_P6
+#define LLWU_PE2_WUPE7(n)       ((uint8_t)(((n) & 0x03) << 6)) // Wakeup Pin Enable For LLWU_P7
 #define LLWU_PE3		(*(volatile uint8_t  *)0x4007C002) // LLWU Pin Enable 3 register
+#define LLWU_PE3_WUPE8(n)       ((uint8_t)((n) & 0x03)) // Wakeup Pin Enable For LLWU_P8
+#define LLWU_PE3_WUPE9(n)       ((uint8_t)(((n) & 0x03) << 2)) // Wakeup Pin Enable For LLWU_P9
+#define LLWU_PE3_WUPE10(n)      ((uint8_t)(((n) & 0x03) << 4)) // Wakeup Pin Enable For LLWU_P10
+#define LLWU_PE3_WUPE11(n)      ((uint8_t)(((n) & 0x03) << 6)) // Wakeup Pin Enable For LLWU_P11
 #define LLWU_PE4		(*(volatile uint8_t  *)0x4007C003) // LLWU Pin Enable 4 register
+#define LLWU_PE4_WUPE12(n)      ((uint8_t)((n) & 0x03)) // Wakeup Pin Enable For LLWU_P12
+#define LLWU_PE4_WUPE13(n)      ((uint8_t)(((n) & 0x03) << 2)) // Wakeup Pin Enable For LLWU_P13
+#define LLWU_PE4_WUPE14(n)      ((uint8_t)(((n) & 0x03) << 4)) // Wakeup Pin Enable For LLWU_P14
+#define LLWU_PE4_WUPE15(n)      ((uint8_t)(((n) & 0x03) << 6)) // Wakeup Pin Enable For LLWU_P15
 #define LLWU_PE5		(*(volatile uint8_t  *)0x4007C004) // LLWU Pin Enable 5 register
+#define LLWU_PE5_WUPE19(n)      ((uint8_t)((n) & 0x03)) // Wakeup Pin Enable For LLWU_P19
+#define LLWU_PE5_WUPE18(n)      ((uint8_t)(((n) & 0x03) << 2)) // Wakeup Pin Enable For LLWU_P18
+#define LLWU_PE5_WUPE17(n)      ((uint8_t)(((n) & 0x03) << 4)) // Wakeup Pin Enable For LLWU_P17
+#define LLWU_PE5_WUPE16(n)      ((uint8_t)(((n) & 0x03) << 6)) // Wakeup Pin Enable For LLWU_P16
 #define LLWU_PE6		(*(volatile uint8_t  *)0x4007C005) // LLWU Pin Enable 6 register
+#define LLWU_PE6_WUPE23(n)      ((uint8_t)((n) & 0x03)) // Wakeup Pin Enable For LLWU_P23
+#define LLWU_PE6_WUPE22(n)      ((uint8_t)(((n) & 0x03) << 2)) // Wakeup Pin Enable For LLWU_P22
+#define LLWU_PE6_WUPE21(n)      ((uint8_t)(((n) & 0x03) << 4)) // Wakeup Pin Enable For LLWU_P21
+#define LLWU_PE6_WUPE20(n)      ((uint8_t)(((n) & 0x03) << 6)) // Wakeup Pin Enable For LLWU_P20
 #define LLWU_PE7		(*(volatile uint8_t  *)0x4007C006) // LLWU Pin Enable 7 register
+#define LLWU_PE7_WUPE27(n)      ((uint8_t)((n) & 0x03)) // Wakeup Pin Enable For LLWU_P27
+#define LLWU_PE7_WUPE26(n)      ((uint8_t)(((n) & 0x03) << 2)) // Wakeup Pin Enable For LLWU_P26
+#define LLWU_PE7_WUPE25(n)      ((uint8_t)(((n) & 0x03) << 4)) // Wakeup Pin Enable For LLWU_P25
+#define LLWU_PE7_WUPE24(n)      ((uint8_t)(((n) & 0x03) << 6)) // Wakeup Pin Enable For LLWU_P24
 #define LLWU_PE8		(*(volatile uint8_t  *)0x4007C007) // LLWU Pin Enable 8 register
+#define LLWU_PE8_WUPE31(n)      ((uint8_t)((n) & 0x03)) // Wakeup Pin Enable For LLWU_P31
+#define LLWU_PE8_WUPE30(n)      ((uint8_t)(((n) & 0x03) << 2)) // Wakeup Pin Enable For LLWU_P30
+#define LLWU_PE8_WUPE29(n)      ((uint8_t)(((n) & 0x03) << 4)) // Wakeup Pin Enable For LLWU_P29
+#define LLWU_PE8_WUPE28(n)      ((uint8_t)(((n) & 0x03) << 6)) // Wakeup Pin Enable For LLWU_P28
 #define LLWU_ME			(*(volatile uint8_t  *)0x4007C008) // LLWU Module Enable register
+#define LLWU_ME_WUME0           ((uint8_t)0x01) // Wakeup Module Enable For Module 0
+#define LLWU_ME_WUME1           ((uint8_t)0x02) // Wakeup Module Enable For Module 1
+#define LLWU_ME_WUME2           ((uint8_t)0x04) // Wakeup Module Enable For Module 2
+#define LLWU_ME_WUME3           ((uint8_t)0x08) // Wakeup Module Enable For Module 3
+#define LLWU_ME_WUME4           ((uint8_t)0x10) // Wakeup Module Enable For Module 4
+#define LLWU_ME_WUME5           ((uint8_t)0x20) // Wakeup Module Enable For Module 5
+#define LLWU_ME_WUME6           ((uint8_t)0x40) // Wakeup Module Enable For Module 6
+#define LLWU_ME_WUME7           ((uint8_t)0x80) // Wakeup Module Enable For Module 7
 #define LLWU_PF1		(*(volatile uint8_t  *)0x4007C009) // LLWU Pin Flag 1 register
+#define LLWU_PF1_WUF0            ((uint8_t)0x01) // Wakeup Flag For LLWU_P0
+#define LLWU_PF1_WUF1            ((uint8_t)0x02) // Wakeup Flag For LLWU_P1
+#define LLWU_PF1_WUF2            ((uint8_t)0x04) // Wakeup Flag For LLWU_P2
+#define LLWU_PF1_WUF3            ((uint8_t)0x08) // Wakeup Flag For LLWU_P3
+#define LLWU_PF1_WUF4            ((uint8_t)0x10) // Wakeup Flag For LLWU_P4
+#define LLWU_PF1_WUF5            ((uint8_t)0x20) // Wakeup Flag For LLWU_P5
+#define LLWU_PF1_WUF6            ((uint8_t)0x40) // Wakeup Flag For LLWU_P6
+#define LLWU_PF1_WUF7            ((uint8_t)0x80) // Wakeup Flag For LLWU_P7
 #define LLWU_PF2		(*(volatile uint8_t  *)0x4007C00A) // LLWU Pin Flag 2 register
+#define LLWU_PF2_WUF8            ((uint8_t)0x01) // Wakeup Flag For LLWU_P8
+#define LLWU_PF2_WUF9            ((uint8_t)0x02) // Wakeup Flag For LLWU_P9
+#define LLWU_PF2_WUF10           ((uint8_t)0x04) // Wakeup Flag For LLWU_P10
+#define LLWU_PF2_WUF11           ((uint8_t)0x08) // Wakeup Flag For LLWU_P11
+#define LLWU_PF2_WUF12           ((uint8_t)0x10) // Wakeup Flag For LLWU_P12
+#define LLWU_PF2_WUF13           ((uint8_t)0x20) // Wakeup Flag For LLWU_P13
+#define LLWU_PF2_WUF14           ((uint8_t)0x40) // Wakeup Flag For LLWU_P14
+#define LLWU_PF2_WUF15           ((uint8_t)0x80) // Wakeup Flag For LLWU_P15
 #define LLWU_PF3		(*(volatile uint8_t  *)0x4007C00B) // LLWU Pin Flag 3 register
+#define LLWU_PF3_WUF16           ((uint8_t)0x01) // Wakeup Flag For LLWU_P16
+#define LLWU_PF3_WUF17           ((uint8_t)0x02) // Wakeup Flag For LLWU_P17
+#define LLWU_PF3_WUF18           ((uint8_t)0x04) // Wakeup Flag For LLWU_P18
+#define LLWU_PF3_WUF19           ((uint8_t)0x08) // Wakeup Flag For LLWU_P19
+#define LLWU_PF3_WUF20           ((uint8_t)0x10) // Wakeup Flag For LLWU_P20
+#define LLWU_PF3_WUF21           ((uint8_t)0x20) // Wakeup Flag For LLWU_P21
+#define LLWU_PF3_WUF22           ((uint8_t)0x40) // Wakeup Flag For LLWU_P22
+#define LLWU_PF3_WUF23           ((uint8_t)0x80) // Wakeup Flag For LLWU_P23
 #define LLWU_PF4		(*(volatile uint8_t  *)0x4007C00C) // LLWU Pin Flag 4 register
+#define LLWU_PF4_WUF31           ((uint8_t)0x01) // Wakeup Flag For LLWU_P31
+#define LLWU_PF4_WUF30           ((uint8_t)0x02) // Wakeup Flag For LLWU_P30
+#define LLWU_PF4_WUF29           ((uint8_t)0x04) // Wakeup Flag For LLWU_P29
+#define LLWU_PF4_WUF28           ((uint8_t)0x08) // Wakeup Flag For LLWU_P28
+#define LLWU_PF4_WUF27           ((uint8_t)0x10) // Wakeup Flag For LLWU_P27
+#define LLWU_PF4_WUF26           ((uint8_t)0x20) // Wakeup Flag For LLWU_P26
+#define LLWU_PF4_WUF25           ((uint8_t)0x40) // Wakeup Flag For LLWU_P25
+#define LLWU_PF4_WUF24           ((uint8_t)0x80) // Wakeup Flag For LLWU_P24
 #define LLWU_MF5		(*(volatile uint8_t  *)0x4007C00D) // LLWU Module Flag 5 register
+#define LLWU_MF5_MWUF0           ((uint8_t)0x01) // Wakeup flag For module 0
+#define LLWU_MF5_MWUF1           ((uint8_t)0x02) // Wakeup flag For module 1
+#define LLWU_MF5_MWUF2           ((uint8_t)0x04) // Wakeup flag For module 2
+#define LLWU_MF5_MWUF3           ((uint8_t)0x08) // Wakeup flag For module 3
+#define LLWU_MF5_MWUF4           ((uint8_t)0x10) // Wakeup flag For module 4
+#define LLWU_MF5_MWUF5           ((uint8_t)0x20) // Wakeup flag For module 5
+#define LLWU_MF5_MWUF6           ((uint8_t)0x40) // Wakeup flag For module 6
+#define LLWU_MF5_MWUF7           ((uint8_t)0x80) // Wakeup flag For module 7
 #define LLWU_FILT1		(*(volatile uint8_t  *)0x4007C00E) // LLWU Pin Filter 1 register
 #define LLWU_FILT2		(*(volatile uint8_t  *)0x4007C00F) // LLWU Pin Filter 2 register
 #define LLWU_FILT3		(*(volatile uint8_t  *)0x4007C010) // LLWU Pin Filter 3 register
 #define LLWU_FILT4		(*(volatile uint8_t  *)0x4007C011) // LLWU Pin Filter 4 register
 #elif defined(HAS_KINETIS_LLWU_16CH)
 #define LLWU_PE1		(*(volatile uint8_t  *)0x4007C000) // LLWU Pin Enable 1 register
+#define LLWU_PE_WUPE_PIN_DISABLE	((uint8_t)0x00)		// Disable pin as wakeup pin
+#define LLWU_PE_WUPE_PIN_RISING		((uint8_t)0x01)		// Enable pin rising edge detect
+#define LLWU_PE_WUPE_PIN_FALLING	((uint8_t)0x10)		// Enable pin falling edge detect
+#define LLWU_PE_WUPE_PIN_ANY		((uint8_t)0x11)		// Enable pin with any change detect
 #define LLWU_PE1_WUPE0(n)       ((uint8_t)((n) & 0x03)) // Wakeup Pin Enable For LLWU_P0
 #define LLWU_PE1_WUPE1(n)       ((uint8_t)(((n) & 0x03) << 2)) // Wakeup Pin Enable For LLWU_P1
 #define LLWU_PE1_WUPE2(n)       ((uint8_t)(((n) & 0x03) << 4)) // Wakeup Pin Enable For LLWU_P2
@@ -1799,6 +1979,8 @@ enum IRQ_NUMBER_t {
 #define DMA_DCHPRI30		(*(volatile uint8_t  *)0x4000811D) // Channel n Priority Register
 #define DMA_DCHPRI29		(*(volatile uint8_t  *)0x4000811E) // Channel n Priority Register
 #define DMA_DCHPRI28		(*(volatile uint8_t  *)0x4000811F) // Channel n Priority Register
+#define DMA_CR_GRP0PRI			((uint32_t)0x100)
+#define DMA_CR_GRP1PRI			((uint32_t)0x400)
 #endif
 
 #define DMA_TCD_ATTR_SMOD(n)		(((n) & 0x1F) << 11)
@@ -1839,7 +2021,7 @@ enum IRQ_NUMBER_t {
 #define DMA_TCD_NBYTES_SMLOE		    ((uint32_t)1<<31)		    // Source Minor Loop Offset Enable
 #define DMA_TCD_NBYTES_DMLOE		    ((uint32_t)1<<30)		    // Destination Minor Loop Offset Enable
 #define DMA_TCD_NBYTES_MLOFFNO_NBYTES(n)    ((uint32_t)((n) & 0x3FFFFFFF))  // NBytes transfer count when minor loop disabled
-#define DMA_TCD_NBYTES_MLOFFYES_NBYTES(n)   ((uint32_t)((n) & 0x1F))	    // NBytes transfer count when minor loop enabled
+#define DMA_TCD_NBYTES_MLOFFYES_NBYTES(n)   ((uint32_t)((n) & 0x3FF))	    // NBytes transfer count when minor loop enabled
 #define DMA_TCD_NBYTES_MLOFFYES_MLOFF(n)    ((uint32_t)((n) & 0xFFFFF)<<10) // Minor loop offset
 
 #if DMA_NUM_CHANNELS >= 4
@@ -2473,10 +2655,10 @@ typedef struct {
 #define MCG_C2                  (KINETIS_MCG.C2)		// 40064001  MCG Control 2 Register
 #define MCG_C2_IRCS			(uint8_t)0x01			// Internal Reference Clock Select, Selects between the fast or slow internal reference clock source.
 #define MCG_C2_LP			(uint8_t)0x02			// Low Power Select, Controls whether the FLL or PLL is disabled in BLPI and BLPE modes.
-#define MCG_C2_EREFS			(uint8_t)0x04			// External Reference Select, Selects the source for the external reference clock. 
+#define MCG_C2_EREFS			(uint8_t)0x04			// External Reference Select, Selects the source for the external reference clock.
 #define MCG_C2_HGO0			(uint8_t)0x08			// High Gain Oscillator Select, Controls the crystal oscillator mode of operation
 #define MCG_C2_RANGE0(n)		(uint8_t)(((n) & 0x03) << 4)	// Frequency Range Select, Selects the frequency range for the crystal oscillator
-#define MCG_C2_LOCRE0			(uint8_t)0x80			// Loss of Clock Reset Enable, Determines whether an interrupt or a reset request is made following a loss of OSC0 
+#define MCG_C2_LOCRE0			(uint8_t)0x80			// Loss of Clock Reset Enable, Determines whether an interrupt or a reset request is made following a loss of OSC0
 #define MCG_C3                  (KINETIS_MCG.C3)		// 40064002  MCG Control 3 Register
 #define MCG_C3_SCTRIM(n)		(uint8_t)(n)			// Slow Internal Reference Clock Trim Setting
 #define MCG_C4                  (KINETIS_MCG.C4)		// 40064003  MCG Control 4 Register
@@ -2491,7 +2673,7 @@ typedef struct {
 #define MCG_C6                  (KINETIS_MCG.C6)		// 40064005  MCG Control 6 Register
 #define MCG_C6_VDIV0(n)			(uint8_t)((n) & 0x1F)		// VCO 0 Divider
 #define MCG_C6_CME0			(uint8_t)0x20			// Clock Monitor Enable
-#define MCG_C6_PLLS			(uint8_t)0x40			// PLL Select, Controls whether the PLL or FLL output is selected as the MCG source when CLKS[1:0]=00. 
+#define MCG_C6_PLLS			(uint8_t)0x40			// PLL Select, Controls whether the PLL or FLL output is selected as the MCG source when CLKS[1:0]=00.
 #define MCG_C6_LOLIE0			(uint8_t)0x80			// Loss of Lock Interrrupt Enable
 #define MCG_S                   (KINETIS_MCG.S)			// 40064006  MCG Status Register
 #define MCG_S_IRCST			(uint8_t)0x01			// Internal Reference Clock Status
@@ -2620,10 +2802,12 @@ typedef struct {
 
 // Random Number Generator Accelerator (RNGA)
 
-#define RNG_CR			(*(volatile uint32_t *)0x400A0000) // RNGA Control Register
-#define RNG_SR			(*(volatile uint32_t *)0x400A0004) // RNGA Status Register
-#define RNG_ER			(*(volatile uint32_t *)0x400A0008) // RNGA Entropy Register
-#define RNG_OR			(*(volatile uint32_t *)0x400A000C) // RNGA Output Register
+// For info about using RNGA and the quality of its results:
+// https://forum.pjrc.com/threads/48745-Teensy-3-6-Random-Number-Generator
+#define RNG_CR			(*(volatile uint32_t *)0x40029000) // RNGA Control Register
+#define RNG_SR			(*(volatile uint32_t *)0x40029004) // RNGA Status Register
+#define RNG_ER			(*(volatile uint32_t *)0x40029008) // RNGA Entropy Register
+#define RNG_OR			(*(volatile uint32_t *)0x4002900C) // RNGA Output Register
 
 // Analog-to-Digital Converter (ADC)
 
@@ -2735,6 +2919,9 @@ typedef struct {
 #define DAC0_DAT14L		(*(volatile uint8_t  *)0x400CC01C) // DAC Data Low Register
 #define DAC0_DAT15L		(*(volatile uint8_t  *)0x400CC01E) // DAC Data Low Register
 #define DAC0_SR			(*(volatile uint8_t  *)0x400CC020) // DAC Status Register
+#define DAC_SR_DACBFWMF			0x04				// Buffer Watermark Flag
+#define DAC_SR_DACBFRTF			0x02				// Pointer Top Position Flag
+#define DAC_SR_DACBFRBF			0x01				// Pointer Bottom Position Flag
 #define DAC0_C0			(*(volatile uint8_t  *)0x400CC021) // DAC Control Register
 #define DAC_C0_DACEN			0x80				// DAC Enable
 #define DAC_C0_DACRFS			0x40				// DAC Reference Select
@@ -2807,6 +2994,7 @@ typedef struct {
 #define CMP0_CR1		(*(volatile uint8_t  *)0x40073001) // CMP Control Register
 #define CMP_CR1_SE              (uint8_t)0x80 // Sample Enable
 #define CMP_CR1_WE              (uint8_t)0x40 // Windowing Enable
+#define CMP_CR1_TRIGM           (uint8_t)0x20 // Trigger Mode Enable
 #define CMP_CR1_PMODE           (uint8_t)0x10 // Power Mode Select
 #define CMP_CR1_INV             (uint8_t)0x08 // Comparator INVERT
 #define CMP_CR1_COS             (uint8_t)0x04 // Comparator Output Select
@@ -2828,6 +3016,7 @@ typedef struct {
 #define CMP_MUXCR_PSTM          (uint8_t)0x40 // Pass Through Mode Enable
 #define CMP_MUXCR_PSEL(n)       (uint8_t)(((n) & 0x07) << 3) // Plus Input Mux Control
 #define CMP_MUXCR_MSEL(n)       (uint8_t)(((n) & 0x07) << 0) // Minus Input Mux Control
+#if defined(KINETISK)
 #define CMP1_CR0		(*(volatile uint8_t  *)0x40073008) // CMP Control Register 0
 #define CMP1_CR1		(*(volatile uint8_t  *)0x40073009) // CMP Control Register 1
 #define CMP1_FPR		(*(volatile uint8_t  *)0x4007300A) // CMP Filter Period Register
@@ -2846,7 +3035,7 @@ typedef struct {
 #define CMP3_SCR		(*(volatile uint8_t  *)0x4007301B) // CMP Status and Control Register
 #define CMP3_DACCR		(*(volatile uint8_t  *)0x4007301C) // DAC Control Register
 #define CMP3_MUXCR		(*(volatile uint8_t  *)0x4007301D) // MUX Control Register
-
+#endif
 // Analog Voltage Reference (VREFV1)
 
 #define VREF_TRM		(*(volatile uint8_t  *)0x40074000) // VREF Trim Register
@@ -2859,6 +3048,10 @@ typedef struct {
 #define VREF_SC_VREFST			((uint8_t)0x04)			// Internal Voltage Reference stable flag
 #define VREF_SC_MODE_LV(n)		(uint8_t)(((n) & 3) << 0)	// Buffer Mode selection: 0=Bandgap on only
 									//  2=Low-power buffer mode
+#define VREF_SC_MODE_LV_BANDGAPONLY     0
+#define VREF_SC_MODE_LV_HIGHPOWERBUF    1
+#define VREF_SC_MODE_LV_LOWPOWERBUF     2
+
 
 // Programmable Delay Block (PDB)
 
@@ -2887,6 +3080,8 @@ typedef struct {
 #define PDB0_CH1DLY0		(*(volatile uint32_t *)0x40036040) // Channel 1 Delay 0 Register
 #define PDB0_CH1DLY1		(*(volatile uint32_t *)0x40036044) // Channel 1 Delay 1 Register
 #define PDB0_DACINTC0		(*(volatile uint32_t *)0x40036150) // DAC Interval Trigger n Control Register
+#define PDB_DACINTC_EXT			0x02			// External Trigger Input Enable
+#define PDB_DACINTC_TOE			0x01			// Interval Trigger Enable
 #define PDB0_DACINT0		(*(volatile uint32_t *)0x40036154) // DAC Interval n Register
 #define PDB0_DACINTC1		(*(volatile uint32_t *)0x40036158) // DAC Interval Trigger n Control register
 #define PDB0_DACINT1		(*(volatile uint32_t *)0x4003615C) // DAC Interval n register
@@ -3141,8 +3336,8 @@ typedef struct {
 #define FTM0_CONF		(*(volatile uint32_t *)0x40038084) // Configuration
 #define FTM_CONF_GTBEOUT		0x400				// Global Time Base Output
 #define FTM_CONF_GTBEEN			0x200				// Global Time Base Enable
-#define FTM_CONF_BDMMODE		(((n) & 3) << 6)		// Behavior when in debug mode
-#define FTM_CONF_NUMTOF			(((n) & 31) << 0)		// ratio of counter overflows to TOF bit set
+#define FTM_CONF_BDMMODE(n)		(((n) & 3) << 6)		// Behavior when in debug mode
+#define FTM_CONF_NUMTOF(n)		(((n) & 31) << 0)		// ratio of counter overflows to TOF bit set
 #define FTM0_FLTPOL		(*(volatile uint32_t *)0x40038088) // FTM Fault Input Polarity
 #define FTM_FLTPOL_FLT3POL		0x08				// Fault Input 3 Polarity
 #define FTM_FLTPOL_FLT2POL		0x04				// Fault Input 2 Polarity
@@ -3313,6 +3508,13 @@ typedef struct {
 #define PIT_LTMR64H             (*(volatile uint32_t *)0x400370E0) // PIT Upper Lifetime Timer Register
 #define PIT_LTMR64L             (*(volatile uint32_t *)0x400370E4) // PIT Lower Lifetime Timer Register
 #endif // defined(KINETISL)
+typedef struct {
+	volatile uint32_t	LDVAL;
+	volatile uint32_t	CVAL;
+	volatile uint32_t	TCTRL;
+	volatile uint32_t	TFLG;
+} KINETISK_PIT_CHANNEL_t;
+#define KINETISK_PIT_CHANNELS	(KINETISK_PIT_CHANNEL_t *)(0x40037100)
 #define PIT_LDVAL0		(*(volatile uint32_t *)0x40037100) // Timer Load Value Register
 #define PIT_CVAL0		(*(volatile uint32_t *)0x40037104) // Current Timer Value Register
 #define PIT_TCTRL0		(*(volatile uint32_t *)0x40037108) // Timer Control Register
@@ -3396,6 +3598,12 @@ typedef struct {
 #define RTC_SR_TIF			((uint32_t)0x00000001)		//
 #define RTC_LR			(*(volatile uint32_t *)0x4003D018) // RTC Lock Register
 #define RTC_IER			(*(volatile uint32_t *)0x4003D01C) // RTC Interrupt Enable Register
+#define RTC_IER_WPON		((uint32_t)0x00000080)		// RTC Wakeup Pin
+#define RTC_IER_TSIE		((uint32_t)0x00000010)		// RTC Time Seconds Interrupt
+#define RTC_IER_MOIE		((uint32_t)0x00000008)		// RTC Monotonic Overflow Interrupt
+#define RTC_IER_TAIE		((uint32_t)0x00000004)		// RTC Time Alarm Interrupt
+#define RTC_IER_TOIE		((uint32_t)0x00000002)		// RTC Overflow Interrupt
+#define RTC_IER_TIIE		((uint32_t)0x00000001)		// RTC Time Invalid Interrupt
 #define RTC_WAR			(*(volatile uint32_t *)0x4003D800) // RTC Write Access Register
 #define RTC_RAR			(*(volatile uint32_t *)0x4003D804) // RTC Read Access Register
 
@@ -3403,15 +3611,92 @@ typedef struct {
 // 10/100-Mbps Ethernet MAC (ENET)
 
 #define ENET_EIR		(*(volatile uint32_t *)0x400C0004) // Interrupt Event Register
+#define ENET_EIR_BABR			((uint32_t)0x40000000)		// Babbling Receive Error
+#define ENET_EIR_BABT			((uint32_t)0x20000000)		// Babbling Transmit Error
+#define ENET_EIR_GRA			((uint32_t)0x10000000)		// Graceful Stop Complete
+#define ENET_EIR_TXF			((uint32_t)0x08000000)		// Transmit Frame Interrupt
+#define ENET_EIR_TXB			((uint32_t)0x04000000)		// Transmit Buffer Interrupt
+#define ENET_EIR_RXF			((uint32_t)0x02000000)		// Receive Frame Interrupt
+#define ENET_EIR_RXB			((uint32_t)0x01000000)		// Receive Buffer Interrupt
+#define ENET_EIR_MII			((uint32_t)0x00800000)		// MII Interrupt
+#define ENET_EIR_EBERR			((uint32_t)0x00400000)		// Ethernet Bus Error
+#define ENET_EIR_LC			((uint32_t)0x00200000)		// Late Collision
+#define ENET_EIR_RL			((uint32_t)0x00100000)		// Collision Retry Limit
+#define ENET_EIR_UN			((uint32_t)0x00080000)		// Transmit FIFO Underrun
+#define ENET_EIR_PLR			((uint32_t)0x00040000)		// Payload Receive Error
+#define ENET_EIR_WAKEUP			((uint32_t)0x00020000)		// Node Wakeup Request Indication
+#define ENET_EIR_TS_AVAIL		((uint32_t)0x00010000)		// Transmit Timestamp Available
+#define ENET_EIR_TS_TIMER		((uint32_t)0x00008000)		// Timestamp Timer
 #define ENET_EIMR		(*(volatile uint32_t *)0x400C0008) // Interrupt Mask Register
+#define ENET_EIMR_BABR			((uint32_t)0x40000000)		// Babbling Receive Error Mask
+#define ENET_EIMR_BABT			((uint32_t)0x20000000)		// Babbling Transmit Error Mask
+#define ENET_EIMR_GRA			((uint32_t)0x10000000)		// Graceful Stop Complete Mask
+#define ENET_EIMR_TXF			((uint32_t)0x08000000)		// Transmit Frame Interrupt Mask
+#define ENET_EIMR_TXB			((uint32_t)0x04000000)		// Transmit Buffer Interrupt Mask
+#define ENET_EIMR_RXF			((uint32_t)0x02000000)		// Receive Frame Interrupt Mask
+#define ENET_EIMR_RXB			((uint32_t)0x01000000)		// Receive Buffer Interrupt Mask
+#define ENET_EIMR_MII			((uint32_t)0x00800000)		// MII Interrupt Mask
+#define ENET_EIMR_EBERR			((uint32_t)0x00400000)		// Ethernet Bus Error Mask
+#define ENET_EIMR_LC			((uint32_t)0x00200000)		// Late Collision Mask
+#define ENET_EIMR_RL			((uint32_t)0x00100000)		// Collision Retry Limit Mask
+#define ENET_EIMR_UN			((uint32_t)0x00080000)		// Transmit FIFO Underrun Mask
+#define ENET_EIMR_PLR			((uint32_t)0x00040000)		// Payload Receive Error Mask
+#define ENET_EIMR_WAKEUP		((uint32_t)0x00020000)		// Node Wakeup Request Indication Mask
+#define ENET_EIMR_TS_AVAIL		((uint32_t)0x00010000)		// Transmit Timestamp Available Mask
+#define ENET_EIMR_TS_TIMER		((uint32_t)0x00008000)		// Timestamp Timer Mask
 #define ENET_RDAR		(*(volatile uint32_t *)0x400C0010) // Receive Descriptor Active Register
+#define ENET_RDAR_RDAR			((uint32_t)0x01000000)
 #define ENET_TDAR		(*(volatile uint32_t *)0x400C0014) // Transmit Descriptor Active Register
+#define ENET_TDAR_TDAR			((uint32_t)0x01000000)
 #define ENET_ECR		(*(volatile uint32_t *)0x400C0024) // Ethernet Control Register
+#define ENET_ECR_DBSWP			((uint32_t)0x00000100)		// Descriptor Byte Swapping Enable
+#define ENET_ECR_STOPEN			((uint32_t)0x00000080)		// STOPEN Signal Control
+#define ENET_ECR_DBGEN			((uint32_t)0x00000040)		// Debug Enable
+#define ENET_ECR_EN1588			((uint32_t)0x00000010)		// EN1588 Enable
+#define ENET_ECR_SLEEP			((uint32_t)0x00000008)		// Sleep Mode Enable
+#define ENET_ECR_MAGICEN		((uint32_t)0x00000004)		// Magic Packet Detection Enable
+#define ENET_ECR_ETHEREN		((uint32_t)0x00000002)		// Ethernet Enable
+#define ENET_ECR_RESET			((uint32_t)0x00000001)		// Ethernet MAC Reset
 #define ENET_MMFR		(*(volatile uint32_t *)0x400C0040) // MII Management Frame Register
+#define ENET_MMFR_ST(n)			(uint32_t)(((n) & 0x3) << 30)
+#define ENET_MMFR_OP(n)			(uint32_t)(((n) & 0x3) << 28)
+#define ENET_MMFR_PA(n)			(uint32_t)(((n) & 0x1F) << 23)
+#define ENET_MMFR_RA(n)			(uint32_t)(((n) & 0x1F) << 18)
+#define ENET_MMFR_TA(n)			(uint32_t)(((n) & 0x3) << 16)
+#define ENET_MMFR_DATA(n)		(uint32_t)(((n) & 0xFFFF) << 0)
+#define ENET_MMFR_DATA_MASK		((uint32_t)0x0000FFFF)
 #define ENET_MSCR		(*(volatile uint32_t *)0x400C0044) // MII Speed Control Register
+#define ENET_MSCR_HOLDTIME(n)		(uint32_t)(((n) & 0x7) << 8)
+#define ENET_MSCR_DIS_PRE		((uint32_t)0x00000080)
+#define ENET_MSCR_MII_SPEED(n)		(uint32_t)(((n) & 0x3F) << 1)
 #define ENET_MIBC		(*(volatile uint32_t *)0x400C0064) // MIB Control Register
+#define ENET_MIBC_MIB_DIS		((uint32_t)0x80000000)		// Disable MIB Logic
+#define ENET_MIBC_MIB_IDLE		((uint32_t)0x40000000)		// MIB Idle
+#define ENET_MIBC_MIB_CLEAR		((uint32_t)0x20000000)		// MIB Clear
 #define ENET_RCR		(*(volatile uint32_t *)0x400C0084) // Receive Control Register
+#define ENET_RCR_GRS			((uint32_t)0x80000000)		// Graceful Receive Stopped
+#define ENET_RCR_NLC			((uint32_t)0x40000000)		// Payload Length Check Disable
+#define ENET_RCR_MAX_FL(n)		(uint32_t)(((n) & 0x3FFF)<<16)	// Maximum Frame Length
+#define ENET_RCR_CFEN			((uint32_t)0x00008000)		// MAC Control Frame Enable
+#define ENET_RCR_CRCFWD			((uint32_t)0x00004000)		// Terminate/Forward Received CRC
+#define ENET_RCR_PAUFWD			((uint32_t)0x00002000)		// Terminate/Forward Pause Frames
+#define ENET_RCR_PADEN			((uint32_t)0x00001000)		// Enable Frame Padding Remove On Receive
+#define ENET_RCR_RMII_10T		((uint32_t)0x00000200)		// Enables 10-Mbps mode of the RMII
+#define ENET_RCR_RMII_MODE		((uint32_t)0x00000100)		// RMII Mode Enable
+#define ENET_RCR_FCE			((uint32_t)0x00000020)		// Flow Control Enable
+#define ENET_RCR_BC_REJ			((uint32_t)0x00000010)		// Broadcast Frame Reject
+#define ENET_RCR_PROM			((uint32_t)0x00000008)		// Promiscuous Mode
+#define ENET_RCR_MII_MODE		((uint32_t)0x00000004)		// Media Independent Interface Mode
+#define ENET_RCR_DRT			((uint32_t)0x00000002)		// Disable Receive On Transmit
+#define ENET_RCR_LOOP			((uint32_t)0x00000001)		// Internal Loopback
 #define ENET_TCR		(*(volatile uint32_t *)0x400C00C4) // Transmit Control Register
+#define ENET_TCR_CRCFWD			((uint32_t)0x00000200)		// Forward Frame From Application With CRC
+#define ENET_TCR_ADDINS			((uint32_t)0x00000100)		// Set MAC Address On Transmit
+#define ENET_TCR_ADDSEL(n)		(uint32_t)(((n) & 0x7)<<5)	// Source MAC Address Select On Transmit
+#define ENET_TCR_RFC_PAUSE		((uint32_t)0x00000010)		// Receive Frame Control Pause
+#define ENET_TCR_TFC_PAUSE		((uint32_t)0x00000008)		// Transmit Frame Control Pause
+#define ENET_TCR_FDEN			((uint32_t)0x00000004)		// Full-Duplex Enable
+#define ENET_TCR_GTS			((uint32_t)0x00000001)		// Graceful Transmit Stop
 #define ENET_PALR		(*(volatile uint32_t *)0x400C00E4) // Physical Address Lower Register
 #define ENET_PAUR		(*(volatile uint32_t *)0x400C00E8) // Physical Address Upper Register
 #define ENET_OPD		(*(volatile uint32_t *)0x400C00EC) // Opcode/Pause Duration Register
@@ -3420,11 +3705,15 @@ typedef struct {
 #define ENET_GAUR		(*(volatile uint32_t *)0x400C0120) // Descriptor Group Upper Address Register
 #define ENET_GALR		(*(volatile uint32_t *)0x400C0124) // Descriptor Group Lower Address Register
 #define ENET_TFWR		(*(volatile uint32_t *)0x400C0144) // Transmit FIFO Watermark Register
+#define ENET_TFWR_STRFWD		((uint32_t)0x00000100)		// Store And Forward Enable
+#define ENET_TFWR_TFWR(n)		(uint32_t)(((n) & 0x3F)<<0)	// Transmit FIFO Write (X64 bytes)
 #define ENET_RDSR		(*(volatile uint32_t *)0x400C0180) // Receive Descriptor Ring Start Register
 #define ENET_TDSR		(*(volatile uint32_t *)0x400C0184) // Transmit Buffer Descriptor Ring Start Register
 #define ENET_MRBR		(*(volatile uint32_t *)0x400C0188) // Maximum Receive Buffer Size Register
 #define ENET_RSFL		(*(volatile uint32_t *)0x400C0190) // Receive FIFO Section Full Threshold
 #define ENET_RSEM		(*(volatile uint32_t *)0x400C0194) // Receive FIFO Section Empty Threshold
+#define ENET_RSEM_STAT_SECTION_EMPTY(n)	(uint32_t)(((n) & 0x7)<<5)	// RX Status FIFO Section Empty Threshold
+#define ENET_RSEM_RX_SECTION_EMPTY(n)	(uint32_t)(((n) & 0x7)<<5)	// Value Of The Receive FIFO Section Empty Threshold
 #define ENET_RAEM		(*(volatile uint32_t *)0x400C0198) // Receive FIFO Almost Empty Threshold
 #define ENET_RAFL		(*(volatile uint32_t *)0x400C019C) // Receive FIFO Almost Full Threshold
 #define ENET_TSEM		(*(volatile uint32_t *)0x400C01A0) // Transmit FIFO Section Empty Threshold
@@ -3433,7 +3722,15 @@ typedef struct {
 #define ENET_TIPG		(*(volatile uint32_t *)0x400C01AC) // Transmit Inter-Packet Gap
 #define ENET_FTRL		(*(volatile uint32_t *)0x400C01B0) // Frame Truncation Length
 #define ENET_TACC		(*(volatile uint32_t *)0x400C01C0) // Transmit Accelerator Function Configuration
+#define ENET_TACC_PROCHK		((uint32_t)0x00000010)		// Enables insertion of protocol checksum
+#define ENET_TACC_IPCHK			((uint32_t)0x00000008)		// Enables insertion of IP header checksum
+#define ENET_TACC_SHIFT16		((uint32_t)0x00000001)		// TX FIFO Shift-16 (align data to 32 bits)
 #define ENET_RACC		(*(volatile uint32_t *)0x400C01C4) // Receive Accelerator Function Configuration
+#define ENET_RACC_SHIFT16		((uint32_t)0x00000080)		// RX FIFO Shift-16 (align data to 32 bits)
+#define ENET_RACC_LINEDIS		((uint32_t)0x00000040)		// Enable Discard Of Frames With MAC Layer Errors
+#define ENET_RACC_PRODIS		((uint32_t)0x00000004)		// Enable Discard Of Frames With Wrong Protocol Checksum
+#define ENET_RACC_IPDIS			((uint32_t)0x00000002)		// Enable Discard Of Frames With Wrong IPv4 Header Checksum
+#define ENET_RACC_PADREM		((uint32_t)0x00000001)		// Enable Padding Removal For Short IP Frames
 #define ENET_RMON_T_DROP	(*(volatile uint32_t *)0x400C0200) // Reserved Statistic Register
 #define ENET_RMON_T_PACKETS	(*(volatile uint32_t *)0x400C0204) // Tx Packet Count Statistic Register
 #define ENET_RMON_T_BC_PKT	(*(volatile uint32_t *)0x400C0208) // Tx Broadcast Packets Statistic Register
@@ -3489,14 +3786,32 @@ typedef struct {
 #define ENET_IEEE_R_FDXFC	(*(volatile uint32_t *)0x400C02DC) // Flow Control Pause Frames Received Statistic Register
 #define ENET_IEEE_R_OCTETS_OK	(*(volatile uint32_t *)0x400C02E0) // Octet Count for Frames Received without Error Statistic Register
 #define ENET_ATCR		(*(volatile uint32_t *)0x400C0400) // Adjustable Timer Control Register
+#define ENET_ATCR_SLAVE			((uint32_t)0x00002000)		// Enable Timer Slave Mode
+#define ENET_ATCR_CAPTURE		((uint32_t)0x00000800)		// Capture Timer Value
+#define ENET_ATCR_RESTART		((uint32_t)0x00000400)		// Reset Timer
+#define ENET_ATCR_PINPER		((uint32_t)0x00000080)		// Enables event signal output assertion on period event
+#define ENET_ATCR_PEREN			((uint32_t)0x00000010)		// Enable Periodical Event
+#define ENET_ATCR_OFFRST		((uint32_t)0x00000008)		// Reset Timer On Offset Event
+#define ENET_ATCR_OFFEN			((uint32_t)0x00000004)		// Enable One-Shot Offset Event
+#define ENET_ATCR_EN			((uint32_t)0x00000001)		// Enable Timer
 #define ENET_ATVR		(*(volatile uint32_t *)0x400C0404) // Timer Value Register
 #define ENET_ATOFF		(*(volatile uint32_t *)0x400C0408) // Timer Offset Register
 #define ENET_ATPER		(*(volatile uint32_t *)0x400C040C) // Timer Period Register
 #define ENET_ATCOR		(*(volatile uint32_t *)0x400C0410) // Timer Correction Register
 #define ENET_ATINC		(*(volatile uint32_t *)0x400C0414) // Time-Stamping Clock Period Register
+#define ENET_ATINC_INC_CORR(n)		(uint32_t)(((n) & 0x7F)<<8)	// Correction Increment Value
+#define ENET_ATINC_INC(n)		(uint32_t)(((n) & 0x7F)<<0)	// Clock Period Of The Timestamping Clock (ts_clk) In Nanoseconds
 #define ENET_ATSTMP		(*(volatile uint32_t *)0x400C0418) // Timestamp of Last Transmitted Frame
 #define ENET_TGSR		(*(volatile uint32_t *)0x400C0604) // Timer Global Status Register
+#define ENET_TGSR_TF3			((uint32_t)0x00000008)		// Timer Flag For Channel 3
+#define ENET_TGSR_TF2			((uint32_t)0x00000004)		// Timer Flag For Channel 2
+#define ENET_TGSR_TF1			((uint32_t)0x00000002)		// Timer Flag For Channel 1
+#define ENET_TGSR_TF0			((uint32_t)0x00000001)		// Timer Flag For Channel 0
 #define ENET_TCSR0		(*(volatile uint32_t *)0x400C0608) // Timer Control Status Register
+#define ENET_TCSR_TF			((uint32_t)0x00000080)		// Timer Flag
+#define ENET_TCSR_TIR			((uint32_t)0x00000040)		// Timer Interrupt Enable
+#define ENET_TCSR_TMODE(n)		(uint32_t)(((n) & 0xF)<<2)	// Timer Mode
+#define ENET_TCSR_TDRE			((uint32_t)0x00000001)		// Timer DMA Request Enable
 #define ENET_TCCR0		(*(volatile uint32_t *)0x400C060C) // Timer Compare Capture Register
 #define ENET_TCSR1		(*(volatile uint32_t *)0x400C0610) // Timer Control Status Register
 #define ENET_TCCR1		(*(volatile uint32_t *)0x400C0614) // Timer Compare Capture Register
@@ -3631,16 +3946,48 @@ typedef struct {
 #define USB_USBTRC_SYNC_DET		((uint8_t)0x02)			//
 #define USB_USBTRC_USB_RESUME_INT	((uint8_t)0x01)			//
 #define USB0_USBFRMADJUST	(*(volatile uint8_t  *)0x40072114) // Frame Adjust Register
+#define USB0_CLK_RECOVER_CTRL	(*(volatile uint8_t  *)0x40072140) // USB Clock recovery control
+#define USB_CLK_RECOVER_CTRL_CLOCK_RECOVER_EN		((uint8_t)0x80)
+#define USB_CLK_RECOVER_CTRL_RESET_RESUME_ROUGH_EN	((uint8_t)0x40)
+#define USB_CLK_RECOVER_CTRL_RESTART_IFRTRIM_EN		((uint8_t)0x20)
+#define USB0_CLK_RECOVER_IRC_EN	(*(volatile uint8_t  *)0x40072144) // IRC48M oscillator enable 
+#define USB_CLK_RECOVER_IRC_EN_IRC_EN			((uint8_t)0x02)
+#define USB_CLK_RECOVER_IRC_EN_REG_EN			((uint8_t)0x01)
+#define USB0_CLK_RECOVER_INT_EN	(*(volatile uint8_t  *)0x40072154) // Clock recovery combined interrupt enable
+#define USB_CLK_RECOVER_INT_EN_OVF_ERROR_EN		((uint8_t)0x10)
+#define USB0_CLK_RECOVER_INT_STATUS (*(volatile uint8_t  *)0x4007215C) // Clock recovery separated interrupt status
+#define USB_CLK_RECOVER_INT_STATUS_OVF_ERROR		((uint8_t)0x10)
 
 
 // USB Device Charger Detection Module (USBDCD)
 
 #define USBDCD_CONTROL		(*(volatile uint32_t *)0x40035000) // Control register
+#define USBDCD_CONTROL_SR		((uint32_t)0x02000000)
+#define USBDCD_CONTROL_START		((uint32_t)0x01000000)
+#define USBDCD_CONTROL_BC12		((uint32_t)0x00020000)
+#define USBDCD_CONTROL_IE		((uint32_t)0x00010000)
+#define USBDCD_CONTROL_IF		((uint32_t)0x00000100)
+#define USBDCD_CONTROL_IACK		((uint32_t)0x00000001)
 #define USBDCD_CLOCK		(*(volatile uint32_t *)0x40035004) // Clock register
+#define USBDCD_CLOCK_CLOCK_SPEED(n)	(uint32_t)(((n) & 0x3FF) << 2)
+#define USBDCD_CLOCK_CLOCK_UNIT		((uint32_t)0x00000001)
 #define USBDCD_STATUS		(*(volatile uint32_t *)0x40035008) // Status register
+#define USBDCD_STATUS_ACTIVE		((uint32_t)0x00400000)
+#define USBDCD_STATUS_ID		((uint32_t)0x00200000)
+#define USBDCD_STATUS_ERR		((uint32_t)0x00100000)
+#define USBDCD_STATUS_SEQ_STAT(n)	(uint32_t)(((n) & 0x3) << 18)
+#define USBDCD_STATUS_SEQ_STAT_MASK	((uint32_t)0x000C0000)
+#define USBDCD_STATUS_SEQ_RES(n)	(uint32_t)(((n) & 0x3) << 16)
+#define USBDCD_STATUS_SEQ_RES_MASK	((uint32_t)0x00030000)
 #define USBDCD_TIMER0		(*(volatile uint32_t *)0x40035010) // TIMER0 register
 #define USBDCD_TIMER1		(*(volatile uint32_t *)0x40035014) // TIMER1 register
 #define USBDCD_TIMER2		(*(volatile uint32_t *)0x40035018) // TIMER2 register
+#define USBHSDCD_CONTROL	(*(volatile uint32_t *)0x400A3000) // Control register
+#define USBHSDCD_CLOCK		(*(volatile uint32_t *)0x400A3004) // Clock register
+#define USBHSDCD_STATUS		(*(volatile uint32_t *)0x400A3008) // Status register
+#define USBHSDCD_TIMER0		(*(volatile uint32_t *)0x400A3010) // TIMER0 register
+#define USBHSDCD_TIMER1		(*(volatile uint32_t *)0x400A3014) // TIMER1 register
+#define USBHSDCD_TIMER2		(*(volatile uint32_t *)0x400A3018) // TIMER2 register
 
 
 // USB High Speed OTG Controller (USBHS)
@@ -3653,6 +4000,10 @@ typedef struct {
 #define USBHS_HWRXBUF		(*(volatile uint32_t *)0x400A1014) // Receive Buffer Hardware Parameters Register
 #define USBHS_GPTIMER0LD	(*(volatile uint32_t *)0x400A1080) // General Purpose Timer n Load Register
 #define USBHS_GPTIMER0CTL	(*(volatile uint32_t *)0x400A1084) // General Purpose Timer n Control Register
+#define USBHS_GPTIMERCTL_RUN		((uint32_t)0x80000000)
+#define USBHS_GPTIMERCTL_RST		((uint32_t)0x40000000)
+#define USBHS_GPTIMERCTL_MODE		((uint32_t)0x01000000)
+#define USBHS_GPTIMERCTL_GPTCNT(n)	(uint32_t)(((n) & 0xFFFFFF) << 0)
 #define USBHS_GPTIMER1LD	(*(volatile uint32_t *)0x400A1088) // General Purpose Timer n Load Register
 #define USBHS_GPTIMER1CTL	(*(volatile uint32_t *)0x400A108C) // General Purpose Timer n Control Register
 #define USBHS_USB_SBUSCFG	(*(volatile uint32_t *)0x400A1090) // System Bus Interface Configuration Register
@@ -3662,28 +4013,148 @@ typedef struct {
 #define USBHS_DCIVERSION	(*(volatile uint16_t *)0x400A1122) // Device Controller Interface Version
 #define USBHS_DCCPARAMS		(*(volatile uint32_t *)0x400A1124) // Device Controller Capability Parameters
 #define USBHS_USBCMD		(*(volatile uint32_t *)0x400A1140) // USB Command Register
+#define USBHS_USBCMD_ITC(n)		(uint32_t)(((n) & 0xFF) << 16)
+#define USBHS_USBCMD_FS2		((uint32_t)0x00008000)
+#define USBHS_USBCMD_ATDTW		((uint32_t)0x00004000)
+#define USBHS_USBCMD_SUTW		((uint32_t)0x00002000)
+#define USBHS_USBCMD_ASPE		((uint32_t)0x00000800)
+#define USBHS_USBCMD_ASP(n)		(uint32_t)(((n) & 0x3) << 8)
+#define USBHS_USBCMD_IAA		((uint32_t)0x00000040)
+#define USBHS_USBCMD_ASE		((uint32_t)0x00000020)
+#define USBHS_USBCMD_PSE		((uint32_t)0x00000010)
+#define USBHS_USBCMD_FS(n)		(uint32_t)(((n) & 0x3) << 2)
+#define USBHS_USBCMD_RST		((uint32_t)0x00000002)
+#define USBHS_USBCMD_RS			((uint32_t)0x00000001)
 #define USBHS_USBSTS		(*(volatile uint32_t *)0x400A1144) // USB Status Register
+#define USBHS_USBSTS_TI1		((uint32_t)0x02000000)
+#define USBHS_USBSTS_TI0		((uint32_t)0x01000000)
+#define USBHS_USBSTS_UPI		((uint32_t)0x00080000)
+#define USBHS_USBSTS_UAI		((uint32_t)0x00040000)
+#define USBHS_USBSTS_NAKI		((uint32_t)0x00010000)
+#define USBHS_USBSTS_AS			((uint32_t)0x00008000)
+#define USBHS_USBSTS_PS			((uint32_t)0x00004000)
+#define USBHS_USBSTS_RCL		((uint32_t)0x00002000)
+#define USBHS_USBSTS_HCH		((uint32_t)0x00001000)
+#define USBHS_USBSTS_SLI		((uint32_t)0x00000100)
+#define USBHS_USBSTS_SRI		((uint32_t)0x00000080)
+#define USBHS_USBSTS_URI		((uint32_t)0x00000040)
+#define USBHS_USBSTS_AAI		((uint32_t)0x00000020)
+#define USBHS_USBSTS_SEI		((uint32_t)0x00000010)
+#define USBHS_USBSTS_FRI		((uint32_t)0x00000008)
+#define USBHS_USBSTS_PCI		((uint32_t)0x00000004)
+#define USBHS_USBSTS_UEI		((uint32_t)0x00000002)
+#define USBHS_USBSTS_UI			((uint32_t)0x00000001)
 #define USBHS_USBINTR		(*(volatile uint32_t *)0x400A1148) // USB Interrupt Enable Register
+#define USBHS_USBINTR_TIE1		((uint32_t)0x02000000)
+#define USBHS_USBINTR_TIE0		((uint32_t)0x01000000)
+#define USBHS_USBINTR_UPIE		((uint32_t)0x00080000)
+#define USBHS_USBINTR_UAIE		((uint32_t)0x00040000)
+#define USBHS_USBINTR_NAKE		((uint32_t)0x00010000)
+#define USBHS_USBINTR_SLE		((uint32_t)0x00000100)
+#define USBHS_USBINTR_SRE		((uint32_t)0x00000080)
+#define USBHS_USBINTR_URE		((uint32_t)0x00000040)
+#define USBHS_USBINTR_AAE		((uint32_t)0x00000020)
+#define USBHS_USBINTR_SEE		((uint32_t)0x00000010)
+#define USBHS_USBINTR_FRE		((uint32_t)0x00000008)
+#define USBHS_USBINTR_PCE		((uint32_t)0x00000004)
+#define USBHS_USBINTR_UEE		((uint32_t)0x00000002)
+#define USBHS_USBINTR_UE		((uint32_t)0x00000001)
 #define USBHS_FRINDEX		(*(volatile uint32_t *)0x400A114C) // Frame Index Register
 #define USBHS_PERIODICLISTBASE	(*(volatile uint32_t *)0x400A1154) // Periodic Frame List Base Address Register
 #define USBHS_DEVICEADDR	(*(volatile uint32_t *)0x400A1154) // Device Address Register
+#define USBHS_DEVICEADDR_USBADR(n)	(uint32_t)(((n) & 0x7F) << 25)
+#define USBHS_DEVICEADDR_USBADRA	((uint32_t)0x01000000)
 #define USBHS_ASYNCLISTADDR	(*(volatile uint32_t *)0x400A1158) // Current Asynchronous List Address Register
 #define USBHS_EPLISTADDR	(*(volatile uint32_t *)0x400A1158) // Endpoint List Address Register
 #define USBHS_TTCTRL		(*(volatile uint32_t *)0x400A115C) // Host TT Asynchronous Buffer Control
+#define USBHS_TTCTRL_TTHA(n)		(uint32_t)(((n) & 0x7F) << 24)
 #define USBHS_BURSTSIZE		(*(volatile uint32_t *)0x400A1160) // Master Interface Data Burst Size Register
+#define USBHS_BURSTSIZE_TXPBURST(n)	(uint32_t)(((n) & 0xFF) << 8)
+#define USBHS_BURSTSIZE_RXPBURST(n)	(uint32_t)(((n) & 0xFF) << 0)
 #define USBHS_TXFILLTUNING	(*(volatile uint32_t *)0x400A1164) // Transmit FIFO Tuning Control Register
+#define USBHS_TXFILLTUNING_TXFIFOTHRES(n) (uint32_t)(((n) & 0x3F) << 16)
+#define USBHS_TXFILLTUNING_TXSCHHEALTH(n) (uint32_t)(((n) & 0x1F) << 8)
+#define USBHS_TXFILLTUNING_TXSCHOH(n)	(uint32_t)(((n) & 0x7F) << 0)
 #define USBHS_ENDPTNAK		(*(volatile uint32_t *)0x400A1178) // Endpoint NAK Register
 #define USBHS_ENDPTNAKEN	(*(volatile uint32_t *)0x400A117C) // Endpoint NAK Enable Register
 #define USBHS_CONFIGFLAG	(*(volatile uint32_t *)0x400A1180) // Configure Flag Register
 #define USBHS_PORTSC1		(*(volatile uint32_t *)0x400A1184) // Port Status and Control Registers
+#define USBHS_PORTSC_PTS(n)		(uint32_t)(((n) & 0x3) << 30)
+#define USBHS_PORTSC_PSPD(n)		(uint32_t)(((n) & 0x3) << 26)
+#define USBHS_PORTSC_PTS2		((uint32_t)0x02000000)
+#define USBHS_PORTSC_PFSC		((uint32_t)0x01000000)
+#define USBHS_PORTSC_PHCD		((uint32_t)0x00800000)
+#define USBHS_PORTSC_WKOC		((uint32_t)0x00400000)
+#define USBHS_PORTSC_WKDS		((uint32_t)0x00200000)
+#define USBHS_PORTSC_WKCN		((uint32_t)0x00100000)
+#define USBHS_PORTSC_PTC(n)		(uint32_t)(((n) & 0xF) << 16)
+#define USBHS_PORTSC_PIC(n)		(uint32_t)(((n) & 0x3) << 14)
+#define USBHS_PORTSC_PO			((uint32_t)0x00002000)
+#define USBHS_PORTSC_PP			((uint32_t)0x00001000)
+#define USBHS_PORTSC_LS(n)		(uint32_t)(((n) & 0x3) << 10)
+#define USBHS_PORTSC_HSP		((uint32_t)0x00000200)
+#define USBHS_PORTSC_PR			((uint32_t)0x00000100)
+#define USBHS_PORTSC_SUSP		((uint32_t)0x00000080)
+#define USBHS_PORTSC_FPR		((uint32_t)0x00000040)
+#define USBHS_PORTSC_OCC		((uint32_t)0x00000020)
+#define USBHS_PORTSC_OCA		((uint32_t)0x00000010)
+#define USBHS_PORTSC_PEC		((uint32_t)0x00000008)
+#define USBHS_PORTSC_PE			((uint32_t)0x00000004)
+#define USBHS_PORTSC_CSC		((uint32_t)0x00000002)
+#define USBHS_PORTSC_CCS		((uint32_t)0x00000001)
 #define USBHS_OTGSC		(*(volatile uint32_t *)0x400A11A4) // On-the-Go Status and Control Register
+#define USBHS_OTGSC_DPIE		((uint32_t)0x40000000)
+#define USBHS_OTGSC_MSE			((uint32_t)0x20000000)
+#define USBHS_OTGSC_BSEIE		((uint32_t)0x10000000)
+#define USBHS_OTGSC_BSVIE		((uint32_t)0x08000000)
+#define USBHS_OTGSC_ASVIE		((uint32_t)0x04000000)
+#define USBHS_OTGSC_AVVIE		((uint32_t)0x02000000)
+#define USBHS_OTGSC_IDIE		((uint32_t)0x01000000)
+#define USBHS_OTGSC_DPIS		((uint32_t)0x00400000)
+#define USBHS_OTGSC_MSS			((uint32_t)0x00200000)
+#define USBHS_OTGSC_BSEIS		((uint32_t)0x00100000)
+#define USBHS_OTGSC_BSVIS		((uint32_t)0x00080000)
+#define USBHS_OTGSC_ASVIS		((uint32_t)0x00040000)
+#define USBHS_OTGSC_AVVIS		((uint32_t)0x00020000)
+#define USBHS_OTGSC_IDIS		((uint32_t)0x00010000)
+#define USBHS_OTGSC_DPS			((uint32_t)0x00004000)
+#define USBHS_OTGSC_MST			((uint32_t)0x00002000)
+#define USBHS_OTGSC_BSE			((uint32_t)0x00001000)
+#define USBHS_OTGSC_BSV			((uint32_t)0x00000800)
+#define USBHS_OTGSC_ASV			((uint32_t)0x00000400)
+#define USBHS_OTGSC_AVV			((uint32_t)0x00000200)
+#define USBHS_OTGSC_ID			((uint32_t)0x00000100)
+#define USBHS_OTGSC_HABA		((uint32_t)0x00000080)
+#define USBHS_OTGSC_IDPU		((uint32_t)0x00000020)
+#define USBHS_OTGSC_DP			((uint32_t)0x00000010)
+#define USBHS_OTGSC_OT			((uint32_t)0x00000008)
+#define USBHS_OTGSC_HAAR		((uint32_t)0x00000004)
+#define USBHS_OTGSC_VC			((uint32_t)0x00000002)
+#define USBHS_OTGSC_VD			((uint32_t)0x00000001)
 #define USBHS_USBMODE		(*(volatile uint32_t *)0x400A11A8) // USB Mode Register
+#define USBHS_USBMODE_TXHSD(n)		(uint32_t)(((n) & 0x7) << 12)
+#define USBHS_USBMODE_SDIS		((uint32_t)0x00000010)
+#define USBHS_USBMODE_SLOM		((uint32_t)0x00000008)
+#define USBHS_USBMODE_ES		((uint32_t)0x00000004)
+#define USBHS_USBMODE_CM(n)		(uint32_t)(((n) & 0x3) << 0)
 #define USBHS_EPSETUPSR		(*(volatile uint32_t *)0x400A11AC) // Endpoint Setup Status Register
 #define USBHS_EPPRIME		(*(volatile uint32_t *)0x400A11B0) // Endpoint Initialization Register
 #define USBHS_EPFLUSH		(*(volatile uint32_t *)0x400A11B4) // Endpoint Flush Register
 #define USBHS_EPSR		(*(volatile uint32_t *)0x400A11B8) // Endpoint Status Register
 #define USBHS_EPCOMPLETE	(*(volatile uint32_t *)0x400A11BC) // Endpoint Complete Register
 #define USBHS_EPCR0		(*(volatile uint32_t *)0x400A11C0) // Endpoint Control Register 0
+#define USBHS_EPCR_TXE			((uint32_t)0x00800000)
+#define USBHS_EPCR_TXR			((uint32_t)0x00400000)
+#define USBHS_EPCR_TXI			((uint32_t)0x00200000)
+#define USBHS_EPCR_TXT(n)		(uint32_t)(((n) & 0x3) << 18)
+#define USBHS_EPCR_TXD			((uint32_t)0x00020000)
+#define USBHS_EPCR_TXS			((uint32_t)0x00010000)
+#define USBHS_EPCR_RXE			((uint32_t)0x00000080)
+#define USBHS_EPCR_RXR			((uint32_t)0x00000040)
+#define USBHS_EPCR_RXI			((uint32_t)0x00000020)
+#define USBHS_EPCR_RXT(n)		(uint32_t)(((n) & 0x3) << 2)
+#define USBHS_EPCR_RXD			((uint32_t)0x00000002)
+#define USBHS_EPCR_RXS			((uint32_t)0x00000001)
 #define USBHS_EPCR1		(*(volatile uint32_t *)0x400A11C4) // Endpoint Control Register 1
 #define USBHS_EPCR2		(*(volatile uint32_t *)0x400A11C8) // Endpoint Control Register 2
 #define USBHS_EPCR3		(*(volatile uint32_t *)0x400A11CC) // Endpoint Control Register 3
@@ -3692,11 +4163,20 @@ typedef struct {
 #define USBHS_EPCR6		(*(volatile uint32_t *)0x400A11D8) // Endpoint Control Register 6
 #define USBHS_EPCR7		(*(volatile uint32_t *)0x400A11DC) // Endpoint Control Register 7
 #define USBHS_USBGENCTRL	(*(volatile uint32_t *)0x400A1200) // USB General Control Register
+#define USBHS_USBGENCTRL_WU_INT_CLR	((uint32_t)0x00000020)
+#define USBHS_USBGENCTRL_WU_IE		((uint32_t)0x00000001)
 
 
 // Universal Serial Bus 2.0 Integrated PHY (USB-PHY)
 
 #define USBPHY_PWD		(*(volatile uint32_t *)0x400A2000) // USB PHY Power-Down Register
+#define USBPHY_PWD_RXPWDRX			((uint32_t)0x00100000)
+#define USBPHY_PWD_RXPWDDIFF			((uint32_t)0x00080000)
+#define USBPHY_PWD_RXPWD1PT1			((uint32_t)0x00040000)
+#define USBPHY_PWD_RXPWDENV			((uint32_t)0x00020000)
+#define USBPHY_PWD_TXPWDV2I			((uint32_t)0x00001000)
+#define USBPHY_PWD_TXPWDIBIAS			((uint32_t)0x00000800)
+#define USBPHY_PWD_TXPWDFS			((uint32_t)0x00000400)
 #define USBPHY_PWD_SET		(*(volatile uint32_t *)0x400A2004) // USB PHY Power-Down Register
 #define USBPHY_PWD_CLR		(*(volatile uint32_t *)0x400A2008) // USB PHY Power-Down Register
 #define USBPHY_PWD_TOG		(*(volatile uint32_t *)0x400A200C) // USB PHY Power-Down Register
@@ -3709,10 +4189,29 @@ typedef struct {
 #define USBPHY_RX_CLR		(*(volatile uint32_t *)0x400A2028) // USB PHY Receiver Control Register
 #define USBPHY_RX_TOG		(*(volatile uint32_t *)0x400A202C) // USB PHY Receiver Control Register
 #define USBPHY_CTRL		(*(volatile uint32_t *)0x400A2030) // USB PHY General Control Register
+#define USBPHY_CTRL_SFTRST			((uint32_t)0x80000000)
+#define USBPHY_CTRL_CLKGATE			((uint32_t)0x40000000)
+#define USBPHY_CTRL_UTMI_SUSPENDM		((uint32_t)0x20000000)
+#define USBPHY_CTRL_HOST_FORCE_LS_SE0		((uint32_t)0x10000000)
+#define USBPHY_CTRL_OTG_ID_VALUE		((uint32_t)0x08000000)
+#define USBPHY_CTRL_FSDLL_RST_EN		((uint32_t)0x01000000)
+#define USBPHY_CTRL_ENAUTOCLR_PHY_PWD		((uint32_t)0x00100000)
+#define USBPHY_CTRL_ENAUTOCLR_CLKGATE		((uint32_t)0x00080000)
+#define USBPHY_CTRL_AUTORESUME_EN		((uint32_t)0x00040000)
+#define USBPHY_CTRL_ENUTMILEVEL3		((uint32_t)0x00008000)
+#define USBPHY_CTRL_ENUTMILEVEL2		((uint32_t)0x00004000)
+#define USBPHY_CTRL_DEVPLUGIN_IRQ		((uint32_t)0x00001000)
+#define USBPHY_CTRL_ENDEVPLUGINDET		((uint32_t)0x00000010)
+#define USBPHY_CTRL_HOSTDISCONDETECT_IRQ	((uint32_t)0x00000008)
+#define USBPHY_CTRL_ENHOSTDISCONDETECT		((uint32_t)0x00000002)
 #define USBPHY_CTRL_SET		(*(volatile uint32_t *)0x400A2034) // USB PHY General Control Register
 #define USBPHY_CTRL_CLR		(*(volatile uint32_t *)0x400A2038) // USB PHY General Control Register
 #define USBPHY_CTRL_TOG		(*(volatile uint32_t *)0x400A203C) // USB PHY General Control Register
 #define USBPHY_STATUS		(*(volatile uint32_t *)0x400A2040) // USB PHY Status Register
+#define USBPHY_STATUS_RESUME_STATUS		((uint32_t)0x00000400)
+#define USBPHY_STATUS_OTGID_STATUS		((uint32_t)0x00000100)
+#define USBPHY_STATUS_DEVPLUGIN_STATUS		((uint32_t)0x00000040)
+#define USBPHY_STATUS_HOSTDISCONDETECT_STATUS	((uint32_t)0x00000008)
 #define USBPHY_DEBUG		(*(volatile uint32_t *)0x400A2050) // USB PHY Debug Register
 #define USBPHY_DEBUG_SET	(*(volatile uint32_t *)0x400A2054) // USB PHY Debug Register
 #define USBPHY_DEBUG_CLR	(*(volatile uint32_t *)0x400A2058) // USB PHY Debug Register
@@ -3724,15 +4223,44 @@ typedef struct {
 #define USBPHY_DEBUG1_TOG	(*(volatile uint32_t *)0x400A207C) // UTMI Debug Status Register 1
 #define USBPHY_VERSION		(*(volatile uint32_t *)0x400A2080) // UTMI RTL Version
 #define USBPHY_PLL_SIC		(*(volatile uint32_t *)0x400A20A0) // USB PHY PLL Control/Status Register
+#define USBPHY_PLL_SIC_PLL_LOCK			((uint32_t)0x80000000)
+#define USBPHY_PLL_SIC_PLL_BYPASS		((uint32_t)0x00010000)
+#define USBPHY_PLL_SIC_PLL_ENABLE		((uint32_t)0x00002000)
+#define USBPHY_PLL_SIC_PLL_POWER		((uint32_t)0x00001000)
+#define USBPHY_PLL_SIC_PLL_HOLD_RING_OFF	((uint32_t)0x00000800)
+#define USBPHY_PLL_SIC_PLL_EN_USB_CLKS		((uint32_t)0x00000040)
+#define USBPHY_PLL_SIC_PLL_DIV_SEL(n)		(uint32_t)((n) & 3)
 #define USBPHY_PLL_SIC_SET	(*(volatile uint32_t *)0x400A20A4) // USB PHY PLL Control/Status Register
 #define USBPHY_PLL_SIC_CLR	(*(volatile uint32_t *)0x400A20A8) // USB PHY PLL Control/Status Register
 #define USBPHY_PLL_SIC_TOG	(*(volatile uint32_t *)0x400A20AC) // USB PHY PLL Control/Status Register
 #define USBPHY_USB1_VBUS_DETECT	(*(volatile uint32_t *)0x400A20C0) // USB PHY VBUS Detect Control Register
+#define USBPHY_USB1_VBUS_DETECT_EN_CHARGER_RESISTOR	((uint32_t)0x80000000)
+#define USBPHY_USB1_VBUS_DETECT_DISCHARGE_VBUS		((uint32_t)0x04000000)
+#define USBPHY_USB1_VBUS_DETECT_PWRUP_CMPS		((uint32_t)0x00100000)
+#define USBPHY_USB1_VBUS_DETECT_VBUSVALID_TO_SESSVALID	((uint32_t)0x00040000)
+#define USBPHY_USB1_VBUS_DETECT_VBUS_SOURCE_SEL(n)	(uint32_t)(((n) & 3) << 9)
+#define USBPHY_USB1_VBUS_DETECT_VBUSVALID_SEL		((uint32_t)0x00000100)
+#define USBPHY_USB1_VBUS_DETECT_VBUSVALID_OVERRIDE	((uint32_t)0x00000080)
+#define USBPHY_USB1_VBUS_DETECT_AVALID_OVERRIDE		((uint32_t)0x00000040)
+#define USBPHY_USB1_VBUS_DETECT_BVALID_OVERRIDE		((uint32_t)0x00000020)
+#define USBPHY_USB1_VBUS_DETECT_SESSEND_OVERRIDE	((uint32_t)0x00000010)
+#define USBPHY_USB1_VBUS_DETECT_VBUS_OVERRIDE_EN	((uint32_t)0x00000008)
+#define USBPHY_USB1_VBUS_DETECT_VBUSVALID_THRESH(n)	((uint32_t)((n) & 7)
 #define USBPHY_USB1_VBUS_DETECT_SET	(*(volatile uint32_t *)0x400A20C4) // USB PHY VBUS Detect Control Register
 #define USBPHY_USB1_VBUS_DETECT_CLR	(*(volatile uint32_t *)0x400A20C8) // USB PHY VBUS Detect Control Register
 #define USBPHY_USB1_VBUS_DETECT_TOG	(*(volatile uint32_t *)0x400A20CC) // USB PHY VBUS Detect Control Register
 #define USBPHY_USB1_VBUS_DET_STAT	(*(volatile uint32_t *)0x400A20D0) // USB PHY VBUS Detector Status Register
+#define USBPHY_USB1_VBUS_DET_STAT_VBUS_VALID_3V		((uint32_t)0x00000010)
+#define USBPHY_USB1_VBUS_DET_STAT_VBUS_VALID		((uint32_t)0x00000008)
+#define USBPHY_USB1_VBUS_DET_STAT_AVALID		((uint32_t)0x00000004)
+#define USBPHY_USB1_VBUS_DET_STAT_BVALID		((uint32_t)0x00000002)
+#define USBPHY_USB1_VBUS_DET_STAT_SESSEND		((uint32_t)0x00000001)
 #define USBPHY_USB1_CHRG_DET_STAT	(*(volatile uint32_t *)0x400A20F0) // USB PHY Charger Detect Status Register
+#define USBPHY_USB1_CHRG_DET_STAT_SECDET_DCP		((uint32_t)0x00000010)
+#define USBPHY_USB1_CHRG_DET_STAT_DP_STATE		((uint32_t)0x00000008)
+#define USBPHY_USB1_CHRG_DET_STAT_DM_STATE		((uint32_t)0x00000004)
+#define USBPHY_USB1_CHRG_DET_STAT_CHRG_DETECTED		((uint32_t)0x00000002)
+#define USBPHY_USB1_CHRG_DET_STAT_PLUG_CONTACT		((uint32_t)0x00000001)
 #define USBPHY_ANACTRL		(*(volatile uint32_t *)0x400A2100) // USB PHY Analog Control Register
 #define USBPHY_ANACTRL_SET	(*(volatile uint32_t *)0x400A2104) // USB PHY Analog Control Register
 #define USBPHY_ANACTRL_CLR	(*(volatile uint32_t *)0x400A2108) // USB PHY Analog Control Register
@@ -3847,7 +4375,7 @@ typedef struct {
 #define SPI_MCR_FRZ			((uint32_t)0x08000000)		//
 #define SPI_MCR_MTFE			((uint32_t)0x04000000)		//
 #define SPI_MCR_ROOE			((uint32_t)0x01000000)		//
-#define SPI_MCR_PCSIS(n)		(((n) & 0x1F) << 16)		//
+#define SPI_MCR_PCSIS(n)		(((n) & 0x3F) << 16)		//
 #define SPI_MCR_DOZE			((uint32_t)0x00008000)		//
 #define SPI_MCR_MDIS			((uint32_t)0x00004000)		//
 #define SPI_MCR_DIS_TXF			((uint32_t)0x00002000)		//
@@ -3895,7 +4423,7 @@ typedef struct {
 #define SPI_PUSHR_CTAS(n)		(((n) & 7) << 28)		//
 #define SPI_PUSHR_EOQ			((uint32_t)0x08000000)		//
 #define SPI_PUSHR_CTCNT			((uint32_t)0x04000000)		//
-#define SPI_PUSHR_PCS(n)		(((n) & 31) << 16)		//
+#define SPI_PUSHR_PCS(n)		(((n) & 0x3f) << 16)		//
 #define SPI0_PUSHR_SLAVE	(KINETISK_SPI0.PUSHR)	// DSPI PUSH TX FIFO Register In Slave Mode
 #define SPI0_POPR		(KINETISK_SPI0.POPR)	// DSPI POP RX FIFO Register
 #define SPI0_TXFR0		(KINETISK_SPI0.TXFR[0])	// DSPI Transmit FIFO Registers
@@ -3907,6 +4435,48 @@ typedef struct {
 #define SPI0_RXFR2		(KINETISK_SPI0.RXFR[2])	// DSPI Receive FIFO Registers
 #define SPI0_RXFR3		(KINETISK_SPI0.RXFR[3])	// DSPI Receive FIFO Registers
 
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+#define KINETISK_SPI1		(*(KINETISK_SPI_t *)0x4002D000)
+#define SPI1_MCR		(KINETISK_SPI1.MCR)	// DSPI Module Configuration Register
+#define SPI1_TCR		(KINETISK_SPI1.TCR)	// DSPI Transfer Count Register
+#define SPI1_CTAR0		(KINETISK_SPI1.CTAR0)	// DSPI Clock and Transfer Attributes Register, In Master Mode
+#define SPI1_CTAR0_SLAVE	(KINETISK_SPI1.CTAR0)	// DSPI Clock and Transfer Attributes Register, In Slave Mode
+#define SPI1_CTAR1		(KINETISK_SPI1.CTAR1)	// DSPI Clock and Transfer Attributes Register, In Master Mode
+#define SPI1_SR			(KINETISK_SPI1.SR)	// DSPI Status Register
+#define SPI1_RSER		(KINETISK_SPI1.RSER)	// DSPI DMA/Interrupt Request Select and Enable Register
+#define SPI1_PUSHR		(KINETISK_SPI1.PUSHR)	// DSPI PUSH TX FIFO Register In Master Mode
+#define SPI1_PUSHR_SLAVE	(KINETISK_SPI1.PUSHR)	// DSPI PUSH TX FIFO Register In Slave Mode
+#define SPI1_POPR		(KINETISK_SPI1.POPR)	// DSPI POP RX FIFO Register
+#define SPI1_TXFR0		(KINETISK_SPI1.TXFR[0])	// DSPI Transmit FIFO Registers
+#define SPI1_TXFR1		(KINETISK_SPI1.TXFR[1])	// DSPI Transmit FIFO Registers
+#define SPI1_TXFR2		(KINETISK_SPI1.TXFR[2])	// DSPI Transmit FIFO Registers
+#define SPI1_TXFR3		(KINETISK_SPI1.TXFR[3])	// DSPI Transmit FIFO Registers
+#define SPI1_RXFR0		(KINETISK_SPI1.RXFR[0])	// DSPI Receive FIFO Registers
+#define SPI1_RXFR1		(KINETISK_SPI1.RXFR[1])	// DSPI Receive FIFO Registers
+#define SPI1_RXFR2		(KINETISK_SPI1.RXFR[2])	// DSPI Receive FIFO Registers
+#define SPI1_RXFR3		(KINETISK_SPI1.RXFR[3])	// DSPI Receive FIFO Registers
+
+#define KINETISK_SPI2		(*(KINETISK_SPI_t *)0x400AC000)
+#define SPI2_MCR		(KINETISK_SPI2.MCR)	// DSPI Module Configuration Register
+#define SPI2_TCR		(KINETISK_SPI2.TCR)	// DSPI Transfer Count Register
+#define SPI2_CTAR0		(KINETISK_SPI2.CTAR0)	// DSPI Clock and Transfer Attributes Register, In Master Mode
+#define SPI2_CTAR0_SLAVE	(KINETISK_SPI2.CTAR0)	// DSPI Clock and Transfer Attributes Register, In Slave Mode
+#define SPI2_CTAR1		(KINETISK_SPI2.CTAR1)	// DSPI Clock and Transfer Attributes Register, In Master Mode
+#define SPI2_SR			(KINETISK_SPI2.SR)	// DSPI Status Register
+#define SPI2_RSER		(KINETISK_SPI2.RSER)	// DSPI DMA/Interrupt Request Select and Enable Register
+#define SPI2_PUSHR		(KINETISK_SPI2.PUSHR)	// DSPI PUSH TX FIFO Register In Master Mode
+#define SPI2_PUSHR_SLAVE	(KINETISK_SPI2.PUSHR)	// DSPI PUSH TX FIFO Register In Slave Mode
+#define SPI2_POPR		(KINETISK_SPI2.POPR)	// DSPI POP RX FIFO Register
+#define SPI2_TXFR0		(KINETISK_SPI2.TXFR[0])	// DSPI Transmit FIFO Registers
+#define SPI2_TXFR1		(KINETISK_SPI2.TXFR[1])	// DSPI Transmit FIFO Registers
+#define SPI2_TXFR2		(KINETISK_SPI2.TXFR[2])	// DSPI Transmit FIFO Registers
+#define SPI2_TXFR3		(KINETISK_SPI2.TXFR[3])	// DSPI Transmit FIFO Registers
+#define SPI2_RXFR0		(KINETISK_SPI2.RXFR[0])	// DSPI Receive FIFO Registers
+#define SPI2_RXFR1		(KINETISK_SPI2.RXFR[1])	// DSPI Receive FIFO Registers
+#define SPI2_RXFR2		(KINETISK_SPI2.RXFR[2])	// DSPI Receive FIFO Registers
+#define SPI2_RXFR3		(KINETISK_SPI2.RXFR[3])	// DSPI Receive FIFO Registers
+
+#endif
 #elif defined(KINETISL)
 typedef struct {
 	volatile uint8_t	S;
@@ -3925,9 +4495,9 @@ typedef struct {
 #define KINETISL_SPI0		(*(KINETISL_SPI_t *)0x40076000)
 #define KINETISL_SPI1		(*(KINETISL_SPI_t *)0x40077000)
 #define SPI0_S			(KINETISL_SPI0.S)		// Status
-#define SPI_S_SPRF			((uint8_t)0x80)			// Read Buffer Full Flag 
+#define SPI_S_SPRF			((uint8_t)0x80)			// Read Buffer Full Flag
 #define SPI_S_SPMF			((uint8_t)0x40)			// Match Flag
-#define SPI_S_SPTEF			((uint8_t)0x20)			// Transmit Buffer Empty Flag 
+#define SPI_S_SPTEF			((uint8_t)0x20)			// Transmit Buffer Empty Flag
 #define SPI_S_MODF			((uint8_t)0x10)			// Fault Flag
 #define SPI_S_RNFULLF			((uint8_t)0x08)			// Receive FIFO nearly full flag
 #define SPI_S_TNEAREF			((uint8_t)0x04)			// Transmit FIFO nearly empty flag
@@ -3982,7 +4552,7 @@ typedef struct {
 #define SPI1_MH			(KINETISL_SPI1.MH)		// Match High
 #define SPI1_DL			(KINETISL_SPI1.DL)		// Data Low
 #define SPI1_DH			(KINETISL_SPI1.DH)		// Data High
-#define SPI1_CI			(KINETISL_SPI1.CI)		// Dlear Interrupt
+#define SPI1_CI			(KINETISL_SPI1.CI)		// Clear Interrupt
 #define SPI1_C3			(KINETISL_SPI1.C3)		// Control Register 3
 #endif
 
@@ -4009,6 +4579,70 @@ typedef struct {
 #define KINETIS_I2C3		(*(KINETIS_I2C_t *)0x400E7000)
 #define I2C0_A1			(KINETIS_I2C0.A1)		// I2C Address Register 1
 #define I2C0_F			(KINETIS_I2C0.F)		// I2C Frequency Divider register
+#define I2C_F_DIV20			((uint8_t)0x00)
+#define I2C_F_DIV22			((uint8_t)0x01)
+#define I2C_F_DIV24			((uint8_t)0x02)
+#define I2C_F_DIV26			((uint8_t)0x03)
+#define I2C_F_DIV28			((uint8_t)0x04)
+#define I2C_F_DIV30			((uint8_t)0x05)
+#define I2C_F_DIV32			((uint8_t)0x09)
+#define I2C_F_DIV34			((uint8_t)0x06)
+#define I2C_F_DIV36			((uint8_t)0x0A)
+#define I2C_F_DIV40			((uint8_t)0x07)
+#define I2C_F_DIV44			((uint8_t)0x0C)
+#define I2C_F_DIV48			((uint8_t)0x0D)
+#define I2C_F_DIV56			((uint8_t)0x0E)
+#define I2C_F_DIV64			((uint8_t)0x12)
+#define I2C_F_DIV68			((uint8_t)0x0F)
+#define I2C_F_DIV72			((uint8_t)0x13)
+#define I2C_F_DIV80			((uint8_t)0x14)
+#define I2C_F_DIV88			((uint8_t)0x15)
+#define I2C_F_DIV96			((uint8_t)0x19)
+#define I2C_F_DIV104			((uint8_t)0x16)
+#define I2C_F_DIV112			((uint8_t)0x1A)
+#define I2C_F_DIV128			((uint8_t)0x17)
+#define I2C_F_DIV144			((uint8_t)0x1C)
+#define I2C_F_DIV160			((uint8_t)0x1D)
+#define I2C_F_DIV192			((uint8_t)0x1E)
+#define I2C_F_DIV224			((uint8_t)0x22)
+#define I2C_F_DIV240			((uint8_t)0x1F)
+#define I2C_F_DIV256			((uint8_t)0x23)
+#define I2C_F_DIV288			((uint8_t)0x24)
+#define I2C_F_DIV320			((uint8_t)0x25)
+#define I2C_F_DIV384			((uint8_t)0x26)
+#define I2C_F_DIV480			((uint8_t)0x27)
+#define I2C_F_DIV448			((uint8_t)0x2A)
+#define I2C_F_DIV512			((uint8_t)0x2B)
+#define I2C_F_DIV576			((uint8_t)0x2C)
+#define I2C_F_DIV640			((uint8_t)0x2D)
+#define I2C_F_DIV768			((uint8_t)0x2E)
+#define I2C_F_DIV896			((uint8_t)0x32)
+#define I2C_F_DIV960			((uint8_t)0x2F)
+#define I2C_F_DIV1024			((uint8_t)0x33)
+#define I2C_F_DIV1152			((uint8_t)0x34)
+#define I2C_F_DIV1280			((uint8_t)0x35)
+#define I2C_F_DIV1536			((uint8_t)0x36)
+#define I2C_F_DIV1920			((uint8_t)0x37)
+#define I2C_F_DIV1792			((uint8_t)0x3A)
+#define I2C_F_DIV2048			((uint8_t)0x3B)
+#define I2C_F_DIV2304			((uint8_t)0x3C)
+#define I2C_F_DIV2560			((uint8_t)0x3D)
+#define I2C_F_DIV3072			((uint8_t)0x3E)
+#define I2C_F_DIV3840			((uint8_t)0x3F)
+//#define I2C_F_DIV28			((uint8_t)0x08)
+//#define I2C_F_DIV40			((uint8_t)0x0B)
+//#define I2C_F_DIV48			((uint8_t)0x10)
+//#define I2C_F_DIV56			((uint8_t)0x11)
+//#define I2C_F_DIV80			((uint8_t)0x18)
+//#define I2C_F_DIV128			((uint8_t)0x1B)
+//#define I2C_F_DIV160			((uint8_t)0x20)
+//#define I2C_F_DIV192			((uint8_t)0x21)
+//#define I2C_F_DIV320			((uint8_t)0x28)
+//#define I2C_F_DIV384			((uint8_t)0x29)
+//#define I2C_F_DIV640			((uint8_t)0x30)
+//#define I2C_F_DIV768			((uint8_t)0x31)
+//#define I2C_F_DIV1280			((uint8_t)0x38)
+//#define I2C_F_DIV1536			((uint8_t)0x39)
 #define I2C0_C1			(KINETIS_I2C0.C1)		// I2C Control Register 1
 #define I2C_C1_IICEN			((uint8_t)0x80)			// I2C Enable
 #define I2C_C1_IICIE			((uint8_t)0x40)			// I2C Interrupt Enable
@@ -4142,12 +4776,13 @@ typedef struct __attribute__((packed)) {
 } KINETISK_UART_t;
 #define KINETISK_UART0		(*(KINETISK_UART_t *)0x4006A000)
 #define UART0_BDH		(KINETISK_UART0.BDH)		// UART Baud Rate Registers: High
+#define UART_BDH_SBNS		0x20			// UART Stop Bit Number Select (TLC T3.5 T3.6)
 #define UART0_BDL		(KINETISK_UART0.BDL)		// UART Baud Rate Registers: Low
 #define UART0_C1		(KINETISK_UART0.C1)		// UART Control Register 1
 #define UART_C1_LOOPS		0x80			//  When LOOPS is set, the RxD pin is disconnected from the UART and the transmitter output is internally connected to the receiver input
 #define UART_C1_UARTSWAI	0x40			//  UART Stops in Wait Mode
 #define UART_C1_RSRC		0x20			//  When LOOPS is set, the RSRC field determines the source for the receiver shift register input
-#define UART_C1_M		0x10			//  9-bit or 8-bit Mode Select
+#define UART_C1_M			0x10			//  9-bit or 8-bit Mode Select
 #define UART_C1_WAKE		0x08			//  Determines which condition wakes the UART
 #define UART_C1_ILT		0x04			//  Idle Line Type Select
 #define UART_C1_PE		0x02			//  Parity Enable
@@ -4468,33 +5103,292 @@ typedef struct __attribute__((packed)) {
 #define UART4_ET7816		(KINETISK_UART4.ET7816)	// UART 7816 Error Threshold Register
 #define UART4_TL7816		(KINETISK_UART4.TL7816)	// UART 7816 Transmit Length Register
 
+#define KINETISK_UART5		(*(KINETISK_UART_t *)0x400EB000)
+#define UART5_BDH		(KINETISK_UART5.BDH)	// UART Baud Rate Registers: High
+#define UART5_BDL		(KINETISK_UART5.BDL)	// UART Baud Rate Registers: Low
+#define UART5_C1		(KINETISK_UART5.C1)	// UART Control Register 1
+#define UART5_C2		(KINETISK_UART5.C2)	// UART Control Register 2
+#define UART5_S1		(KINETISK_UART5.S1)	// UART Status Register 1
+#define UART5_S2		(KINETISK_UART5.S2)	// UART Status Register 2
+#define UART5_C3		(KINETISK_UART5.C3)	// UART Control Register 3
+#define UART5_D			(KINETISK_UART5.D)	// UART Data Register
+#define UART5_MA1		(KINETISK_UART5.MA1)	// UART Match Address Registers 1
+#define UART5_MA2		(KINETISK_UART5.MA2)	// UART Match Address Registers 2
+#define UART5_C4		(KINETISK_UART5.C4)	// UART Control Register 4
+#define UART5_C5		(KINETISK_UART5.C5)	// UART Control Register 5
+#define UART5_ED		(KINETISK_UART5.ED)	// UART Extended Data Register
+#define UART5_MODEM		(KINETISK_UART5.MODEM)	// UART Modem Register
+#define UART5_IR		(KINETISK_UART5.IR)	// UART Infrared Register
+#define UART5_PFIFO		(KINETISK_UART5.PFIFO)	// UART FIFO Parameters
+#define UART5_CFIFO		(KINETISK_UART5.CFIFO)	// UART FIFO Control Register
+#define UART5_SFIFO		(KINETISK_UART5.SFIFO)	// UART FIFO Status Register
+#define UART5_TWFIFO		(KINETISK_UART5.TWFIFO)	// UART FIFO Transmit Watermark
+#define UART5_TCFIFO		(KINETISK_UART5.TCFIFO)	// UART FIFO Transmit Count
+#define UART5_RWFIFO		(KINETISK_UART5.RWFIFO)	// UART FIFO Receive Watermark
+#define UART5_RCFIFO		(KINETISK_UART5.RCFIFO)	// UART FIFO Receive Count
+#define UART5_C7816		(KINETISK_UART5.C7816)	// UART 7816 Control Register
+#define UART5_IE7816		(KINETISK_UART5.IE7816)	// UART 7816 Interrupt Enable Register
+#define UART5_IS7816		(KINETISK_UART5.IS7816)	// UART 7816 Interrupt Status Register
+#define UART5_WP7816T0		(KINETISK_UART5.WP7816T0)// UART 7816 Wait Parameter Register
+#define UART5_WP7816T1		(KINETISK_UART5.WP7816T1)// UART 7816 Wait Parameter Register
+#define UART5_WN7816		(KINETISK_UART5.WN7816)	// UART 7816 Wait N Register
+#define UART5_WF7816		(KINETISK_UART5.WF7816)	// UART 7816 Wait FD Register
+#define UART5_ET7816		(KINETISK_UART5.ET7816)	// UART 7816 Error Threshold Register
+#define UART5_TL7816		(KINETISK_UART5.TL7816)	// UART 7816 Transmit Length Register
+
 
 // Secured digital host controller (SDHC)
 
 #define SDHC_DSADDR		(*(volatile uint32_t *)0x400B1000) // DMA System Address register
 #define SDHC_BLKATTR		(*(volatile uint32_t *)0x400B1004) // Block Attributes register
+#define SDHC_BLKATTR_BLKCNT(n)		(uint32_t)(((n) & 0xFFFF)<<16)	// Blocks Count For Current Transfer
+#define SDHC_BLKATTR_BLKCNT_MASK	((uint32_t)0xFFFF0000)
+#define SDHC_BLKATTR_BLKSIZE(n)		(uint32_t)(((n) & 0x1FFF)<<0)	// Transfer Block Size
 #define SDHC_CMDARG		(*(volatile uint32_t *)0x400B1008) // Command Argument register
 #define SDHC_XFERTYP		(*(volatile uint32_t *)0x400B100C) // Transfer Type register
+#define SDHC_XFERTYP_CMDINX(n)		(uint32_t)(((n) & 0x3F)<<24)	// Command Index
+#define SDHC_XFERTYP_CMDTYP(n)		(uint32_t)(((n) & 0x3)<<22)	// Command Type
+#define SDHC_XFERTYP_DPSEL		((uint32_t)0x00200000)		// Data Present Select
+#define SDHC_XFERTYP_CICEN		((uint32_t)0x00100000)		// Command Index Check Enable
+#define SDHC_XFERTYP_CCCEN		((uint32_t)0x00080000)		// Command CRC Check Enable
+#define SDHC_XFERTYP_RSPTYP(n)		(uint32_t)(((n) & 0x3)<<16)	// Response Type Select
+#define SDHC_XFERTYP_MSBSEL		((uint32_t)0x00000020)		// Multi/Single Block Select
+#define SDHC_XFERTYP_DTDSEL		((uint32_t)0x00000010)		// Data Transfer Direction Select
+#define SDHC_XFERTYP_AC12EN		((uint32_t)0x00000004)		// Auto CMD12 Enable
+#define SDHC_XFERTYP_BCEN		((uint32_t)0x00000002)		// Block Count Enable
+#define SDHC_XFERTYP_DMAEN		((uint32_t)0x00000001)		// DMA Enable
 #define SDHC_CMDRSP0		(*(volatile uint32_t *)0x400B1010) // Command Response 0
 #define SDHC_CMDRSP1		(*(volatile uint32_t *)0x400B1014) // Command Response 1
 #define SDHC_CMDRSP2		(*(volatile uint32_t *)0x400B1018) // Command Response 2
 #define SDHC_CMDRSP3		(*(volatile uint32_t *)0x400B101C) // Command Response 3
 #define SDHC_DATPORT		(*(volatile uint32_t *)0x400B1020) // Buffer Data Port register
 #define SDHC_PRSSTAT		(*(volatile uint32_t *)0x400B1024) // Present State register
+#define SDHC_PRSSTAT_DLSL_MASK		((uint32_t)0xFF000000)		// DAT Line Signal Level
+#define SDHC_PRSSTAT_CLSL		((uint32_t)0x00800000)		// CMD Line Signal Level
+#define SDHC_PRSSTAT_CINS		((uint32_t)0x00010000)		// Card Inserted
+#define SDHC_PRSSTAT_BREN		((uint32_t)0x00000800)		// Buffer Read Enable
+#define SDHC_PRSSTAT_BWEN		((uint32_t)0x00000400)		// Buffer Write Enable
+#define SDHC_PRSSTAT_RTA		((uint32_t)0x00000200)		// Read Transfer Active
+#define SDHC_PRSSTAT_WTA		((uint32_t)0x00000100)		// Write Transfer Active
+#define SDHC_PRSSTAT_SDOFF		((uint32_t)0x00000080)		// SD Clock Gated Off Internally
+#define SDHC_PRSSTAT_PEROFF		((uint32_t)0x00000040)		// SDHC clock Gated Off Internally
+#define SDHC_PRSSTAT_HCKOFF		((uint32_t)0x00000020)		// System Clock Gated Off Internally
+#define SDHC_PRSSTAT_IPGOFF		((uint32_t)0x00000010)		// Bus Clock Gated Off Internally
+#define SDHC_PRSSTAT_SDSTB		((uint32_t)0x00000008)		// SD Clock Stable
+#define SDHC_PRSSTAT_DLA		((uint32_t)0x00000004)		// Data Line Active
+#define SDHC_PRSSTAT_CDIHB		((uint32_t)0x00000002)		// Command Inhibit (DAT)
+#define SDHC_PRSSTAT_CIHB		((uint32_t)0x00000001)		// Command Inhibit (CMD)
 #define SDHC_PROCTL		(*(volatile uint32_t *)0x400B1028) // Protocol Control register
+#define SDHC_PROCTL_WECRM		((uint32_t)0x04000000)		// Wakeup Event Enable On SD Card Removal
+#define SDHC_PROCTL_WECINS		((uint32_t)0x02000000)		// Wakeup Event Enable On SD Card Insertion
+#define SDHC_PROCTL_WECINT		((uint32_t)0x01000000)		// Wakeup Event Enable On Card Interrupt
+#define SDHC_PROCTL_IABG		((uint32_t)0x00080000)		// Interrupt At Block Gap
+#define SDHC_PROCTL_RWCTL		((uint32_t)0x00040000)		// Read Wait Control
+#define SDHC_PROCTL_CREQ		((uint32_t)0x00020000)		// Continue Request
+#define SDHC_PROCTL_SABGREQ		((uint32_t)0x00010000)		// Stop At Block Gap Request
+#define SDHC_PROCTL_DMAS(n)		(uint32_t)(((n) & 0x3)<<8)	// DMA Select
+#define SDHC_PROCTL_CDSS		((uint32_t)0x00000080)		// Card Detect Signal Selection
+#define SDHC_PROCTL_CDTL		((uint32_t)0x00000040)		// Card Detect Test Level
+#define SDHC_PROCTL_EMODE(n)		(uint32_t)(((n) & 0x3)<<4)	// Endian Mode
+#define SDHC_PROCTL_D3CD		((uint32_t)0x00000008)		// DAT3 As Card Detection Pin
+#define SDHC_PROCTL_DTW(n)		(uint32_t)(((n) & 0x3)<<1)	// Data Transfer Width, 0=1bit, 1=4bit, 2=8bit
+#define SDHC_PROCTL_DTW_MASK		((uint32_t)0x00000006)
+#define SDHC_PROCTL_LCTL		((uint32_t)0x00000001)		// LED Control
 #define SDHC_SYSCTL		(*(volatile uint32_t *)0x400B102C) // System Control register
+#define SDHC_SYSCTL_INITA		((uint32_t)0x08000000)		// Initialization Active
+#define SDHC_SYSCTL_RSTD		((uint32_t)0x04000000)		// Software Reset For DAT Line
+#define SDHC_SYSCTL_RSTC		((uint32_t)0x02000000)		// Software Reset For CMD Line
+#define SDHC_SYSCTL_RSTA		((uint32_t)0x01000000)		// Software Reset For ALL
+#define SDHC_SYSCTL_DTOCV(n)		(uint32_t)(((n) & 0xF)<<16)	// Data Timeout Counter Value
+#define SDHC_SYSCTL_DTOCV_MASK		((uint32_t)0x000F0000)
+#define SDHC_SYSCTL_SDCLKFS(n)		(uint32_t)(((n) & 0xFF)<<8)	// SDCLK Frequency Select
+#define SDHC_SYSCTL_SDCLKFS_MASK	((uint32_t)0x0000FF00)
+#define SDHC_SYSCTL_DVS(n)		(uint32_t)(((n) & 0xF)<<4)	// Divisor
+#define SDHC_SYSCTL_DVS_MASK		((uint32_t)0x000000F0)
+#define SDHC_SYSCTL_SDCLKEN		((uint32_t)0x00000008)		// SD Clock Enable
+#define SDHC_SYSCTL_PEREN		((uint32_t)0x00000004)		// Peripheral Clock Enable
+#define SDHC_SYSCTL_HCKEN		((uint32_t)0x00000002)		// System Clock Enable
+#define SDHC_SYSCTL_IPGEN		((uint32_t)0x00000001)		// IPG Clock Enable
 #define SDHC_IRQSTAT		(*(volatile uint32_t *)0x400B1030) // Interrupt Status register
+#define SDHC_IRQSTAT_DMAE		((uint32_t)0x10000000)		// DMA Error
+#define SDHC_IRQSTAT_AC12E		((uint32_t)0x01000000)		// Auto CMD12 Error
+#define SDHC_IRQSTAT_DEBE		((uint32_t)0x00400000)		// Data End Bit Error
+#define SDHC_IRQSTAT_DCE		((uint32_t)0x00200000)		// Data CRC Error
+#define SDHC_IRQSTAT_DTOE		((uint32_t)0x00100000)		// Data Timeout Error
+#define SDHC_IRQSTAT_CIE		((uint32_t)0x00080000)		// Command Index Error
+#define SDHC_IRQSTAT_CEBE		((uint32_t)0x00040000)		// Command End Bit Error
+#define SDHC_IRQSTAT_CCE		((uint32_t)0x00020000)		// Command CRC Error
+#define SDHC_IRQSTAT_CTOE		((uint32_t)0x00010000)		// Command Timeout Error
+#define SDHC_IRQSTAT_CINT		((uint32_t)0x00000100)		// Card Interrupt
+#define SDHC_IRQSTAT_CRM		((uint32_t)0x00000080)		// Card Removal
+#define SDHC_IRQSTAT_CINS		((uint32_t)0x00000040)		// Card Insertion
+#define SDHC_IRQSTAT_BRR		((uint32_t)0x00000020)		// Buffer Read Ready
+#define SDHC_IRQSTAT_BWR		((uint32_t)0x00000010)		// Buffer Write Ready
+#define SDHC_IRQSTAT_DINT		((uint32_t)0x00000008)		// DMA Interrupt
+#define SDHC_IRQSTAT_BGE		((uint32_t)0x00000004)		// Block Gap Event
+#define SDHC_IRQSTAT_TC			((uint32_t)0x00000002)		// Transfer Complete
+#define SDHC_IRQSTAT_CC			((uint32_t)0x00000001)		// Command Complete
 #define SDHC_IRQSTATEN		(*(volatile uint32_t *)0x400B1034) // Interrupt Status Enable register
+#define SDHC_IRQSTATEN_DMAESEN		((uint32_t)0x10000000)		// DMA Error Status Enable
+#define SDHC_IRQSTATEN_AC12ESEN		((uint32_t)0x01000000)		// Auto CMD12 Error Status Enable
+#define SDHC_IRQSTATEN_DEBESEN		((uint32_t)0x00400000)		// Data End Bit Error Status Enable
+#define SDHC_IRQSTATEN_DCESEN		((uint32_t)0x00200000)		// Data CRC Error Status Enable
+#define SDHC_IRQSTATEN_DTOESEN		((uint32_t)0x00100000)		// Data Timeout Error Status Enable
+#define SDHC_IRQSTATEN_CIESEN		((uint32_t)0x00080000)		// Command Index Error Status Enable
+#define SDHC_IRQSTATEN_CEBESEN		((uint32_t)0x00040000)		// Command End Bit Error Status Enable
+#define SDHC_IRQSTATEN_CCESEN		((uint32_t)0x00020000)		// Command CRC Error Status Enable
+#define SDHC_IRQSTATEN_CTOESEN		((uint32_t)0x00010000)		// Command Timeout Error Status Enable
+#define SDHC_IRQSTATEN_CINTSEN		((uint32_t)0x00000100)		// Card Interrupt Status Enable
+#define SDHC_IRQSTATEN_CRMSEN		((uint32_t)0x00000080)		// Card Removal Status Enable
+#define SDHC_IRQSTATEN_CINSEN		((uint32_t)0x00000040)		// Card Insertion Status Enable
+#define SDHC_IRQSTATEN_BRRSEN		((uint32_t)0x00000020)		// Buffer Read Ready Status Enable
+#define SDHC_IRQSTATEN_BWRSEN		((uint32_t)0x00000010)		// Buffer Write Ready Status Enable
+#define SDHC_IRQSTATEN_DINTSEN		((uint32_t)0x00000008)		// DMA Interrupt Status Enable
+#define SDHC_IRQSTATEN_BGESEN		((uint32_t)0x00000004)		// Block Gap Event Status Enable
+#define SDHC_IRQSTATEN_TCSEN		((uint32_t)0x00000002)		// Transfer Complete Status Enable
+#define SDHC_IRQSTATEN_CCSEN		((uint32_t)0x00000001)		// Command Complete Status Enable
 #define SDHC_IRQSIGEN		(*(volatile uint32_t *)0x400B1038) // Interrupt Signal Enable register
+#define SDHC_IRQSIGEN_DMAEIEN		((uint32_t)0x10000000)		// DMA Error Interrupt Enable
+#define SDHC_IRQSIGEN_AC12EIEN		((uint32_t)0x01000000)		// Auto CMD12 Error Interrupt Enable
+#define SDHC_IRQSIGEN_DEBEIEN		((uint32_t)0x00400000)		// Data End Bit Error Interrupt Enable
+#define SDHC_IRQSIGEN_DCEIEN		((uint32_t)0x00200000)		// Data CRC Error Interrupt Enable
+#define SDHC_IRQSIGEN_DTOEIEN		((uint32_t)0x00100000)		// Data Timeout Error Interrupt Enable
+#define SDHC_IRQSIGEN_CIEIEN		((uint32_t)0x00080000)		// Command Index Error Interrupt Enable
+#define SDHC_IRQSIGEN_CEBEIEN		((uint32_t)0x00040000)		// Command End Bit Error Interrupt Enable
+#define SDHC_IRQSIGEN_CCEIEN		((uint32_t)0x00020000)		// Command CRC Error Interrupt Enable
+#define SDHC_IRQSIGEN_CTOEIEN		((uint32_t)0x00010000)		// Command Timeout Error Interrupt Enable
+#define SDHC_IRQSIGEN_CINTIEN		((uint32_t)0x00000100)		// Card Interrupt Interrupt Enable
+#define SDHC_IRQSIGEN_CRMIEN		((uint32_t)0x00000080)		// Card Removal Interrupt Enable
+#define SDHC_IRQSIGEN_CINSIEN		((uint32_t)0x00000040)		// Card Insertion Interrupt Enable
+#define SDHC_IRQSIGEN_BRRIEN		((uint32_t)0x00000020)		// Buffer Read Ready Interrupt Enable
+#define SDHC_IRQSIGEN_BWRIEN		((uint32_t)0x00000010)		// Buffer Write Ready Interrupt Enable
+#define SDHC_IRQSIGEN_DINTIEN		((uint32_t)0x00000008)		// DMA Interrupt Interrupt Enable
+#define SDHC_IRQSIGEN_BGEIEN		((uint32_t)0x00000004)		// Block Gap Event Interrupt Enable
+#define SDHC_IRQSIGEN_TCIEN		((uint32_t)0x00000002)		// Transfer Complete Interrupt Enable
+#define SDHC_IRQSIGEN_CCIEN		((uint32_t)0x00000001)		// Command Complete Interrupt Enable
 #define SDHC_AC12ERR		(*(volatile uint32_t *)0x400B103C) // Auto CMD12 Error Status Register
+#define SDHC_AC12ERR_CNIBAC12E		((uint32_t)0x00000080)		// Command Not Issued By Auto CMD12 Error
+#define SDHC_AC12ERR_AC12IE		((uint32_t)0x00000010)		// Auto CMD12 Index Error
+#define SDHC_AC12ERR_AC12CE		((uint32_t)0x00000008)		// Auto CMD12 CRC Error
+#define SDHC_AC12ERR_AC12EBE		((uint32_t)0x00000004)		// Auto CMD12 End Bit Error
+#define SDHC_AC12ERR_AC12TOE		((uint32_t)0x00000002)		// Auto CMD12 Timeout Error
+#define SDHC_AC12ERR_AC12NE		((uint32_t)0x00000001)		// Auto CMD12 Not Executed
 #define SDHC_HTCAPBLT		(*(volatile uint32_t *)0x400B1040) // Host Controller Capabilities
 #define SDHC_WML		(*(volatile uint32_t *)0x400B1044) // Watermark Level Register
+#define SDHC_WML_WRWML(n)		(uint32_t)(((n) & 0x7F)<<16)	// Write Watermark Level
+#define SDHC_WML_RDWML(n)		(uint32_t)(((n) & 0x7F)<<0)	// Read Watermark Level
 #define SDHC_FEVT		(*(volatile uint32_t *)0x400B1050) // Force Event register
+#define SDHC_FEVT_CINT			((uint32_t)0x80000000)		// Force Event Card Interrupt
+#define SDHC_FEVT_DMAE			((uint32_t)0x10000000)		// Force Event DMA Error
+#define SDHC_FEVT_AC12E			((uint32_t)0x01000000)		// Force Event Auto CMD12 Error
+#define SDHC_FEVT_DEBE			((uint32_t)0x00400000)		// Force Event Data End Bit Error
+#define SDHC_FEVT_DCE			((uint32_t)0x00200000)		// Force Event Data CRC Error
+#define SDHC_FEVT_DTOE			((uint32_t)0x00100000)		// Force Event Data Timeout Error
+#define SDHC_FEVT_CIE			((uint32_t)0x00080000)		// Force Event Command Index Error
+#define SDHC_FEVT_CEBE			((uint32_t)0x00040000)		// Force Event Command End Bit Error
+#define SDHC_FEVT_CCE			((uint32_t)0x00020000)		// Force Event Command CRC Error
+#define SDHC_FEVT_CTOE			((uint32_t)0x00010000)		// Force Event Command Timeout Error
+#define SDHC_FEVT_CNIBAC12E		((uint32_t)0x00000080)		// Force Event Command Not Executed By Auto Command 12 Error
+#define SDHC_FEVT_AC12IE		((uint32_t)0x00000010)		// Force Event Auto Command 12 Index Error
+#define SDHC_FEVT_AC12EBE		((uint32_t)0x00000008)		// Force Event Auto Command 12 End Bit Error
+#define SDHC_FEVT_AC12CE		((uint32_t)0x00000004)		// Force Event Auto Command 12 CRC Error
+#define SDHC_FEVT_AC12TOE		((uint32_t)0x00000002)		// Force Event Auto Command 12 Time Out Error
+#define SDHC_FEVT_AC12NE		((uint32_t)0x00000001)		// Force Event Auto Command 12 Not Executed
 #define SDHC_ADMAES		(*(volatile uint32_t *)0x400B1054) // ADMA Error Status register
+#define SDHC_ADMAES_ADMADCE		((uint32_t)0x00000008)
+#define SDHC_ADMAES_ADMALME		((uint32_t)0x00000004)
+#define SDHC_ADMAES_ADMAES_MASK		((uint32_t)0x00000003)
 #define SDHC_ADSADDR		(*(volatile uint32_t *)0x400B1058) // ADMA System Addressregister
 #define SDHC_VENDOR		(*(volatile uint32_t *)0x400B10C0) // Vendor Specific register
+#define SDHC_VENDOR_INTSTVAL_MASK	((uint32_t)0x00FF0000)
+#define SDHC_VENDOR_EXBLKNU		((uint32_t)0x00000002)
 #define SDHC_MMCBOOT		(*(volatile uint32_t *)0x400B10C4) // MMC Boot register
+#define SDHC_MMCBOOT_BOOTBLKCNT(n)	(uint32_t)(((n) & 0xFFF)<<16)	// stop at block gap value of automatic mode
+#define SDHC_MMCBOOT_AUTOSABGEN 	((uint32_t)0x00000080)		// enable auto stop at block gap function
+#define SDHC_MMCBOOT_BOOTEN		((uint32_t)0x00000040)		// Boot Mode Enable
+#define SDHC_MMCBOOT_BOOTMODE		((uint32_t)0x00000020)		// Boot Mode Select
+#define SDHC_MMCBOOT_BOOTACK		((uint32_t)0x00000010)		// Boot Ack Mode Select
+#define SDHC_MMCBOOT_DTOCVACK(n)	(uint32_t)(((n) & 0xF)<<0)	// Boot ACK Time Out Counter Value
 #define SDHC_HOSTVER		(*(volatile uint32_t *)0x400B10FC) // Host Controller Version
+
+///////////////////////////////////
+// Low Power Asynchronous Receiver/Transmitter (LPUART)
+
+typedef struct __attribute__((packed)) {
+	volatile uint32_t	BAUD;
+	volatile uint32_t	STAT;
+	volatile uint32_t	CTRL;
+	volatile uint32_t	DATA;
+	volatile uint32_t	MATCH;
+	volatile uint32_t	MODIR;
+} KINETISK_LPUART_t;
+#define KINETISK_LPUART0	(*(KINETISK_LPUART_t *)0x400C4000)
+#define LPUART0_BAUD		(KINETISK_LPUART0.BAUD)		// LPUART Baud Register
+#define LPUART_BAUD_MAEN1		((uint32_t)0x80000000)		// Enable automatic address or data maching
+#define LPUART_BAUD_MAEN2		((uint32_t)0x40000000)		// Enable automatic address or data maching
+#define LPUART_BAUD_M10			((uint32_t)0x20000000)		// 10-bit Mode select
+#define LPUART_BAUD_OSR(n)		((uint32_t)((n) & 0x1f) << 24) // Over sampling ratio
+#define LPUART_BAUD_TDMAE		((uint32_t)0x00800000)		// Transmitter Dma Enable
+#define LPUART_BAUD_RDMAE		((uint32_t)0x00400000)		// Receiver Dma Enable
+#define LPUART_BAUD_BOTHEDGE	((uint32_t)0x00020000)		// Both edge sampling needed OSR 4-7
+#define LPUART_BAUD_SBNS		((uint32_t)0x00002000)		// UART Stop Bit Number Select 
+#define LPUART_BAUD_SBR(n)		((uint32_t)((n) & 0x1fff) << 0) // set baud rate divisor
+
+#define LPUART0_STAT		(KINETISK_LPUART0.STAT)		// LPUART Status register
+#define LPUART_STAT_LBKDIF		((uint32_t)0x80000000)		// LIN Break Detect Interrupt Flag
+#define LPUART_STAT_RXEDGIF		((uint32_t)0x40000000)		// RxD Pin Active Edge Interrupt Flag
+#define LPUART_STAT_MSBF		((uint32_t)0x20000000)		// Most Significant Bit First
+#define LPUART_STAT_RXINV		((uint32_t)0x10000000)		// Receive Data Inversion
+#define LPUART_STAT_RWUID		((uint32_t)0x08000000)		// Receive Wakeup Idle Detect
+#define LPUART_STAT_BRK13		((uint32_t)0x04000000)		// Break Transmit Character Length
+#define LPUART_STAT_LBKDE		((uint32_t)0x02000000)		// LIN Break Detection Enable
+#define LPUART_STAT_RAF			((uint32_t)0x01000000)		// Receiver Active Flag
+#define LPUART_STAT_TDRE		((uint32_t)0x00800000)		//  Transmit Data Register Empty Flag
+#define LPUART_STAT_TC			((uint32_t)0x00400000)		//  Transmit Complete Flag
+#define LPUART_STAT_RDRF		((uint32_t)0x00200000)		//  Receive Data Register Full Flag
+#define LPUART_STAT_IDLE		((uint32_t)0x00100000)		//  Idle Line Flag
+#define LPUART_STAT_OR			((uint32_t)0x00080000)		//  Receiver Overrun Flag
+#define LPUART_STAT_NF			((uint32_t)0x00040000)		//  Noise Flag
+#define LPUART_STAT_FE			((uint32_t)0x00020000)		//  Framing Error Flag
+#define LPUART_STAT_PF			((uint32_t)0x00010000)		//  Parity Error Flag
+#define LPUART_STAT_MA1F		((uint32_t)0x00008000)		//  Match 1 Flag
+#define LPUART_STAT_MA2F		((uint32_t)0x00004000)		//  Match 2 Flag
+#define LPUART0_CTRL		(KINETISK_LPUART0.CTRL)		// LPUART Control register
+#define LPUART_CTRL_R8			((uint32_t)0x80000000)		// Received Bit 8
+#define LPUART_CTRL_T8			((uint32_t)0x40000000)		// Transmit Bit 8
+#define LPUART_CTRL_TXDIR		((uint32_t)0x20000000)		// TX Pin Direction in Single-Wire mode
+#define LPUART_CTRL_TXINV		((uint32_t)0x10000000)		// Transmit Data Inversion
+#define LPUART_CTRL_ORIE		((uint32_t)0x08000000)		// Overrun Error Interrupt Enable
+#define LPUART_CTRL_NEIE		((uint32_t)0x04000000)		// Noise Error Interrupt Enable
+#define LPUART_CTRL_FEIE		((uint32_t)0x02000000)		// Framing Error Interrupt Enable
+#define LPUART_CTRL_PEIE		((uint32_t)0x01000000)		// Parity Error Interrupt Enable
+#define LPUART_CTRL_TIE			((uint32_t)0x00800000)		//  Transmitter Interrupt or DMA Transfer Enable.
+#define LPUART_CTRL_TCIE		((uint32_t)0x00400000)		//  Transmission Complete Interrupt Enable
+#define LPUART_CTRL_RIE			((uint32_t)0x00200000)		//  Receiver Full Interrupt or DMA Transfer Enable
+#define LPUART_CTRL_ILIE		((uint32_t)0x00100000)		//  Idle Line Interrupt Enable
+#define LPUART_CTRL_TE			((uint32_t)0x00080000)		//  Transmitter Enable
+#define LPUART_CTRL_RE			((uint32_t)0x00040000)		//  Receiver Enable
+#define LPUART_CTRL_RWU			((uint32_t)0x00020000)		//  Receiver Wakeup Control
+#define LPUART_CTRL_SBK			((uint32_t)0x00010000)		//  Send Break
+#define LPUART_CTRL_MAEN1		((uint32_t)0x00008000)		// Match Address Mode Enable 1
+#define LPUART_CTRL_MAEN2		((uint32_t)0x00004000)		// Match Address Mode Enable 2
+#define LPUART_CTRL_LOOPS		((uint32_t)0x00000080)		//  When LOOPS is set, the RxD pin is disconnected from the UART and the transmitter output is internally connected to the receiver input
+#define LPUART_CTRL_UARTSWAI	((uint32_t)0x00000040)		//  UART Stops in Wait Mode
+#define LPUART_CTRL_RSRC		((uint32_t)0x00000020)		//  When LOOPS is set, the RSRC field determines the source for the receiver shift register input
+#define LPUART_CTRL_M			((uint32_t)0x00000010)		//  9-bit or 8-bit Mode Select
+#define LPUART_CTRL_WAKE		((uint32_t)0x00000008)		//  Determines which condition wakes the UART
+#define LPUART_CTRL_ILT			((uint32_t)0x00000004)		//  Idle Line Type Select
+#define LPUART_CTRL_PE			((uint32_t)0x00000002)		//  Parity Enable
+#define LPUART_CTRL_PT			((uint32_t)0x00000001)		//  Parity Type, 0=even, 1=odd
+
+#define LPUART0_DATA		(KINETISK_LPUART0.DATA)		// LPUART Data register
+#define LPUART_DATA_NOISY		((uint32_t)0x00080000)		//  Data received with noise
+#define LPUART_DATA_PARITY		((uint32_t)0x00040000)		//  Data received with Parity error
+#define LPUART_DATA_FRETSC		((uint32_t)0x00020000)		//  Frame error/Transmit Special char
+#define LPUART_DATA_RXEMPT		((uint32_t)0x00010000)		//  receive buffer empty
+#define LPUART_DATA_IDLINE		((uint32_t)0x00008000)		// Match Address Mode Enable 1
+#define LPUART0_MATCH		(KINETISK_LPUART0.MATCH)	// LPUART Match register
+#define LPUART0_MODIR		(KINETISK_LPUART0.MODIR)	// LPUART Modem IrDA Register
 
 
 // Synchronous Audio Interface (SAI)
@@ -4679,7 +5573,7 @@ typedef struct __attribute__((packed)) {
 
 // Touch sense input (TSI)
 
-#if defined(KINETISK)
+#if defined(HAS_KINETIS_TSI)
 #define TSI0_GENCS		(*(volatile uint32_t *)0x40045000) // General Control and Status Register
 #define TSI_GENCS_LPCLKS		((uint32_t)0x10000000)		//
 #define TSI_GENCS_LPSCNITV(n)		(((n) & 15) << 24)		//
@@ -4714,13 +5608,13 @@ typedef struct __attribute__((packed)) {
 #define TSI0_CNTR13		(*(volatile uint32_t *)0x40045118) // Counter Register
 #define TSI0_CNTR15		(*(volatile uint32_t *)0x4004511C) // Counter Register
 #define TSI0_THRESHOLD		(*(volatile uint32_t *)0x40045120) // Low Power Channel Threshold Register
-#elif defined(KINETISL)
+#elif defined(HAS_KINETIS_TSI_LITE)
 #define TSI0_GENCS		(*(volatile uint32_t *)0x40045000) // General Control and Status
 #define TSI_GENCS_OUTRGF		((uint32_t)0x80000000)		// Out of Range Flag
 #define TSI_GENCS_ESOR			((uint32_t)0x10000000)		// End-of-scan or Out-of-Range Interrupt Selection
 #define TSI_GENCS_MODE(n)		(((n) & 15) << 24)		// analog modes & status
 #define TSI_GENCS_REFCHRG(n)		(((n) & 7) << 21)		// reference  charge and discharge current
-#define TSI_GENCS_DVOLT(n)		(((n) & 3) << 19)		// voltage rails 
+#define TSI_GENCS_DVOLT(n)		(((n) & 3) << 19)		// voltage rails
 #define TSI_GENCS_EXTCHRG(n)		(((n) & 7) << 16)		// electrode charge and discharge current
 #define TSI_GENCS_PS(n)			(((n) & 7) << 13)		// prescaler
 #define TSI_GENCS_NSCN(n)		(((n) & 31) << 8)		// scan number
@@ -4784,7 +5678,14 @@ typedef struct __attribute__((packed)) {
 // System Control Space (SCS), ARMv7 ref manual, B3.2, page 708
 #define SCB_CPUID		(*(const    uint32_t *)0xE000ED00) // CPUID Base Register
 #define SCB_ICSR		(*(volatile uint32_t *)0xE000ED04) // Interrupt Control and State
+#define SCB_ICSR_NMIPENDSET		((uint32_t)0x80000000)
+#define SCB_ICSR_PENDSVSET		((uint32_t)0x10000000)
+#define SCB_ICSR_PENDSVCLR		((uint32_t)0x08000000)
 #define SCB_ICSR_PENDSTSET		((uint32_t)0x04000000)
+#define SCB_ICSR_PENDSTCLR		((uint32_t)0x02000000)
+#define SCB_ICSR_ISRPREEMPT		((uint32_t)0x00800000)
+#define SCB_ICSR_ISRPENDING		((uint32_t)0x00400000)
+#define SCB_ICSR_RETTOBASE		((uint32_t)0x00000800)
 #define SCB_VTOR		(*(volatile uint32_t *)0xE000ED08) // Vector Table Offset
 #define SCB_AIRCR		(*(volatile uint32_t *)0xE000ED0C) // Application Interrupt and Reset Control
 #define SCB_SCR			(*(volatile uint32_t *)0xE000ED10) // System Control Register
@@ -4832,6 +5733,14 @@ typedef struct __attribute__((packed)) {
 extern "C" {
 #endif
 extern int nvic_execution_priority(void);
+
+#if defined(HAS_KINETIS_HSRUN) && F_CPU > 120000000
+extern int kinetis_hsrun_disable(void);
+extern int kinetis_hsrun_enable(void);
+#else
+__attribute__((always_inline)) static inline int kinetis_hsrun_disable(void) { return 0; }
+__attribute__((always_inline)) static inline int kinetis_hsrun_enable(void)  { return 0; }
+#endif
 
 extern void nmi_isr(void);
 extern void hard_fault_isr(void);
@@ -4948,6 +5857,14 @@ extern void software_isr(void);
 
 extern void (* _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
 extern void (* const _VectorsFlash[NVIC_NUM_INTERRUPTS+16])(void);
+
+// Cache management functions for compatibility with Teensy 4.0
+__attribute__((always_inline, unused))
+static inline void arm_dcache_flush(void *addr, uint32_t size) { }
+__attribute__((always_inline, unused))
+static inline void arm_dcache_delete(void *addr, uint32_t size) { }
+__attribute__((always_inline, unused))
+static inline void arm_dcache_flush_delete(void *addr, uint32_t size) { }
 
 #ifdef __cplusplus
 }

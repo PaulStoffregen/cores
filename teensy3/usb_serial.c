@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -148,8 +148,13 @@ void usb_serial_flush_input(void)
 // too short, we risk losing data during the stalls that are common with ordinary desktop
 // software.  If it's too long, we stall the user's program when no software is running.
 #define TX_TIMEOUT_MSEC 70
-
-#if F_CPU == 192000000
+#if F_CPU == 256000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1706)
+#elif F_CPU == 240000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1600)
+#elif F_CPU == 216000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1440)
+#elif F_CPU == 192000000
   #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1280)
 #elif F_CPU == 180000000
   #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1200)
@@ -185,6 +190,7 @@ int usb_serial_putchar(uint8_t c)
 
 int usb_serial_write(const void *buffer, uint32_t size)
 {
+	uint32_t ret = size;
 	uint32_t len;
 	uint32_t wait_count;
 	const uint8_t *src = (const uint8_t *)buffer;
@@ -227,7 +233,7 @@ int usb_serial_write(const void *buffer, uint32_t size)
 		usb_cdc_transmit_flush_timer = TRANSMIT_FLUSH_TIMEOUT;
 	}
 	tx_noautoflush = 0;
-	return 0;
+	return ret;
 }
 
 int usb_serial_write_buffer_free(void)

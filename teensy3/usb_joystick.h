@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -42,7 +42,7 @@
 extern "C" {
 #endif
 int usb_joystick_send(void);
-extern uint32_t usb_joystick_data[3];
+extern uint32_t usb_joystick_data[(JOYSTICK_SIZE+3)/4];
 #ifdef __cplusplus
 }
 #endif
@@ -54,6 +54,7 @@ class usb_joystick_class
         public:
         void begin(void) { }
         void end(void) { }
+#if JOYSTICK_SIZE == 12
 	void button(uint8_t button, bool val) {
 		if (--button >= 32) return;
 		if (val) usb_joystick_data[0] |= (1 << button);
@@ -118,6 +119,52 @@ class usb_joystick_class
 		usb_joystick_data[1] = (usb_joystick_data[1] & 0xFFFFFFF0) | val;
                 if (!manual_mode) usb_joystick_send();
         }
+#elif JOYSTICK_SIZE == 64
+	void button(unsigned int num, bool val) {
+		if (--num >= 128) return;
+		uint32_t *p = usb_joystick_data + (num >> 5);
+		num &= 0x1F;
+		if (val) *p |= (1 << num);
+		else *p &= ~(1 << num);
+		if (!manual_mode) usb_joystick_send();
+	}
+	void X(unsigned int position) { analog16(0, position); }
+	void Y(unsigned int position) { analog16(1, position); }
+	void Z(unsigned int position) { analog16(2, position); }
+	void Xrotate(unsigned int position) { analog16(3, position); }
+	void Yrotate(unsigned int position) { analog16(4, position); }
+	void Zrotate(unsigned int position) { analog16(5, position); }
+	void slider(unsigned int num, unsigned int position) {
+		if (--num >= 17) return;
+		analog16(num + 6, position);
+	}
+        inline void hat(unsigned int num, int angle) {
+		uint32_t val=15;
+		if (angle > 0 && angle < 23) val = 0;
+		else if (angle < 68) val = 1;
+		else if (angle < 113) val = 2;
+		else if (angle < 158) val = 3;
+		else if (angle < 203) val = 4;
+		else if (angle < 245) val = 5;
+		else if (angle < 293) val = 6;
+		else if (angle < 338) val = 7;
+		else if (angle < 360) val = 0;
+		uint32_t *p = usb_joystick_data;
+		switch(num) {
+		  case 1:
+			p[15] = (p[15] & 0xFFF0FFFF) | (val << 16); break;
+		  case 2:
+			p[15] = (p[15] & 0xFF0FFFFF) | (val << 20); break;
+		  case 3:
+			p[15] = (p[15] & 0xF0FFFFFF) | (val << 24); break;
+		  case 4:
+			p[15] = (p[15] & 0x0FFFFFFF) | (val << 28); break;
+		  default:
+			return;
+		}
+		if (!manual_mode) usb_joystick_send();
+        }
+#endif
 	void useManualSend(bool mode) {
 		manual_mode = mode;
 	}
@@ -126,6 +173,14 @@ class usb_joystick_class
 	}
 	private:
 	static uint8_t manual_mode;
+#if JOYSTICK_SIZE == 64
+	void analog16(unsigned int num, unsigned int value) {
+		if (value > 0xFFFF) value = 0xFFFF;
+		uint16_t *p = (uint16_t *)(&usb_joystick_data[4]);
+		p[num] = value;
+                if (!manual_mode) usb_joystick_send();
+	}
+#endif
 };
 extern usb_joystick_class Joystick;
 

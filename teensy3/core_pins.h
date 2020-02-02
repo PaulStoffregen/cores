@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -34,7 +34,6 @@
 #include "kinetis.h"
 #include "pins_arduino.h"
 
-
 #define HIGH		1
 #define LOW		0
 #define INPUT		0
@@ -42,6 +41,7 @@
 #define INPUT_PULLUP	2
 #define INPUT_PULLDOWN   3
 #define OUTPUT_OPENDRAIN 4
+#define INPUT_DISABLE   5
 #define LSBFIRST	0
 #define MSBFIRST	1
 #define _BV(n)		(1<<(n))
@@ -113,13 +113,42 @@
 #define CORE_NUM_INTERRUPT      24  // really only 18, but 6 "holes"
 #define CORE_NUM_ANALOG         13
 #define CORE_NUM_PWM            10
-#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
-#define CORE_NUM_TOTAL_PINS     40
-#define CORE_NUM_DIGITAL        40
-#define CORE_NUM_INTERRUPT      40
-#define CORE_NUM_ANALOG         23
+#elif defined(__MK64FX512__)
+#define CORE_NUM_TOTAL_PINS     64
+#define CORE_NUM_DIGITAL        64
+#define CORE_NUM_INTERRUPT      64
+#define CORE_NUM_ANALOG         27
 #define CORE_NUM_PWM            20
+#elif defined(__MK66FX1M0__)
+#define CORE_NUM_TOTAL_PINS     64
+#define CORE_NUM_DIGITAL        64
+#define CORE_NUM_INTERRUPT      64
+#define CORE_NUM_ANALOG         25
+#define CORE_NUM_PWM            22
 #endif
+
+// These MAX_PIN_PORTx values have the highest Kinetis pin index
+// that is used for a given port.
+#if defined(__MK20DX128__) || defined(__MK20DX256__)
+#define CORE_MAX_PIN_PORTA        13
+#define CORE_MAX_PIN_PORTB        19
+#define CORE_MAX_PIN_PORTC        11
+#define CORE_MAX_PIN_PORTD         7
+#define CORE_MAX_PIN_PORTE         1
+#elif defined(__MKL26Z64__)
+#define CORE_MAX_PIN_PORTA         2
+#define CORE_MAX_PIN_PORTB        17
+#define CORE_MAX_PIN_PORTC         7
+#define CORE_MAX_PIN_PORTD         7
+#define CORE_MAX_PIN_PORTE        30
+#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
+#define CORE_MAX_PIN_PORTA        29
+#define CORE_MAX_PIN_PORTB        23
+#define CORE_MAX_PIN_PORTC        11
+#define CORE_MAX_PIN_PORTD        15
+#define CORE_MAX_PIN_PORTE        26
+#endif
+
 
 #if defined(__MK20DX128__) || defined(__MK20DX256__)
 
@@ -771,6 +800,30 @@
 #define CORE_PIN37_BIT		10
 #define CORE_PIN38_BIT		11
 #define CORE_PIN39_BIT		17
+#define CORE_PIN40_BIT		28
+#define CORE_PIN41_BIT		29
+#define CORE_PIN42_BIT		26
+#define CORE_PIN43_BIT		20
+#define CORE_PIN44_BIT		22
+#define CORE_PIN45_BIT		23
+#define CORE_PIN46_BIT		21
+#define CORE_PIN47_BIT		8
+#define CORE_PIN48_BIT		9
+#define CORE_PIN49_BIT		4
+#define CORE_PIN50_BIT		5
+#define CORE_PIN51_BIT		14
+#define CORE_PIN52_BIT		13
+#define CORE_PIN53_BIT		12
+#define CORE_PIN54_BIT		15
+#define CORE_PIN55_BIT		11
+#define CORE_PIN56_BIT		10
+#define CORE_PIN57_BIT		11
+#define CORE_PIN58_BIT		0
+#define CORE_PIN59_BIT		1
+#define CORE_PIN60_BIT		2
+#define CORE_PIN61_BIT		3
+#define CORE_PIN62_BIT		4
+#define CORE_PIN63_BIT		5
 
 #define CORE_PIN0_BITMASK	(1<<(CORE_PIN0_BIT))
 #define CORE_PIN1_BITMASK	(1<<(CORE_PIN1_BIT))
@@ -812,6 +865,31 @@
 #define CORE_PIN37_BITMASK	(1<<(CORE_PIN37_BIT))
 #define CORE_PIN38_BITMASK	(1<<(CORE_PIN38_BIT))
 #define CORE_PIN39_BITMASK	(1<<(CORE_PIN39_BIT))
+#define CORE_PIN40_BITMASK	(1<<(CORE_PIN40_BIT))
+#define CORE_PIN41_BITMASK	(1<<(CORE_PIN41_BIT))
+#define CORE_PIN42_BITMASK	(1<<(CORE_PIN42_BIT))
+#define CORE_PIN43_BITMASK	(1<<(CORE_PIN43_BIT))
+#define CORE_PIN44_BITMASK	(1<<(CORE_PIN44_BIT))
+#define CORE_PIN45_BITMASK	(1<<(CORE_PIN45_BIT))
+#define CORE_PIN46_BITMASK	(1<<(CORE_PIN46_BIT))
+#define CORE_PIN47_BITMASK	(1<<(CORE_PIN47_BIT))
+#define CORE_PIN48_BITMASK	(1<<(CORE_PIN48_BIT))
+#define CORE_PIN49_BITMASK	(1<<(CORE_PIN49_BIT))
+#define CORE_PIN50_BITMASK	(1<<(CORE_PIN50_BIT))
+#define CORE_PIN51_BITMASK	(1<<(CORE_PIN51_BIT))
+#define CORE_PIN52_BITMASK	(1<<(CORE_PIN52_BIT))
+#define CORE_PIN53_BITMASK	(1<<(CORE_PIN53_BIT))
+#define CORE_PIN54_BITMASK	(1<<(CORE_PIN54_BIT))
+#define CORE_PIN55_BITMASK	(1<<(CORE_PIN55_BIT))
+#define CORE_PIN56_BITMASK	(1<<(CORE_PIN56_BIT))
+#define CORE_PIN57_BITMASK	(1<<(CORE_PIN57_BIT))
+#define CORE_PIN58_BITMASK	(1<<(CORE_PIN58_BIT))
+#define CORE_PIN59_BITMASK	(1<<(CORE_PIN59_BIT))
+#define CORE_PIN60_BITMASK	(1<<(CORE_PIN60_BIT))
+#define CORE_PIN61_BITMASK	(1<<(CORE_PIN61_BIT))
+#define CORE_PIN62_BITMASK	(1<<(CORE_PIN62_BIT))
+#define CORE_PIN63_BITMASK	(1<<(CORE_PIN63_BIT))
+
 
 #define CORE_PIN0_PORTREG	GPIOB_PDOR
 #define CORE_PIN1_PORTREG	GPIOB_PDOR
@@ -853,6 +931,30 @@
 #define CORE_PIN37_PORTREG	GPIOC_PDOR
 #define CORE_PIN38_PORTREG	GPIOC_PDOR
 #define CORE_PIN39_PORTREG	GPIOA_PDOR
+#define CORE_PIN40_PORTREG	GPIOA_PDOR
+#define CORE_PIN41_PORTREG	GPIOA_PDOR
+#define CORE_PIN42_PORTREG	GPIOA_PDOR
+#define CORE_PIN43_PORTREG	GPIOB_PDOR
+#define CORE_PIN44_PORTREG	GPIOB_PDOR
+#define CORE_PIN45_PORTREG	GPIOB_PDOR
+#define CORE_PIN46_PORTREG	GPIOB_PDOR
+#define CORE_PIN47_PORTREG	GPIOD_PDOR
+#define CORE_PIN48_PORTREG	GPIOD_PDOR
+#define CORE_PIN49_PORTREG	GPIOB_PDOR
+#define CORE_PIN50_PORTREG	GPIOB_PDOR
+#define CORE_PIN51_PORTREG	GPIOD_PDOR
+#define CORE_PIN52_PORTREG	GPIOD_PDOR
+#define CORE_PIN53_PORTREG	GPIOD_PDOR
+#define CORE_PIN54_PORTREG	GPIOD_PDOR
+#define CORE_PIN55_PORTREG	GPIOD_PDOR
+#define CORE_PIN56_PORTREG	GPIOE_PDOR
+#define CORE_PIN57_PORTREG	GPIOE_PDOR
+#define CORE_PIN58_PORTREG	GPIOE_PDOR
+#define CORE_PIN59_PORTREG	GPIOE_PDOR
+#define CORE_PIN60_PORTREG	GPIOE_PDOR
+#define CORE_PIN61_PORTREG	GPIOE_PDOR
+#define CORE_PIN62_PORTREG	GPIOE_PDOR
+#define CORE_PIN63_PORTREG	GPIOE_PDOR
 
 #define CORE_PIN0_PORTSET	GPIOB_PSOR
 #define CORE_PIN1_PORTSET	GPIOB_PSOR
@@ -894,6 +996,30 @@
 #define CORE_PIN37_PORTSET	GPIOC_PSOR
 #define CORE_PIN38_PORTSET	GPIOC_PSOR
 #define CORE_PIN39_PORTSET	GPIOA_PSOR
+#define CORE_PIN40_PORTSET	GPIOA_PSOR
+#define CORE_PIN41_PORTSET	GPIOA_PSOR
+#define CORE_PIN42_PORTSET	GPIOA_PSOR
+#define CORE_PIN43_PORTSET	GPIOB_PSOR
+#define CORE_PIN44_PORTSET	GPIOB_PSOR
+#define CORE_PIN45_PORTSET	GPIOB_PSOR
+#define CORE_PIN46_PORTSET	GPIOB_PSOR
+#define CORE_PIN47_PORTSET	GPIOD_PSOR
+#define CORE_PIN48_PORTSET	GPIOD_PSOR
+#define CORE_PIN49_PORTSET	GPIOB_PSOR
+#define CORE_PIN50_PORTSET	GPIOB_PSOR
+#define CORE_PIN51_PORTSET	GPIOD_PSOR
+#define CORE_PIN52_PORTSET	GPIOD_PSOR
+#define CORE_PIN53_PORTSET	GPIOD_PSOR
+#define CORE_PIN54_PORTSET	GPIOD_PSOR
+#define CORE_PIN55_PORTSET	GPIOD_PSOR
+#define CORE_PIN56_PORTSET	GPIOE_PSOR
+#define CORE_PIN57_PORTSET	GPIOE_PSOR
+#define CORE_PIN58_PORTSET	GPIOE_PSOR
+#define CORE_PIN59_PORTSET	GPIOE_PSOR
+#define CORE_PIN60_PORTSET	GPIOE_PSOR
+#define CORE_PIN61_PORTSET	GPIOE_PSOR
+#define CORE_PIN62_PORTSET	GPIOE_PSOR
+#define CORE_PIN63_PORTSET	GPIOE_PSOR
 
 #define CORE_PIN0_PORTCLEAR	GPIOB_PCOR
 #define CORE_PIN1_PORTCLEAR	GPIOB_PCOR
@@ -935,6 +1061,30 @@
 #define CORE_PIN37_PORTCLEAR	GPIOC_PCOR
 #define CORE_PIN38_PORTCLEAR	GPIOC_PCOR
 #define CORE_PIN39_PORTCLEAR	GPIOA_PCOR
+#define CORE_PIN40_PORTCLEAR	GPIOA_PCOR
+#define CORE_PIN41_PORTCLEAR	GPIOA_PCOR
+#define CORE_PIN42_PORTCLEAR	GPIOA_PCOR
+#define CORE_PIN43_PORTCLEAR	GPIOB_PCOR
+#define CORE_PIN44_PORTCLEAR	GPIOB_PCOR
+#define CORE_PIN45_PORTCLEAR	GPIOB_PCOR
+#define CORE_PIN46_PORTCLEAR	GPIOB_PCOR
+#define CORE_PIN47_PORTCLEAR	GPIOD_PCOR
+#define CORE_PIN48_PORTCLEAR	GPIOD_PCOR
+#define CORE_PIN49_PORTCLEAR	GPIOB_PCOR
+#define CORE_PIN50_PORTCLEAR	GPIOB_PCOR
+#define CORE_PIN51_PORTCLEAR	GPIOD_PCOR
+#define CORE_PIN52_PORTCLEAR	GPIOD_PCOR
+#define CORE_PIN53_PORTCLEAR	GPIOD_PCOR
+#define CORE_PIN54_PORTCLEAR	GPIOD_PCOR
+#define CORE_PIN55_PORTCLEAR	GPIOD_PCOR
+#define CORE_PIN56_PORTCLEAR	GPIOE_PCOR
+#define CORE_PIN57_PORTCLEAR	GPIOE_PCOR
+#define CORE_PIN58_PORTCLEAR	GPIOE_PCOR
+#define CORE_PIN59_PORTCLEAR	GPIOE_PCOR
+#define CORE_PIN60_PORTCLEAR	GPIOE_PCOR
+#define CORE_PIN61_PORTCLEAR	GPIOE_PCOR
+#define CORE_PIN62_PORTCLEAR	GPIOE_PCOR
+#define CORE_PIN63_PORTCLEAR	GPIOE_PCOR
 
 #define CORE_PIN0_DDRREG	GPIOB_PDDR
 #define CORE_PIN1_DDRREG	GPIOB_PDDR
@@ -976,6 +1126,30 @@
 #define CORE_PIN37_DDRREG	GPIOC_PDDR
 #define CORE_PIN38_DDRREG	GPIOC_PDDR
 #define CORE_PIN39_DDRREG	GPIOA_PDDR
+#define CORE_PIN40_DDRREG	GPIOA_PDDR
+#define CORE_PIN41_DDRREG	GPIOA_PDDR
+#define CORE_PIN42_DDRREG	GPIOA_PDDR
+#define CORE_PIN43_DDRREG	GPIOB_PDDR
+#define CORE_PIN44_DDRREG	GPIOB_PDDR
+#define CORE_PIN45_DDRREG	GPIOB_PDDR
+#define CORE_PIN46_DDRREG	GPIOB_PDDR
+#define CORE_PIN47_DDRREG	GPIOD_PDDR
+#define CORE_PIN48_DDRREG	GPIOD_PDDR
+#define CORE_PIN49_DDRREG	GPIOB_PDDR
+#define CORE_PIN50_DDRREG	GPIOB_PDDR
+#define CORE_PIN51_DDRREG	GPIOD_PDDR
+#define CORE_PIN52_DDRREG	GPIOD_PDDR
+#define CORE_PIN53_DDRREG	GPIOD_PDDR
+#define CORE_PIN54_DDRREG	GPIOD_PDDR
+#define CORE_PIN55_DDRREG	GPIOD_PDDR
+#define CORE_PIN56_DDRREG	GPIOE_PDDR
+#define CORE_PIN57_DDRREG	GPIOE_PDDR
+#define CORE_PIN58_DDRREG	GPIOE_PDDR
+#define CORE_PIN59_DDRREG	GPIOE_PDDR
+#define CORE_PIN60_DDRREG	GPIOE_PDDR
+#define CORE_PIN61_DDRREG	GPIOE_PDDR
+#define CORE_PIN62_DDRREG	GPIOE_PDDR
+#define CORE_PIN63_DDRREG	GPIOE_PDDR
 
 #define CORE_PIN0_PINREG	GPIOB_PDIR
 #define CORE_PIN1_PINREG	GPIOB_PDIR
@@ -1017,6 +1191,30 @@
 #define CORE_PIN37_PINREG	GPIOC_PDIR
 #define CORE_PIN38_PINREG	GPIOC_PDIR
 #define CORE_PIN39_PINREG	GPIOA_PDIR
+#define CORE_PIN40_PINREG	GPIOA_PDIR
+#define CORE_PIN41_PINREG	GPIOA_PDIR
+#define CORE_PIN42_PINREG	GPIOA_PDIR
+#define CORE_PIN43_PINREG	GPIOB_PDIR
+#define CORE_PIN44_PINREG	GPIOB_PDIR
+#define CORE_PIN45_PINREG	GPIOB_PDIR
+#define CORE_PIN46_PINREG	GPIOB_PDIR
+#define CORE_PIN47_PINREG	GPIOD_PDIR
+#define CORE_PIN48_PINREG	GPIOD_PDIR
+#define CORE_PIN49_PINREG	GPIOB_PDIR
+#define CORE_PIN50_PINREG	GPIOB_PDIR
+#define CORE_PIN51_PINREG	GPIOD_PDIR
+#define CORE_PIN52_PINREG	GPIOD_PDIR
+#define CORE_PIN53_PINREG	GPIOD_PDIR
+#define CORE_PIN54_PINREG	GPIOD_PDIR
+#define CORE_PIN55_PINREG	GPIOD_PDIR
+#define CORE_PIN56_PINREG	GPIOE_PDIR
+#define CORE_PIN57_PINREG	GPIOE_PDIR
+#define CORE_PIN58_PINREG	GPIOE_PDIR
+#define CORE_PIN59_PINREG	GPIOE_PDIR
+#define CORE_PIN60_PINREG	GPIOE_PDIR
+#define CORE_PIN61_PINREG	GPIOE_PDIR
+#define CORE_PIN62_PINREG	GPIOE_PDIR
+#define CORE_PIN63_PINREG	GPIOE_PDIR
 
 #define CORE_PIN0_CONFIG	PORTB_PCR16
 #define CORE_PIN1_CONFIG	PORTB_PCR17
@@ -1058,6 +1256,30 @@
 #define CORE_PIN37_CONFIG	PORTC_PCR10
 #define CORE_PIN38_CONFIG	PORTC_PCR11
 #define CORE_PIN39_CONFIG	PORTA_PCR17
+#define CORE_PIN40_CONFIG	PORTA_PCR28
+#define CORE_PIN41_CONFIG	PORTA_PCR29
+#define CORE_PIN42_CONFIG	PORTA_PCR26
+#define CORE_PIN43_CONFIG	PORTB_PCR20
+#define CORE_PIN44_CONFIG	PORTB_PCR22
+#define CORE_PIN45_CONFIG	PORTB_PCR23
+#define CORE_PIN46_CONFIG	PORTB_PCR21
+#define CORE_PIN47_CONFIG	PORTD_PCR8
+#define CORE_PIN48_CONFIG	PORTD_PCR9
+#define CORE_PIN49_CONFIG	PORTB_PCR4
+#define CORE_PIN50_CONFIG	PORTB_PCR5
+#define CORE_PIN51_CONFIG	PORTD_PCR14
+#define CORE_PIN52_CONFIG	PORTD_PCR13
+#define CORE_PIN53_CONFIG	PORTD_PCR12
+#define CORE_PIN54_CONFIG	PORTD_PCR15
+#define CORE_PIN55_CONFIG	PORTD_PCR11
+#define CORE_PIN56_CONFIG	PORTE_PCR10
+#define CORE_PIN57_CONFIG	PORTE_PCR11
+#define CORE_PIN58_CONFIG	PORTE_PCR0
+#define CORE_PIN59_CONFIG	PORTE_PCR1
+#define CORE_PIN60_CONFIG	PORTE_PCR2
+#define CORE_PIN61_CONFIG	PORTE_PCR3
+#define CORE_PIN62_CONFIG	PORTE_PCR4
+#define CORE_PIN63_CONFIG	PORTE_PCR5
 
 #define CORE_ADC0_PIN		14
 #define CORE_ADC1_PIN		15
@@ -1069,8 +1291,8 @@
 #define CORE_ADC7_PIN		21
 #define CORE_ADC8_PIN		22
 #define CORE_ADC9_PIN		23
-#define CORE_ADC10_PIN		40
-#define CORE_ADC11_PIN		41
+#define CORE_ADC10_PIN		64
+#define CORE_ADC11_PIN		65
 #define CORE_ADC12_PIN		31
 #define CORE_ADC13_PIN		32
 #define CORE_ADC14_PIN		33
@@ -1080,6 +1302,12 @@
 #define CORE_ADC18_PIN		37
 #define CORE_ADC19_PIN		38
 #define CORE_ADC20_PIN		39
+#define CORE_ADC21_PIN		66
+#define CORE_ADC22_PIN		67
+#define CORE_ADC23_PIN		49
+#define CORE_ADC24_PIN		50
+#define CORE_ADC25_PIN		68
+#define CORE_ADC26_PIN		69
 
 #define CORE_RXD0_PIN		0
 #define CORE_TXD0_PIN		1
@@ -1132,11 +1360,115 @@
 #define CORE_INT37_PIN		37
 #define CORE_INT38_PIN		38
 #define CORE_INT39_PIN		39
+#define CORE_INT40_PIN		40
+#define CORE_INT41_PIN		41
+#define CORE_INT42_PIN		42
+#define CORE_INT43_PIN		43
+#define CORE_INT44_PIN		44
+#define CORE_INT45_PIN		45
+#define CORE_INT46_PIN		46
+#define CORE_INT47_PIN		47
+#define CORE_INT48_PIN		48
+#define CORE_INT49_PIN		49
+#define CORE_INT50_PIN		50
+#define CORE_INT51_PIN		51
+#define CORE_INT52_PIN		52
+#define CORE_INT53_PIN		53
+#define CORE_INT54_PIN		54
+#define CORE_INT55_PIN		55
+#define CORE_INT56_PIN		56
+#define CORE_INT57_PIN		57
+#define CORE_INT58_PIN		58
+#define CORE_INT59_PIN		59
+#define CORE_INT60_PIN		60
+#define CORE_INT61_PIN		61
+#define CORE_INT62_PIN		62
+#define CORE_INT63_PIN		63
 #define CORE_INT_EVERY_PIN	1
 
 #endif
 
 
+#if defined(__MK20DX128__)
+#define CORE_FTM0_CH0_PIN	22
+#define CORE_FTM0_CH1_PIN	23
+#define CORE_FTM0_CH2_PIN	 9
+#define CORE_FTM0_CH3_PIN	10
+#define CORE_FTM0_CH4_PIN	 6
+#define CORE_FTM0_CH5_PIN	20
+#define CORE_FTM0_CH6_PIN	21
+#define CORE_FTM0_CH7_PIN	 5
+#define CORE_FTM1_CH0_PIN	 3
+#define CORE_FTM1_CH1_PIN	 4
+#elif defined(__MK20DX256__)
+#define CORE_FTM0_CH0_PIN	22
+#define CORE_FTM0_CH1_PIN	23
+#define CORE_FTM0_CH2_PIN	 9
+#define CORE_FTM0_CH3_PIN	10
+#define CORE_FTM0_CH4_PIN	 6
+#define CORE_FTM0_CH5_PIN	20
+#define CORE_FTM0_CH6_PIN	21
+#define CORE_FTM0_CH7_PIN	 5
+#define CORE_FTM1_CH0_PIN	 3
+#define CORE_FTM1_CH1_PIN	 4
+#define CORE_FTM2_CH0_PIN	32
+#define CORE_FTM2_CH1_PIN	25
+#elif defined(__MKL26Z64__)
+#define CORE_TPM0_CH0_PIN	22
+#define CORE_TPM0_CH1_PIN	23
+#define CORE_TPM0_CH2_PIN	 9
+#define CORE_TPM0_CH3_PIN	10
+#define CORE_TPM0_CH4_PIN	 6
+#define CORE_TPM0_CH5_PIN	20
+#define CORE_TPM1_CH0_PIN	16
+#define CORE_TPM1_CH1_PIN	17
+#define CORE_TPM2_CH0_PIN	 3
+#define CORE_TPM2_CH1_PIN	 4
+#elif defined(__MK64FX512__)
+#define CORE_FTM0_CH0_PIN	22
+#define CORE_FTM0_CH1_PIN	23
+#define CORE_FTM0_CH2_PIN	 9
+#define CORE_FTM0_CH3_PIN	10
+#define CORE_FTM0_CH4_PIN	 6
+#define CORE_FTM0_CH5_PIN	20
+#define CORE_FTM0_CH6_PIN	21
+#define CORE_FTM0_CH7_PIN	 5
+#define CORE_FTM1_CH0_PIN	 3
+#define CORE_FTM1_CH1_PIN	 4
+#define CORE_FTM2_CH0_PIN	29
+#define CORE_FTM2_CH1_PIN	30
+#define CORE_FTM3_CH0_PIN	 2
+#define CORE_FTM3_CH1_PIN	14
+#define CORE_FTM3_CH2_PIN	 7
+#define CORE_FTM3_CH3_PIN	 8
+#define CORE_FTM3_CH4_PIN	35
+#define CORE_FTM3_CH5_PIN	36
+#define CORE_FTM3_CH6_PIN	37
+#define CORE_FTM3_CH7_PIN	38
+#elif defined(__MK66FX1M0__)
+#define CORE_FTM0_CH0_PIN	22
+#define CORE_FTM0_CH1_PIN	23
+#define CORE_FTM0_CH2_PIN	 9
+#define CORE_FTM0_CH3_PIN	10
+#define CORE_FTM0_CH4_PIN	 6
+#define CORE_FTM0_CH5_PIN	20
+#define CORE_FTM0_CH6_PIN	21
+#define CORE_FTM0_CH7_PIN	 5
+#define CORE_FTM1_CH0_PIN	 3
+#define CORE_FTM1_CH1_PIN	 4
+#define CORE_FTM2_CH0_PIN	29
+#define CORE_FTM2_CH1_PIN	30
+#define CORE_FTM3_CH0_PIN	 2
+#define CORE_FTM3_CH1_PIN	14
+#define CORE_FTM3_CH2_PIN	 7
+#define CORE_FTM3_CH3_PIN	 8
+#define CORE_FTM3_CH4_PIN	35
+#define CORE_FTM3_CH5_PIN	36
+#define CORE_FTM3_CH6_PIN	37
+#define CORE_FTM3_CH7_PIN	38
+#define CORE_TPM1_CH0_PIN	16
+#define CORE_TPM1_CH1_PIN	17
+#endif
 
 
 #ifdef __cplusplus
@@ -1234,6 +1566,54 @@ static inline void digitalWriteFast(uint8_t pin, uint8_t val)
 				CORE_PIN38_PORTSET = CORE_PIN38_BITMASK;
 			} else if (pin == 39) {
 				CORE_PIN39_PORTSET = CORE_PIN39_BITMASK;
+			} else if (pin == 40) {
+				CORE_PIN40_PORTSET = CORE_PIN40_BITMASK;
+			} else if (pin == 41) {
+				CORE_PIN41_PORTSET = CORE_PIN41_BITMASK;
+			} else if (pin == 42) {
+				CORE_PIN42_PORTSET = CORE_PIN42_BITMASK;
+			} else if (pin == 43) {
+				CORE_PIN43_PORTSET = CORE_PIN43_BITMASK;
+			} else if (pin == 44) {
+				CORE_PIN44_PORTSET = CORE_PIN44_BITMASK;
+			} else if (pin == 45) {
+				CORE_PIN45_PORTSET = CORE_PIN45_BITMASK;
+			} else if (pin == 46) {
+				CORE_PIN46_PORTSET = CORE_PIN46_BITMASK;
+			} else if (pin == 47) {
+				CORE_PIN47_PORTSET = CORE_PIN47_BITMASK;
+			} else if (pin == 48) {
+				CORE_PIN48_PORTSET = CORE_PIN48_BITMASK;
+			} else if (pin == 49) {
+				CORE_PIN49_PORTSET = CORE_PIN49_BITMASK;
+			} else if (pin == 50) {
+				CORE_PIN50_PORTSET = CORE_PIN50_BITMASK;
+			} else if (pin == 51) {
+				CORE_PIN51_PORTSET = CORE_PIN51_BITMASK;
+			} else if (pin == 52) {
+				CORE_PIN52_PORTSET = CORE_PIN52_BITMASK;
+			} else if (pin == 53) {
+				CORE_PIN53_PORTSET = CORE_PIN53_BITMASK;
+			} else if (pin == 54) {
+				CORE_PIN54_PORTSET = CORE_PIN54_BITMASK;
+			} else if (pin == 55) {
+				CORE_PIN55_PORTSET = CORE_PIN55_BITMASK;
+			} else if (pin == 56) {
+				CORE_PIN56_PORTSET = CORE_PIN56_BITMASK;
+			} else if (pin == 57) {
+				CORE_PIN57_PORTSET = CORE_PIN57_BITMASK;
+			} else if (pin == 58) {
+				CORE_PIN58_PORTSET = CORE_PIN58_BITMASK;
+			} else if (pin == 59) {
+				CORE_PIN59_PORTSET = CORE_PIN59_BITMASK;
+			} else if (pin == 60) {
+				CORE_PIN60_PORTSET = CORE_PIN60_BITMASK;
+			} else if (pin == 61) {
+				CORE_PIN61_PORTSET = CORE_PIN61_BITMASK;
+			} else if (pin == 62) {
+				CORE_PIN62_PORTSET = CORE_PIN62_BITMASK;
+			} else if (pin == 63) {
+				CORE_PIN63_PORTSET = CORE_PIN63_BITMASK;
 			}
 			#endif
 		} else {
@@ -1322,6 +1702,54 @@ static inline void digitalWriteFast(uint8_t pin, uint8_t val)
 				CORE_PIN38_PORTCLEAR = CORE_PIN38_BITMASK;
 			} else if (pin == 39) {
 				CORE_PIN39_PORTCLEAR = CORE_PIN39_BITMASK;
+			} else if (pin == 40) {
+				CORE_PIN40_PORTCLEAR = CORE_PIN40_BITMASK;
+			} else if (pin == 41) {
+				CORE_PIN41_PORTCLEAR = CORE_PIN41_BITMASK;
+			} else if (pin == 42) {
+				CORE_PIN42_PORTCLEAR = CORE_PIN42_BITMASK;
+			} else if (pin == 43) {
+				CORE_PIN43_PORTCLEAR = CORE_PIN43_BITMASK;
+			} else if (pin == 44) {
+				CORE_PIN44_PORTCLEAR = CORE_PIN44_BITMASK;
+			} else if (pin == 45) {
+				CORE_PIN45_PORTCLEAR = CORE_PIN45_BITMASK;
+			} else if (pin == 46) {
+				CORE_PIN46_PORTCLEAR = CORE_PIN46_BITMASK;
+			} else if (pin == 47) {
+				CORE_PIN47_PORTCLEAR = CORE_PIN47_BITMASK;
+			} else if (pin == 48) {
+				CORE_PIN48_PORTCLEAR = CORE_PIN48_BITMASK;
+			} else if (pin == 49) {
+				CORE_PIN49_PORTCLEAR = CORE_PIN49_BITMASK;
+			} else if (pin == 50) {
+				CORE_PIN50_PORTCLEAR = CORE_PIN50_BITMASK;
+			} else if (pin == 51) {
+				CORE_PIN51_PORTCLEAR = CORE_PIN51_BITMASK;
+			} else if (pin == 52) {
+				CORE_PIN52_PORTCLEAR = CORE_PIN52_BITMASK;
+			} else if (pin == 53) {
+				CORE_PIN53_PORTCLEAR = CORE_PIN53_BITMASK;
+			} else if (pin == 54) {
+				CORE_PIN54_PORTCLEAR = CORE_PIN54_BITMASK;
+			} else if (pin == 55) {
+				CORE_PIN55_PORTCLEAR = CORE_PIN55_BITMASK;
+			} else if (pin == 56) {
+				CORE_PIN56_PORTCLEAR = CORE_PIN56_BITMASK;
+			} else if (pin == 57) {
+				CORE_PIN57_PORTCLEAR = CORE_PIN57_BITMASK;
+			} else if (pin == 58) {
+				CORE_PIN58_PORTCLEAR = CORE_PIN58_BITMASK;
+			} else if (pin == 59) {
+				CORE_PIN59_PORTCLEAR = CORE_PIN59_BITMASK;
+			} else if (pin == 60) {
+				CORE_PIN60_PORTCLEAR = CORE_PIN60_BITMASK;
+			} else if (pin == 61) {
+				CORE_PIN61_PORTCLEAR = CORE_PIN61_BITMASK;
+			} else if (pin == 62) {
+				CORE_PIN62_PORTCLEAR = CORE_PIN62_BITMASK;
+			} else if (pin == 63) {
+				CORE_PIN63_PORTCLEAR = CORE_PIN63_BITMASK;
 			}
 			#endif
 		}
@@ -1424,6 +1852,54 @@ static inline uint8_t digitalReadFast(uint8_t pin)
 			return (CORE_PIN38_PINREG & CORE_PIN38_BITMASK) ? 1 : 0;
 		} else if (pin == 39) {
 			return (CORE_PIN39_PINREG & CORE_PIN39_BITMASK) ? 1 : 0;
+		} else if (pin == 40) {
+			return (CORE_PIN40_PINREG & CORE_PIN40_BITMASK) ? 1 : 0;
+		} else if (pin == 41) {
+			return (CORE_PIN41_PINREG & CORE_PIN41_BITMASK) ? 1 : 0;
+		} else if (pin == 42) {
+			return (CORE_PIN42_PINREG & CORE_PIN42_BITMASK) ? 1 : 0;
+		} else if (pin == 43) {
+			return (CORE_PIN43_PINREG & CORE_PIN43_BITMASK) ? 1 : 0;
+		} else if (pin == 44) {
+			return (CORE_PIN44_PINREG & CORE_PIN44_BITMASK) ? 1 : 0;
+		} else if (pin == 45) {
+			return (CORE_PIN45_PINREG & CORE_PIN45_BITMASK) ? 1 : 0;
+		} else if (pin == 46) {
+			return (CORE_PIN46_PINREG & CORE_PIN46_BITMASK) ? 1 : 0;
+		} else if (pin == 47) {
+			return (CORE_PIN47_PINREG & CORE_PIN47_BITMASK) ? 1 : 0;
+		} else if (pin == 48) {
+			return (CORE_PIN48_PINREG & CORE_PIN48_BITMASK) ? 1 : 0;
+		} else if (pin == 49) {
+			return (CORE_PIN49_PINREG & CORE_PIN49_BITMASK) ? 1 : 0;
+		} else if (pin == 50) {
+			return (CORE_PIN50_PINREG & CORE_PIN50_BITMASK) ? 1 : 0;
+		} else if (pin == 51) {
+			return (CORE_PIN51_PINREG & CORE_PIN51_BITMASK) ? 1 : 0;
+		} else if (pin == 52) {
+			return (CORE_PIN52_PINREG & CORE_PIN52_BITMASK) ? 1 : 0;
+		} else if (pin == 53) {
+			return (CORE_PIN53_PINREG & CORE_PIN53_BITMASK) ? 1 : 0;
+		} else if (pin == 54) {
+			return (CORE_PIN54_PINREG & CORE_PIN54_BITMASK) ? 1 : 0;
+		} else if (pin == 55) {
+			return (CORE_PIN55_PINREG & CORE_PIN55_BITMASK) ? 1 : 0;
+		} else if (pin == 56) {
+			return (CORE_PIN56_PINREG & CORE_PIN56_BITMASK) ? 1 : 0;
+		} else if (pin == 57) {
+			return (CORE_PIN57_PINREG & CORE_PIN57_BITMASK) ? 1 : 0;
+		} else if (pin == 58) {
+			return (CORE_PIN58_PINREG & CORE_PIN58_BITMASK) ? 1 : 0;
+		} else if (pin == 59) {
+			return (CORE_PIN59_PINREG & CORE_PIN59_BITMASK) ? 1 : 0;
+		} else if (pin == 60) {
+			return (CORE_PIN60_PINREG & CORE_PIN60_BITMASK) ? 1 : 0;
+		} else if (pin == 61) {
+			return (CORE_PIN61_PINREG & CORE_PIN61_BITMASK) ? 1 : 0;
+		} else if (pin == 62) {
+			return (CORE_PIN62_PINREG & CORE_PIN62_BITMASK) ? 1 : 0;
+		} else if (pin == 63) {
+			return (CORE_PIN63_PINREG & CORE_PIN63_BITMASK) ? 1 : 0;
 		}
 		#endif
 		  else {
@@ -1442,8 +1918,8 @@ static inline uint8_t digitalReadFast(uint8_t pin)
 void pinMode(uint8_t pin, uint8_t mode);
 void init_pins(void);
 void analogWrite(uint8_t pin, int val);
-void analogWriteRes(uint32_t bits);
-static inline void analogWriteResolution(uint32_t bits) { analogWriteRes(bits); }
+uint32_t analogWriteRes(uint32_t bits);
+static inline uint32_t analogWriteResolution(uint32_t bits) { return analogWriteRes(bits); }
 void analogWriteFrequency(uint8_t pin, float frequency);
 void analogWriteDAC0(int val);
 void analogWriteDAC1(int val);
@@ -1529,7 +2005,17 @@ extern volatile uint32_t systick_millis_count;
 static inline uint32_t millis(void) __attribute__((always_inline, unused));
 static inline uint32_t millis(void)
 {
-	return systick_millis_count; // single aligned 32 bit is atomic;
+	// Reading a volatile variable to another volatile
+	// seems redundant, but isn't for some cases.
+	// Eventually this should probably be replaced by a
+	// proper memory barrier or other technique.  Please
+	// do not remove this "redundant" code without
+	// carefully verifying the case mentioned here:
+	//
+	// https://forum.pjrc.com/threads/17469-millis%28%29-on-teensy-3?p=104924&viewfull=1#post104924
+	//
+	volatile uint32_t ret = systick_millis_count; // single aligned 32 bit is atomic
+	return ret;
 }
 
 uint32_t micros(void);
@@ -1537,7 +2023,13 @@ uint32_t micros(void);
 static inline void delayMicroseconds(uint32_t) __attribute__((always_inline, unused));
 static inline void delayMicroseconds(uint32_t usec)
 {
-#if F_CPU == 192000000
+#if F_CPU == 256000000
+	uint32_t n = usec * 85;
+#elif F_CPU == 240000000
+	uint32_t n = usec * 80;
+#elif F_CPU == 216000000
+	uint32_t n = usec * 72;
+#elif F_CPU == 192000000
 	uint32_t n = usec * 64;
 #elif F_CPU == 180000000
 	uint32_t n = usec * 60;
@@ -1573,11 +2065,13 @@ static inline void delayMicroseconds(uint32_t usec)
 #endif
 #ifdef KINETISL
 		"sub    %0, #1"				"\n\t"
+		"bne    L_%=_delayMicroseconds"		"\n"
+		: "+l" (n) :
 #else
 		"subs   %0, #1"				"\n\t"
-#endif
 		"bne    L_%=_delayMicroseconds"		"\n"
 		: "+r" (n) :
+#endif
 	);
 }
 

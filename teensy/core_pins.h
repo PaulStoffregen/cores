@@ -2136,7 +2136,8 @@ static inline void delayMicroseconds(uint16_t usec)
 				uint8_t tmp2 = tmp;
 				asm volatile(
 				"L_%=_loop:"				// 1 to load
-					"subi	%0, 1"		"\n\t"	// 2
+					"subi	%0, 1"		"\n\t"	// 1
+					"nop"			"\n\t"	// 1
 					"brne	L_%=_loop"	"\n\t"	// 2 (1 on last)
 					: "=d" (tmp2)
 					: "0" (tmp2)

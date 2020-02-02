@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2016 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -496,8 +496,13 @@ static uint8_t transmit_previous_timeout=0;
 
 // When the PC isn't listening, how long do we wait before discarding data?
 #define TX_TIMEOUT_MSEC 50
-
-#if F_CPU == 192000000
+#if F_CPU == 256000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1706)
+#elif F_CPU == 240000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1600)
+#elif F_CPU == 216000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1440)
+#elif F_CPU == 192000000
   #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1280)
 #elif F_CPU == 180000000
   #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1200)

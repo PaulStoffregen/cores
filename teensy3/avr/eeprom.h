@@ -20,6 +20,9 @@
  * THE SOFTWARE.
  */
 
+// Guidelines for editing this file:
+// https://forum.pjrc.com/threads/34537-Teensy-LC-Increase-EEPROM-Size/page2
+
 #ifndef _AVR_EEPROM_H_
 #define _AVR_EEPROM_H_ 1
 

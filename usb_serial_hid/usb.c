@@ -65,7 +65,13 @@ static const uint8_t PROGMEM device_descriptor[] = {
 	ENDPOINT0_SIZE,				// bMaxPacketSize0
 	LSB(VENDOR_ID), MSB(VENDOR_ID),		// idVendor
 	LSB(PRODUCT_ID), MSB(PRODUCT_ID),	// idProduct
+#if defined(__AVR_ATmega32U4__)
+	0x71, 0x02,
+#elif defined(__AVR_AT90USB1286__)
+	0x72, 0x02,
+#else
 	0x02, 0x01,				// bcdDevice
+#endif
 	1,					// iManufacturer
 	2,					// iProduct
 	3,					// iSerialNumber

@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -28,20 +28,34 @@
  * SOFTWARE.
  */
 
+// To configure the EEPROM size, edit E2END in avr/eeprom.h.
+//
+// Do *NOT* edit EEPROM_SIZE in this file.  It will automatically
+// change based on your changes to E2END in avr/eeprom.h.
+//
+// Generally you should avoid editing this code, unless you really
+// know what you're doing.
+
 #include "kinetis.h"
 #include <avr/eeprom.h>
 //#include "HardwareSerial.h"
+#if F_CPU > 120000000 && defined(__MK66FX1M0__)
+#include "core_pins.h"	// delayMicroseconds()
+#endif
 
 
 #if defined(__MK20DX128__) || defined(__MK20DX256__)
 #define EEPROM_MAX  2048
 #define EEPARTITION 0x03  // all 32K dataflash for EEPROM, none for Data
+#define EEESPLIT    0x30  // must be 0x30 on these chips
 #elif defined(__MK64FX512__)
 #define EEPROM_MAX  4096
-#define EEPARTITION 0x04  // 64K dataflash for EEPROM, 64K for Data
+#define EEPARTITION 0x05  // all 128K dataflash for EEPROM
+#define EEESPLIT    0x10  // best endurance: 0x00 = first 12%, 0x10 = first 25%, 0x30 = all equal
 #elif defined(__MK66FX1M0__)
 #define EEPROM_MAX  4096
 #define EEPARTITION 0x05  // 128K dataflash for EEPROM, 128K for Data
+#define EEESPLIT    0x10  // best endurance: 0x00 = first 12%, 0x10 = first 25%, 0x30 = all equal
 #elif defined(__MKL26Z64__)
 #define EEPROM_MAX  255
 #endif
@@ -63,28 +77,28 @@
 
 #if E2END < 32
   #define EEPROM_SIZE 32
-  #define EEESIZE 0x39
+  #define EEESIZE 0x09
 #elif E2END < 64
   #define EEPROM_SIZE 64
-  #define EEESIZE 0x38
+  #define EEESIZE 0x08
 #elif E2END < 128
   #define EEPROM_SIZE 128
-  #define EEESIZE 0x37
+  #define EEESIZE 0x07
 #elif E2END < 256
   #define EEPROM_SIZE 256
-  #define EEESIZE 0x36
+  #define EEESIZE 0x06
 #elif E2END < 512
   #define EEPROM_SIZE 512
-  #define EEESIZE 0x35
+  #define EEESIZE 0x05
 #elif E2END < 1024
   #define EEPROM_SIZE 1024
-  #define EEESIZE 0x34
+  #define EEESIZE 0x04
 #elif E2END < 2048
   #define EEPROM_SIZE 2048
-  #define EEESIZE 0x33
+  #define EEESIZE 0x03
 #elif E2END < 4096
   #define EEPROM_SIZE 4096
-  #define EEESIZE 0x32
+  #define EEESIZE 0x02
 #endif
 
 // Writing unaligned 16 or 32 bit data is handled automatically when
@@ -105,15 +119,20 @@ void eeprom_initialize(void)
 	uint8_t status;
 
 	if (FTFL_FCNFG & FTFL_FCNFG_RAMRDY) {
+		uint8_t stat = FTFL_FSTAT & 0x70;
+		if (stat) FTFL_FSTAT = stat;
 		// FlexRAM is configured as traditional RAM
 		// We need to reconfigure for EEPROM usage
+		kinetis_hsrun_disable();
 		FTFL_FCCOB0 = 0x80; // PGMPART = Program Partition Command
-		FTFL_FCCOB4 = EEESIZE; // EEPROM Size
+		FTFL_FCCOB3 = 0;
+		FTFL_FCCOB4 = EEESPLIT | EEESIZE;
 		FTFL_FCCOB5 = EEPARTITION;
 		__disable_irq();
 		// do_flash_cmd() must execute from RAM.  Luckily the C syntax is simple...
 		(*((void (*)(volatile uint8_t *))((uint32_t)do_flash_cmd | 1)))(&FTFL_FSTAT);
 		__enable_irq();
+		kinetis_hsrun_enable();
 		status = FTFL_FSTAT;
 		if (status & 0x70) {
 			FTFL_FSTAT = (status & 0x70);
@@ -122,11 +141,11 @@ void eeprom_initialize(void)
 	}
 	// wait for eeprom to become ready (is this really necessary?)
 	while (!(FTFL_FCNFG & FTFL_FCNFG_EEERDY)) {
-		if (++count > 20000) break;
+		if (++count > 200000) break;
 	}
 }
 
-#define FlexRAM ((uint8_t *)0x14000000)
+#define FlexRAM ((volatile uint8_t *)0x14000000)
 
 uint8_t eeprom_read_byte(const uint8_t *addr)
 {
@@ -184,8 +203,12 @@ void eeprom_write_byte(uint8_t *addr, uint8_t value)
 	if (offset >= EEPROM_SIZE) return;
 	if (!(FTFL_FCNFG & FTFL_FCNFG_EEERDY)) eeprom_initialize();
 	if (FlexRAM[offset] != value) {
+		kinetis_hsrun_disable();
+		uint8_t stat = FTFL_FSTAT & 0x70;
+		if (stat) FTFL_FSTAT = stat;
 		FlexRAM[offset] = value;
 		flexram_wait();
+		kinetis_hsrun_enable();
 	}
 }
 
@@ -199,18 +222,30 @@ void eeprom_write_word(uint16_t *addr, uint16_t value)
 	if ((offset & 1) == 0) {
 #endif
 		if (*(uint16_t *)(&FlexRAM[offset]) != value) {
+			kinetis_hsrun_disable();
+			uint8_t stat = FTFL_FSTAT & 0x70;
+			if (stat) FTFL_FSTAT = stat;
 			*(uint16_t *)(&FlexRAM[offset]) = value;
 			flexram_wait();
+			kinetis_hsrun_enable();
 		}
 #ifdef HANDLE_UNALIGNED_WRITES
 	} else {
 		if (FlexRAM[offset] != value) {
+			kinetis_hsrun_disable();
+			uint8_t stat = FTFL_FSTAT & 0x70;
+			if (stat) FTFL_FSTAT = stat;
 			FlexRAM[offset] = value;
 			flexram_wait();
+			kinetis_hsrun_enable();
 		}
 		if (FlexRAM[offset + 1] != (value >> 8)) {
+			kinetis_hsrun_disable();
+			uint8_t stat = FTFL_FSTAT & 0x70;
+			if (stat) FTFL_FSTAT = stat;
 			FlexRAM[offset + 1] = value >> 8;
 			flexram_wait();
+			kinetis_hsrun_enable();
 		}
 	}
 #endif
@@ -227,33 +262,57 @@ void eeprom_write_dword(uint32_t *addr, uint32_t value)
 	case 0:
 #endif
 		if (*(uint32_t *)(&FlexRAM[offset]) != value) {
+			kinetis_hsrun_disable();
+			uint8_t stat = FTFL_FSTAT & 0x70;
+			if (stat) FTFL_FSTAT = stat;
 			*(uint32_t *)(&FlexRAM[offset]) = value;
 			flexram_wait();
+			kinetis_hsrun_enable();
 		}
 		return;
 #ifdef HANDLE_UNALIGNED_WRITES
 	case 2:
 		if (*(uint16_t *)(&FlexRAM[offset]) != value) {
+			kinetis_hsrun_disable();
+			uint8_t stat = FTFL_FSTAT & 0x70;
+			if (stat) FTFL_FSTAT = stat;
 			*(uint16_t *)(&FlexRAM[offset]) = value;
 			flexram_wait();
+			kinetis_hsrun_enable();
 		}
 		if (*(uint16_t *)(&FlexRAM[offset + 2]) != (value >> 16)) {
+			kinetis_hsrun_disable();
+			uint8_t stat = FTFL_FSTAT & 0x70;
+			if (stat) FTFL_FSTAT = stat;
 			*(uint16_t *)(&FlexRAM[offset + 2]) = value >> 16;
 			flexram_wait();
+			kinetis_hsrun_enable();
 		}
 		return;
 	default:
 		if (FlexRAM[offset] != value) {
+			kinetis_hsrun_disable();
+			uint8_t stat = FTFL_FSTAT & 0x70;
+			if (stat) FTFL_FSTAT = stat;
 			FlexRAM[offset] = value;
 			flexram_wait();
+			kinetis_hsrun_enable();
 		}
 		if (*(uint16_t *)(&FlexRAM[offset + 1]) != (value >> 8)) {
+			kinetis_hsrun_disable();
+			uint8_t stat = FTFL_FSTAT & 0x70;
+			if (stat) FTFL_FSTAT = stat;
 			*(uint16_t *)(&FlexRAM[offset + 1]) = value >> 8;
 			flexram_wait();
+			kinetis_hsrun_enable();
 		}
 		if (FlexRAM[offset + 3] != (value >> 24)) {
+			kinetis_hsrun_disable();
+			uint8_t stat = FTFL_FSTAT & 0x70;
+			if (stat) FTFL_FSTAT = stat;
 			FlexRAM[offset + 3] = value >> 24;
 			flexram_wait();
+			kinetis_hsrun_enable();
 		}
 	}
 #endif
@@ -278,8 +337,12 @@ void eeprom_write_block(const void *buf, void *addr, uint32_t len)
 			val32 |= (*src++ << 16);
 			val32 |= (*src++ << 24);
 			if (*(uint32_t *)(&FlexRAM[offset]) != val32) {
+				kinetis_hsrun_disable();
+				uint8_t stat = FTFL_FSTAT & 0x70;
+				if (stat) FTFL_FSTAT = stat;
 				*(uint32_t *)(&FlexRAM[offset]) = val32;
 				flexram_wait();
+				kinetis_hsrun_enable();
 			}
 			offset += 4;
 			len -= 4;
@@ -289,8 +352,12 @@ void eeprom_write_block(const void *buf, void *addr, uint32_t len)
 			val16 = *src++;
 			val16 |= (*src++ << 8);
 			if (*(uint16_t *)(&FlexRAM[offset]) != val16) {
+				kinetis_hsrun_disable();
+				uint8_t stat = FTFL_FSTAT & 0x70;
+				if (stat) FTFL_FSTAT = stat;
 				*(uint16_t *)(&FlexRAM[offset]) = val16;
 				flexram_wait();
+				kinetis_hsrun_enable();
 			}
 			offset += 2;
 			len -= 2;
@@ -298,8 +365,12 @@ void eeprom_write_block(const void *buf, void *addr, uint32_t len)
 			// write 8 bits
 			uint8_t val8 = *src++;
 			if (FlexRAM[offset] != val8) {
+				kinetis_hsrun_disable();
+				uint8_t stat = FTFL_FSTAT & 0x70;
+				if (stat) FTFL_FSTAT = stat;
 				FlexRAM[offset] = val8;
 				flexram_wait();
+				kinetis_hsrun_enable();
 			}
 			offset++;
 			len--;

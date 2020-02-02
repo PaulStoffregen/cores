@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -64,6 +64,7 @@ extern volatile uint8_t usb_configuration;
 class usb_seremu_class : public Stream
 {
 public:
+	constexpr usb_seremu_class() {}
         void begin(long) { /* TODO: call a function that tries to wait for enumeration */ };
         void end() { /* TODO: flush output and shut down USB port */ };
         virtual int available() { return usb_seremu_available(); }
@@ -76,7 +77,7 @@ public:
         size_t write(long n) { return write((uint8_t)n); }
         size_t write(unsigned int n) { return write((uint8_t)n); }
         size_t write(int n) { return write((uint8_t)n); }
-	int availableForWrite() { return usb_seremu_write_buffer_free(); }
+	virtual int availableForWrite() { return usb_seremu_write_buffer_free(); }
 	using Print::write;
         void send_now(void) { usb_seremu_flush_output(); };
         uint32_t baud(void) { return 9600; }
@@ -101,6 +102,7 @@ extern void serialEvent(void);
 class usb_seremu_class : public Stream
 {
 public:
+	constexpr usb_seremu_class() {}
 	void begin(long) { };
 	void end() { };
 	virtual int available() { return 0; }
