@@ -620,6 +620,12 @@ static void endpoint0_complete(void)
 		}
 	}
 #endif
+#ifdef KEYBOARD_INTERFACE
+	if (setup.word1 == 0x02000921 && setup.word2 == ((1<<16)|KEYBOARD_INTERFACE)) {
+		keyboard_leds = endpoint0_buffer[0];
+		usb_start_sof_interrupts(NUM_INTERFACE);
+	}
+#endif
 #ifdef SEREMU_INTERFACE
 	if (setup.word1 == 0x03000921 && setup.word2 == ((4<<16)|SEREMU_INTERFACE)
 	  && endpoint0_buffer[0] == 0xA9 && endpoint0_buffer[1] == 0x45
