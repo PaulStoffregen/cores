@@ -6,6 +6,7 @@
 #include "usb_keyboard.h"
 #include "usb_mouse.h"
 #include "usb_joystick.h"
+#include "usb_flightsim.h"
 #include "usb_touch.h"
 #include "usb_midi.h"
 #include "core_pins.h" // for delay()
@@ -314,6 +315,9 @@ static void isr(void)
 		#ifdef MULTITOUCH_INTERFACE
 		usb_touchscreen_update_callback();
 		#endif
+		#ifdef FLIGHTSIM_INTERFACE
+		usb_flightsim_flush_output();
+		#endif
 	}
 }
 
@@ -404,6 +408,9 @@ static void endpoint0_setup(uint64_t setupdata)
 		#endif
 		#if defined(MOUSE_INTERFACE)
 		usb_mouse_configure();
+		#endif
+		#if defined(FLIGHTSIM_INTERFACE)
+		usb_flightsim_configure();
 		#endif
 		#if defined(JOYSTICK_INTERFACE)
 		usb_joystick_configure();
