@@ -37,6 +37,7 @@ Serial4	KEYWORD1
 Serial5	KEYWORD1
 Serial6	KEYWORD1
 Serial7	KEYWORD1
+Serial8	KEYWORD1
 setRX	KEYWORD2
 setTX	KEYWORD2
 write9bit	KEYWORD2
@@ -53,6 +54,7 @@ getContext	KEYWORD2
 waitForEvent	KEYWORD2
 MillisTimer	LITERAL1
 beginRepeating	KEYWORD2
+delayNanoseconds	KEYWORD2
 
 # removed by Arduino 1.0, now also removed from Teensyduino
 #BYTE	LITERAL1
