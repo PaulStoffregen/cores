@@ -877,6 +877,7 @@ void _reboot_Teensyduino_(void)
 {
 	// TODO: initialize R0 with a code....
 	__asm__ volatile("bkpt");
+	__builtin_unreachable();
 }
 
 
