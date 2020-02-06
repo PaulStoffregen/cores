@@ -507,6 +507,8 @@ FlightSimCommand	KEYWORD2
 FlightSimInteger	KEYWORD2
 FlightSimFloat	KEYWORD2
 FlightSimElapsedFrames	KEYWORD2
+FlightSimData	KEYWORD2
+FlightSimEvent	KEYWORD2
 onChange	KEYWORD2
 update	KEYWORD2
 isEnabled	KEYWORD2

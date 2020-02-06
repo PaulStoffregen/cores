@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2017 PJRC.COM, LLC.
+ * Copyright (c) 2013 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -36,13 +36,22 @@
 #if defined(FLIGHTSIM_INTERFACE)
 
 #ifdef __cplusplus
+extern "C" {
+#endif
+void usb_flightsim_configure();
+void usb_flightsim_flush_output(void);
+#ifdef __cplusplus
+}
+#endif
+
+#ifdef __cplusplus
 
 #include <inttypes.h>
 #include "elapsedMillis.h"
 
 // workaround for elapsedMillis.h bringing in WProgram.h which brings usb_undef.h
-#undef USB_DESC_LIST_DEFINE
-#include "usb_desc.h"
+//#undef USB_DESC_LIST_DEFINE
+//#include "usb_desc.h"
 
 class FlightSimClass;
 class FlightSimCommand;
