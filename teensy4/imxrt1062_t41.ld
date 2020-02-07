@@ -3,7 +3,8 @@ MEMORY
 	ITCM (rwx):  ORIGIN = 0x00000000, LENGTH = 512K
 	DTCM (rwx):  ORIGIN = 0x20000000, LENGTH = 512K
 	RAM (rwx):   ORIGIN = 0x20200000, LENGTH = 512K
-	FLASH (rwx): ORIGIN = 0x60000000, LENGTH = 1984K
+	FLASH (rwx): ORIGIN = 0x60000000, LENGTH = 7936K
+	ERAM (rwx):  ORIGIN = 0x70000000, LENGTH = 8192K
 }
 
 ENTRY(ImageVectorTable)
@@ -59,6 +60,10 @@ SECTIONS
 		*(.dmabuffers)
 		. = ALIGN(16);
 	} > RAM
+
+	.bss.extram (NOLOAD) : {
+		*(.externalram)
+	} > ERAM
 
 	_stext = ADDR(.text.itcm);
 	_etext = ADDR(.text.itcm) + SIZEOF(.text.itcm);
