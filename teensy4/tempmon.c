@@ -12,6 +12,14 @@ static uint32_t panicAlarmTemp  = 90U;
 static uint32_t s_hotTemp, s_hotCount, s_roomC_hotC;
 static float s_hot_ROOM;
 
+void Panic_Temp_isr(void) {
+  __disable_irq();
+  IOMUXC_GPR_GPR16 = 0x00000007;
+  SNVS_LPCR |= SNVS_LPCR_TOP; //Switch off now
+  asm volatile ("dsb":::"memory");
+  while (1) asm ("wfi");
+}
+
 FLASHMEM void tempmon_init(void)
 {
   // Notes:
@@ -50,6 +58,11 @@ FLASHMEM void tempmon_init(void)
   
   //Start temp monitoring
   TEMPMON_TEMPSENSE0 |= 0x2U;   //starts temp monitoring
+
+  //PANIC shutdown:
+  NVIC_SET_PRIORITY(IRQ_TEMPERATURE_PANIC, 0);
+  attachInterruptVector(IRQ_TEMPERATURE_PANIC, &Panic_Temp_isr);
+  NVIC_ENABLE_IRQ(IRQ_TEMPERATURE_PANIC);
 }
 
 
