@@ -144,13 +144,19 @@ void _shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t valu
         }
 }
 
+
+static const int shiftOutDly = 10;
+
 void shiftOut_lsbFirst(uint8_t dataPin, uint8_t clockPin, uint8_t value)
 {
         uint8_t mask;
         for (mask=0x01; mask; mask <<= 1) {
                 digitalWrite(dataPin, value & mask);
+		delayNanoseconds(shiftOutDly );
                 digitalWrite(clockPin, HIGH);
+		delayNanoseconds(shiftOutDly );
                 digitalWrite(clockPin, LOW);
+		delayNanoseconds(shiftOutDly );
         }
 }
 
@@ -159,8 +165,11 @@ void shiftOut_msbFirst(uint8_t dataPin, uint8_t clockPin, uint8_t value)
         uint8_t mask;
         for (mask=0x80; mask; mask >>= 1) {
                 digitalWrite(dataPin, value & mask);
+		delayNanoseconds(shiftOutDly );
                 digitalWrite(clockPin, HIGH);
+		delayNanoseconds(shiftOutDly );
                 digitalWrite(clockPin, LOW);
+		delayNanoseconds(shiftOutDly );
         }
 }
 
