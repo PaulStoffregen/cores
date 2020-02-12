@@ -151,8 +151,8 @@ void _shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t valu
         }
 }
 
-static const int maxSpeed = 10000000ULL; //10 MHz
-static const int maxSpeedBeforeDelay = 392000000ULL; //max F_CPU_ACTUAL before doing delays (measured for 10MHz, -O2)
+static const unsigned maxSpeed = 10000000ULL; //10 MHz
+static const unsigned maxSpeedBeforeDelay = 392000000ULL; //max F_CPU_ACTUAL before doing delays (measured for 10MHz, -O2)
 
 void shiftOut_lsbFirst(uint8_t dataPin, uint8_t clockPin, uint8_t value)
 {
