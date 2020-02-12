@@ -151,24 +151,42 @@ void _shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t valu
         }
 }
 
+static const int maxSpeed = 10000000ULL; //10 MHz
+static const int maxSpeedBeforeDelay = 392000000ULL; //max F_CPU_ACTUAL before doing delays (measured for 10MHz, -O2)
+
 void shiftOut_lsbFirst(uint8_t dataPin, uint8_t clockPin, uint8_t value)
 {
-        uint8_t mask;
-        for (mask=0x01; mask; mask <<= 1) {
-                digitalWrite(dataPin, value & mask);
-                digitalWrite(clockPin, HIGH);
-                digitalWrite(clockPin, LOW);
-        }
+	uint8_t mask;
+	if (F_CPU_ACTUAL > maxSpeedBeforeDelay) {
+		uint32_t cycles = (F_CPU_ACTUAL / 2 / maxSpeed);
+		uint32_t t = ARM_DWT_CYCCNT;
+		for (mask = 0x01; mask; mask <<= 1) {
+		    digitalWrite(dataPin, value & mask);
+		    do {;} while(ARM_DWT_CYCCNT - t < cycles);
+		    t += cycles / 2;
+
+		    digitalWrite(clockPin, HIGH);
+		    do {;} while(ARM_DWT_CYCCNT - t < cycles);
+		    t += cycles;
+
+		    digitalWrite(clockPin, LOW);
+		    do {;} while(ARM_DWT_CYCCNT - t < cycles);
+		    t += cycles / 2;
+		}
+	}
+	else
+	for (mask=0x01; mask; mask <<= 1) {
+		digitalWrite(dataPin, value & mask);
+		digitalWrite(clockPin, HIGH);
+		digitalWrite(clockPin, LOW);
+	}
 }
 
 void shiftOut_msbFirst(uint8_t dataPin, uint8_t clockPin, uint8_t value)
 {
-        uint8_t mask;
-        for (mask=0x80; mask; mask >>= 1) {
-                digitalWrite(dataPin, value & mask);
-                digitalWrite(clockPin, HIGH);
-                digitalWrite(clockPin, LOW);
-        }
+	uint32_t v;
+	asm volatile ("rbit %0, %1" : "=r" (v) : "r" (value) );
+	shiftOut_lsbFirst(dataPin, clockPin, v >> 24);
 }
 
 uint8_t _shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder)
