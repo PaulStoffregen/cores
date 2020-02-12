@@ -38,8 +38,14 @@
 #include <string.h>
 #include "debug/printf.h"
 
+#if defined(ARDUINO_TEENSY40)
 #define FLASH_BASEADDR 0x601F0000
 #define FLASH_SECTORS  15
+#elif defined(ARDUINO_TEENSY41)
+#define FLASH_BASEADDR 0x607C0000
+#define FLASH_SECTORS  63
+#endif
+
 
 #if E2END > (255*FLASH_SECTORS-1)
 #error "E2END is set larger than the maximum possible EEPROM size"
@@ -251,7 +257,7 @@ static void flash_write(void *addr, const void *data, uint32_t len)
 	FLEXSPI_LUT60 = LUT0(CMD_SDR, PINS1, 0x32) | LUT1(ADDR_SDR, PINS1, 24); // 32 = quad write
 	FLEXSPI_LUT61 = LUT0(WRITE_SDR, PINS4, 1);
 	FLEXSPI_IPTXFCR = FLEXSPI_IPTXFCR_CLRIPTXF; // clear tx fifo
-	FLEXSPI_IPCR0 = (uint32_t)addr & 0x001FFFFF;
+	FLEXSPI_IPCR0 = (uint32_t)addr & 0x007FFFFF;
 	FLEXSPI_IPCR1 = FLEXSPI_IPCR1_ISEQID(15) | FLEXSPI_IPCR1_IDATSZ(len);
 	FLEXSPI_IPCMD = FLEXSPI_IPCMD_TRG;
 	const uint8_t *src = (const uint8_t *)data;
@@ -289,7 +295,7 @@ static void flash_erase_sector(void *addr)
 	while (!(FLEXSPI_INTR & FLEXSPI_INTR_IPCMDDONE)) ; // wait
 	FLEXSPI_INTR = FLEXSPI_INTR_IPCMDDONE;
 	FLEXSPI_LUT60 = LUT0(CMD_SDR, PINS1, 0x20) | LUT1(ADDR_SDR, PINS1, 24); // 20 = sector erase
-	FLEXSPI_IPCR0 = (uint32_t)addr & 0x001FF000;
+	FLEXSPI_IPCR0 = (uint32_t)addr & 0x007FF000;
 	FLEXSPI_IPCR1 = FLEXSPI_IPCR1_ISEQID(15);
 	FLEXSPI_IPCMD = FLEXSPI_IPCMD_TRG;
 	while (!(FLEXSPI_INTR & FLEXSPI_INTR_IPCMDDONE)) ; // wait
