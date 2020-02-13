@@ -875,7 +875,7 @@ extern const uint8_t usb_endpoint_config_table[NUM_ENDPOINTS];
 typedef struct {
 	uint16_t	wValue;
 	uint16_t	wIndex;
-	const uint8_t	*addr;
+	const void	*addr;
 	uint16_t	length;
 } usb_descriptor_list_t;
 

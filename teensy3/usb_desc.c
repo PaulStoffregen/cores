@@ -1534,12 +1534,12 @@ const usb_descriptor_list_t usb_descriptor_list[] = {
         {0x2100, MULTITOUCH_INTERFACE, config_descriptor+MULTITOUCH_HID_DESC_OFFSET, 9},
 #endif
 #ifdef MTP_INTERFACE
-	{0x0304, 0x0409, (const uint8_t *)&usb_string_mtp, 0},
+	{0x0304, 0x0409, &usb_string_mtp, 0},
 #endif
-        {0x0300, 0x0000, (const uint8_t *)&string0, 0},
-        {0x0301, 0x0409, (const uint8_t *)&usb_string_manufacturer_name, 0},
-        {0x0302, 0x0409, (const uint8_t *)&usb_string_product_name, 0},
-        {0x0303, 0x0409, (const uint8_t *)&usb_string_serial_number, 0},
+        {0x0300, 0x0000, &string0, 0},
+        {0x0301, 0x0409, &usb_string_manufacturer_name, 0},
+        {0x0302, 0x0409, &usb_string_product_name, 0},
+        {0x0303, 0x0409, &usb_string_serial_number, 0},
 	{0, 0, NULL, 0}
 };
 
