@@ -29,8 +29,27 @@
  */
 
 #include <inttypes.h>
+#include <sys/cdefs.h> // for __CONCAT()
 
 #include "usb_serial_port.h"
+
+#define USB_SERIAL_PREFIX		__CONCAT(usb_serial, USB_SERIAL_SUFFIX)
+#define USB_SERIAL_NAME(func)		__CONCAT(USB_SERIAL_PREFIX, _ ## func)
+#define usb_serial_available		USB_SERIAL_NAME(available)
+#define usb_serial_class		USB_SERIAL_NAME(class)
+#define usb_serial_flush_callback	USB_SERIAL_NAME(flush_callback)
+#define usb_serial_flush_input		USB_SERIAL_NAME(flush_input)
+#define usb_serial_flush_output		USB_SERIAL_NAME(flush_output)
+#define usb_serial_getchar		USB_SERIAL_NAME(getchar)
+#define usb_serial_instance		USB_SERIAL_NAME(instance)
+#define usb_serial_peekchar		USB_SERIAL_NAME(peekchar)
+#define usb_serial_putchar		USB_SERIAL_NAME(putchar)
+#define usb_serial_read			USB_SERIAL_NAME(read)
+#define usb_serial_write_buffer_free	USB_SERIAL_NAME(write_buffer_free)
+#define usb_serial_write		USB_SERIAL_NAME(write)
+
+#define Serial				__CONCAT(Serial, SERIAL_CLASS_SUFFIX)
+#define serialEvent			__CONCAT(serialEvent, SERIAL_CLASS_SUFFIX)
 
 #if F_CPU >= 20000000 && !defined(USB_DISABLED)
 
@@ -91,11 +110,6 @@ static inline void usb_serial_flush_callback(void)
 {
 	__usb_serial_flush_callback(&usb_serial_instance);
 }
-
-#define usb_cdc_line_coding		usb_serial_instance.cdc_line_coding
-#define usb_cdc_line_rtsdtr_millis	usb_serial_instance.cdc_line_rtsdtr_millis
-#define usb_cdc_line_rtsdtr		usb_serial_instance.cdc_line_rtsdtr
-#define usb_cdc_transmit_flush_timer	usb_serial_instance.cdc_transmit_flush_timer
 
 #ifdef __cplusplus
 }
@@ -222,3 +236,24 @@ extern void serialEvent(void);
 
 
 #endif // F_CPU
+
+#undef usb_serial_available
+#undef usb_serial_class
+#undef usb_serial_flush_callback
+#undef usb_serial_flush_input
+#undef usb_serial_flush_output
+#undef usb_serial_getchar
+#undef usb_serial_instance
+#undef usb_serial_peekchar
+#undef usb_serial_putchar
+#undef usb_serial_read
+#undef usb_serial_write_buffer_free
+#undef usb_serial_write
+
+#undef Serial
+#undef serialEvent
+
+#undef USB_SERIAL_SUFFIX
+#undef USB_SERIAL_PREFIX
+#undef USB_SERIAL_NAME
+#undef SERIAL_CLASS_SUFFIX
