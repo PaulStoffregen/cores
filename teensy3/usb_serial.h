@@ -39,6 +39,8 @@
 
 #if F_CPU >= 20000000 && !defined(USB_DISABLED)
 
+#include "core_pins.h" // for millis()
+
 // C language implementation
 #ifdef __cplusplus
 extern "C" {
@@ -52,6 +54,7 @@ int usb_serial_putchar(uint8_t c);
 int usb_serial_write(const void *buffer, uint32_t size);
 int usb_serial_write_buffer_free(void);
 void usb_serial_flush_output(void);
+void usb_serial_flush_callback(void);
 extern uint32_t usb_cdc_line_coding[2];
 extern volatile uint32_t usb_cdc_line_rtsdtr_millis;
 extern volatile uint32_t systick_millis_count;
