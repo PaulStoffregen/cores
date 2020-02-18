@@ -57,8 +57,13 @@ static BUFTYPE rx_buffer5[SERIAL5_RX_BUFFER_SIZE];
 static HardwareSerial::hardware_t UART8_Hardware = {
 	4, IRQ_LPUART8, &IRQHandler_Serial5, &serial_event_check_serial5,
 	CCM_CCGR6, CCM_CCGR6_LPUART8(CCM_CCGR_ON),
+	#if defined(ARDUINO_TEENSY41)
+	{{21,2, &IOMUXC_LPUART8_RX_SELECT_INPUT, 1}, {46, 2, &IOMUXC_LPUART8_RX_SELECT_INPUT, 0}},
+	{{20,2, &IOMUXC_LPUART8_TX_SELECT_INPUT, 1}, {47, 2, &IOMUXC_LPUART8_TX_SELECT_INPUT, 0}},
+	#else
 	{{21,2, &IOMUXC_LPUART8_RX_SELECT_INPUT, 1}, {38, 2, &IOMUXC_LPUART8_RX_SELECT_INPUT, 0}},
 	{{20,2, &IOMUXC_LPUART8_TX_SELECT_INPUT, 1}, {39, 2, &IOMUXC_LPUART8_TX_SELECT_INPUT, 0}},
+	#endif
 	0xff, // No CTS pin
 	0, // No CTS
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
