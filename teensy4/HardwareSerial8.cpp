@@ -30,7 +30,7 @@
 
 #include <Arduino.h>
 #include "HardwareSerial.h"
-#if defined(__IMXRT1052__)   
+#if defined(__IMXRT1062__) && defined(ARDUINO_TEENSY41)
 
 #ifndef SERIAL8_TX_BUFFER_SIZE
 #define SERIAL8_TX_BUFFER_SIZE     40 // number of outgoing bytes to buffer
@@ -59,8 +59,9 @@ static BUFTYPE rx_buffer8[SERIAL8_RX_BUFFER_SIZE];
 static HardwareSerial::hardware_t UART5_Hardware = {
 	7, IRQ_LPUART5, &IRQHandler_Serial8, &serial_event_check_serial8,
 	CCM_CCGR3, CCM_CCGR3_LPUART5(CCM_CCGR_ON),
-	{{30,2, &IOMUXC_LPUART5_RX_SELECT_INPUT, 0}, {0xff, 0xff, nullptr, 0}},
-	{{31,2, nullptr, 0}, {0xff, 0xff, nullptr, 0}},
+    {{34,1, &IOMUXC_LPUART5_RX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
+    {{35,1, &IOMUXC_LPUART5_TX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
+
 	0xff, // No CTS pin
 	0, // No CTS
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
