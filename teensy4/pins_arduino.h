@@ -93,9 +93,13 @@ const static uint8_t SCL = 19;
 #define PIN_SERIAL_TX (1)
 
 
+#ifdef ARDUINO_TEENSY41
+#define NUM_DIGITAL_PINS  55
+#define NUM_ANALOG_INPUTS 18
+#else
 #define NUM_DIGITAL_PINS  40
 #define NUM_ANALOG_INPUTS 14
-
+#endif
 
 #define NOT_AN_INTERRUPT -1
 
