@@ -62,7 +62,7 @@
 
 #define UART_CLOCK 24000000
 
-#if defined(__IMXRT1052__)   
+#if defined(ARDUINO_TEENSY41)   
 SerialEventCheckingFunctionPointer HardwareSerial::serial_event_handler_checks[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 #else
 SerialEventCheckingFunctionPointer HardwareSerial::serial_event_handler_checks[7] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};

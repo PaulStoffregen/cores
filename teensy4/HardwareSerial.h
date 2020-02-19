@@ -120,7 +120,7 @@ extern "C" {
 	extern void IRQHandler_Serial5();
 	extern void IRQHandler_Serial6();
 	extern void IRQHandler_Serial7();
-	#if defined(__IMXRT1052__)   
+	#if defined(ARDUINO_TEENSY41)   
 	extern void IRQHandler_Serial8();
 	#endif
 }
@@ -243,7 +243,7 @@ private:
 	friend void IRQHandler_Serial5();
 	friend void IRQHandler_Serial6();
 	friend void IRQHandler_Serial7();
-	#if defined(__IMXRT1052__)   
+	#if defined(ARDUINO_TEENSY41)   
 	friend void IRQHandler_Serial8();
 	static SerialEventCheckingFunctionPointer serial_event_handler_checks[8];
 	#else	
@@ -268,7 +268,7 @@ extern void serialEvent5(void);
 extern void serialEvent6(void);
 extern void serialEvent7(void);
 
-	#if defined(__IMXRT1052__)   
+	#if defined(ARDUINO_TEENSY41)   
 extern HardwareSerial Serial8;
 extern void serialEvent8(void);
 #endif
