@@ -39,6 +39,12 @@ void yield(void)
 	if (running) return; // TODO: does this need to be atomic?
 	running = 1;
 	if (Serial.available()) serialEvent();
+#if defined(USB_DUAL_SERIAL) || defined(USB_TRIPLE_SERIAL)
+	if (SerialA.available()) serialEventA();
+#endif
+#ifdef USB_TRIPLE_SERIAL
+	if (SerialB.available()) serialEventB();
+#endif
 	if (Serial1.available()) serialEvent1();
 	if (Serial2.available()) serialEvent2();
 	if (Serial3.available()) serialEvent3();

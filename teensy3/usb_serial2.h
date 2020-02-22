@@ -28,18 +28,21 @@
  * SOFTWARE.
  */
 
-#include "usb_dev.h"
+#ifndef USBserial2_h_
+#define USBserial2_h_
 
-// defined by usb_dev.h -> usb_desc.h
-#if defined(CDC_STATUS_INTERFACE) && defined(CDC_DATA_INTERFACE)
+#include "usb_desc.h"
 
-#if F_CPU >= 20000000
-#include "usb_serial_port.h"
+#if defined(CDC2_STATUS_INTERFACE) && defined(CDC2_DATA_INTERFACE)
+#define USB_SERIAL_SUFFIX	2
+#define SERIAL_CLASS_SUFFIX	A
 
-struct usb_serial_port usb_serial_instance = {
-	.cdc_rx_endpoint	= CDC_RX_ENDPOINT,
-	.cdc_tx_endpoint	= CDC_TX_ENDPOINT,
-	.cdc_tx_size		= CDC_TX_SIZE,
-};
-#endif // F_CPU
+#include "usb_serial_template.h"
+
+#define usb_cdc2_line_coding		usb_serial2_instance.cdc_line_coding
+#define usb_cdc2_line_rtsdtr_millis	usb_serial2_instance.cdc_line_rtsdtr_millis
+#define usb_cdc2_line_rtsdtr		usb_serial2_instance.cdc_line_rtsdtr
+#define usb_cdc2_transmit_flush_timer	usb_serial2_instance.cdc_transmit_flush_timer
 #endif // CDC_STATUS_INTERFACE && CDC_DATA_INTERFACE
+
+#endif // USBserial2_h_

@@ -31,15 +31,16 @@
 #include "usb_dev.h"
 
 // defined by usb_dev.h -> usb_desc.h
-#if defined(CDC_STATUS_INTERFACE) && defined(CDC_DATA_INTERFACE)
+#if defined(CDC2_STATUS_INTERFACE) && defined(CDC2_DATA_INTERFACE)
 
 #if F_CPU >= 20000000
 #include "usb_serial_port.h"
 
-struct usb_serial_port usb_serial_instance = {
-	.cdc_rx_endpoint	= CDC_RX_ENDPOINT,
-	.cdc_tx_endpoint	= CDC_TX_ENDPOINT,
-	.cdc_tx_size		= CDC_TX_SIZE,
+struct usb_serial_port usb_serial2_instance = {
+	.cdc_rx_endpoint	= CDC2_RX_ENDPOINT,
+	.cdc_tx_endpoint	= CDC2_TX_ENDPOINT,
+	.cdc_tx_size		= CDC2_TX_SIZE,
 };
-#endif // F_CPU
-#endif // CDC_STATUS_INTERFACE && CDC_DATA_INTERFACE
+#endif
+
+#endif // CDC2_STATUS_INTERFACE && CDC2_DATA_INTERFACE

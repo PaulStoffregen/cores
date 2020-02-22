@@ -28,18 +28,51 @@
  * SOFTWARE.
  */
 
-#include "usb_dev.h"
+#ifndef usb_serial_port_h_
+#define usb_serial_port_h_
 
-// defined by usb_dev.h -> usb_desc.h
-#if defined(CDC_STATUS_INTERFACE) && defined(CDC_DATA_INTERFACE)
+#if F_CPU >= 20000000 && !defined(USB_DISABLED)
 
-#if F_CPU >= 20000000
-#include "usb_serial_port.h"
+// C language implementation
+#ifdef __cplusplus
+extern "C" {
+#endif
+struct usb_packet_struct;
+struct usb_serial_port {
+	/* public */
+	uint32_t cdc_line_coding[2];
+	volatile uint32_t cdc_line_rtsdtr_millis;
+	volatile uint8_t cdc_line_rtsdtr;
+	volatile uint8_t cdc_transmit_flush_timer;
 
-struct usb_serial_port usb_serial_instance = {
-	.cdc_rx_endpoint	= CDC_RX_ENDPOINT,
-	.cdc_tx_endpoint	= CDC_TX_ENDPOINT,
-	.cdc_tx_size		= CDC_TX_SIZE,
+	/* private */
+	struct usb_packet_struct *rx_packet;
+	struct usb_packet_struct *tx_packet;
+	volatile uint8_t tx_noautoflush;
+	const uint8_t cdc_rx_endpoint;
+	const uint8_t cdc_tx_endpoint;
+	const uint8_t cdc_tx_size;
 };
+
+extern volatile uint32_t systick_millis_count;
+extern volatile uint8_t usb_configuration;
+
+int __usb_serial_getchar(struct usb_serial_port *port);
+int __usb_serial_peekchar(struct usb_serial_port *port);
+int __usb_serial_available(struct usb_serial_port *port);
+int __usb_serial_read(struct usb_serial_port *port, void *buffer,
+		      uint32_t size);
+void __usb_serial_flush_input(struct usb_serial_port *port);
+int __usb_serial_putchar(struct usb_serial_port *port, uint8_t c);
+int __usb_serial_write(struct usb_serial_port *port, const void *buffer,
+		       uint32_t size);
+int __usb_serial_write_buffer_free(struct usb_serial_port *port);
+void __usb_serial_flush_output(struct usb_serial_port *port);
+void __usb_serial_flush_callback(struct usb_serial_port *port);
+#ifdef __cplusplus
+}
+#endif
+
 #endif // F_CPU
-#endif // CDC_STATUS_INTERFACE && CDC_DATA_INTERFACE
+
+#endif // usb_serial_port_h_
