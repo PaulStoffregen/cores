@@ -9,6 +9,7 @@
 #include "usb_flightsim.h"
 #include "usb_touch.h"
 #include "usb_midi.h"
+#include "usb_audio.h"
 #include "core_pins.h" // for delay()
 #include "avr/pgmspace.h"
 #include <string.h>
@@ -421,6 +422,9 @@ static void endpoint0_setup(uint64_t setupdata)
 		#if defined(MIDI_INTERFACE)
 		usb_midi_configure();
 		#endif
+		#if defined(AUDIO_INTERFACE)
+		usb_audio_configure();
+		#endif
 		endpoint0_receive(NULL, 0, 0);
 		return;
 	  case 0x0880: // GET_CONFIGURATION
@@ -522,6 +526,59 @@ static void endpoint0_setup(uint64_t setupdata)
 			endpoint0_setupdata.bothwords = setup.bothwords;
 			endpoint0_buffer[0] = 0xE9;
 			endpoint0_receive(endpoint0_buffer, setup.wLength, 1);
+			return;
+		}
+		break;
+#endif
+#if defined(AUDIO_INTERFACE)
+	  case 0x0B01: // SET_INTERFACE (alternate setting)
+		if (setup.wIndex == AUDIO_INTERFACE+1) {
+			usb_audio_transmit_setting = setup.wValue;
+			if (usb_audio_transmit_setting > 0) {
+				// TODO: set up AUDIO_TX_ENDPOINT to transmit
+			}
+			endpoint0_receive(NULL, 0, 0);
+			return;
+		} else if (setup.wIndex == AUDIO_INTERFACE+2) {
+			usb_audio_receive_setting = setup.wValue;
+			endpoint0_receive(NULL, 0, 0);
+			return;
+		}
+		break;
+	  case 0x0A81: // GET_INTERFACE (alternate setting)
+		if (setup.wIndex == AUDIO_INTERFACE+1) {
+			endpoint0_buffer[0] = usb_audio_transmit_setting;
+			endpoint0_transmit(endpoint0_buffer, 1, 0);
+			return;
+		} else if (setup.wIndex == AUDIO_INTERFACE+2) {
+			endpoint0_buffer[0] = usb_audio_receive_setting;
+			endpoint0_transmit(endpoint0_buffer, 1, 0);
+			return;
+		}
+		break;
+	  case 0x0121: // SET FEATURE
+	  case 0x0221:
+	  case 0x0321:
+	  case 0x0421:
+		endpoint0_receive(NULL, 0, 1); // handle these after ACK
+		return;
+	  case 0x81A1: // GET FEATURE
+	  case 0x82A1:
+	  case 0x83A1:
+	  case 0x84A1:
+		if (setup.wLength <= sizeof(endpoint0_buffer)) {
+			/*if (usb_audio_get_feature(&setup, endpoint0_buffer, setup.wLength)) {
+				endpoint0_transmit(endpoint0_buffer, setup.wLength, 0);
+				return;
+			}*/
+		}
+		break;
+	  case 0x81A2: // GET_CUR (wValue=0, wIndex=interface, wLength=len)
+		if (setup.wLength >= 3) {
+			endpoint0_buffer[0] = 44100 & 255;
+			endpoint0_buffer[1] = 44100 >> 8;
+			endpoint0_buffer[2] = 0;
+			endpoint0_transmit(endpoint0_buffer, 3, 0);
 			return;
 		}
 		break;
@@ -641,6 +698,9 @@ static void endpoint0_complete(void)
 		usb_start_sof_interrupts(NUM_INTERFACE);
 		usb_reboot_timer = 80; // TODO: 10 if only 12 Mbit/sec
 	}
+#endif
+#ifdef AUDIO_INTERFACE
+	// TODO: usb_audio_set_feature()
 #endif
 }
 

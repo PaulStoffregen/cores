@@ -13,6 +13,10 @@ struct transfer_struct {
         uint32_t callback_param;
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void usb_init(void);
 void usb_init_serialnumber(void);
 
@@ -30,4 +34,6 @@ void usb_stop_sof_interrupts(int interface);
 extern void (*usb_timer0_callback)(void);
 extern void (*usb_timer1_callback)(void);
 
-
+#ifdef __cplusplus
+}
+#endif

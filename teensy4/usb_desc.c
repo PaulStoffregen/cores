@@ -1321,7 +1321,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 	5, 					// bDescriptorType, 5 = ENDPOINT_DESCRIPTOR
 	AUDIO_TX_ENDPOINT | 0x80,		// bEndpointAddress
 	0x09, 					// bmAttributes = isochronous, adaptive
-	LSB(AUDIO_TX_SIZE), MSB(AUDIO_TX_SIZE),	// wMaxPacketSize
+	LSB(AUDIO_TX_SIZE_480), MSB(AUDIO_TX_SIZE_480),	// wMaxPacketSize
 	1,			 		// bInterval, 1 = every frame
 	0,					// bRefresh
 	0,					// bSynchAddress
@@ -1380,7 +1380,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 	5, 					// bDescriptorType, 5 = ENDPOINT_DESCRIPTOR
 	AUDIO_RX_ENDPOINT,			// bEndpointAddress
 	0x05, 					// bmAttributes = isochronous, asynchronous
-	LSB(AUDIO_RX_SIZE), MSB(AUDIO_RX_SIZE),	// wMaxPacketSize
+	LSB(AUDIO_RX_SIZE_480), MSB(AUDIO_RX_SIZE_480),	// wMaxPacketSize
 	1,			 		// bInterval, 1 = every frame
 	0,					// bRefresh
 	AUDIO_SYNC_ENDPOINT | 0x80,		// bSynchAddress
@@ -1398,7 +1398,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 	5, 					// bDescriptorType, 5 = ENDPOINT_DESCRIPTOR
 	AUDIO_SYNC_ENDPOINT | 0x80,		// bEndpointAddress
 	0x11, 					// bmAttributes = isochronous, feedback
-	3, 0,					// wMaxPacketSize, 3 bytes
+	4, 0,					// wMaxPacketSize, 4 bytes
 	1,			 		// bInterval, 1 = every frame
 	5,					// bRefresh, 5 = 32ms
 	0,					// bSynchAddress
@@ -2155,7 +2155,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 	5, 					// bDescriptorType, 5 = ENDPOINT_DESCRIPTOR
 	AUDIO_TX_ENDPOINT | 0x80,		// bEndpointAddress
 	0x09, 					// bmAttributes = isochronous, adaptive
-	LSB(AUDIO_TX_SIZE), MSB(AUDIO_TX_SIZE),	// wMaxPacketSize
+	LSB(AUDIO_TX_SIZE_12), MSB(AUDIO_TX_SIZE_12),	// wMaxPacketSize
 	1,			 		// bInterval, 1 = every frame
 	0,					// bRefresh
 	0,					// bSynchAddress
@@ -2214,7 +2214,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 	5, 					// bDescriptorType, 5 = ENDPOINT_DESCRIPTOR
 	AUDIO_RX_ENDPOINT,			// bEndpointAddress
 	0x05, 					// bmAttributes = isochronous, asynchronous
-	LSB(AUDIO_RX_SIZE), MSB(AUDIO_RX_SIZE),	// wMaxPacketSize
+	LSB(AUDIO_RX_SIZE_12), MSB(AUDIO_RX_SIZE_12),	// wMaxPacketSize
 	1,			 		// bInterval, 1 = every frame
 	0,					// bRefresh
 	AUDIO_SYNC_ENDPOINT | 0x80,		// bSynchAddress

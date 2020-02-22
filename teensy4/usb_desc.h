@@ -645,7 +645,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define NUM_ENDPOINTS         5
   #define NUM_INTERFACE		4
   #define SEREMU_INTERFACE      0	// Serial emulation
-  #define SEREMU_TX_ENDPOINT    1
+  #define SEREMU_TX_ENDPOINT    2
   #define SEREMU_TX_SIZE        64
   #define SEREMU_TX_INTERVAL    1
   #define SEREMU_RX_ENDPOINT    2
@@ -653,15 +653,15 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define SEREMU_RX_INTERVAL    2
   #define AUDIO_INTERFACE	1	// Audio (uses 3 consecutive interfaces)
   #define AUDIO_TX_ENDPOINT     3
-  #define AUDIO_TX_SIZE         180
-  #define AUDIO_RX_ENDPOINT     4
-  #define AUDIO_RX_SIZE         180
-  #define AUDIO_SYNC_ENDPOINT	5
-  #define ENDPOINT1_CONFIG	ENDPOINT_TRANSMIT_ONLY
-  #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_ONLY
-  #define ENDPOINT3_CONFIG	ENDPOINT_TRANSMIT_ISOCHRONOUS
-  #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_ISOCHRONOUS
-  #define ENDPOINT5_CONFIG	ENDPOINT_TRANSMIT_ISOCHRONOUS
+  #define AUDIO_TX_SIZE_12      180
+  #define AUDIO_TX_SIZE_480     24
+  #define AUDIO_RX_ENDPOINT     3
+  #define AUDIO_RX_SIZE_12      180
+  #define AUDIO_RX_SIZE_480     24
+  #define AUDIO_SYNC_ENDPOINT	4
+  #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_INTERRUPT + ENDPOINT_TRANSMIT_INTERRUPT
+  #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_ISOCHRONOUS + ENDPOINT_TRANSMIT_ISOCHRONOUS
+  #define ENDPOINT4_CONFIG	ENDPOINT_TRANSMIT_ISOCHRONOUS
 
 #elif defined(USB_MIDI_AUDIO_SERIAL)
   #define VENDOR_ID		0x16C0
