@@ -728,6 +728,24 @@ void usb_config_tx(uint32_t ep, uint32_t packet_size, int do_zlp, void (*cb)(tra
 	if (cb) endpointN_notify_mask |= (1 << (ep + 16));
 }
 
+void usb_config_rx_iso(uint32_t ep, uint32_t packet_size, int mult, void (*cb)(transfer_t *))
+{
+	if (mult < 1 || mult > 3) return;
+	uint32_t config = (packet_size << 16) | (mult << 30);
+	if (ep < 2 || ep > NUM_ENDPOINTS) return;
+	usb_endpoint_config(endpoint_queue_head + ep * 2, config, cb);
+	if (cb) endpointN_notify_mask |= (1 << ep);
+}
+
+void usb_config_tx_iso(uint32_t ep, uint32_t packet_size, int mult, void (*cb)(transfer_t *))
+{
+	if (mult < 1 || mult > 3) return;
+	uint32_t config = (packet_size << 16) | (mult << 30);
+	if (ep < 2 || ep > NUM_ENDPOINTS) return;
+	usb_endpoint_config(endpoint_queue_head + ep * 2 + 1, config, cb);
+	if (cb) endpointN_notify_mask |= (1 << (ep + 16));
+}
+
 
 
 void usb_prepare_transfer(transfer_t *transfer, const void *data, uint32_t len, uint32_t param)

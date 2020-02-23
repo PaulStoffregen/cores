@@ -30,14 +30,10 @@
 
 #include <Arduino.h>
 #include "usb_dev.h"
+#include "usb_audio.h"
 #include "debug/printf.h"
 
 #ifdef AUDIO_INTERFACE
-
-// Uncomment this to work around a limitation in Macintosh adaptive rates
-// This is not a perfect solution.  Details here:
-// https://forum.pjrc.com/threads/34855-Distorted-audio-when-using-USB-input-on-Teensy-3-1
-//#define MACOSX_ADAPTIVE_LIMIT
 
 bool AudioInputUSB::update_responsibility;
 audio_block_t * AudioInputUSB::incoming_left;
@@ -53,8 +49,7 @@ extern volatile uint8_t usb_high_speed;
 static void rx_event(transfer_t *t);
 
 static transfer_t rx_transfer __attribute__ ((used, aligned(32)));
-/*DMAMEM*/ static uint8_t rx_buffer[AUDIO_RX_SIZE_12] __attribute__ ((aligned(32)));
-static uint16_t rx_max_size;
+DMAMEM static uint8_t rx_buffer[AUDIO_RX_SIZE] __attribute__ ((aligned(32)));
 
 //#define DMABUFATTR __attribute__ ((section(".dmabuffers"), aligned (4)))
 //uint16_t usb_audio_receive_buffer[AUDIO_RX_SIZE/2] DMABUFATTR;
@@ -68,22 +63,18 @@ static uint32_t feedback_accumulator = 185042824;
 
 static void rx_queue_transfer(void)
 {
-	usb_prepare_transfer(&rx_transfer, rx_buffer, rx_max_size, 0);
-	arm_dcache_delete(&rx_transfer, rx_max_size);
+	usb_prepare_transfer(&rx_transfer, rx_buffer, AUDIO_RX_SIZE, 0);
+	arm_dcache_delete(&rx_transfer, AUDIO_RX_SIZE);
 	usb_receive(AUDIO_RX_ENDPOINT, &rx_transfer);
 }
-
 
 void usb_audio_configure(void)
 {
 	printf("usb_audio_configure\n");
 	memset(&rx_transfer, 0, sizeof(rx_transfer));
-	rx_max_size = usb_high_speed ? AUDIO_RX_SIZE_480 : AUDIO_RX_SIZE_12;
-	usb_config_rx(AUDIO_RX_ENDPOINT, rx_max_size, 0, rx_event);
+	usb_config_rx_iso(AUDIO_RX_ENDPOINT, AUDIO_RX_SIZE, 1, rx_event);
 	rx_queue_transfer();
 }
-
-
 
 void AudioInputUSB::begin(void)
 {
@@ -127,18 +118,20 @@ static void copy_to_buffers(const uint32_t *src, int16_t *left, int16_t *right, 
 	}
 }
 
-static void rx_event(transfer_t *t)
-{
-	int len = rx_max_size - ((t->status >> 16) & 0x7FFF);
-	printf("rx event, len=%d\n", len);
-	// TODO: actually move the data from USB to audio lib
-	rx_queue_transfer();
-}
-
 // Called from the USB interrupt when an isochronous packet arrives
 // we must completely remove it from the receive buffer before returning
 //
-#if 0
+static void rx_event(transfer_t *t)
+{
+	unsigned int len = AUDIO_RX_SIZE - ((t->status >> 16) & 0x7FFF);
+	//int len = AUDIO_RX_SIZE - ((rx_transfer.status >> 16) & 0x7FFF);
+	printf("rx %u\n", len);
+	// TODO: actually move the data from USB to audio lib
+	usb_audio_receive_callback(len);
+	rx_queue_transfer();
+}
+
+#if 1
 void usb_audio_receive_callback(unsigned int len)
 {
 	unsigned int count, avail;
@@ -147,7 +140,7 @@ void usb_audio_receive_callback(unsigned int len)
 
 	AudioInputUSB::receive_flag = 1;
 	len >>= 2; // 1 sample = 4 bytes: 2 left, 2 right
-	data = (const uint32_t *)usb_audio_receive_buffer;
+	data = (const uint32_t *)rx_buffer;
 
 	count = AudioInputUSB::incoming_count;
 	left = AudioInputUSB::incoming_left;
