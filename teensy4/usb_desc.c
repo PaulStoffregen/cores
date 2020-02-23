@@ -1400,7 +1400,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 	0x11, 					// bmAttributes = isochronous, feedback
 	4, 0,					// wMaxPacketSize, 4 bytes
 	4,			 		// bInterval, 4 = 4 = every 8 micro-frames
-	5,					// bRefresh, 5 = 32ms
+	7,					// bRefresh,
 	0,					// bSynchAddress
 #endif
 
