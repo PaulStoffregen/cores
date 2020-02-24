@@ -687,13 +687,153 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
 #endif // CDC_DATA_INTERFACE
 
 #ifdef CDC2_DATA_INTERFACE
-        EMIT_CDC_IAD_DESCRIPTOR(CDC2),
-        EMIT_CDC_DESCRIPTORS(CDC2),
+        // interface association descriptor, USB ECN, Table 9-Z
+        8,                                      // bLength
+        11,                                     // bDescriptorType
+        CDC2_STATUS_INTERFACE,                  // bFirstInterface
+        2,                                      // bInterfaceCount
+        0x02,                                   // bFunctionClass
+        0x02,                                   // bFunctionSubClass
+        0x01,                                   // bFunctionProtocol
+        0,                                      // iFunction
+        // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+        9,                                      // bLength
+        4,                                      // bDescriptorType
+        CDC2_STATUS_INTERFACE,			// bInterfaceNumber
+        0,                                      // bAlternateSetting
+        1,                                      // bNumEndpoints
+        0x02,                                   // bInterfaceClass
+        0x02,                                   // bInterfaceSubClass
+        0x01,                                   // bInterfaceProtocol
+        0,                                      // iInterface
+        // CDC Header Functional Descriptor, CDC Spec 5.2.3.1, Table 26
+        5,                                      // bFunctionLength
+        0x24,                                   // bDescriptorType
+        0x00,                                   // bDescriptorSubtype
+        0x10, 0x01,                             // bcdCDC
+        // Call Management Functional Descriptor, CDC Spec 5.2.3.2, Table 27
+        5,                                      // bFunctionLength
+        0x24,                                   // bDescriptorType
+        0x01,                                   // bDescriptorSubtype
+        0x01,                                   // bmCapabilities
+        1,                                      // bDataInterface
+        // Abstract Control Management Functional Descriptor, CDC Spec 5.2.3.3, Table 28
+        4,                                      // bFunctionLength
+        0x24,                                   // bDescriptorType
+        0x02,                                   // bDescriptorSubtype
+        0x06,                                   // bmCapabilities
+        // Union Functional Descriptor, CDC Spec 5.2.3.8, Table 33
+        5,                                      // bFunctionLength
+        0x24,                                   // bDescriptorType
+        0x06,                                   // bDescriptorSubtype
+        CDC2_STATUS_INTERFACE,                  // bMasterInterface
+        CDC2_DATA_INTERFACE,                    // bSlaveInterface0
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        7,                                      // bLength
+        5,                                      // bDescriptorType
+        CDC2_ACM_ENDPOINT | 0x80,               // bEndpointAddress
+        0x03,                                   // bmAttributes (0x03=intr)
+        CDC2_ACM_SIZE, 0,                       // wMaxPacketSize
+        64,                                     // bInterval
+        // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+        9,                                      // bLength
+        4,                                      // bDescriptorType
+        CDC2_DATA_INTERFACE,                    // bInterfaceNumber
+        0,                                      // bAlternateSetting
+        2,                                      // bNumEndpoints
+        0x0A,                                   // bInterfaceClass
+        0x00,                                   // bInterfaceSubClass
+        0x00,                                   // bInterfaceProtocol
+        0,                                      // iInterface
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        7,                                      // bLength
+        5,                                      // bDescriptorType
+        CDC2_RX_ENDPOINT,                       // bEndpointAddress
+        0x02,                                   // bmAttributes (0x02=bulk)
+        CDC2_RX_SIZE, 0,                        // wMaxPacketSize
+        0,                                      // bInterval
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        7,                                      // bLength
+        5,                                      // bDescriptorType
+        CDC2_TX_ENDPOINT | 0x80,                // bEndpointAddress
+        0x02,                                   // bmAttributes (0x02=bulk)
+        CDC2_TX_SIZE, 0,                        // wMaxPacketSize
+        0,                                      // bInterval
 #endif // CDC2_DATA_INTERFACE
 
 #ifdef CDC3_DATA_INTERFACE
-        EMIT_CDC_IAD_DESCRIPTOR(CDC3),
-        EMIT_CDC_DESCRIPTORS(CDC3),
+        // interface association descriptor, USB ECN, Table 9-Z
+        8,                                      // bLength
+        11,                                     // bDescriptorType
+        CDC3_STATUS_INTERFACE,                  // bFirstInterface
+        2,                                      // bInterfaceCount
+        0x02,                                   // bFunctionClass
+        0x02,                                   // bFunctionSubClass
+        0x01,                                   // bFunctionProtocol
+        0,                                      // iFunction
+        // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+        9,                                      // bLength
+        4,                                      // bDescriptorType
+        CDC3_STATUS_INTERFACE,			// bInterfaceNumber
+        0,                                      // bAlternateSetting
+        1,                                      // bNumEndpoints
+        0x02,                                   // bInterfaceClass
+        0x02,                                   // bInterfaceSubClass
+        0x01,                                   // bInterfaceProtocol
+        0,                                      // iInterface
+        // CDC Header Functional Descriptor, CDC Spec 5.2.3.1, Table 26
+        5,                                      // bFunctionLength
+        0x24,                                   // bDescriptorType
+        0x00,                                   // bDescriptorSubtype
+        0x10, 0x01,                             // bcdCDC
+        // Call Management Functional Descriptor, CDC Spec 5.2.3.2, Table 27
+        5,                                      // bFunctionLength
+        0x24,                                   // bDescriptorType
+        0x01,                                   // bDescriptorSubtype
+        0x01,                                   // bmCapabilities
+        1,                                      // bDataInterface
+        // Abstract Control Management Functional Descriptor, CDC Spec 5.2.3.3, Table 28
+        4,                                      // bFunctionLength
+        0x24,                                   // bDescriptorType
+        0x02,                                   // bDescriptorSubtype
+        0x06,                                   // bmCapabilities
+        // Union Functional Descriptor, CDC Spec 5.2.3.8, Table 33
+        5,                                      // bFunctionLength
+        0x24,                                   // bDescriptorType
+        0x06,                                   // bDescriptorSubtype
+        CDC3_STATUS_INTERFACE,                  // bMasterInterface
+        CDC3_DATA_INTERFACE,                    // bSlaveInterface0
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        7,                                      // bLength
+        5,                                      // bDescriptorType
+        CDC3_ACM_ENDPOINT | 0x80,               // bEndpointAddress
+        0x03,                                   // bmAttributes (0x03=intr)
+        CDC3_ACM_SIZE, 0,                       // wMaxPacketSize
+        64,                                     // bInterval
+        // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+        9,                                      // bLength
+        4,                                      // bDescriptorType
+        CDC3_DATA_INTERFACE,                    // bInterfaceNumber
+        0,                                      // bAlternateSetting
+        2,                                      // bNumEndpoints
+        0x0A,                                   // bInterfaceClass
+        0x00,                                   // bInterfaceSubClass
+        0x00,                                   // bInterfaceProtocol
+        0,                                      // iInterface
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        7,                                      // bLength
+        5,                                      // bDescriptorType
+        CDC3_RX_ENDPOINT,                       // bEndpointAddress
+        0x02,                                   // bmAttributes (0x02=bulk)
+        CDC3_RX_SIZE, 0,                        // wMaxPacketSize
+        0,                                      // bInterval
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        7,                                      // bLength
+        5,                                      // bDescriptorType
+        CDC3_TX_ENDPOINT | 0x80,                // bEndpointAddress
+        0x02,                                   // bmAttributes (0x02=bulk)
+        CDC3_TX_SIZE, 0,                        // wMaxPacketSize
+        0,                                      // bInterval
 #endif // CDC3_DATA_INTERFACE
 
 #ifdef MIDI_INTERFACE
