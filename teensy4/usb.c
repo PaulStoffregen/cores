@@ -560,17 +560,29 @@ static void endpoint0_setup(uint64_t setupdata)
 	  case 0x0221:
 	  case 0x0321:
 	  case 0x0421:
-		endpoint0_receive(NULL, 0, 1); // handle these after ACK
-		return;
+		// TODO: remove this terrible kludge, but why oh why does servicing this
+		// request stop the isochronous endpoints?  Maybe a bug in endpoint0_receive?
+		if (usb_audio_transmit_setting || usb_audio_receive_setting) break; // kludge!!!
+
+		printf("set_feature, word1=%x, len=%d\n", setup.word1, setup.wLength);
+		if (setup.wLength <= sizeof(endpoint0_buffer)) {
+			endpoint0_setupdata.bothwords = setupdata;
+			endpoint0_receive(endpoint0_buffer, setup.wLength, 1);
+			return; // handle these after ACK
+		}
+		break;
 	  case 0x81A1: // GET FEATURE
 	  case 0x82A1:
 	  case 0x83A1:
 	  case 0x84A1:
 		if (setup.wLength <= sizeof(endpoint0_buffer)) {
-			/*if (usb_audio_get_feature(&setup, endpoint0_buffer, setup.wLength)) {
-				endpoint0_transmit(endpoint0_buffer, setup.wLength, 0);
+			uint32_t len;
+			static uint8_t buf[2];
+			if (usb_audio_get_feature(&setup, buf, &len)) {
+				printf("GET feature, len=%d\n", len);
+				endpoint0_transmit(buf, len, 0);
 				return;
-			}*/
+			}
 		}
 		break;
 	  case 0x81A2: // GET_CUR (wValue=0, wIndex=interface, wLength=len)
@@ -673,7 +685,7 @@ static void endpoint0_complete(void)
 	setup_t setup;
 
 	setup.bothwords = endpoint0_setupdata.bothwords;
-	//printf("complete %x %x %x\n", setup.word1, setup.word2, endpoint0_buffer[0]);
+	printf("complete %x %x %x\n", setup.word1, setup.word2, endpoint0_buffer[0]);
 #ifdef CDC_STATUS_INTERFACE
 	if (setup.wRequestAndType == 0x2021 /*CDC_SET_LINE_CODING*/) {
 		memcpy(usb_cdc_line_coding, endpoint0_buffer, 7);
@@ -700,7 +712,10 @@ static void endpoint0_complete(void)
 	}
 #endif
 #ifdef AUDIO_INTERFACE
-	// TODO: usb_audio_set_feature()
+	if (setup.word1 == 0x02010121 /* TODO: check setup.word2 */) {
+		usb_audio_set_feature(&endpoint0_setupdata, endpoint0_buffer);
+		// TODO: usb_audio_set_feature()
+	}
 #endif
 }
 
