@@ -560,11 +560,7 @@ static void endpoint0_setup(uint64_t setupdata)
 	  case 0x0221:
 	  case 0x0321:
 	  case 0x0421:
-		// TODO: remove this terrible kludge, but why oh why does servicing this
-		// request stop the isochronous endpoints?  Maybe a bug in endpoint0_receive?
-		if (usb_audio_transmit_setting || usb_audio_receive_setting) break; // kludge!!!
-
-		printf("set_feature, word1=%x, len=%d\n", setup.word1, setup.wLength);
+		//printf("set_feature, word1=%x, len=%d\n", setup.word1, setup.wLength);
 		if (setup.wLength <= sizeof(endpoint0_buffer)) {
 			endpoint0_setupdata.bothwords = setupdata;
 			endpoint0_receive(endpoint0_buffer, setup.wLength, 1);
@@ -577,10 +573,9 @@ static void endpoint0_setup(uint64_t setupdata)
 	  case 0x84A1:
 		if (setup.wLength <= sizeof(endpoint0_buffer)) {
 			uint32_t len;
-			static uint8_t buf[2];
-			if (usb_audio_get_feature(&setup, buf, &len)) {
-				printf("GET feature, len=%d\n", len);
-				endpoint0_transmit(buf, len, 0);
+			if (usb_audio_get_feature(&setup, endpoint0_buffer, &len)) {
+				//printf("GET feature, len=%d\n", len);
+				endpoint0_transmit(endpoint0_buffer, len, 0);
 				return;
 			}
 		}
@@ -623,7 +618,7 @@ static void endpoint0_transmit(const void *data, uint32_t len, int notify)
 	endpoint0_transfer_ack.pointer0 = 0;
 	endpoint_queue_head[0].next = (uint32_t)&endpoint0_transfer_ack;
 	endpoint_queue_head[0].status = 0;
-	USB1_ENDPTCOMPLETE |= (1<<0) | (1<<16);
+	USB1_ENDPTCOMPLETE = (1<<0) | (1<<16);
 	USB1_ENDPTPRIME |= (1<<0);
 	endpoint0_notify_mask = (notify ? (1 << 0) : 0);
 	while (USB1_ENDPTPRIME) ;
@@ -653,7 +648,7 @@ static void endpoint0_receive(void *data, uint32_t len, int notify)
 	endpoint0_transfer_ack.pointer0 = 0;
 	endpoint_queue_head[1].next = (uint32_t)&endpoint0_transfer_ack;
 	endpoint_queue_head[1].status = 0;
-	USB1_ENDPTCOMPLETE |= (1<<0) | (1<<16);
+	USB1_ENDPTCOMPLETE = (1<<0) | (1<<16);
 	USB1_ENDPTPRIME |= (1<<16);
 	endpoint0_notify_mask = (notify ? (1 << 16) : 0);
 	while (USB1_ENDPTPRIME) ;
@@ -685,7 +680,7 @@ static void endpoint0_complete(void)
 	setup_t setup;
 
 	setup.bothwords = endpoint0_setupdata.bothwords;
-	printf("complete %x %x %x\n", setup.word1, setup.word2, endpoint0_buffer[0]);
+	//printf("complete %x %x %x\n", setup.word1, setup.word2, endpoint0_buffer[0]);
 #ifdef CDC_STATUS_INTERFACE
 	if (setup.wRequestAndType == 0x2021 /*CDC_SET_LINE_CODING*/) {
 		memcpy(usb_cdc_line_coding, endpoint0_buffer, 7);
