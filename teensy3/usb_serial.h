@@ -34,15 +34,7 @@
 #include "usb_desc.h"
 
 #if (defined(CDC_STATUS_INTERFACE) && defined(CDC_DATA_INTERFACE)) || defined(USB_DISABLED)
-#define USB_SERIAL_SUFFIX	/* none */
-#define SERIAL_CLASS_SUFFIX	/* none */
-
 #include "usb_serial_template.h"
-
-#define usb_cdc_line_coding		usb_serial_instance.cdc_line_coding
-#define usb_cdc_line_rtsdtr_millis	usb_serial_instance.cdc_line_rtsdtr_millis
-#define usb_cdc_line_rtsdtr		usb_serial_instance.cdc_line_rtsdtr
-#define usb_cdc_transmit_flush_timer	usb_serial_instance.cdc_transmit_flush_timer
 #endif // CDC_STATUS_INTERFACE && CDC_DATA_INTERFACE
 
 #endif // USBserial_h_
