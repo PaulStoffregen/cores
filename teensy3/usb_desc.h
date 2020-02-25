@@ -142,7 +142,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #elif defined(USB_DUAL_SERIAL)
   #define VENDOR_ID		0x16C0
-  #define PRODUCT_ID		0x0483
+  #define PRODUCT_ID		0x048B
   #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
   #define MANUFACTURER_NAME_LEN	11
   #define PRODUCT_NAME		{'D','u','a','l',' ','S','e','r','i','a','l'}
@@ -177,7 +177,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #elif defined(USB_TRIPLE_SERIAL)
   #define VENDOR_ID		0x16C0
-  #define PRODUCT_ID		0x0483
+  #define PRODUCT_ID		0x048C
   #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
   #define MANUFACTURER_NAME_LEN	11
   #define PRODUCT_NAME		{'T','r','i','p','l','e',' ','S','e','r','i','a','l'}
