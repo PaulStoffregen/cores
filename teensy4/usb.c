@@ -401,6 +401,12 @@ static void endpoint0_setup(uint64_t setupdata)
 		#elif defined(SEREMU_INTERFACE)
 		usb_seremu_configure();
 		#endif
+		#if defined(CDC2_STATUS_INTERFACE) && defined(CDC2_DATA_INTERFACE)
+		usb_serial2_configure();
+		#endif
+		#if defined(CDC3_STATUS_INTERFACE) && defined(CDC3_DATA_INTERFACE)
+		usb_serial3_configure();
+		#endif
 		#if defined(RAWHID_INTERFACE)
 		usb_rawhid_configure();
 		#endif
@@ -508,8 +514,24 @@ static void endpoint0_setup(uint64_t setupdata)
 		break;
 #if defined(CDC_STATUS_INTERFACE)
 	  case 0x2221: // CDC_SET_CONTROL_LINE_STATE
-		usb_cdc_line_rtsdtr_millis = systick_millis_count;
-		usb_cdc_line_rtsdtr = setup.wValue;
+		#ifdef CDC_STATUS_INTERFACE
+		if (setup.wIndex == CDC_STATUS_INTERFACE) {
+			usb_cdc_line_rtsdtr_millis = systick_millis_count;
+			usb_cdc_line_rtsdtr = setup.wValue;
+		}
+		#endif
+		#ifdef CDC2_STATUS_INTERFACE
+		if (setup.wIndex == CDC2_STATUS_INTERFACE) {
+			usb_cdc2_line_rtsdtr_millis = systick_millis_count;
+			usb_cdc2_line_rtsdtr = setup.wValue;
+		}
+		#endif
+		#ifdef CDC3_STATUS_INTERFACE
+		if (setup.wIndex == CDC3_STATUS_INTERFACE) {
+			usb_cdc3_line_rtsdtr_millis = systick_millis_count;
+			usb_cdc3_line_rtsdtr = setup.wValue;
+		}
+		#endif
 	  case 0x2321: // CDC_SEND_BREAK
 		endpoint0_receive(NULL, 0, 0);
 		return;
@@ -682,10 +704,31 @@ static void endpoint0_complete(void)
 	setup.bothwords = endpoint0_setupdata.bothwords;
 	//printf("complete %x %x %x\n", setup.word1, setup.word2, endpoint0_buffer[0]);
 #ifdef CDC_STATUS_INTERFACE
-	if (setup.wRequestAndType == 0x2021 /*CDC_SET_LINE_CODING*/) {
+	// 0x2021 is CDC_SET_LINE_CODING
+	if (setup.wRequestAndType == 0x2021 && setup.wIndex == CDC_STATUS_INTERFACE) {
 		memcpy(usb_cdc_line_coding, endpoint0_buffer, 7);
 		printf("usb_cdc_line_coding, baud=%u\n", usb_cdc_line_coding[0]);
 		if (usb_cdc_line_coding[0] == 134) {
+			usb_start_sof_interrupts(NUM_INTERFACE);
+			usb_reboot_timer = 80; // TODO: 10 if only 12 Mbit/sec
+		}
+	}
+#endif
+#ifdef CDC2_STATUS_INTERFACE
+	if (setup.wRequestAndType == 0x2021 && setup.wIndex == CDC2_STATUS_INTERFACE) {
+		memcpy(usb_cdc2_line_coding, endpoint0_buffer, 7);
+		printf("usb_cdc2_line_coding, baud=%u\n", usb_cdc2_line_coding[0]);
+		if (usb_cdc2_line_coding[0] == 134) {
+			usb_start_sof_interrupts(NUM_INTERFACE);
+			usb_reboot_timer = 80; // TODO: 10 if only 12 Mbit/sec
+		}
+	}
+#endif
+#ifdef CDC3_STATUS_INTERFACE
+	if (setup.wRequestAndType == 0x2021 && setup.wIndex == CDC3_STATUS_INTERFACE) {
+		memcpy(usb_cdc3_line_coding, endpoint0_buffer, 7);
+		printf("usb_cdc3_line_coding, baud=%u\n", usb_cdc3_line_coding[0]);
+		if (usb_cdc3_line_coding[0] == 134) {
 			usb_start_sof_interrupts(NUM_INTERFACE);
 			usb_reboot_timer = 80; // TODO: 10 if only 12 Mbit/sec
 		}
@@ -709,7 +752,6 @@ static void endpoint0_complete(void)
 #ifdef AUDIO_INTERFACE
 	if (setup.word1 == 0x02010121 /* TODO: check setup.word2 */) {
 		usb_audio_set_feature(&endpoint0_setupdata, endpoint0_buffer);
-		// TODO: usb_audio_set_feature()
 	}
 #endif
 }
