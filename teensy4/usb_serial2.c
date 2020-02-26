@@ -282,24 +282,22 @@ static void timer_stop();
 
 static void timer_config(void (*callback)(void), uint32_t microseconds)
 {
-	// FIXME: conflicts with other interfaces
-	usb_timer0_callback = callback;
-	USB1_GPTIMER0CTRL = 0;
-	USB1_GPTIMER0LD = microseconds - 1;
-	USB1_USBINTR |= USB_USBINTR_TIE0;
+	// TODO: need a better way to allocate which USB interfaces use which timers
+	usb_timer1_callback = callback;
+	USB1_GPTIMER1CTRL = 0;
+	USB1_GPTIMER1LD = microseconds - 1;
+	USB1_USBINTR |= USB_USBINTR_TIE1;
 }
 
 static void timer_start_oneshot(void)
 {
-	// FIXME: conflicts with other interfaces
 	// restarts timer if already running (retriggerable one-shot)
-	USB1_GPTIMER0CTRL = USB_GPTIMERCTRL_GPTRUN | USB_GPTIMERCTRL_GPTRST;
+	USB1_GPTIMER1CTRL = USB_GPTIMERCTRL_GPTRUN | USB_GPTIMERCTRL_GPTRST;
 }
 
 static void timer_stop(void)
 {
-	// FIXME: conflicts with other interfaces
-	USB1_GPTIMER0CTRL = 0;
+	USB1_GPTIMER1CTRL = 0;
 }
 
 

@@ -280,26 +280,43 @@ static void timer_config(void (*callback)(void), uint32_t microseconds);
 static void timer_start_oneshot();
 static void timer_stop();
 
+static void quadtimer_isr(void)
+{
+	TMR1_SCTRL3 = 0;
+	usb_serial3_flush_callback();
+}
+
 static void timer_config(void (*callback)(void), uint32_t microseconds)
 {
-	// FIXME: conflicts with other interfaces
-	usb_timer0_callback = callback;
-	USB1_GPTIMER0CTRL = 0;
-	USB1_GPTIMER0LD = microseconds - 1;
-	USB1_USBINTR |= USB_USBINTR_TIE0;
+	// Both USB timers are already used with USB_TRIPLE_SERIAL
+	// Ideally we should have a software layer to extend the timers
+	// to any many USB interfaces as required.  But until that
+	// glorious future, as a quick hack we will commandeer Quad
+	// Timer #1 channel 3 (which isn't used by any PWM pin) and
+	// hope no other software needs it or it's interrupt.  The
+	// other 3 channels of Quad Timer #1 are normally used for PWM
+	// which doesn't use interrupts, so this is (probably) the
+	// safest Quad Timer channel to commandeer for an interrupt
+	// that the other 3 channels (hopefully) won't use.
+	TMR1_CTRL3 = 0;
+	TMR1_SCTRL3 = 0;
+	attachInterruptVector(IRQ_QTIMER1, quadtimer_isr);
+	NVIC_ENABLE_IRQ(IRQ_QTIMER1);
+	// kludge - both inputs ignored and hard-coded into other functions
 }
 
 static void timer_start_oneshot(void)
 {
-	// FIXME: conflicts with other interfaces
-	// restarts timer if already running (retriggerable one-shot)
-	USB1_GPTIMER0CTRL = USB_GPTIMERCTRL_GPTRUN | USB_GPTIMERCTRL_GPTRST;
+	TMR1_CTRL3 = 0;
+	TMR1_CNTR3 = 0;
+	TMR1_COMP13 = TRANSMIT_FLUSH_TIMEOUT * (F_BUS_ACTUAL >> 10) / (16000000 >> 10);
+	TMR1_SCTRL3 = TMR_SCTRL_TCFIE;
+	TMR1_CTRL3 = TMR_CTRL_CM(1) | TMR_CTRL_PCS(12) | TMR_CTRL_ONCE;
 }
 
 static void timer_stop(void)
 {
-	// FIXME: conflicts with other interfaces
-	USB1_GPTIMER0CTRL = 0;
+	TMR1_CTRL3 = 0;
 }
 
 
