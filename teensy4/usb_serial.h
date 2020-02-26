@@ -208,8 +208,8 @@ public:
         }
 
 };
-extern usb_serial2_class SerialA;
-extern void serialEventA(void);
+extern usb_serial2_class SerialUSB1;
+extern void serialEventUSB1(void);
 #endif // __cplusplus
 
 #endif // CDC2_STATUS_INTERFACE && CDC2_DATA_INTERFACE
@@ -296,8 +296,8 @@ public:
         }
 
 };
-extern usb_serial3_class SerialB;
-extern void serialEventB(void);
+extern usb_serial3_class SerialUSB2;
+extern void serialEventUSB2(void);
 #endif // __cplusplus
 
 #endif // CDC3_STATUS_INTERFACE && CDC3_DATA_INTERFACE

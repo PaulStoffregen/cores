@@ -40,10 +40,10 @@ void yield(void)
 	running = 1;
 	if (Serial.available()) serialEvent();
 #if defined(USB_DUAL_SERIAL) || defined(USB_TRIPLE_SERIAL)
-	if (SerialA.available()) serialEventA();
+	if (SerialUSB1.available()) serialEventUSB1();
 #endif
 #ifdef USB_TRIPLE_SERIAL
-	if (SerialB.available()) serialEventB();
+	if (SerialUSB2.available()) serialEventUSB2();
 #endif
 	if (Serial1.available()) serialEvent1();
 	if (Serial2.available()) serialEvent2();

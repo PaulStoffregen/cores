@@ -158,7 +158,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define CDC_TX_SIZE_480       512
   #define CDC_RX_SIZE_12        64
   #define CDC_TX_SIZE_12        64
-  #define CDC2_STATUS_INTERFACE 2       // SerialA
+  #define CDC2_STATUS_INTERFACE 2       // SerialUSB1
   #define CDC2_DATA_INTERFACE   3
   #define CDC2_ACM_ENDPOINT     4
   #define CDC2_RX_ENDPOINT      5
@@ -189,12 +189,12 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define CDC_TX_SIZE_480       512
   #define CDC_RX_SIZE_12        64
   #define CDC_TX_SIZE_12        64
-  #define CDC2_STATUS_INTERFACE 2       // SerialA
+  #define CDC2_STATUS_INTERFACE 2       // SerialUSB1
   #define CDC2_DATA_INTERFACE   3
   #define CDC2_ACM_ENDPOINT     4
   #define CDC2_RX_ENDPOINT      5
   #define CDC2_TX_ENDPOINT      5
-  #define CDC3_STATUS_INTERFACE 4       // SerialB
+  #define CDC3_STATUS_INTERFACE 4       // SerialUSB2
   #define CDC3_DATA_INTERFACE   5
   #define CDC3_ACM_ENDPOINT     6
   #define CDC3_RX_ENDPOINT      7

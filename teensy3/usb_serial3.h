@@ -128,8 +128,8 @@ public:
 	}
 
 };
-extern usb_serial3_class SerialB;
-extern void serialEventB(void);
+extern usb_serial3_class SerialUSB2;
+extern void serialEventUSB2(void);
 #endif // __cplusplus
 
 #endif // F_CPU
