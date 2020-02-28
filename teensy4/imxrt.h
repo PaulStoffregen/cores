@@ -7675,6 +7675,9 @@ typedef struct
 #define I2S_RCR2_MSEL(n)		((uint32_t)(n & 3)<<26)	// MCLK select, 0=bus clock, 1=I2S0_MCLK
 #define I2S_RCR2_SYNC(n)		((uint32_t)(n & 3)<<30)	// 0=async 1=sync with trasmitter
 #define I2S_RCR3_RCE			((uint32_t)0x10000)	// receive channel enable
+#define I2S_RCR3_RCE_2CH		((uint32_t)0x30000)
+#define I2S_RCR3_RCE_3CH		((uint32_t)0x70000)
+#define I2S_RCR3_RCE_4CH		((uint32_t)0xF0000)
 #define I2S_RCR4_FSD			((uint32_t)1)		// Frame Sync Direction
 #define I2S_RCR4_FSP			((uint32_t)1<<1)
 #define I2S_RCR4_FSE			((uint32_t)8)		// Frame Sync Early
@@ -7696,6 +7699,9 @@ typedef struct
 #define I2S_TCR2_MSEL(n)		((uint32_t)(n & 3)<<26)	// MCLK select, 0=bus clock, 1=I2S0_MCLK
 #define I2S_TCR2_SYNC(n)		((uint32_t)(n & 3)<<30)	// 0=async 1=sync with receiver
 #define I2S_TCR3_TCE			((uint32_t)0x10000)	// receive channel enable
+#define I2S_TCR3_TCE_2CH		((uint32_t)0x30000)
+#define I2S_TCR3_TCE_3CH		((uint32_t)0x70000)
+#define I2S_TCR3_TCE_4CH		((uint32_t)0xF0000)
 #define I2S_TCR4_FSD			((uint32_t)1)		// Frame Sync Direction
 #define I2S_TCR4_FSP			((uint32_t)1<<1)
 #define I2S_TCR4_FSE			((uint32_t)8)		// Frame Sync Early
