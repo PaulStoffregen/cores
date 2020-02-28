@@ -848,11 +848,11 @@ static void schedule_transfer(endpoint_t *endpoint, uint32_t epmask, transfer_t 
 		if (USB1_ENDPTPRIME & epmask) goto end;
 		//digitalWriteFast(2, HIGH);
 		//ret |= 0x01;
-		uint32_t status;
+		uint32_t status, cyccnt=ARM_DWT_CYCCNT;
 		do {
 			USB1_USBCMD |= USB_USBCMD_ATDTW;
 			status = USB1_ENDPTSTATUS;
-		} while (!(USB1_USBCMD & USB_USBCMD_ATDTW));
+		} while (!(USB1_USBCMD & USB_USBCMD_ATDTW) && (ARM_DWT_CYCCNT - cyccnt < 2400));
 		//USB1_USBCMD &= ~USB_USBCMD_ATDTW;
 		if (status & epmask) goto end;
 		//ret |= 0x02;
