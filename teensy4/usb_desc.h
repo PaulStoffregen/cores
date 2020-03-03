@@ -350,7 +350,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define KEYMEDIA_INTERVAL     4
   #define MULTITOUCH_INTERFACE  3	// Touchscreen
   #define MULTITOUCH_ENDPOINT   5
-  #define MULTITOUCH_SIZE       8
+  #define MULTITOUCH_SIZE       9
   #define MULTITOUCH_FINGERS    10
   #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_INTERRUPT + ENDPOINT_TRANSMIT_INTERRUPT
   #define ENDPOINT3_CONFIG      ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
@@ -388,7 +388,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define MOUSE_INTERVAL        2
   #define MULTITOUCH_INTERFACE  4	// Touchscreen
   #define MULTITOUCH_ENDPOINT   5
-  #define MULTITOUCH_SIZE       8
+  #define MULTITOUCH_SIZE       9
   #define MULTITOUCH_FINGERS    10
   #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_INTERRUPT + ENDPOINT_TRANSMIT_INTERRUPT
   #define ENDPOINT3_CONFIG      ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
@@ -891,7 +891,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define AUDIO_SYNC_ENDPOINT	14
   #define MULTITOUCH_INTERFACE  12	// Touchscreen
   #define MULTITOUCH_ENDPOINT   15
-  #define MULTITOUCH_SIZE       8
+  #define MULTITOUCH_SIZE       9
   #define MULTITOUCH_FINGERS    10
   #define ENDPOINT1_CONFIG	ENDPOINT_TRANSMIT_ONLY
   #define ENDPOINT2_CONFIG	ENDPOINT_TRANSMIT_AND_RECEIVE
