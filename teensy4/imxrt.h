@@ -4600,7 +4600,7 @@ typedef struct {
 #define FLEXPWM_SMTCTRL_PWAOT0			((uint16_t)(1<<15))
 #define FLEXPWM_SMTCTRL_PWBOT1			((uint16_t)(1<<14))
 #define FLEXPWM_SMTCTRL_TRGFRQ			((uint16_t)(1<<12))
-#define FLEXPWM_SMTCTRL_OUT_TRIG_EN(n)		((uint16_t)(((n) & 0x1F) << 0))
+#define FLEXPWM_SMTCTRL_OUT_TRIG_EN(n)		((uint16_t)(((n) & 0x3F) << 0))
 #define FLEXPWM_SMDISMAP0_DIS0X(n)		((uint16_t)(((n) & 0x0F) << 8))
 #define FLEXPWM_SMDISMAP0_DIS0B(n)		((uint16_t)(((n) & 0x0F) << 4))
 #define FLEXPWM_SMDISMAP0_DIS0A(n)		((uint16_t)(((n) & 0x0F) << 0))
