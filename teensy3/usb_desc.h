@@ -370,7 +370,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define KEYMEDIA_INTERVAL     4
   #define MULTITOUCH_INTERFACE  3	// Touchscreen
   #define MULTITOUCH_ENDPOINT   5
-  #define MULTITOUCH_SIZE       8
+  #define MULTITOUCH_SIZE       16
   #define MULTITOUCH_FINGERS    10
   #define ENDPOINT1_CONFIG	ENDPOINT_TRANSMIT_ONLY
   #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_ONLY
@@ -410,7 +410,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define MOUSE_INTERVAL        2
   #define MULTITOUCH_INTERFACE  4	// Touchscreen
   #define MULTITOUCH_ENDPOINT   5
-  #define MULTITOUCH_SIZE       8
+  #define MULTITOUCH_SIZE       16
   #define MULTITOUCH_FINGERS    10
   #define ENDPOINT1_CONFIG	ENDPOINT_TRANSMIT_ONLY
   #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_ONLY
