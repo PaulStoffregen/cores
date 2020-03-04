@@ -8473,6 +8473,14 @@ These register are used by the ROM code and should not be used by application so
 #define XBARA1_SEL65			(IMXRT_XBARA1.offset082)
 #define XBARA1_CTRL0			(IMXRT_XBARA1.offset084)
 #define XBARA1_CTRL1			(IMXRT_XBARA1.offset086)
+#define XBARA_CTRL_STS1				((uint16_t)(1<<12))
+#define XBARA_CTRL_EDGE1(n)			((uint16_t)(((n) & 0x03) << 10))
+#define XBARA_CTRL_IEN1				((uint16_t)(1<<9))
+#define XBARA_CTRL_DEN1				((uint16_t)(1<<8))
+#define XBARA_CTRL_STS0				((uint16_t)(1<<4))
+#define XBARA_CTRL_EDGE0(n)			((uint16_t)(((n) & 0x03) << 2))
+#define XBARA_CTRL_IEN0				((uint16_t)(1<<1))
+#define XBARA_CTRL_DEN0				((uint16_t)(1<<0))
 
 // 61.3: page 3537
 #define IMXRT_XBARB2		(*(IMXRT_REGISTER16_t *)0x403C0000)
