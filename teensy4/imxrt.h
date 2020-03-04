@@ -2543,12 +2543,12 @@ typedef struct {
 #define DMA_TCD_ATTR_SIZE_8BIT          0
 #define DMA_TCD_ATTR_SIZE_16BIT         1
 #define DMA_TCD_ATTR_SIZE_32BIT         2
-#define DMA_TCD_ATTR_SIZE_16BYTE        4
-#define DMA_TCD_ATTR_SIZE_32BYTE        5 // caution: this might not be supported in newer chips?
+#define DMA_TCD_ATTR_SIZE_64BIT         3
+#define DMA_TCD_ATTR_SIZE_32BYTE        5
 #define DMA_TCD_CSR_BWC(n)              (((n) & 0x3) << 14)
 #define DMA_TCD_CSR_BWC_MASK            0xC000
-#define DMA_TCD_CSR_MAJORLINKCH(n)      (((n) & 0xF) << 8)
-#define DMA_TCD_CSR_MAJORLINKCH_MASK    0x0F00
+#define DMA_TCD_CSR_MAJORLINKCH(n)      (((n) & 0x1F) << 8)
+#define DMA_TCD_CSR_MAJORLINKCH_MASK    0x1F00
 #define DMA_TCD_CSR_DONE                0x0080
 #define DMA_TCD_CSR_ACTIVE              0x0040
 #define DMA_TCD_CSR_MAJORELINK          0x0020
@@ -2562,13 +2562,13 @@ typedef struct {
 #define DMA_TCD_BITER_MASK              ((uint16_t)0x7FFF)         // Loop count mask
 #define DMA_TCD_BITER_ELINK             ((uint16_t)1<<15)          // Enable channel linking on minor-loop complete
 #define DMA_TCD_BITER_ELINKYES_ELINK            0x8000
-#define DMA_TCD_BITER_ELINKYES_LINKCH(n)        (((n) & 0xF) << 9)
-#define DMA_TCD_BITER_ELINKYES_LINKCH_MASK      0x1E00
+#define DMA_TCD_BITER_ELINKYES_LINKCH(n)        (((n) & 0x1F) << 9)
+#define DMA_TCD_BITER_ELINKYES_LINKCH_MASK      0x3E00
 #define DMA_TCD_BITER_ELINKYES_BITER(n)         (((n) & 0x1FF) << 0)
 #define DMA_TCD_BITER_ELINKYES_BITER_MASK       0x01FF
 #define DMA_TCD_CITER_ELINKYES_ELINK            0x8000
-#define DMA_TCD_CITER_ELINKYES_LINKCH(n)        (((n) & 0xF) << 9)
-#define DMA_TCD_CITER_ELINKYES_LINKCH_MASK      0x1E00
+#define DMA_TCD_CITER_ELINKYES_LINKCH(n)        (((n) & 0x1F) << 9)
+#define DMA_TCD_CITER_ELINKYES_LINKCH_MASK      0x3E00
 #define DMA_TCD_CITER_ELINKYES_CITER(n)         (((n) & 0x1FF) << 0)
 #define DMA_TCD_CITER_ELINKYES_CITER_MASK       0x01FF
 #define DMA_TCD_NBYTES_SMLOE                ((uint32_t)1<<31)               // Source Minor Loop Offset Enable
