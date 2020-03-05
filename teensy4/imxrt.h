@@ -9104,6 +9104,7 @@ static inline void arm_dcache_flush(void *addr, uint32_t size)
 {
 	uint32_t location = (uint32_t)addr & 0xFFFFFFE0;
 	uint32_t end_addr = (uint32_t)addr + size;
+	asm volatile("": : :"memory");
 	asm("dsb");
 	do {
 		SCB_CACHE_DCCMVAC = location;
@@ -9124,6 +9125,7 @@ static inline void arm_dcache_delete(void *addr, uint32_t size)
 {
 	uint32_t location = (uint32_t)addr & 0xFFFFFFE0;
 	uint32_t end_addr = (uint32_t)addr + size;
+	asm volatile("": : :"memory");
 	asm("dsb");
 	do {
 		SCB_CACHE_DCIMVAC = location;
@@ -9144,6 +9146,7 @@ static inline void arm_dcache_flush_delete(void *addr, uint32_t size)
 {
 	uint32_t location = (uint32_t)addr & 0xFFFFFFE0;
 	uint32_t end_addr = (uint32_t)addr + size;
+	asm volatile("": : :"memory");
 	asm("dsb");
 	do {
 		SCB_CACHE_DCCIMVAC = location;
