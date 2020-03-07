@@ -614,39 +614,35 @@ static void usb_control(uint32_t stat)
 		//serial_print("PID=OUT\n");
 		if (setup.wRequestAndType == 0x2021 /*CDC_SET_LINE_CODING*/) {
 			int i;
-			uint8_t *dst = NULL;
+			uint32_t *line_coding = NULL;
 			switch (setup.wIndex) {
 #ifdef CDC_STATUS_INTERFACE
 			  case CDC_STATUS_INTERFACE:
-				dst = (uint8_t *)usb_cdc_line_coding;
+				line_coding = usb_cdc_line_coding;
 				break;
 #endif
 #ifdef CDC2_STATUS_INTERFACE
 			  case CDC2_STATUS_INTERFACE:
-				dst = (uint8_t *)usb_cdc2_line_coding;
+				line_coding = usb_cdc2_line_coding;
 				break;
 #endif
 #ifdef CDC3_STATUS_INTERFACE
 			  case CDC3_STATUS_INTERFACE:
-				dst = (uint8_t *)usb_cdc3_line_coding;
+				line_coding = usb_cdc3_line_coding;
 				break;
 #endif
 			}
-			if (!dst)
-				break;
-
-			//serial_print("set line coding ");
-			for (i=0; i<7; i++) {
-				//serial_phex(*buf);
-				*dst++ = *buf++;
+			if (line_coding) {
+				uint8_t *dst = (uint8_t *)line_coding;
+				//serial_print("set line coding ");
+				for (i=0; i<7; i++) {
+					//serial_phex(*buf);
+					*dst++ = *buf++;
+				}
+				//serial_phex32(line_coding[0]);
+				//serial_print("\n");
+				if (line_coding[0] == 134) usb_reboot_timer = 15;
 			}
-			//serial_phex32(usb_cdc_line_coding[0]);
-			//serial_print("\n");
-#ifdef CDC_STATUS_INTERFACE
-			if (setup.wIndex == CDC_STATUS_INTERFACE &&
-			    usb_cdc_line_coding[0] == 134)
-				usb_reboot_timer = 15;
-#endif
 			endpoint0_transmit(NULL, 0);
 		}
 #ifdef KEYBOARD_INTERFACE

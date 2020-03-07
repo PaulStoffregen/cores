@@ -2543,12 +2543,12 @@ typedef struct {
 #define DMA_TCD_ATTR_SIZE_8BIT          0
 #define DMA_TCD_ATTR_SIZE_16BIT         1
 #define DMA_TCD_ATTR_SIZE_32BIT         2
-#define DMA_TCD_ATTR_SIZE_16BYTE        4
-#define DMA_TCD_ATTR_SIZE_32BYTE        5 // caution: this might not be supported in newer chips?
+#define DMA_TCD_ATTR_SIZE_64BIT         3
+#define DMA_TCD_ATTR_SIZE_32BYTE        5
 #define DMA_TCD_CSR_BWC(n)              (((n) & 0x3) << 14)
 #define DMA_TCD_CSR_BWC_MASK            0xC000
-#define DMA_TCD_CSR_MAJORLINKCH(n)      (((n) & 0xF) << 8)
-#define DMA_TCD_CSR_MAJORLINKCH_MASK    0x0F00
+#define DMA_TCD_CSR_MAJORLINKCH(n)      (((n) & 0x1F) << 8)
+#define DMA_TCD_CSR_MAJORLINKCH_MASK    0x1F00
 #define DMA_TCD_CSR_DONE                0x0080
 #define DMA_TCD_CSR_ACTIVE              0x0040
 #define DMA_TCD_CSR_MAJORELINK          0x0020
@@ -2562,13 +2562,13 @@ typedef struct {
 #define DMA_TCD_BITER_MASK              ((uint16_t)0x7FFF)         // Loop count mask
 #define DMA_TCD_BITER_ELINK             ((uint16_t)1<<15)          // Enable channel linking on minor-loop complete
 #define DMA_TCD_BITER_ELINKYES_ELINK            0x8000
-#define DMA_TCD_BITER_ELINKYES_LINKCH(n)        (((n) & 0xF) << 9)
-#define DMA_TCD_BITER_ELINKYES_LINKCH_MASK      0x1E00
+#define DMA_TCD_BITER_ELINKYES_LINKCH(n)        (((n) & 0x1F) << 9)
+#define DMA_TCD_BITER_ELINKYES_LINKCH_MASK      0x3E00
 #define DMA_TCD_BITER_ELINKYES_BITER(n)         (((n) & 0x1FF) << 0)
 #define DMA_TCD_BITER_ELINKYES_BITER_MASK       0x01FF
 #define DMA_TCD_CITER_ELINKYES_ELINK            0x8000
-#define DMA_TCD_CITER_ELINKYES_LINKCH(n)        (((n) & 0xF) << 9)
-#define DMA_TCD_CITER_ELINKYES_LINKCH_MASK      0x1E00
+#define DMA_TCD_CITER_ELINKYES_LINKCH(n)        (((n) & 0x1F) << 9)
+#define DMA_TCD_CITER_ELINKYES_LINKCH_MASK      0x3E00
 #define DMA_TCD_CITER_ELINKYES_CITER(n)         (((n) & 0x1FF) << 0)
 #define DMA_TCD_CITER_ELINKYES_CITER_MASK       0x01FF
 #define DMA_TCD_NBYTES_SMLOE                ((uint32_t)1<<31)               // Source Minor Loop Offset Enable
@@ -4600,7 +4600,7 @@ typedef struct {
 #define FLEXPWM_SMTCTRL_PWAOT0			((uint16_t)(1<<15))
 #define FLEXPWM_SMTCTRL_PWBOT1			((uint16_t)(1<<14))
 #define FLEXPWM_SMTCTRL_TRGFRQ			((uint16_t)(1<<12))
-#define FLEXPWM_SMTCTRL_OUT_TRIG_EN(n)		((uint16_t)(((n) & 0x1F) << 0))
+#define FLEXPWM_SMTCTRL_OUT_TRIG_EN(n)		((uint16_t)(((n) & 0x3F) << 0))
 #define FLEXPWM_SMDISMAP0_DIS0X(n)		((uint16_t)(((n) & 0x0F) << 8))
 #define FLEXPWM_SMDISMAP0_DIS0B(n)		((uint16_t)(((n) & 0x0F) << 4))
 #define FLEXPWM_SMDISMAP0_DIS0A(n)		((uint16_t)(((n) & 0x0F) << 0))
@@ -7675,6 +7675,9 @@ typedef struct
 #define I2S_RCR2_MSEL(n)		((uint32_t)(n & 3)<<26)	// MCLK select, 0=bus clock, 1=I2S0_MCLK
 #define I2S_RCR2_SYNC(n)		((uint32_t)(n & 3)<<30)	// 0=async 1=sync with trasmitter
 #define I2S_RCR3_RCE			((uint32_t)0x10000)	// receive channel enable
+#define I2S_RCR3_RCE_2CH		((uint32_t)0x30000)
+#define I2S_RCR3_RCE_3CH		((uint32_t)0x70000)
+#define I2S_RCR3_RCE_4CH		((uint32_t)0xF0000)
 #define I2S_RCR4_FSD			((uint32_t)1)		// Frame Sync Direction
 #define I2S_RCR4_FSP			((uint32_t)1<<1)
 #define I2S_RCR4_FSE			((uint32_t)8)		// Frame Sync Early
@@ -7696,6 +7699,9 @@ typedef struct
 #define I2S_TCR2_MSEL(n)		((uint32_t)(n & 3)<<26)	// MCLK select, 0=bus clock, 1=I2S0_MCLK
 #define I2S_TCR2_SYNC(n)		((uint32_t)(n & 3)<<30)	// 0=async 1=sync with receiver
 #define I2S_TCR3_TCE			((uint32_t)0x10000)	// receive channel enable
+#define I2S_TCR3_TCE_2CH		((uint32_t)0x30000)
+#define I2S_TCR3_TCE_3CH		((uint32_t)0x70000)
+#define I2S_TCR3_TCE_4CH		((uint32_t)0xF0000)
 #define I2S_TCR4_FSD			((uint32_t)1)		// Frame Sync Direction
 #define I2S_TCR4_FSP			((uint32_t)1<<1)
 #define I2S_TCR4_FSE			((uint32_t)8)		// Frame Sync Early
@@ -8429,8 +8435,52 @@ These register are used by the ROM code and should not be used by application so
 #define XBARA1_SEL27			(IMXRT_XBARA1.offset036)
 #define XBARA1_SEL28			(IMXRT_XBARA1.offset038)
 #define XBARA1_SEL29			(IMXRT_XBARA1.offset03A)
-#define XBARA1_CTRL0			(IMXRT_XBARA1.offset03C)
-#define XBARA1_CTRL1			(IMXRT_XBARA1.offset03E)
+#define XBARA1_SEL30			(IMXRT_XBARA1.offset03C)
+#define XBARA1_SEL31			(IMXRT_XBARA1.offset03E)
+#define XBARA1_SEL32			(IMXRT_XBARA1.offset040)
+#define XBARA1_SEL33			(IMXRT_XBARA1.offset042)
+#define XBARA1_SEL34			(IMXRT_XBARA1.offset044)
+#define XBARA1_SEL35			(IMXRT_XBARA1.offset046)
+#define XBARA1_SEL36			(IMXRT_XBARA1.offset048)
+#define XBARA1_SEL37			(IMXRT_XBARA1.offset04A)
+#define XBARA1_SEL38			(IMXRT_XBARA1.offset04C)
+#define XBARA1_SEL39			(IMXRT_XBARA1.offset04E)
+#define XBARA1_SEL40			(IMXRT_XBARA1.offset050)
+#define XBARA1_SEL41			(IMXRT_XBARA1.offset052)
+#define XBARA1_SEL42			(IMXRT_XBARA1.offset054)
+#define XBARA1_SEL43			(IMXRT_XBARA1.offset056)
+#define XBARA1_SEL44			(IMXRT_XBARA1.offset058)
+#define XBARA1_SEL45			(IMXRT_XBARA1.offset05A)
+#define XBARA1_SEL46			(IMXRT_XBARA1.offset05C)
+#define XBARA1_SEL47			(IMXRT_XBARA1.offset05E)
+#define XBARA1_SEL48			(IMXRT_XBARA1.offset060)
+#define XBARA1_SEL49			(IMXRT_XBARA1.offset062)
+#define XBARA1_SEL50			(IMXRT_XBARA1.offset064)
+#define XBARA1_SEL51			(IMXRT_XBARA1.offset066)
+#define XBARA1_SEL52			(IMXRT_XBARA1.offset068)
+#define XBARA1_SEL53			(IMXRT_XBARA1.offset06A)
+#define XBARA1_SEL54			(IMXRT_XBARA1.offset06C)
+#define XBARA1_SEL55			(IMXRT_XBARA1.offset06E)
+#define XBARA1_SEL56			(IMXRT_XBARA1.offset070)
+#define XBARA1_SEL57			(IMXRT_XBARA1.offset072)
+#define XBARA1_SEL58			(IMXRT_XBARA1.offset074)
+#define XBARA1_SEL59			(IMXRT_XBARA1.offset076)
+#define XBARA1_SEL60			(IMXRT_XBARA1.offset078)
+#define XBARA1_SEL61			(IMXRT_XBARA1.offset07A)
+#define XBARA1_SEL62			(IMXRT_XBARA1.offset07C)
+#define XBARA1_SEL63			(IMXRT_XBARA1.offset07E)
+#define XBARA1_SEL64			(IMXRT_XBARA1.offset080)
+#define XBARA1_SEL65			(IMXRT_XBARA1.offset082)
+#define XBARA1_CTRL0			(IMXRT_XBARA1.offset084)
+#define XBARA1_CTRL1			(IMXRT_XBARA1.offset086)
+#define XBARA_CTRL_STS1				((uint16_t)(1<<12))
+#define XBARA_CTRL_EDGE1(n)			((uint16_t)(((n) & 0x03) << 10))
+#define XBARA_CTRL_IEN1				((uint16_t)(1<<9))
+#define XBARA_CTRL_DEN1				((uint16_t)(1<<8))
+#define XBARA_CTRL_STS0				((uint16_t)(1<<4))
+#define XBARA_CTRL_EDGE0(n)			((uint16_t)(((n) & 0x03) << 2))
+#define XBARA_CTRL_IEN0				((uint16_t)(1<<1))
+#define XBARA_CTRL_DEN0				((uint16_t)(1<<0))
 
 // 61.3: page 3537
 #define IMXRT_XBARB2		(*(IMXRT_REGISTER16_t *)0x403C0000)
@@ -9054,6 +9104,7 @@ static inline void arm_dcache_flush(void *addr, uint32_t size)
 {
 	uint32_t location = (uint32_t)addr & 0xFFFFFFE0;
 	uint32_t end_addr = (uint32_t)addr + size;
+	asm volatile("": : :"memory");
 	asm("dsb");
 	do {
 		SCB_CACHE_DCCMVAC = location;
@@ -9074,6 +9125,7 @@ static inline void arm_dcache_delete(void *addr, uint32_t size)
 {
 	uint32_t location = (uint32_t)addr & 0xFFFFFFE0;
 	uint32_t end_addr = (uint32_t)addr + size;
+	asm volatile("": : :"memory");
 	asm("dsb");
 	do {
 		SCB_CACHE_DCIMVAC = location;
@@ -9094,6 +9146,7 @@ static inline void arm_dcache_flush_delete(void *addr, uint32_t size)
 {
 	uint32_t location = (uint32_t)addr & 0xFFFFFFE0;
 	uint32_t end_addr = (uint32_t)addr + size;
+	asm volatile("": : :"memory");
 	asm("dsb");
 	do {
 		SCB_CACHE_DCCIMVAC = location;

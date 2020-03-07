@@ -41,13 +41,13 @@ usb_serial_class Serial;
 
 #ifdef CDC2_DATA_INTERFACE
 #ifdef CDC2_STATUS_INTERFACE
-usb_serial2_class SerialA;
+usb_serial2_class SerialUSB1;
 #endif
 #endif
 
 #ifdef CDC3_DATA_INTERFACE
 #ifdef CDC3_STATUS_INTERFACE
-usb_serial3_class SerialB;
+usb_serial3_class SerialUSB2;
 #endif
 #endif
 
@@ -100,7 +100,7 @@ usb_seremu_class Serial;
 
 void serialEvent() __attribute__((weak));
 void serialEvent() {}
-void serialEventA() __attribute__((weak));
-void serialEventA() {}
-void serialEventB() __attribute__((weak));
-void serialEventB() {}
+void serialEventUSB1() __attribute__((weak));
+void serialEventUSB1() {}
+void serialEventUSB2() __attribute__((weak));
+void serialEventUSB2() {}

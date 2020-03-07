@@ -86,12 +86,14 @@ void usb_touchscreen_release(uint8_t finger)
 //  5: Y msb
 //  6: scan time lsb
 //  7: scan time msb
-
+//	8: contact count
 
 // Called by the start-of-frame interrupt.
 //
 void usb_touchscreen_update_callback(void)
 {
+	uint8_t contact_count = 0;
+
 	if (scan_index == 0) {
 		if (usb_tx_packet_count(MULTITOUCH_ENDPOINT) > 1) {
 			// wait to begin another scan if if more than
@@ -100,7 +102,16 @@ void usb_touchscreen_update_callback(void)
 		}
 		scan_timestamp = millis() * 10;
 		scan_count = 0;
+
+		// Get the contact count (usage 0x54)
+		// Only set this value on first contact
+		// Subsequent concurrent contacts should report 0
+		for (uint8_t i = 0; i < MULTITOUCH_FINGERS; i++)
+		{
+			if (contactid[i]) contact_count++;
+		}
 	}
+
 	while (scan_index < MULTITOUCH_FINGERS) {
 		uint32_t press = pressure[scan_index];
 		uint32_t id = contactid[scan_index];
@@ -123,7 +134,8 @@ void usb_touchscreen_update_callback(void)
 			*(tx_packet->buf + 5) = ypos[scan_index] >> 8;
 			*(tx_packet->buf + 6) = scan_timestamp;
 			*(tx_packet->buf + 7) = scan_timestamp >> 8;
-			tx_packet->len = 8;
+			*(tx_packet->buf + 8) = contact_count;
+			tx_packet->len = 9;
 			usb_tx(MULTITOUCH_ENDPOINT, tx_packet);
 			scan_index++;
 			return;
