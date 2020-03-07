@@ -3001,7 +3001,7 @@ typedef struct {
 #define ENET2_TCCR3			(IMXRT_ENET2_TIMER.offset224)
 
 // 25.3.1.1: page 1199
-#define IMXRT_EWM		(*(IMXRT_REGISTER8_t *)0x402D8000)
+#define IMXRT_EWM		(*(IMXRT_REGISTER8_t *)0x400B4000)
 #define EWM_CTRL			(IMXRT_EWM.offset00)
 #define EWM_SERV			(IMXRT_EWM.offset01)
 #define EWM_CMPL			(IMXRT_EWM.offset02)
