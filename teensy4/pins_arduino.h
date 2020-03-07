@@ -105,7 +105,7 @@ const static uint8_t SCL = 19;
 
 
 #if defined(__IMXRT1062__)
-  #define analogInputToDigitalPin(p) (((p) <= 9) ? (p) + 14 : (((p) >= 14 && (p) <= 27) ? (p) : -1))
+  #define analogInputToDigitalPin(p) (((p) <= 9) ? (p) + 14 : (( ((p) >= 14 && (p) <= 27)) || ((p) >= 38 && (p) <= 41) ? (p) : -1))
   #define digitalPinHasPWM(p) ((p) <= 15 || (p) == 18 || (p) == 19 || ((p) >= 22 && (p) <= 25) || ((p) >= 28 && (p) <= 31) || (p) == 33)
   #define digitalPinToInterrupt(p)  ((p) < NUM_DIGITAL_PINS ? (p) : -1)
 #endif
