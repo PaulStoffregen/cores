@@ -62,6 +62,16 @@ const static uint8_t A10 = PIN_A10;
 const static uint8_t A11 = PIN_A11;
 const static uint8_t A12 = PIN_A12;
 const static uint8_t A13 = PIN_A13;
+#ifdef ARDUINO_TEENSY41
+#define PIN_A14 (38)
+#define PIN_A15 (39)
+#define PIN_A16 (40)
+#define PIN_A17 (41)
+const static uint8_t A14 = PIN_A14;
+const static uint8_t A15 = PIN_A15;
+const static uint8_t A16 = PIN_A16;
+const static uint8_t A17 = PIN_A17;
+#endif
 
 #define LED_BUILTIN   (13)
 
@@ -83,9 +93,13 @@ const static uint8_t SCL = 19;
 #define PIN_SERIAL_TX (1)
 
 
+#ifdef ARDUINO_TEENSY41
+#define NUM_DIGITAL_PINS  55
+#define NUM_ANALOG_INPUTS 18
+#else
 #define NUM_DIGITAL_PINS  40
 #define NUM_ANALOG_INPUTS 14
-
+#endif
 
 #define NOT_AN_INTERRUPT -1
 

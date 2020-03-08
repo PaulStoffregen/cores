@@ -22,7 +22,7 @@
 
 #ifdef __cplusplus
 
-//#include "new.h"
+#include <stdlib.h>
 
 class Print;
 

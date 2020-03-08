@@ -6,9 +6,9 @@
 #include "usb_keyboard.h"
 #include "usb_mouse.h"
 #include "usb_joystick.h"
+#include "usb_flightsim.h"
 #include "usb_touch.h"
 #include "usb_midi.h"
-#include "usb_mtp.h"
 #include "core_pins.h" // for delay()
 #include "avr/pgmspace.h"
 #include <string.h>
@@ -196,11 +196,11 @@ FLASHMEM void usb_init(void)
 	//printf("USB1_ENDPTCTRL1=%08lX\n", USB1_ENDPTCTRL1);
 	//printf("USB1_ENDPTCTRL2=%08lX\n", USB1_ENDPTCTRL2);
 	//printf("USB1_ENDPTCTRL3=%08lX\n", USB1_ENDPTCTRL3);
-	//printf("USB1_ENDPTCTRL4=%08lX\n", USB1_ENDPTCTRL4);
 	USB1_USBCMD = USB_USBCMD_RS;
 	//transfer_log_head = 0;
 	//transfer_log_count = 0;
 }
+
 
 static void isr(void)
 {
@@ -210,7 +210,7 @@ static void isr(void)
 	//  status port reset, suspend, and current connect status.
 	uint32_t status = USB1_USBSTS;
 	USB1_USBSTS = status;
-	//printf("status=%lX %lx %lx %lx\n", status, USB1_USBINTR, status & USB_USBSTS_SRI, status & USB_USBSTS_TI0);
+
 	// USB_USBSTS_SLI - set to 1 when enters a suspend state from an active state
 	// USB_USBSTS_SRI - set at start of frame
 	// USB_USBSTS_SRI - set when USB reset detected
@@ -219,7 +219,6 @@ static void isr(void)
 		//printf("data\n");
 		uint32_t setupstatus = USB1_ENDPTSETUPSTAT;
 		//printf("USB1_ENDPTSETUPSTAT=%X\n", setupstatus);
-
 		while (setupstatus) {
 			USB1_ENDPTSETUPSTAT = setupstatus;
 			setup_t s;
@@ -246,7 +245,6 @@ static void isr(void)
 			}
 			completestatus &= endpointN_notify_mask;
 			if (completestatus) {
-				//printf("%x\n",completestatus);
 				int i;   // TODO: optimize with __builtin_ctz()
 				for (i=2; i <= NUM_ENDPOINTS; i++) {
 					if (completestatus & (1 << i)) { // receive
@@ -317,7 +315,9 @@ static void isr(void)
 		#ifdef MULTITOUCH_INTERFACE
 		usb_touchscreen_update_callback();
 		#endif
-
+		#ifdef FLIGHTSIM_INTERFACE
+		usb_flightsim_flush_output();
+		#endif
 	}
 }
 
@@ -360,13 +360,14 @@ transfer_t endpoint0_transfer_data __attribute__ ((aligned(32)));;
 transfer_t endpoint0_transfer_ack  __attribute__ ((aligned(32)));;
 */
 
-static uint8_t reply_buffer[16];
+static uint8_t reply_buffer[8];
 
 static void endpoint0_setup(uint64_t setupdata)
 {
 	setup_t setup;
 	uint32_t endpoint, dir, ctrl;
 	const usb_descriptor_list_t *list;
+
 	setup.bothwords = setupdata;
 	switch (setup.wRequestAndType) {
 	  case 0x0500: // SET_ADDRESS
@@ -408,6 +409,9 @@ static void endpoint0_setup(uint64_t setupdata)
 		#if defined(MOUSE_INTERFACE)
 		usb_mouse_configure();
 		#endif
+		#if defined(FLIGHTSIM_INTERFACE)
+		usb_flightsim_configure();
+		#endif
 		#if defined(JOYSTICK_INTERFACE)
 		usb_joystick_configure();
 		#endif
@@ -416,9 +420,6 @@ static void endpoint0_setup(uint64_t setupdata)
 		#endif
 		#if defined(MIDI_INTERFACE)
 		usb_midi_configure();
-		#endif
-		#if defined(MTP_INTERFACE)
-		usb_mtp_configure();
 		#endif
 		endpoint0_receive(NULL, 0, 0);
 		return;
@@ -525,22 +526,6 @@ static void endpoint0_setup(uint64_t setupdata)
 		}
 		break;
 #endif
-#if defined(MTP_INTERFACE)
-	case 0x64A1: // Cancel Request (PTP spec, 5.2.1, page 8)
-		// TODO: required by PTP spec
-		break;
-	case 0x66A1: // Device Reset (PTP spec, 5.2.3, page 10)
-		// TODO: required by PTP spec
-		break;
-	case 0x67A1: // Get Device Statis (PTP spec, 5.2.4, page 10)
-		// For now, always respond with status ok.
-		reply_buffer[0] = 4;
-		reply_buffer[1] = 0;
-		reply_buffer[2] = 0x01;
-		reply_buffer[3] = 0x20;
-		endpoint0_transmit(reply_buffer, 4, 0);
-		return;
-#endif
 	}
 	USB1_ENDPTCTRL0 = 0x000010001; // stall
 }
@@ -548,7 +533,6 @@ static void endpoint0_setup(uint64_t setupdata)
 static void endpoint0_transmit(const void *data, uint32_t len, int notify)
 {
 	//printf("tx %lu\n", len);
-
 	if (len > 0) {
 		// Executing A Transfer Descriptor, page 3182
 		endpoint0_transfer_data.next = 1;
@@ -641,6 +625,12 @@ static void endpoint0_complete(void)
 			usb_start_sof_interrupts(NUM_INTERFACE);
 			usb_reboot_timer = 80; // TODO: 10 if only 12 Mbit/sec
 		}
+	}
+#endif
+#ifdef KEYBOARD_INTERFACE
+	if (setup.word1 == 0x02000921 && setup.word2 == ((1 << 16) | KEYBOARD_INTERFACE)) {
+		keyboard_leds = endpoint0_buffer[0];
+		endpoint0_transmit(NULL, 0, 0);
 	}
 #endif
 #ifdef SEREMU_INTERFACE
@@ -796,6 +786,7 @@ end:
 
 static void run_callbacks(endpoint_t *ep)
 {
+	//printf("run_callbacks\n");
 	transfer_t *first = ep->first_transfer;
 	if (first == NULL) return;
 

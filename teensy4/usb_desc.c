@@ -94,8 +94,10 @@ static uint8_t device_descriptor[] = {
   // For USB types that don't explicitly define BCD_DEVICE,
   // use the minor version number to help teensy_ports
   // identify which Teensy model is used.
-  #if defined(__IMXRT1062__)
+  #if defined(__IMXRT1062__) && defined(ARDUINO_TEENSY40)
         0x79, 0x02, // Teensy 4.0
+  #elif defined(__IMXRT1062__) && defined(ARDUINO_TEENSY41)
+        0x80, 0x02, // Teensy 4.1
   #else
         0x00, 0x02,
   #endif
@@ -1152,6 +1154,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
         MTP_EVENT_INTERVAL,                     // bInterval
 #endif // MTP_INTERFACE
 
+
 #ifdef KEYMEDIA_INTERFACE
 	// configuration for 480 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
@@ -1967,21 +1970,21 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
         7,                                      // bLength
         5,                                      // bDescriptorType
         MTP_TX_ENDPOINT | 0x80,                 // bEndpointAddress
-        0x02,                                   // bmAttributes (0x02=bulk,0x03=intr)
-        LSB(MTP_TX_SIZE_12),MSB(MTP_TX_SIZE_12),   // wMaxPacketSize
+        0x02,                                   // bmAttributes (0x02=bulk)
+        MTP_TX_SIZE_12, 0,                         // wMaxPacketSize
         0,                                      // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         7,                                      // bLength
         5,                                      // bDescriptorType
         MTP_RX_ENDPOINT,                        // bEndpointAddress
-        0x02,                                   // bmAttributes (0x02=bulk,0x03=intr)
-        LSB(MTP_RX_SIZE_12),MSB(MTP_RX_SIZE_12),   // wMaxPacketSize
+        0x02,                                   // bmAttributes (0x02=bulk)
+        MTP_RX_SIZE_12, 0,                         // wMaxPacketSize
         0,                                      // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         7,                                      // bLength
         5,                                      // bDescriptorType
         MTP_EVENT_ENDPOINT | 0x80,              // bEndpointAddress
-        0x03,                                   // bmAttributes (0x02=bulk,0x03=intr)
+        0x03,                                   // bmAttributes (0x03=intr)
         MTP_EVENT_SIZE, 0,                      // wMaxPacketSize
         MTP_EVENT_INTERVAL,                     // bInterval
 #endif // MTP_INTERFACE

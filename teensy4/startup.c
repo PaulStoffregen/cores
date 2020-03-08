@@ -48,7 +48,7 @@ void ResetHandler(void)
 
 #if defined(__IMXRT1062__)
 	IOMUXC_GPR_GPR17 = (uint32_t)&_flexram_bank_config;
-	IOMUXC_GPR_GPR16 = 0x00000007;
+	IOMUXC_GPR_GPR16 = 0x00200007;
 	IOMUXC_GPR_GPR14 = 0x00AA0000;
 	__asm__ volatile("mov sp, %0" : : "r" ((uint32_t)&_estack) : );
 #endif
@@ -187,6 +187,7 @@ static void configure_systick(void)
 #define SIZE_16M	(SCB_MPU_RASR_SIZE(23) | SCB_MPU_RASR_ENABLE)
 #define SIZE_32M	(SCB_MPU_RASR_SIZE(24) | SCB_MPU_RASR_ENABLE)
 #define SIZE_64M	(SCB_MPU_RASR_SIZE(25) | SCB_MPU_RASR_ENABLE)
+#define SIZE_256M	(SCB_MPU_RASR_SIZE(26) | SCB_MPU_RASR_ENABLE)
 #define REGION(n)	(SCB_MPU_RBAR_REGION(n) | SCB_MPU_RBAR_VALID)
 
 FLASHMEM void configure_cache(void)
@@ -215,6 +216,12 @@ FLASHMEM void configure_cache(void)
 
 	SCB_MPU_RBAR = 0x60000000 | REGION(5); // QSPI Flash
 	SCB_MPU_RASR = MEM_CACHE_WBWA | READONLY | SIZE_16M;
+
+	SCB_MPU_RBAR = 0x70000000 | REGION(6); // FlexSPI2
+	SCB_MPU_RASR = MEM_CACHE_WBWA | READONLY | SIZE_256M;
+
+	SCB_MPU_RBAR = 0x70000000 | REGION(7); // FlexSPI2
+	SCB_MPU_RASR = MEM_CACHE_WBWA | READWRITE | SIZE_16M;
 
 	// TODO: 32 byte sub-region at 0x00000000 with NOACCESS, to trap NULL pointer deref
 	// TODO: protect access to power supply config

@@ -36,7 +36,23 @@ const uint8_t pin_to_channel[] = { // pg 482
 	1,	// 24/A10 AD_B0_12
 	2,	// 25/A11 AD_B0_13
 	128+3,	// 26/A12 AD_B1_14 - only on ADC2, 3
-	128+4	// 27/A13 AD_B1_15 - only on ADC2, 4
+	128+4,	// 27/A13 AD_B1_15 - only on ADC2, 4
+#ifdef ARDUINO_TEENSY41
+	255,	// 28
+	255,	// 29
+	255,	// 30
+	255,	// 31
+	255,	// 32
+	255,	// 33
+	255,	// 34
+	255,	// 35
+	255,	// 36
+	255,	// 37
+	128+1,	// 38/A14 AD_B1_12 - only on ADC2, 1
+	128+2,	// 39/A15 AD_B1_13 - only on ADC2, 2
+	9,	// 40/A16 AD_B1_04
+	10,	// 41/A17 AD_B1_05
+#endif
 };
 
 
@@ -56,6 +72,7 @@ int analogRead(uint8_t pin)
 	if (pin > sizeof(pin_to_channel)) return 0;
 	if (calibrating) wait_for_cal();
 	uint8_t ch = pin_to_channel[pin];
+	if (ch == 255) return 0;
 //	printf("%d\n", ch);
 //	if (ch > 15) return 0;
 	if(!(ch & 0x80)) {

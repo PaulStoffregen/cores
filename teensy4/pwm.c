@@ -51,12 +51,37 @@ const struct pwm_pin_info_struct pwm_pin_info[] = {
 	{0, M(1, 0), 0, 0},
 	{0, M(1, 0), 0, 0},
 	{1, M(2, 0), 2, 1},  // FlexPWM2_0_B  33  // EMC_07
-	{1, M(1, 1), 2, 1},	 // FlexPWM1_1_B  34  // SD_B0_03
-	{1, M(1, 1), 1, 1},	 // FlexPWM1_1_A  35  // SD_B0_02
-	{1, M(1, 0), 2, 1},	 // FlexPWM1_0_B  36  // SD_B0_01
-	{1, M(1, 0), 1, 1},	 // FlexPWM1_0_A  37  // SD_B0_00
-	{1, M(1, 2), 2, 1},	 // FlexPWM1_2_B  38  // SD_B0_05
-	{1, M(1, 2), 1, 1},	 // FlexPWM1_2_A  39  // SD_B0_04
+#ifdef ARDUINO_TEENSY40
+	{1, M(1, 1), 2, 1},  // FlexPWM1_1_B  34  // SD_B0_03
+	{1, M(1, 1), 1, 1},  // FlexPWM1_1_A  35  // SD_B0_02
+	{1, M(1, 0), 2, 1},  // FlexPWM1_0_B  36  // SD_B0_01
+	{1, M(1, 0), 1, 1},  // FlexPWM1_0_A  37  // SD_B0_00
+	{1, M(1, 2), 2, 1},  // FlexPWM1_2_B  38  // SD_B0_05
+	{1, M(1, 2), 1, 1},  // FlexPWM1_2_A  39  // SD_B0_04
+#endif
+#ifdef ARDUINO_TEENSY41
+	{0, M(1, 0), 0, 0},
+	{0, M(1, 0), 0, 0},
+	{1, M(2, 3), 1, 6},  // FlexPWM2_3_A  36  // B1_00
+	{1, M(2, 3), 2, 6},  // FlexPWM2_3_B  37  // B1_01
+	{0, M(1, 0), 0, 0},
+	{0, M(1, 0), 0, 0},
+	{0, M(1, 0), 0, 0},
+	{0, M(1, 0), 0, 0},
+	{1, M(1, 1), 2, 1},  // FlexPWM1_1_B  42  // SD_B0_03
+	{1, M(1, 1), 1, 1},  // FlexPWM1_1_A  43  // SD_B0_02
+	{1, M(1, 0), 2, 1},  // FlexPWM1_0_B  44  // SD_B0_01
+	{1, M(1, 0), 1, 1},  // FlexPWM1_0_A  45  // SD_B0_00
+	{1, M(1, 2), 2, 1},  // FlexPWM1_2_B  46  // SD_B0_05
+	{1, M(1, 2), 1, 1},  // FlexPWM1_2_A  47  // SD_B0_04
+	{0, M(1, 0), 0, 0},  // duplicate FlexPWM1_0_B
+	{0, M(1, 0), 0, 0},  // duplicate FlexPWM1_2_A
+	{0, M(1, 0), 0, 0},  // duplicate FlexPWM1_2_B
+	{1, M(3, 3), 2, 1},  // FlexPWM3_3_B  51  // EMC_22
+	{0, M(1, 0), 0, 0},  // duplicate FlexPWM1_1_B
+	{0, M(1, 0), 0, 0},  // duplicate FlexPWM1_1_A
+	{1, M(3, 0), 1, 1},  // FlexPWM3_0_A  53  // EMC_29
+#endif
 };
 
 #endif // __IMXRT1062__
