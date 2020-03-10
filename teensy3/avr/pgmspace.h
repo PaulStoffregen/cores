@@ -26,6 +26,7 @@
 #include <inttypes.h>
 
 #define PROGMEM
+#define FLASHMEM
 #define PGM_P  const char *
 #define PSTR(str) (str)
 
