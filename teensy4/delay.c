@@ -8,9 +8,8 @@ volatile uint32_t systick_cycle_count = 0;
 volatile uint32_t scale_cpu_cycles_to_microseconds = 0;
 uint32_t systick_safe_read;	 // micros() synchronization
 
-// page 411 says "24 MHz XTALOSC can be the external clock source of SYSTICK"
-// Testing shows the frequency is actually 100 kHz - but how?  Did NXP really
-// hide an undocumented divide-by-240 circuit in the hardware?
+//The 24 MHz XTALOSC can be the external clock source of SYSTICK. 
+//Hardware devides this down to 100KHz. (RM Rev2, 13.3.21 PG 986)
 #define SYSTICK_EXT_FREQ 100000
 
 #if 0
