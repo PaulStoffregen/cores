@@ -22,6 +22,7 @@ void (* _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
 
 static void memory_copy(uint32_t *dest, const uint32_t *src, uint32_t *dest_end);
 static void memory_clear(uint32_t *dest, uint32_t *dest_end);
+static void disable_keepers(void);
 static void configure_systick(void);
 static void reset_PFD();
 extern void systick_isr(void);
@@ -120,7 +121,8 @@ void ResetHandler(void)
 		SNVS_LPCR |= SNVS_LPCR_SRTC_ENV;
 	}
 	SNVS_HPCR |= SNVS_HPCR_RTC_EN | SNVS_HPCR_HP_TS;
-
+	
+	disable_keepers();
 	startup_early_hook();
 	while (millis() < 20) ; // wait at least 20ms before starting USB
 	usb_init();
@@ -139,8 +141,10 @@ void ResetHandler(void)
 	while (1) ;
 }
 
-
-
+FLASHMEM static void disable_keepers(void) {
+	for (unsigned i = 0; i < CORE_NUM_TOTAL_PINS; i++)
+		pinMode(i, INPUT_DISABLE);
+}
 
 // ARM SysTick is used for most Ardiuno timing functions, delay(), millis(),
 // micros().  SysTick can run from either the ARM core clock, or from an
