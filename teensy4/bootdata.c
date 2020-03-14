@@ -60,7 +60,7 @@ uint32_t FlexSPI_NOR_Config[128] = {
 	0,
 
 	0x00000000,		// controllerMiscOption		0x40
-	0x00030401,		// lutCustomSeqEnable,serialClkFreq,sflashPadType,deviceType
+	0x00080401,		// lutCustomSeqEnable,serialClkFreq,sflashPadType,deviceType
 	0,			// reserved
 	0,			// reserved
 
