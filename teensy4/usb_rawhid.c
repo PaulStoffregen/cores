@@ -41,7 +41,7 @@
 
 #define TX_NUM   4
 static transfer_t tx_transfer[TX_NUM] __attribute__ ((used, aligned(32)));
-static uint8_t txbuffer[RAWHID_TX_SIZE * TX_NUM];
+DMAMEM static uint8_t txbuffer[RAWHID_TX_SIZE * TX_NUM];
 static uint8_t tx_head=0;
 
 #define RX_NUM  4
@@ -136,6 +136,7 @@ int usb_rawhid_send(const void *buffer, uint32_t timeout)
 	}
 	uint8_t *txdata = txbuffer + (tx_head * RAWHID_TX_SIZE);
 	memcpy(txdata, buffer, RAWHID_TX_SIZE);
+	arm_dcache_flush_delete(txdata, SEREMU_TX_SIZE);
 	usb_prepare_transfer(xfer, txdata, RAWHID_TX_SIZE, 0);
 	usb_transmit(RAWHID_TX_ENDPOINT, xfer);
 	if (++tx_head >= TX_NUM) tx_head = 0;
