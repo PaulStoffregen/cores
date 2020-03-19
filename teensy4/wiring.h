@@ -157,7 +157,7 @@ extern long double pow10l(long double x);
 #define interrupts() __enable_irq()
 #define noInterrupts() __disable_irq()
 
-#define clockCyclesPerMicrosecond() ( F_CPU / 1000000L )
+#define clockCyclesPerMicrosecond() ( F_CPU_ACTUAL / 1000000L )
 #define clockCyclesToMicroseconds(a) ( (a) / clockCyclesPerMicrosecond() )
 #define microsecondsToClockCycles(a) ( (a) * clockCyclesPerMicrosecond() )
 
