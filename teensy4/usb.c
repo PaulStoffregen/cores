@@ -245,6 +245,37 @@ static void isr(void)
 				endpoint0_complete();
 			}
 			completestatus &= endpointN_notify_mask;
+#if 1
+			if (completestatus) {
+				int s;
+
+				// transmit:
+				s = 0;
+				uint32_t tx = completestatus >> 16;
+				while(tx) {
+					int p=__builtin_ctz(tx);
+					if (p==0) {
+						run_callbacks(endpoint_queue_head + s * 2 + 1);
+						p = 1;
+					}
+					tx >>= p;
+					s += p;
+				};
+
+				// receive:
+				s = 0;
+				uint32_t rx = completestatus & 0xffff;
+				while(rx) {
+					int p=__builtin_ctz(rx);
+					if (p==0) {
+						run_callbacks(endpoint_queue_head + s * 2);
+						p = 1;
+					}
+					rx >>= p;
+					s += p;
+				};
+			}
+#else
 			if (completestatus) {
 				int i;   // TODO: optimize with __builtin_ctz()
 				for (i=2; i <= NUM_ENDPOINTS; i++) {
@@ -256,6 +287,8 @@ static void isr(void)
 					}
 				}
 			}
+#endif
+
 		}
 	}
 	if (status & USB_USBSTS_URI) { // page 3164
