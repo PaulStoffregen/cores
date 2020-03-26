@@ -104,11 +104,15 @@ const static uint8_t SCL = 19;
 #define NOT_AN_INTERRUPT -1
 
 
-#if defined(__IMXRT1062__)
-  #define analogInputToDigitalPin(p) (((p) <= 9) ? (p) + 14 : (((p) >= 14 && (p) <= 27) ? (p) : -1))
+#if defined(__IMXRT1062__) && defined(ARDUINO_TEENSY40)
+  #define analogInputToDigitalPin(p) (((p) <= 9) ? (p) + 14 : (( ((p) >= 14 && (p) <= 27)) ? (p) : -1))
   #define digitalPinHasPWM(p) ((p) <= 15 || (p) == 18 || (p) == 19 || ((p) >= 22 && (p) <= 25) || ((p) >= 28 && (p) <= 31) || (p) == 33)
-  #define digitalPinToInterrupt(p)  ((p) < NUM_DIGITAL_PINS ? (p) : -1)
+#elif defined(__IMXRT1062__) && defined(ARDUINO_TEENSY41)
+  #define analogInputToDigitalPin(p) (((p) <= 9) ? (p) + 14 : (( ((p) >= 14 && (p) <= 27)) || ((p) >= 38 && (p) <= 41) ? (p) : -1))
+  #define digitalPinHasPWM(p) ((p) <= 15 || (p) == 18 || (p) == 19 || ((p) >= 22 && (p) <= 25) || ((p) >= 28 && (p) <= 31) || (p) == 33)
 #endif
+  #define digitalPinToInterrupt(p)  ((p) < NUM_DIGITAL_PINS ? (p) : -1)
+
 
 #define digitalPinToPCICR(p)    ((volatile uint8_t *)0)
 #define digitalPinToPCICRbit(p) (0)
