@@ -162,7 +162,7 @@ FLASHMEM void usb_init(void)
 		delay(25);
 	}
 #endif
-	// Device Controller Initialization, page 3161
+	// Device Controller Initialization, page 2351 (Rev 2, 12/2019)
 	// USBCMD	pg 3216
 	// USBSTS	pg 3220
 	// USBINTR	pg 3224
