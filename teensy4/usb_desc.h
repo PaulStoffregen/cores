@@ -754,7 +754,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define CDC_TX_SIZE_480       512
   #define CDC_RX_SIZE_12        64
   #define CDC_TX_SIZE_12        64
-  #define MIDI_INTERFACE        1	// MIDI
+  #define MIDI_INTERFACE        2	// MIDI
   #define MIDI_NUM_CABLES       1
   #define MIDI_TX_ENDPOINT      4
   #define MIDI_TX_SIZE_12       64
@@ -762,7 +762,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define MIDI_RX_ENDPOINT      4
   #define MIDI_RX_SIZE_12       64
   #define MIDI_RX_SIZE_480      512
-  #define AUDIO_INTERFACE	2	// Audio (uses 3 consecutive interfaces)
+  #define AUDIO_INTERFACE	3	// Audio (uses 3 consecutive interfaces)
   #define AUDIO_TX_ENDPOINT     5
   #define AUDIO_TX_SIZE         180
   #define AUDIO_RX_ENDPOINT     5
