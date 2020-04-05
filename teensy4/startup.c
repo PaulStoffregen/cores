@@ -222,7 +222,9 @@ FLASHMEM void configure_cache(void)
 	
 	SCB_MPU_RBAR = 0x00000000 | REGION(i++); // ITCM
 	SCB_MPU_RASR = MEM_NOCACHE | READWRITE | SIZE_512K;
-	
+
+	// TODO: trap regions should be created last, because the hardware gives
+	//  priority to the higher number ones.
 	SCB_MPU_RBAR = 0x00000000 | REGION(i++); // trap NULL pointer deref
 	SCB_MPU_RASR =  DEV_NOCACHE | NOACCESS | SIZE_32B;
 
