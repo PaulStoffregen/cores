@@ -99,9 +99,12 @@ void digitalWrite(uint8_t pin, uint8_t val)
 		}
 	} else {
 		// pin is configured for input mode
-		// writing controls pullup resistor
-
-		// TODO....
+		// value controls PULLUP/PULLDOWN resistors
+		if (val) {
+			*(p->pad) = IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS;
+		} else {
+			*(p->pad) = IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(0) | IOMUXC_PAD_HYS;
+		}
 	}
 }
 
