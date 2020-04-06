@@ -163,7 +163,7 @@ char * dtostrf(float val, int width, unsigned int precision, char *buf)
 
 			// shift decimal point
 			while (newPrecision > 0) {
-				val *= 10.0;
+				val *= 10.0f;
 				newPrecision--;
 			}
 
