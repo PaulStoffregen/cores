@@ -119,7 +119,7 @@ void flexpwmFrequency(IMXRT_FLEXPWM_t *p, unsigned int submodule, uint8_t channe
 {
 	uint16_t mask = 1 << submodule;
 	uint32_t olddiv = p->SM[submodule].VAL1;
-	uint32_t newdiv = (uint32_t)((float)F_BUS_ACTUAL / frequency + 0.5);
+	uint32_t newdiv = (uint32_t)((float)F_BUS_ACTUAL / frequency + 0.5f);
 	uint32_t prescale = 0;
 	//printf(" div=%lu\n", newdiv);
 	while (newdiv > 65535 && prescale < 7) {
@@ -158,7 +158,7 @@ void quadtimerWrite(IMXRT_TMR_t *p, unsigned int submodule, uint16_t val)
 
 void quadtimerFrequency(IMXRT_TMR_t *p, unsigned int submodule, float frequency)
 {
-	uint32_t newdiv = (uint32_t)((float)F_BUS_ACTUAL / frequency + 0.5);
+	uint32_t newdiv = (uint32_t)((float)F_BUS_ACTUAL / frequency + 0.5f);
 	uint32_t prescale = 0;
 	//printf(" div=%lu\n", newdiv);
 	while (newdiv > 65534 && prescale < 7) {
