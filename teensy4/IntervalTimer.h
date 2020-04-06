@@ -65,7 +65,7 @@ public:
 	}
 	bool begin(void (*funct)(), float microseconds) {
 		if (microseconds <= 0 || microseconds > MAX_PERIOD) return false;
-		uint32_t cycles = (float)(24000000 / 1000000) * microseconds - 0.5;
+		uint32_t cycles = (float)(24000000 / 1000000) * microseconds - 0.5f;
 		if (cycles < 17) return false;
 		return beginCycles(funct, cycles);
 	}
@@ -90,7 +90,7 @@ public:
 	}
 	void update(float microseconds) {
 		if (microseconds <= 0 || microseconds > MAX_PERIOD) return;
-		uint32_t cycles = (float)(24000000 / 1000000) * microseconds - 0.5;
+		uint32_t cycles = (float)(24000000 / 1000000) * microseconds - 0.5f;
 		if (cycles < 17) return;
 		if (channel) channel->LDVAL = cycles;
 	}
