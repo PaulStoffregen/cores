@@ -58,7 +58,7 @@ static HardwareSerial::hardware_t UART3_Hardware = {
 	3, IRQ_LPUART3, &IRQHandler_Serial4, &serial_event_check_serial4,
 	CCM_CCGR0, CCM_CCGR0_LPUART3(CCM_CCGR_ON),
 	{{16,2, &IOMUXC_LPUART3_RX_SELECT_INPUT, 0}, {0xff, 0xff, nullptr, 0}},
-	{{17,2, nullptr, 0}, {0xff, 0xff, nullptr, 0}},
+	{{17,2, &IOMUXC_LPUART3_TX_SELECT_INPUT, 0}, {0xff, 0xff, nullptr, 0}},
 	0xff, // No CTS pin
 	0, // No CTS
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark

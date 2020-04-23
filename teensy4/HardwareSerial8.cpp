@@ -59,11 +59,11 @@ static BUFTYPE rx_buffer8[SERIAL8_RX_BUFFER_SIZE];
 static HardwareSerial::hardware_t UART5_Hardware = {
 	7, IRQ_LPUART5, &IRQHandler_Serial8, &serial_event_check_serial8,
 	CCM_CCGR3, CCM_CCGR3_LPUART5(CCM_CCGR_ON),
-    {{34,1, &IOMUXC_LPUART5_RX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
+    {{34,1, &IOMUXC_LPUART5_RX_SELECT_INPUT, 1}, {48, 2, &IOMUXC_LPUART5_RX_SELECT_INPUT, 0}},
     {{35,1, &IOMUXC_LPUART5_TX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
 
-	0xff, // No CTS pin
-	0, // No CTS
+	50, // CTS pin
+	2, //  CTS
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 };
 HardwareSerial Serial8(&IMXRT_LPUART5, &UART5_Hardware, tx_buffer8, SERIAL8_TX_BUFFER_SIZE,

@@ -58,7 +58,7 @@ static HardwareSerial::hardware_t UART7_Hardware = {
 	6, IRQ_LPUART7, &IRQHandler_Serial7, &serial_event_check_serial7,
 	CCM_CCGR5, CCM_CCGR5_LPUART7(CCM_CCGR_ON),
 	{{28,2, &IOMUXC_LPUART7_RX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
-	{{29,2, nullptr, 0}, {0xff, 0xff, nullptr, 0}},
+	{{29,2, &IOMUXC_LPUART7_TX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
 	0xff, // No CTS pin
 	0, // No CTS
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
