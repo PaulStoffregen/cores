@@ -239,17 +239,20 @@ void HardwareSerial::setRX(uint8_t pin)
 {
 	if (pin != hardware->rx_pins[rx_pin_index_].pin) {
 		for (uint8_t rx_pin_new_index = 0; rx_pin_new_index < cnt_rx_pins; rx_pin_new_index++) {
-			if (pin == hardware->rx_pins[rx_pin_index_].pin) {
+			if (pin == hardware->rx_pins[rx_pin_new_index].pin) {
 				// new pin - so lets maybe reset the old pin to INPUT? and then set new pin parameters
+				// only change IO pins if done after begin has been called. 
+				if ((hardware->ccm_register & hardware->ccm_value)) {
 				*(portConfigRegister(hardware->rx_pins[rx_pin_index_].pin)) = 5;
 
 				// now set new pin info.
+					*(portControlRegister(hardware->rx_pins[rx_pin_new_index].pin)) =  IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS;;
+					*(portConfigRegister(hardware->rx_pins[rx_pin_new_index].pin)) = hardware->rx_pins[rx_pin_new_index].mux_val;
+					if (hardware->rx_pins[rx_pin_new_index].select_input_register) {
+					 	*(hardware->rx_pins[rx_pin_new_index].select_input_register) =  hardware->rx_pins[rx_pin_new_index].select_val;		
+					}
+				}		
 				rx_pin_index_ = rx_pin_new_index;
-				*(portControlRegister(hardware->rx_pins[rx_pin_index_].pin)) =  IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS;;
-				*(portConfigRegister(hardware->rx_pins[rx_pin_index_].pin)) = hardware->rx_pins[rx_pin_index_].mux_val;
-				if (hardware->rx_pins[rx_pin_index_].select_input_register) {
-				 	*(hardware->rx_pins[rx_pin_index_].select_input_register) =  hardware->rx_pins[rx_pin_index_].select_val;		
-				}	
 				break;
 			}
 		}
@@ -262,7 +265,7 @@ void HardwareSerial::setTX(uint8_t pin, bool opendrain)
 
 	if (pin != hardware->tx_pins[tx_pin_index_].pin) {
 		for (tx_pin_new_index = 0; tx_pin_new_index < cnt_tx_pins; tx_pin_new_index++) {
-			if (pin == hardware->tx_pins[tx_pin_index_].pin) {
+			if (pin == hardware->tx_pins[tx_pin_new_index].pin) {
 				break;
 			}
 		}
@@ -271,12 +274,13 @@ void HardwareSerial::setTX(uint8_t pin, bool opendrain)
 
 	// turn on or off opendrain mode.
 	// new pin - so lets maybe reset the old pin to INPUT? and then set new pin parameters
+	if ((hardware->ccm_register & hardware->ccm_value)) {  // only do if we are already active. 
 	if (tx_pin_new_index != tx_pin_index_) {
 		*(portConfigRegister(hardware->tx_pins[tx_pin_index_].pin)) = 5;
 	
 		*(portConfigRegister(hardware->tx_pins[tx_pin_new_index].pin)) = hardware->tx_pins[tx_pin_new_index].mux_val;
 	}
-
+	}
 	// now set new pin info.
 	tx_pin_index_ = tx_pin_new_index;
 	if (opendrain) 
