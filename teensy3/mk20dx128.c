@@ -1117,7 +1117,6 @@ void ResetHandler(void)
 	SYST_CSR = SYST_CSR_CLKSOURCE | SYST_CSR_TICKINT | SYST_CSR_ENABLE;
 	SCB_SHPR3 = 0x20200000;  // Systick = priority 32
 
-	//init_pins();
 	__enable_irq();
 
 	_init_Teensyduino_internal_();
@@ -1131,7 +1130,7 @@ void ResetHandler(void)
 		// flag into the VBAT register file indicating the
 		// RTC is set with known-stale time and should be
 		// updated when fresh time is known.
-		#if ARDUINO >= 10600
+		#if defined(ARDUINO) && ARDUINO >= 10600
 		rtc_set((uint32_t)&__rtc_localtime);
 		#else
 		rtc_set(TIME_T);
@@ -1145,7 +1144,7 @@ void ResetHandler(void)
 		// the RTC with this, and clear the VBAT resister file
 		// data so we don't mess with the time after it's been
 		// set well.
-		#if ARDUINO >= 10600
+		#if defined(ARDUINO) && ARDUINO >= 10600
 		rtc_set((uint32_t)&__rtc_localtime);
 		#else
 		rtc_set(TIME_T);
@@ -1235,7 +1234,7 @@ void _exit(int status)
 }
 
 __attribute__((weak)) 
-void __cxa_pure_virtual()
+void __cxa_pure_virtual(void)
 {
 	while (1);
 }

@@ -70,6 +70,7 @@ extern volatile uint8_t usb_configuration;
 
 // C++ interface
 #ifdef __cplusplus
+#include "core_pins.h" // for millis()
 #include "Stream.h"
 class usb_serial_class : public Stream
 {
@@ -88,7 +89,7 @@ public:
 			//if ((uint32_t)(systick_millis_count - millis_begin) > 2500) break;
 		//}
 	}
-        void end() { /* TODO: flush output and shut down USB port */ };
+        void end() { /* TODO: flush output and shut down USB port */ }
         virtual int available() { return usb_serial_available(); }
         virtual int read() { return usb_serial_getchar(); }
         virtual int peek() { return usb_serial_peekchar(); }

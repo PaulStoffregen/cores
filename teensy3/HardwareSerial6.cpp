@@ -28,7 +28,7 @@
  * SOFTWARE.
  */
 
-#include <Arduino.h>
+#include "Arduino.h"
 #include "HardwareSerial.h"
 
 #if defined(HAS_KINETISK_UART5) || defined (HAS_KINETISK_LPUART0)

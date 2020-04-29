@@ -37,7 +37,7 @@
 // know what you're doing.
 
 #include "kinetis.h"
-#include <avr/eeprom.h>
+#include "avr/eeprom.h"
 //#include "HardwareSerial.h"
 #if F_CPU > 120000000 && defined(__MK66FX1M0__)
 #include "core_pins.h"	// delayMicroseconds()

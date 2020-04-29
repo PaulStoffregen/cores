@@ -28,7 +28,7 @@
  * SOFTWARE.
  */
 
-#include <Arduino.h>
+#include "Arduino.h"
 #include "usb_dev.h"
 
 #ifdef AUDIO_INTERFACE // defined by usb_dev.h -> usb_desc.h

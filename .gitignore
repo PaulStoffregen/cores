@@ -2,6 +2,7 @@
 *.d
 *.hex
 *.o
+*.lst
 nbproject
 *~
 *.bak

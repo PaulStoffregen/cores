@@ -17,7 +17,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#if ARDUINO >= 100
+#if defined(ARDUINO) && ARDUINO >= 100
 
 #ifndef client_h
 #define client_h
@@ -41,7 +41,7 @@ public:
   virtual uint8_t connected() = 0;
   virtual operator bool() = 0;
 protected:
-  uint8_t* rawIPAddress(IPAddress& addr) { return addr.raw_address(); };
+  uint8_t* rawIPAddress(IPAddress& addr) { return addr.raw_address(); }
 };
 
 #endif

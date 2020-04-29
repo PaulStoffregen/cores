@@ -65,8 +65,8 @@ class usb_seremu_class : public Stream
 {
 public:
 	constexpr usb_seremu_class() {}
-        void begin(long) { /* TODO: call a function that tries to wait for enumeration */ };
-        void end() { /* TODO: flush output and shut down USB port */ };
+        void begin(long) { /* TODO: call a function that tries to wait for enumeration */ }
+        void end() { /* TODO: flush output and shut down USB port */ }
         virtual int available() { return usb_seremu_available(); }
         virtual int read() { return usb_seremu_getchar(); }
         virtual int peek() { return usb_seremu_peekchar(); }
@@ -79,7 +79,7 @@ public:
         size_t write(int n) { return write((uint8_t)n); }
 	virtual int availableForWrite() { return usb_seremu_write_buffer_free(); }
 	using Print::write;
-        void send_now(void) { usb_seremu_flush_output(); };
+        void send_now(void) { usb_seremu_flush_output(); }
         uint32_t baud(void) { return 9600; }
         uint8_t stopbits(void) { return 1; }
         uint8_t paritytype(void) { return 0; }
@@ -103,8 +103,8 @@ class usb_seremu_class : public Stream
 {
 public:
 	constexpr usb_seremu_class() {}
-	void begin(long) { };
-	void end() { };
+	void begin(long) { }
+	void end() { }
 	virtual int available() { return 0; }
 	virtual int read() { return -1; }
 	virtual int peek() { return -1; }

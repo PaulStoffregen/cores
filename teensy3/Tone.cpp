@@ -28,7 +28,7 @@
  * SOFTWARE.
  */
 
-#include <Arduino.h>
+#include "Arduino.h"
 
 // IntervalTimer based tone.  This allows tone() to share the timers with other
 // libraries, rather than permanently hogging one PIT timer even for projects

@@ -140,7 +140,7 @@ const struct digital_pin_bitband_and_config_table_struct digital_pin_to_info_PGM
 
 #endif
 
-static void dummy_isr() {};
+static void dummy_isr(void) {};
 
 typedef void (*voidFuncPtr)(void);
 #if defined(KINETISK)

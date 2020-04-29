@@ -29,7 +29,7 @@
  */
 
 
-#include <Arduino.h>
+#include "Arduino.h"
 #include "AudioStream.h"
 
 #if defined(__MKL26Z64__)
