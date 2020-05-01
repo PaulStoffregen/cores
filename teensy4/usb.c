@@ -555,6 +555,7 @@ static void endpoint0_setup(uint64_t setupdata)
 			usb_cdc3_line_rtsdtr = setup.wValue;
 		}
 		#endif
+		// fall through to next case, to always send ZLP ACK
 	  case 0x2321: // CDC_SEND_BREAK
 		endpoint0_receive(NULL, 0, 0);
 		return;
