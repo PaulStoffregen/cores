@@ -49,11 +49,20 @@ unsigned long rtc_get(void)
 
 void rtc_set(unsigned long t)
 {
-	SNVS_HPCR &= ~SNVS_HPCR_RTC_EN;
-	while (SNVS_HPCR & SNVS_HPCR_RTC_EN) ; // wait
-	SNVS_HPRTCLR = t << 15;
-	SNVS_HPRTCMR = t >> 17;
-	SNVS_HPCR |= SNVS_HPCR_RTC_EN;
+	// stop the RTC
+	SNVS_HPCR &= ~(SNVS_HPCR_RTC_EN | SNVS_HPCR_HP_TS);
+	while (SNVS_HPCR & SNVS_HPCR_RTC_EN); // wait
+	// stop the SRTC
+	SNVS_LPCR &= ~SNVS_LPCR_SRTC_ENV;
+	while (SNVS_LPCR & SNVS_LPCR_SRTC_ENV); // wait
+	// set the SRTC
+	SNVS_LPSRTCLR = t << 15;
+	SNVS_LPSRTCMR = t >> 17;
+	// start the SRTC
+	SNVS_LPCR |= SNVS_LPCR_SRTC_ENV;
+	while (!(SNVS_LPCR & SNVS_LPCR_SRTC_ENV)); // wait
+	// start the RTC and sync it to the SRTC
+	SNVS_HPCR |= SNVS_HPCR_RTC_EN | SNVS_HPCR_HP_TS;
 }
 
 void rtc_compensate(int adjust)
