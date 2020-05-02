@@ -208,13 +208,13 @@ FLASHMEM void analog_init(void)
 	}
 #endif
 	//ADC1
-	ADC1_CFG = mode | ADC_HC_AIEN | ADC_CFG_ADHSC;
+	ADC1_CFG = mode | ADC_CFG_ADHSC;
 	ADC1_GC = avg | ADC_GC_CAL;		// begin cal
 	calibrating = 1;
 	while (ADC1_GC & ADC_GC_CAL) ;
 	calibrating = 0;
 	//ADC2
-	ADC2_CFG = mode | ADC_HC_AIEN | ADC_CFG_ADHSC;
+	ADC2_CFG = mode | ADC_CFG_ADHSC;
 	ADC2_GC = avg | ADC_GC_CAL;		// begin cal
 	calibrating = 1;
 	while (ADC2_GC & ADC_GC_CAL) ;
