@@ -1124,13 +1124,13 @@ typedef struct {
 #define ADC_ETC_CTRL_EXT0_TRIG_ENABLE       ((uint32_t)(1<<8))
 #define ADC_ETC_CTRL_TRIG_ENABLE(n)     ((uint32_t)(((n) & 0xff) << 0))
 
-#define ADC_ETC_DONE0_1_IRQ_TRIG_DONE1(n)  ((uint32_t)(1<<(16 + ((n) &0x7)))
+#define ADC_ETC_DONE0_1_IRQ_TRIG_DONE1(n)  ((uint32_t)(1<<(16 + ((n) &0x7))))
 #define ADC_ETC_DONE0_1_IRQ_TRIG_DONE0(n)  ((uint32_t)(1<<((n) &0x7)))
 
-#define ADC_ETC_DONE2_ERR_IRQ_TRIG_ERR(n)  ((uint32_t)(1<<(16 + ((n) &0x7)))
+#define ADC_ETC_DONE2_ERR_IRQ_TRIG_ERR(n)  ((uint32_t)(1<<(16 + ((n) &0x7))))
 #define ADC_ETC_DONE2_ERR_IRQ_TRIG_DONE2(n)  ((uint32_t)(1<<((n) &0x7)))
 
-#define ADC_ETC_DMA_CTRL_TRIQ_REQ(n)    ((uint32_t)(1<<(16 + ((n) &0x7)))
+#define ADC_ETC_DMA_CTRL_TRIQ_REQ(n)    ((uint32_t)(1<<(16 + ((n) &0x7))))
 #define ADC_ETC_DMA_CTRL_TRIQ_ENABLE(n) ((uint32_t)(1<<((n) &0x7)))
 
 // For each TRIG elements in array
@@ -1152,8 +1152,8 @@ typedef struct {
 #define ADC_ETC_TRIG_CHAIN_HWTS0(n)     ((uint32_t)(((n) & 0xff) << 4))
 #define ADC_ETC_TRIG_CHAIN_CSEL0(n)     ((uint32_t)(((n) & 0x0f) << 0))
 
-#define ADC_ETC_TRIG_RESULT_DATA1(n)    ((uint32_t)(((n) & 0xff) << 16))
-#define ADC_ETC_TRIG_RESULT_DATA0(n)    ((uint32_t)(((n) & 0xff) << 0))
+#define ADC_ETC_TRIG_RESULT_DATA1(n)    ((uint32_t)(((n) & 0xfff) << 16))
+#define ADC_ETC_TRIG_RESULT_DATA0(n)    ((uint32_t)(((n) & 0xfff) << 0))
 
 // 16.7: page 640
 #define IMXRT_AIPSTZ1		(*(IMXRT_REGISTER32_t *)0x4007C000)
