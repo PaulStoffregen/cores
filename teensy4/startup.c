@@ -52,6 +52,7 @@ void ResetHandler(void)
 	IOMUXC_GPR_GPR14 = 0x00AA0000;
 	__asm__ volatile("mov sp, %0" : : "r" ((uint32_t)&_estack) : );
 #endif
+	PMU_MISC0_SET = 1<<3; //Use bandgap-based bias currents for best performance (Page 1175)
 	// pin 13 - if startup crashes, use this to turn on the LED early for troubleshooting
 	//IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_03 = 5;
 	//IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_03 = IOMUXC_PAD_DSE(7);
