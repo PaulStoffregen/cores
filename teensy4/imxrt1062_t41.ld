@@ -58,7 +58,7 @@ SECTIONS
 
 	.bss.dma (NOLOAD) : {
 		*(.dmabuffers)
-		. = ALIGN(16);
+		. = ALIGN(32);
 	} > RAM
 
 	.bss.extram (NOLOAD) : {
