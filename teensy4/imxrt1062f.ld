@@ -57,7 +57,7 @@ SECTIONS
 
     .bss.dma (NOLOAD) : {
         *(.dmabuffers)
-        . = ALIGN(16);
+        . = ALIGN(32);
     } > RAM
 
     _stext = ADDR(.text.itcm);
