@@ -282,7 +282,7 @@ public:
 					  serial_write((const uint8_t *)str, len);
 					  return len; }
 	virtual size_t write9bit(uint32_t c)	{ serial_putchar(c); return 1; }
-	operator bool()			{ return true; }
+	constexpr explicit operator bool()			{ return true; }
 };
 extern HardwareSerial Serial1;
 extern void serialEvent1(void);
@@ -319,7 +319,7 @@ public:
 					  serial2_write((const uint8_t *)str, len);
 					  return len; }
 	virtual size_t write9bit(uint32_t c)	{ serial2_putchar(c); return 1; }
-	operator bool()			{ return true; }
+   constexpr explicit operator bool()     { return true; }
 };
 extern HardwareSerial2 Serial2;
 extern void serialEvent2(void);
@@ -356,7 +356,7 @@ public:
 					  serial3_write((const uint8_t *)str, len);
 					  return len; }
 	virtual size_t write9bit(uint32_t c)	{ serial3_putchar(c); return 1; }
-	operator bool()			{ return true; }
+   constexpr explicit operator bool()     { return true; }
 };
 extern HardwareSerial3 Serial3;
 extern void serialEvent3(void);
@@ -393,7 +393,7 @@ public:
 					  serial4_write((const uint8_t *)str, len);
 					  return len; }
 	virtual size_t write9bit(uint32_t c)	{ serial4_putchar(c); return 1; }
-	operator bool()			{ return true; }
+	constexpr explicit operator bool()		{ return true; }
 };
 extern HardwareSerial4 Serial4;
 extern void serialEvent4(void);
@@ -430,7 +430,7 @@ public:
 					  serial5_write((const uint8_t *)str, len);
 					  return len; }
 	virtual size_t write9bit(uint32_t c)	{ serial5_putchar(c); return 1; }
-	operator bool()			{ return true; }
+	constexpr explicit operator bool()			{ return true; }
 };
 extern HardwareSerial5 Serial5;
 extern void serialEvent5(void);
@@ -474,7 +474,7 @@ public:
 					  serial6_write((const uint8_t *)str, len);
 					  return len; }
 	virtual size_t write9bit(uint32_t c)	{ serial6_putchar(c); return 1; }
-	operator bool()			{ return true; }
+   constexpr explicit operator bool()			{ return true; }
 };
 extern HardwareSerial6 Serial6;
 extern void serialEvent6(void);
