@@ -36,6 +36,7 @@ extern void tempmon_init(void);  //tempmon.c
 uint32_t set_arm_clock(uint32_t frequency); // clockspeed.c
 extern void __libc_init_array(void); // C++ standard library
 
+uint8_t external_psram_size = 0;
 
 extern int main (void);
 void startup_default_early_hook(void) {}
@@ -422,8 +423,10 @@ FLASHMEM void configure_external_ram()
 		if (flexspi2_psram_id(0x800000) == 0x5D0D) {
 			flexspi2_command(4, 0x800000);
 			// Two PSRAM chips are present, 16 MByte
+			external_psram_size = 16;
 		} else {
 			// One PSRAM chip is present, 8 MByte
+			external_psram_size = 8;
 		}
 		// TODO: zero uninitialized EXTMEM variables
 		// TODO: copy from flash to initialize EXTMEM variables
