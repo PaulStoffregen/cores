@@ -38,6 +38,14 @@
 #include "avr_functions.h"
 #include "avr/pgmspace.h"
 
+// At very slow CPU speeds, the OCRAM just isn't fast enough for
+// USB to work reliably.  But the precious/limited DTCM is.  So
+// as an ugly workaround, undefine DMAMEM so all buffers which
+// would normally be allocated in OCRAM are placed in DTCM.
+#if defined(F_CPU) && F_CPU < 30000000
+#undef DMAMEM
+#endif
+
 // USB Descriptors are binary data which the USB host reads to
 // automatically detect a USB device's capabilities.  The format
 // and meaning of every field is documented in numerous USB

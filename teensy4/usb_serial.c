@@ -42,6 +42,15 @@
 #if defined(CDC_STATUS_INTERFACE) && defined(CDC_DATA_INTERFACE)
 //#if F_CPU >= 20000000
 
+// At very slow CPU speeds, the OCRAM just isn't fast enough for
+// USB to work reliably.  But the precious/limited DTCM is.  So
+// as an ugly workaround, undefine DMAMEM so all buffers which
+// would normally be allocated in OCRAM are placed in DTCM.
+#if defined(F_CPU) && F_CPU < 30000000
+#undef DMAMEM
+#define DMAMEM
+#endif
+
 uint32_t usb_cdc_line_coding[2];
 volatile uint32_t usb_cdc_line_rtsdtr_millis;
 volatile uint8_t usb_cdc_line_rtsdtr=0;
