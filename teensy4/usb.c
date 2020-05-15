@@ -201,6 +201,7 @@ FLASHMEM void usb_init(void)
 	USB1_USBCMD = USB_USBCMD_RS;
 	//transfer_log_head = 0;
 	//transfer_log_count = 0;
+	//USB1_PORTSC1 |= USB_PORTSC1_PFSC; // force 12 Mbit/sec
 }
 
 
