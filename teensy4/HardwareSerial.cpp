@@ -62,6 +62,10 @@
 
 #define UART_CLOCK 24000000
 
+extern "C" {
+    extern void xbar_connect(unsigned int input, unsigned int output);
+}
+
 #if defined(ARDUINO_TEENSY41)   
 SerialEventCheckingFunctionPointer HardwareSerial::serial_event_handler_checks[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 #else
@@ -243,9 +247,9 @@ void HardwareSerial::setRX(uint8_t pin)
 				// new pin - so lets maybe reset the old pin to INPUT? and then set new pin parameters
 				// only change IO pins if done after begin has been called. 
 				if ((hardware->ccm_register & hardware->ccm_value)) {
-				*(portConfigRegister(hardware->rx_pins[rx_pin_index_].pin)) = 5;
+					*(portConfigRegister(hardware->rx_pins[rx_pin_index_].pin)) = 5;
 
-				// now set new pin info.
+					// now set new pin info.
 					*(portControlRegister(hardware->rx_pins[rx_pin_new_index].pin)) =  IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS;;
 					*(portConfigRegister(hardware->rx_pins[rx_pin_new_index].pin)) = hardware->rx_pins[rx_pin_new_index].mux_val;
 					if (hardware->rx_pins[rx_pin_new_index].select_input_register) {
@@ -253,7 +257,29 @@ void HardwareSerial::setRX(uint8_t pin)
 					}
 				}		
 				rx_pin_index_ = rx_pin_new_index;
-				break;
+				return;  // done. 
+			}
+		}
+		// If we got to here and did not find a valid pin there.  Maybe see if it is an XBar pin... 
+		for (uint8_t i = 0; i < count_pin_to_xbar_info; i++) {
+			if (pin_to_xbar_info[i].pin == pin) {
+				// So it is an XBAR pin set the XBAR..
+				//Serial.printf("ACTS XB(%d), X(%u %u), MUX:%x\n", i, pin_to_xbar_info[i].xbar_in_index, 
+				//			hardware->xbar_out_lpuartX_trig_input,  pin_to_xbar_info[i].mux_val);
+				CCM_CCGR2 |= CCM_CCGR2_XBAR1(CCM_CCGR_ON);
+				xbar_connect(pin_to_xbar_info[i].xbar_in_index, hardware->xbar_out_lpuartX_trig_input);
+
+				// We need to update port register to use this as the trigger
+				port->PINCFG = LPUART_PINCFG_TRGSEL(1);  // Trigger select as alternate RX
+
+				//  configure the pin. 
+				*(portControlRegister(pin)) = IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS;;
+				*(portConfigRegister(pin)) = pin_to_xbar_info[i].mux_val;
+				port->MODIR |= LPUART_MODIR_TXCTSE;
+				if (pin_to_xbar_info[i].select_input_register) *(pin_to_xbar_info[i].select_input_register) = pin_to_xbar_info[i].select_val;
+				//Serial.printf("SerialX::begin stat:%x ctrl:%x fifo:%x water:%x\n", port->STAT, port->CTRL, port->FIFO, port->WATER );
+				//Serial.printf("  PINCFG: %x MODIR: %x\n", port->PINCFG, port->MODIR);	
+				return;
 			}
 		}
 	}
@@ -315,6 +341,30 @@ bool HardwareSerial::attachCts(uint8_t pin)
 		port->MODIR |= LPUART_MODIR_TXCTSE;
 		return true;
 	} else {
+		// See maybe this a pin we can use XBAR for.
+		for (uint8_t i = 0; i < count_pin_to_xbar_info; i++) {
+			if (pin_to_xbar_info[i].pin == pin) {
+				// So it is an XBAR pin set the XBAR..
+				//Serial.printf("ACTS XB(%d), X(%u %u), MUX:%x\n", i, pin_to_xbar_info[i].xbar_in_index, 
+				//			hardware->xbar_out_lpuartX_trig_input,  pin_to_xbar_info[i].mux_val);
+				CCM_CCGR2 |= CCM_CCGR2_XBAR1(CCM_CCGR_ON);
+				xbar_connect(pin_to_xbar_info[i].xbar_in_index, hardware->xbar_out_lpuartX_trig_input);
+
+				// We need to update port register to use this as the trigger
+				port->PINCFG = LPUART_PINCFG_TRGSEL(2);  // Trigger select as alternate CTS pin
+
+				//  configure the pin. 
+				*(portControlRegister(pin)) = IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(0) | IOMUXC_PAD_HYS;
+				*(portConfigRegister(pin)) = pin_to_xbar_info[i].mux_val;
+				if (pin_to_xbar_info[i].select_input_register) *(pin_to_xbar_info[i].select_input_register) = pin_to_xbar_info[i].select_val;
+				port->MODIR |= LPUART_MODIR_TXCTSE;
+
+				//Serial.printf("SerialX::begin stat:%x ctrl:%x fifo:%x water:%x\n", port->STAT, port->CTRL, port->FIFO, port->WATER );
+				//Serial.printf("  PINCFG: %x MODIR: %x\n", port->PINCFG, port->MODIR);	
+				return true;
+			}
+		}
+		// Fell through so not valid pin for this. 
 		port->MODIR &= ~LPUART_MODIR_TXCTSE;
 		return false;
 	}
@@ -578,3 +628,40 @@ void HardwareSerial::disableSerialEvents()
 		serial_event_handlers_active--;
 	}
 }
+
+
+const pin_to_xbar_info_t PROGMEM pin_to_xbar_info[] = {
+	{0,  17, 1, &IOMUXC_XBAR1_IN17_SELECT_INPUT, 0x1},
+	{1,  16, 1, nullptr, 0},
+	{2,   6, 3, &IOMUXC_XBAR1_IN06_SELECT_INPUT, 0x0},
+	{3,   7, 3, &IOMUXC_XBAR1_IN07_SELECT_INPUT, 0x0},
+	{4,   8, 3, &IOMUXC_XBAR1_IN08_SELECT_INPUT, 0x0},
+	{5,  17, 3, &IOMUXC_XBAR1_IN17_SELECT_INPUT, 0x0},
+	{7,  15, 1, nullptr, 0 },
+	{8,  14, 1, nullptr, 0},
+	{30, 23, 1, &IOMUXC_XBAR1_IN23_SELECT_INPUT, 0x0},
+	{31, 22, 1, &IOMUXC_XBAR1_IN22_SELECT_INPUT, 0x0},
+	{32, 10, 1, nullptr, 0},
+	{33,  9, 3, &IOMUXC_XBAR1_IN09_SELECT_INPUT, 0x0},
+
+#ifdef ARDUINO_TEENSY41
+	{36, 16, 1, nullptr, 0},
+	{37, 17, 1, &IOMUXC_XBAR1_IN17_SELECT_INPUT, 0x3},
+	{42,  7, 3, &IOMUXC_XBAR1_IN07_SELECT_INPUT, 0x1},
+	{43,  6, 3, &IOMUXC_XBAR1_IN06_SELECT_INPUT, 0x1},
+	{44,  5, 3, &IOMUXC_XBAR1_IN05_SELECT_INPUT, 0x1},
+	{45,  4, 3, &IOMUXC_XBAR1_IN04_SELECT_INPUT, 0x1},
+	{46,  9, 3, &IOMUXC_XBAR1_IN09_SELECT_INPUT, 0x1},
+	{47,  8, 3, &IOMUXC_XBAR1_IN08_SELECT_INPUT, 0x1}
+#else	
+	{34,  7, 3, &IOMUXC_XBAR1_IN07_SELECT_INPUT, 0x1},
+	{35,  6, 3, &IOMUXC_XBAR1_IN06_SELECT_INPUT, 0x1},
+	{36,  5, 3, &IOMUXC_XBAR1_IN05_SELECT_INPUT, 0x1},
+	{37,  4, 3, &IOMUXC_XBAR1_IN04_SELECT_INPUT, 0x1},
+	{38,  9, 3, &IOMUXC_XBAR1_IN09_SELECT_INPUT, 0x1},
+	{39,  8, 3, &IOMUXC_XBAR1_IN08_SELECT_INPUT, 0x1}
+#endif
+};
+
+const uint8_t PROGMEM count_pin_to_xbar_info = sizeof(pin_to_xbar_info)/sizeof(pin_to_xbar_info[0]);
+

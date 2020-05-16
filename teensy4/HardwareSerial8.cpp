@@ -65,6 +65,7 @@ static HardwareSerial::hardware_t UART5_Hardware = {
 	50, // CTS pin
 	2, //  CTS
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
+	XBARA1_OUT_LPUART5_TRG_INPUT
 };
 HardwareSerial Serial8(&IMXRT_LPUART5, &UART5_Hardware, tx_buffer8, SERIAL8_TX_BUFFER_SIZE,
 	rx_buffer8,  SERIAL8_RX_BUFFER_SIZE);

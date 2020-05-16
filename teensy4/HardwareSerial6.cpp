@@ -62,7 +62,7 @@ static HardwareSerial::hardware_t UART1_Hardware = {
 	0xff, // No CTS pin
 	0, // No CTS
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
-
+	XBARA1_OUT_LPUART1_TRG_INPUT
 };
 
 HardwareSerial Serial6(&IMXRT_LPUART1, &UART1_Hardware, tx_buffer6, SERIAL6_TX_BUFFER_SIZE,

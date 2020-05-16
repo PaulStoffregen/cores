@@ -125,6 +125,23 @@ extern "C" {
 	#endif
 }
 
+//===================================================================
+// Should find a good home for this
+// Map IO pin to XBar pin... 
+//===================================================================
+// BUGBUG - find a good home
+typedef struct _pin_to_xbar_info{
+	const uint8_t 		pin;		// The pin number
+	const uint8_t		xbar_in_index; // What XBar input index. 
+	const uint32_t 		mux_val;	// Value to set for mux;
+	volatile uint32_t	*select_input_register; // Which register controls the selection
+	const uint32_t		select_val;	// Value for that selection
+} pin_to_xbar_info_t;
+
+extern const pin_to_xbar_info_t pin_to_xbar_info[];
+extern const uint8_t count_pin_to_xbar_info;
+
+
 typedef void(*SerialEventCheckingFunctionPointer)();
 
 class HardwareSerial : public Stream
@@ -153,6 +170,7 @@ public:
 		const uint16_t irq_priority;
 		const uint16_t rts_low_watermark;
 		const uint16_t rts_high_watermark;
+		const uint8_t xbar_out_lpuartX_trig_input;
 	} hardware_t;
 public:
 	constexpr HardwareSerial(IMXRT_LPUART_t *myport, const hardware_t *myhardware, 
