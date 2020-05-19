@@ -568,6 +568,7 @@ void HardwareSerial::enableSerialEvents()
 	if (!serial_event_handler_checks[hardware->serial_index]) {
 		serial_event_handler_checks[hardware->serial_index] = hardware->serial_event_handler_check;	// clear it out
 		serial_event_handlers_active++;
+		yield_active_check_flags |= YIELD_CHECK_HARDWARE_SERIAL;
 	}
 }
 
@@ -576,5 +577,6 @@ void HardwareSerial::disableSerialEvents()
 	if (serial_event_handler_checks[hardware->serial_index]) {
 		serial_event_handler_checks[hardware->serial_index] = nullptr;	// clear it out
 		serial_event_handlers_active--;
+		if (!serial_event_handlers_active) yield_active_check_flags &= ~YIELD_CHECK_HARDWARE_SERIAL;
 	}
 }
