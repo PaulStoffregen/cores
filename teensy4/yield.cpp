@@ -31,9 +31,9 @@
 #include <Arduino.h>
 #include "EventResponder.h"
 
-extern uint8_t usb_enable_serial_event_processing; // from usb_inst.cpp
-
 uint8_t yield_active_check_flags = YIELD_CHECK_USB_SERIAL; // default to check USB.
+extern const uint8_t _serialEvent_default;	
+
 void yield(void) __attribute__ ((weak));
 void yield(void)
 {
@@ -44,7 +44,10 @@ void yield(void)
 
 
 	// USB Serail - Add hack to minimize impact...
-	if ((yield_active_check_flags & YIELD_CHECK_USB_SERIAL) && Serial.available()) serialEvent();
+	if (yield_active_check_flags & YIELD_CHECK_USB_SERIAL) {
+		if (Serial.available()) serialEvent();
+		if (_serialEvent_default) yield_active_check_flags &= ~YIELD_CHECK_USB_SERIAL;
+	}
 
 	// Current workaround until integrate with EventResponder.
 	if (yield_active_check_flags & YIELD_CHECK_HARDWARE_SERIAL) HardwareSerial::processSerialEvents();
