@@ -142,8 +142,6 @@ extern const pin_to_xbar_info_t pin_to_xbar_info[];
 extern const uint8_t count_pin_to_xbar_info;
 
 
-typedef void(*SerialEventCheckingFunctionPointer)();
-
 class HardwareSerial : public Stream
 {
 public:
@@ -160,7 +158,7 @@ public:
 		uint8_t serial_index;	// which object are we? 0 based
 		IRQ_NUMBER_t irq;
 		void (*irq_handler)(void);
-		void (*serial_event_handler_check)(void);
+		void (* _serialEvent)(void);
 		const uint8_t *serial_event_handler_default;
 		volatile uint32_t &ccm_register;
 		const uint32_t ccm_value;
@@ -202,9 +200,6 @@ public:
 	size_t write9bit(uint32_t c);
 	
 	// Event Handler functions and data
-	void enableSerialEvents();
-	void disableSerialEvents();
-	static void processSerialEvents();
 	static uint8_t serial_event_handlers_active;
 
 	using Print::write; 
@@ -223,6 +218,12 @@ public:
 	*/
 
 	operator bool()			{ return true; }
+
+	static inline void processSerialEventsList() {
+		for (uint8_t i = 0; i < s_count_serials_with_serial_events; i++) {
+			s_serials_with_serial_events[i]->doYieldCode();
+		}
+	}
 private:
 	IMXRT_LPUART_t * const port;
 	const hardware_t * const hardware;
@@ -264,10 +265,15 @@ private:
 	friend void IRQHandler_Serial7();
 	#if defined(ARDUINO_TEENSY41)   
 	friend void IRQHandler_Serial8();
-	static SerialEventCheckingFunctionPointer serial_event_handler_checks[8];
+	static HardwareSerial 	*s_serials_with_serial_events[8];
 	#else	
-	static SerialEventCheckingFunctionPointer serial_event_handler_checks[7];
+	static HardwareSerial 	*s_serials_with_serial_events[7];
 	#endif
+	static uint8_t 			s_count_serials_with_serial_events;
+	void addToSerialEventsList(); 
+	inline void doYieldCode()  {
+		if (available()) (*hardware->_serialEvent)();
+	}
 
 
 

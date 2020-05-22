@@ -67,11 +67,14 @@ extern "C" {
 }
 
 #if defined(ARDUINO_TEENSY41)   
-SerialEventCheckingFunctionPointer HardwareSerial::serial_event_handler_checks[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+HardwareSerial 	*HardwareSerial::s_serials_with_serial_events[8];
 #else
-SerialEventCheckingFunctionPointer HardwareSerial::serial_event_handler_checks[7] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+HardwareSerial 	*HardwareSerial::s_serials_with_serial_events[7];
 #endif
-uint8_t HardwareSerial::serial_event_handlers_active = 0;
+
+// define our static objects
+uint8_t 		HardwareSerial::s_count_serials_with_serial_events = 0;
+
 
 
 #define CTRL_ENABLE 		(LPUART_CTRL_TE | LPUART_CTRL_RE | LPUART_CTRL_RIE | LPUART_CTRL_ILIE)
@@ -198,7 +201,7 @@ void HardwareSerial::begin(uint32_t baud, uint16_t format)
 
 	//Serial.printf("    stat:%x ctrl:%x fifo:%x water:%x\n", port->STAT, port->CTRL, port->FIFO, port->WATER );
 	// Only if the user implemented their own...
-	if (!(*hardware->serial_event_handler_default)) enableSerialEvents(); 		// Enable the processing of serialEvent for this object
+	if (!(*hardware->serial_event_handler_default)) addToSerialEventsList(); 		// Enable the processing of serialEvent for this object
 };
 
 inline void HardwareSerial::rts_assert() 
@@ -228,7 +231,6 @@ void HardwareSerial::end(void)
 	rx_buffer_tail_ = 0;
 	if (rts_pin_baseReg_) rts_deassert();
 	// 
-	disableSerialEvents(); 		// disable the processing of serialEvent for this object
 }
 
 void HardwareSerial::transmitterEnable(uint8_t pin)
@@ -602,34 +604,9 @@ void HardwareSerial::IRQHandler()
 }
 
 
-void HardwareSerial::processSerialEvents()
-{
-	if (!serial_event_handlers_active) return;	// bail quick if no one processing SerialEvents.
-	uint8_t handlers_still_to_process = serial_event_handlers_active;
-	for (uint8_t i = 0; i < 8; i++) {
-		if (serial_event_handler_checks[i]) {
-			(*serial_event_handler_checks[i])();
-			if (--handlers_still_to_process == 0) return;
-		}
-	}
-}
-
-void HardwareSerial::enableSerialEvents() 
-{
-	if (!serial_event_handler_checks[hardware->serial_index]) {
-		serial_event_handler_checks[hardware->serial_index] = hardware->serial_event_handler_check;	// clear it out
-		serial_event_handlers_active++;
-		yield_active_check_flags |= YIELD_CHECK_HARDWARE_SERIAL;
-	}
-}
-
-void HardwareSerial::disableSerialEvents() 
-{
-	if (serial_event_handler_checks[hardware->serial_index]) {
-		serial_event_handler_checks[hardware->serial_index] = nullptr;	// clear it out
-		serial_event_handlers_active--;
-		if (!serial_event_handlers_active) yield_active_check_flags &= ~YIELD_CHECK_HARDWARE_SERIAL;
-	}
+void HardwareSerial::addToSerialEventsList() {
+	s_serials_with_serial_events[s_count_serials_with_serial_events++] = this;
+	yield_active_check_flags |= YIELD_CHECK_HARDWARE_SERIAL;
 }
 
 

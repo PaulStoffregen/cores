@@ -45,10 +45,6 @@ void IRQHandler_Serial1()
 	Serial1.IRQHandler();
 }
 
-void serial_event_check_serial1()
-{
-	if (Serial1.available()) serialEvent1();
-}
 
 // Serial1
 static BUFTYPE tx_buffer1[SERIAL1_TX_BUFFER_SIZE];
@@ -57,7 +53,7 @@ uint8_t _serialEvent1_default __attribute__((weak)) PROGMEM = 0 ;
 
 const HardwareSerial::hardware_t UART6_Hardware = {
 	0, IRQ_LPUART6, &IRQHandler_Serial1, 
-	&serial_event_check_serial1, &_serialEvent1_default,
+	&serialEvent1, &_serialEvent1_default,
 	CCM_CCGR3, CCM_CCGR3_LPUART6(CCM_CCGR_ON),
 	#if defined(ARDUINO_TEENSY41)
 	{{0,2, &IOMUXC_LPUART6_RX_SELECT_INPUT, 1}, {52, 2, &IOMUXC_LPUART6_RX_SELECT_INPUT, 0}},
