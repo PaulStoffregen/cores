@@ -33,9 +33,17 @@
 
 #if defined(HAS_KINETISK_UART5) || defined (HAS_KINETISK_LPUART0)
 
-HardwareSerial6 Serial6;
+HardwareSerial6 Serial6(&serialEvent6);
 
-void serialEvent6() __attribute__((weak));
-void serialEvent6() {}
+uint8_t _serialEvent6_default __attribute__((weak)) PROGMEM = 0 ;
+
+void HardwareSerial6::begin(uint32_t baud) { 	
+#if defined(__MK66FX1M0__)	// For LPUART just pass baud straight in. 
+	serial6_begin(baud);
+#else
+	serial6_begin(BAUD2DIV3(baud));
+#endif	
+	if (!_serialEvent6_default) addToSerialEventsList();
+}
 
 #endif

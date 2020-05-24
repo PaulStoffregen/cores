@@ -98,8 +98,8 @@ usb_seremu_class Serial;
 
 #endif // F_CPU
 
-void serialEvent() __attribute__((weak));
-void serialEvent() {}
+//void serialEvent() __attribute__((weak));
+//void serialEvent() {}
 void serialEventUSB1() __attribute__((weak));
 void serialEventUSB1() {}
 void serialEventUSB2() __attribute__((weak));

@@ -253,8 +253,13 @@ void serial6_clear(void);
 class HardwareSerial : public Stream
 {
 public:
-	constexpr HardwareSerial() {}
-	virtual void begin(uint32_t baud) { serial_begin(BAUD2DIV(baud)); }
+	constexpr HardwareSerial(void (* const se)()) : _serialEvent(se) {}
+	#if defined(__MK64FX512__) || defined(__MK66FX1M0__) 
+	enum {CNT_HARDWARE_SERIAL = 6};
+	#else //(__MK64FX512__) || defined(__MK66FX1M0__) 
+	enum {CNT_HARDWARE_SERIAL = 3};
+	#endif
+	virtual void begin(uint32_t baud);
 	virtual void begin(uint32_t baud, uint32_t format) {
 					  serial_begin(BAUD2DIV(baud));
 					  serial_format(format); }
@@ -283,6 +288,21 @@ public:
 					  return len; }
 	virtual size_t write9bit(uint32_t c)	{ serial_putchar(c); return 1; }
 	operator bool()			{ return true; }
+
+	static inline void processSerialEventsList() {
+		for (uint8_t i = 0; i < s_count_serials_with_serial_events; i++) {
+			s_serials_with_serial_events[i]->doYieldCode();
+		}
+	}
+protected:
+	static HardwareSerial 	*s_serials_with_serial_events[CNT_HARDWARE_SERIAL];
+	static uint8_t 			s_count_serials_with_serial_events;
+	void 		(* const _serialEvent)(); 
+	void addToSerialEventsList(); 
+	inline void doYieldCode()  {
+		if (available()) (*_serialEvent)();
+	}
+
 };
 extern HardwareSerial Serial1;
 extern void serialEvent1(void);
@@ -290,8 +310,8 @@ extern void serialEvent1(void);
 class HardwareSerial2 : public HardwareSerial
 {
 public:
-	constexpr HardwareSerial2() {}
-	virtual void begin(uint32_t baud) { serial2_begin(BAUD2DIV2(baud)); }
+	constexpr HardwareSerial2(void (* const se)()) : HardwareSerial(se) {}
+	virtual void begin(uint32_t baud);
 	virtual void begin(uint32_t baud, uint32_t format) {
 					  serial2_begin(BAUD2DIV2(baud));
 					  serial2_format(format); }
@@ -327,8 +347,8 @@ extern void serialEvent2(void);
 class HardwareSerial3 : public HardwareSerial
 {
 public:
-	constexpr HardwareSerial3() {}
-	virtual void begin(uint32_t baud) { serial3_begin(BAUD2DIV3(baud)); }
+	constexpr HardwareSerial3(void (* const se)()) : HardwareSerial(se) {}
+	virtual void begin(uint32_t baud);
 	virtual void begin(uint32_t baud, uint32_t format) {
 					  serial3_begin(BAUD2DIV3(baud));
 					  serial3_format(format); }
@@ -364,8 +384,8 @@ extern void serialEvent3(void);
 class HardwareSerial4 : public HardwareSerial
 {
 public:
-	constexpr HardwareSerial4() {}
-	virtual void begin(uint32_t baud) { serial4_begin(BAUD2DIV3(baud)); }
+	constexpr HardwareSerial4(void (* const se)()) : HardwareSerial(se) {}
+	virtual void begin(uint32_t baud);
 	virtual void begin(uint32_t baud, uint32_t format) {
 					  serial4_begin(BAUD2DIV3(baud));
 					  serial4_format(format); }
@@ -401,8 +421,8 @@ extern void serialEvent4(void);
 class HardwareSerial5 : public HardwareSerial
 {
 public:
-	constexpr HardwareSerial5() {}
-	virtual void begin(uint32_t baud) { serial5_begin(BAUD2DIV3(baud)); }
+	constexpr HardwareSerial5(void (* const se)()) : HardwareSerial(se) {}
+	virtual void begin(uint32_t baud);
 	virtual void begin(uint32_t baud, uint32_t format) {
 					  serial5_begin(BAUD2DIV3(baud));
 					  serial5_format(format); }
@@ -438,14 +458,14 @@ extern void serialEvent5(void);
 class HardwareSerial6 : public HardwareSerial
 {
 public:
-	constexpr HardwareSerial6() {}
+	constexpr HardwareSerial6(void (* const se)()) : HardwareSerial(se) {}
 #if defined(__MK66FX1M0__)	// For LPUART just pass baud straight in. 
-	virtual void begin(uint32_t baud) { serial6_begin(baud); }
+	virtual void begin(uint32_t baud);
 	virtual void begin(uint32_t baud, uint32_t format) {
 					  serial6_begin(baud);
 					  serial6_format(format); }
 #else
-	virtual void begin(uint32_t baud) { serial6_begin(BAUD2DIV3(baud)); }
+	virtual void begin(uint32_t baud);
 	virtual void begin(uint32_t baud, uint32_t format) {
 					  serial6_begin(BAUD2DIV3(baud));
 					  serial6_format(format); }

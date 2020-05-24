@@ -27,11 +27,14 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 #include <Arduino.h>
 #include "HardwareSerial.h"
 
-HardwareSerial2 Serial2;
+HardwareSerial2 Serial2(&serialEvent2);
 
-void serialEvent2() __attribute__((weak));
-void serialEvent2() {}
+uint8_t _serialEvent2_default __attribute__((weak)) PROGMEM = 0 ;
+
+void HardwareSerial2::begin(uint32_t baud) {
+	serial2_begin(BAUD2DIV2(baud));
+	if (!_serialEvent2_default) addToSerialEventsList();
+}
