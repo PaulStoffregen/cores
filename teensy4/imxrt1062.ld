@@ -38,6 +38,12 @@ SECTIONS
 		. = ALIGN(16);
 	} > ITCM  AT> FLASH
 
+	.ARM.exidx : {
+		__exidx_start = .;
+		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
+		__exidx_end = .;
+	} > ITCM  AT> FLASH
+
 	.text.itcm.padding (NOLOAD) : {
 		. = ALIGN(32768);
 	} > ITCM
@@ -61,7 +67,7 @@ SECTIONS
 	} > RAM
 
 	_stext = ADDR(.text.itcm);
-	_etext = ADDR(.text.itcm) + SIZEOF(.text.itcm);
+	_etext = ADDR(.text.itcm) + SIZEOF(.text.itcm) + SIZEOF(.ARM.exidx);
 	_stextload = LOADADDR(.text.itcm);
 
 	_sdata = ADDR(.data);
@@ -74,11 +80,11 @@ SECTIONS
 	_heap_start = ADDR(.bss.dma) + SIZEOF(.bss.dma);
 	_heap_end = ORIGIN(RAM) + LENGTH(RAM);
 
-	_itcm_block_count = (SIZEOF(.text.itcm) + 0x7FFF) >> 15;
+	_itcm_block_count = (SIZEOF(.text.itcm) + SIZEOF(.ARM.exidx) + 0x7FFF) >> 15;
 	_flexram_bank_config = 0xAAAAAAAA | ((1 << (_itcm_block_count * 2)) - 1);
 	_estack = ORIGIN(DTCM) + ((16 - _itcm_block_count) << 15);
 
-	_flashimagelen = SIZEOF(.text.progmem) + SIZEOF(.text.itcm) + SIZEOF(.data);
+	_flashimagelen = SIZEOF(.text.progmem) + SIZEOF(.text.itcm) + SIZEOF(.ARM.exidx) + SIZEOF(.data);
 	_teensy_model_identifier = 0x24;
 
 	.debug_info     0 : { *(.debug_info) }
