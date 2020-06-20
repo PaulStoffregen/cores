@@ -84,6 +84,42 @@ const struct pwm_pin_info_struct pwm_pin_info[] = {
 #endif
 };
 
+// Known usage of FlexPWM and QuadTimers
+// -------------------------------------
+//   FlexPWM1_0    PWM pin 1, 36(T4.0), 37(T4.0), 44(T4.1), 45(T4.1)
+//   FlexPWM1_1    PWM pin 0, 34(T4.0), 35(T4.0), 42(T4.1), 43(T4.1)
+//   FlexPWM1_2    PWM pin 24, 38(T4.0), 39(T4.0), 46(T4.1), 47(T4.1)
+//   FlexPWM1_3    PWM pin 7, 8, 25
+//   FlexPWM2_0    PWM pin 4, 33
+//   FlexPWM2_1    PWM pin 5
+//   FlexPWM2_2    PWM pin 6, 9
+//   FlexPWM2_3    PWM pin 36(T4.1), 37(T4.1)
+//   FlexPWM3_0    PWM pin 53(T4.1)
+//   FlexPWM3_1    PWM pin 28, 29
+//   FlexPWM3_2
+//   FlexPWM3_3    PWM pin 41(T4.1)
+//   FlexPWM4_0    PWM pin 22
+//   FlexPWM4_1    PWM pin 23
+//   FlexPWM4_2    PWM pin 2, 3
+//   FlexPWM4_3
+//   QuadTimer1_0  PWM pin 10
+//   QuadTimer1_1  PWM pin 12
+//   QuadTimer1_2  PWM pin 11
+//   QuadTimer1_3
+//   QuadTimer2_0  PWM pin 13
+//   QuadTimer2_1
+//   QuadTimer2_2
+//   QuadTimer2_3
+//   QuadTimer3_0  PWM pin 19
+//   QuadTimer3_1  PWM pin 18
+//   QuadTimer3_2  PWM pin 14
+//   QuadTimer3_3  PWM pin 15
+//   QuadTimer4_0  OctoWS2811
+//   QuadTimer4_1  OctoWS2811
+//   QuadTimer4_2  OctoWS2811
+//   QuadTimer4_3  AudioInputAnalog
+
+
 #endif // __IMXRT1062__
 
 void flexpwmWrite(IMXRT_FLEXPWM_t *p, unsigned int submodule, uint8_t channel, uint16_t val)
