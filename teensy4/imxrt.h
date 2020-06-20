@@ -7994,6 +7994,123 @@ These register are used by the ROM code and should not be used by application so
 #define TEMPMON_CTRL2_PANIC_ALARM_VALUE(n)	((uint32_t)(((n) & 0x0fff) << 16))
 #define TEMPMON_CTRL2_LOW_ALARM_VALUE(n)	((uint32_t)(((n) & 0x0fff) << 0))
 
+#define IMXRT_TRNG		(*(IMXRT_REGISTER32_t *)0x400CC000)
+#define TRNG_MCTL			(IMXRT_TRNG.offset000)
+#define TRNG_SCMISC			(IMXRT_TRNG.offset004)
+#define TRNG_PKRRNG			(IMXRT_TRNG.offset008)
+#define TRNG_PKRMAX			(IMXRT_TRNG.offset00C)
+#define TRNG_PKRSQ			(IMXRT_TRNG.offset00C)
+#define TRNG_SDCTL			(IMXRT_TRNG.offset010)
+#define TRNG_SBLIM			(IMXRT_TRNG.offset014)
+#define TRNG_TOTSAM			(IMXRT_TRNG.offset014)
+#define TRNG_FRQMIN			(IMXRT_TRNG.offset018)
+#define TRNG_FRQCNT			(IMXRT_TRNG.offset01C)
+#define TRNG_FRQMAX			(IMXRT_TRNG.offset01C)
+#define TRNG_SCMC			(IMXRT_TRNG.offset020)
+#define TRNG_SCML			(IMXRT_TRNG.offset020)
+#define TRNG_SCR1C			(IMXRT_TRNG.offset024)
+#define TRNG_SCR1L			(IMXRT_TRNG.offset024)
+#define TRNG_SCR2C			(IMXRT_TRNG.offset028)
+#define TRNG_SCR2L			(IMXRT_TRNG.offset028)
+#define TRNG_SCR3C			(IMXRT_TRNG.offset02C)
+#define TRNG_SCR3L			(IMXRT_TRNG.offset02C)
+#define TRNG_SCR4C			(IMXRT_TRNG.offset030)
+#define TRNG_SCR4L			(IMXRT_TRNG.offset030)
+#define TRNG_SCR5C			(IMXRT_TRNG.offset034)
+#define TRNG_SCR5L			(IMXRT_TRNG.offset034)
+#define TRNG_SCR6PC			(IMXRT_TRNG.offset038)
+#define TRNG_SCR6PL			(IMXRT_TRNG.offset038)
+#define TRNG_STATUS			(IMXRT_TRNG.offset03C)
+#define TRNG_ENT0			(IMXRT_TRNG.offset040)
+#define TRNG_ENT1			(IMXRT_TRNG.offset044)
+#define TRNG_ENT2			(IMXRT_TRNG.offset048)
+#define TRNG_ENT3			(IMXRT_TRNG.offset04C)
+#define TRNG_ENT4			(IMXRT_TRNG.offset050)
+#define TRNG_ENT5			(IMXRT_TRNG.offset054)
+#define TRNG_ENT6			(IMXRT_TRNG.offset058)
+#define TRNG_ENT7			(IMXRT_TRNG.offset05C)
+#define TRNG_ENT8			(IMXRT_TRNG.offset060)
+#define TRNG_ENT9			(IMXRT_TRNG.offset064)
+#define TRNG_ENT10			(IMXRT_TRNG.offset068)
+#define TRNG_ENT11			(IMXRT_TRNG.offset06C)
+#define TRNG_ENT12			(IMXRT_TRNG.offset070)
+#define TRNG_ENT13			(IMXRT_TRNG.offset074)
+#define TRNG_ENT14			(IMXRT_TRNG.offset078)
+#define TRNG_ENT15			(IMXRT_TRNG.offset07C)
+#define TRNG_PKRCNT10			(IMXRT_TRNG.offset080)
+#define TRNG_PKRCNT32			(IMXRT_TRNG.offset084)
+#define TRNG_PKRCNT54			(IMXRT_TRNG.offset088)
+#define TRNG_PKRCNT76			(IMXRT_TRNG.offset08C)
+#define TRNG_PKRCNT98			(IMXRT_TRNG.offset090)
+#define TRNG_PKRCNTBA			(IMXRT_TRNG.offset094)
+#define TRNG_PKRCNTDC			(IMXRT_TRNG.offset098)
+#define TRNG_PKRCNTFE			(IMXRT_TRNG.offset09C)
+#define TRNG_SEC_CFG			(IMXRT_TRNG.offset0A0)
+#define TRNG_INT_CTRL			(IMXRT_TRNG.offset0A4)
+#define TRNG_INT_MASK			(IMXRT_TRNG.offset0A8)
+#define TRNG_INT_STATUS			(IMXRT_TRNG.offset0AC)
+#define TRNG_VID1			(IMXRT_TRNG.offset0F0)
+#define TRNG_MCTL_PRGM			((uint32_t)(1 << 16))
+#define TRNG_MCTL_LRUN_CONT		((uint32_t)(1 << 14))
+#define TRNG_MCTL_TSTOP_OK		((uint32_t)(1 << 13))
+#define TRNG_MCTL_ERR			((uint32_t)(1 << 12))
+#define TRNG_MCTL_TST_OUT		((uint32_t)(1 << 11))
+#define TRNG_MCTL_ENT_VAL		((uint32_t)(1 << 10))
+#define TRNG_MCTL_FCT_VAL		((uint32_t)(1 << 9))
+#define TRNG_MCTL_FCT_FAIL		((uint32_t)(1 << 8))
+#define TRNG_MCTL_FOR_SCLK		((uint32_t)(1 << 7))
+#define TRNG_MCTL_RST_DEF		((uint32_t)(1 << 6))
+#define TRNG_MCTL_TRNG_ACC		((uint32_t)(1 << 5))
+#define TRNG_MCTL_OSC_DIV(n)		((uint32_t)(((n) & 0x03) << 2))
+#define TRNG_MCTL_SAMP_MODE(n)		((uint32_t)(((n) & 0x03) << 0))
+#define TRNG_SCMISC_RTY_CT(n)		((uint32_t)(((n) & 0x0F) << 16))
+#define TRNG_SCMISC_LRUN_MAX(n)		((uint32_t)(((n) & 0xFF) << 0))
+#define TRNG_SDCTL_ENT_DLY(n)		((uint32_t)(((n) & 0xFFFF) << 16))
+#define TRNG_SDCTL_SAMP_SIZE(n)		((uint32_t)(((n) & 0xFFFF) << 0))
+#define TRNG_SCML_MONO_RNG(n)		((uint32_t)(((n) & 0xFFFF) << 16))
+#define TRNG_SCML_MONO_MAX(n)		((uint32_t)(((n) & 0xFFFF) << 0))
+#define TRNG_SCR1L_RUN1_RNG(n)		((uint32_t)(((n) & 0x7FFF) << 16))
+#define TRNG_SCR1L_RUN1_MAX(n)		((uint32_t)(((n) & 0x7FFF) << 0))
+#define TRNG_SCR2L_RUN2_RNG(n)		((uint32_t)(((n) & 0x3FFF) << 16))
+#define TRNG_SCR2L_RUN2_MAX(n)		((uint32_t)(((n) & 0x3FFF) << 0))
+#define TRNG_SCR3L_RUN3_RNG(n)		((uint32_t)(((n) & 0x1FFF) << 16))
+#define TRNG_SCR3L_RUN3_MAX(n)		((uint32_t)(((n) & 0x1FFF) << 0))
+#define TRNG_SCR4L_RUN4_RNG(n)		((uint32_t)(((n) & 0x0FFF) << 16))
+#define TRNG_SCR4L_RUN4_MAX(n)		((uint32_t)(((n) & 0x0FFF) << 0))
+#define TRNG_SCR5L_RUN5_RNG(n)		((uint32_t)(((n) & 0x07FF) << 16))
+#define TRNG_SCR5L_RUN5_MAX(n)		((uint32_t)(((n) & 0x07FF) << 0))
+#define TRNG_SCR6PL_RUN6P_RNG(n)	((uint32_t)(((n) & 0x07FF) << 16))
+#define TRNG_SCR6PL_RUN6P_MAX(n)	((uint32_t)(((n) & 0x07FF) << 0))
+// defaults from NXP's SDK (fsl_trng.c)
+#define TRNG_DEFAULT_ENTROPY_DELAY	3200
+#define TRNG_DEFAULT_SAMPLE_SIZE	2500
+#define TRNG_DEFAULT_SPARSE_BIT_LIMIT	63
+#define TRNG_DEFAULT_RETRY_COUNT	1
+#define TRNG_DEFAULT_RUN_MAX_LIMIT	34
+#define TRNG_DEFAULT_MONOBIT_MAXIMUM	1384
+#define TRNG_DEFAULT_MONOBIT_MINIMUM	(TRNG_DEFAULT_MONOBIT_MAXIMUM - 268)
+#define TRNG_DEFAULT_RUNBIT1_MAXIMUM	405
+#define TRNG_DEFAULT_RUNBIT1_MINIMUM	(TRNG_DEFAULT_RUNBIT1_MAXIMUM - 178)
+#define TRNG_DEFAULT_RUNBIT2_MAXIMUM	220
+#define TRNG_DEFAULT_RUNBIT2_MINIMUM	(TRNG_DEFAULT_RUNBIT2_MAXIMUM - 122)
+#define TRNG_DEFAULT_RUNBIT3_MAXIMUM	125
+#define TRNG_DEFAULT_RUNBIT3_MINIMUM	(TRNG_DEFAULT_RUNBIT3_MAXIMUM - 88)
+#define TRNG_DEFAULT_RUNBIT4_MAXIMUM	75
+#define TRNG_DEFAULT_RUNBIT4_MINIMUM	(TRNG_DEFAULT_RUNBIT4_MAXIMUM - 64)
+#define TRNG_DEFAULT_RUNBIT5_MAXIMUM	47
+#define TRNG_DEFAULT_RUNBIT5_MINIMUM	(TRNG_DEFAULT_RUNBIT5_MAXIMUM - 46)
+#define TRNG_DEFAULT_RUNBIT6PLUS_MAXIMUM 47
+#define TRNG_DEFAULT_RUNBIT6PLUS_MINIMUM (TRNG_DEFAULT_RUNBIT6PLUS_MAXIMUM - 46)
+#define TRNG_DEFAULT_POKER_MAXIMUM	26912
+#define TRNG_DEFAULT_POKER_MINIMUM	(TRNG_DEFAULT_POKER_MAXIMUM - 2467)
+#define TRNG_DEFAULT_FREQUENCY_MAXIMUM	25600
+#define TRNG_DEFAULT_FREQUENCY_MINIMUM	1600
+
+
+
+
+
+
 // 54.3: page 2998
 #define IMXRT_TSC		(*(IMXRT_REGISTER32_t *)0x400E0000)
 #define TSC_BASIC_SETTING		(IMXRT_TSC.offset000)
