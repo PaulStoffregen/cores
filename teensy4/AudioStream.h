@@ -45,7 +45,10 @@
 // should be used, since some synthesis objects generate 16 samples per loop.
 //
 // Some parts of the audio library may have hard-coded dependency on 128 samples.
-// Please report these on the forum with reproducible test cases.
+// Please report these on the forum with reproducible test cases.  The following
+// audio classes are known to have problems with smaller block sizes:
+//   AudioInputUSB, AudioOutputUSB, AudioPlaySdWav, AudioAnalyzeFFT256,
+//   AudioAnalyzeFFT1024
 
 #ifndef AUDIO_BLOCK_SAMPLES
 #define AUDIO_BLOCK_SAMPLES  128
