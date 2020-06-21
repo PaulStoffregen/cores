@@ -1703,8 +1703,8 @@ static inline void digitalToggleFast(uint8_t pin)
 			CORE_PIN53_PORTTOGGLE = CORE_PIN53_BITMASK;
 		} else if (pin == 54) {
 			CORE_PIN54_PORTTOGGLE = CORE_PIN54_BITMASK;
-		}
 #endif
+		}
 	} else {
 		digitalToggle(pin);
 	}
