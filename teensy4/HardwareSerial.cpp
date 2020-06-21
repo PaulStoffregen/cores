@@ -412,7 +412,7 @@ int HardwareSerial::available(void)
 	return avail;
 }
 
-void HardwareSerial::addStorageForRead(void *buffer, size_t length) 
+void HardwareSerial::addMemoryForRead(void *buffer, size_t length)
 {
 	rx_buffer_storage_ = (BUFTYPE*)buffer;
 	if (buffer) {
@@ -425,7 +425,7 @@ void HardwareSerial::addStorageForRead(void *buffer, size_t length)
 	rts_high_watermark_ = rx_buffer_total_size_ - hardware->rts_high_watermark;
 }
 
-void HardwareSerial::addStorageForWrite(void *buffer, size_t length) 
+void HardwareSerial::addMemoryForWrite(void *buffer, size_t length)
 {
 	tx_buffer_storage_ = (BUFTYPE*)buffer;
 	if (buffer) {

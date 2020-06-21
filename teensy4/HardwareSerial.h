@@ -195,8 +195,14 @@ public:
 	bool attachCts(uint8_t pin);
 	void clear(void);
 	int availableForWrite(void);
-	void addStorageForRead(void *buffer, size_t length);
-	void addStorageForWrite(void *buffer, size_t length);
+	void addMemoryForRead(void *buffer, size_t length);
+	void addMemoryForWrite(void *buffer, size_t length);
+	void addStorageForRead(void *buffer, size_t length) __attribute__((deprecated("addStorageForRead was renamed to addMemoryForRead"))){
+		addMemoryForRead(buffer, length);
+	}
+	void addStorageForWrite(void *buffer, size_t length) __attribute__((deprecated("addStorageForWrite was renamed to addMemoryForWrite"))){
+		addMemoryForWrite(buffer, length);
+	}
 	size_t write9bit(uint32_t c);
 	
 	// Event Handler functions and data

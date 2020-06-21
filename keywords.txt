@@ -46,6 +46,8 @@ SerialUSB2	KEYWORD1
 setRX	KEYWORD2
 setTX	KEYWORD2
 write9bit	KEYWORD2
+addMemoryForRead	KEYWORD2
+addMemoryForWrite	KEYWORD2
 clear	KEYWORD2
 EventResponder	LITERAL1
 EventResponderRef	LITERAL1
