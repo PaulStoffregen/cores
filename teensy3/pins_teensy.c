@@ -1065,6 +1065,16 @@ void digitalWrite(uint8_t pin, uint8_t val)
 
 }
 
+void digitalToggle(uint8_t pin)
+{
+	if (pin >= CORE_NUM_DIGITAL) return;
+#ifdef KINETISK
+	*portToggleRegister(pin) = 1;
+#else
+	*portToggleRegister(pin) = digitalPinToBitMask(pin);
+#endif
+}
+
 uint8_t digitalRead(uint8_t pin)
 {
 	if (pin >= CORE_NUM_DIGITAL) return 0;
