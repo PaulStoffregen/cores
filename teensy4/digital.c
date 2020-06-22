@@ -111,7 +111,7 @@ void digitalWrite(uint8_t pin, uint8_t val)
 void digitalToggle(uint8_t pin)
 {
 	const struct digital_pin_bitband_and_config_table_struct *p;
-	uint32_t pinmode, mask;
+	uint32_t mask;
 
 	if (pin >= CORE_NUM_DIGITAL) return;
 	p = digital_pin_to_info_PGM + pin;
