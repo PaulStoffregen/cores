@@ -1169,7 +1169,7 @@ void usb_init(void)
 
 	usb_init_serialnumber();
 
-	for (i=0; i <= NUM_ENDPOINTS*4; i++) {
+	for (i=0; i < (NUM_ENDPOINTS+1)*4; i++) {
 		table[i].desc = 0;
 		table[i].addr = 0;
 	}
