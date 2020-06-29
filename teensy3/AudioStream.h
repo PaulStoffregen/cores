@@ -114,7 +114,11 @@ protected:
 	AudioStream::initialize_memory(data, num); \
 })
 
+#if defined(KINETISK)
 #define CYCLE_COUNTER_APPROX_PERCENT(n) (((n) + (F_CPU / 32 / AUDIO_SAMPLE_RATE * AUDIO_BLOCK_SAMPLES / 100)) / (F_CPU / 16 / AUDIO_SAMPLE_RATE * AUDIO_BLOCK_SAMPLES / 100))
+#elif defined(KINETISL)
+#define CYCLE_COUNTER_APPROX_PERCENT(n) ((n) * (int)(AUDIO_SAMPLE_RATE) + (int)(AUDIO_SAMPLE_RATE/2)) / (AUDIO_BLOCK_SAMPLES * 10000)
+#endif
 
 #define AudioProcessorUsage() (CYCLE_COUNTER_APPROX_PERCENT(AudioStream::cpu_cycles_total))
 #define AudioProcessorUsageMax() (CYCLE_COUNTER_APPROX_PERCENT(AudioStream::cpu_cycles_total_max))
