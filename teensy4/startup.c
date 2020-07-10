@@ -213,7 +213,8 @@ static void configure_systick(void)
 #define SIZE_4G		(SCB_MPU_RASR_SIZE(31) | SCB_MPU_RASR_ENABLE)
 #define REGION(n)	(SCB_MPU_RBAR_REGION(n) | SCB_MPU_RBAR_VALID)
 
-FLASHMEM void configure_cache(void)
+__attribute__((section(".startup"), optimize("no-tree-loop-distribute-patterns")))
+void configure_cache(void)
 {
 	//printf("MPU_TYPE = %08lX\n", SCB_MPU_TYPE);
 	//printf("CCR = %08lX\n", SCB_CCR);
