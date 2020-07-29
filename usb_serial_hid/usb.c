@@ -677,7 +677,7 @@ ISR(USB_COM_vect)
         uint8_t intbits;
 	const uint8_t *list;
         const uint8_t *cfg;
-	uint8_t i, n, len, en;
+	uint8_t i, n, len;
 	volatile uint8_t *p;
 	uint8_t bmRequestType;
 	uint8_t bRequest;
