@@ -531,17 +531,17 @@ KEYCODE_TYPE usb_keyboard_class::deadkey_to_keycode(KEYCODE_TYPE keycode)
 //
 void usb_keyboard_class::write_key(KEYCODE_TYPE keycode)
 {
-	keyboard_report_data[0] = keycode_to_modifier(keycode);
-	keyboard_report_data[1] = 0;
-	keyboard_report_data[2] = keycode_to_key(keycode);
-	keyboard_report_data[3] = 0;
-	keyboard_report_data[4] = 0;
-	keyboard_report_data[5] = 0;
-	keyboard_report_data[6] = 0;
-	keyboard_report_data[7] = 0;
+	keyboard_report_buffer[0] = keycode_to_modifier(keycode);
+	keyboard_report_buffer[1] = 0;
+	keyboard_report_buffer[2] = keycode_to_key(keycode);
+	keyboard_report_buffer[3] = 0;
+	keyboard_report_buffer[4] = 0;
+	keyboard_report_buffer[5] = 0;
+	keyboard_report_buffer[6] = 0;
+	keyboard_report_buffer[7] = 0;
 	send_now();
-	keyboard_report_data[0] = 0;
-	keyboard_report_data[2] = 0;
+	keyboard_report_buffer[0] = 0;
+	keyboard_report_buffer[2] = 0;
 	send_now();
 }
 
@@ -574,31 +574,31 @@ uint8_t usb_keyboard_class::keycode_to_key(KEYCODE_TYPE keycode)
 
 void usb_keyboard_class::set_modifier(uint16_t c)
 {
-	keyboard_report_data[0] = (uint8_t)c;
+	keyboard_report_buffer[0] = (uint8_t)c;
 }
 void usb_keyboard_class::set_key1(uint8_t c)
 {
-	keyboard_report_data[2] = c;
+	keyboard_report_buffer[2] = c;
 }
 void usb_keyboard_class::set_key2(uint8_t c)
 {
-	keyboard_report_data[3] = c;
+	keyboard_report_buffer[3] = c;
 }
 void usb_keyboard_class::set_key3(uint8_t c)
 {
-	keyboard_report_data[4] = c;
+	keyboard_report_buffer[4] = c;
 }
 void usb_keyboard_class::set_key4(uint8_t c)
 {
-	keyboard_report_data[5] = c;
+	keyboard_report_buffer[5] = c;
 }
 void usb_keyboard_class::set_key5(uint8_t c)
 {
-	keyboard_report_data[6] = c;
+	keyboard_report_buffer[6] = c;
 }
 void usb_keyboard_class::set_key6(uint8_t c)
 {
-	keyboard_report_data[7] = c;
+	keyboard_report_buffer[7] = c;
 }
 
 
@@ -624,14 +624,14 @@ void usb_keyboard_class::send_now(void)
                 cli();
                 UENUM = KEYBOARD_ENDPOINT;
         }
-        UEDATX = keyboard_report_data[0];
-        UEDATX = keyboard_report_data[1];
-        UEDATX = keyboard_report_data[2];
-        UEDATX = keyboard_report_data[3];
-        UEDATX = keyboard_report_data[4];
-        UEDATX = keyboard_report_data[5];
-        UEDATX = keyboard_report_data[6];
-        UEDATX = keyboard_report_data[7];
+        UEDATX = keyboard_report_data[0] = keyboard_report_buffer[0];
+        UEDATX = keyboard_report_data[1] = keyboard_report_buffer[1];
+        UEDATX = keyboard_report_data[2] = keyboard_report_buffer[2];
+        UEDATX = keyboard_report_data[3] = keyboard_report_buffer[3];
+        UEDATX = keyboard_report_data[4] = keyboard_report_buffer[4];
+        UEDATX = keyboard_report_data[5] = keyboard_report_buffer[5];
+        UEDATX = keyboard_report_data[6] = keyboard_report_buffer[6];
+        UEDATX = keyboard_report_data[7] = keyboard_report_buffer[7];
         UEINTX = 0x3A;
         keyboard_idle_count = 0;
         SREG = intr_state;
@@ -667,9 +667,9 @@ void usb_keyboard_class::press(uint16_t n)
 	#ifdef DEADKEYS_MASK
 	KEYCODE_TYPE deadkeycode = deadkey_to_keycode(keycode);
 	if (deadkeycode) {
-		modrestore = keyboard_report_data[0];
+		modrestore = keyboard_report_buffer[0];
 		if (modrestore) {
-			keyboard_report_data[0] = 0;
+			keyboard_report_buffer[0] = 0;
 			send_now();
 		}
 		// TODO: test if operating systems recognize
@@ -722,18 +722,18 @@ void usb_keyboard_class::presskey(uint8_t key, uint8_t modifier)
 	uint8_t i;
 
 	if (modifier) {
-		if ((keyboard_report_data[0] & modifier) != modifier) {
-			keyboard_report_data[0] |= modifier;
+		if ((keyboard_report_buffer[0] & modifier) != modifier) {
+			keyboard_report_buffer[0] |= modifier;
 			send_required = true;
 		}
 	}
 	if (key) {
 		for (i=2; i < 8; i++) {
-			if (keyboard_report_data[i] == key) goto end;
+			if (keyboard_report_buffer[i] == key) goto end;
 		}
 		for (i=2; i < 8; i++) {
-			if (keyboard_report_data[i] == 0) {
-				keyboard_report_data[i] = key;
+			if (keyboard_report_buffer[i] == 0) {
+				keyboard_report_buffer[i] = key;
 				send_required = true;
 				goto end;
 			}
@@ -749,15 +749,15 @@ void usb_keyboard_class::releasekey(uint8_t key, uint8_t modifier)
 	uint8_t i;
 
 	if (modifier) {
-		if ((keyboard_report_data[0] & modifier) != 0) {
-			keyboard_report_data[0] &= ~modifier;
+		if ((keyboard_report_buffer[0] & modifier) != 0) {
+			keyboard_report_buffer[0] &= ~modifier;
 			send_required = true;
 		}
 	}
 	if (key) {
 		for (i=2; i < 8; i++) {
-			if (keyboard_report_data[i] == key) {
-				keyboard_report_data[i] = 0;
+			if (keyboard_report_buffer[i] == key) {
+				keyboard_report_buffer[i] = 0;
 				send_required = true;
 			}
 		}
@@ -769,13 +769,13 @@ void usb_keyboard_class::releaseAll(void)
 {
 	uint8_t i, anybits;
 
-	anybits = keyboard_report_data[0];
+	anybits = keyboard_report_buffer[0];
 	for (i=2; i < 8; i++) {
-		anybits |= keyboard_report_data[i];
-		keyboard_report_data[i] = 0;
+		anybits |= keyboard_report_buffer[i];
+		keyboard_report_buffer[i] = 0;
 	}
 	if (!anybits) return;
-	keyboard_report_data[0] = 0;
+	keyboard_report_buffer[0] = 0;
 	send_now();
 }
 
