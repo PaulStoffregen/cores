@@ -38,6 +38,9 @@
 #ifdef _usb_desc_h_
 #undef _usb_desc_h_
 #endif
+#ifdef _usb_user_desc_h_
+#undef _usb_user_desc_h_
+#endif
 #ifdef ENDPOINT_UNUSED
 #undef ENDPOINT_UNUSED
 #endif
