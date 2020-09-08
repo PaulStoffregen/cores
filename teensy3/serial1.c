@@ -101,6 +101,9 @@ static volatile uint8_t rx_buffer_tail = 0;
 #endif
 static uint8_t rx_pin_num = 0;
 static uint8_t tx_pin_num = 1;
+#if defined(KINETISL)
+static uint8_t half_duplex_mode = 0;
+#endif
 
 // UART0 and UART1 are clocked by F_CPU, UART2 is clocked by F_BUS
 // UART0 has 8 byte fifo, UART1 and UART2 have 1 byte buffer
@@ -113,6 +116,12 @@ static uint8_t tx_pin_num = 1;
 #define C2_TX_ACTIVE		C2_ENABLE | UART_C2_TIE
 #define C2_TX_COMPLETING	C2_ENABLE | UART_C2_TCIE
 #define C2_TX_INACTIVE		C2_ENABLE
+
+// BITBAND Support
+#define GPIO_BITBAND_ADDR(reg, bit) (((uint32_t)&(reg) - 0x40000000) * 32 + (bit) * 4 + 0x42000000)
+#define GPIO_BITBAND_PTR(reg, bit) ((uint32_t *)GPIO_BITBAND_ADDR((reg), (bit)))
+#define C3_TXDIR_BIT 5
+
 
 void serial_begin(uint32_t divisor)
 {
@@ -198,6 +207,34 @@ void serial_format(uint32_t format)
 		UART0_BDL = bdl;		// Says BDH not acted on until BDL is written
 	}
 #endif
+	// process request for half duplex.
+	if ((format & SERIAL_HALF_DUPLEX) != 0) {
+		c = UART0_C1;
+		c |= UART_C1_LOOPS | UART_C1_RSRC;
+		UART0_C1 = c;
+
+		// Lets try to make use of bitband address to set the direction for ue...
+		#if defined(KINETISL)
+		switch (tx_pin_num) {
+			case 1:  CORE_PIN1_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3) | PORT_PCR_PE | PORT_PCR_PS ; break;
+			case 5:  CORE_PIN5_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3) | PORT_PCR_PE | PORT_PCR_PS; break;
+			case 4:  CORE_PIN4_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(2) | PORT_PCR_PE | PORT_PCR_PS; break;
+			case 24: CORE_PIN24_CONFIG = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(4) | PORT_PCR_PE | PORT_PCR_PS; break;
+		}
+		half_duplex_mode = 1; 
+		#else
+		volatile uint32_t *reg = portConfigRegister(tx_pin_num);
+		*reg = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3) | PORT_PCR_PE | PORT_PCR_PS; // pullup on output pin;
+		transmit_pin = (uint8_t*)GPIO_BITBAND_PTR(UART0_C3, C3_TXDIR_BIT);
+		#endif
+
+	} else {
+		#if defined(KINETISL)
+		half_duplex_mode = 0; 
+		#else
+		if (transmit_pin == (uint8_t*)GPIO_BITBAND_PTR(UART0_C3, C3_TXDIR_BIT)) transmit_pin = NULL;
+		#endif
+	}
 }
 
 void serial_end(void)
@@ -369,6 +406,15 @@ void serial_putchar(uint32_t c)
 
 	if (!(SIM_SCGC4 & SIM_SCGC4_UART0)) return;
 	if (transmit_pin) transmit_assert();
+	#if defined(KINETISL)
+	if (half_duplex_mode) {
+		__disable_irq();
+		volatile uint32_t reg = UART0_C3;
+		reg |= UART_C3_TXDIR;
+		UART0_C3 = reg;
+		__enable_irq();
+	}
+	#endif 
 	head = tx_buffer_head;
 	if (++head >= SERIAL1_TX_BUFFER_SIZE) head = 0;
 	while (tx_buffer_tail == head) {
@@ -615,6 +661,15 @@ void uart0_status_isr(void)
 	if ((c & UART_C2_TCIE) && (UART0_S1 & UART_S1_TC)) {
 		transmitting = 0;
 		if (transmit_pin) transmit_deassert();
+		#if defined(KINETISL)
+		if (half_duplex_mode) {
+			__disable_irq();
+			volatile uint32_t reg = UART0_C3;
+			reg &= ~UART_C3_TXDIR;
+			UART0_C3 = reg;
+			__enable_irq();
+		}
+		#endif
 		UART0_C2 = C2_TX_INACTIVE;
 	}
 }
