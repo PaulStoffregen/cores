@@ -102,7 +102,11 @@
 #define SERIAL_8N2_RXINV_TXINV 0x34
 #endif
 
+// Half duplex support
 #define SERIAL_HALF_DUPLEX 0x200
+#define SERIAL_7E1_HALF_DUPLEX (SERIAL_7E1 | SERIAL_HALF_DUPLEX)
+#define SERIAL_7O1_HALF_DUPLEX (SERIAL_7O1 | SERIAL_HALF_DUPLEX)
+#define SERIAL_8N1_HALF_DUPLEX (SERIAL_8N1 | SERIAL_HALF_DUPLEX)
 
 // bit0: parity, 0=even, 1=odd
 // bit1: parity, 0=disable, 1=enable
@@ -112,6 +116,8 @@
 // bit5: txinv, 0=normal, 1=inverted
 // bit6: unused
 // bit7: actual data goes into 9th bit
+// bit8: 2 stop bits (T3.5/3.6 and LC)
+// bit9: Half duplex
 
 
 #if defined(KINETISK)
