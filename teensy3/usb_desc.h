@@ -140,6 +140,87 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_ONLY
   #define ENDPOINT4_CONFIG	ENDPOINT_TRANSMIT_ONLY
 
+#elif defined(USB_DUAL_SERIAL)
+  #define VENDOR_ID		0x16C0
+  #define PRODUCT_ID		0x048B
+  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
+  #define MANUFACTURER_NAME_LEN	11
+  #define PRODUCT_NAME		{'D','u','a','l',' ','S','e','r','i','a','l'}
+  #define PRODUCT_NAME_LEN	11
+  #define EP0_SIZE		64
+  #define NUM_ENDPOINTS		7
+  #define NUM_USB_BUFFERS	22
+  #define NUM_INTERFACE		4
+  #define CDC_IAD_DESCRIPTOR	1	// Serial
+  #define CDC_STATUS_INTERFACE	0
+  #define CDC_DATA_INTERFACE	1
+  #define CDC_ACM_ENDPOINT	2
+  #define CDC_RX_ENDPOINT	3
+  #define CDC_TX_ENDPOINT	4
+  #define CDC_ACM_SIZE		16
+  #define CDC_RX_SIZE		64
+  #define CDC_TX_SIZE		64
+  #define CDC2_STATUS_INTERFACE	2	// SerialUSB1
+  #define CDC2_DATA_INTERFACE	3
+  #define CDC2_ACM_ENDPOINT	5
+  #define CDC2_RX_ENDPOINT	6
+  #define CDC2_TX_ENDPOINT	7
+  #define CDC2_ACM_SIZE		16
+  #define CDC2_RX_SIZE		64
+  #define CDC2_TX_SIZE		64
+  #define ENDPOINT2_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_ONLY
+  #define ENDPOINT4_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  #define ENDPOINT5_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  #define ENDPOINT6_CONFIG	ENDPOINT_RECEIVE_ONLY
+  #define ENDPOINT7_CONFIG	ENDPOINT_TRANSMIT_ONLY
+
+#elif defined(USB_TRIPLE_SERIAL)
+  #define VENDOR_ID		0x16C0
+  #define PRODUCT_ID		0x048C
+  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
+  #define MANUFACTURER_NAME_LEN	11
+  #define PRODUCT_NAME		{'T','r','i','p','l','e',' ','S','e','r','i','a','l'}
+  #define PRODUCT_NAME_LEN	13
+  #define EP0_SIZE		64
+  #define NUM_ENDPOINTS		10
+  #define NUM_USB_BUFFERS	32
+  #define NUM_INTERFACE		6
+  #define CDC_IAD_DESCRIPTOR	1	// Serial
+  #define CDC_STATUS_INTERFACE	0
+  #define CDC_DATA_INTERFACE	1
+  #define CDC_ACM_ENDPOINT	2
+  #define CDC_RX_ENDPOINT	3
+  #define CDC_TX_ENDPOINT	4
+  #define CDC_ACM_SIZE		16
+  #define CDC_RX_SIZE		64
+  #define CDC_TX_SIZE		64
+  #define CDC2_STATUS_INTERFACE	2	// SerialUSB1
+  #define CDC2_DATA_INTERFACE	3
+  #define CDC2_ACM_ENDPOINT	5
+  #define CDC2_RX_ENDPOINT	6
+  #define CDC2_TX_ENDPOINT	7
+  #define CDC2_ACM_SIZE		16
+  #define CDC2_RX_SIZE		64
+  #define CDC2_TX_SIZE		64
+  #define CDC3_STATUS_INTERFACE	4	// SerialUSB2
+  #define CDC3_DATA_INTERFACE	5
+  #define CDC3_ACM_ENDPOINT	8
+  #define CDC3_RX_ENDPOINT	9
+  #define CDC3_TX_ENDPOINT	10
+  #define CDC3_ACM_SIZE		16
+  #define CDC3_RX_SIZE		64
+  #define CDC3_TX_SIZE		64
+  #define ENDPOINT2_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_ONLY
+  #define ENDPOINT4_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  #define ENDPOINT5_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  #define ENDPOINT6_CONFIG	ENDPOINT_RECEIVE_ONLY
+  #define ENDPOINT7_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  #define ENDPOINT8_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  #define ENDPOINT9_CONFIG	ENDPOINT_RECEIVE_ONLY
+  #define ENDPOINT10_CONFIG	ENDPOINT_TRANSMIT_ONLY
+
 #elif defined(USB_KEYBOARDONLY)
   #define VENDOR_ID		0x16C0
   #define PRODUCT_ID		0x04D0
@@ -289,7 +370,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define KEYMEDIA_INTERVAL     4
   #define MULTITOUCH_INTERFACE  3	// Touchscreen
   #define MULTITOUCH_ENDPOINT   5
-  #define MULTITOUCH_SIZE       8
+  #define MULTITOUCH_SIZE       16
   #define MULTITOUCH_FINGERS    10
   #define ENDPOINT1_CONFIG	ENDPOINT_TRANSMIT_ONLY
   #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_ONLY
@@ -329,7 +410,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define MOUSE_INTERVAL        2
   #define MULTITOUCH_INTERFACE  4	// Touchscreen
   #define MULTITOUCH_ENDPOINT   5
-  #define MULTITOUCH_SIZE       8
+  #define MULTITOUCH_SIZE       16
   #define MULTITOUCH_FINGERS    10
   #define ENDPOINT1_CONFIG	ENDPOINT_TRANSMIT_ONLY
   #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_ONLY
@@ -653,6 +734,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT1_CONFIG	ENDPOINT_TRANSMIT_ONLY
   #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_ONLY
   #define ENDPOINT3_CONFIG	ENDPOINT_TRANSMIT_AND_RECEIVE
+  // TODO: Should ENDPOINT4_CONFIG be ENDPOINT_TRANSMIT_ONLY ???
   #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_ONLY
 
 #elif defined(USB_AUDIO)

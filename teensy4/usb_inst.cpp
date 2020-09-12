@@ -39,6 +39,18 @@ usb_serial_class Serial;
 #endif
 #endif
 
+#ifdef CDC2_DATA_INTERFACE
+#ifdef CDC2_STATUS_INTERFACE
+usb_serial2_class SerialUSB1;
+#endif
+#endif
+
+#ifdef CDC3_DATA_INTERFACE
+#ifdef CDC3_STATUS_INTERFACE
+usb_serial3_class SerialUSB2;
+#endif
+#endif
+
 #ifdef MIDI_INTERFACE
 usb_midi_class usbMIDI;
 #endif
@@ -84,6 +96,4 @@ usb_seremu_class Serial;
 #endif
 
 #endif // F_CPU
-uint8_t usb_enable_serial_event_processing = 1;
-void serialEvent() __attribute__((weak));
-void serialEvent() {usb_enable_serial_event_processing = 0;}
+

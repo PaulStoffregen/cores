@@ -105,12 +105,14 @@ void usb_touchscreen_release(uint8_t finger)
 //  5: Y msb
 //  6: scan time lsb
 //  7: scan time msb
+//  8: contact count
 
 // Called by the start-of-frame interrupt.
 //
 void usb_touchscreen_update_callback(void)
 {
 	static uint8_t microframe_count=0;
+	uint8_t contact_count = 0;
 
 	if (usb_high_speed) {
 		// if 480 speed, run only every 8th micro-frame
@@ -130,6 +132,12 @@ void usb_touchscreen_update_callback(void)
 	if (scan_index == 0) {
 		scan_timestamp = millis() * 10;
 		scan_count = 0;
+		// Get the contact count (usage 0x54)
+		// Only set this value on first contact
+		// Subsequent concurrent contacts should report 0
+		for (uint8_t i = 0; i < MULTITOUCH_FINGERS; i++) {
+			if (contactid[i]) contact_count++;
+		}
 	}
 	while (scan_index < MULTITOUCH_FINGERS) {
 		uint32_t press = pressure[scan_index];
@@ -142,7 +150,7 @@ void usb_touchscreen_update_callback(void)
 				id &= 0xFE;
 				contactid[scan_index] = 0;
 			}
-			uint8_t buffer[MULTITOUCH_SIZE]; // MULTITOUCH_SIZE = 8
+			//uint8_t buffer[MULTITOUCH_SIZE]; // MULTITOUCH_SIZE = 8
 			txbuffer[0] = id;
 			txbuffer[1] = press;
 			txbuffer[2] = xpos[scan_index];
@@ -151,6 +159,7 @@ void usb_touchscreen_update_callback(void)
 			txbuffer[5] = ypos[scan_index] >> 8;
 			txbuffer[6] = scan_timestamp;
 			txbuffer[7] = scan_timestamp >> 8;
+			txbuffer[8] = contact_count;
 			//delayNanoseconds(30);
 			usb_prepare_transfer(&tx_transfer, txbuffer, MULTITOUCH_SIZE, 0);
 			arm_dcache_flush_delete(txbuffer, TX_BUFSIZE);

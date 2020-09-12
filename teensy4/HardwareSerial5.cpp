@@ -44,29 +44,28 @@ void IRQHandler_Serial5()
 {
 	Serial5.IRQHandler();
 }
-
-void serial_event_check_serial5()
-{
-	if (Serial5.available()) serialEvent5();
-}
-
 // Serial5
 static BUFTYPE tx_buffer5[SERIAL5_TX_BUFFER_SIZE];
 static BUFTYPE rx_buffer5[SERIAL5_RX_BUFFER_SIZE];
+uint8_t _serialEvent5_default __attribute__((weak)) PROGMEM = 0 ;
 
 static HardwareSerial::hardware_t UART8_Hardware = {
-	4, IRQ_LPUART8, &IRQHandler_Serial5, &serial_event_check_serial5,
+	4, IRQ_LPUART8, &IRQHandler_Serial5, 
+	&serialEvent5, &_serialEvent5_default,
 	CCM_CCGR6, CCM_CCGR6_LPUART8(CCM_CCGR_ON),
+	#if defined(ARDUINO_TEENSY41)
+	{{21,2, &IOMUXC_LPUART8_RX_SELECT_INPUT, 1}, {46, 2, &IOMUXC_LPUART8_RX_SELECT_INPUT, 0}},
+	{{20,2, &IOMUXC_LPUART8_TX_SELECT_INPUT, 1}, {47, 2, &IOMUXC_LPUART8_TX_SELECT_INPUT, 0}},
+	43, //  CTS pin
+	2, //  CTS
+	#else
 	{{21,2, &IOMUXC_LPUART8_RX_SELECT_INPUT, 1}, {38, 2, &IOMUXC_LPUART8_RX_SELECT_INPUT, 0}},
 	{{20,2, &IOMUXC_LPUART8_TX_SELECT_INPUT, 1}, {39, 2, &IOMUXC_LPUART8_TX_SELECT_INPUT, 0}},
-	0xff, // No CTS pin
-	0, // No CTS
+	35, //  CTS pin
+	2, //  CTS
+	#endif
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
+	XBARA1_OUT_LPUART8_TRG_INPUT
 };
 HardwareSerial Serial5(&IMXRT_LPUART8, &UART8_Hardware, tx_buffer5, SERIAL5_TX_BUFFER_SIZE,
 	rx_buffer5,  SERIAL5_RX_BUFFER_SIZE);
-
-
-
-void serialEvent5() __attribute__((weak));
-void serialEvent5() {Serial5.disableSerialEvents(); }		// No use calling this so disable if called...

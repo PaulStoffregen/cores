@@ -55,9 +55,9 @@
 #include "usb_joystick.h"
 #include "usb_midi.h"
 #include "usb_rawhid.h"
-//#include "usb_flightsim.h"
+#include "usb_flightsim.h"
 //#include "usb_mtp.h"
-//#include "usb_audio.h"
+#include "usb_audio.h"
 #include "usb_touch.h"
 //#include "usb_undef.h" // do not allow usb_desc.h stuff to leak to user programs
 

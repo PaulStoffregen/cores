@@ -27,6 +27,7 @@ static void reset_PFD();
 extern void systick_isr(void);
 extern void pendablesrvreq_isr(void);
 void configure_cache(void);
+void configure_external_ram(void);
 void unused_interrupt_vector(void);
 void usb_pll_start();
 extern void analog_init(void); // analog.c
@@ -35,6 +36,7 @@ extern void tempmon_init(void);  //tempmon.c
 uint32_t set_arm_clock(uint32_t frequency); // clockspeed.c
 extern void __libc_init_array(void); // C++ standard library
 
+uint8_t external_psram_size = 0;
 
 extern int main (void);
 void startup_default_early_hook(void) {}
@@ -48,10 +50,11 @@ void ResetHandler(void)
 
 #if defined(__IMXRT1062__)
 	IOMUXC_GPR_GPR17 = (uint32_t)&_flexram_bank_config;
-	IOMUXC_GPR_GPR16 = 0x00000007;
+	IOMUXC_GPR_GPR16 = 0x00200007;
 	IOMUXC_GPR_GPR14 = 0x00AA0000;
 	__asm__ volatile("mov sp, %0" : : "r" ((uint32_t)&_estack) : );
 #endif
+	PMU_MISC0_SET = 1<<3; //Use bandgap-based bias currents for best performance (Page 1175)
 	// pin 13 - if startup crashes, use this to turn on the LED early for troubleshooting
 	//IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_03 = 5;
 	//IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_03 = IOMUXC_PAD_DSE(7);
@@ -121,6 +124,9 @@ void ResetHandler(void)
 	}
 	SNVS_HPCR |= SNVS_HPCR_RTC_EN | SNVS_HPCR_HP_TS;
 
+#ifdef ARDUINO_TEENSY41
+	configure_external_ram();
+#endif
 	startup_early_hook();
 	while (millis() < 20) ; // wait at least 20ms before starting USB
 	usb_init();
@@ -177,6 +183,18 @@ static void configure_systick(void)
 #define MEM_CACHE_WBWA	SCB_MPU_RASR_TEX(1) | SCB_MPU_RASR_C | SCB_MPU_RASR_B
 #define MEM_NOCACHE	SCB_MPU_RASR_TEX(1)
 #define DEV_NOCACHE	SCB_MPU_RASR_TEX(2)
+#define SIZE_32B	(SCB_MPU_RASR_SIZE(4) | SCB_MPU_RASR_ENABLE)
+#define SIZE_64B	(SCB_MPU_RASR_SIZE(5) | SCB_MPU_RASR_ENABLE)
+#define SIZE_128B	(SCB_MPU_RASR_SIZE(6) | SCB_MPU_RASR_ENABLE)
+#define SIZE_256B	(SCB_MPU_RASR_SIZE(7) | SCB_MPU_RASR_ENABLE)
+#define SIZE_512B	(SCB_MPU_RASR_SIZE(8) | SCB_MPU_RASR_ENABLE)
+#define SIZE_1K		(SCB_MPU_RASR_SIZE(9) | SCB_MPU_RASR_ENABLE)
+#define SIZE_2K		(SCB_MPU_RASR_SIZE(10) | SCB_MPU_RASR_ENABLE)
+#define SIZE_4K		(SCB_MPU_RASR_SIZE(11) | SCB_MPU_RASR_ENABLE)
+#define SIZE_8K		(SCB_MPU_RASR_SIZE(12) | SCB_MPU_RASR_ENABLE)
+#define SIZE_16K	(SCB_MPU_RASR_SIZE(13) | SCB_MPU_RASR_ENABLE)
+#define SIZE_32K	(SCB_MPU_RASR_SIZE(14) | SCB_MPU_RASR_ENABLE)
+#define SIZE_64K	(SCB_MPU_RASR_SIZE(15) | SCB_MPU_RASR_ENABLE)
 #define SIZE_128K	(SCB_MPU_RASR_SIZE(16) | SCB_MPU_RASR_ENABLE)
 #define SIZE_256K	(SCB_MPU_RASR_SIZE(17) | SCB_MPU_RASR_ENABLE)
 #define SIZE_512K	(SCB_MPU_RASR_SIZE(18) | SCB_MPU_RASR_ENABLE)
@@ -187,6 +205,12 @@ static void configure_systick(void)
 #define SIZE_16M	(SCB_MPU_RASR_SIZE(23) | SCB_MPU_RASR_ENABLE)
 #define SIZE_32M	(SCB_MPU_RASR_SIZE(24) | SCB_MPU_RASR_ENABLE)
 #define SIZE_64M	(SCB_MPU_RASR_SIZE(25) | SCB_MPU_RASR_ENABLE)
+#define SIZE_128M	(SCB_MPU_RASR_SIZE(26) | SCB_MPU_RASR_ENABLE)
+#define SIZE_256M	(SCB_MPU_RASR_SIZE(27) | SCB_MPU_RASR_ENABLE)
+#define SIZE_512M	(SCB_MPU_RASR_SIZE(28) | SCB_MPU_RASR_ENABLE)
+#define SIZE_1G		(SCB_MPU_RASR_SIZE(29) | SCB_MPU_RASR_ENABLE)
+#define SIZE_2G		(SCB_MPU_RASR_SIZE(30) | SCB_MPU_RASR_ENABLE)
+#define SIZE_4G		(SCB_MPU_RASR_SIZE(31) | SCB_MPU_RASR_ENABLE)
 #define REGION(n)	(SCB_MPU_RBAR_REGION(n) | SCB_MPU_RBAR_VALID)
 
 FLASHMEM void configure_cache(void)
@@ -198,27 +222,43 @@ FLASHMEM void configure_cache(void)
 
 	SCB_MPU_CTRL = 0; // turn off MPU
 
-	SCB_MPU_RBAR = 0x00000000 | REGION(0); // ITCM
+	uint32_t i = 0;
+	SCB_MPU_RBAR = 0x00000000 | REGION(i++); //https://developer.arm.com/docs/146793866/10/why-does-the-cortex-m7-initiate-axim-read-accesses-to-memory-addresses-that-do-not-fall-under-a-defined-mpu-region
+	SCB_MPU_RASR = SCB_MPU_RASR_TEX(0) | NOACCESS | NOEXEC | SIZE_4G;
+	
+	SCB_MPU_RBAR = 0x00000000 | REGION(i++); // ITCM
 	SCB_MPU_RASR = MEM_NOCACHE | READWRITE | SIZE_512K;
 
-	SCB_MPU_RBAR = 0x00200000 | REGION(1); // Boot ROM
+	// TODO: trap regions should be created last, because the hardware gives
+	//  priority to the higher number ones.
+	SCB_MPU_RBAR = 0x00000000 | REGION(i++); // trap NULL pointer deref
+	SCB_MPU_RASR =  DEV_NOCACHE | NOACCESS | SIZE_32B;
+
+	SCB_MPU_RBAR = 0x00200000 | REGION(i++); // Boot ROM
 	SCB_MPU_RASR = MEM_CACHE_WT | READONLY | SIZE_128K;
 
-	SCB_MPU_RBAR = 0x20000000 | REGION(2); // DTCM
+	SCB_MPU_RBAR = 0x20000000 | REGION(i++); // DTCM
 	SCB_MPU_RASR = MEM_NOCACHE | READWRITE | NOEXEC | SIZE_512K;
+	
+	SCB_MPU_RBAR = ((uint32_t)&_ebss) | REGION(i++); // trap stack overflow
+	SCB_MPU_RASR = SCB_MPU_RASR_TEX(0) | NOACCESS | NOEXEC | SIZE_32B;
 
-	SCB_MPU_RBAR = 0x20200000 | REGION(3); // RAM (AXI bus)
+	SCB_MPU_RBAR = 0x20200000 | REGION(i++); // RAM (AXI bus)
 	SCB_MPU_RASR = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_1M;
 
-	SCB_MPU_RBAR = 0x40000000 | REGION(4); // Peripherals
+	SCB_MPU_RBAR = 0x40000000 | REGION(i++); // Peripherals
 	SCB_MPU_RASR = DEV_NOCACHE | READWRITE | NOEXEC | SIZE_64M;
 
-	SCB_MPU_RBAR = 0x60000000 | REGION(5); // QSPI Flash
+	SCB_MPU_RBAR = 0x60000000 | REGION(i++); // QSPI Flash
 	SCB_MPU_RASR = MEM_CACHE_WBWA | READONLY | SIZE_16M;
 
-	// TODO: 32 byte sub-region at 0x00000000 with NOACCESS, to trap NULL pointer deref
+	SCB_MPU_RBAR = 0x70000000 | REGION(i++); // FlexSPI2
+	SCB_MPU_RASR = MEM_CACHE_WBWA | READONLY | NOEXEC | SIZE_256M;
+
+	SCB_MPU_RBAR = 0x70000000 | REGION(i++); // FlexSPI2
+	SCB_MPU_RASR = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_16M;
+
 	// TODO: protect access to power supply config
-	// TODO: 32 byte sub-region at end of .bss section with NOACCESS, to trap stack overflow
 
 	SCB_MPU_CTRL = SCB_MPU_CTRL_ENABLE;
 
@@ -231,6 +271,172 @@ FLASHMEM void configure_cache(void)
 	asm("isb");
 	SCB_CCR |= (SCB_CCR_IC | SCB_CCR_DC);
 }
+
+#ifdef ARDUINO_TEENSY41
+
+#define LUT0(opcode, pads, operand) (FLEXSPI_LUT_INSTRUCTION((opcode), (pads), (operand)))
+#define LUT1(opcode, pads, operand) (FLEXSPI_LUT_INSTRUCTION((opcode), (pads), (operand)) << 16)
+#define CMD_SDR         FLEXSPI_LUT_OPCODE_CMD_SDR
+#define ADDR_SDR        FLEXSPI_LUT_OPCODE_RADDR_SDR
+#define READ_SDR        FLEXSPI_LUT_OPCODE_READ_SDR
+#define WRITE_SDR       FLEXSPI_LUT_OPCODE_WRITE_SDR
+#define DUMMY_SDR       FLEXSPI_LUT_OPCODE_DUMMY_SDR
+#define PINS1           FLEXSPI_LUT_NUM_PADS_1
+#define PINS4           FLEXSPI_LUT_NUM_PADS_4
+
+FLASHMEM static void flexspi2_command(uint32_t index, uint32_t addr)
+{
+	FLEXSPI2_IPCR0 = addr;
+	FLEXSPI2_IPCR1 = FLEXSPI_IPCR1_ISEQID(index);
+	FLEXSPI2_IPCMD = FLEXSPI_IPCMD_TRG;
+	while (!(FLEXSPI2_INTR & FLEXSPI_INTR_IPCMDDONE)); // wait
+	FLEXSPI2_INTR = FLEXSPI_INTR_IPCMDDONE;
+}
+
+FLASHMEM static uint32_t flexspi2_psram_id(uint32_t addr)
+{
+	FLEXSPI2_IPCR0 = addr;
+	FLEXSPI2_IPCR1 = FLEXSPI_IPCR1_ISEQID(3) | FLEXSPI_IPCR1_IDATSZ(4);
+	FLEXSPI2_IPCMD = FLEXSPI_IPCMD_TRG;
+	while (!(FLEXSPI2_INTR & FLEXSPI_INTR_IPCMDDONE)); // wait
+	uint32_t id = FLEXSPI2_RFDR0;
+	FLEXSPI2_INTR = FLEXSPI_INTR_IPCMDDONE | FLEXSPI_INTR_IPRXWA;
+	return id & 0xFFFF;
+}
+
+FLASHMEM void configure_external_ram()
+{
+	// initialize pins
+	IOMUXC_SW_PAD_CTL_PAD_GPIO_EMC_22 = 0x1B0F9; // 100K pullup, strong drive, max speed, hyst
+	IOMUXC_SW_PAD_CTL_PAD_GPIO_EMC_23 = 0x110F9; // keeper, strong drive, max speed, hyst
+	IOMUXC_SW_PAD_CTL_PAD_GPIO_EMC_24 = 0x1B0F9; // 100K pullup, strong drive, max speed, hyst
+	IOMUXC_SW_PAD_CTL_PAD_GPIO_EMC_25 = 0x100F9; // strong drive, max speed, hyst
+	IOMUXC_SW_PAD_CTL_PAD_GPIO_EMC_26 = 0x170F9; // 47K pullup, strong drive, max speed, hyst
+	IOMUXC_SW_PAD_CTL_PAD_GPIO_EMC_27 = 0x170F9; // 47K pullup, strong drive, max speed, hyst
+	IOMUXC_SW_PAD_CTL_PAD_GPIO_EMC_28 = 0x170F9; // 47K pullup, strong drive, max speed, hyst
+	IOMUXC_SW_PAD_CTL_PAD_GPIO_EMC_29 = 0x170F9; // 47K pullup, strong drive, max speed, hyst
+
+	IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_22 = 8 | 0x10; // ALT1 = FLEXSPI2_A_SS1_B (Flash)
+	IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_23 = 8 | 0x10; // ALT1 = FLEXSPI2_A_DQS
+	IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_24 = 8 | 0x10; // ALT1 = FLEXSPI2_A_SS0_B (RAM)
+	IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_25 = 8 | 0x10; // ALT1 = FLEXSPI2_A_SCLK
+	IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_26 = 8 | 0x10; // ALT1 = FLEXSPI2_A_DATA0
+	IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_27 = 8 | 0x10; // ALT1 = FLEXSPI2_A_DATA1
+	IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_28 = 8 | 0x10; // ALT1 = FLEXSPI2_A_DATA2
+	IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_29 = 8 | 0x10; // ALT1 = FLEXSPI2_A_DATA3
+
+	IOMUXC_FLEXSPI2_IPP_IND_DQS_FA_SELECT_INPUT = 1; // GPIO_EMC_23 for Mode: ALT8, pg 986
+	IOMUXC_FLEXSPI2_IPP_IND_IO_FA_BIT0_SELECT_INPUT = 1; // GPIO_EMC_26 for Mode: ALT8
+	IOMUXC_FLEXSPI2_IPP_IND_IO_FA_BIT1_SELECT_INPUT = 1; // GPIO_EMC_27 for Mode: ALT8
+	IOMUXC_FLEXSPI2_IPP_IND_IO_FA_BIT2_SELECT_INPUT = 1; // GPIO_EMC_28 for Mode: ALT8
+	IOMUXC_FLEXSPI2_IPP_IND_IO_FA_BIT3_SELECT_INPUT = 1; // GPIO_EMC_29 for Mode: ALT8
+	IOMUXC_FLEXSPI2_IPP_IND_SCK_FA_SELECT_INPUT = 1; // GPIO_EMC_25 for Mode: ALT8
+
+	// turn on clock  (TODO: increase clock speed later, slow & cautious for first release)
+	CCM_CBCMR = (CCM_CBCMR & ~(CCM_CBCMR_FLEXSPI2_PODF_MASK | CCM_CBCMR_FLEXSPI2_CLK_SEL_MASK))
+		| CCM_CBCMR_FLEXSPI2_PODF(5) | CCM_CBCMR_FLEXSPI2_CLK_SEL(3); // 88 MHz
+	CCM_CCGR7 |= CCM_CCGR7_FLEXSPI2(CCM_CCGR_ON);
+
+	FLEXSPI2_MCR0 |= FLEXSPI_MCR0_MDIS;
+	FLEXSPI2_MCR0 = (FLEXSPI2_MCR0 & ~(FLEXSPI_MCR0_AHBGRANTWAIT_MASK
+		 | FLEXSPI_MCR0_IPGRANTWAIT_MASK | FLEXSPI_MCR0_SCKFREERUNEN
+		 | FLEXSPI_MCR0_COMBINATIONEN | FLEXSPI_MCR0_DOZEEN
+		 | FLEXSPI_MCR0_HSEN | FLEXSPI_MCR0_ATDFEN | FLEXSPI_MCR0_ARDFEN
+		 | FLEXSPI_MCR0_RXCLKSRC_MASK | FLEXSPI_MCR0_SWRESET))
+		| FLEXSPI_MCR0_AHBGRANTWAIT(0xFF) | FLEXSPI_MCR0_IPGRANTWAIT(0xFF)
+		| FLEXSPI_MCR0_RXCLKSRC(1) | FLEXSPI_MCR0_MDIS;
+	FLEXSPI2_MCR1 = FLEXSPI_MCR1_SEQWAIT(0xFFFF) | FLEXSPI_MCR1_AHBBUSWAIT(0xFFFF);
+	FLEXSPI2_MCR2 = (FLEXSPI_MCR2 & ~(FLEXSPI_MCR2_RESUMEWAIT_MASK
+		 | FLEXSPI_MCR2_SCKBDIFFOPT | FLEXSPI_MCR2_SAMEDEVICEEN
+		 | FLEXSPI_MCR2_CLRLEARNPHASE | FLEXSPI_MCR2_CLRAHBBUFOPT))
+		| FLEXSPI_MCR2_RESUMEWAIT(0x20) /*| FLEXSPI_MCR2_SAMEDEVICEEN*/;
+
+	FLEXSPI2_AHBCR = FLEXSPI2_AHBCR & ~(FLEXSPI_AHBCR_READADDROPT | FLEXSPI_AHBCR_PREFETCHEN
+		| FLEXSPI_AHBCR_BUFFERABLEEN | FLEXSPI_AHBCR_CACHABLEEN);
+	uint32_t mask = (FLEXSPI_AHBRXBUFCR0_PREFETCHEN | FLEXSPI_AHBRXBUFCR0_PRIORITY_MASK
+		| FLEXSPI_AHBRXBUFCR0_MSTRID_MASK | FLEXSPI_AHBRXBUFCR0_BUFSZ_MASK);
+	FLEXSPI2_AHBRXBUF0CR0 = (FLEXSPI2_AHBRXBUF0CR0 & ~mask)
+		| FLEXSPI_AHBRXBUFCR0_PREFETCHEN | FLEXSPI_AHBRXBUFCR0_BUFSZ(64);
+	FLEXSPI2_AHBRXBUF1CR0 = (FLEXSPI2_AHBRXBUF0CR0 & ~mask)
+		| FLEXSPI_AHBRXBUFCR0_PREFETCHEN | FLEXSPI_AHBRXBUFCR0_BUFSZ(64);
+	FLEXSPI2_AHBRXBUF2CR0 = mask;
+	FLEXSPI2_AHBRXBUF3CR0 = mask;
+
+	// RX watermark = one 64 bit line
+	FLEXSPI2_IPRXFCR = (FLEXSPI_IPRXFCR & 0xFFFFFFC0) | FLEXSPI_IPRXFCR_CLRIPRXF;
+	// TX watermark = one 64 bit line
+	FLEXSPI2_IPTXFCR = (FLEXSPI_IPTXFCR & 0xFFFFFFC0) | FLEXSPI_IPTXFCR_CLRIPTXF;
+
+	FLEXSPI2_INTEN = 0;
+	FLEXSPI2_FLSHA1CR0 = 0x2000; // 8 MByte
+	FLEXSPI2_FLSHA1CR1 = FLEXSPI_FLSHCR1_CSINTERVAL(2)
+		| FLEXSPI_FLSHCR1_TCSH(3) | FLEXSPI_FLSHCR1_TCSS(3);
+	FLEXSPI2_FLSHA1CR2 = FLEXSPI_FLSHCR2_AWRSEQID(6) | FLEXSPI_FLSHCR2_AWRSEQNUM(0)
+		| FLEXSPI_FLSHCR2_ARDSEQID(5) | FLEXSPI_FLSHCR2_ARDSEQNUM(0);
+
+	FLEXSPI2_FLSHA2CR0 = 0x2000; // 8 MByte
+	FLEXSPI2_FLSHA2CR1 = FLEXSPI_FLSHCR1_CSINTERVAL(2)
+		| FLEXSPI_FLSHCR1_TCSH(3) | FLEXSPI_FLSHCR1_TCSS(3);
+	FLEXSPI2_FLSHA2CR2 = FLEXSPI_FLSHCR2_AWRSEQID(6) | FLEXSPI_FLSHCR2_AWRSEQNUM(0)
+		| FLEXSPI_FLSHCR2_ARDSEQID(5) | FLEXSPI_FLSHCR2_ARDSEQNUM(0);
+
+	FLEXSPI2_MCR0 &= ~FLEXSPI_MCR0_MDIS;
+
+	FLEXSPI2_LUTKEY = FLEXSPI_LUTKEY_VALUE;
+	FLEXSPI2_LUTCR = FLEXSPI_LUTCR_UNLOCK;
+	volatile uint32_t *luttable = &FLEXSPI2_LUT0;
+	for (int i=0; i < 64; i++) luttable[i] = 0;
+	FLEXSPI2_MCR0 |= FLEXSPI_MCR0_SWRESET;
+	while (FLEXSPI2_MCR0 & FLEXSPI_MCR0_SWRESET) ; // wait
+
+	FLEXSPI2_LUTKEY = FLEXSPI_LUTKEY_VALUE;
+	FLEXSPI2_LUTCR = FLEXSPI_LUTCR_UNLOCK;
+
+	// cmd index 0 = exit QPI mode
+	FLEXSPI2_LUT0 = LUT0(CMD_SDR, PINS4, 0xF5);
+	// cmd index 1 = reset enable
+	FLEXSPI2_LUT4 = LUT0(CMD_SDR, PINS1, 0x66);
+	// cmd index 2 = reset
+	FLEXSPI2_LUT8 = LUT0(CMD_SDR, PINS1, 0x99);
+	// cmd index 3 = read ID bytes
+	FLEXSPI2_LUT12 = LUT0(CMD_SDR, PINS1, 0x9F) | LUT1(DUMMY_SDR, PINS1, 24);
+	FLEXSPI2_LUT13 = LUT0(READ_SDR, PINS1, 1);
+	// cmd index 4 = enter QPI mode
+	FLEXSPI2_LUT16 = LUT0(CMD_SDR, PINS1, 0x35);
+	// cmd index 5 = read QPI
+	FLEXSPI2_LUT20 = LUT0(CMD_SDR, PINS4, 0xEB) | LUT1(ADDR_SDR, PINS4, 24);
+	FLEXSPI2_LUT21 = LUT0(DUMMY_SDR, PINS4, 6) | LUT1(READ_SDR, PINS4, 1);
+	// cmd index 6 = write QPI
+	FLEXSPI2_LUT24 = LUT0(CMD_SDR, PINS4, 0x38) | LUT1(ADDR_SDR, PINS4, 24);
+	FLEXSPI2_LUT25 = LUT0(WRITE_SDR, PINS4, 1);
+
+	// look for the first PSRAM chip
+	flexspi2_command(0, 0); // exit quad mode
+	flexspi2_command(1, 0); // reset enable
+	flexspi2_command(2, 0); // reset (is this really necessary?)
+	if (flexspi2_psram_id(0) == 0x5D0D) {
+		// first PSRAM chip is present, look for a second PSRAM chip
+		flexspi2_command(4, 0);
+		flexspi2_command(0, 0x800000); // exit quad mode
+		flexspi2_command(1, 0x800000); // reset enable
+		flexspi2_command(2, 0x800000); // reset (is this really necessary?)
+		if (flexspi2_psram_id(0x800000) == 0x5D0D) {
+			flexspi2_command(4, 0x800000);
+			// Two PSRAM chips are present, 16 MByte
+			external_psram_size = 16;
+		} else {
+			// One PSRAM chip is present, 8 MByte
+			external_psram_size = 8;
+		}
+		// TODO: zero uninitialized EXTMEM variables
+		// TODO: copy from flash to initialize EXTMEM variables
+		// TODO: set up for malloc_extmem()
+	} else {
+		// No PSRAM
+	}
+}
+
+#endif // ARDUINO_TEENSY41
 
 
 FLASHMEM void usb_pll_start()

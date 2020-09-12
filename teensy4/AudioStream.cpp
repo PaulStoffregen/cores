@@ -321,13 +321,13 @@ void software_isr(void) // AudioStream::update_all()
 			p->update();
 			// TODO: traverse inputQueueArray and release
 			// any input blocks that weren't consumed?
-			cycles = (ARM_DWT_CYCCNT - cycles) >> 4;
+			cycles = (ARM_DWT_CYCCNT - cycles) >> 6;
 			p->cpu_cycles = cycles;
 			if (cycles > p->cpu_cycles_max) p->cpu_cycles_max = cycles;
 		}
 	}
 	//digitalWriteFast(2, LOW);
-	totalcycles = (ARM_DWT_CYCCNT - totalcycles) >> 4;;
+	totalcycles = (ARM_DWT_CYCCNT - totalcycles) >> 6;
 	AudioStream::cpu_cycles_total = totalcycles;
 	if (totalcycles > AudioStream::cpu_cycles_total_max)
 		AudioStream::cpu_cycles_total_max = totalcycles;

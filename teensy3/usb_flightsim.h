@@ -70,6 +70,10 @@ private:
 	friend class FlightSimCommand;
 	friend class FlightSimInteger;
 	friend class FlightSimFloat;
+/// JB
+	friend class FlightSimEvent;
+	friend class FlightSimData;
+/// JB End
 };
 
 
@@ -93,6 +97,101 @@ private:
 	static FlightSimCommand *last;
 	friend class FlightSimClass;
 };
+
+/// JB
+class FlightSimEvent
+{
+public:
+	FlightSimEvent();
+	void assign(const _XpRefStr_ *s) { name = s; if (FlightSimClass::enabled) identify(); }
+	FlightSimEvent & operator = (const _XpRefStr_ *s) { assign(s); return *this; }
+	void send() { send(0,0); }
+	void send(int data) { send(data,0); }
+	void sendOnce() { send(0,0); }
+	void sendOnce(int data) { send(data,0); }
+	void sendRepeat(int data, uint16_t initialDelay, uint16_t repeatDelay) { send(data, initialDelay<<16 | repeatDelay); }
+	void sendRepeat(uint16_t initialDelay, uint16_t repeatDelay) { send(0, initialDelay<<16 | repeatDelay); }
+	void stopRepeat() { send(0,-1); }
+	FlightSimEvent & operator = (int n) { send(n,0); return *this; }	
+	bool occurred() { bool hasOccurred = occurredFlag; occurredFlag = 0; return hasOccurred; }
+	void identify();
+	static FlightSimEvent * find(unsigned int n);
+	void update(long val);
+	void onOccur(void (*fptr)(long)) { 
+		hasCallbackInfo=false;
+		occur_callback = fptr; 
+	}
+	void onOccur(void (*fptr)(long,void*), void* info) {
+		hasCallbackInfo=true;
+		occur_callback = (void (*)(long))fptr;
+		callbackInfo = info;
+	}
+private:
+	void send(unsigned int data, unsigned int flags);
+	unsigned int id;
+	const _XpRefStr_ *name;
+	bool occurredFlag;
+	unsigned int value;
+	FlightSimEvent *next;
+	
+	void (*occur_callback)(long);
+	void* callbackInfo;
+	bool  hasCallbackInfo;
+	
+	static FlightSimEvent *first;
+	static FlightSimEvent *last;
+	friend class FlightSimClass;
+};
+
+#define FLIGHTSIM_DATA_MAXLEN 58
+
+class FlightSimData
+{
+public:
+	FlightSimData();
+	void assign(const _XpRefStr_ *s) { name = s; if (FlightSimClass::enabled) identify(); }
+	FlightSimData & operator = (const _XpRefStr_ *s) { assign(s); return *this; }
+	char *read()  { return value; }
+	operator char* () { return value; }
+	void identify();
+	void update(char *val, size_t len);
+	size_t len() { return valueLen; }
+	static FlightSimData * find(unsigned int n);
+	void onChange(void (*fptr)(char *)) {
+		hasCallbackInfo = false;
+		change_callback = fptr;
+	}
+	void onChange(void (*fptr)(char *,void *), void *info) {
+		hasCallbackInfo = true;
+		change_callback = (void (*)(char*)) fptr;
+		callbackInfo = info;
+	}
+	void onChange(void (*fptr)(FlightSimData *)) {
+		callbackWithObject = true;
+		hasCallbackInfo = false;
+		change_callback = (void (*)(char*)) fptr;
+	}
+	void onChange(void (*fptr)(FlightSimData *, void*), void* info) {
+		callbackWithObject = true;
+		hasCallbackInfo = true;
+		change_callback = (void (*)(char*)) fptr;
+		callbackInfo = info;
+	}
+private:
+	unsigned int id;
+	const _XpRefStr_ *name;
+	char value[FLIGHTSIM_DATA_MAXLEN];
+	size_t valueLen;
+	void (*change_callback)(char *);
+	void* callbackInfo;
+	bool  hasCallbackInfo;
+	bool  callbackWithObject;
+	FlightSimData *next;
+	static FlightSimData *first;
+	static FlightSimData *last;
+	friend class FlightSimClass;
+};
+/// JB End
 
 
 class FlightSimInteger

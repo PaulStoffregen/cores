@@ -3628,22 +3628,22 @@ typedef struct {
 #define ENET_EIR_TS_AVAIL		((uint32_t)0x00010000)		// Transmit Timestamp Available
 #define ENET_EIR_TS_TIMER		((uint32_t)0x00008000)		// Timestamp Timer
 #define ENET_EIMR		(*(volatile uint32_t *)0x400C0008) // Interrupt Mask Register
-#define ENET_EIRM_BABR			((uint32_t)0x40000000)		// Babbling Receive Error Mask
-#define ENET_EIRM_BABT			((uint32_t)0x20000000)		// Babbling Transmit Error Mask
-#define ENET_EIRM_GRA			((uint32_t)0x10000000)		// Graceful Stop Complete Mask
-#define ENET_EIRM_TXF			((uint32_t)0x08000000)		// Transmit Frame Interrupt Mask
-#define ENET_EIRM_TXB			((uint32_t)0x04000000)		// Transmit Buffer Interrupt Mask
-#define ENET_EIRM_RXF			((uint32_t)0x02000000)		// Receive Frame Interrupt Mask
-#define ENET_EIRM_RXB			((uint32_t)0x01000000)		// Receive Buffer Interrupt Mask
-#define ENET_EIRM_MII			((uint32_t)0x00800000)		// MII Interrupt Mask
-#define ENET_EIRM_EBERR			((uint32_t)0x00400000)		// Ethernet Bus Error Mask
-#define ENET_EIRM_LC			((uint32_t)0x00200000)		// Late Collision Mask
-#define ENET_EIRM_RL			((uint32_t)0x00100000)		// Collision Retry Limit Mask
-#define ENET_EIRM_UN			((uint32_t)0x00080000)		// Transmit FIFO Underrun Mask
-#define ENET_EIRM_PLR			((uint32_t)0x00040000)		// Payload Receive Error Mask
-#define ENET_EIRM_WAKEUP		((uint32_t)0x00020000)		// Node Wakeup Request Indication Mask
-#define ENET_EIRM_TS_AVAIL		((uint32_t)0x00010000)		// Transmit Timestamp Available Mask
-#define ENET_EIRM_TS_TIMER		((uint32_t)0x00008000)		// Timestamp Timer Mask
+#define ENET_EIMR_BABR			((uint32_t)0x40000000)		// Babbling Receive Error Mask
+#define ENET_EIMR_BABT			((uint32_t)0x20000000)		// Babbling Transmit Error Mask
+#define ENET_EIMR_GRA			((uint32_t)0x10000000)		// Graceful Stop Complete Mask
+#define ENET_EIMR_TXF			((uint32_t)0x08000000)		// Transmit Frame Interrupt Mask
+#define ENET_EIMR_TXB			((uint32_t)0x04000000)		// Transmit Buffer Interrupt Mask
+#define ENET_EIMR_RXF			((uint32_t)0x02000000)		// Receive Frame Interrupt Mask
+#define ENET_EIMR_RXB			((uint32_t)0x01000000)		// Receive Buffer Interrupt Mask
+#define ENET_EIMR_MII			((uint32_t)0x00800000)		// MII Interrupt Mask
+#define ENET_EIMR_EBERR			((uint32_t)0x00400000)		// Ethernet Bus Error Mask
+#define ENET_EIMR_LC			((uint32_t)0x00200000)		// Late Collision Mask
+#define ENET_EIMR_RL			((uint32_t)0x00100000)		// Collision Retry Limit Mask
+#define ENET_EIMR_UN			((uint32_t)0x00080000)		// Transmit FIFO Underrun Mask
+#define ENET_EIMR_PLR			((uint32_t)0x00040000)		// Payload Receive Error Mask
+#define ENET_EIMR_WAKEUP		((uint32_t)0x00020000)		// Node Wakeup Request Indication Mask
+#define ENET_EIMR_TS_AVAIL		((uint32_t)0x00010000)		// Transmit Timestamp Available Mask
+#define ENET_EIMR_TS_TIMER		((uint32_t)0x00008000)		// Timestamp Timer Mask
 #define ENET_RDAR		(*(volatile uint32_t *)0x400C0010) // Receive Descriptor Active Register
 #define ENET_RDAR_RDAR			((uint32_t)0x01000000)
 #define ENET_TDAR		(*(volatile uint32_t *)0x400C0014) // Transmit Descriptor Active Register

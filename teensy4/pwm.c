@@ -51,13 +51,74 @@ const struct pwm_pin_info_struct pwm_pin_info[] = {
 	{0, M(1, 0), 0, 0},
 	{0, M(1, 0), 0, 0},
 	{1, M(2, 0), 2, 1},  // FlexPWM2_0_B  33  // EMC_07
-	{1, M(1, 1), 2, 1},	 // FlexPWM1_1_B  34  // SD_B0_03
-	{1, M(1, 1), 1, 1},	 // FlexPWM1_1_A  35  // SD_B0_02
-	{1, M(1, 0), 2, 1},	 // FlexPWM1_0_B  36  // SD_B0_01
-	{1, M(1, 0), 1, 1},	 // FlexPWM1_0_A  37  // SD_B0_00
-	{1, M(1, 2), 2, 1},	 // FlexPWM1_2_B  38  // SD_B0_05
-	{1, M(1, 2), 1, 1},	 // FlexPWM1_2_A  39  // SD_B0_04
+#ifdef ARDUINO_TEENSY40
+	{1, M(1, 1), 2, 1},  // FlexPWM1_1_B  34  // SD_B0_03
+	{1, M(1, 1), 1, 1},  // FlexPWM1_1_A  35  // SD_B0_02
+	{1, M(1, 0), 2, 1},  // FlexPWM1_0_B  36  // SD_B0_01
+	{1, M(1, 0), 1, 1},  // FlexPWM1_0_A  37  // SD_B0_00
+	{1, M(1, 2), 2, 1},  // FlexPWM1_2_B  38  // SD_B0_05
+	{1, M(1, 2), 1, 1},  // FlexPWM1_2_A  39  // SD_B0_04
+#endif
+#ifdef ARDUINO_TEENSY41
+	{0, M(1, 0), 0, 0},
+	{0, M(1, 0), 0, 0},
+	{1, M(2, 3), 1, 6},  // FlexPWM2_3_A  36  // B1_00
+	{1, M(2, 3), 2, 6},  // FlexPWM2_3_B  37  // B1_01
+	{0, M(1, 0), 0, 0},
+	{0, M(1, 0), 0, 0},
+	{0, M(1, 0), 0, 0},
+	{0, M(1, 0), 0, 0},
+	{1, M(1, 1), 2, 1},  // FlexPWM1_1_B  42  // SD_B0_03
+	{1, M(1, 1), 1, 1},  // FlexPWM1_1_A  43  // SD_B0_02
+	{1, M(1, 0), 2, 1},  // FlexPWM1_0_B  44  // SD_B0_01
+	{1, M(1, 0), 1, 1},  // FlexPWM1_0_A  45  // SD_B0_00
+	{1, M(1, 2), 2, 1},  // FlexPWM1_2_B  46  // SD_B0_05
+	{1, M(1, 2), 1, 1},  // FlexPWM1_2_A  47  // SD_B0_04
+	{0, M(1, 0), 0, 0},  // duplicate FlexPWM1_0_B
+	{0, M(1, 0), 0, 0},  // duplicate FlexPWM1_2_A
+	{0, M(1, 0), 0, 0},  // duplicate FlexPWM1_2_B
+	{1, M(3, 3), 2, 1},  // FlexPWM3_3_B  51  // EMC_22
+	{0, M(1, 0), 0, 0},  // duplicate FlexPWM1_1_B
+	{0, M(1, 0), 0, 0},  // duplicate FlexPWM1_1_A
+	{1, M(3, 0), 1, 1},  // FlexPWM3_0_A  53  // EMC_29
+#endif
 };
+
+// Known usage of FlexPWM and QuadTimers
+// -------------------------------------
+//   FlexPWM1_0    PWM pin 1, 36(T4.0), 37(T4.0), 44(T4.1), 45(T4.1)
+//   FlexPWM1_1    PWM pin 0, 34(T4.0), 35(T4.0), 42(T4.1), 43(T4.1)
+//   FlexPWM1_2    PWM pin 24, 38(T4.0), 39(T4.0), 46(T4.1), 47(T4.1)
+//   FlexPWM1_3    PWM pin 7, 8, 25
+//   FlexPWM2_0    PWM pin 4, 33
+//   FlexPWM2_1    PWM pin 5
+//   FlexPWM2_2    PWM pin 6, 9
+//   FlexPWM2_3    PWM pin 36(T4.1), 37(T4.1)
+//   FlexPWM3_0    PWM pin 53(T4.1)
+//   FlexPWM3_1    PWM pin 28, 29
+//   FlexPWM3_2
+//   FlexPWM3_3    PWM pin 41(T4.1)
+//   FlexPWM4_0    PWM pin 22
+//   FlexPWM4_1    PWM pin 23
+//   FlexPWM4_2    PWM pin 2, 3
+//   FlexPWM4_3
+//   QuadTimer1_0  PWM pin 10
+//   QuadTimer1_1  PWM pin 12
+//   QuadTimer1_2  PWM pin 11
+//   QuadTimer1_3
+//   QuadTimer2_0  PWM pin 13
+//   QuadTimer2_1
+//   QuadTimer2_2
+//   QuadTimer2_3
+//   QuadTimer3_0  PWM pin 19
+//   QuadTimer3_1  PWM pin 18
+//   QuadTimer3_2  PWM pin 14
+//   QuadTimer3_3  PWM pin 15
+//   QuadTimer4_0  OctoWS2811
+//   QuadTimer4_1  OctoWS2811
+//   QuadTimer4_2  OctoWS2811
+//   QuadTimer4_3  AudioInputAnalog
+
 
 #endif // __IMXRT1062__
 
@@ -94,7 +155,7 @@ void flexpwmFrequency(IMXRT_FLEXPWM_t *p, unsigned int submodule, uint8_t channe
 {
 	uint16_t mask = 1 << submodule;
 	uint32_t olddiv = p->SM[submodule].VAL1;
-	uint32_t newdiv = (uint32_t)((float)F_BUS_ACTUAL / frequency + 0.5);
+	uint32_t newdiv = (uint32_t)((float)F_BUS_ACTUAL / frequency + 0.5f);
 	uint32_t prescale = 0;
 	//printf(" div=%lu\n", newdiv);
 	while (newdiv > 65535 && prescale < 7) {
@@ -133,7 +194,7 @@ void quadtimerWrite(IMXRT_TMR_t *p, unsigned int submodule, uint16_t val)
 
 void quadtimerFrequency(IMXRT_TMR_t *p, unsigned int submodule, float frequency)
 {
-	uint32_t newdiv = (uint32_t)((float)F_BUS_ACTUAL / frequency + 0.5);
+	uint32_t newdiv = (uint32_t)((float)F_BUS_ACTUAL / frequency + 0.5f);
 	uint32_t prescale = 0;
 	//printf(" div=%lu\n", newdiv);
 	while (newdiv > 65534 && prescale < 7) {

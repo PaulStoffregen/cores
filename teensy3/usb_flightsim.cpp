@@ -42,6 +42,12 @@ FlightSimInteger * FlightSimInteger::first = NULL;
 FlightSimInteger * FlightSimInteger::last = NULL;
 FlightSimFloat * FlightSimFloat::first = NULL;
 FlightSimFloat * FlightSimFloat::last = NULL;
+/// JB
+FlightSimEvent * FlightSimEvent::first = NULL;
+FlightSimEvent * FlightSimEvent::last = NULL;
+FlightSimData * FlightSimData::first = NULL;
+FlightSimData * FlightSimData::last = NULL;
+/// JB End
 
 uint8_t FlightSimClass::enabled = 0;
 uint8_t FlightSimClass::request_id_messages = 0;
@@ -91,6 +97,146 @@ void FlightSimCommand::sendcmd(uint8_t n)
 	buf[3] = id >> 8;
 	FlightSimClass::xmit(buf, 4, NULL, 0);
 }
+
+/// JB
+FlightSimEvent::FlightSimEvent()
+{
+	id = unassigned_id++;
+	if (!first) {
+		first = this;
+	} else {
+		last->next = this;
+	}
+	last = this;
+	name = NULL;
+	next = NULL;
+	occur_callback = NULL;
+	occurredFlag = 0;
+	callbackInfo = NULL;
+	hasCallbackInfo = 0;
+	value = 0;
+	FlightSimClass::request_id_messages = 1;
+}
+
+void FlightSimEvent::identify(void)
+{
+	uint8_t len, buf[6];
+
+	if (!FlightSim.enabled || !name) return;
+	len = strlen((const char *)name);
+	buf[0] = len + 6;
+	buf[1] = 1;
+	buf[2] = id;
+	buf[3] = id >> 8;
+	buf[4] = 3;
+	buf[5] = 0;
+	FlightSimClass::xmit(buf, 6, name, len);
+}
+
+void FlightSimEvent::send(unsigned int data, unsigned int flags)
+{
+	uint8_t buf[4];
+	uint32_t txData[2];
+
+	if (!FlightSim.enabled || !name) return;
+	buf[0] = 12;
+	buf[1] = 7;
+	buf[2] = id;
+	buf[3] = id >> 8;
+	value = data;
+	txData[0] = data;
+	txData[1] = flags;
+	FlightSimClass::xmit(buf, 4, (uint8_t *)&txData, 8);
+}
+
+void FlightSimEvent::update(long val)
+{
+	value = (unsigned int) val;
+	occurredFlag = true;
+	if (occur_callback) {
+		if (!hasCallbackInfo) {
+			(*occur_callback)(val);
+		} else {
+			(*(void(*)(long,void*))occur_callback)(val,callbackInfo);
+		}
+	}
+}
+
+FlightSimEvent * FlightSimEvent::find(unsigned int n)
+{
+	for (FlightSimEvent *p = first; p; p = p->next) {
+		if (p->id == n) return p;
+	}
+	return NULL;
+}
+
+
+FlightSimData::FlightSimData()
+{
+	id = unassigned_id++;
+	if (!first) {
+		first = this;
+	} else {
+		last->next = this;
+	}
+	last = this;
+	name = NULL;
+	next = NULL;
+	valueLen = 0;
+	hasCallbackInfo = 0;
+	callbackWithObject = 0;
+	callbackInfo = NULL;
+	change_callback = NULL;
+	FlightSimClass::request_id_messages = 1;
+}
+
+void FlightSimData::identify(void)
+{
+	uint8_t len, buf[6];
+
+	if (!FlightSim.enabled || !name) return;
+	len = strlen((const char *)name);
+	buf[0] = len + 6;
+	buf[1] = 1;
+	buf[2] = id;
+	buf[3] = id >> 8;
+	buf[4] = 4;
+	buf[5] = 0;
+	FlightSimClass::xmit(buf, 6, name, len);
+}
+
+void FlightSimData::update(char *val, size_t len)
+{
+	valueLen = len;
+	memcpy(value, val, len);
+	if (len<FLIGHTSIM_DATA_MAXLEN) {
+		memset(value+len,0,FLIGHTSIM_DATA_MAXLEN-len);
+	}
+	if (change_callback) {
+		if (!callbackWithObject) {
+			if (!hasCallbackInfo) {
+				(*change_callback)(value);
+			} else {
+				(*(void(*)(char*,void*))change_callback)(value,callbackInfo);
+			}
+		} else {
+			if (!hasCallbackInfo) {
+				(*(void(*)(FlightSimData*))change_callback)(this);
+			} else {
+				(*(void(*)(FlightSimData*,void*))change_callback)(this,callbackInfo);
+			}
+		}
+	}
+}
+
+FlightSimData * FlightSimData::find(unsigned int n)
+{
+	for (FlightSimData *p = first; p; p = p->next) {
+		if (p->id == n) return p;
+	}
+	return NULL;
+}
+/// JB End
 
 
 FlightSimInteger::FlightSimInteger()
@@ -287,6 +433,24 @@ void FlightSimClass::update(void)
 					data.b[2] = p[8];
 					data.b[3] = p[9];
 					item->update(data.f);
+/// JB
+				} else if (type == 3) {
+					FlightSimEvent *item = FlightSimEvent::find(id);
+					if (!item) break;
+					#ifdef KINETISK
+					data.l = *(long *)(p + 6);
+					#else
+					data.b[0] = p[6];
+					data.b[1] = p[7];
+					data.b[2] = p[8];
+					data.b[3] = p[9];
+					#endif
+					item->update(data.f);
+				} else if (type == 4) {
+					FlightSimData *item = FlightSimData::find(id);
+					if (!item) break;
+					item->update(((char*)p)+6,len-6);
+/// JB End
 				}
 				break;
 			  case 0x03: // enable/disable
@@ -313,6 +477,14 @@ void FlightSimClass::update(void)
 		for (FlightSimCommand *p = FlightSimCommand::first; p; p = p->next) {
 			p->identify();
 		}
+/// JB
+		for (FlightSimEvent *p = FlightSimEvent::first; p; p = p->next) {
+			p->identify();
+		}
+		for (FlightSimData *p = FlightSimData::first; p; p=p->next) {
+			p->identify();
+		}
+/// JB End
 		for (FlightSimInteger *p = FlightSimInteger::first; p; p = p->next) {
 			p->identify();
 			// TODO: send any dirty data

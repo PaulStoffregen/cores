@@ -31,7 +31,11 @@
 #include <Arduino.h>
 #include "HardwareSerial.h"
 
-HardwareSerial3 Serial3;
+HardwareSerial3 Serial3(&serialEvent3);
 
-void serialEvent3() __attribute__((weak));
-void serialEvent3() {}
+uint8_t _serialEvent3_default __attribute__((weak)) PROGMEM = 0 ;
+
+void HardwareSerial3::begin(uint32_t baud) { 
+	serial3_begin(BAUD2DIV3(baud));
+	if (!_serialEvent3_default) addToSerialEventsList();
+}

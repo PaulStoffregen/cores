@@ -320,9 +320,13 @@ void software_isr(void) // AudioStream::update_all()
 {
 	AudioStream *p;
 
+#if defined(KINETISK)
 	ARM_DEMCR |= ARM_DEMCR_TRCENA;
 	ARM_DWT_CTRL |= ARM_DWT_CTRL_CYCCNTENA;
 	uint32_t totalcycles = ARM_DWT_CYCCNT;
+#elif defined(KINETISL)
+	uint32_t totalcycles = micros();
+#endif
 	//digitalWriteFast(2, HIGH);
 	for (p = AudioStream::first_update; p; p = p->next_update) {
 		if (p->active) {
@@ -336,7 +340,11 @@ void software_isr(void) // AudioStream::update_all()
 		}
 	}
 	//digitalWriteFast(2, LOW);
-	totalcycles = (ARM_DWT_CYCCNT - totalcycles) >> 4;;
+#if defined(KINETISK)
+	totalcycles = (ARM_DWT_CYCCNT - totalcycles) >> 4;
+#elif defined(KINETISL)
+	totalcycles = micros() - totalcycles;
+#endif
 	AudioStream::cpu_cycles_total = totalcycles;
 	if (totalcycles > AudioStream::cpu_cycles_total_max)
 		AudioStream::cpu_cycles_total_max = totalcycles;

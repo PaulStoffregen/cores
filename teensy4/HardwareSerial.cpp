@@ -62,12 +62,19 @@
 
 #define UART_CLOCK 24000000
 
-#if defined(__IMXRT1052__)   
-SerialEventCheckingFunctionPointer HardwareSerial::serial_event_handler_checks[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+extern "C" {
+    extern void xbar_connect(unsigned int input, unsigned int output);
+}
+
+#if defined(ARDUINO_TEENSY41)   
+HardwareSerial 	*HardwareSerial::s_serials_with_serial_events[8];
 #else
-SerialEventCheckingFunctionPointer HardwareSerial::serial_event_handler_checks[7] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+HardwareSerial 	*HardwareSerial::s_serials_with_serial_events[7];
 #endif
-uint8_t HardwareSerial::serial_event_handlers_active = 0;
+
+// define our static objects
+uint8_t 		HardwareSerial::s_count_serials_with_serial_events = 0;
+
 
 
 #define CTRL_ENABLE 		(LPUART_CTRL_TE | LPUART_CTRL_RE | LPUART_CTRL_RIE | LPUART_CTRL_ILIE)
@@ -141,6 +148,9 @@ void HardwareSerial::begin(uint32_t baud, uint16_t format)
 	*(portControlRegister(hardware->tx_pins[tx_pin_index_].pin)) =  IOMUXC_PAD_SRE | IOMUXC_PAD_DSE(3) | IOMUXC_PAD_SPEED(3);
 	*(portConfigRegister(hardware->tx_pins[tx_pin_index_].pin)) = hardware->tx_pins[tx_pin_index_].mux_val;
 
+	if (hardware->tx_pins[tx_pin_index_].select_input_register) {
+	 	*(hardware->tx_pins[tx_pin_index_].select_input_register) =  hardware->tx_pins[tx_pin_index_].select_val;		
+	}	
 	//hardware->rx_mux_register = hardware->rx_mux_val;
 	//hardware->tx_mux_register = hardware->tx_mux_val;
 
@@ -193,7 +203,8 @@ void HardwareSerial::begin(uint32_t baud, uint16_t format)
 	if ( format & 0x100) port->BAUD |= LPUART_BAUD_SBNS;	
 
 	//Serial.printf("    stat:%x ctrl:%x fifo:%x water:%x\n", port->STAT, port->CTRL, port->FIFO, port->WATER );
-	enableSerialEvents(); 		// Enable the processing of serialEvent for this object
+	// Only if the user implemented their own...
+	if (!(*hardware->serial_event_handler_default)) addToSerialEventsList(); 		// Enable the processing of serialEvent for this object
 };
 
 inline void HardwareSerial::rts_assert() 
@@ -223,7 +234,6 @@ void HardwareSerial::end(void)
 	rx_buffer_tail_ = 0;
 	if (rts_pin_baseReg_) rts_deassert();
 	// 
-	disableSerialEvents(); 		// disable the processing of serialEvent for this object
 }
 
 void HardwareSerial::transmitterEnable(uint8_t pin)
@@ -239,18 +249,43 @@ void HardwareSerial::setRX(uint8_t pin)
 {
 	if (pin != hardware->rx_pins[rx_pin_index_].pin) {
 		for (uint8_t rx_pin_new_index = 0; rx_pin_new_index < cnt_rx_pins; rx_pin_new_index++) {
-			if (pin == hardware->rx_pins[rx_pin_index_].pin) {
+			if (pin == hardware->rx_pins[rx_pin_new_index].pin) {
 				// new pin - so lets maybe reset the old pin to INPUT? and then set new pin parameters
-				*(portConfigRegister(hardware->rx_pins[rx_pin_index_].pin)) = 5;
+				// only change IO pins if done after begin has been called. 
+				if ((hardware->ccm_register & hardware->ccm_value)) {
+					*(portConfigRegister(hardware->rx_pins[rx_pin_index_].pin)) = 5;
 
-				// now set new pin info.
+					// now set new pin info.
+					*(portControlRegister(hardware->rx_pins[rx_pin_new_index].pin)) =  IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS;;
+					*(portConfigRegister(hardware->rx_pins[rx_pin_new_index].pin)) = hardware->rx_pins[rx_pin_new_index].mux_val;
+					if (hardware->rx_pins[rx_pin_new_index].select_input_register) {
+					 	*(hardware->rx_pins[rx_pin_new_index].select_input_register) =  hardware->rx_pins[rx_pin_new_index].select_val;		
+					}
+				}		
 				rx_pin_index_ = rx_pin_new_index;
-				*(portControlRegister(hardware->rx_pins[rx_pin_index_].pin)) =  IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS;;
-				*(portConfigRegister(hardware->rx_pins[rx_pin_index_].pin)) = hardware->rx_pins[rx_pin_index_].mux_val;
-				if (hardware->rx_pins[rx_pin_index_].select_input_register) {
-				 	*(hardware->rx_pins[rx_pin_index_].select_input_register) =  hardware->rx_pins[rx_pin_index_].select_val;		
-				}	
-				break;
+				return;  // done. 
+			}
+		}
+		// If we got to here and did not find a valid pin there.  Maybe see if it is an XBar pin... 
+		for (uint8_t i = 0; i < count_pin_to_xbar_info; i++) {
+			if (pin_to_xbar_info[i].pin == pin) {
+				// So it is an XBAR pin set the XBAR..
+				//Serial.printf("ACTS XB(%d), X(%u %u), MUX:%x\n", i, pin_to_xbar_info[i].xbar_in_index, 
+				//			hardware->xbar_out_lpuartX_trig_input,  pin_to_xbar_info[i].mux_val);
+				CCM_CCGR2 |= CCM_CCGR2_XBAR1(CCM_CCGR_ON);
+				xbar_connect(pin_to_xbar_info[i].xbar_in_index, hardware->xbar_out_lpuartX_trig_input);
+
+				// We need to update port register to use this as the trigger
+				port->PINCFG = LPUART_PINCFG_TRGSEL(1);  // Trigger select as alternate RX
+
+				//  configure the pin. 
+				*(portControlRegister(pin)) = IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS;;
+				*(portConfigRegister(pin)) = pin_to_xbar_info[i].mux_val;
+				port->MODIR |= LPUART_MODIR_TXCTSE;
+				if (pin_to_xbar_info[i].select_input_register) *(pin_to_xbar_info[i].select_input_register) = pin_to_xbar_info[i].select_val;
+				//Serial.printf("SerialX::begin stat:%x ctrl:%x fifo:%x water:%x\n", port->STAT, port->CTRL, port->FIFO, port->WATER );
+				//Serial.printf("  PINCFG: %x MODIR: %x\n", port->PINCFG, port->MODIR);	
+				return;
 			}
 		}
 	}
@@ -262,7 +297,7 @@ void HardwareSerial::setTX(uint8_t pin, bool opendrain)
 
 	if (pin != hardware->tx_pins[tx_pin_index_].pin) {
 		for (tx_pin_new_index = 0; tx_pin_new_index < cnt_tx_pins; tx_pin_new_index++) {
-			if (pin == hardware->tx_pins[tx_pin_index_].pin) {
+			if (pin == hardware->tx_pins[tx_pin_new_index].pin) {
 				break;
 			}
 		}
@@ -271,12 +306,13 @@ void HardwareSerial::setTX(uint8_t pin, bool opendrain)
 
 	// turn on or off opendrain mode.
 	// new pin - so lets maybe reset the old pin to INPUT? and then set new pin parameters
+	if ((hardware->ccm_register & hardware->ccm_value)) {  // only do if we are already active. 
 	if (tx_pin_new_index != tx_pin_index_) {
 		*(portConfigRegister(hardware->tx_pins[tx_pin_index_].pin)) = 5;
 	
 		*(portConfigRegister(hardware->tx_pins[tx_pin_new_index].pin)) = hardware->tx_pins[tx_pin_new_index].mux_val;
 	}
-
+	}
 	// now set new pin info.
 	tx_pin_index_ = tx_pin_new_index;
 	if (opendrain) 
@@ -311,6 +347,30 @@ bool HardwareSerial::attachCts(uint8_t pin)
 		port->MODIR |= LPUART_MODIR_TXCTSE;
 		return true;
 	} else {
+		// See maybe this a pin we can use XBAR for.
+		for (uint8_t i = 0; i < count_pin_to_xbar_info; i++) {
+			if (pin_to_xbar_info[i].pin == pin) {
+				// So it is an XBAR pin set the XBAR..
+				//Serial.printf("ACTS XB(%d), X(%u %u), MUX:%x\n", i, pin_to_xbar_info[i].xbar_in_index, 
+				//			hardware->xbar_out_lpuartX_trig_input,  pin_to_xbar_info[i].mux_val);
+				CCM_CCGR2 |= CCM_CCGR2_XBAR1(CCM_CCGR_ON);
+				xbar_connect(pin_to_xbar_info[i].xbar_in_index, hardware->xbar_out_lpuartX_trig_input);
+
+				// We need to update port register to use this as the trigger
+				port->PINCFG = LPUART_PINCFG_TRGSEL(2);  // Trigger select as alternate CTS pin
+
+				//  configure the pin. 
+				*(portControlRegister(pin)) = IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(0) | IOMUXC_PAD_HYS;
+				*(portConfigRegister(pin)) = pin_to_xbar_info[i].mux_val;
+				if (pin_to_xbar_info[i].select_input_register) *(pin_to_xbar_info[i].select_input_register) = pin_to_xbar_info[i].select_val;
+				port->MODIR |= LPUART_MODIR_TXCTSE;
+
+				//Serial.printf("SerialX::begin stat:%x ctrl:%x fifo:%x water:%x\n", port->STAT, port->CTRL, port->FIFO, port->WATER );
+				//Serial.printf("  PINCFG: %x MODIR: %x\n", port->PINCFG, port->MODIR);	
+				return true;
+			}
+		}
+		// Fell through so not valid pin for this. 
 		port->MODIR &= ~LPUART_MODIR_TXCTSE;
 		return false;
 	}
@@ -340,13 +400,19 @@ int HardwareSerial::available(void)
 {
 	uint32_t head, tail;
 
+	// WATER> 0 so IDLE involved may want to check if port has already has RX data to retrieve
+	__disable_irq();
 	head = rx_buffer_head_;
 	tail = rx_buffer_tail_;
-	if (head >= tail) return head - tail;
-	return rx_buffer_total_size_ + head - tail;
+	int avail;
+	if (head >= tail) avail = head - tail;
+	else avail = rx_buffer_total_size_ + head - tail;	
+	avail += (port->WATER >> 24) & 0x7;
+	__enable_irq();
+	return avail;
 }
 
-void HardwareSerial::addStorageForRead(void *buffer, size_t length) 
+void HardwareSerial::addMemoryForRead(void *buffer, size_t length)
 {
 	rx_buffer_storage_ = (BUFTYPE*)buffer;
 	if (buffer) {
@@ -359,7 +425,7 @@ void HardwareSerial::addStorageForRead(void *buffer, size_t length)
 	rts_high_watermark_ = rx_buffer_total_size_ - hardware->rts_high_watermark;
 }
 
-void HardwareSerial::addStorageForWrite(void *buffer, size_t length) 
+void HardwareSerial::addMemoryForWrite(void *buffer, size_t length)
 {
 	tx_buffer_storage_ = (BUFTYPE*)buffer;
 	if (buffer) {
@@ -375,7 +441,26 @@ int HardwareSerial::peek(void)
 
 	head = rx_buffer_head_;
 	tail = rx_buffer_tail_;
-	if (head == tail) return -1;
+	if (head == tail) {
+		__disable_irq();
+		head = rx_buffer_head_;  // reread head to make sure no ISR happened
+		if (head == tail) {
+			// Still empty Now check for stuff in FIFO Queue.
+			int c = -1;	// assume nothing to return
+			if (port->WATER & 0x7000000) {
+				c = port->DATA & 0x3ff;		// Use only up to 10 bits of data
+				// But we don't want to throw it away...
+				// since queue is empty, just going to reset to front of queue...
+				rx_buffer_head_ = 1;
+				rx_buffer_tail_ = 0; 
+				rx_buffer_[1] = c;
+			}
+			__enable_irq();
+			return c;
+		}
+		__enable_irq();
+
+	} 
 	if (++tail >= rx_buffer_total_size_) tail = 0;
 	if (tail < rx_buffer_size_) {
 		return rx_buffer_[tail];
@@ -391,7 +476,21 @@ int HardwareSerial::read(void)
 
 	head = rx_buffer_head_;
 	tail = rx_buffer_tail_;
-	if (head == tail) return -1;
+	if (head == tail) {
+		__disable_irq();
+		head = rx_buffer_head_;  // reread head to make sure no ISR happened
+		if (head == tail) {
+			// Still empty Now check for stuff in FIFO Queue.
+			c = -1;	// assume nothing to return
+			if (port->WATER & 0x7000000) {
+				c = port->DATA & 0x3ff;		// Use only up to 10 bits of data
+			}
+			__enable_irq();
+			return c;
+		}
+		__enable_irq();
+
+	}
 	if (++tail >= rx_buffer_total_size_) tail = 0;
 	if (tail < rx_buffer_size_) {
 		c = rx_buffer_[tail];
@@ -547,30 +646,44 @@ void HardwareSerial::IRQHandler()
 }
 
 
-void HardwareSerial::processSerialEvents()
-{
-	if (!serial_event_handlers_active) return;	// bail quick if no one processing SerialEvents.
-	uint8_t handlers_still_to_process = serial_event_handlers_active;
-	for (uint8_t i = 0; i < 8; i++) {
-		if (serial_event_handler_checks[i]) {
-			(*serial_event_handler_checks[i])();
-			if (--handlers_still_to_process == 0) return;
-		}
-	}
+void HardwareSerial::addToSerialEventsList() {
+	s_serials_with_serial_events[s_count_serials_with_serial_events++] = this;
+	yield_active_check_flags |= YIELD_CHECK_HARDWARE_SERIAL;
 }
 
-void HardwareSerial::enableSerialEvents() 
-{
-	if (!serial_event_handler_checks[hardware->serial_index]) {
-		serial_event_handler_checks[hardware->serial_index] = hardware->serial_event_handler_check;	// clear it out
-		serial_event_handlers_active++;
-	}
-}
 
-void HardwareSerial::disableSerialEvents() 
-{
-	if (serial_event_handler_checks[hardware->serial_index]) {
-		serial_event_handler_checks[hardware->serial_index] = nullptr;	// clear it out
-		serial_event_handlers_active--;
-	}
-}
+const pin_to_xbar_info_t PROGMEM pin_to_xbar_info[] = {
+	{0,  17, 1, &IOMUXC_XBAR1_IN17_SELECT_INPUT, 0x1},
+	{1,  16, 1, nullptr, 0},
+	{2,   6, 3, &IOMUXC_XBAR1_IN06_SELECT_INPUT, 0x0},
+	{3,   7, 3, &IOMUXC_XBAR1_IN07_SELECT_INPUT, 0x0},
+	{4,   8, 3, &IOMUXC_XBAR1_IN08_SELECT_INPUT, 0x0},
+	{5,  17, 3, &IOMUXC_XBAR1_IN17_SELECT_INPUT, 0x0},
+	{7,  15, 1, nullptr, 0 },
+	{8,  14, 1, nullptr, 0},
+	{30, 23, 1, &IOMUXC_XBAR1_IN23_SELECT_INPUT, 0x0},
+	{31, 22, 1, &IOMUXC_XBAR1_IN22_SELECT_INPUT, 0x0},
+	{32, 10, 1, nullptr, 0},
+	{33,  9, 3, &IOMUXC_XBAR1_IN09_SELECT_INPUT, 0x0},
+
+#ifdef ARDUINO_TEENSY41
+	{36, 16, 1, nullptr, 0},
+	{37, 17, 1, &IOMUXC_XBAR1_IN17_SELECT_INPUT, 0x3},
+	{42,  7, 3, &IOMUXC_XBAR1_IN07_SELECT_INPUT, 0x1},
+	{43,  6, 3, &IOMUXC_XBAR1_IN06_SELECT_INPUT, 0x1},
+	{44,  5, 3, &IOMUXC_XBAR1_IN05_SELECT_INPUT, 0x1},
+	{45,  4, 3, &IOMUXC_XBAR1_IN04_SELECT_INPUT, 0x1},
+	{46,  9, 3, &IOMUXC_XBAR1_IN09_SELECT_INPUT, 0x1},
+	{47,  8, 3, &IOMUXC_XBAR1_IN08_SELECT_INPUT, 0x1}
+#else	
+	{34,  7, 3, &IOMUXC_XBAR1_IN07_SELECT_INPUT, 0x1},
+	{35,  6, 3, &IOMUXC_XBAR1_IN06_SELECT_INPUT, 0x1},
+	{36,  5, 3, &IOMUXC_XBAR1_IN05_SELECT_INPUT, 0x1},
+	{37,  4, 3, &IOMUXC_XBAR1_IN04_SELECT_INPUT, 0x1},
+	{38,  9, 3, &IOMUXC_XBAR1_IN09_SELECT_INPUT, 0x1},
+	{39,  8, 3, &IOMUXC_XBAR1_IN08_SELECT_INPUT, 0x1}
+#endif
+};
+
+const uint8_t PROGMEM count_pin_to_xbar_info = sizeof(pin_to_xbar_info)/sizeof(pin_to_xbar_info[0]);
+

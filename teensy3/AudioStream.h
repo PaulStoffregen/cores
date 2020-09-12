@@ -59,7 +59,8 @@
 #if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
 #define AUDIO_SAMPLE_RATE_EXACT 44117.64706 // 48 MHz / 1088, or 96 MHz * 2 / 17 / 256
 #elif defined(__MKL26Z64__)
-#define AUDIO_SAMPLE_RATE_EXACT 22058.82353 // 48 MHz / 2176, or 96 MHz * 1 / 17 / 256
+//#define AUDIO_SAMPLE_RATE_EXACT 22058.82353 // 48 MHz / 2176, or 96 MHz * 1 / 17 / 256
+#define AUDIO_SAMPLE_RATE_EXACT 44117.64706
 #endif
 #endif
 
@@ -113,7 +114,11 @@ protected:
 	AudioStream::initialize_memory(data, num); \
 })
 
+#if defined(KINETISK)
 #define CYCLE_COUNTER_APPROX_PERCENT(n) (((n) + (F_CPU / 32 / AUDIO_SAMPLE_RATE * AUDIO_BLOCK_SAMPLES / 100)) / (F_CPU / 16 / AUDIO_SAMPLE_RATE * AUDIO_BLOCK_SAMPLES / 100))
+#elif defined(KINETISL)
+#define CYCLE_COUNTER_APPROX_PERCENT(n) ((n) * (int)(AUDIO_SAMPLE_RATE) + (int)(AUDIO_SAMPLE_RATE/2)) / (AUDIO_BLOCK_SAMPLES * 10000)
+#endif
 
 #define AudioProcessorUsage() (CYCLE_COUNTER_APPROX_PERCENT(AudioStream::cpu_cycles_total))
 #define AudioProcessorUsageMax() (CYCLE_COUNTER_APPROX_PERCENT(AudioStream::cpu_cycles_total_max))

@@ -110,6 +110,54 @@
 #ifdef CDC_TX_SIZE
 #undef CDC_TX_SIZE
 #endif
+#ifdef CDC2_STATUS_INTERFACE
+#undef CDC2_STATUS_INTERFACE
+#endif
+#ifdef CDC2_DATA_INTERFACE
+#undef CDC2_DATA_INTERFACE
+#endif
+#ifdef CDC2_ACM_ENDPOINT
+#undef CDC2_ACM_ENDPOINT
+#endif
+#ifdef CDC2_RX_ENDPOINT
+#undef CDC2_RX_ENDPOINT
+#endif
+#ifdef CDC2_TX_ENDPOINT
+#undef CDC2_TX_ENDPOINT
+#endif
+#ifdef CDC2_ACM_SIZE
+#undef CDC2_ACM_SIZE
+#endif
+#ifdef CDC2_RX_SIZE
+#undef CDC2_RX_SIZE
+#endif
+#ifdef CDC2_TX_SIZE
+#undef CDC2_TX_SIZE
+#endif
+#ifdef CDC3_STATUS_INTERFACE
+#undef CDC3_STATUS_INTERFACE
+#endif
+#ifdef CDC3_DATA_INTERFACE
+#undef CDC3_DATA_INTERFACE
+#endif
+#ifdef CDC3_ACM_ENDPOINT
+#undef CDC3_ACM_ENDPOINT
+#endif
+#ifdef CDC3_RX_ENDPOINT
+#undef CDC3_RX_ENDPOINT
+#endif
+#ifdef CDC3_TX_ENDPOINT
+#undef CDC3_TX_ENDPOINT
+#endif
+#ifdef CDC3_ACM_SIZE
+#undef CDC3_ACM_SIZE
+#endif
+#ifdef CDC3_RX_SIZE
+#undef CDC3_RX_SIZE
+#endif
+#ifdef CDC3_TX_SIZE
+#undef CDC3_TX_SIZE
+#endif
 #ifdef SEREMU_INTERFACE
 #undef SEREMU_INTERFACE
 #endif

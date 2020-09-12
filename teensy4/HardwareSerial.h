@@ -120,12 +120,27 @@ extern "C" {
 	extern void IRQHandler_Serial5();
 	extern void IRQHandler_Serial6();
 	extern void IRQHandler_Serial7();
-	#if defined(__IMXRT1052__)   
+	#if defined(ARDUINO_TEENSY41)   
 	extern void IRQHandler_Serial8();
 	#endif
 }
 
-typedef void(*SerialEventCheckingFunctionPointer)();
+//===================================================================
+// Should find a good home for this
+// Map IO pin to XBar pin... 
+//===================================================================
+// BUGBUG - find a good home
+typedef struct _pin_to_xbar_info{
+	const uint8_t 		pin;		// The pin number
+	const uint8_t		xbar_in_index; // What XBar input index. 
+	const uint32_t 		mux_val;	// Value to set for mux;
+	volatile uint32_t	*select_input_register; // Which register controls the selection
+	const uint32_t		select_val;	// Value for that selection
+} pin_to_xbar_info_t;
+
+extern const pin_to_xbar_info_t pin_to_xbar_info[];
+extern const uint8_t count_pin_to_xbar_info;
+
 
 class HardwareSerial : public Stream
 {
@@ -143,7 +158,8 @@ public:
 		uint8_t serial_index;	// which object are we? 0 based
 		IRQ_NUMBER_t irq;
 		void (*irq_handler)(void);
-		void (*serial_event_handler_check)(void);
+		void (* _serialEvent)(void);
+		const uint8_t *serial_event_handler_default;
 		volatile uint32_t &ccm_register;
 		const uint32_t ccm_value;
 		pin_info_t rx_pins[cnt_rx_pins];
@@ -153,6 +169,7 @@ public:
 		const uint16_t irq_priority;
 		const uint16_t rts_low_watermark;
 		const uint16_t rts_high_watermark;
+		const uint8_t xbar_out_lpuartX_trig_input;
 	} hardware_t;
 public:
 	constexpr HardwareSerial(IMXRT_LPUART_t *myport, const hardware_t *myhardware, 
@@ -178,14 +195,17 @@ public:
 	bool attachCts(uint8_t pin);
 	void clear(void);
 	int availableForWrite(void);
-	void addStorageForRead(void *buffer, size_t length);
-	void addStorageForWrite(void *buffer, size_t length);
+	void addMemoryForRead(void *buffer, size_t length);
+	void addMemoryForWrite(void *buffer, size_t length);
+	void addStorageForRead(void *buffer, size_t length) __attribute__((deprecated("addStorageForRead was renamed to addMemoryForRead"))){
+		addMemoryForRead(buffer, length);
+	}
+	void addStorageForWrite(void *buffer, size_t length) __attribute__((deprecated("addStorageForWrite was renamed to addMemoryForWrite"))){
+		addMemoryForWrite(buffer, length);
+	}
 	size_t write9bit(uint32_t c);
 	
 	// Event Handler functions and data
-	void enableSerialEvents();
-	void disableSerialEvents();
-	static void processSerialEvents();
 	static uint8_t serial_event_handlers_active;
 
 	using Print::write; 
@@ -204,6 +224,12 @@ public:
 	*/
 
 	operator bool()			{ return true; }
+
+	static inline void processSerialEventsList() {
+		for (uint8_t i = 0; i < s_count_serials_with_serial_events; i++) {
+			s_serials_with_serial_events[i]->doYieldCode();
+		}
+	}
 private:
 	IMXRT_LPUART_t * const port;
 	const hardware_t * const hardware;
@@ -243,12 +269,17 @@ private:
 	friend void IRQHandler_Serial5();
 	friend void IRQHandler_Serial6();
 	friend void IRQHandler_Serial7();
-	#if defined(__IMXRT1052__)   
+	#if defined(ARDUINO_TEENSY41)   
 	friend void IRQHandler_Serial8();
-	static SerialEventCheckingFunctionPointer serial_event_handler_checks[8];
+	static HardwareSerial 	*s_serials_with_serial_events[8];
 	#else	
-	static SerialEventCheckingFunctionPointer serial_event_handler_checks[7];
+	static HardwareSerial 	*s_serials_with_serial_events[7];
 	#endif
+	static uint8_t 			s_count_serials_with_serial_events;
+	void addToSerialEventsList(); 
+	inline void doYieldCode()  {
+		if (available()) (*hardware->_serialEvent)();
+	}
 
 
 
@@ -268,7 +299,7 @@ extern void serialEvent5(void);
 extern void serialEvent6(void);
 extern void serialEvent7(void);
 
-	#if defined(__IMXRT1052__)   
+	#if defined(ARDUINO_TEENSY41)   
 extern HardwareSerial Serial8;
 extern void serialEvent8(void);
 #endif

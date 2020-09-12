@@ -44,27 +44,22 @@ void IRQHandler_Serial3()
 	Serial3.IRQHandler();
 }
 
-void serial_event_check_serial3()
-{
-	if (Serial3.available()) serialEvent3();
-}
-
 // Serial3
 static BUFTYPE tx_buffer3[SERIAL3_TX_BUFFER_SIZE];
 static BUFTYPE rx_buffer3[SERIAL3_RX_BUFFER_SIZE];
+uint8_t _serialEvent3_default __attribute__((weak)) PROGMEM = 0 ;
 
 static HardwareSerial::hardware_t UART2_Hardware = {
-	2, IRQ_LPUART2, &IRQHandler_Serial3, &serial_event_check_serial3, 
-	CCM_CCGR0, CCM_CCGR0_LPUART2(CCM_CCGR_ON),
+	2, IRQ_LPUART2, &IRQHandler_Serial3, 
+	&serialEvent3, &_serialEvent3_default,
+	CCM_CCGR0, CCM_CCGR0_LPUART2(CCM_CCGR_ON), 
 	{{15,2, &IOMUXC_LPUART2_RX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
-	{{14,2, nullptr, 0}, {0xff, 0xff, nullptr, 0}},
+	{{14,2, &IOMUXC_LPUART2_TX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
 	19, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_00, // 19
 	2, // page 473 
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
+	XBARA1_OUT_LPUART2_TRG_INPUT
 };
 HardwareSerial Serial3(&IMXRT_LPUART2, &UART2_Hardware,tx_buffer3, SERIAL3_TX_BUFFER_SIZE,
 	rx_buffer3,  SERIAL3_RX_BUFFER_SIZE);
-
-void serialEvent3() __attribute__((weak));
-void serialEvent3() {Serial3.disableSerialEvents(); }		// No use calling this so disable if called...
 

@@ -33,9 +33,13 @@
 
 #ifdef HAS_KINETISK_UART4
 
-HardwareSerial5 Serial5;
+HardwareSerial5 Serial5(&serialEvent5);
 
-void serialEvent5() __attribute__((weak));
-void serialEvent5() {}
+uint8_t _serialEvent5_default __attribute__((weak)) PROGMEM = 0 ;
+
+void HardwareSerial5::begin(uint32_t baud) { 
+	serial5_begin(BAUD2DIV3(baud));
+	if (!_serialEvent5_default) addToSerialEventsList();
+}
 
 #endif

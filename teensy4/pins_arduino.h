@@ -62,6 +62,16 @@ const static uint8_t A10 = PIN_A10;
 const static uint8_t A11 = PIN_A11;
 const static uint8_t A12 = PIN_A12;
 const static uint8_t A13 = PIN_A13;
+#ifdef ARDUINO_TEENSY41
+#define PIN_A14 (38)
+#define PIN_A15 (39)
+#define PIN_A16 (40)
+#define PIN_A17 (41)
+const static uint8_t A14 = PIN_A14;
+const static uint8_t A15 = PIN_A15;
+const static uint8_t A16 = PIN_A16;
+const static uint8_t A17 = PIN_A17;
+#endif
 
 #define LED_BUILTIN   (13)
 
@@ -83,18 +93,26 @@ const static uint8_t SCL = 19;
 #define PIN_SERIAL_TX (1)
 
 
+#ifdef ARDUINO_TEENSY41
+#define NUM_DIGITAL_PINS  55
+#define NUM_ANALOG_INPUTS 18
+#else
 #define NUM_DIGITAL_PINS  40
 #define NUM_ANALOG_INPUTS 14
-
+#endif
 
 #define NOT_AN_INTERRUPT -1
 
 
-#if defined(__IMXRT1062__)
-  #define analogInputToDigitalPin(p) (((p) <= 9) ? (p) + 14 : (((p) >= 14 && (p) <= 27) ? (p) : -1))
+#if defined(__IMXRT1062__) && defined(ARDUINO_TEENSY40)
+  #define analogInputToDigitalPin(p) (((p) <= 9) ? (p) + 14 : (( ((p) >= 14 && (p) <= 27)) ? (p) : -1))
   #define digitalPinHasPWM(p) ((p) <= 15 || (p) == 18 || (p) == 19 || ((p) >= 22 && (p) <= 25) || ((p) >= 28 && (p) <= 31) || (p) == 33)
-  #define digitalPinToInterrupt(p)  ((p) < NUM_DIGITAL_PINS ? (p) : -1)
+#elif defined(__IMXRT1062__) && defined(ARDUINO_TEENSY41)
+  #define analogInputToDigitalPin(p) (((p) <= 9) ? (p) + 14 : (( ((p) >= 14 && (p) <= 27)) || ((p) >= 38 && (p) <= 41) ? (p) : -1))
+  #define digitalPinHasPWM(p) ((p) <= 15 || (p) == 18 || (p) == 19 || ((p) >= 22 && (p) <= 25) || ((p) >= 28 && (p) <= 31) || (p) == 33)
 #endif
+  #define digitalPinToInterrupt(p)  ((p) < NUM_DIGITAL_PINS ? (p) : -1)
+
 
 #define digitalPinToPCICR(p)    ((volatile uint8_t *)0)
 #define digitalPinToPCICRbit(p) (0)

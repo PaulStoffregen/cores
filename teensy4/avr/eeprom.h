@@ -31,6 +31,10 @@
 
 #include "avr_functions.h"
 
+#if defined(ARDUINO_TEENSY40)
 #define E2END 0x437
+#elif defined(ARDUINO_TEENSY41)
+#define E2END 0x10BB
+#endif
 
 #endif
