@@ -21,6 +21,8 @@
 
 #include <Arduino.h>
 
+#include "itoa.h"
+
 
 /*********************************************/
 /*  Constructors                             */

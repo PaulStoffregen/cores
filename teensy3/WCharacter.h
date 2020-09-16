@@ -22,7 +22,12 @@
 
 #include <ctype.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // WCharacter.h prototypes
+#if defined (  __GNUC__  )
 inline boolean isAlphaNumeric(int c) __attribute__((always_inline));
 inline boolean isAlpha(int c) __attribute__((always_inline));
 inline boolean isAscii(int c) __attribute__((always_inline));
@@ -40,6 +45,8 @@ inline int toAscii(int c) __attribute__((always_inline));
 inline int toLowerCase(int c) __attribute__((always_inline));
 inline int toUpperCase(int c)__attribute__((always_inline));
 
+#elif defined ( __ICCARM__ )
+#endif
 
 // Checks for an alphanumeric character.
 // It is equivalent to (isalpha(c) || isdigit(c)).
@@ -61,7 +68,8 @@ inline boolean isAlpha(int c)
 // that fits into the ASCII character set.
 inline boolean isAscii(int c)
 {
-  return ( isascii (c) == 0 ? false : true);
+  // return ( isascii(c) == 0 ? false : true);
+  return ( (c & ~0x7f) != 0 ? false : true);
 }
 
 
@@ -143,7 +151,8 @@ inline boolean isHexadecimalDigit(int c)
 // ASCII character set, by clearing the high-order bits.
 inline int toAscii(int c)
 {
-  return toascii (c);
+  // return toascii (c);
+  return (c & 0x7f);
 }
 
 
@@ -164,5 +173,9 @@ inline int toUpperCase(int c)
 {
   return toupper (c);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

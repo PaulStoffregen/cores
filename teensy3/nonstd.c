@@ -33,7 +33,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-
+/* ultoa and ltoa are in itoa.c 
 char * ultoa(unsigned long val, char *buf, int radix)
 {
 	unsigned digit;
@@ -66,6 +66,7 @@ char * ltoa(long val, char *buf, int radix)
 		return buf;
 	}
 }
+*/
 
 #define DTOA_UPPER 0x04
 
