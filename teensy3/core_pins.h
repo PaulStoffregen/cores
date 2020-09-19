@@ -2276,16 +2276,16 @@ void analog_init(void);
 
 
 #if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
-#define TEENSY_CORE_DEFAULT         0
-#define TEENSY_CORE_INTERNAL        2
-#define TEENSY_CORE_INTERNAL1V2     2
-#define TEENSY_CORE_INTERNAL1V1     2
-#define TEENSY_CORE_EXTERNAL        0
+#define DEFAULT         0
+#define INTERNAL        2
+#define INTERNAL1V2     2
+#define INTERNAL1V1     2
+#define EXTERNAL        0
 
 #elif defined(__MKL26Z64__)
-#define TEENSY_CORE_DEFAULT         0
-#define TEENSY_CORE_INTERNAL        0
-#define TEENSY_CORE_EXTERNAL        1
+#define DEFAULT         0
+#define INTERNAL        0
+#define EXTERNAL        1
 #endif
 
 

@@ -33,7 +33,10 @@
 #include <stdlib.h>
 #include <math.h>
 
-/* ultoa and ltoa are in itoa.c 
+#ifdef __cplusplus
+extern "C" {
+#endif
+ 
 char * ultoa(unsigned long val, char *buf, int radix)
 {
 	unsigned digit;
@@ -56,6 +59,11 @@ char * ultoa(unsigned long val, char *buf, int radix)
 	return buf;
 }
 
+char * utoa(unsigned int value, char *string, int radix)
+{
+	return ultoa(value, string, radix);
+}
+
 char * ltoa(long val, char *buf, int radix)
 {
 	if (val >= 0) {
@@ -66,7 +74,11 @@ char * ltoa(long val, char *buf, int radix)
 		return buf;
 	}
 }
-*/
+
+char * itoa(int value, char *string, int radix)
+{
+	return ltoa(value, string, radix);
+}
 
 #define DTOA_UPPER 0x04
 
@@ -218,3 +230,6 @@ char * dtostrf(float val, int width, unsigned int precision, char *buf)
 	return buf;
 }
 
+#ifdef __cplusplus
+} // extern "C"
+#endif
