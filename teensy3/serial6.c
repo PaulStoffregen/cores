@@ -337,17 +337,37 @@ void uart5_status_isr(void)
 	uint32_t head, tail, n;
 	uint8_t c;
 
+	/*
+	UARTx_S1:
+		To clear a flag, the status register should be read followed by a read or write to D register,
+		depending on the interrupt flag type. Other instructions can be executed between the two
+		steps as long the handling of I/O is not compromised, but the order of operations is
+		important for flag clearing.
+
+		Reading an empty data register to clear one of the flags of
+		the S1 register causes the FIFO pointers to become
+		misaligned. A receive FIFO flush reinitializes the pointers.
+		A better way to prevent this situation is to always leave one
+		byte in FIFO and this byte will be read eventually in
+		clearing the flag bit.
+	*/
+	// Treat current data as corrupted if any of the following flags is set: noise detected, framing error, parity error
+	uint8_t isDataCorrupted = (UART5_S1 & (UART_S1_NF | UART_S1_FE | UART_S1_PF)) ? 1 : 0;
+
 	if (UART5_S1 & UART_S1_RDRF) {
 		if (use9Bits && (UART5_C3 & 0x80)) {
 			n = UART5_D | 0x100;
 		} else {
 			n = UART5_D;
 		}
-		head = rx_buffer_head + 1;
-		if (head >= SERIAL6_RX_BUFFER_SIZE) head = 0;
-		if (head != rx_buffer_tail) {
-			rx_buffer[head] = n;
-			rx_buffer_head = head;
+		head = rx_buffer_head;
+		if (!isDataCorrupted) {
+			head++;
+			if (head >= SERIAL6_RX_BUFFER_SIZE) head = 0;
+			if (head != rx_buffer_tail) {
+				rx_buffer[head] = n;
+				rx_buffer_head = head;
+			}
 		}
 		if (rts_pin) {
 			int avail;
