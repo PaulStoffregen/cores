@@ -218,7 +218,10 @@ FLASHMEM void configure_cache(void)
 	//printf("MPU_TYPE = %08lX\n", SCB_MPU_TYPE);
 	//printf("CCR = %08lX\n", SCB_CCR);
 
-	// TODO: check if caches already active - skip?
+	// Skip, if caches are already active
+	if(SCB_CCR & SCB_CCR_DC) {
+		return;
+	}
 
 	SCB_MPU_CTRL = 0; // turn off MPU
 
