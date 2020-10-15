@@ -23,12 +23,18 @@ const uint32_t BootData[3] = {
 };
 
 
+__attribute__ ((section(".bootdata"), used))
+const uint32_t DCDData[1] = {
+	0x410400D2		// header
+};
+
+
 __attribute__ ((section(".ivt"), used))
 const uint32_t ImageVectorTable[8] = {
 	0x402000D1,		// header
 	(uint32_t)vector_table, // docs are wrong, needs to be vec table, not start addr
 	0,			// reserved
-	0,			// dcd
+	(uint32_t)DCDData,	// dcd
 	(uint32_t)BootData,	// abs address of boot data
 	(uint32_t)ImageVectorTable, // self
 	0,			// command sequence file
