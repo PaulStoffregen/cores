@@ -16,7 +16,6 @@ SECTIONS
 		. = ORIGIN(FLASH) + 0x1000;
 		KEEP(*(.ivt))
 		KEEP(*(.bootdata))
-		KEEP(*(.vectors))
 		KEEP(*(.startup))
 		*(.flashmem*)
 		*(.progmem*)
@@ -51,7 +50,6 @@ SECTIONS
 	.data : {
 		*(.rodata*)
 		*(.data*)
-		. = ALIGN(16);
 	} > DTCM  AT> FLASH
 
 	.bss ALIGN(4) : {
@@ -65,6 +63,12 @@ SECTIONS
 		*(.dmabuffers)
 		. = ALIGN(32);
 	} > RAM
+
+	.text.csf : {
+		FILL(0xFF)
+		. = ALIGN(4);
+		KEEP(*(.csf))
+	} > FLASH
 
 	_stext = ADDR(.text.itcm);
 	_etext = ADDR(.text.itcm) + SIZEOF(.text.itcm) + SIZEOF(.ARM.exidx);
@@ -84,7 +88,7 @@ SECTIONS
 	_flexram_bank_config = 0xAAAAAAAA | ((1 << (_itcm_block_count * 2)) - 1);
 	_estack = ORIGIN(DTCM) + ((16 - _itcm_block_count) << 15);
 
-	_flashimagelen = SIZEOF(.text.progmem) + SIZEOF(.text.itcm) + SIZEOF(.ARM.exidx) + SIZEOF(.data);
+	_flashimagelen = SIZEOF(.text.progmem) + SIZEOF(.text.itcm) + SIZEOF(.ARM.exidx) + SIZEOF(.data) + SIZEOF(.text.csf);
 	_teensy_model_identifier = 0x24;
 
 	.debug_info     0 : { *(.debug_info) }
