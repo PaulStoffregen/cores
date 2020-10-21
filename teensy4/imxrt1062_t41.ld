@@ -2,7 +2,7 @@ MEMORY
 {
 	ITCM (rwx):  ORIGIN = 0x00000000, LENGTH = 512K
 	DTCM (rwx):  ORIGIN = 0x20000000, LENGTH = 512K
-	RAM (rwx):   ORIGIN = 0x20202000, LENGTH = 504K
+	RAM (rwx):   ORIGIN = 0x20200000, LENGTH = 512K
 	FLASH (rwx): ORIGIN = 0x60000000, LENGTH = 7936K
 	ERAM (rwx):  ORIGIN = 0x70000000, LENGTH = 16384K
 }
@@ -61,6 +61,7 @@ SECTIONS
 	} > DTCM
 
 	.bss.dma (NOLOAD) : {
+		*(.hab_log)
 		*(.dmabuffers)
 		. = ALIGN(32);
 	} > RAM
