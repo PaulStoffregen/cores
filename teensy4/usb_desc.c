@@ -106,6 +106,8 @@ static uint8_t device_descriptor[] = {
         0x79, 0x02, // Teensy 4.0
   #elif defined(__IMXRT1062__) && defined(ARDUINO_TEENSY41)
         0x80, 0x02, // Teensy 4.1
+  #elif defined(__IMXRT1062__) && defined(ARDUINO_TEENSY_MICROMOD)
+        0x81, 0x02, // Teensy MicroMod
   #else
         0x00, 0x02,
   #endif
