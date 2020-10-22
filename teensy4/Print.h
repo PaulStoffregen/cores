@@ -102,7 +102,7 @@ class Print
 	size_t println(const Printable &obj)		{ return obj.printTo(*this) + println(); }
 	int getWriteError() { return write_error; }
 	void clearWriteError() { setWriteError(0); }
-	int printf(const char *format, ...);
+	int printf(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
 	int printf(const __FlashStringHelper *format, ...);
   protected:
 	void setWriteError(int err = 1) { write_error = err; }
