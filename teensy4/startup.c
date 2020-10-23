@@ -43,7 +43,7 @@ void startup_default_early_hook(void) {}
 void startup_early_hook(void)		__attribute__ ((weak, alias("startup_default_early_hook")));
 void startup_default_late_hook(void) {}
 void startup_late_hook(void)		__attribute__ ((weak, alias("startup_default_late_hook")));
-__attribute__((section(".startup"), optimize("no-tree-loop-distribute-patterns"), naked))
+__attribute__((section(".startup"), optimize("no-tree-loop-distribute-patterns")))
 void ResetHandler(void)
 {
 	unsigned int i;
@@ -104,8 +104,6 @@ void ResetHandler(void)
 #ifdef F_CPU
 	set_arm_clock(F_CPU);
 #endif
-
-	asm volatile("nop\n nop\n nop\n nop": : :"memory"); // why oh why?
 
 	// Undo PIT timer usage by ROM startup
 	CCM_CCGR1 |= CCM_CCGR1_PIT(CCM_CCGR_ON);
