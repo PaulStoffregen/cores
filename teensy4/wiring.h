@@ -60,16 +60,23 @@ long map(T _x, A _in_min, B _in_max, C _out_min, D _out_max, typename std::enabl
 		return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 	}
 #endif
+	// first compute the ranges and check if input doesn't matter
 	long in_range = in_max - in_min;
 	long out_range = out_max - out_min;
 	if (in_range == 0) return out_min + out_range / 2;
+	// compute the numerator
 	long num = (x - in_min) * out_range;
+	// before dividing, add extra for proper round off (towards zero)
 	if (out_range >= 0) {
 		num += in_range / 2;
 	} else {
 		num -= in_range / 2;
 	}
+	// divide by input range and add output offset to complete map() compute
 	long result = num / in_range + out_min;
+	// fix "a strange behaviour with negative numbers" (see ArduinoCore-API issue #51)
+	//   this step can be deleted if you don't care about non-linear output
+	//   behavior extrapolating slightly beyond the mapped input & output range
 	if (out_range >= 0) {
 		if (in_range * num < 0) return result - 1;
 	} else {
