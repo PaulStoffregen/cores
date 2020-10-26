@@ -2,6 +2,7 @@
 #include "wiring.h"
 #include "usb_dev.h"
 #include "avr/pgmspace.h"
+#include "smalloc.h"
 
 #include "debug/printf.h"
 
@@ -16,6 +17,8 @@ extern unsigned long _sbss;
 extern unsigned long _ebss;
 extern unsigned long _flexram_bank_config;
 extern unsigned long _estack;
+extern unsigned long _extram_start;
+extern unsigned long _extram_end;
 
 __attribute__ ((used, aligned(1024)))
 void (* _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
@@ -37,6 +40,9 @@ uint32_t set_arm_clock(uint32_t frequency); // clockspeed.c
 extern void __libc_init_array(void); // C++ standard library
 
 uint8_t external_psram_size = 0;
+#ifdef ARDUINO_TEENSY41
+struct smalloc_pool extmem_smalloc_pool;
+#endif
 
 extern int main (void);
 void startup_default_early_hook(void) {}
@@ -428,9 +434,13 @@ FLASHMEM void configure_external_ram()
 		}
 		// TODO: zero uninitialized EXTMEM variables
 		// TODO: copy from flash to initialize EXTMEM variables
-		// TODO: set up for malloc_extmem()
+		sm_set_pool(&extmem_smalloc_pool, &_extram_end,
+			external_psram_size * 0x100000 -
+			((uint32_t)&_extram_end - (uint32_t)&_extram_start),
+			1, NULL);
 	} else {
 		// No PSRAM
+		memset(&extmem_smalloc_pool, 0, sizeof(extmem_smalloc_pool));
 	}
 }
 

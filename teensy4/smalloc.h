@@ -33,6 +33,10 @@ struct smalloc_pool {
 /* a default one which is initialised with sm_set_default_pool. */
 extern struct smalloc_pool smalloc_curr_pool;
 
+#ifdef ARDUINO_TEENSY41
+extern struct smalloc_pool extmem_smalloc_pool;
+#endif
+
 /* undefined behavior handler is called on typical malloc UB situations */
 typedef void (*smalloc_ub_handler)(struct smalloc_pool *, const void *);
 
