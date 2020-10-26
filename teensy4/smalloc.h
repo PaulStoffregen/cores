@@ -14,6 +14,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct smalloc_pool;
 
 typedef size_t (*smalloc_oom_handler)(struct smalloc_pool *, size_t);
@@ -73,5 +77,9 @@ size_t sm_szalloc(const void *); /* get size of allocation */
  * any of pointers maybe set to NULL, but at least one must be non NULL.
  */
 int sm_malloc_stats(size_t *, size_t *, size_t *, int *);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

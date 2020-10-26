@@ -12,6 +12,10 @@
 #include <limits.h>
 #include <errno.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct smalloc_hdr {
 	size_t rsz; /* real allocated size with overhead (if any) */
 	size_t usz; /* exact user size as reported by s_szalloc */
@@ -36,5 +40,9 @@ int smalloc_verify_pool(struct smalloc_pool *spool);
 int smalloc_is_alloc(struct smalloc_pool *spool, struct smalloc_hdr *shdr);
 
 void *sm_realloc_pool_i(struct smalloc_pool *spool, void *p, size_t n, int nomove);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif
