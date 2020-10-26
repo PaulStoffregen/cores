@@ -72,6 +72,19 @@
 #define LSB(n) ((n) & 255)
 #define MSB(n) (((n) >> 8) & 255)
 
+#ifdef CDC_IAD_DESCRIPTOR
+#ifndef DEVICE_CLASS
+#define DEVICE_CLASS 0xEF
+#endif
+#ifndef DEVICE_SUBCLASS
+#define DEVICE_SUBCLASS 0x02
+#endif
+#ifndef DEVICE_PROTOCOL
+#define DEVICE_PROTOCOL 0x01
+#endif
+#endif
+
+
 // USB Device Descriptor.  The USB host reads this first, to learn
 // what type of device is connected.
 static uint8_t device_descriptor[] = {
@@ -1630,7 +1643,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
         4,                                      // bDescriptorType
         EXPERIMENTAL_INTERFACE,                 // bInterfaceNumber
         0,                                      // bAlternateSetting
-        1,                                      // bNumEndpoints
+        2,                                      // bNumEndpoints
         0xFF,                                   // bInterfaceClass (0xFF = Vendor)
         0x6A,                                   // bInterfaceSubClass
         0xFF,                                   // bInterfaceProtocol
@@ -2644,7 +2657,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
         4,                                      // bDescriptorType
         EXPERIMENTAL_INTERFACE,                 // bInterfaceNumber
         0,                                      // bAlternateSetting
-        1,                                      // bNumEndpoints
+        2,                                      // bNumEndpoints
         0xFF,                                   // bInterfaceClass (0xFF = Vendor)
         0x6A,                                   // bInterfaceSubClass
         0xFF,                                   // bInterfaceProtocol
