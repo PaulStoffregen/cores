@@ -484,6 +484,8 @@ unsigned char String::endsWith( const String &s2 ) const
 /*  Character Access                         */
 /*********************************************/
 
+const char String::zerotermination = 0;
+
 char String::charAt(unsigned int loc) const
 {
 	return operator[](loc);

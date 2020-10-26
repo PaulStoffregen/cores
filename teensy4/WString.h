@@ -164,7 +164,10 @@ public:
 	void getBytes(unsigned char *buf, unsigned int bufsize, unsigned int index=0) const;
 	void toCharArray(char *buf, unsigned int bufsize, unsigned int index=0) const
 		{getBytes((unsigned char *)buf, bufsize, index);}
-	const char * c_str() const { return buffer; }
+	const char * c_str() const {
+		if (!buffer) return &zerotermination; // https://forum.pjrc.com/threads/63842
+		return buffer;
+	}
 
 	// search
 	int indexOf( char ch ) const;
@@ -205,6 +208,7 @@ private:
 	// for more information http://www.artima.com/cppsource/safebool.html
 	typedef void (String::*StringIfHelperType)() const;
 	void StringIfHelper() const {}
+	static const char zerotermination;
 public:
 	operator StringIfHelperType() const { return buffer ? &String::StringIfHelper : 0; }
 };
