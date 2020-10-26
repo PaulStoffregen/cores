@@ -208,6 +208,11 @@ void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, byte val);
 void setup(void);
 void loop(void);
 
+void *extmem_malloc(size_t size);
+void extmem_free(void *ptr);
+void *extmem_calloc(size_t nmemb, size_t size);
+void *extmem_realloc(void *ptr, size_t size);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
