@@ -1,3 +1,16 @@
+// Including smalloc.h in user programs is NOT RECOMMENDED.  The
+// contents of this file may change or be removed in future
+// Teensyduino.
+//
+// Only these functions (defined in wiring.h) are intended to be
+// used from Arduino sketches and libraries.
+//
+//   void *extmem_malloc(size_t size);
+//   void extmem_free(void *ptr);
+//   void *extmem_calloc(size_t nmemb, size_t size);
+//   void *extmem_realloc(void *ptr, size_t size);
+
+
 /*
  * SMalloc -- a *static* memory allocator.
  *
