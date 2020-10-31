@@ -1730,7 +1730,13 @@ typedef struct {
 #define CSI_CSISR_ECC_INT                       ((uint32_t)(1<<1))
 #define CSI_CSISR_DRDY                          ((uint32_t)(1<<0))
 
-#define CSI_CSICR3_CSI_ENABLE                   ((uint32_t)(1<<31))
+#define CSI_CSIFBUF_PARA_DEINTERLACE_STRIDE(n)  ((uint32_t)(((n) & 0xffff)<<16))
+#define CSI_CSIFBUF_PARA_FBUF_STRIDE(n)         ((uint32_t)(((n) & 0xffff)<<0))
+
+#define CSI_CSIIMAG_PARA_IMAGE_WIDTH(n)         ((uint32_t)(((n) & 0xffff)<<16))
+#define CSI_CSIIMAG_PARA_IMAGE_HEIGHT(n)        ((uint32_t)(((n) & 0xffff)<<0))
+
+#define CSI_CSICR18_CSI_ENABLE                  ((uint32_t)(1<<31))
 #define CSI_CSICR18_MASK_OPTION(n)              ((uint32_t)(((n) & 0x3)<<18))
 #define CSI_CSICR18_AHB_HPROT(n)                ((uint32_t)(((n) & 0xf)<<12))
 
