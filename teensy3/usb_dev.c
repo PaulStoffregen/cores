@@ -329,7 +329,7 @@ static void usb_setup(void)
 					// for string descriptors, use the descriptor's
 					// length field, allowing runtime configured
 					// length.
-					datalen = *(list->addr);
+					datalen = *data;
 				} else {
 					datalen = list->length;
 				}
