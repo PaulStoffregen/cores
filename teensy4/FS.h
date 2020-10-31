@@ -95,9 +95,6 @@ public:
 	virtual int available() {
 		return (f) ? f->available() : 0;
 	}
-	virtual int read() {
-		return (f) ? f->read() : -1;
-	}
 	virtual int peek() {
 		return (f) ? f->peek() : -1;
 	}
@@ -133,6 +130,12 @@ public:
 	}
 	bool seek(uint32_t pos) {
 		return seek(pos, SeekSet);
+	}
+	int read() {
+		if (!f) return -1;
+		unsigned char b;
+		if (f->read(&b, 1) < 1) return -1;
+		return b;
 	}
 	size_t write(uint8_t b) {
 		return write(&b, 1);
