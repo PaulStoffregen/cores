@@ -647,6 +647,9 @@ void HardwareSerial::IRQHandler()
 
 
 void HardwareSerial::addToSerialEventsList() {
+	for (uint8_t i = 0; i < s_count_serials_with_serial_events; i++) {
+		if (s_serials_with_serial_events[i] == this) return; // already in the list.
+	}
 	s_serials_with_serial_events[s_count_serials_with_serial_events++] = this;
 	yield_active_check_flags |= YIELD_CHECK_HARDWARE_SERIAL;
 }
