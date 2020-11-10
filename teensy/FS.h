@@ -164,11 +164,11 @@ class FS
 {
 public:
 	FS() {}
-	File open(const char *filename, uint8_t mode = FILE_READ);
-	bool exists(const char *filepath);
-	bool mkdir(const char *filepath);
-	bool remove(const char *filepath);
-	bool rmdir(const char *filepath);
+	virtual File open(const char *filename, uint8_t mode = FILE_READ);
+	virtual bool exists(const char *filepath);
+	virtual bool mkdir(const char *filepath);
+	virtual bool remove(const char *filepath);
+	virtual bool rmdir(const char *filepath);
 };
 
 
