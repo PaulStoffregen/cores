@@ -167,6 +167,7 @@ public:
 	virtual File open(const char *filename, uint8_t mode = FILE_READ);
 	virtual bool exists(const char *filepath);
 	virtual bool mkdir(const char *filepath);
+	virtual bool rename(const char *oldfilepath, const char *newfilepath);
 	virtual bool remove(const char *filepath);
 	virtual bool rmdir(const char *filepath);
 };
