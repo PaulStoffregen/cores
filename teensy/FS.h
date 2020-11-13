@@ -170,6 +170,8 @@ public:
 	virtual bool rename(const char *oldfilepath, const char *newfilepath);
 	virtual bool remove(const char *filepath);
 	virtual bool rmdir(const char *filepath);
+	virtual uint64_t usedSize();
+	virtual uint64_t totalSize();
 };
 
 
