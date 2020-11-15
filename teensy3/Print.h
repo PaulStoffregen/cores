@@ -71,12 +71,16 @@ class Print
 	size_t print(unsigned int n)			{ return printNumber(n, 10, 0); }
 	size_t print(long n);
 	size_t print(unsigned long n)			{ return printNumber(n, 10, 0); }
+	size_t print(int64_t n);
+	size_t print(uint64_t n)			{ return printNumber64(n, 10, 0); }
 
 	size_t print(unsigned char n, int base)		{ return printNumber(n, base, 0); }
 	size_t print(int n, int base)			{ return (base == 10) ? print(n) : printNumber(n, base, 0); }
 	size_t print(unsigned int n, int base)		{ return printNumber(n, base, 0); }
 	size_t print(long n, int base)			{ return (base == 10) ? print(n) : printNumber(n, base, 0); }
 	size_t print(unsigned long n, int base)		{ return printNumber(n, base, 0); }
+	size_t print(int64_t n, int base)		{ return (base == 10) ? print(n) : printNumber64(n, base, 0); }
+	size_t print(uint64_t n, int base)		{ return printNumber64(n, base, 0); }
 
 	size_t print(double n, int digits = 2)		{ return printFloat(n, digits); }
 	size_t print(const Printable &obj)		{ return obj.printTo(*this); }
@@ -91,18 +95,24 @@ class Print
 	size_t println(unsigned int n)			{ return print(n) + println(); }
 	size_t println(long n)				{ return print(n) + println(); }
 	size_t println(unsigned long n)			{ return print(n) + println(); }
+	size_t println(int64_t n)			{ return print(n) + println(); }
+	size_t println(uint64_t n)			{ return print(n) + println(); }
 
 	size_t println(unsigned char n, int base)	{ return print(n, base) + println(); }
 	size_t println(int n, int base)			{ return print(n, base) + println(); }
 	size_t println(unsigned int n, int base)	{ return print(n, base) + println(); }
 	size_t println(long n, int base)		{ return print(n, base) + println(); }
 	size_t println(unsigned long n, int base)	{ return print(n, base) + println(); }
+	size_t println(int64_t n, int base)		{ return print(n, base) + println(); }
+	size_t println(uint64_t n, int base)		{ return print(n, base) + println(); }
 
 	size_t println(double n, int digits = 2)	{ return print(n, digits) + println(); }
 	size_t println(const Printable &obj)		{ return obj.printTo(*this) + println(); }
 	int getWriteError() { return write_error; }
 	void clearWriteError() { setWriteError(0); }
-	int printf(const char *format, ...);
+	// format warnings are too pedantic - disable until newer toolchain offers better...
+	// https://forum.pjrc.com/threads/62473?p=256873&viewfull=1#post256873
+	int printf(const char *format, ...) /*__attribute__ ((format (printf, 2, 3)))*/;
 	int printf(const __FlashStringHelper *format, ...);
   protected:
 	void setWriteError(int err = 1) { write_error = err; }
@@ -126,6 +136,7 @@ class Print
 #else
 	size_t printNumber(unsigned long n, uint8_t base, uint8_t sign);
 #endif
+	size_t printNumber64(uint64_t n, uint8_t base, uint8_t sign);
 };
 
 

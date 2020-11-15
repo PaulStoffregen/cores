@@ -27,17 +27,47 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# set your MCU type here, or make command line `make MCU=IMXRT1062`
-MCU=IMXRT1062
+# Use these lines for Teensy 4.0
+MCU = IMXRT1062
+MCU_LD = imxrt1062.ld
+MCU_DEF = ARDUINO_TEENSY40
+
+# Use these lines for Teensy 4.1
+#MCU = IMXRT1062
+#MCU_LD = imxrt1062_t41.ld
+#MCU_DEF = ARDUINO_TEENSY41
 
 # The name of your project (used to name the compiled .hex file)
 TARGET = main
 
 # configurable options
 OPTIONS = -DF_CPU=600000000 -DUSB_SERIAL -DLAYOUT_US_ENGLISH -DUSING_MAKEFILE
+#
+# USB Type configuration:
+#   -DUSB_SERIAL
+#   -DUSB_DUAL_SERIAL
+#   -DUSB_TRIPLE_SERIAL
+#   -DUSB_KEYBOARDONLY
+#   -DUSB_TOUCHSCREEN
+#   -DUSB_HID_TOUCHSCREEN
+#   -DUSB_HID
+#   -DUSB_SERIAL_HID
+#   -DUSB_MIDI
+#   -DUSB_MIDI4
+#   -DUSB_MIDI16
+#   -DUSB_MIDI_SERIAL
+#   -DUSB_MIDI4_SERIAL
+#   -DUSB_MIDI16_SERIAL
+#   -DUSB_AUDIO
+#   -DUSB_MIDI_AUDIO_SERIAL
+#   -DUSB_MIDI16_AUDIO_SERIAL
+#   -DUSB_MTPDISK
+#   -DUSB_RAWHID
+#   -DUSB_FLIGHTSIM
+#   -DUSB_FLIGHTSIM_JOYSTICK
 
-# options needed by many Arduino libraries to configure for Teensy 4.0
-OPTIONS += -D__$(MCU)__ -DARDUINO=10810 -DTEENSYDUINO=149 -DARDUINO_TEENSY40
+# options needed by many Arduino libraries to configure for Teensy model
+OPTIONS += -D__$(MCU)__ -DARDUINO=10813 -DTEENSYDUINO=154 -D$(MCU_DEF)
 
 # for Cortex M7 with single & double precision FPU
 CPUOPTIONS = -mcpu=cortex-m7 -mfloat-abi=hard -mfpu=fpv5-d16 -mthumb
@@ -136,10 +166,6 @@ endif
 
 # compiler generated dependency info
 -include $(OBJS:.o=.d)
-
-# make "MCU" lower case
-LOWER_MCU := $(subst A,a,$(subst B,b,$(subst C,c,$(subst D,d,$(subst E,e,$(subst F,f,$(subst G,g,$(subst H,h,$(subst I,i,$(subst J,j,$(subst K,k,$(subst L,l,$(subst M,m,$(subst N,n,$(subst O,o,$(subst P,p,$(subst Q,q,$(subst R,r,$(subst S,s,$(subst T,t,$(subst U,u,$(subst V,v,$(subst W,w,$(subst X,x,$(subst Y,y,$(subst Z,z,$(MCU)))))))))))))))))))))))))))
-MCU_LD = $(LOWER_MCU).ld
 
 clean:
 	rm -f *.o *.d $(TARGET).elf $(TARGET).hex

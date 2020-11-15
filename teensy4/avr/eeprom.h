@@ -35,6 +35,8 @@
 #define E2END 0x437
 #elif defined(ARDUINO_TEENSY41)
 #define E2END 0x10BB
+#elif defined(ARDUINO_TEENSY_MICROMOD)
+#define E2END 0x10BB
 #endif
 
 #endif

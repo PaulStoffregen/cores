@@ -43,11 +43,11 @@ enum SeekMode {
 	SeekEnd = 2
 };
 
-#define FILE_WHOAMI
+//#define FILE_WHOAMI
 
 class File : public Stream {
 public:
-	constexpr File() : f(nullptr) { }
+	File() : f(nullptr) { }
 	File(File *file) {
 		// "file" must only be a class derived from File
 		// can we use is_same or is_polymorphic with static_assert?

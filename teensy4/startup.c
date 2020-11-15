@@ -2,6 +2,8 @@
 #include "wiring.h"
 #include "usb_dev.h"
 #include "avr/pgmspace.h"
+#include "smalloc.h"
+#include <string.h>
 
 #include "debug/printf.h"
 
@@ -16,6 +18,8 @@ extern unsigned long _sbss;
 extern unsigned long _ebss;
 extern unsigned long _flexram_bank_config;
 extern unsigned long _estack;
+extern unsigned long _extram_start;
+extern unsigned long _extram_end;
 
 __attribute__ ((used, aligned(1024)))
 void (* _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
@@ -35,13 +39,20 @@ extern void tempmon_init(void);  //tempmon.c
 uint32_t set_arm_clock(uint32_t frequency); // clockspeed.c
 extern void __libc_init_array(void); // C++ standard library
 
+<<<<<<< Updated upstream
+=======
+uint8_t external_psram_size = 0;
+#ifdef ARDUINO_TEENSY41
+struct smalloc_pool extmem_smalloc_pool;
+#endif
+>>>>>>> Stashed changes
 
 extern int main (void);
 void startup_default_early_hook(void) {}
 void startup_early_hook(void)		__attribute__ ((weak, alias("startup_default_early_hook")));
 void startup_default_late_hook(void) {}
 void startup_late_hook(void)		__attribute__ ((weak, alias("startup_default_late_hook")));
-__attribute__((section(".startup"), optimize("no-tree-loop-distribute-patterns"), naked))
+__attribute__((section(".startup"), optimize("no-tree-loop-distribute-patterns")))
 void ResetHandler(void)
 {
 	unsigned int i;
@@ -101,8 +112,6 @@ void ResetHandler(void)
 #ifdef F_CPU
 	set_arm_clock(F_CPU);
 #endif
-
-	asm volatile("nop\n nop\n nop\n nop": : :"memory"); // why oh why?
 
 	// Undo PIT timer usage by ROM startup
 	CCM_CCGR1 |= CCM_CCGR1_PIT(CCM_CCGR_ON);
@@ -239,6 +248,179 @@ FLASHMEM void configure_cache(void)
 	SCB_CCR |= (SCB_CCR_IC | SCB_CCR_DC);
 }
 
+<<<<<<< Updated upstream
+=======
+#ifdef ARDUINO_TEENSY41
+
+#define LUT0(opcode, pads, operand) (FLEXSPI_LUT_INSTRUCTION((opcode), (pads), (operand)))
+#define LUT1(opcode, pads, operand) (FLEXSPI_LUT_INSTRUCTION((opcode), (pads), (operand)) << 16)
+#define CMD_SDR         FLEXSPI_LUT_OPCODE_CMD_SDR
+#define ADDR_SDR        FLEXSPI_LUT_OPCODE_RADDR_SDR
+#define READ_SDR        FLEXSPI_LUT_OPCODE_READ_SDR
+#define WRITE_SDR       FLEXSPI_LUT_OPCODE_WRITE_SDR
+#define DUMMY_SDR       FLEXSPI_LUT_OPCODE_DUMMY_SDR
+#define PINS1           FLEXSPI_LUT_NUM_PADS_1
+#define PINS4           FLEXSPI_LUT_NUM_PADS_4
+
+FLASHMEM static void flexspi2_command(uint32_t index, uint32_t addr)
+{
+	FLEXSPI2_IPCR0 = addr;
+	FLEXSPI2_IPCR1 = FLEXSPI_IPCR1_ISEQID(index);
+	FLEXSPI2_IPCMD = FLEXSPI_IPCMD_TRG;
+	while (!(FLEXSPI2_INTR & FLEXSPI_INTR_IPCMDDONE)); // wait
+	FLEXSPI2_INTR = FLEXSPI_INTR_IPCMDDONE;
+}
+
+FLASHMEM static uint32_t flexspi2_psram_id(uint32_t addr)
+{
+	FLEXSPI2_IPCR0 = addr;
+	FLEXSPI2_IPCR1 = FLEXSPI_IPCR1_ISEQID(3) | FLEXSPI_IPCR1_IDATSZ(4);
+	FLEXSPI2_IPCMD = FLEXSPI_IPCMD_TRG;
+	while (!(FLEXSPI2_INTR & FLEXSPI_INTR_IPCMDDONE)); // wait
+	uint32_t id = FLEXSPI2_RFDR0;
+	FLEXSPI2_INTR = FLEXSPI_INTR_IPCMDDONE | FLEXSPI_INTR_IPRXWA;
+	return id & 0xFFFF;
+}
+
+FLASHMEM void configure_external_ram()
+{
+	// initialize pins
+	IOMUXC_SW_PAD_CTL_PAD_GPIO_EMC_22 = 0x1B0F9; // 100K pullup, strong drive, max speed, hyst
+	IOMUXC_SW_PAD_CTL_PAD_GPIO_EMC_23 = 0x110F9; // keeper, strong drive, max speed, hyst
+	IOMUXC_SW_PAD_CTL_PAD_GPIO_EMC_24 = 0x1B0F9; // 100K pullup, strong drive, max speed, hyst
+	IOMUXC_SW_PAD_CTL_PAD_GPIO_EMC_25 = 0x100F9; // strong drive, max speed, hyst
+	IOMUXC_SW_PAD_CTL_PAD_GPIO_EMC_26 = 0x170F9; // 47K pullup, strong drive, max speed, hyst
+	IOMUXC_SW_PAD_CTL_PAD_GPIO_EMC_27 = 0x170F9; // 47K pullup, strong drive, max speed, hyst
+	IOMUXC_SW_PAD_CTL_PAD_GPIO_EMC_28 = 0x170F9; // 47K pullup, strong drive, max speed, hyst
+	IOMUXC_SW_PAD_CTL_PAD_GPIO_EMC_29 = 0x170F9; // 47K pullup, strong drive, max speed, hyst
+
+	IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_22 = 8 | 0x10; // ALT1 = FLEXSPI2_A_SS1_B (Flash)
+	IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_23 = 8 | 0x10; // ALT1 = FLEXSPI2_A_DQS
+	IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_24 = 8 | 0x10; // ALT1 = FLEXSPI2_A_SS0_B (RAM)
+	IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_25 = 8 | 0x10; // ALT1 = FLEXSPI2_A_SCLK
+	IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_26 = 8 | 0x10; // ALT1 = FLEXSPI2_A_DATA0
+	IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_27 = 8 | 0x10; // ALT1 = FLEXSPI2_A_DATA1
+	IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_28 = 8 | 0x10; // ALT1 = FLEXSPI2_A_DATA2
+	IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_29 = 8 | 0x10; // ALT1 = FLEXSPI2_A_DATA3
+
+	IOMUXC_FLEXSPI2_IPP_IND_DQS_FA_SELECT_INPUT = 1; // GPIO_EMC_23 for Mode: ALT8, pg 986
+	IOMUXC_FLEXSPI2_IPP_IND_IO_FA_BIT0_SELECT_INPUT = 1; // GPIO_EMC_26 for Mode: ALT8
+	IOMUXC_FLEXSPI2_IPP_IND_IO_FA_BIT1_SELECT_INPUT = 1; // GPIO_EMC_27 for Mode: ALT8
+	IOMUXC_FLEXSPI2_IPP_IND_IO_FA_BIT2_SELECT_INPUT = 1; // GPIO_EMC_28 for Mode: ALT8
+	IOMUXC_FLEXSPI2_IPP_IND_IO_FA_BIT3_SELECT_INPUT = 1; // GPIO_EMC_29 for Mode: ALT8
+	IOMUXC_FLEXSPI2_IPP_IND_SCK_FA_SELECT_INPUT = 1; // GPIO_EMC_25 for Mode: ALT8
+
+	// turn on clock  (TODO: increase clock speed later, slow & cautious for first release)
+	CCM_CBCMR = (CCM_CBCMR & ~(CCM_CBCMR_FLEXSPI2_PODF_MASK | CCM_CBCMR_FLEXSPI2_CLK_SEL_MASK))
+		| CCM_CBCMR_FLEXSPI2_PODF(5) | CCM_CBCMR_FLEXSPI2_CLK_SEL(3); // 88 MHz
+	CCM_CCGR7 |= CCM_CCGR7_FLEXSPI2(CCM_CCGR_ON);
+
+	FLEXSPI2_MCR0 |= FLEXSPI_MCR0_MDIS;
+	FLEXSPI2_MCR0 = (FLEXSPI2_MCR0 & ~(FLEXSPI_MCR0_AHBGRANTWAIT_MASK
+		 | FLEXSPI_MCR0_IPGRANTWAIT_MASK | FLEXSPI_MCR0_SCKFREERUNEN
+		 | FLEXSPI_MCR0_COMBINATIONEN | FLEXSPI_MCR0_DOZEEN
+		 | FLEXSPI_MCR0_HSEN | FLEXSPI_MCR0_ATDFEN | FLEXSPI_MCR0_ARDFEN
+		 | FLEXSPI_MCR0_RXCLKSRC_MASK | FLEXSPI_MCR0_SWRESET))
+		| FLEXSPI_MCR0_AHBGRANTWAIT(0xFF) | FLEXSPI_MCR0_IPGRANTWAIT(0xFF)
+		| FLEXSPI_MCR0_RXCLKSRC(1) | FLEXSPI_MCR0_MDIS;
+	FLEXSPI2_MCR1 = FLEXSPI_MCR1_SEQWAIT(0xFFFF) | FLEXSPI_MCR1_AHBBUSWAIT(0xFFFF);
+	FLEXSPI2_MCR2 = (FLEXSPI_MCR2 & ~(FLEXSPI_MCR2_RESUMEWAIT_MASK
+		 | FLEXSPI_MCR2_SCKBDIFFOPT | FLEXSPI_MCR2_SAMEDEVICEEN
+		 | FLEXSPI_MCR2_CLRLEARNPHASE | FLEXSPI_MCR2_CLRAHBBUFOPT))
+		| FLEXSPI_MCR2_RESUMEWAIT(0x20) /*| FLEXSPI_MCR2_SAMEDEVICEEN*/;
+
+	FLEXSPI2_AHBCR = FLEXSPI2_AHBCR & ~(FLEXSPI_AHBCR_READADDROPT | FLEXSPI_AHBCR_PREFETCHEN
+		| FLEXSPI_AHBCR_BUFFERABLEEN | FLEXSPI_AHBCR_CACHABLEEN);
+	uint32_t mask = (FLEXSPI_AHBRXBUFCR0_PREFETCHEN | FLEXSPI_AHBRXBUFCR0_PRIORITY_MASK
+		| FLEXSPI_AHBRXBUFCR0_MSTRID_MASK | FLEXSPI_AHBRXBUFCR0_BUFSZ_MASK);
+	FLEXSPI2_AHBRXBUF0CR0 = (FLEXSPI2_AHBRXBUF0CR0 & ~mask)
+		| FLEXSPI_AHBRXBUFCR0_PREFETCHEN | FLEXSPI_AHBRXBUFCR0_BUFSZ(64);
+	FLEXSPI2_AHBRXBUF1CR0 = (FLEXSPI2_AHBRXBUF0CR0 & ~mask)
+		| FLEXSPI_AHBRXBUFCR0_PREFETCHEN | FLEXSPI_AHBRXBUFCR0_BUFSZ(64);
+	FLEXSPI2_AHBRXBUF2CR0 = mask;
+	FLEXSPI2_AHBRXBUF3CR0 = mask;
+
+	// RX watermark = one 64 bit line
+	FLEXSPI2_IPRXFCR = (FLEXSPI_IPRXFCR & 0xFFFFFFC0) | FLEXSPI_IPRXFCR_CLRIPRXF;
+	// TX watermark = one 64 bit line
+	FLEXSPI2_IPTXFCR = (FLEXSPI_IPTXFCR & 0xFFFFFFC0) | FLEXSPI_IPTXFCR_CLRIPTXF;
+
+	FLEXSPI2_INTEN = 0;
+	FLEXSPI2_FLSHA1CR0 = 0x2000; // 8 MByte
+	FLEXSPI2_FLSHA1CR1 = FLEXSPI_FLSHCR1_CSINTERVAL(2)
+		| FLEXSPI_FLSHCR1_TCSH(3) | FLEXSPI_FLSHCR1_TCSS(3);
+	FLEXSPI2_FLSHA1CR2 = FLEXSPI_FLSHCR2_AWRSEQID(6) | FLEXSPI_FLSHCR2_AWRSEQNUM(0)
+		| FLEXSPI_FLSHCR2_ARDSEQID(5) | FLEXSPI_FLSHCR2_ARDSEQNUM(0);
+
+	FLEXSPI2_FLSHA2CR0 = 0x2000; // 8 MByte
+	FLEXSPI2_FLSHA2CR1 = FLEXSPI_FLSHCR1_CSINTERVAL(2)
+		| FLEXSPI_FLSHCR1_TCSH(3) | FLEXSPI_FLSHCR1_TCSS(3);
+	FLEXSPI2_FLSHA2CR2 = FLEXSPI_FLSHCR2_AWRSEQID(6) | FLEXSPI_FLSHCR2_AWRSEQNUM(0)
+		| FLEXSPI_FLSHCR2_ARDSEQID(5) | FLEXSPI_FLSHCR2_ARDSEQNUM(0);
+
+	FLEXSPI2_MCR0 &= ~FLEXSPI_MCR0_MDIS;
+
+	FLEXSPI2_LUTKEY = FLEXSPI_LUTKEY_VALUE;
+	FLEXSPI2_LUTCR = FLEXSPI_LUTCR_UNLOCK;
+	volatile uint32_t *luttable = &FLEXSPI2_LUT0;
+	for (int i=0; i < 64; i++) luttable[i] = 0;
+	FLEXSPI2_MCR0 |= FLEXSPI_MCR0_SWRESET;
+	while (FLEXSPI2_MCR0 & FLEXSPI_MCR0_SWRESET) ; // wait
+
+	FLEXSPI2_LUTKEY = FLEXSPI_LUTKEY_VALUE;
+	FLEXSPI2_LUTCR = FLEXSPI_LUTCR_UNLOCK;
+
+	// cmd index 0 = exit QPI mode
+	FLEXSPI2_LUT0 = LUT0(CMD_SDR, PINS4, 0xF5);
+	// cmd index 1 = reset enable
+	FLEXSPI2_LUT4 = LUT0(CMD_SDR, PINS1, 0x66);
+	// cmd index 2 = reset
+	FLEXSPI2_LUT8 = LUT0(CMD_SDR, PINS1, 0x99);
+	// cmd index 3 = read ID bytes
+	FLEXSPI2_LUT12 = LUT0(CMD_SDR, PINS1, 0x9F) | LUT1(DUMMY_SDR, PINS1, 24);
+	FLEXSPI2_LUT13 = LUT0(READ_SDR, PINS1, 1);
+	// cmd index 4 = enter QPI mode
+	FLEXSPI2_LUT16 = LUT0(CMD_SDR, PINS1, 0x35);
+	// cmd index 5 = read QPI
+	FLEXSPI2_LUT20 = LUT0(CMD_SDR, PINS4, 0xEB) | LUT1(ADDR_SDR, PINS4, 24);
+	FLEXSPI2_LUT21 = LUT0(DUMMY_SDR, PINS4, 6) | LUT1(READ_SDR, PINS4, 1);
+	// cmd index 6 = write QPI
+	FLEXSPI2_LUT24 = LUT0(CMD_SDR, PINS4, 0x38) | LUT1(ADDR_SDR, PINS4, 24);
+	FLEXSPI2_LUT25 = LUT0(WRITE_SDR, PINS4, 1);
+
+	// look for the first PSRAM chip
+	flexspi2_command(0, 0); // exit quad mode
+	flexspi2_command(1, 0); // reset enable
+	flexspi2_command(2, 0); // reset (is this really necessary?)
+	if (flexspi2_psram_id(0) == 0x5D0D) {
+		// first PSRAM chip is present, look for a second PSRAM chip
+		flexspi2_command(4, 0);
+		flexspi2_command(0, 0x800000); // exit quad mode
+		flexspi2_command(1, 0x800000); // reset enable
+		flexspi2_command(2, 0x800000); // reset (is this really necessary?)
+		if (flexspi2_psram_id(0x800000) == 0x5D0D) {
+			flexspi2_command(4, 0x800000);
+			// Two PSRAM chips are present, 16 MByte
+			external_psram_size = 16;
+		} else {
+			// One PSRAM chip is present, 8 MByte
+			external_psram_size = 8;
+		}
+		// TODO: zero uninitialized EXTMEM variables
+		// TODO: copy from flash to initialize EXTMEM variables
+		sm_set_pool(&extmem_smalloc_pool, &_extram_end,
+			external_psram_size * 0x100000 -
+			((uint32_t)&_extram_end - (uint32_t)&_extram_start),
+			1, NULL);
+	} else {
+		// No PSRAM
+		memset(&extmem_smalloc_pool, 0, sizeof(extmem_smalloc_pool));
+	}
+}
+
+#endif // ARDUINO_TEENSY41
+
+>>>>>>> Stashed changes
 
 FLASHMEM void usb_pll_start()
 {

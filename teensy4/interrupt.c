@@ -2,14 +2,14 @@
 #include "pins_arduino.h"
 #include "debug/printf.h"
 
-#define DR    0
-#define GDIR  1
-#define PSR   2
-#define ICR1  3
-#define ICR2  4
-#define IMR   5
-#define ISR   6
-#define EDGE  7
+#define DR_INDEX    0
+#define GDIR_INDEX  1
+#define PSR_INDEX   2
+#define ICR1_INDEX  3
+#define ICR2_INDEX  4
+#define IMR_INDEX   5
+#define ISR_INDEX   6
+#define EDGE_INDEX  7
 
 static void dummy_isr() {};
 typedef void (*voidFuncPtr)(void);
@@ -31,9 +31,9 @@ voidFuncPtr isr_table_gpio4[CORE_MAX_PIN_PORT4+1] = { [0 ... CORE_MAX_PIN_PORT4]
 FASTRUN static inline __attribute__((always_inline))
 inline void irq_anyport(volatile uint32_t *gpio, voidFuncPtr *table)
 {
-	uint32_t status = gpio[ISR] & gpio[IMR];
+	uint32_t status = gpio[ISR_INDEX] & gpio[IMR_INDEX];
 	if (status) {
-		gpio[ISR] = status;
+		gpio[ISR_INDEX] = status;
 		while (status) {
 			uint32_t index = __builtin_ctz(status);
 			table[index]();
@@ -100,25 +100,25 @@ void attachInterrupt(uint8_t pin, void (*function)(void), int mode)
 	}
 
 	// TODO: global interrupt disable to protect these read-modify-write accesses?
-	gpio[IMR] &= ~mask;	// disable interrupt
+	gpio[IMR_INDEX] &= ~mask;	// disable interrupt
 	*mux = 5;		// pin is GPIO
-	gpio[GDIR] &= ~mask;	// pin to input mode
+	gpio[GDIR_INDEX] &= ~mask;	// pin to input mode
 	uint32_t index = __builtin_ctz(mask);
 	table[index] = function;
 	if (mode == CHANGE) {
-		gpio[EDGE] |= mask;
+		gpio[EDGE_INDEX] |= mask;
 	} else {
-		gpio[EDGE] &= ~mask;
+		gpio[EDGE_INDEX] &= ~mask;
 		if (index < 15) {
 			uint32_t shift = index * 2;
-			gpio[ICR1] = (gpio[ICR1] & ~(3 << shift)) | (icr << shift);
+			gpio[ICR1_INDEX] = (gpio[ICR1_INDEX] & ~(3 << shift)) | (icr << shift);
 		} else {
 			uint32_t shift = (index - 16) * 2;
-			gpio[ICR2] = (gpio[ICR2] & ~(3 << shift)) | (icr << shift);
+			gpio[ICR2_INDEX] = (gpio[ICR2_INDEX] & ~(3 << shift)) | (icr << shift);
 		}
 	}
-	gpio[ISR] = mask;  // clear any prior pending interrupt
-	gpio[IMR] |= mask; // enable interrupt
+	gpio[ISR_INDEX] = mask;  // clear any prior pending interrupt
+	gpio[IMR_INDEX] |= mask; // enable interrupt
 }
 
 void detachInterrupt(uint8_t pin)
@@ -126,5 +126,5 @@ void detachInterrupt(uint8_t pin)
 	if (pin >= CORE_NUM_DIGITAL) return;
 	volatile uint32_t *gpio = portOutputRegister(pin);
 	uint32_t mask = digitalPinToBitMask(pin);
-	gpio[IMR] &= ~mask;
+	gpio[IMR_INDEX] &= ~mask;
 }

@@ -53,6 +53,10 @@ struct endpoint_struct {
 	uint32_t callback_param;
 };*/
 
+#ifdef EXPERIMENTAL_INTERFACE
+uint8_t experimental_buffer[1152] __attribute__ ((section(".dmabuffers"), aligned(64)));
+#endif
+
 endpoint_t endpoint_queue_head[(NUM_ENDPOINTS+1)*2] __attribute__ ((used, aligned(4096)));
 
 transfer_t endpoint0_transfer_data __attribute__ ((used, aligned(32)));
@@ -421,6 +425,15 @@ static void endpoint0_setup(uint64_t setupdata)
 		#if defined(MIDI_INTERFACE)
 		usb_midi_configure();
 		#endif
+<<<<<<< Updated upstream
+=======
+		#if defined(AUDIO_INTERFACE)
+		usb_audio_configure();
+		#endif
+		#if defined(EXPERIMENTAL_INTERFACE)
+		endpoint_queue_head[2].unused1 = (uint32_t)experimental_buffer;
+		#endif
+>>>>>>> Stashed changes
 		endpoint0_receive(NULL, 0, 0);
 		return;
 	  case 0x0880: // GET_CONFIGURATION
@@ -837,7 +850,7 @@ void usb_receive(int endpoint_number, transfer_t *transfer)
 
 uint32_t usb_transfer_status(const transfer_t *transfer)
 {
-#if 0
+#ifdef USB_MTPDISK
 	uint32_t status, cmd;
 	//int count=0;
 	cmd = USB1_USBCMD;

@@ -49,15 +49,42 @@ long map(T _x, A _in_min, B _in_max, C _out_min, D _out_max, typename std::enabl
 {
 	long x = _x, in_min = _in_min, in_max = _in_max, out_min = _out_min, out_max = _out_max;
 	// Arduino's traditional algorithm
-	//return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+#if 0
+	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+#endif
+#if 0
 	// st42's suggestion: https://github.com/arduino/Arduino/issues/2466#issuecomment-69873889
-	// more conversation:
-	// https://forum.pjrc.com/threads/44503-map()-function-improvements
 	if ((in_max - in_min) > (out_max - out_min)) {
 		return (x - in_min) * (out_max - out_min+1) / (in_max - in_min+1) + out_min;
 	} else {
 		return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 	}
+#endif
+	// first compute the ranges and check if input doesn't matter
+	long in_range = in_max - in_min;
+	long out_range = out_max - out_min;
+	if (in_range == 0) return out_min + out_range / 2;
+	// compute the numerator
+	long num = (x - in_min) * out_range;
+	// before dividing, add extra for proper round off (towards zero)
+	if (out_range >= 0) {
+		num += in_range / 2;
+	} else {
+		num -= in_range / 2;
+	}
+	// divide by input range and add output offset to complete map() compute
+	long result = num / in_range + out_min;
+	// fix "a strange behaviour with negative numbers" (see ArduinoCore-API issue #51)
+	//   this step can be deleted if you don't care about non-linear output
+	//   behavior extrapolating slightly beyond the mapped input & output range
+	if (out_range >= 0) {
+		if (in_range * num < 0) return result - 1;
+	} else {
+		if (in_range * num >= 0) return result + 1;
+	}
+	return result;
+	// more conversation:
+	// https://forum.pjrc.com/threads/44503-map()-function-improvements
 }
 // when the input is a float or double, do all math using the input's type
 template <class T, class A, class B, class C, class D>
@@ -180,6 +207,11 @@ void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, byte val);
 
 void setup(void);
 void loop(void);
+
+void *extmem_malloc(size_t size);
+void extmem_free(void *ptr);
+void *extmem_calloc(size_t nmemb, size_t size);
+void *extmem_realloc(void *ptr, size_t size);
 
 #ifdef __cplusplus
 } // extern "C"
