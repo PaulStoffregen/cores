@@ -60,12 +60,16 @@ class Print
 	size_t print(unsigned int n)			{ return printNumber(n, 0, 10); }
 	size_t print(long n);
 	size_t print(unsigned long n)			{ return printNumber(n, 0, 10); }
+	size_t print(int64_t n);
+	size_t print(uint64_t n)			{ return printNumber64(n, 10, 0); }
 
 	size_t print(unsigned char n, int base)		{ return printNumber(n, 0, base); }
 	size_t print(int n, int base)			{ return (base == 10) ? print(n) : printNumber(n, 0, base); }
 	size_t print(unsigned int n, int base)		{ return printNumber(n, 0, base); }
 	size_t print(long n, int base)			{ return (base == 10) ? print(n) : printNumber(n, 0, base); }
 	size_t print(unsigned long n, int base)		{ return printNumber(n, 0, base); }
+	size_t print(int64_t n, int base)		{ return (base == 10) ? print(n) : printNumber64(n, base, 0); }
+	size_t print(uint64_t n, int base)		{ return printNumber64(n, base, 0); }
 
 	size_t print(double n, int digits = 2)		{ return printFloat(n, digits); }
 	size_t print(const Printable &obj)		{ return obj.printTo(*this); }
@@ -80,12 +84,16 @@ class Print
 	size_t println(unsigned int n)			{ return print(n) + println(); }
 	size_t println(long n)				{ return print(n) + println(); }
 	size_t println(unsigned long n)			{ return print(n) + println(); }
+	size_t println(int64_t n)			{ return print(n) + println(); }
+	size_t println(uint64_t n)			{ return print(n) + println(); }
 
 	size_t println(unsigned char n, int base)	{ return print(n, base) + println(); }
 	size_t println(int n, int base)			{ return print(n, base) + println(); }
 	size_t println(unsigned int n, int base)	{ return print(n, base) + println(); }
 	size_t println(long n, int base)		{ return print(n, base) + println(); }
 	size_t println(unsigned long n, int base)	{ return print(n, base) + println(); }
+	size_t println(int64_t n, int base)		{ return print(n, base) + println(); }
+	size_t println(uint64_t n, int base)		{ return print(n, base) + println(); }
 
 	size_t println(double n, int digits = 2)	{ return print(n, digits) + println(); }
 	size_t println(const Printable &obj)		{ return obj.printTo(*this) + println(); }
@@ -111,6 +119,7 @@ class Print
 		if (base == 2) return printNumberBin(n);
 		return printNumberAny(n, base);
 	}
+	size_t printNumber64(uint64_t n, uint8_t base, uint8_t sign);
 	size_t printFloat(double n, uint8_t digits);
 };
 

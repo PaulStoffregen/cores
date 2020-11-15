@@ -65,7 +65,6 @@ size_t Print::print(const String &s)
 	return count;
 }
 
-
 size_t Print::print(long n)
 {
 	uint8_t sign=0;
@@ -77,6 +76,11 @@ size_t Print::print(long n)
 	return printNumber(n, 10, sign);
 }
 
+size_t Print::print(int64_t n)
+{
+	if (n < 0) return printNumber64(-n, 10, 1);
+	return printNumber64(n, 10, 0);
+}
 
 size_t Print::println(void)
 {
@@ -130,6 +134,32 @@ size_t Print::printNumber(unsigned long n, uint8_t base, uint8_t sign)
 	}
 
 
+	if (n == 0) {
+		buf[sizeof(buf) - 1] = '0';
+		i = sizeof(buf) - 1;
+	} else {
+		i = sizeof(buf) - 1;
+		while (1) {
+			digit = n % base;
+			buf[i] = ((digit < 10) ? '0' + digit : 'A' + digit - 10);
+			n /= base;
+			if (n == 0) break;
+			i--;
+		}
+	}
+	if (sign) {
+		i--;
+		buf[i] = '-';
+	}
+	return write(buf + i, sizeof(buf) - i);
+}
+
+size_t Print::printNumber64(uint64_t n, uint8_t base, uint8_t sign)
+{
+	uint8_t buf[66];
+	uint8_t digit, i;
+
+	if (base < 2) return 0;
 	if (n == 0) {
 		buf[sizeof(buf) - 1] = '0';
 		i = sizeof(buf) - 1;
