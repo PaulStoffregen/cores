@@ -101,13 +101,13 @@ public:
 	virtual void flush() {
 		if (f) f->flush();
 	}
-	virtual bool seek(uint32_t pos, int mode) {
+	virtual bool seek(uint64_t pos, int mode) {
 		return (f) ? f->seek(pos, mode) : false;
 	}
-	virtual uint32_t position() {
+	virtual uint64_t position() {
 		return (f) ? f->position() : 0;
 	}
-	virtual uint32_t size() {
+	virtual uint64_t size() {
 		return (f) ? f->size() : 0;
 	}
 	virtual void close() {
@@ -128,7 +128,7 @@ public:
 	virtual void rewindDirectory(void) {
 		if (f) f->rewindDirectory();
 	}
-	bool seek(uint32_t pos) {
+	bool seek(uint64_t pos) {
 		return seek(pos, SeekSet);
 	}
 	int read() {
