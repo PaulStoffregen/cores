@@ -165,6 +165,7 @@ class FS
 public:
 	FS() {}
 	virtual File open(const char *filename, uint8_t mode = FILE_READ);
+	virtual File open(const char *filename, oflag_t flags = O_READ);
 	virtual bool exists(const char *filepath);
 	virtual bool mkdir(const char *filepath);
 	virtual bool rename(const char *oldfilepath, const char *newfilepath);
