@@ -101,6 +101,9 @@ public:
 	virtual void flush() {
 		if (f) f->flush();
 	}
+	virtual bool truncate(uint64_t size=0) {
+		return (f) ? f->truncate(size) : false;
+	}
 	virtual bool seek(uint64_t pos, int mode) {
 		return (f) ? f->seek(pos, mode) : false;
 	}
