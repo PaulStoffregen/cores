@@ -36,6 +36,7 @@
 
 #define FILE_READ  0
 #define FILE_WRITE 1
+#define FILE_WRITE_BEGIN 2
 
 enum SeekMode {
 	SeekSet = 0,
