@@ -27,8 +27,6 @@
 
 typedef struct endpoint_struct endpoint_t;
 
-#if defined(NUM_ENDPOINTS)
-
 struct endpoint_struct {
 	uint32_t config;
 	uint32_t current;
