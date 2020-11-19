@@ -25,6 +25,8 @@
 
 typedef struct endpoint_struct endpoint_t;
 
+#if defined(NUM_ENDPOINTS)
+
 struct endpoint_struct {
 	uint32_t config;
 	uint32_t current;
@@ -1019,4 +1021,10 @@ uint32_t usb_transfer_status(const transfer_t *transfer)
 #endif
 }
 
+#else // defined(NUM_ENDPOINTS)
 
+void usb_init(void)
+{
+}
+
+#endif // defined(NUM_ENDPOINTS)
