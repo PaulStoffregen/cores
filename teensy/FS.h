@@ -168,14 +168,14 @@ class FS
 {
 public:
 	FS() {}
-	virtual File open(const char *filename, uint8_t mode = FILE_READ);
-	virtual bool exists(const char *filepath);
-	virtual bool mkdir(const char *filepath);
-	virtual bool rename(const char *oldfilepath, const char *newfilepath);
-	virtual bool remove(const char *filepath);
-	virtual bool rmdir(const char *filepath);
-	virtual uint64_t usedSize();
-	virtual uint64_t totalSize();
+	virtual File open(const char *filename, uint8_t mode = FILE_READ) = 0;
+	virtual bool exists(const char *filepath) = 0;
+	virtual bool mkdir(const char *filepath) = 0;
+	virtual bool rename(const char *oldfilepath, const char *newfilepath) = 0;
+	virtual bool remove(const char *filepath) = 0;
+	virtual bool rmdir(const char *filepath) = 0;
+	virtual uint64_t usedSize() = 0;
+	virtual uint64_t totalSize() = 0;
 };
 
 
