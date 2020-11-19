@@ -23,6 +23,8 @@
 
 // device mode, page 3155
 
+#if defined(NUM_ENDPOINTS)
+
 typedef struct endpoint_struct endpoint_t;
 
 struct endpoint_struct {
@@ -1019,4 +1021,10 @@ uint32_t usb_transfer_status(const transfer_t *transfer)
 #endif
 }
 
+#else // defined(NUM_ENDPOINTS)
 
+void usb_init(void)
+{
+}
+
+#endif // defined(NUM_ENDPOINTS)
