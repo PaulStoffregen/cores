@@ -45,6 +45,14 @@
 #include "usb_mem.h"
 #include <string.h> // for memset
 
+// This code has a known bug with compiled with -O2 optimization on gcc 5.4.1
+// https://forum.pjrc.com/threads/53574-Teensyduino-1-43-Beta-2?p=186177&viewfull=1#post186177
+#if defined(__MKL26Z64__)
+#pragma GCC optimize ("Os")
+#else
+#pragma GCC optimize ("O3")
+#endif
+
 // buffer descriptor table
 
 typedef struct {
@@ -345,12 +353,30 @@ static void usb_setup(void)
 		//serial_print("desc: not found\n");
 		endpoint0_stall();
 		return;
-#if defined(CDC_STATUS_INTERFACE)
 	  case 0x2221: // CDC_SET_CONTROL_LINE_STATE
-		usb_cdc_line_rtsdtr_millis = systick_millis_count;
-		usb_cdc_line_rtsdtr = setup.wValue;
+		switch (setup.wIndex) {
+#ifdef CDC_STATUS_INTERFACE
+		  case CDC_STATUS_INTERFACE:
+			usb_cdc_line_rtsdtr_millis = systick_millis_count;
+			usb_cdc_line_rtsdtr = setup.wValue;
+			break;
+#endif
+#ifdef CDC2_STATUS_INTERFACE
+		  case CDC2_STATUS_INTERFACE:
+			usb_cdc2_line_rtsdtr_millis = systick_millis_count;
+			usb_cdc2_line_rtsdtr = setup.wValue;
+			break;
+#endif
+#ifdef CDC3_STATUS_INTERFACE
+		  case CDC3_STATUS_INTERFACE:
+			usb_cdc3_line_rtsdtr_millis = systick_millis_count;
+			usb_cdc3_line_rtsdtr = setup.wValue;
+			break;
+#endif
+		}
 		//serial_print("set control line state\n");
 		break;
+#ifdef CDC_STATUS_INTERFACE
 	  case 0x2321: // CDC_SEND_BREAK
 		break;
 	  case 0x2021: // CDC_SET_LINE_CODING
@@ -586,21 +612,39 @@ static void usb_control(uint32_t stat)
 	case 0x01:  // OUT transaction received from host
 	case 0x02:
 		//serial_print("PID=OUT\n");
-#ifdef CDC_STATUS_INTERFACE
 		if (setup.wRequestAndType == 0x2021 /*CDC_SET_LINE_CODING*/) {
 			int i;
-			uint8_t *dst = (uint8_t *)usb_cdc_line_coding;
-			//serial_print("set line coding ");
-			for (i=0; i<7; i++) {
-				//serial_phex(*buf);
-				*dst++ = *buf++;
+			uint32_t *line_coding = NULL;
+			switch (setup.wIndex) {
+#ifdef CDC_STATUS_INTERFACE
+			  case CDC_STATUS_INTERFACE:
+				line_coding = usb_cdc_line_coding;
+				break;
+#endif
+#ifdef CDC2_STATUS_INTERFACE
+			  case CDC2_STATUS_INTERFACE:
+				line_coding = usb_cdc2_line_coding;
+				break;
+#endif
+#ifdef CDC3_STATUS_INTERFACE
+			  case CDC3_STATUS_INTERFACE:
+				line_coding = usb_cdc3_line_coding;
+				break;
+#endif
 			}
-			//serial_phex32(usb_cdc_line_coding[0]);
-			//serial_print("\n");
-			if (usb_cdc_line_coding[0] == 134) usb_reboot_timer = 15;
+			if (line_coding) {
+				uint8_t *dst = (uint8_t *)line_coding;
+				//serial_print("set line coding ");
+				for (i=0; i<7; i++) {
+					//serial_phex(*buf);
+					*dst++ = *buf++;
+				}
+				//serial_phex32(line_coding[0]);
+				//serial_print("\n");
+				if (line_coding[0] == 134) usb_reboot_timer = 15;
+			}
 			endpoint0_transmit(NULL, 0);
 		}
-#endif
 #ifdef KEYBOARD_INTERFACE
 		if (setup.word1 == 0x02000921 && setup.word2 == ((1<<16)|KEYBOARD_INTERFACE)) {
 			keyboard_leds = buf[0];
@@ -711,6 +755,9 @@ uint32_t usb_tx_byte_count(uint32_t endpoint)
 	return usb_queue_byte_count(tx_first[endpoint]);
 }
 
+// Discussion about using this function and USB transmit latency
+// https://forum.pjrc.com/threads/58663?p=223513&viewfull=1#post223513
+//
 uint32_t usb_tx_packet_count(uint32_t endpoint)
 {
 	const usb_packet_t *p;
@@ -848,6 +895,7 @@ void _reboot_Teensyduino_(void)
 {
 	// TODO: initialize R0 with a code....
 	__asm__ volatile("bkpt");
+	__builtin_unreachable();
 }
 
 
@@ -875,6 +923,20 @@ void usb_isr(void)
 			if (t) {
 				usb_cdc_transmit_flush_timer = --t;
 				if (t == 0) usb_serial_flush_callback();
+			}
+#endif
+#ifdef CDC2_DATA_INTERFACE
+			t = usb_cdc2_transmit_flush_timer;
+			if (t) {
+				usb_cdc2_transmit_flush_timer = --t;
+				if (t == 0) usb_serial2_flush_callback();
+			}
+#endif
+#ifdef CDC3_DATA_INTERFACE
+			t = usb_cdc3_transmit_flush_timer;
+			if (t) {
+				usb_cdc3_transmit_flush_timer = --t;
+				if (t == 0) usb_serial3_flush_callback();
 			}
 #endif
 #ifdef SEREMU_INTERFACE
@@ -1107,7 +1169,7 @@ void usb_init(void)
 
 	usb_init_serialnumber();
 
-	for (i=0; i <= NUM_ENDPOINTS*4; i++) {
+	for (i=0; i < (NUM_ENDPOINTS+1)*4; i++) {
 		table[i].desc = 0;
 		table[i].addr = 0;
 	}
@@ -1121,7 +1183,7 @@ void usb_init(void)
 #ifdef HAS_KINETIS_MPU
 	MPU_RGDAAC0 |= 0x03000000;
 #endif
-#if F_CPU == 180000000 || F_CPU == 216000000
+#if F_CPU == 180000000 || F_CPU == 216000000 || F_CPU == 256000000
 	// if using IRC48M, turn on the USB clock recovery hardware
 	USB0_CLK_RECOVER_IRC_EN = USB_CLK_RECOVER_IRC_EN_IRC_EN | USB_CLK_RECOVER_IRC_EN_REG_EN;
 	USB0_CLK_RECOVER_CTRL = USB_CLK_RECOVER_CTRL_CLOCK_RECOVER_EN |

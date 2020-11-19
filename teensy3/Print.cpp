@@ -34,15 +34,12 @@
 // developed for Teensyduino have made their way back into
 // Arduino's code base.  :-)
 
-#include <inttypes.h>
-#include <math.h>
-
-#include "Print.h"
-
+#include <Arduino.h>
 
 
 size_t Print::write(const uint8_t *buffer, size_t size)
 {
+	if (buffer == nullptr) return 0;
 	size_t count = 0;
 	while (size--) count += write(*buffer++);
 	return count;
@@ -289,6 +286,38 @@ size_t Print::printNumber(unsigned long n, uint8_t base, uint8_t sign)
 }
 
 #endif
+
+size_t Print::print(int64_t n)
+{
+	if (n < 0) return printNumber64(-n, 10, 1);
+	return printNumber64(n, 10, 0);
+}
+
+size_t Print::printNumber64(uint64_t n, uint8_t base, uint8_t sign)
+{
+	uint8_t buf[66];
+	uint8_t digit, i;
+
+	if (base < 2) return 0;
+	if (n == 0) {
+		buf[sizeof(buf) - 1] = '0';
+		i = sizeof(buf) - 1;
+	} else {
+		i = sizeof(buf) - 1;
+		while (1) {
+			digit = n % base;
+			buf[i] = ((digit < 10) ? '0' + digit : 'A' + digit - 10);
+			n /= base;
+			if (n == 0) break;
+			i--;
+		}
+	}
+	if (sign) {
+		i--;
+		buf[i] = '-';
+	}
+	return write(buf + i, sizeof(buf) - i);
+}
 
 size_t Print::printFloat(double number, uint8_t digits) 
 {

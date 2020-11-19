@@ -76,8 +76,9 @@ static uint8_t tx_noautoflush=0;
 
 // When the PC isn't listening, how long do we wait before discarding data?
 #define TX_TIMEOUT_MSEC 40
-
-#if F_CPU == 240000000
+#if F_CPU == 256000000
+  #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1706)
+#elif F_CPU == 240000000
   #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1600)
 #elif F_CPU == 216000000
   #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 1440)
@@ -102,6 +103,13 @@ static uint8_t tx_noautoflush=0;
 #endif
 
 
+// This 32 bit input format is documented in the "Universal Serial Bus Device Class
+// Definition for MIDI Devices" specification, version 1.0, Nov 1, 1999.  It can be
+// downloaded from www.usb.org.  https://www.usb.org/sites/default/files/midi10.pdf
+// If the USB-IF reorganizes their website and this link no longer works, Google
+// search the name to find it.  This data format is shown on page 16 in Figure #8.
+// Byte 0 (shown on the left hand side of Figure #8) is the least significant byte
+// of this 32 bit input.
 void usb_midi_write_packed(uint32_t n)
 {
 	uint32_t index, wait_count=0;
@@ -133,7 +141,7 @@ void usb_midi_write_packed(uint32_t n)
 	} else {
 		tx_packet->len = MIDI_TX_SIZE;
 		usb_tx(MIDI_TX_ENDPOINT, tx_packet);
-		tx_packet = usb_malloc();
+		tx_packet = NULL;
 	}
 	tx_noautoflush = 0;
 }
@@ -189,7 +197,7 @@ void usb_midi_flush_output(void)
 	if (tx_noautoflush == 0 && tx_packet && tx_packet->index > 0) {
 		tx_packet->len = tx_packet->index * 4;
 		usb_tx(MIDI_TX_ENDPOINT, tx_packet);
-		tx_packet = usb_malloc();
+		tx_packet = NULL;
 	}
 }
 

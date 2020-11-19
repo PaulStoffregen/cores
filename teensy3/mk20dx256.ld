@@ -34,6 +34,7 @@ MEMORY
 	RAM  (rwx) : ORIGIN = 0x1FFF8000, LENGTH = 64K
 }
 
+ENTRY(_VectorsFlash)
 
 SECTIONS
 {
@@ -107,6 +108,7 @@ SECTIONS
 	} > RAM
 
 	_estack = ORIGIN(RAM) + LENGTH(RAM);
+	_teensy_model_identifier = 0x21;
 }
 
 

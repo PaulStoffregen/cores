@@ -8,6 +8,7 @@ nullptr	LITERAL1
 noexcept	LITERAL1
 static_assert	LITERAL1
 thread_local	LITERAL1
+size_t	LITERAL1
 
 # teensy specific functions
 elapsedMillis	LITERAL1
@@ -26,18 +27,28 @@ IntervalTimer	KEYWORD2
 printf	KEYWORD2
 digitalWriteFast	KEYWORD2
 digitalReadFast	KEYWORD2
+digitalToggleFast	KEYWORD2
+digitalToggle	KEYWORD2
 transmitterEnable	KEYWORD2
 attachRts	KEYWORD2
 attachCts	KEYWORD2
 PROGMEM	LITERAL1
+FLASHMEM	LITERAL1
 DMAMEM	LITERAL1
+EXTMEM	LITERAL1
 FASTRUN	LITERAL1
 Serial4	KEYWORD1
 Serial5	KEYWORD1
 Serial6	KEYWORD1
+Serial7	KEYWORD1
+Serial8	KEYWORD1
+SerialUSB1	KEYWORD1
+SerialUSB2	KEYWORD1
 setRX	KEYWORD2
 setTX	KEYWORD2
 write9bit	KEYWORD2
+addMemoryForRead	KEYWORD2
+addMemoryForWrite	KEYWORD2
 clear	KEYWORD2
 EventResponder	LITERAL1
 EventResponderRef	LITERAL1
@@ -51,9 +62,15 @@ getContext	KEYWORD2
 waitForEvent	KEYWORD2
 MillisTimer	LITERAL1
 beginRepeating	KEYWORD2
+delayNanoseconds	KEYWORD2
+extmem_malloc	KEYWORD2
+extmem_free	KEYWORD2
+extmem_calloc	KEYWORD2
+extmem_realloc	KEYWORD2
+strcasecmp	KEYWORD2
 
-# removed by Arduino 1.0, but still in Teensyduino
-BYTE	LITERAL1
+# removed by Arduino 1.0, now also removed from Teensyduino
+#BYTE	LITERAL1
 
 # Arduino constants
 A0	LITERAL1
@@ -95,6 +112,9 @@ analogInputToDigitalPin	KEYWORD2
 digitalPinHasPWM	KEYWORD2
 NOT_AN_INTERRUPT	LITERAL1
 digitalPinToInterrupt	KEYWORD2
+FILE_READ	LITERAL1
+FILE_WRITE	LITERAL1
+FILE_WRITE_BEGIN	LITERAL1
 
 # HardwareSerial modes
 SERIAL_7E1	LITERAL1
@@ -503,6 +523,8 @@ FlightSimCommand	KEYWORD2
 FlightSimInteger	KEYWORD2
 FlightSimFloat	KEYWORD2
 FlightSimElapsedFrames	KEYWORD2
+FlightSimData	KEYWORD2
+FlightSimEvent	KEYWORD2
 onChange	KEYWORD2
 update	KEYWORD2
 isEnabled	KEYWORD2

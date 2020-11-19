@@ -31,6 +31,7 @@
  *     https://forum.pjrc.com/threads/44723-Arduino-Events
  */
 
+#include <Arduino.h>
 #include "EventResponder.h"
 
 EventResponder * EventResponder::firstYield = nullptr;
@@ -40,6 +41,10 @@ EventResponder * EventResponder::lastInterrupt = nullptr;
 bool EventResponder::runningFromYield = false;
 
 // TODO: interrupt disable/enable needed in many places!!!
+// BUGBUG: See if file name order makes difference?
+uint8_t _serialEvent_default __attribute__((weak)) PROGMEM = 0 ;	
+uint8_t _serialEventUSB1_default __attribute__((weak)) PROGMEM = 0 ;	
+uint8_t _serialEventUSB2_default __attribute__((weak)) PROGMEM = 0 ;	
 
 void EventResponder::triggerEventNotImmediate()
 {
@@ -334,10 +339,17 @@ void MillisTimer::runFromTimer()
 // with libraries using mid-to-high priority interrupts.
 
 extern "C" volatile uint32_t systick_millis_count;
+
 void systick_isr(void)
+{
+	systick_millis_count++;
+}
+
+extern "C" void systick_isr_with_timer_events(void)
 {
 	systick_millis_count++;
 	MillisTimer::runFromTimer();
 }
+
 
 

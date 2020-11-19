@@ -1,4 +1,4 @@
-Teensy 2.0, 3.x, LC core libraries for Arduino.
+Teensy 2.0, LC, 3.x, 4.x core libraries for Arduino.
 
 The latest stable version of Teensy's core library is always available in the Teensyduino installer, at this page:
 

@@ -1935,6 +1935,253 @@ static inline void pinMode(uint8_t pin, uint8_t mode)
 	}
 }
 
+static inline void digitalToggle(uint8_t) __attribute__((always_inline, unused));
+static inline void digitalToggle(uint8_t pin)
+{
+	if (__builtin_constant_p(pin)) {
+		if (pin == 0) {
+			CORE_PIN0_PINREG = CORE_PIN0_BITMASK;
+		} else if (pin == 1) {
+			CORE_PIN1_PINREG = CORE_PIN1_BITMASK;
+		} else if (pin == 2) {
+			CORE_PIN2_PINREG = CORE_PIN2_BITMASK;
+		} else if (pin == 3) {
+			CORE_PIN3_PINREG = CORE_PIN3_BITMASK;
+		} else if (pin == 4) {
+			CORE_PIN4_PINREG = CORE_PIN4_BITMASK;
+		} else if (pin == 5) {
+			CORE_PIN5_PINREG = CORE_PIN5_BITMASK;
+		} else if (pin == 6) {
+			CORE_PIN6_PINREG = CORE_PIN6_BITMASK;
+		} else if (pin == 7) {
+			CORE_PIN7_PINREG = CORE_PIN7_BITMASK;
+		} else if (pin == 8) {
+			CORE_PIN8_PINREG = CORE_PIN8_BITMASK;
+		} else if (pin == 9) {
+			CORE_PIN9_PINREG = CORE_PIN9_BITMASK;
+		} else if (pin == 10) {
+			CORE_PIN10_PINREG = CORE_PIN10_BITMASK;
+		} else if (pin == 11) {
+			CORE_PIN11_PINREG = CORE_PIN11_BITMASK;
+		} else if (pin == 12) {
+			CORE_PIN12_PINREG = CORE_PIN12_BITMASK;
+		} else if (pin == 13) {
+			CORE_PIN13_PINREG = CORE_PIN13_BITMASK;
+		} else if (pin == 14) {
+			CORE_PIN14_PINREG = CORE_PIN14_BITMASK;
+		} else if (pin == 15) {
+			CORE_PIN15_PINREG = CORE_PIN15_BITMASK;
+		} else if (pin == 16) {
+			CORE_PIN16_PINREG = CORE_PIN16_BITMASK;
+		} else if (pin == 17) {
+			CORE_PIN17_PINREG = CORE_PIN17_BITMASK;
+		} else if (pin == 18) {
+			CORE_PIN18_PINREG = CORE_PIN18_BITMASK;
+		} else if (pin == 19) {
+			CORE_PIN19_PINREG = CORE_PIN19_BITMASK;
+		} else if (pin == 20) {
+			CORE_PIN20_PINREG = CORE_PIN20_BITMASK;
+		}
+		#if CORE_NUM_TOTAL_PINS > 21
+		  else if (pin == 21) {
+			CORE_PIN21_PINREG = CORE_PIN21_BITMASK;
+		} else if (pin == 22) {
+			CORE_PIN22_PINREG = CORE_PIN22_BITMASK;
+		} else if (pin == 23) {
+			CORE_PIN23_PINREG = CORE_PIN23_BITMASK;
+		} else if (pin == 24) {
+			CORE_PIN24_PINREG = CORE_PIN24_BITMASK;
+		}
+		#endif
+		#if CORE_NUM_TOTAL_PINS > 25
+		  else if (pin == 25) {
+			CORE_PIN25_PINREG = CORE_PIN25_BITMASK;
+		} else if (pin == 26) {
+			CORE_PIN26_PINREG = CORE_PIN26_BITMASK;
+		} else if (pin == 27) {
+			CORE_PIN27_PINREG = CORE_PIN27_BITMASK;
+		} else if (pin == 28) {
+			CORE_PIN28_PINREG = CORE_PIN28_BITMASK;
+		} else if (pin == 29) {
+			CORE_PIN29_PINREG = CORE_PIN29_BITMASK;
+		} else if (pin == 30) {
+			CORE_PIN30_PINREG = CORE_PIN30_BITMASK;
+		} else if (pin == 31) {
+			CORE_PIN31_PINREG = CORE_PIN31_BITMASK;
+		} else if (pin == 32) {
+			CORE_PIN32_PINREG = CORE_PIN32_BITMASK;
+		} else if (pin == 33) {
+			CORE_PIN33_PINREG = CORE_PIN33_BITMASK;
+		} else if (pin == 34) {
+			CORE_PIN34_PINREG = CORE_PIN34_BITMASK;
+		} else if (pin == 35) {
+			CORE_PIN35_PINREG = CORE_PIN35_BITMASK;
+		} else if (pin == 36) {
+			CORE_PIN36_PINREG = CORE_PIN36_BITMASK;
+		} else if (pin == 37) {
+			CORE_PIN37_PINREG = CORE_PIN37_BITMASK;
+		} else if (pin == 38) {
+			CORE_PIN38_PINREG = CORE_PIN38_BITMASK;
+		} else if (pin == 39) {
+			CORE_PIN39_PINREG = CORE_PIN39_BITMASK;
+		} else if (pin == 40) {
+			CORE_PIN40_PINREG = CORE_PIN40_BITMASK;
+		} else if (pin == 41) {
+			CORE_PIN41_PINREG = CORE_PIN41_BITMASK;
+		} else if (pin == 42) {
+			CORE_PIN42_PINREG = CORE_PIN42_BITMASK;
+		} else if (pin == 43) {
+			CORE_PIN43_PINREG = CORE_PIN43_BITMASK;
+		} else if (pin == 44) {
+			CORE_PIN44_PINREG = CORE_PIN44_BITMASK;
+		} else if (pin == 45) {
+			CORE_PIN45_PINREG = CORE_PIN45_BITMASK;
+		}
+		#endif
+		if (pin == CORE_OC0B_PIN) {
+			_SFR_BYTE(TCCR0A) &= ~(1<<COM0B1);
+		} else if (pin == CORE_OC1A_PIN) {
+			TCCR1A &= ~(1<<COM1A1);
+		} else if (pin == CORE_OC1B_PIN) {
+			TCCR1A &= ~(1<<COM1B1);
+		} else if (pin == CORE_OC1C_PIN) {
+			TCCR1A &= ~(1<<COM1C1);
+		}
+		#if defined(__AVR_ATmega32U4__)
+		  else if (pin == CORE_OC3A_PIN) {
+			TCCR3A &= ~(1<<COM3A1);
+		} else if (pin == CORE_OC4A_PIN) {
+			TCCR4A &= ~(1<<COM4A1);
+		} else if (pin == CORE_OC4D_PIN) {
+			TCCR4C &= ~(1<<COM4D1);
+		}
+		#endif
+		#if defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB1286__)
+		  else if (pin == CORE_OC2A_PIN) {
+			TCCR2A &= ~(1<<COM2A1);
+		} else if (pin == CORE_OC2B_PIN) {
+			TCCR2A &= ~(1<<COM2B1);
+		} else if (pin == CORE_OC3A_PIN) {
+			TCCR3A &= ~(1<<COM3A1);
+		} else if (pin == CORE_OC3B_PIN) {
+			TCCR3A &= ~(1<<COM3B1);
+		} else if (pin == CORE_OC3C_PIN) {
+			TCCR3A &= ~(1<<COM3C1);
+		}
+		#endif
+	} else {
+		digitalWrite(pin, !(digitalRead(pin)));
+	}
+}
+
+static inline void digitalToggleFast(uint8_t) __attribute__((always_inline, unused));
+static inline void digitalToggleFast(uint8_t pin)
+{
+	if (__builtin_constant_p(pin)) {
+		if (pin == 0) {
+			CORE_PIN0_PINREG = CORE_PIN0_BITMASK;
+		} else if (pin == 1) {
+			CORE_PIN1_PINREG = CORE_PIN1_BITMASK;
+		} else if (pin == 2) {
+			CORE_PIN2_PINREG = CORE_PIN2_BITMASK;
+		} else if (pin == 3) {
+			CORE_PIN3_PINREG = CORE_PIN3_BITMASK;
+		} else if (pin == 4) {
+			CORE_PIN4_PINREG = CORE_PIN4_BITMASK;
+		} else if (pin == 5) {
+			CORE_PIN5_PINREG = CORE_PIN5_BITMASK;
+		} else if (pin == 6) {
+			CORE_PIN6_PINREG = CORE_PIN6_BITMASK;
+		} else if (pin == 7) {
+			CORE_PIN7_PINREG = CORE_PIN7_BITMASK;
+		} else if (pin == 8) {
+			CORE_PIN8_PINREG = CORE_PIN8_BITMASK;
+		} else if (pin == 9) {
+			CORE_PIN9_PINREG = CORE_PIN9_BITMASK;
+		} else if (pin == 10) {
+			CORE_PIN10_PINREG = CORE_PIN10_BITMASK;
+		} else if (pin == 11) {
+			CORE_PIN11_PINREG = CORE_PIN11_BITMASK;
+		} else if (pin == 12) {
+			CORE_PIN12_PINREG = CORE_PIN12_BITMASK;
+		} else if (pin == 13) {
+			CORE_PIN13_PINREG = CORE_PIN13_BITMASK;
+		} else if (pin == 14) {
+			CORE_PIN14_PINREG = CORE_PIN14_BITMASK;
+		} else if (pin == 15) {
+			CORE_PIN15_PINREG = CORE_PIN15_BITMASK;
+		} else if (pin == 16) {
+			CORE_PIN16_PINREG = CORE_PIN16_BITMASK;
+		} else if (pin == 17) {
+			CORE_PIN17_PINREG = CORE_PIN17_BITMASK;
+		} else if (pin == 18) {
+			CORE_PIN18_PINREG = CORE_PIN18_BITMASK;
+		} else if (pin == 19) {
+			CORE_PIN19_PINREG = CORE_PIN19_BITMASK;
+		} else if (pin == 20) {
+			CORE_PIN20_PINREG = CORE_PIN20_BITMASK;
+		}
+		#if CORE_NUM_TOTAL_PINS > 21
+		  else if (pin == 21) {
+			CORE_PIN21_PINREG = CORE_PIN21_BITMASK;
+		} else if (pin == 22) {
+			CORE_PIN22_PINREG = CORE_PIN22_BITMASK;
+		} else if (pin == 23) {
+			CORE_PIN23_PINREG = CORE_PIN23_BITMASK;
+		} else if (pin == 24) {
+			CORE_PIN24_PINREG = CORE_PIN24_BITMASK;
+		}
+		#endif
+		#if CORE_NUM_TOTAL_PINS > 25
+		  else if (pin == 25) {
+			CORE_PIN25_PINREG = CORE_PIN25_BITMASK;
+		} else if (pin == 26) {
+			CORE_PIN26_PINREG = CORE_PIN26_BITMASK;
+		} else if (pin == 27) {
+			CORE_PIN27_PINREG = CORE_PIN27_BITMASK;
+		} else if (pin == 28) {
+			CORE_PIN28_PINREG = CORE_PIN28_BITMASK;
+		} else if (pin == 29) {
+			CORE_PIN29_PINREG = CORE_PIN29_BITMASK;
+		} else if (pin == 30) {
+			CORE_PIN30_PINREG = CORE_PIN30_BITMASK;
+		} else if (pin == 31) {
+			CORE_PIN31_PINREG = CORE_PIN31_BITMASK;
+		} else if (pin == 32) {
+			CORE_PIN32_PINREG = CORE_PIN32_BITMASK;
+		} else if (pin == 33) {
+			CORE_PIN33_PINREG = CORE_PIN33_BITMASK;
+		} else if (pin == 34) {
+			CORE_PIN34_PINREG = CORE_PIN34_BITMASK;
+		} else if (pin == 35) {
+			CORE_PIN35_PINREG = CORE_PIN35_BITMASK;
+		} else if (pin == 36) {
+			CORE_PIN36_PINREG = CORE_PIN36_BITMASK;
+		} else if (pin == 37) {
+			CORE_PIN37_PINREG = CORE_PIN37_BITMASK;
+		} else if (pin == 38) {
+			CORE_PIN38_PINREG = CORE_PIN38_BITMASK;
+		} else if (pin == 39) {
+			CORE_PIN39_PINREG = CORE_PIN39_BITMASK;
+		} else if (pin == 40) {
+			CORE_PIN40_PINREG = CORE_PIN40_BITMASK;
+		} else if (pin == 41) {
+			CORE_PIN41_PINREG = CORE_PIN41_BITMASK;
+		} else if (pin == 42) {
+			CORE_PIN42_PINREG = CORE_PIN42_BITMASK;
+		} else if (pin == 43) {
+			CORE_PIN43_PINREG = CORE_PIN43_BITMASK;
+		} else if (pin == 44) {
+			CORE_PIN44_PINREG = CORE_PIN44_BITMASK;
+		} else if (pin == 45) {
+			CORE_PIN45_PINREG = CORE_PIN45_BITMASK;
+		}
+		#endif
+	} else {
+		digitalWrite(pin, !(digitalRead(pin)));
+	}
+}
+
 extern void _init_Teensyduino_internal_(void);
 extern int analogRead(uint8_t);
 
@@ -2195,6 +2442,94 @@ static inline void delayMicroseconds(uint16_t usec)
 			: "0" (usec)
 		);
 	}
+}
+
+
+static inline void delayNanoseconds(uint16_t) __attribute__((always_inline, unused));
+static inline void delayNanoseconds(uint16_t nsec)
+{
+	if (__builtin_constant_p(nsec)) {
+		// use NOPs for the common usage of a constexpr input and short delay
+		if (nsec == 0) return;
+		if (nsec <= 1000 / (F_CPU / 1000000)) {
+			__asm__ volatile("nop");
+			return;
+		}
+		if (nsec <= 2000 / (F_CPU / 1000000)) {
+			__asm__ volatile("nop\n nop");
+			return;
+		}
+		if (nsec <= 3000 / (F_CPU / 1000000)) {
+			__asm__ volatile("nop\n nop\n nop");
+			return;
+		}
+		if (nsec <= 4000 / (F_CPU / 1000000)) {
+			__asm__ volatile("nop\n nop\n nop\n nop");
+			return;
+		}
+		if (nsec <= 5000 / (F_CPU / 1000000)) {
+			__asm__ volatile("nop\n nop\n nop\n nop\n nop");
+			return;
+		}
+		if (nsec <= 6000 / (F_CPU / 1000000)) {
+			__asm__ volatile("nop\n nop\n nop\n nop\n nop");
+			__asm__ volatile("nop");
+			return;
+		}
+		if (nsec <= 7000 / (F_CPU / 1000000)) {
+			__asm__ volatile("nop\n nop\n nop\n nop\n nop");
+			__asm__ volatile("nop\n nop");
+			return;
+		}
+		if (nsec <= 8000 / (F_CPU / 1000000)) {
+			__asm__ volatile("nop\n nop\n nop\n nop\n nop");
+			__asm__ volatile("nop\n nop\n nop");
+			return;
+		}
+		if (nsec <= 9000 / (F_CPU / 1000000)) {
+			__asm__ volatile("nop\n nop\n nop\n nop\n nop");
+			__asm__ volatile("nop\n nop\n nop\n nop");
+			return;
+		}
+		if (nsec <= 10000 / (F_CPU / 1000000)) {
+			__asm__ volatile("nop\n nop\n nop\n nop\n nop");
+			__asm__ volatile("nop\n nop\n nop\n nop\n nop");
+			return;
+		}
+		if (nsec <= 11000 / (F_CPU / 1000000)) {
+			__asm__ volatile("nop\n nop\n nop\n nop\n nop");
+			__asm__ volatile("nop\n nop\n nop\n nop\n nop");
+			__asm__ volatile("nop");
+			return;
+		}
+		if (nsec <= 12000 / (F_CPU / 1000000)) {
+			__asm__ volatile("nop\n nop\n nop\n nop\n nop");
+			__asm__ volatile("nop\n nop\n nop\n nop\n nop");
+			__asm__ volatile("nop\n nop");
+			return;
+		}
+		if (nsec <= 13000 / (F_CPU / 1000000)) {
+			__asm__ volatile("nop\n nop\n nop\n nop\n nop");
+			__asm__ volatile("nop\n nop\n nop\n nop\n nop");
+			__asm__ volatile("nop\n nop\n nop");
+			return;
+		}
+		if (nsec <= 14000 / (F_CPU / 1000000)) {
+			__asm__ volatile("nop\n nop\n nop\n nop\n nop");
+			__asm__ volatile("nop\n nop\n nop\n nop\n nop");
+			__asm__ volatile("nop\n nop\n nop\n nop");
+			return;
+		}
+		if (nsec <= 15000 / (F_CPU / 1000000)) {
+			__asm__ volatile("nop\n nop\n nop\n nop\n nop");
+			__asm__ volatile("nop\n nop\n nop\n nop\n nop");
+			__asm__ volatile("nop\n nop\n nop\n nop\n nop");
+			return;
+		}
+	}
+	// if we can't use NOPs, just round up to the nearest microsecond...
+	// not ideal, but AVR is too slow to do anything more complex
+	delayMicroseconds((nsec >> 10) + 1);
 }
 
 

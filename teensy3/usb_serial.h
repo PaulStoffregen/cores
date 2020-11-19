@@ -39,6 +39,8 @@
 
 #if F_CPU >= 20000000 && !defined(USB_DISABLED)
 
+#include "core_pins.h" // for millis()
+
 // C language implementation
 #ifdef __cplusplus
 extern "C" {
@@ -52,6 +54,7 @@ int usb_serial_putchar(uint8_t c);
 int usb_serial_write(const void *buffer, uint32_t size);
 int usb_serial_write_buffer_free(void);
 void usb_serial_flush_output(void);
+void usb_serial_flush_callback(void);
 extern uint32_t usb_cdc_line_coding[2];
 extern volatile uint32_t usb_cdc_line_rtsdtr_millis;
 extern volatile uint32_t systick_millis_count;
@@ -106,9 +109,8 @@ public:
         uint8_t numbits(void) { return usb_cdc_line_coding[1] >> 16; }
         uint8_t dtr(void) { return (usb_cdc_line_rtsdtr & USB_SERIAL_DTR) ? 1 : 0; }
         uint8_t rts(void) { return (usb_cdc_line_rtsdtr & USB_SERIAL_RTS) ? 1 : 0; }
-        operator bool() { return usb_configuration &&
-		(usb_cdc_line_rtsdtr & (USB_SERIAL_DTR | USB_SERIAL_RTS)) &&
-		((uint32_t)(systick_millis_count - usb_cdc_line_rtsdtr_millis) >= 25);
+        operator bool() { return usb_configuration && (usb_cdc_line_rtsdtr & USB_SERIAL_DTR) &&
+		((uint32_t)(systick_millis_count - usb_cdc_line_rtsdtr_millis) >= 15);
 	}
 	size_t readBytes(char *buffer, size_t length) {
 		size_t count=0;

@@ -28,7 +28,7 @@
  * SOFTWARE.
  */
 
-#include "WProgram.h"
+#include <Arduino.h>
 #include "usb_desc.h"
 
 #if F_CPU >= 20000000
@@ -36,6 +36,18 @@
 #ifdef CDC_DATA_INTERFACE
 #ifdef CDC_STATUS_INTERFACE
 usb_serial_class Serial;
+#endif
+#endif
+
+#ifdef CDC2_DATA_INTERFACE
+#ifdef CDC2_STATUS_INTERFACE
+usb_serial2_class SerialUSB1;
+#endif
+#endif
+
+#ifdef CDC3_DATA_INTERFACE
+#ifdef CDC3_STATUS_INTERFACE
+usb_serial3_class SerialUSB2;
 #endif
 #endif
 
@@ -75,7 +87,8 @@ usb_serial_class Serial;
 
 #else // F_CPU < 20 MHz
 
-#if defined(USB_SERIAL) || defined(USB_SERIAL_HID)
+#if defined(USB_SERIAL) || defined(USB_DUAL_SERIAL) || \
+    defined(USB_TRIPLE_SERIAL) || defined(USB_SERIAL_HID)
 usb_serial_class Serial;
 #elif (USB_DISABLED)
 usb_serial_class Serial;
@@ -84,6 +97,3 @@ usb_seremu_class Serial;
 #endif
 
 #endif // F_CPU
-
-void serialEvent() __attribute__((weak));
-void serialEvent() {}

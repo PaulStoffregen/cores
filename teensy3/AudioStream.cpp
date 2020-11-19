@@ -29,9 +29,8 @@
  */
 
 
-#include <string.h> // for memcpy
-#include "AudioStream.h"
 #include <Arduino.h>
+#include "AudioStream.h"
 
 #if defined(__MKL26Z64__)
   #define MAX_AUDIO_MEMORY 6144
@@ -244,6 +243,8 @@ void AudioConnection::disconnect(void)
 	// Remove destination from source list
 	p = src.destination_list;
 	if (p == NULL) {
+//>>> PAH re-enable the IRQ
+		__enable_irq();
 		return;
 	} else if (p == this) {
 		if (p->next_dest) {
@@ -265,8 +266,14 @@ void AudioConnection::disconnect(void)
 			p = p->next_dest;
 		}
 	}
+//>>> PAH release the audio buffer properly
 	//Remove possible pending src block from destination
-	dst.inputQueue[dest_index] = NULL;
+	if(dst.inputQueue[dest_index] != NULL) {
+		AudioStream::release(dst.inputQueue[dest_index]);
+		// release() re-enables the IRQ. Need it to be disabled a little longer
+		__disable_irq();
+		dst.inputQueue[dest_index] = NULL;
+	}
 
 	//Check if the disconnected AudioStream objects should still be active
 	src.numConnections--;
@@ -313,9 +320,13 @@ void software_isr(void) // AudioStream::update_all()
 {
 	AudioStream *p;
 
+#if defined(KINETISK)
 	ARM_DEMCR |= ARM_DEMCR_TRCENA;
 	ARM_DWT_CTRL |= ARM_DWT_CTRL_CYCCNTENA;
 	uint32_t totalcycles = ARM_DWT_CYCCNT;
+#elif defined(KINETISL)
+	uint32_t totalcycles = micros();
+#endif
 	//digitalWriteFast(2, HIGH);
 	for (p = AudioStream::first_update; p; p = p->next_update) {
 		if (p->active) {
@@ -329,7 +340,11 @@ void software_isr(void) // AudioStream::update_all()
 		}
 	}
 	//digitalWriteFast(2, LOW);
-	totalcycles = (ARM_DWT_CYCCNT - totalcycles) >> 4;;
+#if defined(KINETISK)
+	totalcycles = (ARM_DWT_CYCCNT - totalcycles) >> 4;
+#elif defined(KINETISL)
+	totalcycles = micros() - totalcycles;
+#endif
 	AudioStream::cpu_cycles_total = totalcycles;
 	if (totalcycles > AudioStream::cpu_cycles_total_max)
 		AudioStream::cpu_cycles_total_max = totalcycles;

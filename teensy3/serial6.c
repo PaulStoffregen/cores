@@ -70,14 +70,20 @@ static volatile uint8_t *transmit_pin=NULL;
 static volatile uint8_t *rts_pin=NULL;
 #define rts_assert()        *rts_pin = 0
 #define rts_deassert()      *rts_pin = 1
-#if SERIAL6_TX_BUFFER_SIZE > 255
+#if SERIAL6_TX_BUFFER_SIZE > 65535
+static volatile uint32_t tx_buffer_head = 0;
+static volatile uint32_t tx_buffer_tail = 0;
+#elif SERIAL6_TX_BUFFER_SIZE > 255
 static volatile uint16_t tx_buffer_head = 0;
 static volatile uint16_t tx_buffer_tail = 0;
 #else
 static volatile uint8_t tx_buffer_head = 0;
 static volatile uint8_t tx_buffer_tail = 0;
 #endif
-#if SERIAL6_RX_BUFFER_SIZE > 255
+#if SERIAL6_RX_BUFFER_SIZE > 65535
+static volatile uint32_t rx_buffer_head = 0;
+static volatile uint32_t rx_buffer_tail = 0;
+#elif SERIAL6_RX_BUFFER_SIZE > 255
 static volatile uint16_t rx_buffer_head = 0;
 static volatile uint16_t rx_buffer_tail = 0;
 #else
@@ -153,6 +159,8 @@ void serial6_end(void)
 	UART5_C2 = 0;
 	CORE_PIN47_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_MUX(1);
 	CORE_PIN48_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_MUX(1);
+	UART5_S1;
+	UART5_D; // clear leftover error status
 	rx_buffer_head = 0;
 	rx_buffer_tail = 0;
 	if (rts_pin) rts_deassert();

@@ -602,7 +602,7 @@ public:
 		int ret = 0;
 		if (digitalReadFast(14)) ret |= (1<<0);
 		if (digitalReadFast(15)) ret |= (1<<1);
-		if (digitalReadFast(15)) ret |= (1<<2);
+		if (digitalReadFast(16)) ret |= (1<<2);
 		if (digitalReadFast(17)) ret |= (1<<3);
 		if (digitalReadFast(18)) ret |= (1<<4);
 		if (digitalReadFast(19)) ret |= (1<<5);

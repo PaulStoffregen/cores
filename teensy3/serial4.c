@@ -70,14 +70,20 @@ static volatile uint8_t *transmit_pin=NULL;
 static volatile uint8_t *rts_pin=NULL;
 #define rts_assert()        *rts_pin = 0
 #define rts_deassert()      *rts_pin = 1
-#if SERIAL4_TX_BUFFER_SIZE > 255
+#if SERIAL4_TX_BUFFER_SIZE > 65535
+static volatile uint32_t tx_buffer_head = 0;
+static volatile uint32_t tx_buffer_tail = 0;
+#elif SERIAL4_TX_BUFFER_SIZE > 255
 static volatile uint16_t tx_buffer_head = 0;
 static volatile uint16_t tx_buffer_tail = 0;
 #else
 static volatile uint8_t tx_buffer_head = 0;
 static volatile uint8_t tx_buffer_tail = 0;
 #endif
-#if SERIAL4_RX_BUFFER_SIZE > 255
+#if SERIAL4_RX_BUFFER_SIZE > 65535
+static volatile uint32_t rx_buffer_head = 0;
+static volatile uint32_t rx_buffer_tail = 0;
+#elif SERIAL4_RX_BUFFER_SIZE > 255
 static volatile uint16_t rx_buffer_head = 0;
 static volatile uint16_t rx_buffer_tail = 0;
 #else
@@ -168,6 +174,8 @@ void serial4_end(void)
 		case 32: CORE_PIN32_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_MUX(1); break; // PTC4
 		case 62: CORE_PIN62_CONFIG = 0; break;
 	}
+	UART3_S1;
+	UART3_D; // clear leftover error status
 	rx_buffer_head = 0;
 	rx_buffer_tail = 0;
 	if (rts_pin) rts_deassert();
