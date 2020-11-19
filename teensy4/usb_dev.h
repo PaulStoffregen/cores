@@ -1,6 +1,8 @@
 #pragma once
 #include "imxrt.h"
 
+#if !defined(USB_DISABLED)
+
 typedef struct transfer_struct transfer_t;
 struct transfer_struct {
         uint32_t next;
@@ -39,3 +41,18 @@ extern void (*usb_timer1_callback)(void);
 #ifdef __cplusplus
 }
 #endif
+
+#else // !defined(USB_DISABLED)
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void usb_init(void);
+
+#ifdef __cplusplus
+}
+#endif
+
+
+#endif // !defined(USB_DISABLED)
