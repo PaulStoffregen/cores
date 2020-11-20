@@ -32,6 +32,7 @@
 #define HardwareSerial_h
 
 #include "kinetis.h"
+#include <stddef.h>
 
 // Uncomment to enable 9 bit formats.  These are default disabled to save memory.
 //#define SERIAL_9BIT_SUPPORT
@@ -156,6 +157,8 @@ void serial_putchar(uint32_t c);
 void serial_write(const void *buf, unsigned int count);
 void serial_flush(void);
 int serial_write_buffer_free(void);
+void serial_add_memory_for_read(void *buffer, size_t length);
+void serial_add_memory_for_write(void *buffer, size_t length);
 int serial_available(void);
 int serial_getchar(void);
 int serial_peek(void);
@@ -177,6 +180,8 @@ void serial2_putchar(uint32_t c);
 void serial2_write(const void *buf, unsigned int count);
 void serial2_flush(void);
 int serial2_write_buffer_free(void);
+void serial2_add_memory_for_read(void *buffer, size_t length);
+void serial2_add_memory_for_write(void *buffer, size_t length);
 int serial2_available(void);
 int serial2_getchar(void);
 int serial2_peek(void);
@@ -194,6 +199,8 @@ void serial3_putchar(uint32_t c);
 void serial3_write(const void *buf, unsigned int count);
 void serial3_flush(void);
 int serial3_write_buffer_free(void);
+void serial3_add_memory_for_read(void *buffer, size_t length);
+void serial3_add_memory_for_write(void *buffer, size_t length);
 int serial3_available(void);
 int serial3_getchar(void);
 int serial3_peek(void);
@@ -211,6 +218,8 @@ void serial4_putchar(uint32_t c);
 void serial4_write(const void *buf, unsigned int count);
 void serial4_flush(void);
 int serial4_write_buffer_free(void);
+void serial4_add_memory_for_read(void *buffer, size_t length);
+void serial4_add_memory_for_write(void *buffer, size_t length);
 int serial4_available(void);
 int serial4_getchar(void);
 int serial4_peek(void);
@@ -228,6 +237,8 @@ void serial5_putchar(uint32_t c);
 void serial5_write(const void *buf, unsigned int count);
 void serial5_flush(void);
 int serial5_write_buffer_free(void);
+void serial5_add_memory_for_read(void *buffer, size_t length);
+void serial5_add_memory_for_write(void *buffer, size_t length);
 int serial5_available(void);
 int serial5_getchar(void);
 int serial5_peek(void);
@@ -245,6 +256,8 @@ void serial6_putchar(uint32_t c);
 void serial6_write(const void *buf, unsigned int count);
 void serial6_flush(void);
 int serial6_write_buffer_free(void);
+void serial6_add_memory_for_read(void *buffer, size_t length);
+void serial6_add_memory_for_write(void *buffer, size_t length);
 int serial6_available(void);
 int serial6_getchar(void);
 int serial6_peek(void);
@@ -284,6 +297,8 @@ public:
 	virtual void flush(void)        { serial_flush(); }
 	virtual void clear(void)	{ serial_clear(); }
 	virtual int availableForWrite(void) { return serial_write_buffer_free(); }
+ 	virtual void addMemoryForRead(void *buffer, size_t length) {serial_add_memory_for_read(buffer, length);}
+	virtual void addMemoryForWrite(void *buffer, size_t length){serial_add_memory_for_write(buffer, length);}
 	using Print::write;
 	virtual size_t write(uint8_t c) { serial_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
@@ -336,6 +351,8 @@ public:
 	virtual void flush(void)        { serial2_flush(); }
 	virtual void clear(void)	{ serial2_clear(); }
 	virtual int availableForWrite(void) { return serial2_write_buffer_free(); }
+ 	virtual void addMemoryForRead(void *buffer, size_t length) {serial2_add_memory_for_read(buffer, length);}
+	virtual void addMemoryForWrite(void *buffer, size_t length){serial2_add_memory_for_write(buffer, length);}
 	using Print::write;
 	virtual size_t write(uint8_t c) { serial2_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
@@ -373,6 +390,8 @@ public:
 	virtual void flush(void)        { serial3_flush(); }
 	virtual void clear(void)	{ serial3_clear(); }
 	virtual int availableForWrite(void) { return serial3_write_buffer_free(); }
+ 	virtual void addMemoryForRead(void *buffer, size_t length) {serial3_add_memory_for_read(buffer, length);}
+	virtual void addMemoryForWrite(void *buffer, size_t length){serial3_add_memory_for_write(buffer, length);}
 	using Print::write;
 	virtual size_t write(uint8_t c) { serial3_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
@@ -410,6 +429,8 @@ public:
 	virtual void flush(void)        { serial4_flush(); }
 	virtual void clear(void)	{ serial4_clear(); }
 	virtual int availableForWrite(void) { return serial4_write_buffer_free(); }
+ 	virtual void addMemoryForRead(void *buffer, size_t length) {serial4_add_memory_for_read(buffer, length);}
+	virtual void addMemoryForWrite(void *buffer, size_t length){serial4_add_memory_for_write(buffer, length);}
 	using Print::write;
 	virtual size_t write(uint8_t c) { serial4_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
@@ -447,6 +468,8 @@ public:
 	virtual void flush(void)        { serial5_flush(); }
 	virtual void clear(void)	{ serial5_clear(); }
 	virtual int availableForWrite(void) { return serial5_write_buffer_free(); }
+ 	virtual void addMemoryForRead(void *buffer, size_t length) {serial5_add_memory_for_read(buffer, length);}
+	virtual void addMemoryForWrite(void *buffer, size_t length){serial5_add_memory_for_write(buffer, length);}
 	using Print::write;
 	virtual size_t write(uint8_t c) { serial5_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
@@ -491,6 +514,8 @@ public:
 	virtual void flush(void)        { serial6_flush(); }
 	virtual void clear(void)	{ serial6_clear(); }
 	virtual int availableForWrite(void) { return serial6_write_buffer_free(); }
+ 	virtual void addMemoryForRead(void *buffer, size_t length) {serial6_add_memory_for_read(buffer, length);}
+	virtual void addMemoryForWrite(void *buffer, size_t length){serial6_add_memory_for_write(buffer, length);}
 	using Print::write;
 	virtual size_t write(uint8_t c) { serial6_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
