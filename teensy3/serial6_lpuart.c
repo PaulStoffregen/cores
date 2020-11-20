@@ -38,8 +38,15 @@
 #define GPIO_BITBAND_PTR(reg, bit) ((uint32_t *)GPIO_BITBAND_ADDR((reg), (bit)))
 #define BITBAND_SET_BIT(reg, bit) (*GPIO_BITBAND_PTR((reg), (bit)) = 1)
 #define BITBAND_CLR_BIT(reg, bit) (*GPIO_BITBAND_PTR((reg), (bit)) = 0)
-#define TCIE_BIT 22
-#define TIE_BIT  23
+
+#define CTRL_TXDIR_BIT 	29
+#define CTRL_TIE_BIT  	23
+#define CTRL_TCIE_BIT 	22
+#define CTRL_TE_BIT		19
+#define CTRL_RE_BIT		18
+#define CTRL_LOOPS_BIT	7
+#define CTRL_RSRC_BIT	5
+
 
 
 ////////////////////////////////////////////////////////////////
@@ -94,9 +101,6 @@ static volatile uint8_t rx_buffer_tail = 0;
 #endif
 
 static uint8_t tx_pin_num = 48;
-
-// UART0 and UART1 are clocked by F_CPU, UART2 is clocked by F_BUS
-// UART0 has 8 byte fifo, UART1 and UART2 have 1 byte buffer
 
 
 void serial6_begin(uint32_t desiredBaudRate)
@@ -225,6 +229,21 @@ void serial6_format(uint32_t format)
 
 	// For T3.6 See about turning on 2 stop bit mode
 	if ( format & 0x100) LPUART0_BAUD |= LPUART_BAUD_SBNS;	
+
+	// process request for half duplex.
+	if ((format & SERIAL_HALF_DUPLEX) != 0) {
+		BITBAND_SET_BIT(LPUART0_CTRL, CTRL_LOOPS_BIT);
+		BITBAND_SET_BIT(LPUART0_CTRL, CTRL_RSRC_BIT);
+
+		CORE_PIN48_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(5);
+
+		// Lets try to make use of bitband address to set the direction for ue...
+		transmit_pin = (uint8_t*)GPIO_BITBAND_PTR(LPUART0_CTRL, CTRL_TXDIR_BIT);
+	} else {
+		if (transmit_pin == (uint8_t*)GPIO_BITBAND_PTR(LPUART0_CTRL, CTRL_TXDIR_BIT)) transmit_pin = NULL;
+		BITBAND_CLR_BIT(LPUART0_CTRL, CTRL_LOOPS_BIT);
+		BITBAND_CLR_BIT(LPUART0_CTRL, CTRL_RSRC_BIT);
+	}
 }
 
 void serial6_end(void)
@@ -307,6 +326,7 @@ void serial6_putchar(uint32_t c)
 
 	if (!(SIM_SCGC2 & SIM_SCGC2_LPUART0)) return;
 	if (transmit_pin) transmit_assert();
+
 	head = tx_buffer_head;
 	if (++head >= SERIAL6_TX_BUFFER_SIZE) head = 0;
 	while (tx_buffer_tail == head) {
@@ -329,7 +349,7 @@ void serial6_putchar(uint32_t c)
 	tx_buffer_head = head;
 
 	//LPUART0_CTRL |= LPUART_CTRL_TIE;	// enable the transmit interrupt
-	BITBAND_SET_BIT(LPUART0_CTRL, TIE_BIT);
+	BITBAND_SET_BIT(LPUART0_CTRL, CTRL_TIE_BIT);
 
 }
 
@@ -413,7 +433,6 @@ void lpuart0_status_isr(void)
 {
 	uint32_t head, tail, n;
 	uint32_t c;
-
 	if (LPUART0_STAT & LPUART_STAT_RDRF) {
 //		if (use9Bits && (UART5_C3 & 0x80)) {
 //			n = UART5_D | 0x100;
@@ -440,8 +459,8 @@ void lpuart0_status_isr(void)
 		head = tx_buffer_head;
 		tail = tx_buffer_tail;
 		if (head == tail) {
-			BITBAND_CLR_BIT(LPUART0_CTRL, TIE_BIT);
-			BITBAND_SET_BIT(LPUART0_CTRL, TCIE_BIT);
+			BITBAND_CLR_BIT(LPUART0_CTRL, CTRL_TIE_BIT);
+			BITBAND_SET_BIT(LPUART0_CTRL, CTRL_TCIE_BIT);
 			//LPUART0_CTRL &= ~LPUART_CTRL_TIE; 
   			//LPUART0_CTRL |= LPUART_CTRL_TCIE; // Actually wondering if we can just leave this one on...
 		} else {
@@ -455,7 +474,7 @@ void lpuart0_status_isr(void)
 	if ((c & LPUART_CTRL_TCIE) && (LPUART0_STAT & LPUART_STAT_TC)) {
 		transmitting = 0;
 		if (transmit_pin) transmit_deassert();
-		BITBAND_CLR_BIT(LPUART0_CTRL, TCIE_BIT);
+		BITBAND_CLR_BIT(LPUART0_CTRL, CTRL_TCIE_BIT);
 		// LPUART0_CTRL &= ~LPUART_CTRL_TCIE; // Actually wondering if we can just leave this one on...
 	}
 }

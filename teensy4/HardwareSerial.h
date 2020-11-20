@@ -92,6 +92,13 @@
 #define SERIAL_8N2_RXINV (SERIAL_8N1_RXINV | SERIAL_2STOP_BITS)
 #define SERIAL_8N2_TXINV (SERIAL_8N1_TXINV | SERIAL_2STOP_BITS)
 #define SERIAL_8N2_RXINV_TXINV (SERIAL_8N1_RXINV_TXINV | SERIAL_2STOP_BITS)
+
+// Half duplex support
+#define SERIAL_HALF_DUPLEX 0x200
+#define SERIAL_7E1_HALF_DUPLEX (SERIAL_7E1 | SERIAL_HALF_DUPLEX)
+#define SERIAL_7O1_HALF_DUPLEX (SERIAL_7O1 | SERIAL_HALF_DUPLEX)
+#define SERIAL_8N1_HALF_DUPLEX (SERIAL_8N1 | SERIAL_HALF_DUPLEX)
+
 // bit0: parity, 0=even, 1=odd
 // bit1: parity, 0=disable, 1=enable
 // bit2: mode, 1=9bit, 0=8bit
@@ -101,6 +108,8 @@
 // bit6: unused
 // bit7: actual data goes into 9th bit
 
+// bit8: 2 stop bits 
+// bit9: Half Duplex Mode
 
 #ifdef __cplusplus
 #include "Stream.h"
@@ -235,6 +244,7 @@ private:
 	const hardware_t * const hardware;
 	uint8_t				rx_pin_index_ = 0x0;	// default is always first item
 	uint8_t				tx_pin_index_ = 0x0;
+	uint8_t				half_duplex_mode_ = 0; // are we in half duplex mode?
 
 	volatile BUFTYPE 	*tx_buffer_;
 	volatile BUFTYPE 	*rx_buffer_;
