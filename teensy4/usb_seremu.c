@@ -40,6 +40,7 @@
 
 static volatile uint8_t tx_noautoflush=0;
 extern volatile uint8_t usb_high_speed;
+volatile uint8_t usb_seremu_online=0;
 
 // TODO: should be 2 different timeouts, high speed (480) vs full speed (12)
 #define TRANSMIT_FLUSH_TIMEOUT  75   /* in microseconds */

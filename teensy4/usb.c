@@ -775,12 +775,16 @@ static void endpoint0_complete(void)
 	}
 #endif
 #ifdef SEREMU_INTERFACE
-	if (setup.word1 == 0x03000921 && setup.word2 == ((4<<16)|SEREMU_INTERFACE)
-	  && endpoint0_buffer[0] == 0xA9 && endpoint0_buffer[1] == 0x45
-	  && endpoint0_buffer[2] == 0xC2 && endpoint0_buffer[3] == 0x6B) {
-		printf("seremu reboot request\n");
-		usb_start_sof_interrupts(NUM_INTERFACE);
-		usb_reboot_timer = 80; // TODO: 10 if only 12 Mbit/sec
+	if (setup.word1 == 0x03000921 && setup.word2 == ((4<<16)|SEREMU_INTERFACE)) {
+		if (endpoint0_buffer[0] == 0xA9 && endpoint0_buffer[1] == 0x45
+		  && endpoint0_buffer[2] == 0xC2 && endpoint0_buffer[3] == 0x6B) {
+			printf("seremu reboot request\n");
+			usb_start_sof_interrupts(NUM_INTERFACE);
+			usb_reboot_timer = 80; // TODO: 10 if only 12 Mbit/sec
+		} else {
+			// any other feature report means Arduino Serial Monitor is open
+			usb_seremu_online = 1;
+		}
 	}
 #endif
 #ifdef AUDIO_INTERFACE
