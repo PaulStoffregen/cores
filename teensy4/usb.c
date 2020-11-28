@@ -11,6 +11,7 @@
 #include "usb_touch.h"
 #include "usb_midi.h"
 #include "usb_audio.h"
+#include "usb_mtp.h"
 #include "core_pins.h" // for delay()
 #include "avr/pgmspace.h"
 #include <string.h>
@@ -460,6 +461,9 @@ static void endpoint0_setup(uint64_t setupdata)
 		#endif
 		#if defined(AUDIO_INTERFACE)
 		usb_audio_configure();
+		#endif
+		#if defined(MTP_INTERFACE)
+		usb_mtp_configure();
 		#endif
 		#if defined(EXPERIMENTAL_INTERFACE)
 		endpoint_queue_head[2].unused1 = (uint32_t)experimental_buffer;
