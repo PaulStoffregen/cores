@@ -65,6 +65,7 @@
 #endif
 
 #define AUDIO_SAMPLE_RATE AUDIO_SAMPLE_RATE_EXACT
+#define IRQ_AUDIO IRQ_SOFTWARE
 
 #ifndef __ASSEMBLER__
 class AudioStream;
@@ -172,7 +173,7 @@ protected:
 	audio_block_t * receiveWritable(unsigned int index = 0);
 	static bool update_setup(void);
 	static void update_stop(void);
-	static void update_all(void) { NVIC_SET_PENDING(IRQ_SOFTWARE); }
+	static void update_all(void) { NVIC_SET_PENDING(IRQ_AUDIO); }
 	friend void software_isr(void);
 	friend class AudioConnection;
 	uint8_t numConnections;
