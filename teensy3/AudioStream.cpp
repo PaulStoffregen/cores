@@ -302,15 +302,15 @@ bool AudioStream::update_scheduled = false;
 bool AudioStream::update_setup(void)
 {
 	if (update_scheduled) return false;
-	NVIC_SET_PRIORITY(IRQ_SOFTWARE, 208); // 255 = lowest priority
-	NVIC_ENABLE_IRQ(IRQ_SOFTWARE);
+	NVIC_SET_PRIORITY(IRQ_AUDIO, 208); // 255 = lowest priority
+	NVIC_ENABLE_IRQ(IRQ_AUDIO);
 	update_scheduled = true;
 	return true;
 }
 
 void AudioStream::update_stop(void)
 {
-	NVIC_DISABLE_IRQ(IRQ_SOFTWARE);
+	NVIC_DISABLE_IRQ(IRQ_AUDIO);
 	update_scheduled = false;
 }
 
