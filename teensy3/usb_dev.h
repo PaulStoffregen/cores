@@ -70,6 +70,7 @@ static inline uint32_t usb_rx_byte_count(uint32_t endpoint)
 #ifdef SEREMU_INTERFACE
 extern volatile uint8_t usb_seremu_transmit_flush_timer;
 extern void usb_seremu_flush_callback(void);
+extern volatile uint8_t usb_seremu_online;
 #endif
 
 #ifdef KEYBOARD_INTERFACE

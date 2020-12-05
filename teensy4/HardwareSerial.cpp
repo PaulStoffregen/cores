@@ -427,11 +427,14 @@ void HardwareSerial::addMemoryForRead(void *buffer, size_t length)
 {
 	rx_buffer_storage_ = (BUFTYPE*)buffer;
 	if (buffer) {
-		rx_buffer_total_size_ = rx_buffer_total_size_ + length;
+		rx_buffer_total_size_ = rx_buffer_size_ + length;
 	} else {
-		rx_buffer_total_size_ = rx_buffer_total_size_;
+		rx_buffer_total_size_ = rx_buffer_size_;
 	} 
 
+	// Make sure we don't end up indexing into no mans land. 
+	rx_buffer_head_ = 0;
+	rx_buffer_tail_ = 0;
 	rts_low_watermark_ = rx_buffer_total_size_ - hardware->rts_low_watermark;
 	rts_high_watermark_ = rx_buffer_total_size_ - hardware->rts_high_watermark;
 }
@@ -440,10 +443,13 @@ void HardwareSerial::addMemoryForWrite(void *buffer, size_t length)
 {
 	tx_buffer_storage_ = (BUFTYPE*)buffer;
 	if (buffer) {
-		tx_buffer_total_size_ = tx_buffer_total_size_ + length;
+		tx_buffer_total_size_ = tx_buffer_size_ + length;
 	} else {
-		tx_buffer_total_size_ = tx_buffer_total_size_;
+		tx_buffer_total_size_ = tx_buffer_size_;
 	} 
+	// Make sure we don't end up indexing into no mans land. 
+	tx_buffer_head_ = 0;
+	tx_buffer_tail_ = 0;
 }
 
 int HardwareSerial::peek(void)

@@ -11,6 +11,7 @@
 #include "usb_touch.h"
 #include "usb_midi.h"
 #include "usb_audio.h"
+#include "usb_mtp.h"
 #include "core_pins.h" // for delay()
 #include "avr/pgmspace.h"
 #include <string.h>
@@ -461,6 +462,9 @@ static void endpoint0_setup(uint64_t setupdata)
 		#if defined(AUDIO_INTERFACE)
 		usb_audio_configure();
 		#endif
+		#if defined(MTP_INTERFACE)
+		usb_mtp_configure();
+		#endif
 		#if defined(EXPERIMENTAL_INTERFACE)
 		endpoint_queue_head[2].unused1 = (uint32_t)experimental_buffer;
 		#endif
@@ -775,12 +779,16 @@ static void endpoint0_complete(void)
 	}
 #endif
 #ifdef SEREMU_INTERFACE
-	if (setup.word1 == 0x03000921 && setup.word2 == ((4<<16)|SEREMU_INTERFACE)
-	  && endpoint0_buffer[0] == 0xA9 && endpoint0_buffer[1] == 0x45
-	  && endpoint0_buffer[2] == 0xC2 && endpoint0_buffer[3] == 0x6B) {
-		printf("seremu reboot request\n");
-		usb_start_sof_interrupts(NUM_INTERFACE);
-		usb_reboot_timer = 80; // TODO: 10 if only 12 Mbit/sec
+	if (setup.word1 == 0x03000921 && setup.word2 == ((4<<16)|SEREMU_INTERFACE)) {
+		if (endpoint0_buffer[0] == 0xA9 && endpoint0_buffer[1] == 0x45
+		  && endpoint0_buffer[2] == 0xC2 && endpoint0_buffer[3] == 0x6B) {
+			printf("seremu reboot request\n");
+			usb_start_sof_interrupts(NUM_INTERFACE);
+			usb_reboot_timer = 80; // TODO: 10 if only 12 Mbit/sec
+		} else {
+			// any other feature report means Arduino Serial Monitor is open
+			usb_seremu_online = 1;
+		}
 	}
 #endif
 #ifdef AUDIO_INTERFACE

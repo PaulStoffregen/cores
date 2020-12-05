@@ -42,6 +42,7 @@ volatile uint8_t usb_seremu_transmit_flush_timer=0;
 static usb_packet_t *rx_packet=NULL;
 static usb_packet_t *tx_packet=NULL;
 static volatile uint8_t tx_noautoflush=0;
+volatile uint8_t usb_seremu_online=0;
 
 #define TRANSMIT_FLUSH_TIMEOUT	5   /* in milliseconds */
 
