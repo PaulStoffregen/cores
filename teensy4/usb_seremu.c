@@ -312,6 +312,7 @@ void usb_seremu_flush_output(void)
 static void usb_seremu_flush_callback(void)
 {
 	if (tx_noautoflush) return;
+	if (tx_available == 0 || tx_available >= SEREMU_TX_SIZE) return;
 	tx_zero_pad();
 	tx_queue_transfer();
 }
