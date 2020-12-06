@@ -109,7 +109,7 @@ void attachInterrupt(uint8_t pin, void (*function)(void), int mode)
 		gpio[EDGE_INDEX] |= mask;
 	} else {
 		gpio[EDGE_INDEX] &= ~mask;
-		if (index < 15) {
+		if (index < 16) {
 			uint32_t shift = index * 2;
 			gpio[ICR1_INDEX] = (gpio[ICR1_INDEX] & ~(3 << shift)) | (icr << shift);
 		} else {
