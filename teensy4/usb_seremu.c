@@ -246,6 +246,7 @@ int usb_seremu_write(const void *buffer, uint32_t size)
 
 	if (!usb_configuration) return 0;
 	while (size > 0) {
+		tx_noautoflush = 1;
 		transfer_t *xfer = tx_transfer + tx_head;
 		int waiting=0;
 		uint32_t wait_begin_at=0;
@@ -261,6 +262,7 @@ int usb_seremu_write(const void *buffer, uint32_t size)
 				transmit_previous_timeout = 0;
 				break;
 			}
+			tx_noautoflush = 0;
 			if (!waiting) {
 				wait_begin_at = systick_millis_count;
 				waiting = 1;
@@ -290,6 +292,7 @@ int usb_seremu_write(const void *buffer, uint32_t size)
 			size = 0;
 			timer_start_oneshot();
 		}
+		tx_noautoflush = 0;
 	}
 	return sent;
 }
@@ -306,6 +309,7 @@ void usb_seremu_flush_output(void)
 	tx_noautoflush = 1;
 	tx_zero_pad();
 	tx_queue_transfer();
+	timer_stop();
 	tx_noautoflush = 0;
 }
 
