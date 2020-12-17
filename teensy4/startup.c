@@ -147,7 +147,7 @@ void ResetHandler(void)
 	//printf("before setup\n");
 	main();
 	
-	while (1) ;
+	while (1) asm("WFI");
 }
 
 
