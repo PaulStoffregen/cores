@@ -650,7 +650,7 @@ static uint8_t flightsim_report_desc[] = {
 // **************************************************************
 
 // USB Configuration Descriptor.  This huge descriptor tells all
-// of the devices capbilities.
+// of the devices capabilities.
 
 PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
         // configuration descriptor, USB spec 9.6.3, page 264-266, Table 9-10
