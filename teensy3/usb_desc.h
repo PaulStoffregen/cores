@@ -722,7 +722,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define MTP_RX_ENDPOINT	3
   #define MTP_RX_SIZE		64
   #define MTP_EVENT_ENDPOINT	4
-  #define MTP_EVENT_SIZE	16
+  #define MTP_EVENT_SIZE	32
   #define MTP_EVENT_INTERVAL	10
   #define SEREMU_INTERFACE      1	// Serial emulation
   #define SEREMU_TX_ENDPOINT    1
