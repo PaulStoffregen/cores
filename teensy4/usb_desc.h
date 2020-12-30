@@ -692,7 +692,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define MTP_RX_SIZE_12	64
   #define MTP_RX_SIZE_480	512
   #define MTP_EVENT_ENDPOINT	4
-  #define MTP_EVENT_SIZE	16
+  #define MTP_EVENT_SIZE	32
   #define MTP_EVENT_INTERVAL_12	10	// 10 = 10 ms
   #define MTP_EVENT_INTERVAL_480 7	// 7 = 8 ms
   #define SEREMU_INTERFACE      1	// Serial emulation
