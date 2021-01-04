@@ -128,10 +128,10 @@ const struct pwm_pin_info_struct pwm_pin_info[] = {
 //   QuadTimer3_1  PWM pin 18
 //   QuadTimer3_2  PWM pin 14
 //   QuadTimer3_3  PWM pin 15
-//   QuadTimer4_0  OctoWS2811
+//   QuadTimer4_0  OctoWS2811, ADC library
 //   QuadTimer4_1  OctoWS2811
 //   QuadTimer4_2  OctoWS2811
-//   QuadTimer4_3  AudioInputAnalog
+//   QuadTimer4_3  AudioInputAnalog, ADC library
 
 
 #endif // __IMXRT1062__
