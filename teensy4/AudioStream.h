@@ -60,6 +60,8 @@
 
 #define AUDIO_SAMPLE_RATE AUDIO_SAMPLE_RATE_EXACT
 
+#define IRQ_AUDIO IRQ_SOFTWARE
+
 #ifndef __ASSEMBLER__
 class AudioStream;
 class AudioConnection;

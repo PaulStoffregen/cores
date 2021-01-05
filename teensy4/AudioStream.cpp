@@ -60,7 +60,7 @@ FLASHMEM void AudioStream::initialize_memory(audio_block_t *data, unsigned int n
 	//Serial.println("AudioStream initialize_memory");
 	//delay(10);
 	if (num > maxnum) num = maxnum;
-	__disable_irq();
+	NVIC_DISABLE_IRQ(IRQ_AUDIO);
 	memory_pool = data;
 	memory_pool_first_mask = 0;
 	for (i=0; i < NUM_MASKS; i++) {
@@ -72,7 +72,7 @@ FLASHMEM void AudioStream::initialize_memory(audio_block_t *data, unsigned int n
 	for (i=0; i < num; i++) {
 		data[i].memory_pool_index = i;
 	}
-	__enable_irq();
+	NVIC_ENABLE_IRQ(IRQ_AUDIO);
 
 }
 
@@ -87,12 +87,12 @@ audio_block_t * AudioStream::allocate(void)
 
 	p = memory_pool_available_mask;
 	end = p + NUM_MASKS;
-	__disable_irq();
+	NVIC_DISABLE_IRQ(IRQ_AUDIO);
 	index = memory_pool_first_mask;
 	p += index;
 	while (1) {
 		if (p >= end) {
-			__enable_irq();
+			NVIC_ENABLE_IRQ(IRQ_AUDIO);
 			//Serial.println("alloc:null");
 			return NULL;
 		}
@@ -108,7 +108,7 @@ audio_block_t * AudioStream::allocate(void)
 	memory_pool_first_mask = index;
 	used = memory_used + 1;
 	memory_used = used;
-	__enable_irq();
+	NVIC_ENABLE_IRQ(IRQ_AUDIO);
 	index = p - memory_pool_available_mask;
 	block = memory_pool + ((index << 5) + (31 - n));
 	block->ref_count = 1;
@@ -127,7 +127,7 @@ void AudioStream::release(audio_block_t *block)
 	uint32_t mask = (0x80000000 >> (31 - (block->memory_pool_index & 0x1F)));
 	uint32_t index = block->memory_pool_index >> 5;
 
-	__disable_irq();
+	NVIC_DISABLE_IRQ(IRQ_AUDIO);
 	if (block->ref_count > 1) {
 		block->ref_count--;
 	} else {
@@ -137,7 +137,7 @@ void AudioStream::release(audio_block_t *block)
 		if (index < memory_pool_first_mask) memory_pool_first_mask = index;
 		memory_used--;
 	}
-	__enable_irq();
+	NVIC_ENABLE_IRQ(IRQ_AUDIO);
 }
 
 // Transmit an audio data block
@@ -197,7 +197,7 @@ void AudioConnection::connect(void)
 
 	if (isConnected) return;
 	if (dest_index > dst.num_inputs) return;
-	__disable_irq();
+	NVIC_DISABLE_IRQ(IRQ_AUDIO);
 	p = src.destination_list;
 	if (p == NULL) {
 		src.destination_list = this;
@@ -206,7 +206,7 @@ void AudioConnection::connect(void)
 			if (&p->src == &this->src && &p->dst == &this->dst
 				&& p->src_index == this->src_index && p->dest_index == this->dest_index) {
 				//Source and destination already connected through another connection, abort
-				__enable_irq();
+				NVIC_ENABLE_IRQ(IRQ_AUDIO);
 				return;
 			}
 			p = p->next_dest;
@@ -222,7 +222,7 @@ void AudioConnection::connect(void)
 
 	isConnected = true;
 
-	__enable_irq();
+	NVIC_ENABLE_IRQ(IRQ_AUDIO);
 }
 
 void AudioConnection::disconnect(void)
@@ -231,12 +231,12 @@ void AudioConnection::disconnect(void)
 
 	if (!isConnected) return;
 	if (dest_index > dst.num_inputs) return;
-	__disable_irq();
+	NVIC_DISABLE_IRQ(IRQ_AUDIO);
 	// Remove destination from source list
 	p = src.destination_list;
 	if (p == NULL) {
 //>>> PAH re-enable the IRQ
-		__enable_irq();
+		NVIC_ENABLE_IRQ(IRQ_AUDIO);
 		return;
 	} else if (p == this) {
 		if (p->next_dest) {
@@ -263,7 +263,7 @@ void AudioConnection::disconnect(void)
 	if(dst.inputQueue[dest_index] != NULL) {
 		AudioStream::release(dst.inputQueue[dest_index]);
 		// release() re-enables the IRQ. Need it to be disabled a little longer
-		__disable_irq();
+		NVIC_DISABLE_IRQ(IRQ_AUDIO);
 		dst.inputQueue[dest_index] = NULL;
 	}
 
@@ -280,7 +280,7 @@ void AudioConnection::disconnect(void)
 
 	isConnected = false;
 
-	__enable_irq();
+	NVIC_ENABLE_IRQ(IRQ_AUDIO);
 }
 
 
@@ -294,16 +294,16 @@ bool AudioStream::update_scheduled = false;
 bool AudioStream::update_setup(void)
 {
 	if (update_scheduled) return false;
-	attachInterruptVector(IRQ_SOFTWARE, software_isr);
-	NVIC_SET_PRIORITY(IRQ_SOFTWARE, 208); // 255 = lowest priority
-	NVIC_ENABLE_IRQ(IRQ_SOFTWARE);
+	attachInterruptVector(IRQ_AUDIO, software_isr);
+	NVIC_SET_PRIORITY(IRQ_AUDIO, 208); // 255 = lowest priority
+	NVIC_ENABLE_IRQ(IRQ_AUDIO);
 	update_scheduled = true;
 	return true;
 }
 
 void AudioStream::update_stop(void)
 {
-	NVIC_DISABLE_IRQ(IRQ_SOFTWARE);
+	NVIC_DISABLE_IRQ(IRQ_AUDIO);
 	update_scheduled = false;
 }
 
