@@ -30,10 +30,9 @@
 #define HARDFAULTSOUT Serial
 #endif
 
+#include <Arduino.h>
 
 #if SHOW_HARDFAULTS
-
-#include <Arduino.h>
 
 extern unsigned long _ebss;
 	
@@ -272,4 +271,5 @@ extern "C" {
 
 #else
 extern "C" void _hardfaults_init() {};
+extern "C" void _unused_isr(int8_t isr) {};
 #endif
