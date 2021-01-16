@@ -5505,6 +5505,11 @@ typedef struct __attribute__((packed)) {
 #define I2S_MDR_FRACT(n)		((uint32_t)(n & 0xff)<<12)	// MCLK Fraction
 #define I2S_MDR_DIVIDE(n)		((uint32_t)(n & 0xfff))		// MCLK Divide
 
+#if defined(KINETISL)
+#undef I2S_TCSR_FRDE
+#undef I2S_RCSR_FRDE
+#endif
+
 // General-Purpose Input/Output (GPIO)
 
 #define GPIOA_PDOR		(*(volatile uint32_t *)0x400FF000) // Port Data Output Register
