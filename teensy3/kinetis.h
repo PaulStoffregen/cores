@@ -5506,6 +5506,10 @@ typedef struct __attribute__((packed)) {
 #define I2S_MDR_DIVIDE(n)		((uint32_t)(n & 0xfff))		// MCLK Divide
 
 #if defined(KINETISL)
+#undef I2S0_TCR1
+#undef I2S0_RCR1
+#undef I2S_TCR1_TFW
+#undef I2S_RCR1_RFW
 #undef I2S_TCSR_FRDE
 #undef I2S_RCSR_FRDE
 #endif
