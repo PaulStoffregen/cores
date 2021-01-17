@@ -313,4 +313,5 @@ extern "C" {
 #else
 extern "C" void _hardfaults_init() {};
 extern "C" void _unused_isr(int8_t isr) {};
+extern "C" void _die(const char *file, const char *func, unsigned line, const char* msg) {};
 #endif
