@@ -172,7 +172,7 @@ static bool _show_hardfault(void)
   bool found = (_sRegInfo.marker == _marker);
   if (!found) return false;
 
-  Serial.begin(9600);
+  HARDFAULTSOUT.begin(9600);
 
 #if (HARDFAULTSOUT==Serial)
   while (!Serial && millis() < 3000) {}
