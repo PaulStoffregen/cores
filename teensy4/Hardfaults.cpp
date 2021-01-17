@@ -22,10 +22,6 @@
    SOFTWARE.
 */
 
-#ifndef SHOW_HARDFAULTS
-#define SHOW_HARDFAULTS 1
-#endif
-
 #ifndef HARDFAULTSOUT
 #define HARDFAULTSOUT Serial
 #endif
