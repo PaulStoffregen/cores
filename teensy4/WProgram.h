@@ -88,6 +88,24 @@ void srandom(unsigned int newseed);
 #endif // __cplusplus
 
 
+//#define DIE_WITH_PATH
+
+#if !defined(DIE_WITH_PATH)
+#define _FILENAME_ (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : (__builtin_strrchr(__FILE__, '\\') ? __builtin_strrchr(__FILE__, '\\') + 1 : __FILE__) )
+#define DIE(msg) _die(_FILENAME_, __func__, __LINE__, msg)
+#else
+#define DIE(msg) _die(__FILE__, __func__, __LINE__, msg)
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+extern void _die(const char *file, const char *func, unsigned line, const char* msg);
+}
+#else
+extern void _die(const char *file, const char *func, unsigned line, const char* msg);
+#endif
+
+
 // Fast memcpy
 #ifdef __cplusplus
 extern "C" {
