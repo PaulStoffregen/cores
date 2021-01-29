@@ -8105,6 +8105,10 @@ typedef struct
 #define SNVS_LPSMCLR			(IMXRT_SNVS.offset060)
 #define SNVS_LPPGDR			(IMXRT_SNVS.offset064)
 #define SNVS_LPGPR			(IMXRT_SNVS.offset068)
+#define SNVS_LPGPR0                     (IMXRT_SNVS.offset100)
+#define SNVS_LPGPR1                     (IMXRT_SNVS.offset104)
+#define SNVS_LPGPR2                     (IMXRT_SNVS.offset108)
+#define SNVS_LPGPR3                     (IMXRT_SNVS.offset10C)
 #define IMXRT_SNVS_b		(*(IMXRT_REGISTER32_t *)0x400D4800)
 #define SNVS_HPVIDR1			(IMXRT_SNVS_b.offset3F8)
 #define SNVS_HPVIDR2			(IMXRT_SNVS_b.offset3FC)
@@ -8130,7 +8134,7 @@ typedef struct
 #define SNVS_LPCR_ON_TIME(n)		((uint32_t)(((n) & 0x03) << 20))
 #define SNVS_LPCR_PK_EN			((uint32_t)(1 << 22))
 #define SNVS_LPCR_PK_OVERRIDE		((uint32_t)(1 << 23))
-
+#define SNVS_LPCR_GPR_Z_DIS             ((uint32_t)(1 << 24))
 // 40.6: page 2035
 #define IMXRT_SPDIF		(*(IMXRT_REGISTER32_t *)0x40380000)
 #define SPDIF_SCR			(IMXRT_SPDIF.offset000)
