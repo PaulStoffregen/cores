@@ -1313,7 +1313,7 @@ typedef struct {
 #define AOI2_BFCRT233			(IMXRT_AOI2.offset00E)
 
 // 14.7: page 1045
-#define IMXRT_CCM		(*(IMXRT_REGISTER32_t *))IMXRT_CCM_ADDRESS
+#define IMXRT_CCM		(*(IMXRT_REGISTER32_t *)IMXRT_CCM_ADDRESS)
 #define CCM_CCR				(IMXRT_CCM.offset000)
 #define CCM_CSR				(IMXRT_CCM.offset008)
 #define CCM_CCSR			(IMXRT_CCM.offset00C)
