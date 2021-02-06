@@ -64,11 +64,13 @@
 class AudioStream;
 class AudioConnection;
 
+// audio_block_struct stores control information, the actual
+// data buffer is allocated separately.
 typedef struct audio_block_struct {
 	uint8_t  ref_count;
 	uint8_t  reserved1;
 	uint16_t memory_pool_index;
-	int16_t  data[AUDIO_BLOCK_SAMPLES];
+	int16_t  *data;
 } audio_block_t;
 
 
@@ -103,9 +105,13 @@ protected:
 };
 
 
+// Create the array of num audio_block_t for control.
+// Create a DMA 32-byte aligned contiguous block of memory of the required size.
+// Call the initialize_memory() function to finish setting up the audio buffer pool
 #define AudioMemory(num) ({ \
 	static DMAMEM audio_block_t data[num]; \
-	AudioStream::initialize_memory(data, num); \
+        DMAMEM __attribute__((aligned(32))) static int16_t dataBuffers[AUDIO_BLOCK_SAMPLES*num]; \
+	AudioStream::initialize_memory(data, num, dataBuffers); \
 })
 
 #define CYCLE_COUNTER_APPROX_PERCENT(n) (((n) + (F_CPU_ACTUAL / 128 / AUDIO_SAMPLE_RATE * AUDIO_BLOCK_SAMPLES / 100)) / (F_CPU_ACTUAL / 64 / AUDIO_SAMPLE_RATE * AUDIO_BLOCK_SAMPLES / 100))
@@ -141,7 +147,7 @@ public:
 			cpu_cycles_max = 0;
 			numConnections = 0;
 		}
-	static void initialize_memory(audio_block_t *data, unsigned int num);
+	static void initialize_memory(audio_block_t *data, unsigned int num, int16_t *dataBuffers=nullptr);
 	int processorUsage(void) { return CYCLE_COUNTER_APPROX_PERCENT(cpu_cycles); }
 	int processorUsageMax(void) { return CYCLE_COUNTER_APPROX_PERCENT(cpu_cycles_max); }
 	void processorUsageMaxReset(void) { cpu_cycles_max = cpu_cycles; }
