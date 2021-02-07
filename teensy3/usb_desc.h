@@ -722,7 +722,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define MTP_RX_ENDPOINT	3
   #define MTP_RX_SIZE		64
   #define MTP_EVENT_ENDPOINT	4
-  #define MTP_EVENT_SIZE	16
+  #define MTP_EVENT_SIZE	32
   #define MTP_EVENT_INTERVAL	10
   #define SEREMU_INTERFACE      1	// Serial emulation
   #define SEREMU_TX_ENDPOINT    1
@@ -734,8 +734,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT1_CONFIG	ENDPOINT_TRANSMIT_ONLY
   #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_ONLY
   #define ENDPOINT3_CONFIG	ENDPOINT_TRANSMIT_AND_RECEIVE
-  // TODO: Should ENDPOINT4_CONFIG be ENDPOINT_TRANSMIT_ONLY ???
-  #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_ONLY
+  #define ENDPOINT4_CONFIG	ENDPOINT_TRANSMIT_AND_RECEIVE
 
 #elif defined(USB_AUDIO)
   #define VENDOR_ID		0x16C0
