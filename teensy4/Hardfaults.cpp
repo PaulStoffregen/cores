@@ -175,7 +175,7 @@ static bool _show_hardfault(void)
   HARDFAULTSOUT.begin(9600);
 
 #if (HARDFAULTSOUT==Serial)
-  while (!Serial && millis() < 3000) {}
+  while (!Serial && millis() < 10000) {}
 #endif
 
   if (_sRegInfo.temperature) {
