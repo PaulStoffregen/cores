@@ -231,10 +231,9 @@ static void flash_wait()
 		FLEXSPI_IPCR0 = 0;
 		FLEXSPI_IPCR1 = FLEXSPI_IPCR1_ISEQID(15) | FLEXSPI_IPCR1_IDATSZ(1);
 		FLEXSPI_IPCMD = FLEXSPI_IPCMD_TRG;
-		while (!(FLEXSPI_INTR & FLEXSPI_INTR_IPCMDDONE)) {
-			asm("nop");
-		}
+		while (!(FLEXSPI_INTR & FLEXSPI_INTR_IPCMDDONE)) {;}
 		FLEXSPI_INTR = FLEXSPI_INTR_IPCMDDONE;
+		asm("":::"memory");
 		status = *(uint8_t *)&FLEXSPI_RFDR0;
 	} while (status & 1);
 	FLEXSPI_MCR0 |= FLEXSPI_MCR0_SWRESET; // purge stale data from FlexSPI's AHB FIFO
