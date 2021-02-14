@@ -108,7 +108,7 @@ protected:
 	AudioStream::initialize_memory(data, num); \
 })
 
-#define CYCLE_COUNTER_APPROX_PERCENT(n) (((n) + (F_CPU_ACTUAL / 128 / AUDIO_SAMPLE_RATE * AUDIO_BLOCK_SAMPLES / 100)) / (F_CPU_ACTUAL / 64 / AUDIO_SAMPLE_RATE * AUDIO_BLOCK_SAMPLES / 100))
+#define CYCLE_COUNTER_APPROX_PERCENT(n) (((float)((uint32_t)(n) * 6400u) * (float)(AUDIO_SAMPLE_RATE_EXACT / AUDIO_BLOCK_SAMPLES)) / (float)(F_CPU_ACTUAL))
 
 #define AudioProcessorUsage() (CYCLE_COUNTER_APPROX_PERCENT(AudioStream::cpu_cycles_total))
 #define AudioProcessorUsageMax() (CYCLE_COUNTER_APPROX_PERCENT(AudioStream::cpu_cycles_total_max))
@@ -142,8 +142,8 @@ public:
 			numConnections = 0;
 		}
 	static void initialize_memory(audio_block_t *data, unsigned int num);
-	int processorUsage(void) { return CYCLE_COUNTER_APPROX_PERCENT(cpu_cycles); }
-	int processorUsageMax(void) { return CYCLE_COUNTER_APPROX_PERCENT(cpu_cycles_max); }
+	float processorUsage(void) { return CYCLE_COUNTER_APPROX_PERCENT(cpu_cycles); }
+	float processorUsageMax(void) { return CYCLE_COUNTER_APPROX_PERCENT(cpu_cycles_max); }
 	void processorUsageMaxReset(void) { cpu_cycles_max = cpu_cycles; }
 	bool isActive(void) { return active; }
 	uint16_t cpu_cycles;
