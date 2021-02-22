@@ -33,7 +33,7 @@
 #include "usb_desc.h"
 #ifdef AUDIO_INTERFACE
 
-#define FEATURE_MAX_VOLUME 0xFFF  // volume accepted from 0 to 0xFFF
+#define FEATURE_MAX_VOLUME 0xFF  // volume accepted from 0 to 0xFF
 
 #ifdef __cplusplus
 extern "C" {
