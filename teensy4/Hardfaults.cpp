@@ -1,6 +1,5 @@
 /* This library code is placed under the MIT license
    Copyright (c) 2020 Frank Bösing
-
    Permission is hereby granted, free of charge, to any person obtaining
    a copy of this software and associated documentation files (the
    "Software"), to deal in the Software without restriction, including
@@ -8,10 +7,8 @@
    distribute, sublicense, and/or sell copies of the Software, and to
    permit persons to whom the Software is furnished to do so, subject to
    the following conditions:
-
    The above copyright notice and this permission notice shall be
    included in all copies or substantial portions of the Software.
-
    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -22,6 +19,8 @@
    SOFTWARE.
 */
 
+#define SHOW_HARDFAULTS 0  // 0 is disabled and 1 will enable
+
 #ifndef HARDFAULTSOUT
 #define HARDFAULTSOUT Serial
 #endif
@@ -31,6 +30,23 @@
 #if SHOW_HARDFAULTS
 #pragma GCC push_options
 #pragma GCC optimize("Os")
+
+DMAMEM char _bufHF[256]; // this  works
+//EXTMEM char bufHF[256]; // this also works - given PSRAM
+FLASHMEM
+__attribute__((weak))
+void userHFDebugDump( char *memHF, bool bState ){
+  if ( bState ) {
+    // User code to record state on Fault here
+    // memHF points to 256 Bytes of DMAMEM, sketch can allocate userMem in DMAMEM or EXTMEM with PSRAM
+    // If using memory before return do arm_dcache_flush((void*)&userMem, sizeof(userMem));
+  }
+  else {
+    // User version in SKETCH will come here on Restart after Fault
+    // Serial.print("\nFAULT RECOVERY \n");
+  }
+  return;
+}
 
 extern unsigned long _ebss;
 
@@ -108,6 +124,8 @@ extern "C" {
     _sRegInfo.temperature = 0;
     _sRegInfo.died = 0;
     arm_dcache_flush((void*)&_sRegInfo, sizeof(_tRegInfo));
+    userHFDebugDump( _bufHF, true );
+    arm_dcache_flush((void*)&_bufHF, sizeof(_bufHF));
     _reset();
 
   }
@@ -145,7 +163,7 @@ extern "C" {
     _sRegInfo.unusedISR = isr;
     _sRegInfo.marker = _marker;
     arm_dcache_flush((void*)&_sRegInfo, sizeof(_tRegInfo));
-    _reset();
+  _reset();
   }
 
   FLASHMEM
@@ -279,7 +297,8 @@ static bool _show_hardfault(void)
       } else if (((_CFSR & (0x2000000)) >> 25) == 1) {
         HARDFAULTSOUT.println("\t(DIVBYZERO) Divide by zero");
       }
-    }
+      userHFDebugDump( _bufHF, false );
+  }
 
     uint32_t _HFSR = _sRegInfo.hfsr;
     if (_HFSR > 0) {
