@@ -104,7 +104,6 @@ void ResetHandler(void)
 	printf("\n***********IMXRT Startup**********\n");
 	printf("test %d %d %d\n", 1, -1234567, 3);
 
-	configure_cache();
 	configure_systick();
 	usb_pll_start();	
 	reset_PFD(); //TODO: is this really needed?
@@ -132,6 +131,7 @@ void ResetHandler(void)
 #ifdef ARDUINO_TEENSY41
 	configure_external_ram();
 #endif
+	configure_cache();
 	startup_early_hook();
 	while (millis() < 20) ; // wait at least 20ms before starting USB
 	usb_init();
@@ -254,11 +254,25 @@ FLASHMEM void configure_cache(void)
 	SCB_MPU_RBAR = 0x40000000 | REGION(i++); // Peripherals
 	SCB_MPU_RASR = DEV_NOCACHE | READWRITE | NOEXEC | SIZE_64M;
 
-	SCB_MPU_RBAR = 0x60000000 | REGION(i++); // QSPI Flash
+#if defined(ARDUINO_TEENSYMM) // QSPI Flash
+	SCB_MPU_RBAR = 0x60000000 | REGION(i++); 
 	SCB_MPU_RASR = MEM_CACHE_WBWA | READONLY | SIZE_16M;
-
-	SCB_MPU_RBAR = 0x70000000 | REGION(i++); // FlexSPI2
-	SCB_MPU_RASR = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_16M;
+#elif defined(ARDUINO_TEENSY41)
+	SCB_MPU_RBAR = 0x60000000 | REGION(i++);
+	SCB_MPU_RASR = MEM_CACHE_WBWA | READONLY | SIZE_8M;
+#elif defined(ARDUINO_TEENSY40)
+	SCB_MPU_RBAR = 0x60000000 | REGION(i++);
+	SCB_MPU_RASR = MEM_CACHE_WBWA | READONLY | SIZE_2M;
+#endif
+	
+	// FlexSPI2 PSRAM
+        if (external_psram_size == 16) { 
+		SCB_MPU_RBAR = 0x70000000 | REGION(i++);
+		SCB_MPU_RASR = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_16M;
+	} else if (external_psram_size == 8) {
+		SCB_MPU_RBAR = 0x70000000 | REGION(i++);
+		SCB_MPU_RASR = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_8M;
+	}
 
 	// TODO: protect access to power supply config
 
