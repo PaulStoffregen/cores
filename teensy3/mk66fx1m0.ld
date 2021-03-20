@@ -75,6 +75,11 @@ SECTIONS
 	.dmabuffers (NOLOAD) : {
 		. = ALIGN(4);
 		*(.dmabuffers*)
+		_saudio = .;
+		*(.audio)
+		_caudio = .;
+		*(.audiocheck)
+		_eaudio = .;		
 	} > RAM
 
 	.usbbuffers (NOLOAD) : {
@@ -111,6 +116,6 @@ SECTIONS
 	_teensy_model_identifier = 0x22;
 }
 
-
+ASSERT (  ! ( _eaudio != _caudio && _caudio == _saudio) , "AudioMemory() not found.")
 
 
