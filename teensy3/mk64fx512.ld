@@ -75,6 +75,7 @@ SECTIONS
 	.dmabuffers (NOLOAD) : {
 		. = ALIGN(4);
 		*(.dmabuffers*)
+		. = ALIGN(4);
 		_saudio = .;
 		*(.audio)
 		_caudio = .;
