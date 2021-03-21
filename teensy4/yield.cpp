@@ -30,6 +30,7 @@
 
 #include <Arduino.h>
 #include "EventResponder.h"
+#include "usb_dev.h"
 
 #ifdef USB_TRIPLE_SERIAL
 uint8_t yield_active_check_flags = YIELD_CHECK_USB_SERIAL | YIELD_CHECK_USB_SERIALUSB1 | YIELD_CHECK_USB_SERIALUSB2; // default to check USB.
@@ -54,13 +55,12 @@ void yield(void)
 	if (running) return; // TODO: does this need to be atomic?
 	running = 1;
 
-
-	// USB Serail - Add hack to minimize impact...
+#if defined(CDC_STATUS_INTERFACE) && defined(CDC_DATA_INTERFACE)
 	if (yield_active_check_flags & YIELD_CHECK_USB_SERIAL) {
 		if (Serial.available()) serialEvent();
 		if (_serialEvent_default) yield_active_check_flags &= ~YIELD_CHECK_USB_SERIAL;
 	}
-
+#endif
 #if defined(USB_DUAL_SERIAL) || defined(USB_TRIPLE_SERIAL)
 	if (yield_active_check_flags & YIELD_CHECK_USB_SERIALUSB1) {
 		if (SerialUSB1.available()) serialEventUSB1();
