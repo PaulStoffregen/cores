@@ -8,18 +8,18 @@
 #include "debug/printf.h"
 
 // from the linker
-extern unsigned long _stextload;
-extern unsigned long _stext;
-extern unsigned long _etext;
-extern unsigned long _sdataload;
-extern unsigned long _sdata;
-extern unsigned long _edata;
-extern unsigned long _sbss;
-extern unsigned long _ebss;
-extern unsigned long _flexram_bank_config;
-extern unsigned long _estack;
-extern unsigned long _extram_start;
-extern unsigned long _extram_end;
+extern const unsigned long _stextload;
+extern const unsigned long _stext;
+extern const unsigned long _etext;
+extern const unsigned long _sdataload;
+extern const unsigned long _sdata;
+extern const unsigned long _edata;
+extern const unsigned long _sbss;
+extern const unsigned long _ebss;
+extern const unsigned long _flexram_bank_config;
+extern const unsigned long _estack;
+extern const unsigned long _extram_start;
+extern const unsigned long _extram_end;
 
 __attribute__ ((used, aligned(1024)))
 void (* _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
