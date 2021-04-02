@@ -16,6 +16,7 @@ extern unsigned long _sdata;
 extern unsigned long _edata;
 extern unsigned long _sbss;
 extern unsigned long _ebss;
+extern unsigned long _itcm_block_count;
 extern unsigned long _flexram_bank_config;
 extern unsigned long _estack;
 extern unsigned long _extram_start;
