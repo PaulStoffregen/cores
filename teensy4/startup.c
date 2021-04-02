@@ -226,13 +226,35 @@ FLASHMEM void configure_cache(void)
 	// TODO: check if caches already active - skip?
 
 	SCB_MPU_CTRL = 0; // turn off MPU
+	
+	//Reset all regions:
+	for (uint32_t i = 0; i < 16; i++) {
+		SCB_MPU_RBAR = REGION(i);
+		SCB_MPU_RASR = 0;
+	}
 
 	uint32_t i = 0;
 	SCB_MPU_RBAR = 0x00000000 | REGION(i++); //https://developer.arm.com/docs/146793866/10/why-does-the-cortex-m7-initiate-axim-read-accesses-to-memory-addresses-that-do-not-fall-under-a-defined-mpu-region
 	SCB_MPU_RASR = SCB_MPU_RASR_TEX(0) | NOACCESS | NOEXEC | SIZE_4G;
-	
-	SCB_MPU_RBAR = 0x00000000 | REGION(i++); // ITCM
-	SCB_MPU_RASR = MEM_NOCACHE | READWRITE | SIZE_512K;
+		
+	 // ITCM :
+	size_t itcm_block_count = (uint32_t)&_itcm_block_count;	
+	uint32_t itcm;
+
+	switch (itcm_block_count) {
+		case 0: itcm = 0; break;
+		case 1: itcm = SIZE_32K; break;
+		case 2: itcm = SIZE_64K; break;
+		case 3 ... 4: itcm = SIZE_128K; break;
+		case 5 ... 8: itcm = SIZE_256K; break;
+		default: itcm = SIZE_512K;
+	}
+
+	if (itcm > 0) {	
+		SCB_MPU_RBAR = 0x00000000 | REGION(i++);
+		SCB_MPU_RASR = MEM_NOCACHE | READWRITE | itcm;
+	}
+
 
 	// TODO: trap regions should be created last, because the hardware gives
 	//  priority to the higher number ones.
@@ -242,8 +264,22 @@ FLASHMEM void configure_cache(void)
 	SCB_MPU_RBAR = 0x00200000 | REGION(i++); // Boot ROM
 	SCB_MPU_RASR = MEM_CACHE_WT | READONLY | SIZE_128K;
 
-	SCB_MPU_RBAR = 0x20000000 | REGION(i++); // DTCM
-	SCB_MPU_RASR = MEM_NOCACHE | READWRITE | NOEXEC | SIZE_512K;
+	// DTCM :
+	size_t dtcm_block_count = 16 - itcm_block_count;
+	uint32_t dtcm;
+	switch (dtcm_block_count) {
+		case 0: dtcm = 0; break;
+		case 1: dtcm = SIZE_32K; break;
+		case 2: dtcm = SIZE_64K; break;
+		case 3 ... 4: dtcm = SIZE_128K; break;
+		case 5 ... 8: dtcm = SIZE_256K; break;
+		default: dtcm = SIZE_512K;
+	}
+	
+	if (dtcm > 0) {
+		SCB_MPU_RBAR = 0x20000000 | REGION(i++);
+		SCB_MPU_RASR = MEM_NOCACHE | READWRITE | NOEXEC | dtcm;
+	}
 	
 	SCB_MPU_RBAR = ((uint32_t)&_ebss) | REGION(i++); // trap stack overflow
 	SCB_MPU_RASR = SCB_MPU_RASR_TEX(0) | NOACCESS | NOEXEC | SIZE_32B;
@@ -254,7 +290,7 @@ FLASHMEM void configure_cache(void)
 	SCB_MPU_RBAR = 0x40000000 | REGION(i++); // Peripherals
 	SCB_MPU_RASR = DEV_NOCACHE | READWRITE | NOEXEC | SIZE_64M;
 
-#if defined(ARDUINO_TEENSY_MICROMOD) // QSPI Flash
+#if defined(ARDUINO_TEENSYMM) // QSPI Flash
 	SCB_MPU_RBAR = 0x60000000 | REGION(i++); 
 	SCB_MPU_RASR = MEM_CACHE_WBWA | READONLY | SIZE_16M;
 #elif defined(ARDUINO_TEENSY41)
