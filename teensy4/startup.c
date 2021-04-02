@@ -227,7 +227,7 @@ FLASHMEM void configure_cache(void)
 	// TODO: check if caches already active - skip?
 
 	SCB_MPU_CTRL = 0; // turn off MPU
-	
+
 	//Reset all regions:
 	for (uint32_t i = 0; i < 16; i++) {
 		SCB_MPU_RBAR = REGION(i);
@@ -237,21 +237,29 @@ FLASHMEM void configure_cache(void)
 	uint32_t i = 0;
 	SCB_MPU_RBAR = 0x00000000 | REGION(i++); //https://developer.arm.com/docs/146793866/10/why-does-the-cortex-m7-initiate-axim-read-accesses-to-memory-addresses-that-do-not-fall-under-a-defined-mpu-region
 	SCB_MPU_RASR = SCB_MPU_RASR_TEX(0) | NOACCESS | NOEXEC | SIZE_4G;
-		
+
 	 // ITCM :
-	size_t itcm_block_count = (uint32_t)&_itcm_block_count;	
+	size_t itcm_block_count = (uint32_t)&_itcm_block_count;
 	uint32_t itcm;
+	const size_t sizetable[16] = { 
+		0, SIZE_32K, SIZE_64K,	// 0, 32k, 64k
+		SIZE_128K | (0b11000000 << 8), // 96k => 128k but disable upper 32K
+		SIZE_128K,
+		SIZE_256K | (0b11100000 << 8), // 160k => 256k but disable upper 96K
+		SIZE_256K | (0b11000000 << 8), // 192k => 256k but disable upper 64K
+		SIZE_256K | (0b10000000 << 8), // 224k => 256k but disable upper 32K
+		SIZE_256K,
+		SIZE_512K | (0b11100000 << 8), // 288k => 512k but disable upper 192K
+		SIZE_512K | (0b11100000 << 8), // 320k => 512k but disable upper 192K
+		SIZE_512K | (0b11000000 << 8), // 352k => 512k but disable upper 128K
+		SIZE_512K | (0b11000000 << 8), // 384k => 512k but disable upper 128K
+		SIZE_512K | (0b10000000 << 8), // 416k => 512k but disable upper 64K
+		SIZE_512K | (0b10000000 << 8), // 448k => 512k but disable upper 64K
+		SIZE_512K
+	};
+        itcm = sizetable[itcm_block_count & 0x0f];
 
-	switch (itcm_block_count) {
-		case 0: itcm = 0; break;
-		case 1: itcm = SIZE_32K; break;
-		case 2: itcm = SIZE_64K; break;
-		case 3 ... 4: itcm = SIZE_128K; break;
-		case 5 ... 8: itcm = SIZE_256K; break;
-		default: itcm = SIZE_512K;
-	}
-
-	if (itcm > 0) {	
+	if (itcm > 0) {
 		SCB_MPU_RBAR = 0x00000000 | REGION(i++);
 		SCB_MPU_RASR = MEM_NOCACHE | READWRITE | itcm;
 	}
@@ -267,21 +275,13 @@ FLASHMEM void configure_cache(void)
 
 	// DTCM :
 	size_t dtcm_block_count = 16 - itcm_block_count;
-	uint32_t dtcm;
-	switch (dtcm_block_count) {
-		case 0: dtcm = 0; break;
-		case 1: dtcm = SIZE_32K; break;
-		case 2: dtcm = SIZE_64K; break;
-		case 3 ... 4: dtcm = SIZE_128K; break;
-		case 5 ... 8: dtcm = SIZE_256K; break;
-		default: dtcm = SIZE_512K;
-	}
-	
+	uint32_t dtcm = sizetable[dtcm_block_count & 0x0f];
+
 	if (dtcm > 0) {
-		SCB_MPU_RBAR = 0x20000000 | REGION(i++);
+		SCB_MPU_RBAR = 0x20000000 | REGION(i++); // DTCM
 		SCB_MPU_RASR = MEM_NOCACHE | READWRITE | NOEXEC | dtcm;
 	}
-	
+
 	SCB_MPU_RBAR = ((uint32_t)&_ebss) | REGION(i++); // trap stack overflow
 	SCB_MPU_RASR = SCB_MPU_RASR_TEX(0) | NOACCESS | NOEXEC | SIZE_32B;
 
@@ -292,7 +292,7 @@ FLASHMEM void configure_cache(void)
 	SCB_MPU_RASR = DEV_NOCACHE | READWRITE | NOEXEC | SIZE_64M;
 
 #if defined(ARDUINO_TEENSY_MICROMOD) // QSPI Flash
-	SCB_MPU_RBAR = 0x60000000 | REGION(i++); 
+	SCB_MPU_RBAR = 0x60000000 | REGION(i++);
 	SCB_MPU_RASR = MEM_CACHE_WBWA | READONLY | SIZE_16M;
 #elif defined(ARDUINO_TEENSY41)
 	SCB_MPU_RBAR = 0x60000000 | REGION(i++);
@@ -301,9 +301,9 @@ FLASHMEM void configure_cache(void)
 	SCB_MPU_RBAR = 0x60000000 | REGION(i++);
 	SCB_MPU_RASR = MEM_CACHE_WBWA | READONLY | SIZE_2M;
 #endif
-	
+
 	// FlexSPI2 PSRAM
-        if (external_psram_size == 16) { 
+        if (external_psram_size == 16) {
 		SCB_MPU_RBAR = 0x70000000 | REGION(i++);
 		SCB_MPU_RASR = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_16M;
 	} else if (external_psram_size == 8) {
@@ -324,6 +324,7 @@ FLASHMEM void configure_cache(void)
 	asm("isb");
 	SCB_CCR |= (SCB_CCR_IC | SCB_CCR_DC);
 }
+
 
 #ifdef ARDUINO_TEENSY41
 
