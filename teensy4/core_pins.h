@@ -56,46 +56,51 @@
 #define CORE_NUM_ANALOG		14
 #define CORE_NUM_PWM		27
 
-#define CORE_PIN0_BIT		3
-#define CORE_PIN1_BIT		2
-#define CORE_PIN2_BIT		4
-#define CORE_PIN3_BIT		5
-#define CORE_PIN4_BIT		6
-#define CORE_PIN5_BIT		8
-#define CORE_PIN6_BIT		10
-#define CORE_PIN7_BIT		17
-#define CORE_PIN8_BIT		16
-#define CORE_PIN9_BIT		11
-#define CORE_PIN10_BIT		0
-#define CORE_PIN11_BIT		2
-#define CORE_PIN12_BIT		1
-#define CORE_PIN13_BIT		3
-#define CORE_PIN14_BIT		18
-#define CORE_PIN15_BIT		19
-#define CORE_PIN16_BIT		23
-#define CORE_PIN17_BIT		22
-#define CORE_PIN18_BIT		17
-#define CORE_PIN19_BIT		16
-#define CORE_PIN20_BIT		26
-#define CORE_PIN21_BIT		27
-#define CORE_PIN22_BIT		24
-#define CORE_PIN23_BIT		25
-#define CORE_PIN24_BIT		12
-#define CORE_PIN25_BIT		13
-#define CORE_PIN26_BIT		30
-#define CORE_PIN27_BIT		31
-#define CORE_PIN28_BIT		18
-#define CORE_PIN29_BIT		31
-#define CORE_PIN30_BIT		23
-#define CORE_PIN31_BIT		22
-#define CORE_PIN32_BIT		12
-#define CORE_PIN33_BIT		7
-#define CORE_PIN34_BIT		15
-#define CORE_PIN35_BIT		14
-#define CORE_PIN36_BIT		13
-#define CORE_PIN37_BIT		12
-#define CORE_PIN38_BIT		17
-#define CORE_PIN39_BIT		16
+#define CORE_PIN0_BIT		3	// GPIO 6
+#define CORE_PIN1_BIT		2       // GPIO 6
+#define CORE_PIN2_BIT		4       // GPIO 9
+#define CORE_PIN3_BIT		5       // GPIO 9
+#define CORE_PIN4_BIT		6       // GPIO 9
+#define CORE_PIN5_BIT		8       // GPIO 9
+#define CORE_PIN6_BIT		10      // GPIO 7
+#define CORE_PIN7_BIT		17      // GPIO 7
+#define CORE_PIN8_BIT		16      // GPIO 7
+#define CORE_PIN9_BIT		11      // GPIO 7
+#define CORE_PIN10_BIT		0       // GPIO 7
+#define CORE_PIN11_BIT		2       // GPIO 7
+#define CORE_PIN12_BIT		1       // GPIO 7
+#define CORE_PIN13_BIT		3       // GPIO 7
+#define CORE_PIN14_BIT		18      // GPIO 6
+#define CORE_PIN15_BIT		19      // GPIO 6
+#define CORE_PIN16_BIT		23      // GPIO 6
+#define CORE_PIN17_BIT		22      // GPIO 6
+#define CORE_PIN18_BIT		17      // GPIO 6
+#define CORE_PIN19_BIT		16      // GPIO 6
+#define CORE_PIN20_BIT		26      // GPIO 6
+#define CORE_PIN21_BIT		27      // GPIO 6
+#define CORE_PIN22_BIT		24      // GPIO 6
+#define CORE_PIN23_BIT		25      // GPIO 6
+#define CORE_PIN24_BIT		12      // GPIO 6
+#define CORE_PIN25_BIT		13      // GPIO 6
+#define CORE_PIN26_BIT		30      // GPIO 6
+#define CORE_PIN27_BIT		31      // GPIO 6
+#define CORE_PIN28_BIT		18      // GPIO 8
+#define CORE_PIN29_BIT		31      // GPIO 9
+#define CORE_PIN30_BIT		23      // GPIO 8
+#define CORE_PIN31_BIT		22      // GPIO 8
+#define CORE_PIN32_BIT		12      // GPIO 7
+#define CORE_PIN33_BIT		7       // GPIO 9
+#define CORE_PIN34_BIT		15      // GPIO 8
+#define CORE_PIN35_BIT		14      // GPIO 8
+#define CORE_PIN36_BIT		13      // GPIO 8
+#define CORE_PIN37_BIT		12      // GPIO 8
+#define CORE_PIN38_BIT		17      // GPIO 8
+#define CORE_PIN39_BIT		16      // GPIO 8
+
+#define CORE_MAX_PIN_PORT1 	31      // GPIO 6
+#define CORE_MAX_PIN_PORT2 	17      // GPIO 7
+#define CORE_MAX_PIN_PORT3 	18      // GPIO 8
+#define CORE_MAX_PIN_PORT4 	31      // GPIO 9
 
 #define CORE_PIN0_BITMASK	(1<<(CORE_PIN0_BIT))
 #define CORE_PIN1_BITMASK	(1<<(CORE_PIN1_BIT))
@@ -555,61 +560,66 @@
 #define CORE_NUM_ANALOG		18
 #define CORE_NUM_PWM		31
 
-#define CORE_PIN0_BIT		3
-#define CORE_PIN1_BIT		2
-#define CORE_PIN2_BIT		4
-#define CORE_PIN3_BIT		5
-#define CORE_PIN4_BIT		6
-#define CORE_PIN5_BIT		8
-#define CORE_PIN6_BIT		10
-#define CORE_PIN7_BIT		17
-#define CORE_PIN8_BIT		16
-#define CORE_PIN9_BIT		11
-#define CORE_PIN10_BIT		0
-#define CORE_PIN11_BIT		2
-#define CORE_PIN12_BIT		1
-#define CORE_PIN13_BIT		3
-#define CORE_PIN14_BIT		18
-#define CORE_PIN15_BIT		19
-#define CORE_PIN16_BIT		23
-#define CORE_PIN17_BIT		22
-#define CORE_PIN18_BIT		17
-#define CORE_PIN19_BIT		16
-#define CORE_PIN20_BIT		26
-#define CORE_PIN21_BIT		27
-#define CORE_PIN22_BIT		24
-#define CORE_PIN23_BIT		25
-#define CORE_PIN24_BIT		12
-#define CORE_PIN25_BIT		13
-#define CORE_PIN26_BIT		30
-#define CORE_PIN27_BIT		31
-#define CORE_PIN28_BIT		18
-#define CORE_PIN29_BIT		31
-#define CORE_PIN30_BIT		23
-#define CORE_PIN31_BIT		22
-#define CORE_PIN32_BIT		12
-#define CORE_PIN33_BIT		7
-#define CORE_PIN34_BIT		29
-#define CORE_PIN35_BIT		28
-#define CORE_PIN36_BIT		18
-#define CORE_PIN37_BIT		19
-#define CORE_PIN38_BIT		28
-#define CORE_PIN39_BIT		29
-#define CORE_PIN40_BIT		20
-#define CORE_PIN41_BIT		21
-#define CORE_PIN42_BIT		15
-#define CORE_PIN43_BIT		14
-#define CORE_PIN44_BIT		13
-#define CORE_PIN45_BIT		12
-#define CORE_PIN46_BIT		17
-#define CORE_PIN47_BIT		16
-#define CORE_PIN48_BIT		24
-#define CORE_PIN49_BIT		27
-#define CORE_PIN50_BIT		28
-#define CORE_PIN51_BIT		22
-#define CORE_PIN52_BIT		26
-#define CORE_PIN53_BIT		25
-#define CORE_PIN54_BIT		29
+#define CORE_PIN0_BIT		3	// GPIO 6
+#define CORE_PIN1_BIT		2       // GPIO 6
+#define CORE_PIN2_BIT		4       // GPIO 9
+#define CORE_PIN3_BIT		5       // GPIO 9
+#define CORE_PIN4_BIT		6       // GPIO 9
+#define CORE_PIN5_BIT		8       // GPIO 9
+#define CORE_PIN6_BIT		10      // GPIO 7
+#define CORE_PIN7_BIT		17      // GPIO 7
+#define CORE_PIN8_BIT		16      // GPIO 7
+#define CORE_PIN9_BIT		11      // GPIO 7
+#define CORE_PIN10_BIT		0       // GPIO 7
+#define CORE_PIN11_BIT		2       // GPIO 7
+#define CORE_PIN12_BIT		1       // GPIO 7
+#define CORE_PIN13_BIT		3       // GPIO 7
+#define CORE_PIN14_BIT		18      // GPIO 6
+#define CORE_PIN15_BIT		19      // GPIO 6
+#define CORE_PIN16_BIT		23      // GPIO 6
+#define CORE_PIN17_BIT		22      // GPIO 6
+#define CORE_PIN18_BIT		17      // GPIO 6
+#define CORE_PIN19_BIT		16      // GPIO 6
+#define CORE_PIN20_BIT		26      // GPIO 6
+#define CORE_PIN21_BIT		27      // GPIO 6
+#define CORE_PIN22_BIT		24      // GPIO 6
+#define CORE_PIN23_BIT		25      // GPIO 6
+#define CORE_PIN24_BIT		12      // GPIO 6
+#define CORE_PIN25_BIT		13      // GPIO 6
+#define CORE_PIN26_BIT		30      // GPIO 6
+#define CORE_PIN27_BIT		31      // GPIO 6
+#define CORE_PIN28_BIT		18      // GPIO 8
+#define CORE_PIN29_BIT		31      // GPIO 9
+#define CORE_PIN30_BIT		23      // GPIO 8
+#define CORE_PIN31_BIT		22      // GPIO 8
+#define CORE_PIN32_BIT		12      // GPIO 7
+#define CORE_PIN33_BIT		7       // GPIO 9
+#define CORE_PIN34_BIT		29      // GPIO 7
+#define CORE_PIN35_BIT		28      // GPIO 7
+#define CORE_PIN36_BIT		18      // GPIO 7
+#define CORE_PIN37_BIT		19      // GPIO 7
+#define CORE_PIN38_BIT		28      // GPIO 6
+#define CORE_PIN39_BIT		29      // GPIO 6
+#define CORE_PIN40_BIT		20      // GPIO 6
+#define CORE_PIN41_BIT		21      // GPIO 6
+#define CORE_PIN42_BIT		15      // GPIO 8
+#define CORE_PIN43_BIT		14      // GPIO 8
+#define CORE_PIN44_BIT		13      // GPIO 8
+#define CORE_PIN45_BIT		12      // GPIO 8
+#define CORE_PIN46_BIT		17      // GPIO 8
+#define CORE_PIN47_BIT		16      // GPIO 8
+#define CORE_PIN48_BIT		24      // GPIO 9
+#define CORE_PIN49_BIT		27      // GPIO 9
+#define CORE_PIN50_BIT		28      // GPIO 9
+#define CORE_PIN51_BIT		22      // GPIO 9
+#define CORE_PIN52_BIT		26      // GPIO 9
+#define CORE_PIN53_BIT		25      // GPIO 9
+#define CORE_PIN54_BIT		29      // GPIO 9
+
+#define CORE_MAX_PIN_PORT1 	31      // GPIO 6
+#define CORE_MAX_PIN_PORT2 	29      // GPIO 7
+#define CORE_MAX_PIN_PORT3 	23      // GPIO 8
+#define CORE_MAX_PIN_PORT4 	31      // GPIO 9
 
 #define CORE_PIN0_BITMASK	(1<<(CORE_PIN0_BIT))
 #define CORE_PIN1_BITMASK	(1<<(CORE_PIN1_BIT))
@@ -1214,52 +1224,57 @@
 #define CORE_NUM_ANALOG		14
 #define CORE_NUM_PWM		30
 
-#define CORE_PIN0_BIT		3
-#define CORE_PIN1_BIT		2
-#define CORE_PIN2_BIT		4
-#define CORE_PIN3_BIT		5
-#define CORE_PIN4_BIT		6
-#define CORE_PIN5_BIT		8
-#define CORE_PIN6_BIT		10
-#define CORE_PIN7_BIT		17
-#define CORE_PIN8_BIT		16
-#define CORE_PIN9_BIT		11
-#define CORE_PIN10_BIT		0
-#define CORE_PIN11_BIT		2
-#define CORE_PIN12_BIT		1
-#define CORE_PIN13_BIT		3
-#define CORE_PIN14_BIT		18
-#define CORE_PIN15_BIT		19
-#define CORE_PIN16_BIT		23
-#define CORE_PIN17_BIT		22
-#define CORE_PIN18_BIT		17
-#define CORE_PIN19_BIT		16
-#define CORE_PIN20_BIT		26
-#define CORE_PIN21_BIT		27
-#define CORE_PIN22_BIT		24
-#define CORE_PIN23_BIT		25
-#define CORE_PIN24_BIT		12
-#define CORE_PIN25_BIT		13
-#define CORE_PIN26_BIT		30
-#define CORE_PIN27_BIT		31
-#define CORE_PIN28_BIT		18
-#define CORE_PIN29_BIT		31
-#define CORE_PIN30_BIT		23
-#define CORE_PIN31_BIT		22
-#define CORE_PIN32_BIT		12
-#define CORE_PIN33_BIT		7
-#define CORE_PIN34_BIT		15
-#define CORE_PIN35_BIT		14
-#define CORE_PIN36_BIT		13
-#define CORE_PIN37_BIT		12
-#define CORE_PIN38_BIT		17
-#define CORE_PIN39_BIT		16
-#define CORE_PIN40_BIT		4
-#define CORE_PIN41_BIT		5
-#define CORE_PIN42_BIT		6
-#define CORE_PIN43_BIT		7
-#define CORE_PIN44_BIT		8
-#define CORE_PIN45_BIT		9
+#define CORE_PIN0_BIT		3	// GPIO 6
+#define CORE_PIN1_BIT		2       // GPIO 6
+#define CORE_PIN2_BIT		4       // GPIO 9
+#define CORE_PIN3_BIT		5       // GPIO 9
+#define CORE_PIN4_BIT		6       // GPIO 9
+#define CORE_PIN5_BIT		8       // GPIO 9
+#define CORE_PIN6_BIT		10      // GPIO 7
+#define CORE_PIN7_BIT		17      // GPIO 7
+#define CORE_PIN8_BIT		16      // GPIO 7
+#define CORE_PIN9_BIT		11      // GPIO 7
+#define CORE_PIN10_BIT		0       // GPIO 7
+#define CORE_PIN11_BIT		2       // GPIO 7
+#define CORE_PIN12_BIT		1       // GPIO 7
+#define CORE_PIN13_BIT		3       // GPIO 7
+#define CORE_PIN14_BIT		18      // GPIO 6
+#define CORE_PIN15_BIT		19      // GPIO 6
+#define CORE_PIN16_BIT		23      // GPIO 6
+#define CORE_PIN17_BIT		22      // GPIO 6
+#define CORE_PIN18_BIT		17      // GPIO 6
+#define CORE_PIN19_BIT		16      // GPIO 6
+#define CORE_PIN20_BIT		26      // GPIO 6
+#define CORE_PIN21_BIT		27      // GPIO 6
+#define CORE_PIN22_BIT		24      // GPIO 6
+#define CORE_PIN23_BIT		25      // GPIO 6
+#define CORE_PIN24_BIT		12      // GPIO 6
+#define CORE_PIN25_BIT		13      // GPIO 6
+#define CORE_PIN26_BIT		30      // GPIO 6
+#define CORE_PIN27_BIT		31      // GPIO 6
+#define CORE_PIN28_BIT		18      // GPIO 8
+#define CORE_PIN29_BIT		31      // GPIO 9
+#define CORE_PIN30_BIT		23      // GPIO 8
+#define CORE_PIN31_BIT		22      // GPIO 8
+#define CORE_PIN32_BIT		12      // GPIO 7
+#define CORE_PIN33_BIT		7       // GPIO 9
+#define CORE_PIN34_BIT		15      // GPIO 8
+#define CORE_PIN35_BIT		14      // GPIO 8
+#define CORE_PIN36_BIT		13      // GPIO 8
+#define CORE_PIN37_BIT		12      // GPIO 8
+#define CORE_PIN38_BIT		17      // GPIO 8
+#define CORE_PIN39_BIT		16      // GPIO 8
+#define CORE_PIN40_BIT		4       // GPIO 7
+#define CORE_PIN41_BIT		5       // GPIO 7
+#define CORE_PIN42_BIT		6       // GPIO 7
+#define CORE_PIN43_BIT		7       // GPIO 7
+#define CORE_PIN44_BIT		8       // GPIO 7
+#define CORE_PIN45_BIT		9       // GPIO 7
+
+#define CORE_MAX_PIN_PORT1 	31      // GPIO 6
+#define CORE_MAX_PIN_PORT2 	17      // GPIO 7
+#define CORE_MAX_PIN_PORT3 	23      // GPIO 8
+#define CORE_MAX_PIN_PORT4 	31      // GPIO 9
 
 #define CORE_PIN0_BITMASK	(1<<(CORE_PIN0_BIT))
 #define CORE_PIN1_BITMASK	(1<<(CORE_PIN1_BIT))
@@ -2402,7 +2417,3 @@ public:
 extern teensy3_clock_class Teensy3Clock;
 
 #endif // __cplusplus
-
-
-
-
