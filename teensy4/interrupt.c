@@ -14,14 +14,6 @@
 static void dummy_isr() {};
 typedef void (*voidFuncPtr)(void);
 
-// TODO: Use of Fast GPIO6 - GPIO9 probably breaks everything about attachInterrupt()
-
-// TODO: define these properly in core_pins.h - don't waste memory
-#define CORE_MAX_PIN_PORT1 31
-#define CORE_MAX_PIN_PORT2 31
-#define CORE_MAX_PIN_PORT3 31
-#define CORE_MAX_PIN_PORT4 31
-
 voidFuncPtr isr_table_gpio1[CORE_MAX_PIN_PORT1+1] = { [0 ... CORE_MAX_PIN_PORT1] = dummy_isr };
 voidFuncPtr isr_table_gpio2[CORE_MAX_PIN_PORT2+1] = { [0 ... CORE_MAX_PIN_PORT2] = dummy_isr };
 voidFuncPtr isr_table_gpio3[CORE_MAX_PIN_PORT3+1] = { [0 ... CORE_MAX_PIN_PORT3] = dummy_isr };
@@ -29,7 +21,7 @@ voidFuncPtr isr_table_gpio4[CORE_MAX_PIN_PORT4+1] = { [0 ... CORE_MAX_PIN_PORT4]
 
 #if defined(__IMXRT1062__)
 FASTRUN static inline __attribute__((always_inline))
-inline void irq_anyport(volatile uint32_t *gpio, voidFuncPtr *table)
+void irq_anyport(volatile uint32_t *gpio, voidFuncPtr *table)
 {
 	uint32_t status = gpio[ISR_INDEX] & gpio[IMR_INDEX];
 	if (status) {
