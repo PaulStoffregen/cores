@@ -63,6 +63,7 @@
 #ifndef __ASSEMBLER__
 class AudioStream;
 class AudioConnection;
+class AudioDebug;
 
 typedef struct audio_block_struct {
 	uint8_t  ref_count;
@@ -70,6 +71,7 @@ typedef struct audio_block_struct {
 	uint16_t memory_pool_index;
 	int16_t  data[AUDIO_BLOCK_SAMPLES];
 } audio_block_t;
+
 
 
 class AudioConnection
@@ -98,8 +100,9 @@ protected:
 	AudioStream &dst;
 	unsigned char src_index;
 	unsigned char dest_index;
-	AudioConnection *next_dest;
+	AudioConnection *next_dest; // linked list of connections from one source
 	bool isConnected;
+	friend class AudioDebug;
 };
 
 
@@ -165,6 +168,7 @@ protected:
 	static void update_all(void) { NVIC_SET_PENDING(IRQ_SOFTWARE); }
 	friend void software_isr(void);
 	friend class AudioConnection;
+	friend class AudioDebug;
 	uint8_t numConnections;
 private:
 	AudioConnection *destination_list;
@@ -178,5 +182,27 @@ private:
 	static uint16_t memory_pool_first_mask;
 };
 
-#endif
-#endif
+class AudioDebug
+{
+	public:
+		// info on connections
+		AudioStream& getSrc(AudioConnection& c) { return c.src;};
+		AudioStream& getDst(AudioConnection& c) { return c.dst;};
+		unsigned char getSrcN(AudioConnection& c) { return c.src_index;};
+		unsigned char getDstN(AudioConnection& c) { return c.dest_index;};
+		AudioConnection* getNext(AudioConnection& c) { return c.next_dest;};
+		bool isConnected(AudioConnection& c) { return c.isConnected;};
+		
+		// info on streams
+		AudioConnection* dstList(AudioStream& s) { return s.destination_list;};
+		audio_block_t ** inqList(AudioStream& s) { return s.inputQueue;};
+		uint8_t 	 	 getNumInputs(AudioStream& s) { return s.num_inputs;};
+		AudioStream*     firstUpdate(AudioStream& s) { return s.first_update;};
+		AudioStream* 	 nextUpdate(AudioStream& s) { return s.next_update;};
+		uint8_t 	 	 getNumConnections(AudioStream& s) { return s.numConnections;};
+		bool 	 	 	 isActive(AudioStream& s) { return s.active;};
+		 
+		
+};
+#endif // __ASSEMBLER__
+#endif // AudioStream_h
