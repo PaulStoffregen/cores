@@ -151,8 +151,8 @@ void AudioStream::transmit(audio_block_t *block, unsigned char index)
 {
 	for (AudioConnection *c = destination_list; c != NULL; c = c->next_dest) {
 		if (c->src_index == index) {
-			if (c->dst.inputQueue[c->dest_index] == NULL) {
-				c->dst.inputQueue[c->dest_index] = block;
+			if (c->dst->inputQueue[c->dest_index] == NULL) {
+				c->dst->inputQueue[c->dest_index] = block;
 				block->ref_count++;
 			}
 		}
@@ -191,38 +191,101 @@ audio_block_t * AudioStream::receiveWritable(unsigned int index)
 }
 
 
-void AudioConnection::connect(void)
+int AudioConnection::connect(void)
 {
+	int result = 0;
 	AudioConnection *p;
+	AudioStream* s;
 
-	if (isConnected) return;
-	if (dest_index > dst.num_inputs) return;
-	__disable_irq();
-	p = src.destination_list;
-	if (p == NULL) {
-		src.destination_list = this;
-	} else {
-		while (p->next_dest) {
-			if (&p->src == &this->src && &p->dst == &this->dst
-				&& p->src_index == this->src_index && p->dest_index == this->dest_index) {
-				//Source and destination already connected through another connection, abort
-				__enable_irq();
-				return;
-			}
-			p = p->next_dest;
+	do 
+	{
+		if (isConnected) 
+		{
+			result = 16;
+			break;
 		}
-		p->next_dest = this;
-	}
-	this->next_dest = NULL;
-	src.numConnections++;
-	src.active = true;
+		if (dest_index > dst->num_inputs) 
+		{
+			result = 32;
+			break;
+		}
+		__disable_irq();
+		
+		// First check the destination's input isn't already in use
+		s = AudioStream::first_update; // first AudioStream in the stream list
+		while (s) // go through all AudioStream objects
+		{
+			p = s->destination_list;	// first destination in this stream's list
+			while (p)
+			{
+				if (p->dst == dst && p->dest_index == dest_index) // same destination - it's in use!
+				{
+					__enable_irq();
+					return false;
+				}
+				p = p->next_dest;
+			}
+			s = s->next_update;
+		}
+		
+		// Now try to add this connection to the source's destination list
+		p = src->destination_list; // first AudioConnection
+		if (p == NULL) 
+		{
+			src->destination_list = this;
+		} 
+		else 
+		{
+			while (p->next_dest)  // scan source Stream's connection list for duplicates
+			{
+				
+				if (&p->src == &this->src && &p->dst == &this->dst
+					&& p->src_index == this->src_index && p->dest_index == this->dest_index) 
+				{
+					//Source and destination already connected through another connection, abort
+					__enable_irq();
+					return false;
+				}
+				p = p->next_dest;
+			}
+			p->next_dest = this; // end of list, can link ourselves in
+		}
+		next_dest = NULL;
+		src->numConnections++;
+		src->active = true;
 
-	dst.numConnections++;
-	dst.active = true;
+		dst->numConnections++;
+		dst->active = true;
 
-	isConnected = true;
-
+		isConnected = true;
+		
+		result |= 1;
+	} while (0);
+	
 	__enable_irq();
+	
+	return result;
+}
+
+
+int AudioConnection::connect(AudioStream &source, unsigned char sourceOutput,
+		AudioStream &destination, unsigned char destinationInput)
+{
+	int result = 0;
+	
+	if (!isConnected)
+	{
+		int cr;
+		
+		src = &source;
+		dst = &destination;
+		src_index = sourceOutput;
+		dest_index = destinationInput;
+		
+		 cr = connect();
+		 result |= cr?(cr|4):cr;
+	}
+	return result;
 }
 
 void AudioConnection::disconnect(void)
@@ -230,19 +293,20 @@ void AudioConnection::disconnect(void)
 	AudioConnection *p;
 
 	if (!isConnected) return;
-	if (dest_index > dst.num_inputs) return;
+	if (dest_index > dst->num_inputs) return;
 	__disable_irq();
+	
 	// Remove destination from source list
-	p = src.destination_list;
+	p = src->destination_list;
 	if (p == NULL) {
 //>>> PAH re-enable the IRQ
 		__enable_irq();
 		return;
 	} else if (p == this) {
 		if (p->next_dest) {
-			src.destination_list = next_dest;
+			src->destination_list = next_dest;
 		} else {
-			src.destination_list = NULL;
+			src->destination_list = NULL;
 		}
 	} else {
 		/*  this is the old, buggy code
@@ -272,24 +336,24 @@ void AudioConnection::disconnect(void)
 	}
 //>>> PAH release the audio buffer properly
 	//Remove possible pending src block from destination
-	if(dst.inputQueue[dest_index] != NULL) {
-		AudioStream::release(dst.inputQueue[dest_index]);
+	if(dst->inputQueue[dest_index] != NULL) {
+		AudioStream::release(dst->inputQueue[dest_index]);
 		// release() re-enables the IRQ. Need it to be disabled a little longer
 		__disable_irq();
-		dst.inputQueue[dest_index] = NULL;
+		dst->inputQueue[dest_index] = NULL;
 	}
 
 	//Check if the disconnected AudioStream objects should still be active
-	src.numConnections--;
-	if (src.numConnections == 0) {
-		src.active = false;
+	src->numConnections--;
+	if (src->numConnections == 0) {
+		src->active = false;
 	}
 
-	dst.numConnections--;
-	if (dst.numConnections == 0) {
-		dst.active = false;
+	dst->numConnections--;
+	if (dst->numConnections == 0) {
+		dst->active = false;
 	}
-
+	
 	isConnected = false;
 
 	__enable_irq();

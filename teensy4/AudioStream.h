@@ -78,13 +78,13 @@ class AudioConnection
 {
 public:
 	AudioConnection(AudioStream &source, AudioStream &destination) :
-		src(source), dst(destination), src_index(0), dest_index(0),
+		src(&source), dst(&destination), src_index(0), dest_index(0),
 		next_dest(NULL)
 		{ isConnected = false;
 		  connect(); }
 	AudioConnection(AudioStream &source, unsigned char sourceOutput,
 		AudioStream &destination, unsigned char destinationInput) :
-		src(source), dst(destination),
+		src(&source), dst(&destination),
 		src_index(sourceOutput), dest_index(destinationInput),
 		next_dest(NULL)
 		{ isConnected = false;
@@ -94,10 +94,13 @@ public:
 		disconnect();
 	}
 	void disconnect(void);
-	void connect(void);
+	int connect(void);
+	int connect(AudioStream &source, AudioStream &destination) {int c = connect(source,0,destination,0); return c?(c|2):0;};
+	int connect(AudioStream &source, unsigned char sourceOutput,
+		AudioStream &destination, unsigned char destinationInput);
 protected:
-	AudioStream &src;
-	AudioStream &dst;
+	AudioStream* src;	// can't use references as... 
+	AudioStream* dst;	// ...they can't be re-assigned!
 	unsigned char src_index;
 	unsigned char dest_index;
 	AudioConnection *next_dest; // linked list of connections from one source
@@ -186,8 +189,8 @@ class AudioDebug
 {
 	public:
 		// info on connections
-		AudioStream& getSrc(AudioConnection& c) { return c.src;};
-		AudioStream& getDst(AudioConnection& c) { return c.dst;};
+		AudioStream* getSrc(AudioConnection& c) { return c.src;};
+		AudioStream* getDst(AudioConnection& c) { return c.dst;};
 		unsigned char getSrcN(AudioConnection& c) { return c.src_index;};
 		unsigned char getDstN(AudioConnection& c) { return c.dest_index;};
 		AudioConnection* getNext(AudioConnection& c) { return c.next_dest;};
