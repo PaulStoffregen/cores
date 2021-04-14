@@ -77,25 +77,14 @@ typedef struct audio_block_struct {
 class AudioConnection
 {
 public:
-	AudioConnection(AudioStream &source, AudioStream &destination) :
-		src(&source), dst(&destination), src_index(0), dest_index(0),
-		next_dest(NULL)
-		{ isConnected = false;
-		  connect(); }
+	AudioConnection(AudioStream &source, AudioStream &destination);
 	AudioConnection(AudioStream &source, unsigned char sourceOutput,
-		AudioStream &destination, unsigned char destinationInput) :
-		src(&source), dst(&destination),
-		src_index(sourceOutput), dest_index(destinationInput),
-		next_dest(NULL)
-		{ isConnected = false;
-		  connect(); }
+		AudioStream &destination, unsigned char destinationInput);
 	friend class AudioStream;
-	~AudioConnection() {
-		disconnect();
-	}
+	~AudioConnection(); 
 	void disconnect(void);
 	int connect(void);
-	int connect(AudioStream &source, AudioStream &destination) {int c = connect(source,0,destination,0); return c?(c|2):0;};
+	int connect(AudioStream &source, AudioStream &destination) {int c; Serial.print("Connect2:"); c = connect(source,0,destination,0); return c?(c|2):0;};
 	int connect(AudioStream &source, unsigned char sourceOutput,
 		AudioStream &destination, unsigned char destinationInput);
 protected:
@@ -174,6 +163,7 @@ protected:
 	friend class AudioDebug;
 	uint8_t numConnections;
 private:
+	static AudioConnection* unused; // linked list of unused but not destructed connections
 	AudioConnection *destination_list;
 	audio_block_t **inputQueue;
 	static bool update_scheduled;
@@ -195,6 +185,7 @@ class AudioDebug
 		unsigned char getDstN(AudioConnection& c) { return c.dest_index;};
 		AudioConnection* getNext(AudioConnection& c) { return c.next_dest;};
 		bool isConnected(AudioConnection& c) { return c.isConnected;};
+		AudioConnection* unusedList() { return AudioStream::unused;};
 		
 		// info on streams
 		AudioConnection* dstList(AudioStream& s) { return s.destination_list;};

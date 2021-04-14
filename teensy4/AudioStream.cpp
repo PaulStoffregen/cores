@@ -46,6 +46,7 @@ uint16_t AudioStream::cpu_cycles_total = 0;
 uint16_t AudioStream::cpu_cycles_total_max = 0;
 uint16_t AudioStream::memory_used = 0;
 uint16_t AudioStream::memory_used_max = 0;
+AudioConnection* AudioStream::unused = NULL; // linked list of unused but not destructed connections
 
 void software_isr(void);
 
@@ -190,44 +191,109 @@ audio_block_t * AudioStream::receiveWritable(unsigned int index)
 	return in;
 }
 
+/**************************************************************************************/
+// Full constructor with 4 parameters
+AudioConnection::AudioConnection(AudioStream &source, unsigned char sourceOutput,
+		AudioStream &destination, unsigned char destinationInput)
+{
+	//Serial.print("Constructor4:");
+	// we are effectively unused right now, so
+	// link ourselves at the start of the unused list
+	next_dest = AudioStream::unused;
+	AudioStream::unused = this;
+	
+	isConnected = false;	  
+	connect(source,sourceOutput,destination,destinationInput); 
+}
 
+// Simplified constructor assuming channel 0 at both ends
+AudioConnection::AudioConnection(AudioStream &source, AudioStream &destination)
+{
+	//Serial.print("Constructor2:");
+	next_dest = AudioStream::unused;
+	AudioStream::unused = this;
+	
+	isConnected = false;	  
+	connect(source, 0, destination,0);
+}
+
+// Destructor
+AudioConnection::~AudioConnection()
+{
+	AudioConnection** pp;
+	
+	//Serial.println("Destructor");
+	disconnect(); // disconnect ourselves: puts us on the unused list
+	// Remove ourselves from the unused list
+	pp = &AudioStream::unused;
+	while (*pp && *pp != this)
+		pp = &((*pp)->next_dest);
+	if (*pp) // found ourselves
+		*pp = next_dest; // remove ourselves from the unused list
+}
+
+/**************************************************************************************/
 int AudioConnection::connect(void)
 {
 	int result = 0;
 	AudioConnection *p;
+	AudioConnection **pp;
 	AudioStream* s;
-
+	uint32_t tmp = (uint32_t)(AudioStream::unused);
+/*
+	Serial.print((uint32_t)this,HEX);
+	Serial.print(' ');
+	Serial.println(tmp,HEX);
+*/	
 	do 
 	{
-		if (isConnected) 
+		if (isConnected) // already connected
 		{
 			result = 16;
 			break;
 		}
-		if (dest_index > dst->num_inputs) 
+		if (dest_index > dst->num_inputs) // input number too high
 		{
 			result = 32;
 			break;
 		}
+		if (!src || !dst) // NULL src or dst - [old] Stream object destroyed
+		{
+			result = 64;
+			break;
+		}
+			
 		__disable_irq();
 		
 		// First check the destination's input isn't already in use
 		s = AudioStream::first_update; // first AudioStream in the stream list
 		while (s) // go through all AudioStream objects
 		{
-			p = s->destination_list;	// first destination in this stream's list
+			p = s->destination_list;	// first patchCord in this stream's list
 			while (p)
 			{
 				if (p->dst == dst && p->dest_index == dest_index) // same destination - it's in use!
 				{
 					__enable_irq();
-					return false;
+					return 128;
 				}
 				p = p->next_dest;
 			}
 			s = s->next_update;
 		}
 		
+		// Check we're on the unused list
+		pp = &AudioStream::unused;
+		while (*pp && *pp != this)
+		{
+			pp = &((*pp)->next_dest);
+		}
+		if (!*pp) // never found ourselves - fail
+		{
+			result = 512;
+			break;
+		}
+			
 		// Now try to add this connection to the source's destination list
 		p = src->destination_list; // first AudioConnection
 		if (p == NULL) 
@@ -244,13 +310,18 @@ int AudioConnection::connect(void)
 				{
 					//Source and destination already connected through another connection, abort
 					__enable_irq();
-					return false;
+					return 256;
 				}
 				p = p->next_dest;
 			}
+			
+			
 			p->next_dest = this; // end of list, can link ourselves in
 		}
-		next_dest = NULL;
+		
+		*pp = next_dest;  // remove ourselves from the unused list
+		next_dest = NULL; // we're last in the source's destination list
+		
 		src->numConnections++;
 		src->active = true;
 
@@ -273,6 +344,8 @@ int AudioConnection::connect(AudioStream &source, unsigned char sourceOutput,
 {
 	int result = 0;
 	
+	Serial.print("Connect4:");
+	
 	if (!isConnected)
 	{
 		int cr;
@@ -282,8 +355,8 @@ int AudioConnection::connect(AudioStream &source, unsigned char sourceOutput,
 		src_index = sourceOutput;
 		dest_index = destinationInput;
 		
-		 cr = connect();
-		 result |= cr?(cr|4):cr;
+		cr = connect();
+		result |= cr?(cr|4):cr;
 	}
 	return result;
 }
@@ -355,6 +428,8 @@ void AudioConnection::disconnect(void)
 	}
 	
 	isConnected = false;
+	next_dest = dst->unused;
+	dst->unused = this;
 
 	__enable_irq();
 }
