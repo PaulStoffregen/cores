@@ -82,9 +82,9 @@ public:
 		AudioStream &destination, unsigned char destinationInput);
 	friend class AudioStream;
 	~AudioConnection(); 
-	void disconnect(void);
+	int disconnect(void);
 	int connect(void);
-	int connect(AudioStream &source, AudioStream &destination) {int c; Serial.print("Connect2:"); c = connect(source,0,destination,0); return c?(c|2):0;};
+	int connect(AudioStream &source, AudioStream &destination) {return connect(source,0,destination,0);};
 	int connect(AudioStream &source, unsigned char sourceOutput,
 		AudioStream &destination, unsigned char destinationInput);
 protected:
