@@ -5445,7 +5445,7 @@ typedef struct {
         volatile uint32_t ICR1;                // 0C
         volatile uint32_t ICR2;                // 10
         volatile uint32_t IMR;                 // 14
-        volatile uint32_t ICR;                 // 18
+        volatile uint32_t ISR;                 // 18
         volatile uint32_t EDGE_SEL;            // 1C
         uint32_t          UNUSED[25];          // 20 - 83
         volatile uint32_t DR_SET;              // 84
