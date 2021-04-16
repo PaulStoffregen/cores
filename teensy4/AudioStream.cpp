@@ -122,9 +122,10 @@ audio_block_t * AudioStream::allocate(void)
 // Release ownership of a data block.  If no
 // other streams have ownership, the block is
 // returned to the free pool
-void AudioStream::release(audio_block_t *block)
+void AudioStream::release(audio_block_t *block, bool enableIRQ = true)
 {
-	//if (block == NULL) return;
+	if (block == NULL) 
+		return;
 	uint32_t mask = (0x80000000 >> (31 - (block->memory_pool_index & 0x1F)));
 	uint32_t index = block->memory_pool_index >> 5;
 
@@ -138,7 +139,24 @@ void AudioStream::release(audio_block_t *block)
 		if (index < memory_pool_first_mask) memory_pool_first_mask = index;
 		memory_used--;
 	}
-	__enable_irq();
+	
+	if (enableIRQ)
+		__enable_irq();
+}
+
+
+// Release ownership of multiple data blocks.  If no
+// other streams have ownership, the blocks are
+// returned to the free pool
+void AudioStream::release(audio_block_t** blocks, int numBlocks, bool enableIRQ = true)
+{
+	while (numBlocks--)
+	{
+		release(*blocks,false); // NULL pointers are allowed, nothing will happen...
+		blocks++;
+	}
+	if (enableIRQ)
+		__enable_irq();
 }
 
 // Transmit an audio data block

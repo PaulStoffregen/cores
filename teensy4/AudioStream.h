@@ -60,6 +60,16 @@
 
 #define AUDIO_SAMPLE_RATE AUDIO_SAMPLE_RATE_EXACT
 
+// Macro to do a safe release of audio block(s), without the risk of
+// an audio interrupt occurring between copying the pointers and the
+// block release occurring. 
+//
+// By setting active=false, even if an audio interrupt does occur after
+// the blocks have been released, the dying object will NOT update()
+// and thus won't allocate any more blocks after SAFE_RELEASE has executed
+#define SAFE_RELEASE(...) __disable_irq(); active = false; release(__VA_ARGS__)
+#define SAFE_RELEASE_MANY(n,...) __disable_irq(); active = false; {audio_block_t* blx[]={__VA_ARGS__}; release(blx,n);}
+
 #ifndef __ASSEMBLER__
 class AudioStream;
 class AudioConnection;
@@ -136,6 +146,7 @@ public:
 			cpu_cycles_max = 0;
 			numConnections = 0;
 		}
+	~AudioStream(){SAFE_RELEASE(inputQueue,num_inputs);}
 	static void initialize_memory(audio_block_t *data, unsigned int num);
 	float processorUsage(void) { return CYCLE_COUNTER_APPROX_PERCENT(cpu_cycles); }
 	float processorUsageMax(void) { return CYCLE_COUNTER_APPROX_PERCENT(cpu_cycles_max); }
@@ -151,7 +162,8 @@ protected:
 	bool active;
 	unsigned char num_inputs;
 	static audio_block_t * allocate(void);
-	static void release(audio_block_t * block);
+	static void release(audio_block_t * block, bool enableIRQ = true);
+	static void release(audio_block_t** blocks, int numBlocks, bool enableIRQ = true);
 	void transmit(audio_block_t *block, unsigned char index = 0);
 	audio_block_t * receiveReadOnly(unsigned int index = 0);
 	audio_block_t * receiveWritable(unsigned int index = 0);
