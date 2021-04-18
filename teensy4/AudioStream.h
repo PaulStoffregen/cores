@@ -104,6 +104,8 @@ protected:
 	unsigned char dest_index;
 	AudioConnection *next_dest; // linked list of connections from one source
 	bool isConnected;
+	friend void NULLifConnected(AudioStream* strm,AudioConnection** ppC);
+	friend void unlinkFromUpdateList();
 	friend class AudioDebug;
 };
 
@@ -129,25 +131,22 @@ public:
 		num_inputs(ninput), inputQueue(iqueue) {
 			active = false;
 			destination_list = NULL;
+			next_update = NULL;
 			for (int i=0; i < num_inputs; i++) {
 				inputQueue[i] = NULL;
 			}
 			// add to a simple list, for update_all
 			// TODO: replace with a proper data flow analysis in update_all
-			if (first_update == NULL) {
-				first_update = this;
-			} else {
-				AudioStream *p;
-				for (p=first_update; p->next_update; p = p->next_update) ;
-				p->next_update = this;
-			}
-			next_update = NULL;
+
 			cpu_cycles = 0;
 			cpu_cycles_max = 0;
 			numConnections = 0;
 		}
-	~AudioStream(){SAFE_RELEASE(inputQueue,num_inputs);}
+	virtual ~AudioStream();
 	static void initialize_memory(audio_block_t *data, unsigned int num);
+	void linkIntoUpdateList(AudioConnection* pC);
+	void unlinkFromUpdateList();
+	void NULLifConnected(AudioConnection** ppC);
 	float processorUsage(void) { return CYCLE_COUNTER_APPROX_PERCENT(cpu_cycles); }
 	float processorUsageMax(void) { return CYCLE_COUNTER_APPROX_PERCENT(cpu_cycles_max); }
 	void processorUsageMaxReset(void) { cpu_cycles_max = cpu_cycles; }

@@ -51,6 +51,10 @@ AudioConnection* AudioStream::unused = NULL; // linked list of unused but not de
 void software_isr(void);
 
 
+/************************************************************************************/
+/* Data blocks 																		*/
+/************************************************************************************/
+
 // Set up the pool of audio data blocks
 // placing them all onto the free list
 FLASHMEM void AudioStream::initialize_memory(audio_block_t *data, unsigned int num)
@@ -209,7 +213,10 @@ audio_block_t * AudioStream::receiveWritable(unsigned int index)
 	return in;
 }
 
-/**************************************************************************************/
+/************************************************************************************/
+/* Connections 																		*/
+/************************************************************************************/
+
 // Full constructor with 4 parameters
 AudioConnection::AudioConnection(AudioStream &source, unsigned char sourceOutput,
 		AudioStream &destination, unsigned char destinationInput)
@@ -330,11 +337,15 @@ int AudioConnection::connect(void)
 		*pp = next_dest;  // remove ourselves from the unused list
 		next_dest = NULL; // we're last in the source's destination list
 		
+		// deal with connecting up previously-unused AudioStream objects:
+		src->linkIntoUpdateList(this);
+		dst->linkIntoUpdateList(this);
+		
 		src->numConnections++;
-		src->active = true;
+		//src->active = true;
 
 		dst->numConnections++;
-		dst->active = true;
+		//dst->active = true;
 
 		isConnected = true;
 		
@@ -424,15 +435,19 @@ int AudioConnection::disconnect(void)
 	//Check if the disconnected AudioStream objects should still be active
 	src->numConnections--;
 	if (src->numConnections == 0) {
-		src->active = false;
+		//src->active = false;
+		src->unlinkFromUpdateList();
 	}
 
 	dst->numConnections--;
 	if (dst->numConnections == 0) {
-		dst->active = false;
+		//dst->active = false;
+		dst->unlinkFromUpdateList();
 	}
 	
 	isConnected = false;
+	
+	// link now-unused connection into "unused" list
 	next_dest = dst->unused;
 	dst->unused = this;
 
@@ -441,6 +456,163 @@ int AudioConnection::disconnect(void)
 	return 0;
 }
 
+
+/************************************************************************************/
+/* Audio streams																	*/
+/************************************************************************************/
+// Link a new AudioStream object into the update list. This will occur when
+// its first connection is made to an object already in the list
+void AudioStream::linkIntoUpdateList(AudioConnection* pC)
+{
+	AudioStream** ppS;
+	
+	if (!active) // not yet linked in
+	{
+		/* // original link-in code: links in first, or at end
+		if (first_update == NULL) {
+			first_update = this;
+		} else {
+			AudioStream *p;
+			for (p=first_update; p->next_update; p = p->next_update) 
+				;
+			p->next_update = this;
+		}
+		next_update = NULL;
+		*/
+		for (ppS = &first_update; *ppS != NULL; ppS = &((*ppS)->next_update))
+		{
+			if (*ppS == pC->src) // found the connection's source, we must be destination
+			{
+				this->next_update = (*ppS)->next_update;
+				(*ppS)->next_update = this; // we link in after the source
+				active = true;
+				break;
+			}
+			if (*ppS == pC->dst) // found the connection's destination, we must be source
+			{
+				this->next_update = *ppS;
+				*ppS = this; // we link in before the destination
+				active = true;
+				break;
+			}
+		}
+		
+		if (!active) // neither source nor destination is in update list, we're still in limbo
+		{
+			pC->src->next_update = pC->dst; // but we know this order is vaguely sane
+			if (NULL == first_update) // first connection ever: bootstrap the update list
+			{
+				first_update = pC->src;
+				pC->src->active = true;
+				pC->dst->active = true;
+			}
+		}
+	}
+}
+
+// Unlink an AudioStream object from the update list. This will occur when
+// its last connection is severed. Also inactivates the object, assuming it
+// was found in the update list. Safe to call if already unlinked.
+void AudioStream::unlinkFromUpdateList()
+{
+	AudioStream** ppS;
+	
+	for (ppS = &first_update; *ppS != NULL; ppS = &((*ppS)->next_update))
+	{
+		if (*ppS == this) // found the link to us
+		{
+			*ppS = (*ppS)->next_update;
+			next_update = NULL;
+			active = false;
+			break;
+		}
+	}
+}
+
+// For any AudioConnection object in the linked list starting at ppC,
+// NULL out its src or dst pointers if they point to "this"
+void AudioStream::NULLifConnected(AudioConnection** ppC) //!< list of connections that might refer to this
+{
+	AudioConnection** ppN;
+	
+Serial.print(" [disconnect ");
+Serial.flush();
+	while (*ppC != NULL)
+	{
+		AudioConnection* pC = *ppC;	// easier to get our head round!
+		
+Serial.print((uint32_t) pC,HEX);
+Serial.flush();
+
+		if (pC->dst == this)
+		{
+			pC->disconnect();	// disconnect this connection
+			pC->dst = NULL;		// can never re-connect, source will no longer exist
+Serial.print("=dst ");
+Serial.flush();
+		}
+		if (pC->src == this) // dying AudioStream is source for this connection...
+		{
+			pC->disconnect();	// disconnect this connection
+			pC->src = NULL;		// can never re-connect, source will no longer exist
+Serial.print("=src ");
+Serial.flush();
+		}
+		if (pC == *ppC) // link didn't change, so we weren't disconnected...
+			ppC = &((*ppC)->next_dest); // ...can follow link 
+if (*ppC != NULL)
+{	
+Serial.print(", ");
+Serial.flush();
+}
+	}	
+Serial.print("] ");
+Serial.flush();
+}
+
+// Destructor: quite a lot of housekeeping to do
+AudioStream::~AudioStream()
+{
+	AudioStream** ppS; // iterating pointer
+	AudioConnection** ppC;
+	
+Serial.print("Destructor: (");
+Serial.print((uint32_t) this,HEX);
+Serial.print(")...");
+Serial.flush();
+
+	SAFE_RELEASE(inputQueue,num_inputs,false);	// release input blocks and disable interrupts
+	
+	// run through all AudioStream objects in the update list,
+	// except for ourselves
+	for (ppS = &first_update; *ppS != NULL; ppS = &((*ppS)->next_update))
+	{
+		AudioStream* pS = *ppS;	// easier to get our head round!
+Serial.println();
+Serial.print((uint32_t) pS,HEX);
+Serial.print("...");
+Serial.flush();
+		// run through all the AudioConnections from this AudioStream
+		if (pS != this)
+			NULLifConnected(&(pS->destination_list));
+	}
+	
+	// now we can disconnect our own destinations
+	NULLifConnected(&destination_list);
+	
+	// there may be unused AudioConnections which refer to this: "disconnect" those
+	// (they're already disconnected, but that's safe, and we do want to NULL
+	// the residual src or dst pointers)
+Serial.print("\nUnused: ");
+Serial.flush();
+	NULLifConnected(&unused);
+	
+	unlinkFromUpdateList();	// unlink ourselves
+Serial.print("unlink\n");
+Serial.flush();
+	
+	__enable_irq();
+}
 
 // When an object has taken responsibility for calling update_all()
 // at each block interval (approx 2.9ms), this variable is set to
