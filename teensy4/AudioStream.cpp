@@ -47,9 +47,215 @@ uint16_t AudioStream::cpu_cycles_total_max = 0;
 uint16_t AudioStream::memory_used = 0;
 uint16_t AudioStream::memory_used_max = 0;
 AudioConnection* AudioStream::unused = NULL; // linked list of unused but not destructed connections
+AudioStream* AudioStream::first_clan = NULL; // linked list of unused but not destructed AudioStream objects
 
 void software_isr(void);
+bool AudioStream::serialStarted = false;
 
+/************************************************************************************/
+/* General utilities																*/
+/************************************************************************************/
+// Link item into list, e.g. listLinkIn(&first_update,&AudioStream,&AudioStream.next_update);
+// Before: first_update -----> <something or NULL>
+// After:  first_update -> <first linked in> [ -> <more linked in> ] -> <something or NULL>
+// NOTE: ppItemNext may NOT be &(pItem->next_update)
+//       ppAfter may be &first_update OR &<<some AudioStream>.next_update>
+// Will also work for clan list
+static void listLinkIn(AudioStream** ppAfter,AudioStream* pItem,AudioStream** ppItemNext)
+{
+Serial.print("\nLink ");
+Serial.print((uint32_t) ppAfter,HEX);
+Serial.print("->");
+Serial.print((uint32_t) *ppAfter,HEX);
+Serial.print(" item ");
+Serial.print((uint32_t) pItem,HEX);
+Serial.print(" via ");
+Serial.print((uint32_t) ppItemNext,HEX);
+Serial.print("->");
+Serial.println((uint32_t) *ppItemNext,HEX);	
+Serial.flush();
+
+	*ppItemNext = *ppAfter;
+	*ppAfter = pItem;
+}
+
+// Unlink item from list, e.g. listUnlink(&first_update,&AudioStream.next_update);
+// After:  first_update -> <first linked in> [ -> <more linked in> ] -> <something or NULL>
+// Before: first_update -----> <something or NULL>
+// NOTE: ppItemNext might NOT be &((*ppAfter)->next_update)
+//       ppAfter may be &first_update OR &<<some AudioStream>.next_update>
+// Will also work for clan list
+// 
+// Unlinked item's "next" pointer is set to NULL
+static AudioStream* listUnlink(AudioStream** ppAfter,AudioStream** ppItemNext)
+{
+	AudioStream* pItem;
+Serial.print("\nUnlink ");
+Serial.print((uint32_t) ppAfter,HEX);
+Serial.print("->");
+Serial.flush();
+Serial.print((uint32_t) *ppAfter,HEX);
+Serial.print(" from ");
+Serial.flush();
+Serial.print((uint32_t) ppItemNext,HEX);
+Serial.print("->");
+Serial.flush();
+Serial.print((uint32_t) *ppItemNext,HEX);
+Serial.flush();
+
+	pItem = *ppAfter;
+	*ppAfter = *ppItemNext;
+	*ppItemNext = NULL; // remove the item's stale link
+
+Serial.print(": unlinked ");
+Serial.print((uint32_t) pItem,HEX);
+Serial.flush();
+	
+	return pItem;
+}
+
+
+// Link clan into clan list.
+// Clan list order is unimportant, so we just link it in at the start;
+// however, we allow passing in any clan member to specify the clan to add.
+AudioStream* AudioStream::clanListLinkIn(AudioStream* pItem)
+{
+	AudioStream* pHead = pItem->clan_head; // find the clan head
+	listLinkIn(&first_clan,pHead,&pHead->next_clan);
+	
+	return pHead;
+}
+
+extern void printClanEntry(AudioStream* m,int indent, AudioStream** ppHead,AudioStream** ppNC,AudioStream** ppNU);
+extern void printAclan(AudioStream* m,AudioStream** ppNC);
+extern void printClanList(void);
+// Unlink clan from clan list, e.g. listUnlink(&AudioStream);
+// Assumes clan is well-formed, i.e. that clan members have valid pointers to 
+// their clan head. However, there is no need to pass the clan head's address, we
+// find this ourselves, and we also deal with finding the source pointer to
+// the clan, and with incorrect attempts to unlink an item / clan that is
+// not actually in the list.
+// 
+// Only the clan head needs a valid next_clan
+//
+// Returns pointer to clan head, so it can be linked back in later
+AudioStream* AudioStream::clanListUnlink(AudioStream* pItem)
+{
+	AudioStream* pHead = pItem->clan_head; // find the clan head
+	AudioStream** ppClanHead;
+Serial.print("Clan unlink: ");
+printAclan(pHead,NULL);
+Serial.flush();
+
+	// find where we are in the clan list
+	for (ppClanHead = &first_clan; NULL != *ppClanHead && *ppClanHead != pHead; ppClanHead = &(*ppClanHead)->next_clan)
+		;
+Serial.print(" pointed to by: ");
+Serial.print((uint32_t) ppClanHead,HEX);
+Serial.flush();
+	if (NULL != *ppClanHead) // then we are indeed in the clan list
+	{
+		listUnlink(ppClanHead,&pHead->next_clan); // unlink
+		
+Serial.println(": clan unlinked!");
+Serial.flush();
+	}
+	else
+	{
+Serial.println(": not in list!");
+Serial.flush();
+	}
+	
+	return pHead;
+}
+
+
+// Similar to linking into list, but merges clans if needed
+// e.g. updateListMergeInto(&first_update,&AudioStream);
+// Before: first_update -----> <something or NULL>
+// After:  first_update -> <first linked in> [ -> <more linked in> ] -> <something or NULL>
+// NOTE: ppAfter may be &first_update OR &<<some AudioStream>.next_update>
+//
+// For merging, it makes no sense to link in part of a clan, so we find the head
+// and tail ourselves to avoid mayhem.
+// 
+// pItem may be:
+// * already in ppAfter's update list: do nothing
+// * a clan head being merged into:
+// 		* another clan: figure out the new clan head and update all members
+//		* the active update list: NULL the clan head pointers
+AudioStream* AudioStream::updateListMergeInto(AudioStream** ppAfter,AudioStream* newHead,AudioStream* pItem)
+{
+	AudioStream* pHead = pItem->clan_head; // find the clan head
+	AudioStream* pTail;
+	
+Serial.print("Merge item: ");	
+printClanEntry(pItem,0,NULL,NULL,NULL);
+Serial.println("from:");
+printAclan(pItem->clan_head,NULL);
+Serial.print("after: ");	
+Serial.println((uint32_t) ppAfter,HEX);	
+Serial.print("before: ");	
+printClanEntry(*ppAfter,0,NULL,NULL,NULL);
+Serial.print("new head: ");	
+Serial.println((uint32_t) newHead,HEX);	
+Serial.flush();
+
+	
+	if (ppAfter == &first_update ||
+		(NULL != *ppAfter &&  NULL == (*ppAfter)->clan_head)) // merging into active update list
+	{
+		if (NULL != pHead) // and we have a clan head, so we're not already in it!
+		{
+			for (pTail = pHead; NULL != pTail && NULL != pTail->next_update; pTail = pTail->next_update)
+			{
+				pTail->clan_head = NULL; // we have no more need of the clan
+				pTail->active = true;
+			}
+			pTail->clan_head = NULL; // do the last entry
+			pTail->active = true;
+			
+Serial.println("Merged to active updates");	
+			listLinkIn(ppAfter,pHead,&pTail->next_update);
+		}
+		pTail = first_update;
+	}
+	else // merging into clan: *ppAfter MUST be clanned with the new head, we can't link in before it!
+	{
+		if (newHead != pHead) // different clan heads, it's a real merge
+		{
+			for (pTail = pHead; NULL != pTail && NULL != pTail->next_update; pTail = pTail->next_update)
+				pTail->clan_head = newHead; // we have a new clan allegiance
+			pTail->clan_head = newHead; // do the last entry
+				
+			listLinkIn(ppAfter,pHead,&pTail->next_update);
+		}
+		// else we share the same clan head, no merge needed
+		pTail = newHead;
+Serial.println("Merged clan is:");	
+printAclan(newHead,NULL);
+	}
+	
+	return pTail; // clan head, or first_update
+}
+
+// Unlink item from update list, e.g. updateListUnlinkFrom(&first_update,&AudioStream.next_update);
+// Before: first_update -> <first linked in> [ -> <more linked in> ] -> <something or NULL>
+// After:  first_update -----> <something or NULL>
+// NOTE: ppItemNext might NOT be &((*ppAfter)->next_update)
+//       ppAfter may be &first_update OR &<<some AudioStream>.next_update>
+// 
+// Unlinked item's "next" pointer is set to NULL. All the unlinked items have
+// their clan_head set to the first item in the list.
+AudioStream* AudioStream::updateListUnlinkFrom(AudioStream** ppAfter,AudioStream** ppItemNext)
+{
+	AudioStream* pItem = listUnlink(ppAfter,ppItemNext); // first of the items to be unlinked
+	
+	for (AudioStream* pI = pItem; NULL != pI; pI=pI->next_update)
+		pI->clan_head = pItem;
+	
+	return pItem;
+}
 
 /************************************************************************************/
 /* Data blocks 																		*/
@@ -126,7 +332,7 @@ audio_block_t * AudioStream::allocate(void)
 // Release ownership of a data block.  If no
 // other streams have ownership, the block is
 // returned to the free pool
-void AudioStream::release(audio_block_t *block, bool enableIRQ = true)
+void AudioStream::release(audio_block_t *block, bool enableIRQ /* = true */)
 {
 	if (block == NULL) 
 		return;
@@ -152,7 +358,7 @@ void AudioStream::release(audio_block_t *block, bool enableIRQ = true)
 // Release ownership of multiple data blocks.  If no
 // other streams have ownership, the blocks are
 // returned to the free pool
-void AudioStream::release(audio_block_t** blocks, int numBlocks, bool enableIRQ = true)
+void AudioStream::release(audio_block_t** blocks, int numBlocks, bool enableIRQ /* = true */)
 {
 	while (numBlocks--)
 	{
@@ -238,6 +444,15 @@ AudioConnection::AudioConnection(AudioStream &source, AudioStream &destination)
 	
 	isConnected = false;	  
 	connect(source, 0, destination,0);
+}
+
+// construct the patchCord, but leave it unconnected
+AudioConnection::AudioConnection()
+{
+	next_dest = AudioStream::unused;
+	AudioStream::unused = this;
+	
+	isConnected = false;	  
 }
 
 // Destructor
@@ -339,7 +554,7 @@ int AudioConnection::connect(void)
 		
 		// deal with connecting up previously-unused AudioStream objects:
 		src->linkIntoUpdateList(this);
-		dst->linkIntoUpdateList(this);
+		dst->linkIntoUpdateList(this); // unnecessary?
 		
 		src->numConnections++;
 		//src->active = true;
@@ -461,13 +676,19 @@ int AudioConnection::disconnect(void)
 /* Audio streams																	*/
 /************************************************************************************/
 // Link a new AudioStream object into the update list. This will occur when
-// its first connection is made to an object already in the list
-void AudioStream::linkIntoUpdateList(AudioConnection* pC)
+// its first connection is made to an object already in the list, OR to 
+// an object which isn't in the update list but is a member of a clan.
+static int AudioStream::simples = 0;
+void AudioStream::linkIntoUpdateList(const AudioConnection* pC)
 {
-	AudioStream** ppS;
+Serial.print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+printClanList();
 	
 	if (!active) // not yet linked in
 	{
+		AudioStream** ppS;	
+		int i;
+		
 		/* // original link-in code: links in first, or at end
 		if (first_update == NULL) {
 			first_update = this;
@@ -479,34 +700,122 @@ void AudioStream::linkIntoUpdateList(AudioConnection* pC)
 		}
 		next_update = NULL;
 		*/
+		// If the object to link is a non-orphan clan member, then we actually want to
+		// link the entire clan in, in order.
+		AudioStream* tail = this;		
+		
+if (simples & 1) {		
+Serial.print("from ");		
+Serial.print((uint32_t) tail,HEX);		
+Serial.print(" head = ");		
+Serial.print((uint32_t) clan_head,HEX);
+		while (tail->next_update)
+			tail = tail->next_update;
+Serial.print(" tail = ");		
+Serial.println((uint32_t) tail,HEX);
+Serial.flush();
+		// tail now points to the last member of our clan
+		// [this->]clan_head is the first member
+}//#endif		
+
+		// Scan the global update list looking for a place to link in
 		for (ppS = &first_update; *ppS != NULL; ppS = &((*ppS)->next_update))
 		{
 			if (*ppS == pC->src) // found the connection's source, we must be destination
 			{
-				this->next_update = (*ppS)->next_update;
-				(*ppS)->next_update = this; // we link in after the source
+				ppS = &(*ppS)->next_update; // link in after our source
 				active = true;
 				break;
 			}
 			if (*ppS == pC->dst) // found the connection's destination, we must be source
 			{
-				this->next_update = *ppS;
-				*ppS = this; // we link in before the destination
 				active = true;
 				break;
 			}
 		}
 		
-		if (!active) // neither source nor destination is in update list, we're still in limbo
+		if (active) // no longer a clan, link in to main update list
 		{
+			AudioStream* pS = clanListUnlink(this); // unlink ourselves
+			//listLinkIn(ppS,clan_head,&tail->next_update);
+			updateListMergeInto(ppS,NULL,this);
+Serial.println("...active");
+		}
+		
+		if (!active && // neither source nor destination is in update list, we're still in limbo
+		 pC->src->clan_head != pC->dst->clan_head) // and in different clans, which need merging
+		{
+			AudioStream* ourDFU, *otherDFU; // storage for "dummy first_update" pointers
+			AudioStream* linkItem; // actual "link here" item
+						
+if (!(simples & 2)) {
 			pC->src->next_update = pC->dst; // but we know this order is vaguely sane
+} else {
+			// if we want to relink, one clan will absorb another: do the housekeeping
+			if (this == pC->src) // if we're the source
+			{
+				ourDFU 	 = clanListUnlink(this); // remove ourselves from the clan list
+				otherDFU = clanListUnlink(pC->dst);
+				
+				if (pC->dst == otherDFU) // we're the source and other clan head is destination
+				{
+Serial.println("Source before other Head:");
+					updateListMergeInto(&updateTailItem(ourDFU)->next_update,ourDFU,otherDFU);
+					linkItem = ourDFU;
+				}
+				else // other clan member, but not head, is destination
+				{
+					AudioStream* pAfter;
+					
+Serial.println("Source within other clan:");
+					// find the preceding object, to link in after it and before our destination
+					for (pAfter = otherDFU; NULL != pAfter && pC->dst != pAfter->next_update; pAfter = pAfter->next_update)
+						;
+					updateListMergeInto(&pAfter,otherDFU,ourDFU);
+					linkItem = otherDFU;
+				}
+				
+				clanListLinkIn(linkItem); // link new clan back into clan list
+			}
+			else // we'd better be the destination, or something's gone Horribly Wrong...
+			{
+				ourDFU 	 = clanListUnlink(this); // remove ourselves from the clan list
+				//otherDFU = clanListUnlink(pC->src);
+				
+				// simpler case: if we're the destination, we can't be the new clan head
+				// and we shouldn't need to unlink and re-link the clan head, either
+				AudioStream* pAfter;
+				
+				// find the preceding object, to link in after it and before our destination
+				for (pAfter = otherDFU; NULL != pAfter && pC->src != pAfter->next_update; pAfter = pAfter->next_update)
+					;
+				updateListMergeInto(&pAfter,otherDFU,ourDFU);
+				//linkItem = otherDFU;
+				
+				//clanListLinkIn(linkItem); // link new clan back into clan list
+			}
+
+}
+		}
+		else
+		{
+Serial.println("...already clanned up");
+		}
+Serial.println("...done");
+Serial.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+printClanList();
+Serial.flush();
+			
+			//*** THIS COULD BE THE WRONG PLACE! Maybe in update_setup()? *****
+			/*
 			if (NULL == first_update) // first connection ever: bootstrap the update list
 			{
 				first_update = pC->src;
 				pC->src->active = true;
 				pC->dst->active = true;
 			}
-		}
+			*/
+		
 	}
 }
 
@@ -516,18 +825,71 @@ void AudioStream::linkIntoUpdateList(AudioConnection* pC)
 void AudioStream::unlinkFromUpdateList()
 {
 	AudioStream** ppS;
+Serial.println("Unlink!");
 	
-	for (ppS = &first_update; *ppS != NULL; ppS = &((*ppS)->next_update))
+	if (NULL == clan_head) // we are in the main update list
+		ppS = &first_update;
+	else
+	{
+		for (ppS = &first_clan; *ppS != NULL; ppS = &((*ppS)->next_clan))
+			if ((*ppS)->clan_head == clan_head)
+				break;
+	}
+	
+	for (/* ppS = &first_update */; *ppS != NULL; ppS = &((*ppS)->next_update))
 	{
 		if (*ppS == this) // found the link to us
 		{
-			*ppS = (*ppS)->next_update;
+			*ppS = (*ppS)->next_update; // unlink from update list or clan
+			
 			next_update = NULL;
 			active = false;
+			clan_head = this;
+			next_clan = first_clan;
+			first_clan = this;
 			break;
 		}
 	}
 }
+
+// Unlink an AudioStream object from the clan list. This will occur when
+// its last connection is severed. Also inactivates the object, assuming it
+// was found in the update list. Safe to call if already unlinked.
+void AudioStream::unlinkFromClanList()
+{
+	AudioStream** ppS;
+	
+	// Go down clan list to find clan whose head is the same as ours
+	for (ppS = &first_clan; *ppS != NULL; ppS = &((*ppS)->next_clan))
+		if ((*ppS) == clan_head)
+			break;
+	
+	if (NULL != *ppS)
+	{
+		// found our clan: now go along the next_update list  
+		// to unlink ourselves from it
+		for (; *ppS != NULL; ppS = &((*ppS)->next_update))
+		{
+			if (*ppS == this) // found the link to us
+			{
+				*ppS = (*ppS)->next_update;
+				next_update = NULL;
+				break;
+			}
+		}
+		
+		// are we the clan head?
+		if (clan_head == this)
+		{
+			AudioStream* pH = *ppS;
+			
+			// tell clan members they have a new head
+			for (; *ppS != NULL; ppS = &((*ppS)->next_update))
+				(*ppS)->clan_head = pH;
+		}
+	}
+}
+
 
 // For any AudioConnection object in the linked list starting at ppC,
 // NULL out its src or dst pointers if they point to "this"
@@ -576,7 +938,7 @@ AudioStream::~AudioStream()
 	AudioStream** ppS; // iterating pointer
 	AudioConnection** ppC;
 	
-Serial.print("Destructor: (");
+Serial.print("\nDestructor: (");
 Serial.print((uint32_t) this,HEX);
 Serial.print(")...");
 Serial.flush();
@@ -608,7 +970,8 @@ Serial.flush();
 	NULLifConnected(&unused);
 	
 	unlinkFromUpdateList();	// unlink ourselves
-Serial.print("unlink\n");
+	unlinkFromClanList(); // from wherever
+Serial.print("unlink\n\n");
 Serial.flush();
 	
 	__enable_irq();
@@ -624,6 +987,32 @@ bool AudioStream::update_scheduled = false;
 bool AudioStream::update_setup(void)
 {
 	if (update_scheduled) return false;
+	
+	if (NULL == first_update) // first connection ever: bootstrap the update list
+	{
+		AudioStream** ppH;
+		
+		first_update = clan_head; // our clan head should be the first updated object
+Serial.print((uint32_t) first_update,HEX);
+Serial.println(" set as first_update");
+Serial.flush();
+		
+		// unlink this clan from the clan list
+		for (ppH = &first_clan; *ppH != NULL; ppH = &((*ppH)->next_clan))
+			if ((*ppH)->clan_head == clan_head)
+			{
+				*ppH = next_clan;
+				break;
+			}
+		
+		// remove clan links for update list: no longer needed
+		for (ppH = &first_update; *ppH != NULL; ppH = &((*ppH)->next_update))
+		{
+			(*ppH)->next_clan = (*ppH)->clan_head = NULL;
+			(*ppH)->active = true;
+		}
+		
+	}
 	attachInterruptVector(IRQ_SOFTWARE, software_isr);
 	NVIC_SET_PRIORITY(IRQ_SOFTWARE, 208); // 255 = lowest priority
 	NVIC_ENABLE_IRQ(IRQ_SOFTWARE);
