@@ -195,17 +195,16 @@ private:
 	static int simples;
 	virtual void update(void) = 0;
 	void linkIntoUpdateList(const AudioConnection* pC);
-	void unlinkFromUpdateList();
-	void unlinkFromClanList();
 	
 	
 	// Update list: AudioStream objects on this list are examined during every audio
 	// interrupt, and if active the update code is called
 	static AudioStream *first_update; // for update_all
 	AudioStream *next_update; // for update_all
-	AudioStream* AudioStream::updateListMergeInto(AudioStream** ppAfter,AudioStream* newHead,AudioStream* pItem);
-	AudioStream* AudioStream::updateListUnlinkFrom(AudioStream** ppAfter,AudioStream** ppItemNext);
-	AudioStream* AudioStream::updateTailItem(AudioStream* pItem) {while (NULL != pItem && NULL != pItem->next_update) pItem=pItem->next_update; return pItem;}
+	AudioStream* updateListMergeInto(AudioStream** ppAfter,AudioStream* newHead,AudioStream* pItem);
+	AudioStream* updateListUnlinkFrom(AudioStream** ppAfter,AudioStream** ppItemNext);
+	AudioStream* updateTailItem(AudioStream* pItem) {while (NULL != pItem && NULL != pItem->next_update) pItem=pItem->next_update; return pItem;}
+	void unlinkFromActiveUpdateList();
 	
 	// Clan list: AudioStream objects on this list are NOT yet on the update list,
 	// because no connection has yet been made which allows us to determine where
@@ -217,8 +216,9 @@ private:
 	static AudioStream *first_clan; // first object with no place in the update list
 	AudioStream *next_clan; 		// next clan
 	AudioStream *clan_head; 		// first object in this object's clan list	
-	AudioStream* clanListUnlink(AudioStream* pItem);
-	AudioStream* clanListLinkIn(AudioStream* pItem);
+	AudioStream* clanListUnlink(AudioStream* pItem); // unlink whole clan from clan list
+	AudioStream* clanListLinkIn(AudioStream* pItem); // link whole clan into clan list
+	void unlinkItemFromClanUpdateList(); // remove single AudioStream object from clan
 	
 	static audio_block_t *memory_pool;
 	static uint32_t memory_pool_available_mask[];
