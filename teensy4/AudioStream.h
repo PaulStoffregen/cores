@@ -37,6 +37,22 @@
 
 #endif
 
+//#define DYNAMIC_AUDIO_DEBUG
+
+#if defined(DYNAMIC_AUDIO_DEBUG)
+#define SPRT(...) Serial.print(__VA_ARGS__) 
+#define SPRL(...) Serial.println(__VA_ARGS__) 
+#define SFSH(...) Serial.flush(__VA_ARGS__) 
+#else
+#define printClanEntry(...)
+#define printAclan(...)
+#define printClanList(...)
+#define SPRT(...) 
+#define SPRL(...) 
+#define SFSH(...) 
+#endif // DYNAMIC_AUDIO_DEBUG
+
+
 // AUDIO_BLOCK_SAMPLES determines how many samples the audio library processes
 // per update.  It may be reduced to achieve lower latency response to events,
 // at the expense of higher interrupt and DMA setup overhead.

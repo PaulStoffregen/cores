@@ -63,17 +63,17 @@ bool AudioStream::serialStarted = false;
 // Will also work for clan list
 static void listLinkIn(AudioStream** ppAfter,AudioStream* pItem,AudioStream** ppItemNext)
 {
-Serial.print("\r\nLink ");
-Serial.print((uint32_t) ppAfter,HEX);
-Serial.print("->");
-Serial.print((uint32_t) *ppAfter,HEX);
-Serial.print(" item ");
-Serial.print((uint32_t) pItem,HEX);
-Serial.print(" via ");
-Serial.print((uint32_t) ppItemNext,HEX);
-Serial.print("->");
-Serial.println((uint32_t) *ppItemNext,HEX);	
-Serial.flush();
+SPRT("\r\nLink ");
+SPRT((uint32_t) ppAfter,HEX);
+SPRT("->");
+SPRT((uint32_t) *ppAfter,HEX);
+SPRT(" item ");
+SPRT((uint32_t) pItem,HEX);
+SPRT(" via ");
+SPRT((uint32_t) ppItemNext,HEX);
+SPRT("->");
+SPRL((uint32_t) *ppItemNext,HEX);	
+SFSH();
 
 	*ppItemNext = *ppAfter;
 	*ppAfter = pItem;
@@ -90,26 +90,26 @@ Serial.flush();
 static AudioStream* listUnlink(AudioStream** ppAfter,AudioStream** ppItemNext)
 {
 	AudioStream* pItem;
-Serial.print("\r\nUnlink ");
-Serial.print((uint32_t) ppAfter,HEX);
-Serial.print("->");
-Serial.flush();
-Serial.print((uint32_t) *ppAfter,HEX);
-Serial.print(" from ");
-Serial.flush();
-Serial.print((uint32_t) ppItemNext,HEX);
-Serial.print("->");
-Serial.flush();
-Serial.print((uint32_t) *ppItemNext,HEX);
-Serial.flush();
+SPRT("\r\nUnlink ");
+SPRT((uint32_t) ppAfter,HEX);
+SPRT("->");
+SFSH();
+SPRT((uint32_t) *ppAfter,HEX);
+SPRT(" from ");
+SFSH();
+SPRT((uint32_t) ppItemNext,HEX);
+SPRT("->");
+SFSH();
+SPRT((uint32_t) *ppItemNext,HEX);
+SFSH();
 
 	pItem = *ppAfter;
 	*ppAfter = *ppItemNext;
 	*ppItemNext = NULL; // remove the item's stale link
 
-Serial.print(": unlinked ");
-Serial.print((uint32_t) pItem,HEX);
-Serial.flush();
+SPRT(": unlinked ");
+SPRT((uint32_t) pItem,HEX);
+SFSH();
 	
 	return pItem;
 }
@@ -143,28 +143,28 @@ AudioStream* AudioStream::clanListUnlink(AudioStream* pItem)
 {
 	AudioStream* pHead = pItem->clan_head; // find the clan head
 	AudioStream** ppClanHead;
-Serial.print("Clan unlink: ");
+SPRT("Clan unlink: ");
 printAclan(pHead,NULL);
-Serial.flush();
+SFSH();
 
 	// find where we are in the clan list
 	for (ppClanHead = &first_clan; NULL != *ppClanHead && *ppClanHead != pHead; ppClanHead = &(*ppClanHead)->next_clan)
 		;
-Serial.print(" pointed to by: ");
-Serial.print((uint32_t) ppClanHead,HEX);
-Serial.flush();
+SPRT(" pointed to by: ");
+SPRT((uint32_t) ppClanHead,HEX);
+SFSH();
 	if (NULL != *ppClanHead) // then we are indeed in the clan list
 	{
 		listUnlink(ppClanHead,&pHead->next_clan); // unlink
 		
-Serial.println(": clan unlinked!");
-Serial.flush();
+SPRL(": clan unlinked!");
+SFSH();
 	}
 	else
 	{
 		pHead = NULL;
-Serial.println(": not in list!");
-Serial.flush();
+SPRL(": not in list!");
+SFSH();
 	}
 	
 	return pHead;
@@ -190,17 +190,17 @@ AudioStream* AudioStream::updateListMergeInto(AudioStream** ppAfter,AudioStream*
 	AudioStream* pHead = pItem->clan_head; // find the clan head
 	AudioStream* pTail;
 	
-Serial.print("Merge item: ");	
+SPRT("Merge item: ");	
 printClanEntry(pItem,0,NULL,NULL,NULL);
-Serial.println("from:");
+SPRL("from:");
 printAclan(pItem->clan_head,NULL);
-Serial.print("after: ");	
-Serial.println((uint32_t) ppAfter,HEX);	
-Serial.print("before: ");	
+SPRT("after: ");	
+SPRL((uint32_t) ppAfter,HEX);	
+SPRT("before: ");	
 printClanEntry(*ppAfter,0,NULL,NULL,NULL);
-Serial.print("new head: ");	
-Serial.println((uint32_t) newHead,HEX);	
-Serial.flush();
+SPRT("new head: ");	
+SPRL((uint32_t) newHead,HEX);	
+SFSH();
 
 	
 	if (ppAfter == &first_update ||
@@ -216,7 +216,7 @@ Serial.flush();
 			pTail->clan_head = NULL; // do the last entry
 			pTail->active = true;
 			
-Serial.println("Merged to active updates");	
+SPRL("Merged to active updates");	
 			listLinkIn(ppAfter,pHead,&pTail->next_update);
 		}
 		pTail = first_update;
@@ -233,7 +233,7 @@ Serial.println("Merged to active updates");
 		}
 		// else we share the same clan head, no merge needed
 		pTail = newHead;
-Serial.println("Merged clan is:");	
+SPRL("Merged clan is:");	
 printAclan(newHead,NULL);
 	}
 	
@@ -269,7 +269,7 @@ FLASHMEM void AudioStream::initialize_memory(audio_block_t *data, unsigned int n
 	unsigned int i;
 	unsigned int maxnum = MAX_AUDIO_MEMORY / AUDIO_BLOCK_SAMPLES / 2;
 
-	//Serial.println("AudioStream initialize_memory");
+	//SPRL("AudioStream initialize_memory");
 	//delay(10);
 	if (num > maxnum) num = maxnum;
 	__disable_irq();
@@ -305,7 +305,7 @@ audio_block_t * AudioStream::allocate(void)
 	while (1) {
 		if (p >= end) {
 			__enable_irq();
-			//Serial.println("alloc:null");
+			//SPRL("alloc:null");
 			return NULL;
 		}
 		avail = *p;
@@ -325,8 +325,8 @@ audio_block_t * AudioStream::allocate(void)
 	block = memory_pool + ((index << 5) + (31 - n));
 	block->ref_count = 1;
 	if (used > memory_used_max) memory_used_max = used;
-	//Serial.print("alloc:");
-	//Serial.println((uint32_t)block, HEX);
+	//SPRT("alloc:");
+	//SPRL((uint32_t)block, HEX);
 	return block;
 }
 
@@ -344,8 +344,8 @@ void AudioStream::release(audio_block_t *block, bool enableIRQ /* = true */)
 	if (block->ref_count > 1) {
 		block->ref_count--;
 	} else {
-		//Serial.print("reles:");
-		//Serial.println((uint32_t)block, HEX);
+		//SPRT("reles:");
+		//SPRL((uint32_t)block, HEX);
 		memory_pool_available_mask[index] |= mask;
 		if (index < memory_pool_first_mask) memory_pool_first_mask = index;
 		memory_used--;
@@ -683,7 +683,7 @@ int AudioConnection::disconnect(void)
 static int AudioStream::simples = 0;
 void AudioStream::linkIntoUpdateList(const AudioConnection* pC)
 {
-Serial.print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+SPRT("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 printClanList();
 	
 	if (!active) // not yet linked in
@@ -707,15 +707,15 @@ printClanList();
 		AudioStream* tail = this;		
 		
 if (simples & 1) {		
-Serial.print("from ");		
-Serial.print((uint32_t) tail,HEX);		
-Serial.print(" head = ");		
-Serial.print((uint32_t) clan_head,HEX);
+SPRT("from ");		
+SPRT((uint32_t) tail,HEX);		
+SPRT(" head = ");		
+SPRT((uint32_t) clan_head,HEX);
 		while (tail->next_update)
 			tail = tail->next_update;
-Serial.print(" tail = ");		
-Serial.println((uint32_t) tail,HEX);
-Serial.flush();
+SPRT(" tail = ");		
+SPRL((uint32_t) tail,HEX);
+SFSH();
 		// tail now points to the last member of our clan
 		// [this->]clan_head is the first member
 }//#endif		
@@ -741,7 +741,7 @@ Serial.flush();
 			AudioStream* pS = clanListUnlink(this); // unlink ourselves
 			//listLinkIn(ppS,clan_head,&tail->next_update);
 			updateListMergeInto(ppS,NULL,this);
-Serial.println("...active");
+SPRL("...active");
 		}
 		
 		if (!active && // neither source nor destination is in update list, we're still in limbo
@@ -761,7 +761,7 @@ if (!(simples & 2)) {
 				
 				if (pC->dst == otherDFU) // we're the source and other clan head is destination
 				{
-Serial.println("Source before other Head:");
+SPRL("Source before other Head:");
 					updateListMergeInto(&updateTailItem(ourDFU)->next_update,ourDFU,otherDFU);
 					linkItem = ourDFU;
 				}
@@ -769,7 +769,7 @@ Serial.println("Source before other Head:");
 				{
 					AudioStream* pAfter;
 					
-Serial.println("Source within other clan:");
+SPRL("Source within other clan:");
 					// find the preceding object, to link in after it and before our destination
 					for (pAfter = otherDFU; NULL != pAfter && pC->dst != pAfter->next_update; pAfter = pAfter->next_update)
 						;
@@ -801,12 +801,12 @@ Serial.println("Source within other clan:");
 		}
 		else
 		{
-Serial.println("...already clanned up");
+SPRL("...already clanned up");
 		}
-Serial.println("...done");
-Serial.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+SPRL("...done");
+SPRL(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 printClanList();
-Serial.flush();
+SFSH();
 			
 			//*** THIS COULD BE THE WRONG PLACE! Maybe in update_setup()? *****
 			/*
@@ -827,7 +827,7 @@ Serial.flush();
 void AudioStream::unlinkFromActiveUpdateList()
 {
 	AudioStream** ppS;
-Serial.print("\r\nUnlink!");
+SPRT("\r\nUnlink!");
 	
 	if (NULL == clan_head) // we are in the main update list
 	{
@@ -836,8 +836,8 @@ Serial.print("\r\nUnlink!");
 			;
 		if (*ppS != NULL)
 		{
-Serial.print("\r\nLeave active update list: ");
-Serial.flush();
+SPRT("\r\nLeave active update list: ");
+SFSH();
 			listUnlink(ppS,&next_update); // unlink from active list
 			active = false;
 			clan_head = this; 		// we are now a clan of one
@@ -846,8 +846,8 @@ Serial.flush();
 	}
 else
 {
-Serial.println("...nothing to do");
-Serial.flush();
+SPRL("...nothing to do");
+SFSH();
 }
 }
 
@@ -865,8 +865,8 @@ printClanList();
 	if (NULL != pC) // this is  a clan member, pC points to (unlinked) clan head
 	{
 		AudioStream* pH = pC; // take a copy that may get overwritten
-Serial.print("\r\nLeave clan: ");
-Serial.flush();
+SPRT("\r\nLeave clan: ");
+SFSH();
 		// found our clan: now go along the next_update list  
 		// to unlink ourselves from it
 		for (ppS = &pH; *ppS != NULL; ppS = &((*ppS)->next_update))
@@ -875,9 +875,9 @@ Serial.flush();
 			{
 printClanEntry(pC,0,NULL,NULL,NULL);
 				listUnlink(ppS,&this->next_update); // unlink this item
-Serial.print("\r\n*ppS is: ");
-Serial.println((uint32_t) *ppS,HEX);
-Serial.flush();
+SPRT("\r\n*ppS is: ");
+SPRL((uint32_t) *ppS,HEX);
+SFSH();
 				break;
 			}
 		}
@@ -900,9 +900,9 @@ Serial.flush();
 			clanListLinkIn(pC);
 	}
 	
-Serial.print((uint32_t) this,HEX);
-Serial.println(" now in limbo");
-Serial.flush();
+SPRT((uint32_t) this,HEX);
+SPRL(" now in limbo");
+SFSH();
 }
 
 
@@ -915,39 +915,39 @@ void AudioStream::NULLifConnected(AudioConnection** ppC) //!< list of connection
 {
 	AudioConnection** ppN;
 	
-Serial.print(" [disconnect ");
-Serial.flush();
+SPRT(" [disconnect ");
+SFSH();
 	while (*ppC != NULL)
 	{
 		AudioConnection* pC = *ppC;	// easier to get our head round!
 		
-Serial.print((uint32_t) pC,HEX);
-Serial.flush();
+SPRT((uint32_t) pC,HEX);
+SFSH();
 
 		if (pC->dst == this)
 		{
 			pC->disconnect();	// disconnect this connection
 			pC->dst = NULL;		// can never re-connect, source will no longer exist
-Serial.print("=dst ");
-Serial.flush();
+SPRT("=dst ");
+SFSH();
 		}
 		if (pC->src == this) // dying AudioStream is source for this connection...
 		{
 			pC->disconnect();	// disconnect this connection
 			pC->src = NULL;		// can never re-connect, source will no longer exist
-Serial.print("=src ");
-Serial.flush();
+SPRT("=src ");
+SFSH();
 		}
 		if (pC == *ppC) // link didn't change, so we weren't disconnected...
 			ppC = &((*ppC)->next_dest); // ...can follow link 
 if (*ppC != NULL)
 {	
-Serial.print(", ");
-Serial.flush();
+SPRT(", ");
+SFSH();
 }
 	}	
-Serial.print("] ");
-Serial.flush();
+SPRT("] ");
+SFSH();
 }
 
 // Destructor: quite a lot of housekeeping to do
@@ -956,10 +956,10 @@ AudioStream::~AudioStream()
 	AudioStream** ppS; // iterating pointer
 	AudioConnection** ppC;
 	
-Serial.print("\r\nDestructor: (");
-Serial.print((uint32_t) this,HEX);
-Serial.print(")...");
-Serial.flush();
+SPRT("\r\nDestructor: (");
+SPRT((uint32_t) this,HEX);
+SPRT(")...");
+SFSH();
 
 	// associated audio blocks:
 	SAFE_RELEASE(inputQueue,num_inputs,false);	// release input blocks and disable interrupts
@@ -970,10 +970,10 @@ Serial.flush();
 	for (ppS = &first_update; *ppS != NULL; ppS = &((*ppS)->next_update))
 	{
 		AudioStream* pS = *ppS;	// easier to get our head round!
-Serial.println();
-Serial.print((uint32_t) pS,HEX);
-Serial.print("...");
-Serial.flush();
+SPRL();
+SPRT((uint32_t) pS,HEX);
+SPRT("...");
+SFSH();
 		// run through all the AudioConnections from this AudioStream
 		if (pS != this)
 			NULLifConnected(&(pS->destination_list));
@@ -986,10 +986,10 @@ Serial.flush();
 		for (ppS = &pC; *ppS != NULL; ppS = &((*ppS)->next_update))
 		{
 			AudioStream* pS = *ppS;	// easier to get our head round!
-Serial.println();
-Serial.print((uint32_t) pS,HEX);
-Serial.print("...");
-	Serial.flush();
+SPRL();
+SPRT((uint32_t) pS,HEX);
+SPRT("...");
+	SFSH();
 			// run through all the AudioConnections from this AudioStream
 			if (pS != this)
 				NULLifConnected(&(pS->destination_list));
@@ -1002,15 +1002,15 @@ Serial.print("...");
 	// there may be unused AudioConnections which refer to this: "disconnect" those
 	// (they're already disconnected, but that's safe, and we do want to NULL
 	// the residual src or dst pointers)
-Serial.print("\r\nUnused: ");
-Serial.flush();
+SPRT("\r\nUnused: ");
+SFSH();
 	NULLifConnected(&unused);
 	
 	// associated update lists (active or clan):
 	unlinkFromActiveUpdateList();	// unlink ourselves from active, move to clan list...
 	unlinkItemFromClanUpdateList(); // ...and remove from clan list
-Serial.print("unlink\r\n\r\n");
-Serial.flush();
+SPRT("unlink\r\n\r\n");
+SFSH();
 	
 	__enable_irq();
 }
@@ -1032,9 +1032,9 @@ bool AudioStream::update_setup(void)
 		
 		pC = clanListUnlink(this);
 		updateListMergeInto(&first_update,NULL,pC);
-Serial.print((uint32_t) first_update,HEX);
-Serial.println(" set as first_update");
-Serial.flush();
+SPRT((uint32_t) first_update,HEX);
+SPRL(" set as first_update");
+SFSH();
 	}
 	attachInterruptVector(IRQ_SOFTWARE, software_isr);
 	NVIC_SET_PRIORITY(IRQ_SOFTWARE, 208); // 255 = lowest priority
