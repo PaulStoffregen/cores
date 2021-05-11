@@ -133,6 +133,7 @@ public:
 	AudioStream(unsigned char ninput, audio_block_t **iqueue) :
 		num_inputs(ninput), inputQueue(iqueue) {
 			active = false;
+			bypass = false;
 			destination_list = NULL;
 			for (int i=0; i < num_inputs; i++) {
 				inputQueue[i] = NULL;
@@ -156,6 +157,8 @@ public:
 	int processorUsageMax(void) { return CYCLE_COUNTER_APPROX_PERCENT(cpu_cycles_max); }
 	void processorUsageMaxReset(void) { cpu_cycles_max = cpu_cycles; }
 	bool isActive(void) { return active; }
+	bool isBypass(void) { return bypass; }
+	void setBypass(bool new_bypass) {bypass = new_bypass;}
 	uint16_t cpu_cycles;
 	uint16_t cpu_cycles_max;
 	static uint16_t cpu_cycles_total;
@@ -164,6 +167,7 @@ public:
 	static uint16_t memory_used_max;
 protected:
 	bool active;
+	bool bypass;
 	unsigned char num_inputs;
 	static audio_block_t * allocate(void);
 	static void release(audio_block_t * block);
