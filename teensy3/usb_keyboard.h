@@ -52,6 +52,9 @@ int usb_keyboard_press(uint8_t key, uint8_t modifier);
 int usb_keyboard_send(void);
 #ifdef KEYMEDIA_INTERFACE
 void usb_keymedia_release_all(void);
+int usb_keymedia_send(void);
+extern uint16_t keymedia_consumer_keys[4];
+extern uint8_t keymedia_system_keys[3];
 #endif
 extern uint8_t keyboard_modifier_keys;
 extern uint8_t keyboard_keys[6];
