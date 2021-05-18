@@ -17,7 +17,8 @@ SECTIONS
 		. = ORIGIN(FLASH) + 0x1000;
 		KEEP(*(.ivt))
 		KEEP(*(.bootdata))
-		. = ALIGN(1024);
+		/* This causes problems for Teensy 4.1, but why? */
+		/* . = ALIGN(1024); */
 	} > FLASH
 
 	.text.code : {
