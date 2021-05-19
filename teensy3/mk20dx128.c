@@ -47,7 +47,13 @@
 // accessible to initiate reprogramming, but it must not be accidentally
 // pressed when Teensy Loader is not being used to reprogram.  To set lock the
 // security change this to 0xDC.  Teensy 3.0 and 3.1 do not support security lock.
-#define FSEC 0xDE
+// #define TEENSY3_SECURE_MODE
+#ifndef TEENSY3_SECURE_MODE
+#    define FSEC 0xDE
+#else
+#    define FSEC 0xDC
+#    warning ** FLASH SECURE MODE SET FOR TEENSY! ** This is good because nobody can read your code from flash memory and make copies of your device. This is bad because if you press the program button when powered up, the flash will be immeidately erased.  Some mechanical protection of the switch  is advisable.
+#endif
 
 // Flash Options
 #define FOPT 0xF9
