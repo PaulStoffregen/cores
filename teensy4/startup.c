@@ -60,6 +60,7 @@ void ResetHandler(void)
 	IOMUXC_GPR_GPR16 = 0x00200007;
 	IOMUXC_GPR_GPR14 = 0x00AA0000;
 	__asm__ volatile("mov sp, %0" : : "r" ((uint32_t)&_estack) : );
+	__asm__ volatile("dsb":::"memory");
 #endif
 	PMU_MISC0_SET = 1<<3; //Use bandgap-based bias currents for best performance (Page 1175)
 	// pin 13 - if startup crashes, use this to turn on the LED early for troubleshooting
