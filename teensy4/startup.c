@@ -516,11 +516,13 @@ extern void usb_isr(void);
 __attribute__((naked))
 void unused_interrupt_vector(void)
 {
-	uint32_t i, ipsr, crc;
+	uint32_t i, ipsr, crc, count;
 	const uint32_t *stack;
 	struct arm_fault_info_struct *info;
 	const uint32_t *p, *end;
 
+	// disallow any nested interrupts
+	__disable_irq();
 	// store crash report info
 	asm volatile("mrs %0, ipsr\n" : "=r" (ipsr) :: "memory");
 	info = (struct arm_fault_info_struct *)0x2027FF80;
@@ -543,27 +545,50 @@ void unused_interrupt_vector(void)
 	}
 	arm_dcache_flush_delete(info, sizeof(*info));
 
+	// LED blink can show fault mode - by default we don't mess with pin 13
+	//IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_03 = 5; // pin 13
+	//IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_03 = IOMUXC_PAD_DSE(7);
+	//GPIO7_GDIR |= (1 << 3);
+
 	// reinitialize PIT timer and CPU clock
 	CCM_CCGR1 |= CCM_CCGR1_PIT(CCM_CCGR_ON);
 	PIT_MCR = PIT_MCR_MDIS;
 	CCM_CSCMR1 = (CCM_CSCMR1 & ~CCM_CSCMR1_PERCLK_PODF(0x3F)) | CCM_CSCMR1_PERCLK_CLK_SEL;
-	IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_03 = 5; // pin 13
-	IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_03 = IOMUXC_PAD_DSE(7);
-	GPIO7_GDIR |= (1 << 3);
   	if (F_CPU_ACTUAL > 198000000) set_arm_clock(198000000);
 	PIT_MCR = 0;
 	PIT_TCTRL0 = 0;
 	PIT_LDVAL0 = 2400000; // 2400000 = 100ms
 	PIT_TCTRL0 = PIT_TCTRL_TEN;
+	// disable all NVIC interrupts, as usb_isr() might use __enable_irq()
+	NVIC_ICER0 = 0xFFFFFFFF;
+	NVIC_ICER1 = 0xFFFFFFFF;
+	NVIC_ICER2 = 0xFFFFFFFF;
+	NVIC_ICER3 = 0xFFFFFFFF;
+	NVIC_ICER4 = 0xFFFFFFFF;
 
+	// keep USB running, so any unsent Serial.print() actually arrives in
+	// the Arduino Serial Monitor, and we remain responsive to Upload
+	// without requiring manual press of Teensy's pushbutton
+	count = 0;
 	while (1) {
 		if (PIT_TFLG0) {
-    			GPIO7_DR_TOGGLE = (1 << 3); // blink LED
+			//GPIO7_DR_TOGGLE = (1 << 3); // blink LED
 			PIT_TFLG0 = 1;
-			// TODO: turn off USB and reboot after 5-10 sec??
+			if (++count >= 80) break;  // reboot after 8 seconds
 		}
 		usb_isr();
+		// TODO: should other data flush / cleanup tasks be done here?
+		//   Transmit Serial1 - Serial8 data
+		//   Complete writes to SD card
+		//   Flush/sync LittleFS
 	}
+	// turn off USB
+	USB1_USBCMD = USB_USBCMD_RST;
+	USBPHY1_CTRL_SET = USBPHY_CTRL_SFTRST;
+	while (PIT_TFLG0 == 0) /* wait 0.1 second for PC to know USB unplugged */
+	// reboot
+	SCB_AIRCR = 0x05FA0004;
+	while (1) ;
 }
 
 
