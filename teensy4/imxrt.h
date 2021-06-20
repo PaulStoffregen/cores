@@ -9824,3 +9824,18 @@ static inline void arm_dcache_flush_delete(void *addr, uint32_t size)
 	asm("dsb");
 	asm("isb");
 }
+
+// Crash report info stored in the top 128 bytes of OCRAM (at 0x2027FF80)
+struct arm_fault_info_struct {
+	uint32_t len;
+	uint32_t ipsr;
+	uint32_t cfsr;
+	uint32_t hfsr;
+	uint32_t mmfar;
+	uint32_t bfar;
+	uint32_t ret;
+	uint32_t xpsr;
+	uint32_t crc;
+};
+
+
