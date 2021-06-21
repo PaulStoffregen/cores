@@ -543,6 +543,7 @@ void unused_interrupt_vector(void)
 		crc ^= *p++;
 		for (i=0; i < 32; i++) crc = (crc >> 1) ^ (crc & 1)*0xEDB88320;
 	}
+	info->crc = crc;
 	arm_dcache_flush_delete(info, sizeof(*info));
 
 	// LED blink can show fault mode - by default we don't mess with pin 13
