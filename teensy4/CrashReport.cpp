@@ -15,20 +15,13 @@ struct arm_fault_info_struct {
 }; */
 extern unsigned long _ebss;
 
+static int isvalid(const struct arm_fault_info_struct *info);
+
 size_t CrashReportClass::printTo(Print& p) const
 {
   struct arm_fault_info_struct *info = (struct arm_fault_info_struct *)0x2027FF80;
-  uint32_t i, crc;
-  const uint32_t *pp, *end;
-  crc = 0xFFFFFFFF;
-  pp = (uint32_t *)info;
-  end = pp + (sizeof(*info) / 4 - 1);
-  while (pp < end) {
-    crc ^= *pp++;
-    for (i=0; i < 32; i++) crc = (crc >> 1) ^ (crc & 1)*0xEDB88320;
-  }
 
-  if( info->len != 0 || info->crc == crc ) {
+  if (isvalid(info)) {
     p.println("CrashReport ... Hello World");
     p.print("  length: ");
     p.println(info->len);
@@ -122,6 +115,41 @@ size_t CrashReportClass::printTo(Print& p) const
   } else {
     p.println("No Crash Reported or Crash was Cleared");
   }
+  uint32_t SRSR = SRC_SRSR;
+  if (SRSR & SRC_SRSR_LOCKUP_SYSRESETREQ) {
+    // use SRC_GPR5 to distinguish cases.  See pages 1290 & 1294 in ref manual
+    uint32_t gpr5 = SRC_GPR5;
+    if (gpr5 == 0x0BAD00F1) {
+      p.println("Reboot was caused by 8 second auto-reboot after fault or bad interrupt detected");
+    } else {
+      p.println("Reboot was caused by software write to SCB_AIRCR or CPU lockup");
+    }
+  }
+  if (SRSR & SRC_SRSR_CSU_RESET_B) {
+    p.println("Reboot was caused by security monitor");
+  }
+  if (SRSR & SRC_SRSR_IPP_USER_RESET_B) {
+    // This case probably can't occur on Teensy 4.x
+    // because the bootloader chip monitors 3.3V power
+    // and manages DCDC_PSWITCH and RESET, causing the
+    // power on event to appear as a normal reset.
+    p.println("Reboot was caused by power on/off button");
+  }
+  if (SRSR & SRC_SRSR_WDOG_RST_B) {
+    p.println("Reboot was caused by watchdog 1 or 2");
+  }
+  if (SRSR & SRC_SRSR_JTAG_RST_B) {
+    p.println("Reboot was caused by JTAG boundary scan");
+  }
+  if (SRSR & SRC_SRSR_JTAG_SW_RST) {
+    p.println("Reboot was caused by JTAG debug");
+  }
+  if (SRSR & SRC_SRSR_WDOG3_RST_B) {
+    p.println("Reboot was caused by watchdog 3");
+  }
+  if (SRSR & SRC_SRSR_TEMPSENSE_RST_B) {
+    p.println("Reboot was caused by temperature sensor");
+  }
   return 1;
 }
 
@@ -138,7 +166,32 @@ void CrashReportClass::clear()
   info->xpsr  = 0;
   info->crc = 0;
   arm_dcache_flush_delete(info, sizeof(*info));
+  SRC_SRSR = SRC_SRSR; // zeros all write-1-to-clear bits
+  SRC_GPR5 = 0;
 }
 
+CrashReportClass::operator bool()
+{
+	struct arm_fault_info_struct *info = (struct arm_fault_info_struct *)0x2027FF80;
+	if (isvalid(info)) return true;
+	return false;
+}
+
+static int isvalid(const struct arm_fault_info_struct *info)
+{
+	uint32_t i, crc;
+	const uint32_t *data, *end;
+
+	if (info->len != sizeof(*info) / 4) return 0;
+	data = (uint32_t *)info;
+	end = data + (sizeof(*info) / 4 - 1);
+	crc = 0xFFFFFFFF;
+	while (data < end) {
+		crc ^= *data++;
+		for (i=0; i < 32; i++) crc = (crc >> 1) ^ (crc & 1)*0xEDB88320;
+	}
+	if (crc != info->crc) return 0;
+	return 1;
+}
 
 CrashReportClass CrashReport;

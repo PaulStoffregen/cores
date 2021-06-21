@@ -6,7 +6,8 @@
 class CrashReportClass: public Printable {
 public:
 	virtual size_t printTo(Print& p) const;
-	virtual void clear();
+	void clear();
+	operator bool();
 };
 
 extern CrashReportClass CrashReport;
