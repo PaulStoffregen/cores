@@ -8489,6 +8489,7 @@ typedef struct
 #define SRC_SBMR1			(IMXRT_SRC.offset004)
 #define SRC_SRSR			(IMXRT_SRC.offset008)
 #define SRC_SBMR2			(IMXRT_SRC.offset01C)
+#define SRC_GPR5			(IMXRT_SRC.offset030)
 /* 
 These register are used by the ROM code and should not be used by application software 
 #define SRC_GPR1			(IMXRT_SRC.offset020) 

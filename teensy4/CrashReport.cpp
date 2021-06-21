@@ -117,8 +117,13 @@ size_t CrashReportClass::printTo(Print& p) const
   }
   uint32_t SRSR = SRC_SRSR;
   if (SRSR & SRC_SRSR_LOCKUP_SYSRESETREQ) {
-    p.println("Reboot was caused by software write to SCB_AIRCR or CPU lockup");
-    // TODO, use SRC_GPR5 to distinguish cases.  See pages 1290 & 1294 in ref manual
+    // use SRC_GPR5 to distinguish cases.  See pages 1290 & 1294 in ref manual
+    uint32_t gpr5 = SRC_GPR5;
+    if (gpr5 == 0x0BAD00F1) {
+      p.println("Reboot was caused by 8 second auto-reboot after fault or bad interrupt detected");
+    } else {
+      p.println("Reboot was caused by software write to SCB_AIRCR or CPU lockup");
+    }
   }
   if (SRSR & SRC_SRSR_CSU_RESET_B) {
     p.println("Reboot was caused by security monitor");
@@ -162,6 +167,7 @@ void CrashReportClass::clear()
   info->crc = 0;
   arm_dcache_flush_delete(info, sizeof(*info));
   SRC_SRSR = SRC_SRSR; // zeros all write-1-to-clear bits
+  SRC_GPR5 = 0;
 }
 
 static int isvalid(const struct arm_fault_info_struct *info)
