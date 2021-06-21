@@ -15,20 +15,13 @@ struct arm_fault_info_struct {
 }; */
 extern unsigned long _ebss;
 
+static int isvalid(const struct arm_fault_info_struct *info);
+
 size_t CrashReportClass::printTo(Print& p) const
 {
   struct arm_fault_info_struct *info = (struct arm_fault_info_struct *)0x2027FF80;
-  uint32_t i, crc;
-  const uint32_t *pp, *end;
-  crc = 0xFFFFFFFF;
-  pp = (uint32_t *)info;
-  end = pp + (sizeof(*info) / 4 - 1);
-  while (pp < end) {
-    crc ^= *pp++;
-    for (i=0; i < 32; i++) crc = (crc >> 1) ^ (crc & 1)*0xEDB88320;
-  }
 
-  if( info->len != 0 || info->crc == crc ) {
+  if (isvalid(info)) {
     p.println("CrashReport ... Hello World");
     p.print("  length: ");
     p.println(info->len);
@@ -140,5 +133,21 @@ void CrashReportClass::clear()
   arm_dcache_flush_delete(info, sizeof(*info));
 }
 
+static int isvalid(const struct arm_fault_info_struct *info)
+{
+	uint32_t i, crc;
+	const uint32_t *data, *end;
+
+	if (info->len != sizeof(*info) / 4) return 0;
+	data = (uint32_t *)info;
+	end = data + (sizeof(*info) / 4 - 1);
+	crc = 0xFFFFFFFF;
+	while (data < end) {
+		crc ^= *data++;
+		for (i=0; i < 32; i++) crc = (crc >> 1) ^ (crc & 1)*0xEDB88320;
+	}
+	if (crc != info->crc) return 0;
+	return 1;
+}
 
 CrashReportClass CrashReport;
