@@ -29,7 +29,6 @@ size_t CrashReportClass::printTo(Print& p) const
 	uint8_t mm = info->time % 60;
 	info->time /= 60;
 	uint8_t hh = info->time % 24;
-	p.println(__TIME__);
 	p.printf( "%02d:%02d:%02d\n", hh, mm, ss  );
 
 	p.print("  Temperature at time of fault: ");
@@ -161,6 +160,7 @@ size_t CrashReportClass::printTo(Print& p) const
   }
   if (SRSR & SRC_SRSR_TEMPSENSE_RST_B) {
     p.println("Reboot was caused by temperature sensor");
+	if(CCM_ANALOG_MISC1_IRQ_TEMPPANIC == 1) p.println("Panic Temp Exceeded");
   }
   return 1;
 }
