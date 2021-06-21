@@ -21,10 +21,22 @@ size_t CrashReportClass::printTo(Print& p) const
 {
   struct arm_fault_info_struct *info = (struct arm_fault_info_struct *)0x2027FF80;
 
-  if (isvalid(info)) {
-    p.println("CrashReport ... Hello World");
+  if (info->len > 0) {
+    p.println("CrashReport ... Hello World");	
+	p.print("  Fault occurred at: ");
+	uint8_t ss = info->time % 60;
+	info->time /= 60;
+	uint8_t mm = info->time % 60;
+	info->time /= 60;
+	uint8_t hh = info->time % 24;
+	p.println(__TIME__);
+	p.printf( "%02d:%02d:%02d\n", hh, mm, ss  );
+
+	p.print("  Temperature at time of fault: ");
+	p.print(info->temp); p.println(" degC");
+	
     p.print("  length: ");
-    p.println(info->len);
+    p.println(info->len);	
     p.print("  IPSR: ");
     p.println(info->ipsr, HEX);
 
