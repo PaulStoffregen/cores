@@ -111,7 +111,7 @@ const struct pwm_pin_info_struct pwm_pin_info[] = {
 //   FlexPWM3_0    PWM pin 53(T4.1)
 //   FlexPWM3_1    PWM pin 28, 29
 //   FlexPWM3_2
-//   FlexPWM3_3    PWM pin 41(T4.1)
+//   FlexPWM3_3    PWM pin 51(T4.1)
 //   FlexPWM4_0    PWM pin 22
 //   FlexPWM4_1    PWM pin 23
 //   FlexPWM4_2    PWM pin 2, 3
