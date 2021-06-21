@@ -162,6 +162,7 @@ size_t CrashReportClass::printTo(Print& p) const
     p.println("Reboot was caused by temperature sensor");
 	if(CCM_ANALOG_MISC1_IRQ_TEMPPANIC == 1) p.println("Panic Temp Exceeded");
   }
+  clear();
   return 1;
 }
 
