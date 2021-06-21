@@ -21,7 +21,7 @@ size_t CrashReportClass::printTo(Print& p) const
 {
   struct arm_fault_info_struct *info = (struct arm_fault_info_struct *)0x2027FF80;
 
-  if (info->len > 0) {
+  if (isvalid(info)) {
     p.println("CrashReport ... Hello World");	
 	p.print("  Fault occurred at: ");
 	uint8_t ss = info->time % 60;
@@ -162,6 +162,7 @@ size_t CrashReportClass::printTo(Print& p) const
     p.println("Reboot was caused by temperature sensor");
 	if(CCM_ANALOG_MISC1_IRQ_TEMPPANIC == 1) p.println("Panic Temp Exceeded");
   }
+  clear();
   return 1;
 }
 
