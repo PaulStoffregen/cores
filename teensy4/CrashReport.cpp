@@ -115,6 +115,36 @@ size_t CrashReportClass::printTo(Print& p) const
   } else {
     p.println("No Crash Reported or Crash was Cleared");
   }
+  uint32_t SRSR = SRC_SRSR;
+  if (SRSR & SRC_SRSR_LOCKUP_SYSRESETREQ) {
+    p.println("Reboot was caused by software write to SCB_AIRCR or CPU lockup");
+    // TODO, use SRC_GPR5 to distinguish cases.  See pages 1290 & 1294 in ref manual
+  }
+  if (SRSR & SRC_SRSR_CSU_RESET_B) {
+    p.println("Reboot was caused by security monitor");
+  }
+  if (SRSR & SRC_SRSR_IPP_USER_RESET_B) {
+    // This case probably can't occur on Teensy 4.x
+    // because the bootloader chip monitors 3.3V power
+    // and manages DCDC_PSWITCH and RESET, causing the
+    // power on event to appear as a normal reset.
+    p.println("Reboot was caused by power on/off button");
+  }
+  if (SRSR & SRC_SRSR_WDOG_RST_B) {
+    p.println("Reboot was caused by watchdog 1 or 2");
+  }
+  if (SRSR & SRC_SRSR_JTAG_RST_B) {
+    p.println("Reboot was caused by JTAG boundary scan");
+  }
+  if (SRSR & SRC_SRSR_JTAG_SW_RST) {
+    p.println("Reboot was caused by JTAG debug");
+  }
+  if (SRSR & SRC_SRSR_WDOG3_RST_B) {
+    p.println("Reboot was caused by watchdog 3");
+  }
+  if (SRSR & SRC_SRSR_TEMPSENSE_RST_B) {
+    p.println("Reboot was caused by temperature sensor");
+  }
   return 1;
 }
 
@@ -131,6 +161,7 @@ void CrashReportClass::clear()
   info->xpsr  = 0;
   info->crc = 0;
   arm_dcache_flush_delete(info, sizeof(*info));
+  SRC_SRSR = SRC_SRSR; // zeros all write-1-to-clear bits
 }
 
 static int isvalid(const struct arm_fault_info_struct *info)
