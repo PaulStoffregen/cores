@@ -32,7 +32,7 @@ size_t CrashReportClass::printTo(Print& p) const
 	p.printf( "%02d:%02d:%02d\n", hh, mm, ss  );
 
 	p.print("  Temperature at time of fault: ");
-	p.print(info->temp); p.println(" degC");
+	p.print(info->temp, 1); p.println(" degC");
 	
     p.print("  length: ");
     p.println(info->len);	

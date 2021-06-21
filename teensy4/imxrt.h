@@ -9837,7 +9837,7 @@ struct arm_fault_info_struct {
 	uint32_t ret;
 	uint32_t xpsr;
 	uint32_t crc;
-	int16_t  temp;
+	float  temp;
 	uint32_t time;
 };
 
