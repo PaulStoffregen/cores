@@ -37,6 +37,8 @@ void usb_pll_start();
 extern void analog_init(void); // analog.c
 extern void pwm_init(void); // pwm.c
 extern void tempmon_init(void);  //tempmon.c
+extern float tempmonGetTemp(void);
+extern unsigned long rtc_get(void);
 uint32_t set_arm_clock(uint32_t frequency); // clockspeed.c
 extern void __libc_init_array(void); // C++ standard library
 
@@ -534,6 +536,8 @@ void unused_interrupt_vector(void)
 	info->bfar = SCB_BFAR;
 	info->ret = stack[6];
 	info->xpsr = stack[7];
+	info->temp = tempmonGetTemp();
+	info->time = rtc_get();
 	info->len = sizeof(*info) / 4;
 	// add CRC to crash report
 	crc = 0xFFFFFFFF;
@@ -588,6 +592,9 @@ void unused_interrupt_vector(void)
 	USBPHY1_CTRL_SET = USBPHY_CTRL_SFTRST;
 	while (PIT_TFLG0 == 0) /* wait 0.1 second for PC to know USB unplugged */
 	// reboot
+	if(CCM_ANALOG_MISC1_IRQ_TEMPPANIC == 1) {
+		while(tempmonGetTemp() > 80)  { delay(100); }  // 5degs below High temp alarm.
+	}
 	SRC_GPR5 = 0x0BAD00F1;
 	SCB_AIRCR = 0x05FA0004;
 	while (1) ;

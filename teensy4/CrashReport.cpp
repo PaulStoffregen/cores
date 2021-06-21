@@ -21,10 +21,21 @@ size_t CrashReportClass::printTo(Print& p) const
 {
   struct arm_fault_info_struct *info = (struct arm_fault_info_struct *)0x2027FF80;
 
-  if (isvalid(info)) {
-    p.println("CrashReport ... Hello World");
+  if (info->len > 0) {
+    p.println("CrashReport ... Hello World");	
+	p.print("  Fault occurred at: ");
+	uint8_t ss = info->time % 60;
+	info->time /= 60;
+	uint8_t mm = info->time % 60;
+	info->time /= 60;
+	uint8_t hh = info->time % 24;
+	p.printf( "%02d:%02d:%02d\n", hh, mm, ss  );
+
+	p.print("  Temperature at time of fault: ");
+	p.print(info->temp, 1); p.println(" degC");
+	
     p.print("  length: ");
-    p.println(info->len);
+    p.println(info->len);	
     p.print("  IPSR: ");
     p.println(info->ipsr, HEX);
 
@@ -149,6 +160,7 @@ size_t CrashReportClass::printTo(Print& p) const
   }
   if (SRSR & SRC_SRSR_TEMPSENSE_RST_B) {
     p.println("Reboot was caused by temperature sensor");
+	if(CCM_ANALOG_MISC1_IRQ_TEMPPANIC == 1) p.println("Panic Temp Exceeded");
   }
   return 1;
 }
