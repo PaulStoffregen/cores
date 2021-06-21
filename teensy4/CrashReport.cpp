@@ -28,7 +28,7 @@ size_t CrashReportClass::printTo(Print& p) const
     for (i=0; i < 32; i++) crc = (crc >> 1) ^ (crc & 1)*0xEDB88320;
   }
 
-  if( info->crc == crc ) {
+  if( info->len != 0 || info->crc == crc ) {
     p.println("CrashReport ... Hello World");
     p.print("  length: ");
     p.println(info->len);
@@ -120,32 +120,25 @@ size_t CrashReportClass::printTo(Print& p) const
     p.print("  crc: ");
     p.println(info->crc, HEX);
   } else {
-    // p.println("Crash Report not Available");
+    p.println("No Crash Reported or Crash was Cleared");
   }
   return 1;
 }
 
-bool CrashReportClass::clear()
+void CrashReportClass::clear()
 {
   struct arm_fault_info_struct *info = (struct arm_fault_info_struct *)0x2027FF80;
-  uint32_t i, crc;
-  const uint32_t *pp, *end;
-  crc = 0xFFFFFFFF;
-  pp = (uint32_t *)info;
-  end = pp + (sizeof(*info) / 4 - 1);
-  while (pp < end) {
-    crc ^= *pp++;
-    for (i=0; i < 32; i++) crc = (crc >> 1) ^ (crc & 1)*0xEDB88320;
-  }
-
-  if( info->crc == crc ) {
-    info->len = 0;
-    info->cfsr  = 0;
-    arm_dcache_flush_delete(info, sizeof(*info));
-    return true; // Crash was cleared
-  }
-  else
-    return false; // Crash not present to be cleared
+  info->len = 0;
+  info->ipsr  = 0;
+  info->cfsr  = 0;
+  info->hfsr  = 0;
+  info->mmfar = 0;
+  info->bfar  = 0;
+  info->ret = 0;
+  info->xpsr  = 0;
+  info->crc = 0;
+  arm_dcache_flush_delete(info, sizeof(*info));
 }
+
 
 CrashReportClass CrashReport;
