@@ -170,6 +170,13 @@ void CrashReportClass::clear()
   SRC_GPR5 = 0;
 }
 
+CrashReportClass::operator bool()
+{
+	struct arm_fault_info_struct *info = (struct arm_fault_info_struct *)0x2027FF80;
+	if (isvalid(info)) return true;
+	return false;
+}
+
 static int isvalid(const struct arm_fault_info_struct *info)
 {
 	uint32_t i, crc;
