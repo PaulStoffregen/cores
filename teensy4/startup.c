@@ -515,6 +515,7 @@ extern void usb_isr(void);
 //  R0
 // Code from :: https://community.nxp.com/thread/389002
 
+
 __attribute__((naked))
 void unused_interrupt_vector(void)
 {
@@ -592,14 +593,10 @@ void unused_interrupt_vector(void)
 	USBPHY1_CTRL_SET = USBPHY_CTRL_SFTRST;
 	while (PIT_TFLG0 == 0) /* wait 0.1 second for PC to know USB unplugged */
 	// reboot
-	if(CCM_ANALOG_MISC1_IRQ_TEMPPANIC == 1) {
-		while(tempmonGetTemp() > 80)  { delay(100); }  // 5degs below High temp alarm.
-	}
 	SRC_GPR5 = 0x0BAD00F1;
 	SCB_AIRCR = 0x05FA0004;
 	while (1) ;
 }
-
 
 __attribute__((section(".startup"), optimize("no-tree-loop-distribute-patterns")))
 static void memory_copy(uint32_t *dest, const uint32_t *src, uint32_t *dest_end)
