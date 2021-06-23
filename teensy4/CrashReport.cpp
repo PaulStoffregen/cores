@@ -14,6 +14,8 @@ struct arm_fault_info_struct {
         uint32_t crc;
 }; */
 extern unsigned long _ebss;
+extern "C" bool temperature_is_safe(void);
+extern "C" uint32_t set_arm_clock(uint32_t frequency); // clockspeed.c
 
 static int isvalid(const struct arm_fault_info_struct *info);
 
@@ -160,7 +162,13 @@ size_t CrashReportClass::printTo(Print& p) const
   }
   if (SRSR & SRC_SRSR_TEMPSENSE_RST_B) {
     p.println("Reboot was caused by temperature sensor");
-	if(CCM_ANALOG_MISC1_IRQ_TEMPPANIC == 1) p.println("Panic Temp Exceeded");
+	  SRC_SRSR &= ~0x100u; /* Write 0 to clear. */
+	  p.println("Panic Temp Exceeded Shutting Down");
+	  p.println("Can be caused by Overclocking w/o Heatsink or other unknown reason");
+	  IOMUXC_GPR_GPR16 = 0x00000007;
+	  SNVS_LPCR |= SNVS_LPCR_TOP; //Switch off now
+	  asm volatile ("dsb":::"memory");
+	  while (1) asm ("wfi");
   }
   clear();
   return 1;
