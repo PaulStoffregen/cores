@@ -86,7 +86,10 @@ void ResetHandler(void)
 	SCB_VTOR = (uint32_t)_VectorsRam;
 
 	reset_PFD();
-	
+
+	// enable exception handling
+	SCB_SHCSR |= SCB_SHCSR_MEMFAULTENA | SCB_SHCSR_BUSFAULTENA | SCB_SHCSR_USGFAULTENA;
+
 	// Configure clocks
 	// TODO: make sure all affected peripherals are turned off!
 	// PIT & GPT timers to run from 24 MHz clock (independent of CPU speed)
