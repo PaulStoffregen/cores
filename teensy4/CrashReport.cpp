@@ -24,7 +24,7 @@ size_t CrashReportClass::printTo(Print& p) const
   struct arm_fault_info_struct *info = (struct arm_fault_info_struct *)0x2027FF80;
 
   if (isvalid(info)) {
-    p.println("CrashReport ... Hello World");	
+    p.println("CrashReport:");	
 	p.print("  Fault occurred at: ");
 	uint8_t ss = info->time % 60;
 	info->time /= 60;
