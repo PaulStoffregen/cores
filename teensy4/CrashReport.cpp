@@ -33,9 +33,9 @@ size_t CrashReportClass::printTo(Print& p) const
 	uint8_t hh = info->time % 24;
 	p.printf( "%02d:%02d:%02d\n", hh, mm, ss  );
 
-	p.print("  Temperature at time of fault: ");
-	p.print(info->temp, 1); p.println(" degC");
-	
+	p.println("  Temperature and System Clock at time of fault: ");
+	p.printf( "    Temp = %f deg C,  Sys Clock = %u Mhz\n" , info->temp, F_CPU_ACTUAL/1000000 );
+
     p.print("  length: ");
     p.println(info->len);	
     p.print("  IPSR: ");
