@@ -18,6 +18,7 @@ extern "C" bool temperature_is_safe(void);
 extern "C" uint32_t set_arm_clock(uint32_t frequency); // clockspeed.c
 
 static int isvalid(const struct arm_fault_info_struct *info);
+static void cleardata(struct arm_fault_info_struct *info);
 
 size_t CrashReportClass::printTo(Print& p) const
 {
@@ -170,25 +171,14 @@ size_t CrashReportClass::printTo(Print& p) const
 	  asm volatile ("dsb":::"memory");
 	  while (1) asm ("wfi");
   }
-  clear();
+  cleardata(info);
   return 1;
 }
 
 void CrashReportClass::clear()
 {
   struct arm_fault_info_struct *info = (struct arm_fault_info_struct *)0x2027FF80;
-  info->len = 0;
-  info->ipsr  = 0;
-  info->cfsr  = 0;
-  info->hfsr  = 0;
-  info->mmfar = 0;
-  info->bfar  = 0;
-  info->ret = 0;
-  info->xpsr  = 0;
-  info->crc = 0;
-  arm_dcache_flush_delete(info, sizeof(*info));
-  SRC_SRSR = SRC_SRSR; // zeros all write-1-to-clear bits
-  SRC_GPR5 = 0;
+  cleardata(info);
 }
 
 CrashReportClass::operator bool()
@@ -214,5 +204,23 @@ static int isvalid(const struct arm_fault_info_struct *info)
 	if (crc != info->crc) return 0;
 	return 1;
 }
+
+static void cleardata(struct arm_fault_info_struct *info)
+{
+	info->len = 0;
+	info->ipsr  = 0;
+	info->cfsr  = 0;
+	info->hfsr  = 0;
+	info->mmfar = 0;
+	info->bfar  = 0;
+	info->ret = 0;
+	info->xpsr  = 0;
+	info->crc = 0;
+	arm_dcache_flush_delete(info, sizeof(*info));
+	SRC_SRSR = SRC_SRSR; // zeros all write-1-to-clear bits
+	SRC_GPR5 = 0;
+}
+
+
 
 CrashReportClass CrashReport;
