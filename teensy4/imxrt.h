@@ -9657,6 +9657,9 @@ These register are used by the ROM code and should not be used by application so
 #define SCB_SHPR2               (*(volatile uint32_t *)0xE000ED1C) // System Handler Priority 2
 #define SCB_SHPR3               (*(volatile uint32_t *)0xE000ED20) // System Handler Priority 3
 #define SCB_SHCSR               (*(volatile uint32_t *)0xE000ED24) // System Handler Control & State
+#define SCB_SHCSR_MEMFAULTENA		((uint32_t)(1<<16))
+#define SCB_SHCSR_BUSFAULTENA		((uint32_t)(1<<17))
+#define SCB_SHCSR_USGFAULTENA		((uint32_t)(1<<18))
 #define SCB_CFSR                (*(volatile uint32_t *)0xE000ED28) // Configurable Fault Status
 #define SCB_HFSR                (*(volatile uint32_t *)0xE000ED2C) // HardFault Status
 #define SCB_DFSR                (*(volatile uint32_t *)0xE000ED30) // Debug Fault Status
