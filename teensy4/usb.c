@@ -409,6 +409,9 @@ static void endpoint0_setup(uint64_t setupdata)
 	  case 0x0900: // SET_CONFIGURATION
 		usb_configuration = setup.wValue;
 		// configure all other endpoints
+		#if defined(ENDPOINT1_CONFIG)
+		USB1_ENDPTCTRL1 = ENDPOINT1_CONFIG;
+		#endif 
 		#if defined(ENDPOINT2_CONFIG)
 		USB1_ENDPTCTRL2 = ENDPOINT2_CONFIG;
 		#endif
@@ -430,7 +433,7 @@ static void endpoint0_setup(uint64_t setupdata)
 		#if defined(CDC_STATUS_INTERFACE) && defined(CDC_DATA_INTERFACE)
 		usb_serial_configure();
 		#elif defined(SEREMU_INTERFACE)
-		usb_seremu_configure();
+usb_seremu_configure();
 		#endif
 		#if defined(CDC2_STATUS_INTERFACE) && defined(CDC2_DATA_INTERFACE)
 		usb_serial2_configure();
@@ -467,6 +470,9 @@ static void endpoint0_setup(uint64_t setupdata)
 		#endif
 		#if defined(EXPERIMENTAL_INTERFACE)
 		endpoint_queue_head[2].unused1 = (uint32_t)experimental_buffer;
+		#endif
+		#if defined(DJTAG_INTERFACE)
+		usb_djtag_configure();
 		#endif
 		endpoint0_receive(NULL, 0, 0);
 		return;
@@ -792,7 +798,7 @@ static void endpoint0_complete(void)
 	}
 #endif
 #ifdef AUDIO_INTERFACE
-	if (setup.word1 == 0x02010121 || setup.word1 == 0x01000121 /* TODO: check setup.word2 */) {
+		if (setup.word1 == 0x02010121 || setup.word1 == 0x01000121 /* TODO: check setup.word2 */) {
 		usb_audio_set_feature(&endpoint0_setupdata, endpoint0_buffer);
 	}
 #endif
@@ -809,7 +815,7 @@ static void usb_endpoint_config(endpoint_t *qh, uint32_t config, void (*callback
 void usb_config_rx(uint32_t ep, uint32_t packet_size, int do_zlp, void (*cb)(transfer_t *))
 {
 	uint32_t config = (packet_size << 16) | (do_zlp ? 0 : (1 << 29));
-	if (ep < 2 || ep > NUM_ENDPOINTS) return;
+	if (ep < 1 || ep > NUM_ENDPOINTS) return;
 	usb_endpoint_config(endpoint_queue_head + ep * 2, config, cb);
 	if (cb) endpointN_notify_mask |= (1 << ep);
 }
@@ -817,7 +823,7 @@ void usb_config_rx(uint32_t ep, uint32_t packet_size, int do_zlp, void (*cb)(tra
 void usb_config_tx(uint32_t ep, uint32_t packet_size, int do_zlp, void (*cb)(transfer_t *))
 {
 	uint32_t config = (packet_size << 16) | (do_zlp ? 0 : (1 << 29));
-	if (ep < 2 || ep > NUM_ENDPOINTS) return;
+	if (ep < 1 || ep > NUM_ENDPOINTS) return;
 	usb_endpoint_config(endpoint_queue_head + ep * 2 + 1, config, cb);
 	if (cb) endpointN_notify_mask |= (1 << (ep + 16));
 }
@@ -826,7 +832,7 @@ void usb_config_rx_iso(uint32_t ep, uint32_t packet_size, int mult, void (*cb)(t
 {
 	if (mult < 1 || mult > 3) return;
 	uint32_t config = (packet_size << 16) | (mult << 30);
-	if (ep < 2 || ep > NUM_ENDPOINTS) return;
+	if (ep < 1 || ep > NUM_ENDPOINTS) return;
 	usb_endpoint_config(endpoint_queue_head + ep * 2, config, cb);
 	if (cb) endpointN_notify_mask |= (1 << ep);
 }
@@ -835,7 +841,7 @@ void usb_config_tx_iso(uint32_t ep, uint32_t packet_size, int mult, void (*cb)(t
 {
 	if (mult < 1 || mult > 3) return;
 	uint32_t config = (packet_size << 16) | (mult << 30);
-	if (ep < 2 || ep > NUM_ENDPOINTS) return;
+	if (ep < 1 || ep > NUM_ENDPOINTS) return;
 	usb_endpoint_config(endpoint_queue_head + ep * 2 + 1, config, cb);
 	if (cb) endpointN_notify_mask |= (1 << (ep + 16));
 }
@@ -898,12 +904,12 @@ static void schedule_transfer(endpoint_t *endpoint, uint32_t epmask, transfer_t 
 		//USB1_USBCMD &= ~USB_USBCMD_ATDTW;
 		if (status & epmask) goto end;
 		//ret |= 0x02;
-	}
-	//digitalWriteFast(4, HIGH);
-	endpoint->next = (uint32_t)transfer;
-	endpoint->status = 0;
-	USB1_ENDPTPRIME |= epmask;
-	endpoint->first_transfer = transfer;
+	} 
+		//digitalWriteFast(4, HIGH);
+		endpoint->next = (uint32_t)transfer;
+		endpoint->status = 0;
+		USB1_ENDPTPRIME |= epmask;
+		endpoint->first_transfer = transfer;
 end:
 	endpoint->last_transfer = transfer;
 	__enable_irq();
@@ -993,7 +999,7 @@ static void run_callbacks(endpoint_t *ep)
 
 void usb_transmit(int endpoint_number, transfer_t *transfer)
 {
-	if (endpoint_number < 2 || endpoint_number > NUM_ENDPOINTS) return;
+	if (endpoint_number < 1 || endpoint_number > NUM_ENDPOINTS) return;
 	endpoint_t *endpoint = endpoint_queue_head + endpoint_number * 2 + 1;
 	uint32_t mask = 1 << (endpoint_number + 16);
 	schedule_transfer(endpoint, mask, transfer);
@@ -1001,7 +1007,7 @@ void usb_transmit(int endpoint_number, transfer_t *transfer)
 
 void usb_receive(int endpoint_number, transfer_t *transfer)
 {
-	if (endpoint_number < 2 || endpoint_number > NUM_ENDPOINTS) return;
+	if (endpoint_number < 1 || endpoint_number > NUM_ENDPOINTS) return;
 	endpoint_t *endpoint = endpoint_queue_head + endpoint_number * 2;
 	uint32_t mask = 1 << endpoint_number;
 	schedule_transfer(endpoint, mask, transfer);
