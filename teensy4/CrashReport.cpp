@@ -34,8 +34,14 @@ size_t CrashReportClass::printTo(Print& p) const
     uint8_t mm = info->time % 60;
     info->time /= 60;
     uint8_t hh = info->time % 24;
-    p.printf("  A problem occurred at (system time) %02d:%02d:%02d\n", hh, mm, ss);
-    p.printf("  Code was executing from address %08X\n", info->ret);
+    p.print("  A problem occurred at (system time) ");
+    p.print(hh);
+    p.print(":");
+    p.print(mm);
+    p.print(":");
+    p.println(ss);
+    p.print("  Code was executing from address ");
+    p.println(info->ret, HEX);
     //p.print("  length: ");
     //p.println(info->len);
     //p.print("  IPSR: ");
@@ -58,11 +64,14 @@ size_t CrashReportClass::printTo(Print& p) const
         p.println("\t(MLSPERR) MemMange Fault on FP Lazy State");
       }
       if (((_CFSR & (0x80)) >> 7) == 1) {
-        p.printf("\t(MMARVALID) Accessed Address: %08X", info->mmfar);
+        p.print("\t(MMARVALID) Accessed Address: ");
+        p.print(info->mmfar, HEX);
         if (info->mmfar < 32) {
-          p.printf(" (nullptr)\n\t  Check code at %08X - very likely a bug!\n"
-            "\t  Run \"addr2line -e mysketch.ino.elf 0x%X\" for filename & line number.",
-            info->ret, info->ret);
+          p.print(" (nullptr)\n\t  Check code at ");
+          p.print(info->ret, HEX);
+          p.print(" - very likely a bug!\n\t  Run \"addr2line -e mysketch.ino.elf 0x");
+          p.print(info->ret, HEX);
+          p.print("\" for filename & line number.");
             // TODO: in some perfect future, maybe we'll build part of the ELF debug_line
             // section (maybe just the .ino files) into CrashReport and be able to report
             // the actual filename and line number.  Wouldn't that be awesome?!
@@ -119,10 +128,14 @@ size_t CrashReportClass::printTo(Print& p) const
       }
     }
 
-    p.printf("  Temperature inside the chip was %.1f °C\n" , info->temp);
+    p.print("  Temperature inside the chip was ");
+    p.print(info->temp);
+    p.print(" °C\n");
 
     // TODO: fault handler should read the CCM & PLL registers to log actual speed at crash
-    p.printf("  Startup CPU clock speed is %u MHz\n", F_CPU_ACTUAL/1000000);
+    p.print("  Startup CPU clock speed is ");
+    p.print( F_CPU_ACTUAL/1000000);
+    p.print( "MHz\n");
 
 
     //p.print("  MMFAR: ");
