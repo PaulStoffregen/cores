@@ -471,9 +471,6 @@ usb_seremu_configure();
 		#if defined(EXPERIMENTAL_INTERFACE)
 		endpoint_queue_head[2].unused1 = (uint32_t)experimental_buffer;
 		#endif
-		#if defined(DJTAG_INTERFACE)
-		usb_djtag_configure();
-		#endif
 		endpoint0_receive(NULL, 0, 0);
 		return;
 	  case 0x0880: // GET_CONFIGURATION
