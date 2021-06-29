@@ -40,7 +40,7 @@ size_t CrashReportClass::printTo(Print& p) const
     p.print(mm);
     p.print(":");
     p.println(ss);
-    p.print("  Code was executing from address ");
+    p.print("  Code was executing from address 0x");
     p.println(info->ret, HEX);
     //p.print("  length: ");
     //p.println(info->len);
@@ -64,10 +64,10 @@ size_t CrashReportClass::printTo(Print& p) const
         p.println("\t(MLSPERR) MemMange Fault on FP Lazy State");
       }
       if (((_CFSR & (0x80)) >> 7) == 1) {
-        p.print("\t(MMARVALID) Accessed Address: ");
+        p.print("\t(MMARVALID) Accessed Address: 0x");
         p.print(info->mmfar, HEX);
         if (info->mmfar < 32) {
-          p.print(" (nullptr)\n\t  Check code at ");
+          p.print(" (nullptr)\n\t  Check code at 0x");
           p.print(info->ret, HEX);
           p.print(" - very likely a bug!\n\t  Run \"addr2line -e mysketch.ino.elf 0x");
           p.print(info->ret, HEX);
