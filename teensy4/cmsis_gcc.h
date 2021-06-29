@@ -1,5 +1,9 @@
 // This file is needed for the Arduino_TensorFlowLite library
 
+// Use of this header is NOT RECOMMENDED for new libraries & projects.
+// Some names defined here may conflict with other usage.
+//  https://github.com/PaulStoffregen/cores/issues/581#issuecomment-870861304
+
 /**************************************************************************//**
  * @file     cmsis_gcc.h
  * @brief    CMSIS compiler GCC header file
