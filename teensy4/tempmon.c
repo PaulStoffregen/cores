@@ -12,12 +12,14 @@ static uint32_t panicAlarmTemp  = 90U;
 static uint32_t s_hotTemp, s_hotCount, s_roomC_hotC;
 static float s_hot_ROOM;
 
+extern void unused_interrupt_vector(void); // startup.c
+
 void Panic_Temp_isr(void) {
-  __disable_irq();
-  IOMUXC_GPR_GPR16 = 0x00000007;
-  SNVS_LPCR |= SNVS_LPCR_TOP; //Switch off now
-  asm volatile ("dsb":::"memory");
-  while (1) asm ("wfi");
+  unused_interrupt_vector();
+  //IOMUXC_GPR_GPR16 = 0x00000007;
+  //SNVS_LPCR |= SNVS_LPCR_TOP; //Switch off now
+  //asm volatile ("dsb":::"memory");
+  //while (1) asm ("wfi");
 }
 
 FLASHMEM void tempmon_init(void)

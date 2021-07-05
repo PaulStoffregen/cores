@@ -22,7 +22,7 @@ extern unsigned long _extram_start;
 extern unsigned long _extram_end;
 
 __attribute__ ((used, aligned(1024)))
-void (* _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
+void (* volatile _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
 
 static void memory_copy(uint32_t *dest, const uint32_t *src, uint32_t *dest_end);
 static void memory_clear(uint32_t *dest, uint32_t *dest_end);
@@ -37,6 +37,8 @@ void usb_pll_start();
 extern void analog_init(void); // analog.c
 extern void pwm_init(void); // pwm.c
 extern void tempmon_init(void);  //tempmon.c
+extern float tempmonGetTemp(void);
+extern unsigned long rtc_get(void);
 uint32_t set_arm_clock(uint32_t frequency); // clockspeed.c
 extern void __libc_init_array(void); // C++ standard library
 
@@ -60,6 +62,7 @@ void ResetHandler(void)
 	IOMUXC_GPR_GPR16 = 0x00200007;
 	IOMUXC_GPR_GPR14 = 0x00AA0000;
 	__asm__ volatile("mov sp, %0" : : "r" ((uint32_t)&_estack) : );
+	__asm__ volatile("dsb":::"memory");
 #endif
 	PMU_MISC0_SET = 1<<3; //Use bandgap-based bias currents for best performance (Page 1175)
 	// pin 13 - if startup crashes, use this to turn on the LED early for troubleshooting
@@ -83,7 +86,10 @@ void ResetHandler(void)
 	SCB_VTOR = (uint32_t)_VectorsRam;
 
 	reset_PFD();
-	
+
+	// enable exception handling
+	SCB_SHCSR |= SCB_SHCSR_MEMFAULTENA | SCB_SHCSR_BUSFAULTENA | SCB_SHCSR_USGFAULTENA;
+
 	// Configure clocks
 	// TODO: make sure all affected peripherals are turned off!
 	// PIT & GPT timers to run from 24 MHz clock (independent of CPU speed)
@@ -499,6 +505,8 @@ FLASHMEM void reset_PFD()
 	CCM_ANALOG_PFD_480 = 0x13110D0C; // PFD0:720, PFD1:664, PFD2:508, PFD3:454 MHz
 }
 
+extern void usb_isr(void);
+
 // Stack frame
 //  xPSR
 //  ReturnAddress
@@ -509,246 +517,88 @@ FLASHMEM void reset_PFD()
 //  R1
 //  R0
 // Code from :: https://community.nxp.com/thread/389002
+
+
 __attribute__((naked))
 void unused_interrupt_vector(void)
 {
-  __asm( ".syntax unified\n"
-         "MOVS R0, #4 \n"
-         "MOV R1, LR \n"
-         "TST R0, R1 \n"
-         "BEQ _MSP \n"
-         "MRS R0, PSP \n"
-         "B HardFault_HandlerC \n"
-         "_MSP: \n"
-         "MRS R0, MSP \n"
-         "B HardFault_HandlerC \n"
-         ".syntax divided\n") ;
-}
+	uint32_t i, ipsr, crc, count;
+	const uint32_t *stack;
+	struct arm_fault_info_struct *info;
+	const uint32_t *p, *end;
 
-__attribute__((weak))
-void HardFault_HandlerC(unsigned int *hardfault_args)
-{
-  volatile unsigned int nn ;
-#ifdef PRINT_DEBUG_STUFF
-  volatile unsigned int stacked_r0 ;
-  volatile unsigned int stacked_r1 ;
-  volatile unsigned int stacked_r2 ;
-  volatile unsigned int stacked_r3 ;
-  volatile unsigned int stacked_r12 ;
-  volatile unsigned int stacked_lr ;
-  volatile unsigned int stacked_pc ;
-  volatile unsigned int stacked_psr ;
-  volatile unsigned int _CFSR ;
-  volatile unsigned int _HFSR ;
-  volatile unsigned int _DFSR ;
-  volatile unsigned int _AFSR ;
-  volatile unsigned int _BFAR ;
-  volatile unsigned int _MMAR ;
-  volatile unsigned int addr ;
-
-  stacked_r0 = ((unsigned int)hardfault_args[0]) ;
-  stacked_r1 = ((unsigned int)hardfault_args[1]) ;
-  stacked_r2 = ((unsigned int)hardfault_args[2]) ;
-  stacked_r3 = ((unsigned int)hardfault_args[3]) ;
-  stacked_r12 = ((unsigned int)hardfault_args[4]) ;
-  stacked_lr = ((unsigned int)hardfault_args[5]) ;
-  stacked_pc = ((unsigned int)hardfault_args[6]) ;
-  stacked_psr = ((unsigned int)hardfault_args[7]) ;
-  // Configurable Fault Status Register
-  // Consists of MMSR, BFSR and UFSR
-  //(n & ( 1 << k )) >> k
-  _CFSR = (*((volatile unsigned int *)(0xE000ED28))) ;  
-  // Hard Fault Status Register
-  _HFSR = (*((volatile unsigned int *)(0xE000ED2C))) ;
-  // Debug Fault Status Register
-  _DFSR = (*((volatile unsigned int *)(0xE000ED30))) ;
-  // Auxiliary Fault Status Register
-  _AFSR = (*((volatile unsigned int *)(0xE000ED3C))) ;
-  // Read the Fault Address Registers. These may not contain valid values.
-  // Check BFARVALID/MMARVALID to see if they are valid values
-  // MemManage Fault Address Register
-  _MMAR = (*((volatile unsigned int *)(0xE000ED34))) ;
-  // Bus Fault Address Register
-  _BFAR = (*((volatile unsigned int *)(0xE000ED38))) ;
-  //__asm("BKPT #0\n") ; // Break into the debugger // NO Debugger here.
-
-  asm volatile("mrs %0, ipsr\n" : "=r" (addr)::);
-  printf("\nFault irq %d\n", addr & 0x1FF);
-  printf(" stacked_r0 ::  %x\n", stacked_r0);
-  printf(" stacked_r1 ::  %x\n", stacked_r1);
-  printf(" stacked_r2 ::  %x\n", stacked_r2);
-  printf(" stacked_r3 ::  %x\n", stacked_r3);
-  printf(" stacked_r12 ::  %x\n", stacked_r12);
-  printf(" stacked_lr ::  %x\n", stacked_lr);
-  printf(" stacked_pc ::  %x\n", stacked_pc);
-  printf(" stacked_psr ::  %x\n", stacked_psr);
-  printf(" _CFSR ::  %x\n", _CFSR);
- 
-  if(_CFSR > 0){
-	  //Memory Management Faults
-	  if((_CFSR & 1) == 1){
-		printf("      (IACCVIOL) Instruction Access Violation\n");
-	  } else  if(((_CFSR & (0x02))>>1) == 1){
-		printf("      (DACCVIOL) Data Access Violation\n");
-	  } else if(((_CFSR & (0x08))>>3) == 1){
-		printf("      (MUNSTKERR) MemMange Fault on Unstacking\n");
-	  } else if(((_CFSR & (0x10))>>4) == 1){
-		printf("      (MSTKERR) MemMange Fault on stacking\n");
-	  } else if(((_CFSR & (0x20))>>5) == 1){
-		printf("      (MLSPERR) MemMange Fault on FP Lazy State\n");
-	  }
-	  if(((_CFSR & (0x80))>>7) == 1){
-		printf("      (MMARVALID) MemMange Fault Address Valid\n");
-	  }
-	  //Bus Fault Status Register
-	  if(((_CFSR & 0x100)>>8) == 1){
-		printf("      (IBUSERR) Instruction Bus Error\n");
-	  } else  if(((_CFSR & (0x200))>>9) == 1){
-		printf("      (PRECISERR) Data bus error(address in BFAR)\n");
-	  } else if(((_CFSR & (0x400))>>10) == 1){
-		printf("      (IMPRECISERR) Data bus error but address not related to instruction\n");
-	  } else if(((_CFSR & (0x800))>>11) == 1){
-		printf("      (UNSTKERR) Bus Fault on unstacking for a return from exception \n");
-	  } else if(((_CFSR & (0x1000))>>12) == 1){
-		printf("      (STKERR) Bus Fault on stacking for exception entry\n");
-	  } else if(((_CFSR & (0x2000))>>13) == 1){
-		printf("      (LSPERR) Bus Fault on FP lazy state preservation\n");
-	  }
-	  if(((_CFSR & (0x8000))>>15) == 1){
-		printf("      (BFARVALID) Bus Fault Address Valid\n");
-	  }  
-	  //Usuage Fault Status Register
-	  if(((_CFSR & 0x10000)>>16) == 1){
-		printf("      (UNDEFINSTR) Undefined instruction\n");
-	  } else  if(((_CFSR & (0x20000))>>17) == 1){
-		printf("      (INVSTATE) Instruction makes illegal use of EPSR)\n");
-	  } else if(((_CFSR & (0x40000))>>18) == 1){
-		printf("      (INVPC) Usage fault: invalid EXC_RETURN\n");
-	  } else if(((_CFSR & (0x80000))>>19) == 1){
-		printf("      (NOCP) No Coprocessor \n");
-	  } else if(((_CFSR & (0x1000000))>>24) == 1){
-		printf("      (UNALIGNED) Unaligned access UsageFault\n");
-	  } else if(((_CFSR & (0x2000000))>>25) == 1){
-		printf("      (DIVBYZERO) Divide by zero\n");
-	  }
-  }
-  printf(" _HFSR ::  %x\n", _HFSR);
-  if(_HFSR > 0){
-	  //Memory Management Faults
-	  if(((_HFSR & (0x02))>>1) == 1){
-		printf("      (VECTTBL) Bus Fault on Vec Table Read\n");
-	  } else if(((_HFSR & (0x40000000))>>30) == 1){
-		printf("      (FORCED) Forced Hard Fault\n");
-	  } else if(((_HFSR & (0x80000000))>>31) == 31){
-		printf("      (DEBUGEVT) Reserved for Debug\n");
-	  } 
-  }
-  printf(" _DFSR ::  %x\n", _DFSR);
-  printf(" _AFSR ::  %x\n", _AFSR);
-  printf(" _BFAR ::  %x\n", _BFAR);
-  printf(" _MMAR ::  %x\n", _MMAR);
-#endif
-
-  IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_03 = 5; // pin 13
-  IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_03 = IOMUXC_PAD_DSE(7);
-  GPIO2_GDIR |= (1 << 3);
-  GPIO2_DR_SET = (1 << 3);
-  GPIO2_DR_CLEAR = (1 << 3); //digitalWrite(13, LOW);
-
-  if ( F_CPU_ACTUAL >= 600000000 )
-    set_arm_clock(300000000);
-
-  while (1)
-  {
-    GPIO2_DR_SET = (1 << 3); //digitalWrite(13, HIGH);
-    // digitalWrite(13, HIGH);
-    for (nn = 0; nn < 2000000/2; nn++) ;
-    GPIO2_DR_CLEAR = (1 << 3); //digitalWrite(13, LOW);
-    // digitalWrite(13, LOW);
-    for (nn = 0; nn < 18000000/2; nn++) ;
-  }
-}
-
-__attribute__((weak))
-void userDebugDump(){
-	volatile unsigned int nn;
-	printf("\nuserDebugDump() in startup.c ___ \n");
-
-  while (1)
-  {
-    GPIO2_DR_SET = (1 << 3); //digitalWrite(13, HIGH);
-    // digitalWrite(13, HIGH);
-    for (nn = 0; nn < 2000000; nn++) ;
-    GPIO2_DR_CLEAR = (1 << 3); //digitalWrite(13, LOW);
-	// digitalWrite(13, LOW);
-    for (nn = 0; nn < 18000000; nn++) ;
-    GPIO2_DR_SET = (1 << 3); //digitalWrite(13, HIGH);
-    // digitalWrite(13, HIGH);
-    for (nn = 0; nn < 20000000; nn++) ;
-    GPIO2_DR_CLEAR = (1 << 3); //digitalWrite(13, LOW);
-	// digitalWrite(13, LOW);
-    for (nn = 0; nn < 10000000; nn++) ;
-  }
-}
-
-__attribute__((weak))
-void PJRCunused_interrupt_vector(void)
-{
-	// TODO: polling Serial to complete buffered transmits
-#ifdef PRINT_DEBUG_STUFF
-	uint32_t addr;
-	asm volatile("mrs %0, ipsr\n" : "=r" (addr)::);
-	printf("\nirq %d\n", addr & 0x1FF);
-	asm("ldr %0, [sp, #52]" : "=r" (addr) ::);
-	printf(" %x\n", addr);
-	asm("ldr %0, [sp, #48]" : "=r" (addr) ::);
-	printf(" %x\n", addr);
-	asm("ldr %0, [sp, #44]" : "=r" (addr) ::);
-	printf(" %x\n", addr);
-	asm("ldr %0, [sp, #40]" : "=r" (addr) ::);
-	printf(" %x\n", addr);
-	asm("ldr %0, [sp, #36]" : "=r" (addr) ::);
-	printf(" %x\n", addr);
-	asm("ldr %0, [sp, #33]" : "=r" (addr) ::);
-	printf(" %x\n", addr);
-	asm("ldr %0, [sp, #34]" : "=r" (addr) ::);
-	printf(" %x\n", addr);
-	asm("ldr %0, [sp, #28]" : "=r" (addr) ::);
-	printf(" %x\n", addr);
-	asm("ldr %0, [sp, #24]" : "=r" (addr) ::);
-	printf(" %x\n", addr);
-	asm("ldr %0, [sp, #20]" : "=r" (addr) ::);
-	printf(" %x\n", addr);
-	asm("ldr %0, [sp, #16]" : "=r" (addr) ::);
-	printf(" %x\n", addr);
-	asm("ldr %0, [sp, #12]" : "=r" (addr) ::);
-	printf(" %x\n", addr);
-	asm("ldr %0, [sp, #8]" : "=r" (addr) ::);
-	printf(" %x\n", addr);
-	asm("ldr %0, [sp, #4]" : "=r" (addr) ::);
-	printf(" %x\n", addr);
-	asm("ldr %0, [sp, #0]" : "=r" (addr) ::);
-	printf(" %x\n", addr);
-#endif
-#if 1
-	if ( F_CPU_ACTUAL >= 600000000 )
-		set_arm_clock(100000000);
-	IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_03 = 5; // pin 13
-	IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_03 = IOMUXC_PAD_DSE(7);
-	GPIO2_GDIR |= (1<<3);
-	GPIO2_DR_SET = (1<<3);
-	while (1) {
-		volatile uint32_t n;
-		GPIO2_DR_SET = (1<<3); //digitalWrite(13, HIGH);
-		for (n=0; n < 2000000/6; n++) ;
-		GPIO2_DR_CLEAR = (1<<3); //digitalWrite(13, LOW);
-		for (n=0; n < 1500000/6; n++) ;
+	// disallow any nested interrupts
+	__disable_irq();
+	// store crash report info
+	asm volatile("mrs %0, ipsr\n" : "=r" (ipsr) :: "memory");
+	info = (struct arm_fault_info_struct *)0x2027FF80;
+	info->ipsr = ipsr;
+	asm volatile("mrs %0, msp\n" : "=r" (stack) :: "memory");
+	info->cfsr = SCB_CFSR;
+	info->hfsr = SCB_HFSR;
+	info->mmfar = SCB_MMFAR;
+	info->bfar = SCB_BFAR;
+	info->ret = stack[6];
+	info->xpsr = stack[7];
+	info->temp = tempmonGetTemp();
+	info->time = rtc_get();
+	info->len = sizeof(*info) / 4;
+	// add CRC to crash report
+	crc = 0xFFFFFFFF;
+	p = (uint32_t *)info;
+	end = p + (sizeof(*info) / 4 - 1);
+	while (p < end) {
+		crc ^= *p++;
+		for (i=0; i < 32; i++) crc = (crc >> 1) ^ (crc & 1)*0xEDB88320;
 	}
-#else
-	if ( F_CPU_ACTUAL >= 600000000 )
-		set_arm_clock(100000000);
-	while (1) asm ("WFI");
-#endif
+	info->crc = crc;
+	arm_dcache_flush_delete(info, sizeof(*info));
+
+	// LED blink can show fault mode - by default we don't mess with pin 13
+	//IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_03 = 5; // pin 13
+	//IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_03 = IOMUXC_PAD_DSE(7);
+	//GPIO7_GDIR |= (1 << 3);
+
+	// reinitialize PIT timer and CPU clock
+	CCM_CCGR1 |= CCM_CCGR1_PIT(CCM_CCGR_ON);
+	PIT_MCR = PIT_MCR_MDIS;
+	CCM_CSCMR1 = (CCM_CSCMR1 & ~CCM_CSCMR1_PERCLK_PODF(0x3F)) | CCM_CSCMR1_PERCLK_CLK_SEL;
+  	if (F_CPU_ACTUAL > 198000000) set_arm_clock(198000000);
+	PIT_MCR = 0;
+	PIT_TCTRL0 = 0;
+	PIT_LDVAL0 = 2400000; // 2400000 = 100ms
+	PIT_TCTRL0 = PIT_TCTRL_TEN;
+	// disable all NVIC interrupts, as usb_isr() might use __enable_irq()
+	NVIC_ICER0 = 0xFFFFFFFF;
+	NVIC_ICER1 = 0xFFFFFFFF;
+	NVIC_ICER2 = 0xFFFFFFFF;
+	NVIC_ICER3 = 0xFFFFFFFF;
+	NVIC_ICER4 = 0xFFFFFFFF;
+
+	// keep USB running, so any unsent Serial.print() actually arrives in
+	// the Arduino Serial Monitor, and we remain responsive to Upload
+	// without requiring manual press of Teensy's pushbutton
+	count = 0;
+	while (1) {
+		if (PIT_TFLG0) {
+			//GPIO7_DR_TOGGLE = (1 << 3); // blink LED
+			PIT_TFLG0 = 1;
+			if (++count >= 80) break;  // reboot after 8 seconds
+		}
+		usb_isr();
+		// TODO: should other data flush / cleanup tasks be done here?
+		//   Transmit Serial1 - Serial8 data
+		//   Complete writes to SD card
+		//   Flush/sync LittleFS
+	}
+	// turn off USB
+	USB1_USBCMD = USB_USBCMD_RST;
+	USBPHY1_CTRL_SET = USBPHY_CTRL_SFTRST;
+	while (PIT_TFLG0 == 0) /* wait 0.1 second for PC to know USB unplugged */
+	// reboot
+	SRC_GPR5 = 0x0BAD00F1;
+	SCB_AIRCR = 0x05FA0004;
+	while (1) ;
 }
 
 __attribute__((section(".startup"), optimize("no-tree-loop-distribute-patterns")))

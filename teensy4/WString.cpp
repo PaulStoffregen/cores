@@ -174,16 +174,8 @@ String & String::copy(const char *cstr, unsigned int length)
 
 void String::move(String &rhs)
 {
-	if (buffer) {
-		if (capacity >= rhs.len) {
-			strcpy(buffer, rhs.buffer);
-			len = rhs.len;
-			rhs.len = 0;
-			return;
-		} else {
-			free(buffer);
-		}
-	}
+	if (&rhs == this) return;
+	if (buffer) free(buffer);
 	buffer = rhs.buffer;
 	capacity = rhs.capacity;
 	len = rhs.len;

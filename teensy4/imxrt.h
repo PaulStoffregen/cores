@@ -429,11 +429,11 @@ enum IRQ_NUMBER_t {
 
 
 #ifdef __cplusplus
-extern "C" void (* _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
+extern "C" void (* volatile _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
 static inline void attachInterruptVector(IRQ_NUMBER_t irq, void (*function)(void)) __attribute__((always_inline, unused));
 static inline void attachInterruptVector(IRQ_NUMBER_t irq, void (*function)(void)) { _VectorsRam[irq + 16] = function; asm volatile("": : :"memory"); }
 #else
-extern void (* _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
+extern void (* volatile _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
 static inline void attachInterruptVector(enum IRQ_NUMBER_t irq, void (*function)(void)) __attribute__((always_inline, unused));
 static inline void attachInterruptVector(enum IRQ_NUMBER_t irq, void (*function)(void)) { _VectorsRam[irq + 16] = function; asm volatile("": : :"memory"); }
 #endif
@@ -8489,6 +8489,7 @@ typedef struct
 #define SRC_SBMR1			(IMXRT_SRC.offset004)
 #define SRC_SRSR			(IMXRT_SRC.offset008)
 #define SRC_SBMR2			(IMXRT_SRC.offset01C)
+#define SRC_GPR5			(IMXRT_SRC.offset030)
 /* 
 These register are used by the ROM code and should not be used by application software 
 #define SRC_GPR1			(IMXRT_SRC.offset020) 
@@ -8530,11 +8531,11 @@ These register are used by the ROM code and should not be used by application so
 #define TEMPMON_TEMPSENSE0          (IMXRT_TEMPMON.offset000)
 #define TEMPMON_TEMPSENSE0_SET		(IMXRT_TEMPMON.offset004)
 #define TEMPMON_TEMPSENSE0_CLR		(IMXRT_TEMPMON.offset008)
-#define TEMPMON_TEMPSENSE0_TOG		(IMXRT_TEMPMON.offset08c)
-#define TEMPMON_TEMPSENSE1		    (IMXRT_TEMPMON.offset090)
-#define TEMPMON_TEMPSENSE1_SET		(IMXRT_TEMPMON.offset094)
-#define TEMPMON_TEMPSENSE1_CLR		(IMXRT_TEMPMON.offset098)
-#define TEMPMON_TEMPSENSE1_TOG		(IMXRT_TEMPMON.offset09C)
+#define TEMPMON_TEMPSENSE0_TOG		(IMXRT_TEMPMON.offset00C)
+#define TEMPMON_TEMPSENSE1		    (IMXRT_TEMPMON.offset010)
+#define TEMPMON_TEMPSENSE1_SET		(IMXRT_TEMPMON.offset014)
+#define TEMPMON_TEMPSENSE1_CLR		(IMXRT_TEMPMON.offset018)
+#define TEMPMON_TEMPSENSE1_TOG		(IMXRT_TEMPMON.offset01C)
 #define TEMPMON_TEMPSENSE2		    (IMXRT_TEMPMON.offset110)
 #define TEMPMON_TEMPSENSE2_SET		(IMXRT_TEMPMON.offset114)
 #define TEMPMON_TEMPSENSE2_CLR		(IMXRT_TEMPMON.offset118)
@@ -9656,6 +9657,9 @@ These register are used by the ROM code and should not be used by application so
 #define SCB_SHPR2               (*(volatile uint32_t *)0xE000ED1C) // System Handler Priority 2
 #define SCB_SHPR3               (*(volatile uint32_t *)0xE000ED20) // System Handler Priority 3
 #define SCB_SHCSR               (*(volatile uint32_t *)0xE000ED24) // System Handler Control & State
+#define SCB_SHCSR_MEMFAULTENA		((uint32_t)(1<<16))
+#define SCB_SHCSR_BUSFAULTENA		((uint32_t)(1<<17))
+#define SCB_SHCSR_USGFAULTENA		((uint32_t)(1<<18))
 #define SCB_CFSR                (*(volatile uint32_t *)0xE000ED28) // Configurable Fault Status
 #define SCB_HFSR                (*(volatile uint32_t *)0xE000ED2C) // HardFault Status
 #define SCB_DFSR                (*(volatile uint32_t *)0xE000ED30) // Debug Fault Status
@@ -9824,3 +9828,20 @@ static inline void arm_dcache_flush_delete(void *addr, uint32_t size)
 	asm("dsb");
 	asm("isb");
 }
+
+// Crash report info stored in the top 128 bytes of OCRAM (at 0x2027FF80)
+struct arm_fault_info_struct {
+	uint32_t len;  // all fields must be 32 bits
+	uint32_t ipsr;
+	uint32_t cfsr;
+	uint32_t hfsr;
+	uint32_t mmfar;
+	uint32_t bfar;
+	uint32_t ret;
+	uint32_t xpsr;
+	float  temp;
+	uint32_t time;
+	uint32_t crc;  // crc must be last
+};
+
+
