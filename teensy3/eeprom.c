@@ -507,7 +507,7 @@ void eeprom_write_byte(uint8_t *addr, uint8_t data)
 			}
 			flashaddr += 2;
 		}
-		flashend = flashaddr;
+		flashend = flashaddr - 2;
 		if ((flashaddr & 2)) {
 			val |= 0xFFFF0000;
 			flash_write(do_flash_cmd, flashaddr, val);

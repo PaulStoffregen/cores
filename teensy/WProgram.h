@@ -24,6 +24,7 @@
 #include "WString.h"
 #include "HardwareSerial.h"
 #include "elapsedMillis.h"
+#include "CrashReport.h"
 
 uint16_t makeWord(uint16_t w);
 uint16_t makeWord(byte h, byte l);
