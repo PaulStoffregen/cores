@@ -818,100 +818,44 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #elif defined(USB_EVERYTHING)
   #define VENDOR_ID		0x16C0
-  #define PRODUCT_ID		0x0476
-  #define RAWHID_USAGE_PAGE	0xFFAB  // recommended: 0xFF00 to 0xFFFF
-  #define RAWHID_USAGE		0x0200  // recommended: 0x0100 to 0xFFFF
-  #define DEVICE_CLASS		0xEF
-  #define DEVICE_SUBCLASS	0x02
-  #define DEVICE_PROTOCOL	0x01
+  #define PRODUCT_ID		0x048A
   #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
   #define MANUFACTURER_NAME_LEN	11
-  #define PRODUCT_NAME		{'A','l','l',' ','T','h','e',' ','T','h','i','n','g','s'}
-  #define PRODUCT_NAME_LEN	14
+  #define PRODUCT_NAME		{'K','e','y','b','r','d',' ','A','u','d','i','o',' ','S','e','r','i','a','l'}
+  #define PRODUCT_NAME_LEN	19
   #define EP0_SIZE		64
-  #define NUM_ENDPOINTS         15
-  #define NUM_INTERFACE		13
-  #define CDC_IAD_DESCRIPTOR	1
-  #define CDC_STATUS_INTERFACE	0
-  #define CDC_DATA_INTERFACE	1	// Serial
-  #define CDC_ACM_ENDPOINT	1
-  #define CDC_RX_ENDPOINT       2
-  #define CDC_TX_ENDPOINT       2
-  #define CDC_ACM_SIZE          16
-  #define CDC_RX_SIZE           64
-  #define CDC_TX_SIZE           64
-  #define MIDI_INTERFACE        2	// MIDI
-  #define MIDI_NUM_CABLES       16
-  #define MIDI_TX_ENDPOINT      3
-  #define MIDI_TX_SIZE          64
-  #define MIDI_RX_ENDPOINT      3
-  #define MIDI_RX_SIZE          64
-  #define KEYBOARD_INTERFACE    3	// Keyboard
-  #define KEYBOARD_ENDPOINT     4
+  #define NUM_ENDPOINTS         6
+  #define NUM_INTERFACE		6
+//
+  #define SEREMU_INTERFACE      0	// Serial emulation
+  #define SEREMU_TX_ENDPOINT    2
+  #define SEREMU_TX_SIZE        64
+  #define SEREMU_TX_INTERVAL    1
+  #define SEREMU_RX_ENDPOINT    2
+  #define SEREMU_RX_SIZE        32
+  #define SEREMU_RX_INTERVAL    2
+//
+  #define KEYBOARD_INTERFACE    4	// Keyboard
+  #define KEYBOARD_ENDPOINT     5
   #define KEYBOARD_SIZE         8
-  #define KEYBOARD_INTERVAL     1
-  #define MOUSE_INTERFACE       4	// Mouse
-  #define MOUSE_ENDPOINT        5
-  #define MOUSE_SIZE            8
-  #define MOUSE_INTERVAL        2
-  #define RAWHID_INTERFACE      5	// RawHID
-  #define RAWHID_TX_ENDPOINT    6
-  #define RAWHID_TX_SIZE        64
-  #define RAWHID_TX_INTERVAL    1
-  #define RAWHID_RX_ENDPOINT    6
-  #define RAWHID_RX_SIZE        64
-  #define RAWHID_RX_INTERVAL    1
-  #define FLIGHTSIM_INTERFACE	6	// Flight Sim Control
-  #define FLIGHTSIM_TX_ENDPOINT	9
-  #define FLIGHTSIM_TX_SIZE	64
-  #define FLIGHTSIM_TX_INTERVAL	1
-  #define FLIGHTSIM_RX_ENDPOINT	9
-  #define FLIGHTSIM_RX_SIZE	64
-  #define FLIGHTSIM_RX_INTERVAL	1
-  #define JOYSTICK_INTERFACE    7	// Joystick
-  #define JOYSTICK_ENDPOINT     10
-  #define JOYSTICK_SIZE         12	//  12 = normal, 64 = extreme joystick
-  #define JOYSTICK_INTERVAL     1
-/*
-  #define MTP_INTERFACE		8	// MTP Disk
-  #define MTP_TX_ENDPOINT	11
-  #define MTP_TX_SIZE		64
-  #define MTP_RX_ENDPOINT	3
-  #define MTP_RX_SIZE		64
-  #define MTP_EVENT_ENDPOINT	11
-  #define MTP_EVENT_SIZE	16
-  #define MTP_EVENT_INTERVAL	10
-*/
-  #define KEYMEDIA_INTERFACE    8	// Keyboard Media Keys
-  #define KEYMEDIA_ENDPOINT     12
+  #define KEYBOARD_INTERVAL     1	// TODO: is this ok for 480 Mbit speed
+//
+  #define KEYMEDIA_INTERFACE    5	// Keyboard Media Keys
+  #define KEYMEDIA_ENDPOINT     6
   #define KEYMEDIA_SIZE         8
-  #define KEYMEDIA_INTERVAL     4
-  #define AUDIO_INTERFACE	9	// Audio (uses 3 consecutive interfaces)
-  #define AUDIO_TX_ENDPOINT     13
+  #define KEYMEDIA_INTERVAL     4	// TODO: is this ok for 480 Mbit speed
+//
+  #define AUDIO_INTERFACE	1	// Audio (uses 3 consecutive interfaces)
+  #define AUDIO_TX_ENDPOINT     3
   #define AUDIO_TX_SIZE         180
-  #define AUDIO_RX_ENDPOINT     13
+  #define AUDIO_RX_ENDPOINT     3
   #define AUDIO_RX_SIZE         180
-  #define AUDIO_SYNC_ENDPOINT	14
-  #define MULTITOUCH_INTERFACE  12	// Touchscreen
-  #define MULTITOUCH_ENDPOINT   15
-  #define MULTITOUCH_SIZE       9
-  #define MULTITOUCH_FINGERS    10
-  #define ENDPOINT1_CONFIG	ENDPOINT_TRANSMIT_ONLY
-  #define ENDPOINT2_CONFIG	ENDPOINT_TRANSMIT_AND_RECEIVE
-  #define ENDPOINT3_CONFIG	ENDPOINT_TRANSMIT_AND_RECEIVE
-  #define ENDPOINT4_CONFIG	ENDPOINT_TRANSMIT_ONLY
-  #define ENDPOINT5_CONFIG	ENDPOINT_TRANSMIT_ONLY
-  #define ENDPOINT6_CONFIG	ENDPOINT_TRANSMIT_AND_RECEIVE
-  #define ENDPOINT7_CONFIG	ENDPOINT_TRANSMIT_AND_RECEIVE
-  #define ENDPOINT8_CONFIG	ENDPOINT_TRANSMIT_ONLY
-  #define ENDPOINT9_CONFIG	ENDPOINT_TRANSMIT_AND_RECEIVE
-  #define ENDPOINT10_CONFIG	ENDPOINT_TRANSMIT_ONLY
-  #define ENDPOINT11_CONFIG	ENDPOINT_TRANSMIT_AND_RECEIVE
-  #define ENDPOINT12_CONFIG	ENDPOINT_TRANSMIT_ONLY
-  #define ENDPOINT13_CONFIG	(ENDPOINT_RECEIVE_ISOCHRONOUS|ENDPOINT_TRANSMIT_ISOCHRONOUS)
-  #define ENDPOINT14_CONFIG	ENDPOINT_TRANSMIT_ISOCHRONOUS
-  #define ENDPOINT15_CONFIG	ENDPOINT_TRANSMIT_ONLY
-
+  #define AUDIO_SYNC_ENDPOINT	4
+  #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_INTERRUPT + ENDPOINT_TRANSMIT_INTERRUPT
+  #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_ISOCHRONOUS + ENDPOINT_TRANSMIT_ISOCHRONOUS
+  #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_ISOCHRONOUS
+  #define ENDPOINT5_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
+  #define ENDPOINT6_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
 #endif
 
 #ifdef USB_DESC_LIST_DEFINE
