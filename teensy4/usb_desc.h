@@ -110,14 +110,28 @@ If these instructions are missing steps or could be improved, please
 let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 */
 
+#if !defined(USB_DISABLED)
+
+#if !defined(VENDOR_ID)
+  #define VENDOR_ID		0x16C0
+#endif
+
+#if !defined(MANUFACTURER_NAME)  
+  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}  
+#endif
+
+#define MANUFACTURER_NAME_LEN sizeof((char[])MANUFACTURER_NAME)
+#define PRODUCT_NAME_LEN sizeof((char[])PRODUCT_NAME)
+
+#endif
 
 #if defined(USB_SERIAL)
-  #define VENDOR_ID		0x16C0
+#if !defined(PRODUCT_ID)
   #define PRODUCT_ID		0x0483
-  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN	11
+#endif  
+#if !defined(PRODUCT_NAME)
   #define PRODUCT_NAME		{'U','S','B',' ','S','e','r','i','a','l'}
-  #define PRODUCT_NAME_LEN	10
+#endif  
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS		4
   #define NUM_USB_BUFFERS	12
@@ -139,12 +153,12 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT4_CONFIG      ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_BULK
 
 #elif defined(USB_DUAL_SERIAL)
-  #define VENDOR_ID             0x16C0
+#if !defined(PRODUCT_ID)
   #define PRODUCT_ID            0x048B
-  #define MANUFACTURER_NAME     {'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN 11
+#endif  
+#if !defined(PRODUCT_NAME)
   #define PRODUCT_NAME          {'D','u','a','l',' ','S','e','r','i','a','l'}
-  #define PRODUCT_NAME_LEN      11
+#endif   
   #define EP0_SIZE              64
   #define NUM_ENDPOINTS         5
   #define NUM_INTERFACE         4
@@ -170,12 +184,12 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT5_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
 
 #elif defined(USB_TRIPLE_SERIAL)
-  #define VENDOR_ID             0x16C0
+#if !defined(PRODUCT_ID)
   #define PRODUCT_ID            0x048C
-  #define MANUFACTURER_NAME     {'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN 11
+#endif  
+#if !defined(PRODUCT_NAME)
   #define PRODUCT_NAME          {'T','r','i','p','l','e',' ','S','e','r','i','a','l'}
-  #define PRODUCT_NAME_LEN      13
+#endif   
   #define EP0_SIZE              64
   #define NUM_ENDPOINTS         7
   #define NUM_INTERFACE         6
@@ -208,12 +222,12 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT7_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
 
 #elif defined(USB_KEYBOARDONLY)
-  #define VENDOR_ID		0x16C0
+#if !defined(PRODUCT_ID)
   #define PRODUCT_ID		0x04D0
-  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN	11
+#endif  
+#if !defined(PRODUCT_NAME)
   #define PRODUCT_NAME		{'K','e','y','b','o','a','r','d'}
-  #define PRODUCT_NAME_LEN	8
+#endif   
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         4
   #define NUM_USB_BUFFERS	14
@@ -238,12 +252,12 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
 
 #elif defined(USB_HID)
-  #define VENDOR_ID		0x16C0
+#if !defined(PRODUCT_ID)
   #define PRODUCT_ID		0x0482
-  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN	11
+#endif  
+#if !defined(PRODUCT_NAME)
   #define PRODUCT_NAME		{'K','e','y','b','o','a','r','d','/','M','o','u','s','e','/','J','o','y','s','t','i','c','k'}
-  #define PRODUCT_NAME_LEN	23
+#endif   
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         6
   #define NUM_USB_BUFFERS	24
@@ -278,15 +292,15 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT6_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
 
 #elif defined(USB_SERIAL_HID)
-  #define VENDOR_ID		0x16C0
+#if !defined(PRODUCT_ID)
   #define PRODUCT_ID		0x0487
+#endif  
+#if !defined(PRODUCT_NAME)
+  #define PRODUCT_NAME		{'S','e','r','i','a','l','/','K','e','y','b','o','a','r','d','/','M','o','u','s','e','/','J','o','y','s','t','i','c','k'}
+#endif  
   #define DEVICE_CLASS		0xEF
   #define DEVICE_SUBCLASS	0x02
   #define DEVICE_PROTOCOL	0x01
-  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN	11
-  #define PRODUCT_NAME		{'S','e','r','i','a','l','/','K','e','y','b','o','a','r','d','/','M','o','u','s','e','/','J','o','y','s','t','i','c','k'}
-  #define PRODUCT_NAME_LEN	30
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS		7
   #define NUM_INTERFACE		6
@@ -325,12 +339,12 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT7_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
 
 #elif defined(USB_TOUCHSCREEN)
-  #define VENDOR_ID		0x16C0
+#if !defined(PRODUCT_ID)
   #define PRODUCT_ID		0x04D3
-  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN	11
+#endif  
+#if !defined(PRODUCT_NAME)
   #define PRODUCT_NAME		{'K','e','y','b','o','a','r','d','/','T','o','u','c','h','s','c','r','e','e','n'}
-  #define PRODUCT_NAME_LEN	20
+#endif  
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         5
   #define NUM_INTERFACE		4
@@ -359,12 +373,12 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT5_CONFIG      ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
 
 #elif defined(USB_HID_TOUCHSCREEN)
-  #define VENDOR_ID		0x16C0
+#if !defined(PRODUCT_ID)
   #define PRODUCT_ID		0x04D4
-  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN	11
+#endif  
+#if !defined(PRODUCT_NAME)
   #define PRODUCT_NAME		{'K','e','y','b','o','a','r','d','/','M','o','u','s','e','/','T','o','u','c','h','s','c','r','e','e','n'}
-  #define PRODUCT_NAME_LEN	26
+#endif 
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         6
   #define NUM_INTERFACE		5
@@ -398,12 +412,12 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT6_CONFIG      ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
 
 #elif defined(USB_MIDI)
-  #define VENDOR_ID		0x16C0
+#if !defined(PRODUCT_ID)
   #define PRODUCT_ID		0x0485
-  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN	11
+#endif  
+#if !defined(PRODUCT_NAME)  
   #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','M','I','D','I'}
-  #define PRODUCT_NAME_LEN	11
+#endif   
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         4
   #define NUM_INTERFACE		2
@@ -426,13 +440,13 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
 
 #elif defined(USB_MIDI4)
-  #define VENDOR_ID		0x16C0
+#if !defined(PRODUCT_ID)
   #define PRODUCT_ID		0x0485
-  #define BCD_DEVICE		0x0211
-  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN	11
+#endif  
+#if !defined(PRODUCT_NAME)
   #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','M','I','D','I','x','4'}
-  #define PRODUCT_NAME_LEN	13
+#endif  
+  #define BCD_DEVICE		0x0211
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         3
   #define NUM_INTERFACE		2
@@ -455,13 +469,13 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
 
 #elif defined(USB_MIDI16)
-  #define VENDOR_ID		0x16C0
+#if !defined(PRODUCT_ID)
   #define PRODUCT_ID		0x0485
-  #define BCD_DEVICE		0x0212
-  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN	11
+#endif  
+#if !defined(PRODUCT_NAME)
   #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','M','I','D','I','x','1','6'}
-  #define PRODUCT_NAME_LEN	14
+#endif   
+  #define BCD_DEVICE		0x0211  
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         3
   #define NUM_INTERFACE		2
@@ -484,12 +498,12 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
 
 #elif defined(USB_MIDI_SERIAL)
-  #define VENDOR_ID		0x16C0
+#if !defined(PRODUCT_ID)
   #define PRODUCT_ID		0x0489
-  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN	11
+#endif  
+#if !defined(PRODUCT_NAME)
   #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','M','I','D','I'}
-  #define PRODUCT_NAME_LEN	11
+#endif   
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         4
   #define NUM_INTERFACE		3
@@ -517,13 +531,13 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
 
 #elif defined(USB_MIDI4_SERIAL)
-  #define VENDOR_ID		0x16C0
-  #define PRODUCT_ID		0x0489
-  #define BCD_DEVICE		0x0211
-  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN	11
+#if !defined(PRODUCT_ID)
+  #define PRODUCT_ID		0x0489  
+#endif  
+#if !defined(PRODUCT_NAME)
   #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','M','I','D','I','x','4'}
-  #define PRODUCT_NAME_LEN	13
+#endif   
+  #define BCD_DEVICE		0x0211
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         4
   #define NUM_INTERFACE		3
@@ -551,13 +565,13 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
 
 #elif defined(USB_MIDI16_SERIAL)
-  #define VENDOR_ID		0x16C0
+#if !defined(PRODUCT_ID)
   #define PRODUCT_ID		0x0489
+#endif  
+#if !defined(PRODUCT_NAME)
+  #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','M','I','D','I','x','1','6'}  
+#endif   
   #define BCD_DEVICE		0x0212
-  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN	11
-  #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','M','I','D','I','x','1','6'}
-  #define PRODUCT_NAME_LEN	14
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         4
   #define NUM_INTERFACE		3
@@ -585,14 +599,14 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
 
 #elif defined(USB_RAWHID)
-  #define VENDOR_ID		0x16C0
+#if !defined(PRODUCT_ID)
   #define PRODUCT_ID		0x0486
+#endif  
+#if !defined(PRODUCT_NAME)
+  #define PRODUCT_NAME		{'T','e','e','n','s','y','d','u','i','n','o',' ','R','a','w','H','I','D'}
+#endif  
   #define RAWHID_USAGE_PAGE	0xFFAB  // recommended: 0xFF00 to 0xFFFF
   #define RAWHID_USAGE		0x0200  // recommended: 0x0100 to 0xFFFF
-  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN	11
-  #define PRODUCT_NAME		{'T','e','e','n','s','y','d','u','i','n','o',' ','R','a','w','H','I','D'}
-  #define PRODUCT_NAME_LEN	18
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         4
   #define NUM_INTERFACE		2
@@ -615,12 +629,12 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_INTERRUPT + ENDPOINT_TRANSMIT_UNUSED
 
 #elif defined(USB_FLIGHTSIM)
-  #define VENDOR_ID		0x16C0
+#if !defined(PRODUCT_ID)
   #define PRODUCT_ID		0x0488
-  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN	11
+#endif  
+#if !defined(PRODUCT_NAME)
   #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','F','l','i','g','h','t',' ','S','i','m',' ','C','o','n','t','r','o','l','s'}
-  #define PRODUCT_NAME_LEN	26
+#endif   
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         3
   #define NUM_INTERFACE		2
@@ -642,13 +656,13 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
 
 #elif defined(USB_FLIGHTSIM_JOYSTICK)
-  #define VENDOR_ID		0x16C0
+#if !defined(PRODUCT_ID)
   #define PRODUCT_ID		0x0488
-  #define BCD_DEVICE		0x0211
-  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN	11
+#endif  
+#if !defined(PRODUCT_NAME)
   #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','F','l','i','g','h','t',' ','S','i','m',' ','C','o','n','t','r','o','l','s'}
-  #define PRODUCT_NAME_LEN	26
+#endif   
+  #define BCD_DEVICE		0x0211
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         4
   #define NUM_INTERFACE		3
@@ -675,12 +689,12 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
 
 #elif defined(USB_MTPDISK)
-  #define VENDOR_ID		0x16C0
+#if !defined(PRODUCT_ID)
   #define PRODUCT_ID		0x04D1
-  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN	11
+#endif  
+#if !defined(PRODUCT_NAME)
   #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','M','T','P',' ','D','i','s','k'}
-  #define PRODUCT_NAME_LEN	15
+#endif  
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         4
   #define NUM_INTERFACE		2
@@ -707,12 +721,12 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT4_CONFIG  ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
 
 #elif defined(USB_AUDIO)
-  #define VENDOR_ID		0x16C0
+#if !defined(PRODUCT_ID)
   #define PRODUCT_ID		0x04D2
-  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN	11
+#endif  
+#if !defined(PRODUCT_NAME)
   #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','A','u','d','i','o'}
-  #define PRODUCT_NAME_LEN	12
+#endif   
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         4
   #define NUM_INTERFACE		4
@@ -734,12 +748,12 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_ISOCHRONOUS
 
 #elif defined(USB_MIDI_AUDIO_SERIAL)
-  #define VENDOR_ID		0x16C0
+#if !defined(PRODUCT_ID)
   #define PRODUCT_ID		0x048A
-  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN	11
+#endif  
+#if !defined(PRODUCT_NAME)  
   #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','M','I','D','I','/','A','u','d','i','o'}
-  #define PRODUCT_NAME_LEN	17
+#endif   
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         6
   #define NUM_INTERFACE		6
@@ -775,13 +789,13 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT6_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_ISOCHRONOUS
 
 #elif defined(USB_MIDI16_AUDIO_SERIAL)
-  #define VENDOR_ID		0x16C0
+#if !defined(PRODUCT_ID)
   #define PRODUCT_ID		0x048A
-  #define BCD_DEVICE		0x0212
-  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN	11
+#endif  
+#if !defined(PRODUCT_NAME)
   #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','M','I','D','I','x','1','6','/','A','u','d','i','o'}
-  #define PRODUCT_NAME_LEN	20
+#endif  
+  #define BCD_DEVICE		0x0212
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         8
   #define NUM_INTERFACE		6
@@ -817,17 +831,17 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT6_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_ISOCHRONOUS
 
 #elif defined(USB_EVERYTHING)
-  #define VENDOR_ID		0x16C0
+#if !defined(PRODUCT_ID)
   #define PRODUCT_ID		0x0476
+#endif  
+#if !defined(PRODUCT_NAME)  
+  #define PRODUCT_NAME		{'A','l','l',' ','T','h','e',' ','T','h','i','n','g','s'}
+#endif  
   #define RAWHID_USAGE_PAGE	0xFFAB  // recommended: 0xFF00 to 0xFFFF
   #define RAWHID_USAGE		0x0200  // recommended: 0x0100 to 0xFFFF
   #define DEVICE_CLASS		0xEF
   #define DEVICE_SUBCLASS	0x02
-  #define DEVICE_PROTOCOL	0x01
-  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN	11
-  #define PRODUCT_NAME		{'A','l','l',' ','T','h','e',' ','T','h','i','n','g','s'}
-  #define PRODUCT_NAME_LEN	14
+  #define DEVICE_PROTOCOL	0x01  
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         15
   #define NUM_INTERFACE		13
@@ -929,4 +943,3 @@ typedef struct {
 extern const usb_descriptor_list_t usb_descriptor_list[];
 #endif // NUM_ENDPOINTS
 #endif // USB_DESC_LIST_DEFINE
-
