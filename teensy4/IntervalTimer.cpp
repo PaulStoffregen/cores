@@ -36,6 +36,7 @@ static void pit_isr(void);
 #define NUM_CHANNELS 4
 static void (*funct_table[4])(void) __attribute((aligned(32))) = {nullptr, nullptr, nullptr, nullptr};
 uint8_t IntervalTimer::nvic_priorites[4] = {255, 255, 255, 255};
+uint32_t runningFlags;  // Tracks which PITs are running, for timer disable
 
 
 bool IntervalTimer::beginCycles(void (*funct)(), uint32_t cycles)
@@ -58,6 +59,10 @@ bool IntervalTimer::beginCycles(void (*funct)(), uint32_t cycles)
 		}
 	}
 	int index = channel - IMXRT_PIT_CHANNELS;
+
+	// Track which PIT is running
+	runningFlags |= (uint32_t{1} << index);
+
 	funct_table[index] = funct;
 	channel->LDVAL = cycles;
 	channel->TCTRL = 3;
@@ -77,15 +82,22 @@ void IntervalTimer::end() {
 #if 1
 	if (channel) {
 		int index = channel - IMXRT_PIT_CHANNELS;
-		// TODO: disable IRQ_PIT, but only if all instances ended
 		funct_table[index] = nullptr;
 		channel->TCTRL = 0;
 		nvic_priorites[index] = 255;
-		uint8_t top_priority = 255;
-		for (int i=0; i < NUM_CHANNELS; i++) {
-			if (top_priority > nvic_priorites[i]) top_priority = nvic_priorites[i];
+
+		// Disable IRQ if no instances are running
+		runningFlags &= ~(uint32_t{1} << index);
+		if (runningFlags == 0) {
+			NVIC_DISABLE_IRQ(IRQ_PIT);
+		} else {
+			uint8_t top_priority = 255;
+			for (int i=0; i < NUM_CHANNELS; i++) {
+				if (top_priority > nvic_priorites[i]) top_priority = nvic_priorites[i];
+			}
+			NVIC_SET_PRIORITY(IRQ_PIT, top_priority);
 		}
-		NVIC_SET_PRIORITY(IRQ_PIT, top_priority);
+
 		channel = 0;
 	}
 #endif
