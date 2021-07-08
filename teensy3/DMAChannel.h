@@ -412,6 +412,10 @@ public:
 		copy_tcd(TCD, rhs.TCD);
 		return *this;
 	}
+	const DMASetting & operator = (const DMASetting &rhs) {
+		copy_tcd(TCD, rhs.TCD);
+		return *this;
+	}
 private:
 	TCD_t tcddata __attribute__((aligned(32)));
 };
