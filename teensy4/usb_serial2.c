@@ -369,7 +369,7 @@ int usb_serial2_write(const void *buffer, uint32_t size)
 		}
 	}
 write_end:
-	tx_noautoflush = 0;	
+	tx_noautoflush = 0;
 	return sent;
 }
 
