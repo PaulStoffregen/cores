@@ -67,6 +67,11 @@ SECTIONS
 	.bss.dma (NOLOAD) : {
 		*(.hab_log)
 		*(.dmabuffers)
+		_saudio = .;
+		*(.audio)
+		_caudio = .;
+		*(.audiocheck)
+		_eaudio = .;
 		. = ALIGN(32);
 	} > RAM
 
@@ -113,3 +118,5 @@ SECTIONS
 	.debug_loc      0 : { *(.debug_loc) }
 
 }
+
+ASSERT (  ! ( _eaudio != _caudio && _caudio == _saudio) , "AudioMemory() not found.")
