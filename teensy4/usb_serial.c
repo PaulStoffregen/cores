@@ -322,6 +322,7 @@ int usb_serial_write(const void *buffer, uint32_t size)
 	const uint8_t *data = (const uint8_t *)buffer;
 
 	if (!usb_configuration) return 0;
+	tx_noautoflush = 1;	
 	while (size > 0) {
 		transfer_t *xfer = tx_transfer + tx_head;
 		int waiting=0;
@@ -343,11 +344,11 @@ int usb_serial_write(const void *buffer, uint32_t size)
 				wait_begin_at = systick_millis_count;
 				waiting = 1;
 			}
-			if (transmit_previous_timeout) return sent;
+			if (transmit_previous_timeout) goto write_end;
 			if (systick_millis_count - wait_begin_at > TX_TIMEOUT_MSEC) {
 				// waited too long, assume the USB host isn't listening
 				transmit_previous_timeout = 1;
-				return sent;
+				goto write_end;
 				//printf("\nstop, waited too long\n");
 				//printf("status = %x\n", status);
 				//printf("tx head=%d\n", tx_head);
@@ -355,11 +356,10 @@ int usb_serial_write(const void *buffer, uint32_t size)
 				//usb_print_transfer_log();
 				//while (1) ;
 			}
-			if (!usb_configuration) return sent;
+			if (!usb_configuration) goto write_end;
 			yield();
 		}
 		//digitalWriteFast(3, LOW);
-		tx_noautoflush = 1;
 		uint8_t *txdata = txbuffer + (tx_head * TX_SIZE) + (TX_SIZE - tx_available);
 		if (size >= tx_available) {
 			memcpy(txdata, data, tx_available);
@@ -382,8 +382,9 @@ int usb_serial_write(const void *buffer, uint32_t size)
 			size = 0;
 			timer_start_oneshot();
 		}
-		tx_noautoflush = 0;
 	}
+write_end:
+	tx_noautoflush = 0;	
 	return sent;
 }
 
