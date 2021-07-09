@@ -344,6 +344,7 @@ int usb_serial2_write(const void *buffer, uint32_t size)
 			yield();
 		}
 		//digitalWriteFast(3, LOW);
+		tx_noautoflush = 1;
 		uint8_t *txdata = txbuffer + (tx_head * TX_SIZE) + (TX_SIZE - tx_available);
 		if (size >= tx_available) {
 			memcpy(txdata, data, tx_available);
@@ -366,6 +367,7 @@ int usb_serial2_write(const void *buffer, uint32_t size)
 			size = 0;
 			timer_start_oneshot();
 		}
+		tx_noautoflush = 0;
 	}
 	return sent;
 }
