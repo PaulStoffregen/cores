@@ -519,6 +519,7 @@ extern void usb_isr(void);
 // Code from :: https://community.nxp.com/thread/389002
 
 
+FLASHMEM
 __attribute__((naked))
 void unused_interrupt_vector(void)
 {
