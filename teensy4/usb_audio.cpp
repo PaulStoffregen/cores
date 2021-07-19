@@ -95,10 +95,10 @@ void usb_audio_configure(void)
 	usb_audio_underrun_count = 0;
 	usb_audio_overrun_count = 0;
 	feedback_accumulator = (AUDIO_SAMPLE_RATE_EXACT / 1000.0f) * 0x1000000; // 44.1 * 2^24
-	/*if (usb_high_speed) {
+	if (usb_high_speed) {
 		usb_audio_sync_nbytes = 4;
 		usb_audio_sync_rshift = 8;
-	} else  */{
+	} else  {
 		usb_audio_sync_nbytes = 3;
 		usb_audio_sync_rshift = 10;
 	}
