@@ -60,7 +60,7 @@
 
 #define AUDIO_SAMPLE_RATE AUDIO_SAMPLE_RATE_EXACT
 
-#ifndef __ASSEMBLER__
+#if defined(__cplusplus)
 class AudioStream;
 class AudioConnection;
 

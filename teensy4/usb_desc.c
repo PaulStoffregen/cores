@@ -37,6 +37,7 @@
 #include "imxrt.h"
 #include "avr_functions.h"
 #include "avr/pgmspace.h"
+#include "AudioStream.h"
 
 // At very slow CPU speeds, the OCRAM just isn't fast enough for
 // USB to work reliably.  But the precious/limited DTCM is.  So
@@ -69,8 +70,9 @@
 //   USB Device
 // **************************************************************
 
-#define LSB(n) ((n) & 255)
-#define MSB(n) (((n) >> 8) & 255)
+#define LSB(n) ((int)(n) & 255)
+#define MSB(n) (((int)(n) >> 8) & 255)
+#define HSB(n) (((int)(n) >> 16) & 255)
 
 #ifdef CDC_IAD_DESCRIPTOR
 #ifndef DEVICE_CLASS
@@ -1516,7 +1518,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 	2,					// bSubFrameSize = 2 byte
 	16,					// bBitResolution = 16 bits
 	1,					// bSamFreqType = 1 frequency
-	LSB(44100), MSB(44100), 0,		// tSamFreq
+	LSB(AUDIO_SAMPLE_RATE_EXACT), MSB(AUDIO_SAMPLE_RATE_EXACT), HSB(AUDIO_SAMPLE_RATE_EXACT),// tSamp
 	// Standard AS Isochronous Audio Data Endpoint Descriptor
 	// USB DCD for Audio Devices 1.0, Section 4.6.1.1, Table 4-20, page 61-62
 	9, 					// bLength
@@ -1575,7 +1577,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 	2,					// bSubFrameSize = 2 byte
 	16,					// bBitResolution = 16 bits
 	1,					// bSamFreqType = 1 frequency
-	LSB(44100), MSB(44100), 0,		// tSamFreq
+	LSB(AUDIO_SAMPLE_RATE_EXACT), MSB(AUDIO_SAMPLE_RATE_EXACT), HSB(AUDIO_SAMPLE_RATE_EXACT),// tSamp
 	// Standard AS Isochronous Audio Data Endpoint Descriptor
 	// USB DCD for Audio Devices 1.0, Section 4.6.1.1, Table 4-20, page 61-62
 	9, 					// bLength
@@ -2530,7 +2532,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 	2,					// bSubFrameSize = 2 byte
 	16,					// bBitResolution = 16 bits
 	1,					// bSamFreqType = 1 frequency
-	LSB(44100), MSB(44100), 0,		// tSamFreq
+	LSB(AUDIO_SAMPLE_RATE_EXACT), MSB(AUDIO_SAMPLE_RATE_EXACT), HSB(AUDIO_SAMPLE_RATE_EXACT),// tSamp
 	// Standard AS Isochronous Audio Data Endpoint Descriptor
 	// USB DCD for Audio Devices 1.0, Section 4.6.1.1, Table 4-20, page 61-62
 	9, 					// bLength
@@ -2589,7 +2591,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 	2,					// bSubFrameSize = 2 byte
 	16,					// bBitResolution = 16 bits
 	1,					// bSamFreqType = 1 frequency
-	LSB(44100), MSB(44100), 0,		// tSamFreq
+	LSB(AUDIO_SAMPLE_RATE_EXACT), MSB(AUDIO_SAMPLE_RATE_EXACT), HSB(AUDIO_SAMPLE_RATE_EXACT),// tSamp	
 	// Standard AS Isochronous Audio Data Endpoint Descriptor
 	// USB DCD for Audio Devices 1.0, Section 4.6.1.1, Table 4-20, page 61-62
 	9, 					// bLength
