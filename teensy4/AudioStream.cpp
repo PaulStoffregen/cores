@@ -738,6 +738,7 @@ SFSH();
 		
 		if (active) // no longer a clan, link in to main update list
 		{
+			clanListUnlink(this); // unlink ourselves
 			updateListMergeInto(ppS,NULL,this);
 SPRL("...active");
 		}
