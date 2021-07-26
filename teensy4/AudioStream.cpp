@@ -126,9 +126,12 @@ AudioStream* AudioStream::clanListLinkIn(AudioStream* pItem)
 	return pHead;
 }
 
+
+#if defined(DYNAMIC_AUDIO_DEBUG)
 extern void printClanEntry(AudioStream* m,int indent, AudioStream** ppHead,AudioStream** ppNC,AudioStream** ppNU);
 extern void printAclan(AudioStream* m,AudioStream** ppNC);
 extern void printClanList(void);
+#endif
 // Unlink clan from clan list, e.g. listUnlink(&AudioStream);
 // Assumes clan is well-formed, i.e. that clan members have valid pointers to 
 // their clan head. However, there is no need to pass the clan head's address, we
@@ -581,8 +584,6 @@ int AudioConnection::connect(AudioStream &source, unsigned char sourceOutput,
 	
 	if (!isConnected)
 	{
-		int cr;
-		
 		src = &source;
 		dst = &destination;
 		src_index = sourceOutput;
@@ -680,7 +681,7 @@ int AudioConnection::disconnect(void)
 // Link a new AudioStream object into the update list. This will occur when
 // its first connection is made to an object already in the list, OR to 
 // an object which isn't in the update list but is a member of a clan.
-static int AudioStream::simples = 0;
+int AudioStream::simples = 0;
 void AudioStream::linkIntoUpdateList(const AudioConnection* pC)
 {
 SPRT("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
@@ -689,7 +690,6 @@ printClanList();
 	if (!active) // not yet linked in
 	{
 		AudioStream** ppS;	
-		int i;
 		
 		/* // original link-in code: links in first, or at end
 		if (first_update == NULL) {
@@ -738,8 +738,6 @@ SFSH();
 		
 		if (active) // no longer a clan, link in to main update list
 		{
-			AudioStream* pS = clanListUnlink(this); // unlink ourselves
-			//listLinkIn(ppS,clan_head,&tail->next_update);
 			updateListMergeInto(ppS,NULL,this);
 SPRL("...active");
 		}
@@ -789,6 +787,7 @@ SPRL("Source within other clan:");
 				AudioStream* pAfter;
 				
 				// find the preceding object, to link in after it and before our destination
+				//     This   vvvvvvvv   isn't initialised! Needs fixing...
 				for (pAfter = otherDFU; NULL != pAfter && pC->src != pAfter->next_update; pAfter = pAfter->next_update)
 					;
 				updateListMergeInto(&pAfter,otherDFU,ourDFU);
@@ -913,8 +912,6 @@ SFSH();
 // because it no longer points to a valid object so automatic re-connection won't work
 void AudioStream::NULLifConnected(AudioConnection** ppC) //!< list of connections that might refer to this
 {
-	AudioConnection** ppN;
-	
 SPRT(" [disconnect ");
 SFSH();
 	while (*ppC != NULL)
@@ -954,7 +951,6 @@ SFSH();
 AudioStream::~AudioStream()
 {
 	AudioStream** ppS; // iterating pointer
-	AudioConnection** ppC;
 	
 SPRT("\r\nDestructor: (");
 SPRT((uint32_t) this,HEX);
