@@ -36,7 +36,8 @@
 #include "pins_arduino.h"
 
 #ifdef __cplusplus
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 
 // bitband addressing for atomic access to data direction register
 static inline void GPIO_SETBIT_ATOMIC(volatile uint32_t *reg, uint32_t mask) {
@@ -1168,7 +1169,7 @@ extern DDRCemulation DDRC;
 #define PORTD7 7
 
 
-
+#pragma GCC diagnostic pop
 #endif // __cplusplus
 
 #endif

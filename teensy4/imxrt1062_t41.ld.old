@@ -22,9 +22,7 @@ SECTIONS
 
 	.text.code : {
 		KEEP(*(.startup))
-        *(.text*)
 		*(.flashmem*)
-        *(.progmem*)
 		. = ALIGN(4);
 		KEEP(*(.init))
 		__preinit_array_start = .;
@@ -36,27 +34,27 @@ SECTIONS
 		. = ALIGN(4);
 	} > FLASH
 
-	.text.itcm ALIGN(32,0) : {
-        . = 0x0000;
+	.text.progmem : {
+		*(.progmem*)
+		. = ALIGN(4);
+	} > FLASH
+
+	.text.itcm : {
+		. = . + 32; /* MPU to trap NULL pointer deref */
 		*(.fastrun)
+		*(.text*)
 		. = ALIGN(16);
-	} AT > FLASH
-    
+	} > ITCM  AT> FLASH
 
 	.ARM.exidx : {
 		__exidx_start = .;
 		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
 		__exidx_end = .;
-	} > FLASH
+	} > ITCM  AT> FLASH
 
-	.text.itcm.padding (NOLOAD) : {
-		. = ALIGN(32768);
-	}  > ITCM
-    
 	.data : {
 		*(.rodata*)
 		*(.data*)
-        . = ALIGN(16);
 	} > DTCM  AT> FLASH
 
 	.bss ALIGN(4) : {
@@ -84,12 +82,11 @@ SECTIONS
 	} > FLASH
 
 	_stext = ADDR(.text.itcm);
-	_etext = ADDR(.text.itcm) + SIZEOF(.text.itcm);
-    _size_of_itcm  = _etext > 32 ? ADDR(.text.itcm) + SIZEOF(.text.itcm) : 0;
+	_etext = ADDR(.text.itcm) + SIZEOF(.text.itcm) + SIZEOF(.ARM.exidx);
 	_stextload = LOADADDR(.text.itcm);
 
 	_sdata = ADDR(.data);
-	_edata = ADDR(.data) + SIZEOF(.data) + SIZEOF(.ARM.exidx);
+	_edata = ADDR(.data) + SIZEOF(.data);
 	_sdataload = LOADADDR(.data);
 
 	_sbss = ADDR(.bss);
@@ -101,11 +98,11 @@ SECTIONS
 	_extram_start = ADDR(.bss.extram);
 	_extram_end = ADDR(.bss.extram) + SIZEOF(.bss.extram);
 
-	_itcm_block_count = (_size_of_itcm + 0x7FFF) >> 15;
+	_itcm_block_count = (SIZEOF(.text.itcm) + SIZEOF(.ARM.exidx) + 0x7FFF) >> 15;
 	_flexram_bank_config = 0xAAAAAAAA | ((1 << (_itcm_block_count * 2)) - 1);
 	_estack = ORIGIN(DTCM) + ((16 - _itcm_block_count) << 15);
 
-	_flashimagelen = SIZEOF(.text.headers) + _size_of_itcm + SIZEOF(.ARM.exidx) + SIZEOF(.data) + SIZEOF(.text.csf);
+	_flashimagelen = SIZEOF(.text.headers) + SIZEOF(.text.code) + SIZEOF(.text.progmem) + SIZEOF(.text.itcm) + SIZEOF(.ARM.exidx) + SIZEOF(.data) + SIZEOF(.text.csf);
 	_teensy_model_identifier = 0x25;
 
 	.debug_info     0 : { *(.debug_info) }
