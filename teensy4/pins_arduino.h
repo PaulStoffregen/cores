@@ -152,7 +152,7 @@ extern const struct digital_pin_bitband_and_config_table_struct digital_pin_to_i
 
 #define NOT_ON_TIMER 0
 static inline uint8_t digitalPinToTimer(uint8_t) __attribute__((always_inline, unused));
-static inline uint8_t digitalPinToTimer(__attribute__((unused)) uint8_t pin)
+static inline uint8_t digitalPinToTimer(uint8_t pin)
 {
 	// TODO: does anything meaningful use this?
 	return NOT_ON_TIMER;
