@@ -47,15 +47,15 @@ FLASHMEM void tempmon_init(void)
 
     //time to set alarm temperatures
   //Set High Alarm Temp
-  tempCodeVal = (uint32_t)(s_hotCount + (s_hotTemp - highAlarmTemp) * s_roomC_hotC / s_hot_ROOM);
+  tempCodeVal = ((float)s_hotCount + ((float)s_hotTemp - highAlarmTemp) * s_roomC_hotC / s_hot_ROOM);
     TEMPMON_TEMPSENSE0 |= (((uint32_t)(((uint32_t)(tempCodeVal)) << 20U)) & 0xFFF00000U);
   
   //Set Panic Alarm Temp
-  tempCodeVal = (uint32_t)(s_hotCount + (s_hotTemp - panicAlarmTemp) * s_roomC_hotC / s_hot_ROOM);
+  tempCodeVal = ((float)s_hotCount + ((float)s_hotTemp - panicAlarmTemp) * s_roomC_hotC / s_hot_ROOM);
     TEMPMON_TEMPSENSE2 |= (((uint32_t)(((uint32_t)(tempCodeVal)) << 16U)) & 0xFFF0000U);
   
   // Set Low Temp Alarm Temp
-  tempCodeVal = (uint32_t)(s_hotCount + (s_hotTemp - lowAlarmTemp) * s_roomC_hotC / s_hot_ROOM);
+  tempCodeVal = ((float)s_hotCount + ((float)s_hotTemp - lowAlarmTemp) * s_roomC_hotC / s_hot_ROOM);
     TEMPMON_TEMPSENSE2 |= (((uint32_t)(((uint32_t)(tempCodeVal)) << 0U)) & 0xFFFU);
   
   //Start temp monitoring
