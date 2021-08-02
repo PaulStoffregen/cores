@@ -429,11 +429,11 @@ enum IRQ_NUMBER_t {
 
 
 #ifdef __cplusplus
-extern "C" void (* _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
+extern "C" void (* volatile _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
 static inline void attachInterruptVector(IRQ_NUMBER_t irq, void (*function)(void)) __attribute__((always_inline, unused));
 static inline void attachInterruptVector(IRQ_NUMBER_t irq, void (*function)(void)) { _VectorsRam[irq + 16] = function; asm volatile("": : :"memory"); }
 #else
-extern void (* _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
+extern void (* volatile _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
 static inline void attachInterruptVector(enum IRQ_NUMBER_t irq, void (*function)(void)) __attribute__((always_inline, unused));
 static inline void attachInterruptVector(enum IRQ_NUMBER_t irq, void (*function)(void)) { _VectorsRam[irq + 16] = function; asm volatile("": : :"memory"); }
 #endif
@@ -8531,11 +8531,11 @@ These register are used by the ROM code and should not be used by application so
 #define TEMPMON_TEMPSENSE0          (IMXRT_TEMPMON.offset000)
 #define TEMPMON_TEMPSENSE0_SET		(IMXRT_TEMPMON.offset004)
 #define TEMPMON_TEMPSENSE0_CLR		(IMXRT_TEMPMON.offset008)
-#define TEMPMON_TEMPSENSE0_TOG		(IMXRT_TEMPMON.offset08c)
-#define TEMPMON_TEMPSENSE1		    (IMXRT_TEMPMON.offset090)
-#define TEMPMON_TEMPSENSE1_SET		(IMXRT_TEMPMON.offset094)
-#define TEMPMON_TEMPSENSE1_CLR		(IMXRT_TEMPMON.offset098)
-#define TEMPMON_TEMPSENSE1_TOG		(IMXRT_TEMPMON.offset09C)
+#define TEMPMON_TEMPSENSE0_TOG		(IMXRT_TEMPMON.offset00C)
+#define TEMPMON_TEMPSENSE1		    (IMXRT_TEMPMON.offset010)
+#define TEMPMON_TEMPSENSE1_SET		(IMXRT_TEMPMON.offset014)
+#define TEMPMON_TEMPSENSE1_CLR		(IMXRT_TEMPMON.offset018)
+#define TEMPMON_TEMPSENSE1_TOG		(IMXRT_TEMPMON.offset01C)
 #define TEMPMON_TEMPSENSE2		    (IMXRT_TEMPMON.offset110)
 #define TEMPMON_TEMPSENSE2_SET		(IMXRT_TEMPMON.offset114)
 #define TEMPMON_TEMPSENSE2_CLR		(IMXRT_TEMPMON.offset118)

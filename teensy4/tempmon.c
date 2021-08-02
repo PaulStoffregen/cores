@@ -12,6 +12,8 @@ static uint32_t panicAlarmTemp  = 90U;
 static uint32_t s_hotTemp, s_hotCount, s_roomC_hotC;
 static float s_hot_ROOM;
 
+extern void unused_interrupt_vector(void); // startup.c
+
 void Panic_Temp_isr(void) {
   unused_interrupt_vector();
   //IOMUXC_GPR_GPR16 = 0x00000007;
