@@ -9,8 +9,8 @@ static uint32_t highAlarmTemp   = 85U;
 static uint32_t lowAlarmTemp    = 25U;
 static uint32_t panicAlarmTemp  = 90U;
 
-static uint32_t s_hotTemp, s_hotCount, s_roomC_hotC;
-static float s_hot_ROOM;
+static uint32_t s_hotTemp, s_hotCount;
+static float s_hot_ROOM, s_roomC_hotC;
 
 extern void unused_interrupt_vector(void); // startup.c
 
@@ -42,8 +42,8 @@ FLASHMEM void tempmon_init(void)
     s_hotTemp = (uint32_t)(calibrationData & 0xFFU) >> 0x00U;
     s_hotCount = (uint32_t)(calibrationData & 0xFFF00U) >> 0X08U;
     roomCount = (uint32_t)(calibrationData & 0xFFF00000U) >> 0x14U;
-    s_hot_ROOM = s_hotTemp - 25.0f;
-    s_roomC_hotC = roomCount - s_hotCount;
+    s_hot_ROOM = (float) (s_hotTemp) - 25.0f;
+    s_roomC_hotC = (float) roomCount - (float) s_hotCount;
 
     //time to set alarm temperatures
   //Set High Alarm Temp
