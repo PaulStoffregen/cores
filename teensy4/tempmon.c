@@ -80,7 +80,7 @@ float tempmonGetTemp(void)
     /* ready to read temperature code value */
     nmeas = (TEMPMON_TEMPSENSE0 & 0xFFF00U) >> 8U;
     /* Calculate temperature */
-    tmeas = s_hotTemp - (float)((nmeas - s_hotCount) * s_hot_ROOM / s_roomC_hotC);
+    tmeas = s_hotTemp - (((float)nmeas - (float)s_hotCount) * s_hot_ROOM / s_roomC_hotC);
 
     return tmeas;
 }
