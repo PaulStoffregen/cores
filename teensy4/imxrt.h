@@ -332,10 +332,12 @@ enum IRQ_NUMBER_t {
 #define IMXRT_AIPSTZ4_ADDRESS		0x4037C000
 #define IMXRT_AOI1_ADDRESS		0x403B4000
 #define IMXRT_AOI2_ADDRESS		0x403B8000
+#define IMXRT_BEE_ADDRESS		0x403EC000
 #define IMXRT_CCM_ADDRESS		0x400FC000
 #define IMXRT_CCM_ANALOG_ADDRESS	0x400D8000
 #define IMXRT_CSI_ADDRESS		0x402BC000
 #define IMXRT_DCDC_ADDRESS		0x40080000
+#define IMXRT_DCP_ADDRESS		0x402FC000
 #define IMXRT_DMAMUX_ADDRESS		0x400EC000
 #define IMXRT_DMA_ADDRESS		0x400E8000
 #define IMXRT_ENC1_ADDRESS		0x403C8000
@@ -8635,6 +8637,63 @@ These register are used by the ROM code and should not be used by application so
 #define TRNG_DEFAULT_POKER_MINIMUM	(TRNG_DEFAULT_POKER_MAXIMUM - 2467)
 #define TRNG_DEFAULT_FREQUENCY_MAXIMUM	25600
 #define TRNG_DEFAULT_FREQUENCY_MINIMUM	1600
+
+
+// BEE definitions adapted from NXP SDK 2.8.0, MIMXRT1062.h, lines 3131-3430
+//  For BEE documentation & example code, see NXP Application Note 12852.
+//  To encrypt data for use with BEE, look for NXP's image_enc.exe program.
+//  Partial source code for image_enc.exe can be found in this zip archive:
+//   image_enc.zip  sha256sum 6856a757fb0a9e13e926e8d461e23863d78568acebb81b6f361650ea4e050a03
+//   https://community.nxp.com/t5/i-MX-RT/image-enc2-zip-download/m-p/1174943#M10980
+#define IMXRT_BEE		(*(IMXRT_REGISTER32_t *)IMXRT_BEE_ADDRESS)
+#define BEE_CTRL			(IMXRT_BEE.offset000)
+#define BEE_ADDR_OFFSET0		(IMXRT_BEE.offset004)
+#define BEE_ADDR_OFFSET1		(IMXRT_BEE.offset008)
+#define BEE_AES_KEY0_W0			(IMXRT_BEE.offset00C)
+#define BEE_AES_KEY0_W1			(IMXRT_BEE.offset010)
+#define BEE_AES_KEY0_W2			(IMXRT_BEE.offset014)
+#define BEE_AES_KEY0_W3			(IMXRT_BEE.offset018)
+#define BEE_STATUS			(IMXRT_BEE.offset01C)
+#define BEE_CTR_NONCE0_W0		(IMXRT_BEE.offset020)
+#define BEE_CTR_NONCE0_W1		(IMXRT_BEE.offset024)
+#define BEE_CTR_NONCE0_W2		(IMXRT_BEE.offset028)
+#define BEE_CTR_NONCE0_W3		(IMXRT_BEE.offset02C)
+#define BEE_CTR_NONCE1_W0		(IMXRT_BEE.offset030)
+#define BEE_CTR_NONCE1_W1		(IMXRT_BEE.offset034)
+#define BEE_CTR_NONCE1_W2		(IMXRT_BEE.offset038)
+#define BEE_CTR_NONCE1_W3		(IMXRT_BEE.offset03C)
+#define BEE_REGION1_TOP			(IMXRT_BEE.offset040)
+#define BEE_REGION1_BOT			(IMXRT_BEE.offset044)
+#define BEE_CTRL_BEE_ENABLE			((uint32_t)(1 << 0))
+#define BEE_CTRL_CTRL_CLK_EN			((uint32_t)(1 << 1))
+#define BEE_CTRL_CTRL_SFTRST_N			((uint32_t)(1 << 2))
+#define BEE_CTRL_KEY_VALID			((uint32_t)(1 << 4))
+#define BEE_CTRL_KEY_REGION_SEL			((uint32_t)(1 << 5))
+#define BEE_CTRL_AC_PROT_EN			((uint32_t)(1 << 6))
+#define BEE_CTRL_LITTLE_ENDIAN			((uint32_t)(1 << 7))
+#define BEE_CTRL_SECURITY_LEVEL_R0(n)		((uint32_t)(((n) & 0x03) << 8))
+#define BEE_CTRL_CTRL_AES_MODE_R0(n)		((uint32_t)(((n) & 0x03) << 10))
+#define BEE_CTRL_SECURITY_LEVEL_R1(n)		((uint32_t)(((n) & 0x03) << 12))
+#define BEE_CTRL_CTRL_AES_MODE_R1(n)		((uint32_t)(((n) & 0x03) << 14))
+#define BEE_CTRL_BEE_ENABLE_LOCK		((uint32_t)(1 << 16))
+#define BEE_CTRL_CTRL_CLK_EN_LOCK		((uint32_t)(1 << 17))
+#define BEE_CTRL_CTRL_SFTRST_N_LOCK		((uint32_t)(1 << 18))
+#define BEE_CTRL_REGION1_ADDR_LOCK		((uint32_t)(1 << 19))
+#define BEE_CTRL_KEY_VALID_LOCK			((uint32_t)(1 << 20))
+#define BEE_CTRL_KEY_REGION_SEL_LOCK		((uint32_t)(1 << 21))
+#define BEE_CTRL_AC_PROT_EN_LOCK		((uint32_t)(1 << 22))
+#define BEE_CTRL_LITTLE_ENDIAN_LOCK		((uint32_t)(1 << 23))
+#define BEE_CTRL_SECURITY_LEVEL_R0_LOCK(n)	((uint32_t)(((n) & 0x03) << 24))
+#define BEE_CTRL_CTRL_AES_MODE_R0_LOCK		((uint32_t)(1 << 26))
+#define BEE_CTRL_REGION0_KEY_LOCK		((uint32_t)(1 << 27))
+#define BEE_CTRL_SECURITY_LEVEL_R1_LOCK(n)	((uint32_t)(((n) & 0x03) << 28))
+#define BEE_CTRL_CTRL_AES_MODE_R1_LOCK		((uint32_t)(1 << 30))
+#define BEE_CTRL_REGION1_KEY_LOCK		((uint32_t)(1 << 31))
+
+
+// DCP definitions adapted from NXP SDK 2.8.0, MIMXRT1062.h, lines 11448-13123
+#define IMXRT_DCP		(*(IMXRT_REGISTER32_t *)IMXRT_DCP_ADDRESS)
+// TODO - help wanted here....
 
 
 // 68.4: page 3406
