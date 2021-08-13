@@ -243,6 +243,7 @@ private:
 	IMXRT_LPUART_t * const port;
 	const hardware_t * const hardware;
 	uint8_t				rx_pin_index_ = 0x0;	// default is always first item
+	uint8_t				rx_pin_ = 0xff;			// RX pin might be RX or XBAR
 	uint8_t				tx_pin_index_ = 0x0;
 	uint8_t				half_duplex_mode_ = 0; // are we in half duplex mode?
 

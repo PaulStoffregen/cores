@@ -142,11 +142,17 @@ void HardwareSerial::begin(uint32_t baud, uint16_t format)
 	// Maybe different pin configs if half duplex
 	half_duplex_mode_ = (format & SERIAL_HALF_DUPLEX) != 0;
 	if (!half_duplex_mode_)  {
-		*(portControlRegister(hardware->rx_pins[rx_pin_index_].pin)) = IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS;
-		*(portConfigRegister(hardware->rx_pins[rx_pin_index_].pin)) = hardware->rx_pins[rx_pin_index_].mux_val;
-		if (hardware->rx_pins[rx_pin_index_].select_input_register) {
-		 	*(hardware->rx_pins[rx_pin_index_].select_input_register) =  hardware->rx_pins[rx_pin_index_].select_val;		
-		}	
+		// Need to make sure not XBAR pin. 
+		if (rx_pin_index_ != 0xff) {
+			// So using a normal IO pin so configure it. 
+			*(portControlRegister(hardware->rx_pins[rx_pin_index_].pin)) = IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS;
+			*(portConfigRegister(hardware->rx_pins[rx_pin_index_].pin)) = hardware->rx_pins[rx_pin_index_].mux_val;
+			if (hardware->rx_pins[rx_pin_index_].select_input_register) {
+			 	*(hardware->rx_pins[rx_pin_index_].select_input_register) =  hardware->rx_pins[rx_pin_index_].select_val;		
+			}
+		} else {
+			setRX(rx_pin_);  // let it do the work. 
+		}
 
 		*(portControlRegister(hardware->tx_pins[tx_pin_index_].pin)) =  IOMUXC_PAD_SRE | IOMUXC_PAD_DSE(3) | IOMUXC_PAD_SPEED(3);
 		*(portConfigRegister(hardware->tx_pins[tx_pin_index_].pin)) = hardware->tx_pins[tx_pin_index_].mux_val;
@@ -164,7 +170,9 @@ void HardwareSerial::begin(uint32_t baud, uint16_t format)
 
 	port->BAUD = LPUART_BAUD_OSR(bestosr - 1) | LPUART_BAUD_SBR(bestdiv)
 		| (bestosr <= 8 ? LPUART_BAUD_BOTHEDGE : 0);
-	port->PINCFG = 0;
+
+	// Don't update PINCFG if we are using it...		
+	//port->PINCFG = 0;
 
 	// Enable the transmitter, receiver and enable receiver interrupt
 	attachInterruptVector(hardware->irq, hardware->irq_handler);
@@ -236,7 +244,16 @@ void HardwareSerial::end(void)
 	port->CTRL = 0;	// disable the TX and RX ...
 
 	// Not sure if this is best, but I think most IO pins default to Mode 5? which appears to be digital IO? 
-	*(portConfigRegister(hardware->rx_pins[rx_pin_index_].pin)) = 5;
+	if (rx_pin_index_ != 0xff) {
+		// maybe only update it if is the hardware Serial mux value...
+		if (*(portConfigRegister(hardware->rx_pins[rx_pin_index_].pin)) == hardware->rx_pins[rx_pin_index_].mux_val)
+			*(portConfigRegister(hardware->rx_pins[rx_pin_index_].pin)) = 5;
+	} else {
+		*(portConfigRegister(rx_pin_)) = 5;	// set the xbar pin back to IO
+		port->PINCFG = LPUART_PINCFG_TRGSEL(0);  // Turn off the trigger
+		// Do something to XBar pin??? 
+	}
+
 	*(portConfigRegister(hardware->tx_pins[tx_pin_index_].pin)) = 5;
 
 
@@ -258,44 +275,71 @@ void HardwareSerial::transmitterEnable(uint8_t pin)
 
 void HardwareSerial::setRX(uint8_t pin)
 {
-	if (pin != hardware->rx_pins[rx_pin_index_].pin) {
+	if ((rx_pin_index_ == 0xff) || (pin != hardware->rx_pins[rx_pin_index_].pin)) {
 		for (uint8_t rx_pin_new_index = 0; rx_pin_new_index < cnt_rx_pins; rx_pin_new_index++) {
 			if (pin == hardware->rx_pins[rx_pin_new_index].pin) {
 				// new pin - so lets maybe reset the old pin to INPUT? and then set new pin parameters
 				// only change IO pins if done after begin has been called. 
 				if ((hardware->ccm_register & hardware->ccm_value)) {
-					*(portConfigRegister(hardware->rx_pins[rx_pin_index_].pin)) = 5;
+					if (rx_pin_index_ != 0xff) {
+						// only real pins? 
+						*(portConfigRegister(hardware->rx_pins[rx_pin_index_].pin)) = 5;
+					} else {
 
+						*(portConfigRegister(rx_pin_)) = 5;	// set the xbar pin back to IO
+					}
 					// now set new pin info.
-					*(portControlRegister(hardware->rx_pins[rx_pin_new_index].pin)) =  IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS;;
+					*(portControlRegister(hardware->rx_pins[rx_pin_new_index].pin)) =  IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS;
 					*(portConfigRegister(hardware->rx_pins[rx_pin_new_index].pin)) = hardware->rx_pins[rx_pin_new_index].mux_val;
 					if (hardware->rx_pins[rx_pin_new_index].select_input_register) {
 					 	*(hardware->rx_pins[rx_pin_new_index].select_input_register) =  hardware->rx_pins[rx_pin_new_index].select_val;		
 					}
 				}		
 				rx_pin_index_ = rx_pin_new_index;
+				rx_pin_ = pin; // might as well remember it. 
 				return;  // done. 
 			}
 		}
 		// If we got to here and did not find a valid pin there.  Maybe see if it is an XBar pin... 
 		for (uint8_t i = 0; i < count_pin_to_xbar_info; i++) {
 			if (pin_to_xbar_info[i].pin == pin) {
-				// So it is an XBAR pin set the XBAR..
-				//Serial.printf("ACTS XB(%d), X(%u %u), MUX:%x\n", i, pin_to_xbar_info[i].xbar_in_index, 
-				//			hardware->xbar_out_lpuartX_trig_input,  pin_to_xbar_info[i].mux_val);
-				CCM_CCGR2 |= CCM_CCGR2_XBAR1(CCM_CCGR_ON);
-				xbar_connect(pin_to_xbar_info[i].xbar_in_index, hardware->xbar_out_lpuartX_trig_input);
+				if ((hardware->ccm_register & hardware->ccm_value)) {
+					if ((pin != rx_pin_) || (port->PINCFG != LPUART_PINCFG_TRGSEL(1))) { // Hack to say have we already configured the pin
+						// So it is an XBAR pin set the XBAR..
+						//Serial.printf("SetRX XB(%d), X(%u %u), MUX:%x\n", i, pin_to_xbar_info[i].xbar_in_index, 
+						//			hardware->xbar_out_lpuartX_trig_input,  pin_to_xbar_info[i].mux_val);
+						//Serial.printf("SerialX::setRX(XBAR) Before - stat:%x ctrl:%x fifo:%x water:%x\n", port->STAT, port->CTRL, port->FIFO, port->WATER );
+						//Serial.printf("  PINCFG: %x MODIR: %x\n", port->PINCFG, port->MODIR);	
+						//Serial.flush();
+						uint32_t ctrl =	port->CTRL;
+						port->CTRL = ctrl & ~(LPUART_CTRL_TE | LPUART_CTRL_RE);  // diable transmit and receive
 
-				// We need to update port register to use this as the trigger
-				port->PINCFG = LPUART_PINCFG_TRGSEL(1);  // Trigger select as alternate RX
+						CCM_CCGR2 |= CCM_CCGR2_XBAR1(CCM_CCGR_ON);
+						xbar_connect(pin_to_xbar_info[i].xbar_in_index, hardware->xbar_out_lpuartX_trig_input);
 
-				//  configure the pin. 
-				*(portControlRegister(pin)) = IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS;;
-				*(portConfigRegister(pin)) = pin_to_xbar_info[i].mux_val;
-				port->MODIR |= LPUART_MODIR_TXCTSE;
-				if (pin_to_xbar_info[i].select_input_register) *(pin_to_xbar_info[i].select_input_register) = pin_to_xbar_info[i].select_val;
-				//Serial.printf("SerialX::begin stat:%x ctrl:%x fifo:%x water:%x\n", port->STAT, port->CTRL, port->FIFO, port->WATER );
-				//Serial.printf("  PINCFG: %x MODIR: %x\n", port->PINCFG, port->MODIR);	
+						// We need to update port register to use this as the trigger
+						port->PINCFG = LPUART_PINCFG_TRGSEL(1);  // Trigger select as alternate RX
+
+						//  configure the pin. 
+						if (rx_pin_index_ != 0xff) {
+							// only real pins? 
+							*(portConfigRegister(hardware->rx_pins[rx_pin_index_].pin)) = 5;
+						}
+						*(portControlRegister(pin)) = IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS;
+						*(portConfigRegister(pin)) = pin_to_xbar_info[i].mux_val;
+						//port->MODIR |= LPUART_MODIR_TXCTSE;
+						if (pin_to_xbar_info[i].select_input_register) *(pin_to_xbar_info[i].select_input_register) = pin_to_xbar_info[i].select_val;
+						port->CTRL = ctrl; // restore the setting
+
+						//Serial.printf("SerialX::setRX(XBAR) After - stat:%x ctrl:%x fifo:%x water:%x\n", port->STAT, port->CTRL, port->FIFO, port->WATER );
+						//Serial.printf("  PINCFG: %x MODIR: %x\n", port->PINCFG, port->MODIR);	
+						//Serial.flush();
+					} else {
+						//Serial.println("SetRX XBar already initialized");
+					}
+				}
+				rx_pin_index_ = 0xff; // let system know we are not using normal RX pin
+				rx_pin_ = pin; 		// remember the actual one. 
 				return;
 			}
 		}
@@ -708,6 +752,7 @@ const pin_to_xbar_info_t PROGMEM pin_to_xbar_info[] = {
 	{45,  4, 3, &IOMUXC_XBAR1_IN04_SELECT_INPUT, 0x1},
 	{46,  9, 3, &IOMUXC_XBAR1_IN09_SELECT_INPUT, 0x1},
 	{47,  8, 3, &IOMUXC_XBAR1_IN08_SELECT_INPUT, 0x1}
+#elif defined(ARDUINO_TEENSY_MICROMOD)
 	{34,  7, 3, &IOMUXC_XBAR1_IN07_SELECT_INPUT, 0x1},
 	{35,  6, 3, &IOMUXC_XBAR1_IN06_SELECT_INPUT, 0x1},
 	{36,  5, 3, &IOMUXC_XBAR1_IN05_SELECT_INPUT, 0x1},
