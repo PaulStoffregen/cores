@@ -6,7 +6,6 @@
 volatile uint32_t systick_millis_count = 0;
 volatile uint32_t systick_cycle_count = 0;
 volatile uint32_t scale_cpu_cycles_to_microseconds = 0;
-uint32_t systick_safe_read;	 // micros() synchronization
 
 //The 24 MHz XTALOSC can be the external clock source of SYSTICK. 
 //Hardware devides this down to 100KHz. (RM Rev2, 13.3.21 PG 986)
@@ -66,6 +65,7 @@ void delay(uint32_t msec)
 
 uint32_t micros(void)
 {
+	uint32_t systick_safe_read;	 // micros() synchronization
 	uint32_t smc, scc;
 	do {
 		__LDREXW(&systick_safe_read);
