@@ -236,6 +236,9 @@ uint8_t shiftIn_msbFirst(uint8_t dataPin, uint8_t clockPin)
         return value;
 }
 
+//Note: The Arduino docs says, the timeout is the max wait time for the pulse to start.
+//This handles it differently. The timout is valid for the whole function.
+
 //(*portInputRegister(pin) & digitalPinToBitMask(pin))
 uint32_t pulseIn_high(uint8_t pin, uint32_t timeout)
 {
