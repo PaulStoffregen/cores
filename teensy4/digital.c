@@ -242,22 +242,21 @@ uint32_t pulseIn_high(uint8_t pin, uint32_t timeout)
 	const struct digital_pin_bitband_and_config_table_struct *p;
 	p = digital_pin_to_info_PGM + pin;
 
-	uint32_t usec_start, usec_stop;
+	uint32_t usec_start_t, usec_start, usec_stop;
 
 	// wait for any previous pulse to end
-	usec_start = micros();
+	usec_start_t = micros();
 	while ((*(p->reg + 2) & p->mask)) {
-		if (micros()-usec_start > timeout) return 0;
+		if (micros()-usec_start_t > timeout) return 0;
 	}
-	// wait for the pulse to start
-	usec_start = micros();
+	// wait for the pulse to start	
 	while (!(*(p->reg + 2) & p->mask)) {
-		if (micros()-usec_start > timeout) return 0;
-	}
-	usec_start = micros();
+		if (micros()-usec_start_t > timeout) return 0;
+	}	
 	// wait for the pulse to stop
+    usec_start = micros();
 	while ((*(p->reg + 2) & p->mask)) {
-		if (micros()-usec_start > timeout) return 0;
+		if (micros()-usec_start_t > timeout) return 0;
 	}
 	usec_stop = micros();
 	return usec_stop - usec_start;
@@ -268,22 +267,21 @@ uint32_t pulseIn_low(uint8_t pin, uint32_t timeout)
 	const struct digital_pin_bitband_and_config_table_struct *p;
 	p = digital_pin_to_info_PGM + pin;
 
-	uint32_t usec_start, usec_stop;
+	uint32_t usec_start_t, usec_start, usec_stop;
 
 	// wait for any previous pulse to end
-	usec_start = micros();
+	usec_start_t = micros();
 	while (!(*(p->reg + 2) & p->mask)) {
-		if (micros() - usec_start > timeout) return 0;
+		if (micros() - usec_start_t > timeout) return 0;
 	}
-	// wait for the pulse to start
-	usec_start = micros();
+	// wait for the pulse to start	
 	while ((*(p->reg + 2) & p->mask)) {
-		if (micros() - usec_start > timeout) return 0;
+		if (micros() - usec_start_t > timeout) return 0;
 	}
-	usec_start = micros();
 	// wait for the pulse to stop
+    usec_start = micros();
 	while (!(*(p->reg + 2) & p->mask)) {
-		if (micros() - usec_start > timeout) return 0;
+		if (micros() - usec_start_t > timeout) return 0;
 	}
 	usec_stop = micros();
 	return usec_stop - usec_start;
