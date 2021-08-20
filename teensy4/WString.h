@@ -166,7 +166,11 @@ public:
 		if (!buffer) return &zerotermination; // https://forum.pjrc.com/threads/63842
 		return buffer;
 	}
-
+    char* begin() { return buffer; }
+    char* end() { return buffer + length(); }
+    const char* begin() const { return c_str(); }
+    const char* end() const { return c_str() + length(); }
+    
 	// search
 	int indexOf( char ch ) const;
 	int indexOf( char ch, unsigned int fromIndex ) const;
