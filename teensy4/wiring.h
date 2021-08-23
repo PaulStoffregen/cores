@@ -141,7 +141,7 @@ constexpr auto max(A&& a, B&& b) -> decltype(a < b ? std::forward<A>(a) : std::f
 #undef abs
 #endif
 
-#if __cplusplus >= 201103L && defined(__STRICT_ANSI__)
+#if defined(__cplusplus) && __cplusplus >= 201103L && defined(__STRICT_ANSI__)
 #define typeof(a) decltype(a)
 #endif
 
