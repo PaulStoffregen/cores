@@ -16,6 +16,7 @@
 #include "avr/pgmspace.h"
 #include <string.h>
 #include "debug/printf.h"
+#include "AudioStream.h"
 
 //#define LOG_SIZE  20
 //uint32_t transfer_log_head=0;
@@ -642,9 +643,9 @@ static void endpoint0_setup(uint64_t setupdata)
 		break;
 	  case 0x81A2: // GET_CUR (wValue=0, wIndex=interface, wLength=len)
 		if (setup.wLength >= 3) {
-			endpoint0_buffer[0] = 44100 & 255;
-			endpoint0_buffer[1] = 44100 >> 8;
-			endpoint0_buffer[2] = 0;
+			endpoint0_buffer[0] = ((int)(AUDIO_SAMPLE_RATE_EXACT)) & 0xff;
+			endpoint0_buffer[1] = (((int)(AUDIO_SAMPLE_RATE_EXACT)) >> 8) & 0xff;
+			endpoint0_buffer[2] = (((int)(AUDIO_SAMPLE_RATE_EXACT)) >> 16) & 0xff;
 			endpoint0_transmit(endpoint0_buffer, 3, 0);
 			return;
 		}

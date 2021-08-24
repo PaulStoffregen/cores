@@ -87,7 +87,7 @@
 #define SAFE_RELEASE_MANY(n,...) __disable_irq(); active = false; {audio_block_t* blx[]={__VA_ARGS__}; release(blx,n);}
 #define OFFSET_OF(t,m) ((int)(&(((t*)0)->m)))
 
-#ifndef __ASSEMBLER__
+#if defined(__cplusplus)
 class AudioStream;
 class AudioConnection;
 class AudioDebug;

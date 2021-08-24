@@ -2780,7 +2780,7 @@ typedef struct {
 #define FTFL_FEPROT		(*(volatile uint8_t  *)0x40020016) // EEPROM Protection Register
 #define FTFL_FDPROT		(*(volatile uint8_t  *)0x40020017) // Data Flash Protection Register
 
-// Cyclic Redundancy Check (CRC)
+// Cyclic Redundancy Check (CRC) - requires SIM_SCGC6_CRC set before use
 
 #define CRC_CRC			(*(volatile uint32_t *)0x40032000) // CRC Data register
 #define CRC_GPOLY		(*(volatile uint32_t *)0x40032004) // CRC Polynomial register
@@ -2800,7 +2800,7 @@ typedef struct {
 #define CAU_CA7			(*(volatile uint32_t *)0xE0081009) // General Purpose Register
 #define CAU_CA8			(*(volatile uint32_t *)0xE008100A) // General Purpose Register
 
-// Random Number Generator Accelerator (RNGA)
+// Random Number Generator Accelerator (RNGA) - requires SIM_SCGC6_RNGA set before use
 
 // For info about using RNGA and the quality of its results:
 // https://forum.pjrc.com/threads/48745-Teensy-3-6-Random-Number-Generator
@@ -2809,7 +2809,7 @@ typedef struct {
 #define RNG_ER			(*(volatile uint32_t *)0x40029008) // RNGA Entropy Register
 #define RNG_OR			(*(volatile uint32_t *)0x4002900C) // RNGA Output Register
 
-// Analog-to-Digital Converter (ADC)
+// Analog-to-Digital Converter (ADC) - SIM_SCGC6_ADC0 & SIM_SCGC3_ADC1 set by startup code
 
 #define ADC0_SC1A		(*(volatile uint32_t *)0x4003B000) // ADC status and control registers 1
 #define ADC0_SC1B		(*(volatile uint32_t *)0x4003B004) // ADC status and control registers 1
@@ -2901,6 +2901,7 @@ typedef struct {
 // 12-bit Digital-to-Analog Converter (DAC)
 
 #if defined(KINETISK)
+// DAC0 requires SIM_SCGC2_DAC0
 #define DAC0_DAT0L		(*(volatile uint8_t  *)0x400CC000) // DAC Data Low Register
 #define DAC0_DATH		(*(volatile uint8_t  *)0x400CC001) // DAC Data High Register
 #define DAC0_DAT1L		(*(volatile uint8_t  *)0x400CC002) // DAC Data Low Register
@@ -2939,6 +2940,7 @@ typedef struct {
 #define DAC0_C2			(*(volatile uint8_t  *)0x400CC023) // DAC Control Register 2
 #define DAC_C2_DACBFRP(n)		((((n) & 15) << 4))		// DAC Buffer Read Pointer
 #define DAC_C2_DACBFUP(n)		((((n) & 15) << 0))		// DAC Buffer Upper Limit
+// DAC1 requires SIM_SCGC2_DAC1
 #define DAC1_DAT0L		(*(volatile uint8_t  *)0x400CD000) // DAC Data Low Register
 #define DAC1_DATH		(*(volatile uint8_t  *)0x400CD001) // DAC Data High Register
 #define DAC1_DAT1L		(*(volatile uint8_t  *)0x400CD002) // DAC Data Low Register
@@ -2962,6 +2964,7 @@ typedef struct {
 #define DAC1_C2			(*(volatile uint8_t  *)0x400CD023) // DAC Control Register 2
 
 #elif defined(KINETISL)
+// DAC requires SIM_SCGC6_DAC0
 #define DAC0_DAT0L		(*(volatile uint8_t  *)0x4003F000) // Data Low
 #define DAC0_DAT0H		(*(volatile uint8_t  *)0x4003F001) // Data High
 #define DAC0_DAT1L		(*(volatile uint8_t  *)0x4003F002) // Data Low
@@ -2986,7 +2989,7 @@ typedef struct {
 #define DAC_C2_DACBFUP			((uint8_t)0x01)		// Buffer Upper Limit
 #endif
 
-// Analog Comparator (CMP)
+// Analog Comparator (CMP) - requires SIM_SCGC4_CMP set before use
 
 #define CMP0_CR0		(*(volatile uint8_t  *)0x40073000) // CMP Control Register 0
 #define CMP_CR0_FILTER_CNT(n)   (uint8_t)(((n) & 0x07) << 4)
@@ -3036,7 +3039,8 @@ typedef struct {
 #define CMP3_DACCR		(*(volatile uint8_t  *)0x4007301C) // DAC Control Register
 #define CMP3_MUXCR		(*(volatile uint8_t  *)0x4007301D) // MUX Control Register
 #endif
-// Analog Voltage Reference (VREFV1)
+
+// Analog Voltage Reference (VREFV1) - requires SIM_SCGC4_VREF, set by startup code
 
 #define VREF_TRM		(*(volatile uint8_t  *)0x40074000) // VREF Trim Register
 #define VREF_TRM_CHOPEN			((uint8_t)0x40)			// Chop oscillator enable
@@ -3053,7 +3057,7 @@ typedef struct {
 #define VREF_SC_MODE_LV_LOWPOWERBUF     2
 
 
-// Programmable Delay Block (PDB)
+// Programmable Delay Block (PDB) - requires SIM_SCGC6_PDB set before use
 
 #define PDB0_SC			(*(volatile uint32_t *)0x40036000) // Status and Control Register
 #define PDB_SC_LDMOD(n)			(((n) & 3) << 18)	// Load Mode Select
@@ -3095,6 +3099,7 @@ typedef struct {
 // Timer/PWM Module (TPM)
 
 #if defined(KINETISL)
+// TPM0 requires SIM_SCGC6_TPM0
 #define TPM0_SC			(*(volatile uint32_t *)0x40038000) // Status And Control
 #define TPM0_CNT		(*(volatile uint32_t *)0x40038004) // Counter
 #define TPM0_MOD		(*(volatile uint32_t *)0x40038008) // Modulo
@@ -3112,6 +3117,7 @@ typedef struct {
 #define TPM0_C5V		(*(volatile uint32_t *)0x40038038) // Channel 5 Value
 #define TPM0_STATUS		(*(volatile uint32_t *)0x40038050) // Capture And Compare Status
 #define TPM0_CONF		(*(volatile uint32_t *)0x40038084) // Configuration
+// TPM1 requires SIM_SCGC6_TPM1
 #define TPM1_SC			(*(volatile uint32_t *)0x40039000) // Status And Control
 #define TPM1_CNT		(*(volatile uint32_t *)0x40039004) // Counter
 #define TPM1_MOD		(*(volatile uint32_t *)0x40039008) // Modulo
@@ -3121,6 +3127,7 @@ typedef struct {
 #define TPM1_C1V		(*(volatile uint32_t *)0x40039018) // Channel 1 Value
 #define TPM1_STATUS		(*(volatile uint32_t *)0x40039050) // Capture And Compare Status
 #define TPM1_CONF		(*(volatile uint32_t *)0x40039084) // Configuration
+// TPM2 requires SIM_SCGC6_TPM2
 #define TPM2_SC			(*(volatile uint32_t *)0x4003A000) // Status And Control
 #define TPM2_CNT		(*(volatile uint32_t *)0x4003A004) // Counter
 #define TPM2_MOD		(*(volatile uint32_t *)0x4003A008) // Modulo
@@ -3131,6 +3138,7 @@ typedef struct {
 #define TPM2_STATUS		(*(volatile uint32_t *)0x4003A050) // Capture And Compare Status
 #define TPM2_CONF		(*(volatile uint32_t *)0x4003A084) // Configuration
 #elif defined(KINETISK)
+// TPM1 requires SIM_SCGC2_TPM1
 #define TPM1_SC			(*(volatile uint32_t *)0x400C9000) // Status And Control
 #define TPM1_CNT		(*(volatile uint32_t *)0x400C9004) // Counter
 #define TPM1_MOD		(*(volatile uint32_t *)0x400C9008) // Modulo
@@ -3144,6 +3152,7 @@ typedef struct {
 #define TPM1_FILTER		(*(volatile uint32_t *)0x400C9078) // Input Capture Filter Control
 #define TPM1_QDCTRL		(*(volatile uint32_t *)0x400C9080) // Quadrature Decoder Control And Status
 #define TPM1_CONF		(*(volatile uint32_t *)0x400C9084) // Configuration
+// TPM2 requires SIM_SCGC2_TPM2
 #define TPM2_SC			(*(volatile uint32_t *)0x400CA000) // Status And Control
 #define TPM2_CNT		(*(volatile uint32_t *)0x400CA004) // Counter
 #define TPM2_MOD		(*(volatile uint32_t *)0x400CA008) // Modulo
@@ -3160,7 +3169,7 @@ typedef struct {
 #endif
 
 
-// FlexTimer Module (FTM)
+// FlexTimer Module (FTM) - SIM_SCGC6_FTM0, SIM_SCGC6_FTM1, SIM_SCGC3_FTM2, SIM_SCGC3_FTM3 set by startup code
 
 #define FTM0_SC			(*(volatile uint32_t *)0x40038000) // Status And Control
 #ifdef KINETISL
@@ -3499,7 +3508,7 @@ typedef struct {
 #endif
 
 
-// Periodic Interrupt Timer (PIT)
+// Periodic Interrupt Timer (PIT) - normally used by IntervalTimer class, which sets SIM_SCGC6_PIT
 
 #define PIT_MCR			(*(volatile uint32_t *)0x40037000) // PIT Module Control Register
 #define PIT_MCR_MDIS            (1<<1)                               // Module disable
@@ -3538,7 +3547,7 @@ typedef struct {
 #define PIT_TFLG3		(*(volatile uint32_t *)0x4003713C) // Timer Flag Register
 #endif // defined(KINETISK)
 
-// Low-Power Timer (LPTMR)
+// Low-Power Timer (LPTMR) - requires SIM_SCGC5_LPTIMER set before use
 
 #define LPTMR0_CSR		(*(volatile uint32_t *)0x40040000) // Low Power Timer Control Status Register
 #define LPTMR_CSR_TCF			0x80				// Compare Flag
@@ -3555,7 +3564,7 @@ typedef struct {
 #define LPTMR0_CMR		(*(volatile uint32_t *)0x40040008) // Low Power Timer Compare Register
 #define LPTMR0_CNR		(*(volatile uint32_t *)0x4004000C) // Low Power Timer Counter Register
 
-// Carrier Modulator Transmitter (CMT)
+// Carrier Modulator Transmitter (CMT) - requires SIM_SCGC4_CMT set before use
 
 #define CMT_CGH1		(*(volatile uint8_t  *)0x40062000) // CMT Carrier Generator High Data Register 1
 #define CMT_CGL1		(*(volatile uint8_t  *)0x40062001) // CMT Carrier Generator Low Data Register 1
@@ -3570,7 +3579,7 @@ typedef struct {
 #define CMT_PPS			(*(volatile uint8_t  *)0x4006200A) // CMT Primary Prescaler Register
 #define CMT_DMA			(*(volatile uint8_t  *)0x4006200B) // CMT Direct Memory Access Register
 
-// Real Time Clock (RTC)
+// Real Time Clock (RTC) - requires SIM_SCGC6_RTC set before use
 
 #define RTC_TSR			(*(volatile uint32_t *)0x4003D000) // RTC Time Seconds Register
 #define RTC_TPR			(*(volatile uint32_t *)0x4003D004) // RTC Time Prescaler Register
@@ -3608,7 +3617,7 @@ typedef struct {
 #define RTC_RAR			(*(volatile uint32_t *)0x4003D804) // RTC Read Access Register
 
 
-// 10/100-Mbps Ethernet MAC (ENET)
+// 10/100-Mbps Ethernet MAC (ENET) - requires SIM_SCGC2_ENET set before use
 
 #define ENET_EIR		(*(volatile uint32_t *)0x400C0004) // Interrupt Event Register
 #define ENET_EIR_BABR			((uint32_t)0x40000000)		// Babbling Receive Error
@@ -3821,7 +3830,7 @@ typedef struct {
 #define ENET_TCCR3		(*(volatile uint32_t *)0x400C0624) // Timer Compare Capture Register
 
 
-// Universal Serial Bus OTG Controller (USBOTG)
+// Universal Serial Bus OTG Controller (USBOTG) - SIM_SCGC4_USBOTG set by startup code
 
 #define USB0_PERID		(*(const    uint8_t  *)0x40072000) // Peripheral ID register
 #define USB0_IDCOMP		(*(const    uint8_t  *)0x40072004) // Peripheral ID Complement register
@@ -3959,7 +3968,7 @@ typedef struct {
 #define USB_CLK_RECOVER_INT_STATUS_OVF_ERROR		((uint8_t)0x10)
 
 
-// USB Device Charger Detection Module (USBDCD)
+// USB Device Charger Detection Module (USBDCD) - requires SIM_SCGC6_USBDCD set before use
 
 #define USBDCD_CONTROL		(*(volatile uint32_t *)0x40035000) // Control register
 #define USBDCD_CONTROL_SR		((uint32_t)0x02000000)
@@ -3990,7 +3999,7 @@ typedef struct {
 #define USBHSDCD_TIMER2		(*(volatile uint32_t *)0x400A3018) // TIMER2 register
 
 
-// USB High Speed OTG Controller (USBHS)
+// USB High Speed OTG Controller (USBHS) - normally used with USBHost_t36 library, which sets SIM_SCGC3_USBHS
 
 #define USBHS_ID		(*(volatile uint32_t *)0x400A1000) // Identification Register
 #define USBHS_HWGENERAL		(*(volatile uint32_t *)0x400A1004) // General Hardware Parameters Register
@@ -4167,7 +4176,7 @@ typedef struct {
 #define USBHS_USBGENCTRL_WU_IE		((uint32_t)0x00000001)
 
 
-// Universal Serial Bus 2.0 Integrated PHY (USB-PHY)
+// Universal Serial Bus 2.0 Integrated PHY (USB-PHY) - use with USBHost_t36 library, which sets SIM_SCGC3_USBHSPHY
 
 #define USBPHY_PWD		(*(volatile uint32_t *)0x400A2000) // USB PHY Power-Down Register
 #define USBPHY_PWD_RXPWDRX			((uint32_t)0x00100000)
@@ -4279,8 +4288,9 @@ typedef struct {
 #define USBPHY_TRIM_OVERRIDE_EN_TOG	(*(volatile uint32_t *)0x400A213C) // USB PHY Trim Override Enable Register
 
 
-// CAN - Controller Area Network (FlexCAN)
+// CAN - Controller Area Network (FlexCAN) - normally used with FlexCAN library
 
+// CAN0 requires SIM_SCGC6_FLEXCAN0
 #define CAN0_MCR		(*(volatile uint32_t *)0x40024000) // Module Configuration Register
 #define CAN0_CTRL1		(*(volatile uint32_t *)0x40024004) // Control 1 register
 #define CAN0_TIMER		(*(volatile uint32_t *)0x40024008) // Free Running Timer
@@ -4312,6 +4322,7 @@ typedef struct {
 #define CAN0_RXIMR13		(*(volatile uint32_t *)0x400248B4) // Rx Individual Mask Registers
 #define CAN0_RXIMR14		(*(volatile uint32_t *)0x400248B8) // Rx Individual Mask Registers
 #define CAN0_RXIMR15		(*(volatile uint32_t *)0x400248BC) // Rx Individual Mask Registers
+// CAN1 requires SIM_SCGC3_FLEXCAN1
 #define CAN1_MCR		(*(volatile uint32_t *)0x400A4000) // Module Configuration Register
 #define CAN1_CTRL1		(*(volatile uint32_t *)0x400A4004) // Control 1 register
 #define CAN1_TIMER		(*(volatile uint32_t *)0x400A4008) // Free Running Timer
@@ -4345,7 +4356,7 @@ typedef struct {
 #define CAN1_RXIMR15		(*(volatile uint32_t *)0x400A48BC) // Rx Individual Mask Registers
 
 
-// SPI (DSPI)
+// SPI (DSPI) - normally used by SPI library, which sets SIM_SCGC6_SPI0, SIM_SCGC6_SPI1, SIM_SCGC3_SPI2
 
 #if defined(KINETISK)
 typedef struct {
@@ -4557,7 +4568,7 @@ typedef struct {
 #endif
 
 
-// Inter-Integrated Circuit (I2C)
+// Inter-Integrated Circuit (I2C) - Normally used with Wire library, which sets SIM_SCGC4_I2C0, SIM_SCGC4_I2C1, SIM_SCGC1_I2C2
 
 typedef struct {
 	volatile uint8_t	A1;
@@ -4720,7 +4731,7 @@ typedef struct {
 #define I2C3_SLTL		(KINETIS_I2C3.SLTL)		// I2C SCL Low Timeout Register Low
 
 
-// Universal Asynchronous Receiver/Transmitter (UART)
+// Universal Asynchronous Receiver/Transmitter (UART) - normally used by Serial1, Serial2, etc - which enable SIM_SCGC bits
 
 typedef struct __attribute__((packed)) {
 	volatile uint8_t	BDH;
@@ -5137,7 +5148,7 @@ typedef struct __attribute__((packed)) {
 #define UART5_TL7816		(KINETISK_UART5.TL7816)	// UART 7816 Transmit Length Register
 
 
-// Secured digital host controller (SDHC)
+// Secured digital host controller (SDHC) - normally used by SD & SdFat, which set SIM_SCGC3_SDHC
 
 #define SDHC_DSADDR		(*(volatile uint32_t *)0x400B1000) // DMA System Address register
 #define SDHC_BLKATTR		(*(volatile uint32_t *)0x400B1004) // Block Attributes register
@@ -5391,7 +5402,7 @@ typedef struct __attribute__((packed)) {
 #define LPUART0_MODIR		(KINETISK_LPUART0.MODIR)	// LPUART Modem IrDA Register
 
 
-// Synchronous Audio Interface (SAI)
+// Synchronous Audio Interface (SAI) - normally used by Audio library, which sets SIM_SCGC6_I2S
 
 #define I2S0_TCSR		(*(volatile uint32_t *)0x4002F000) // SAI Transmit Control Register
 #define I2S_TCSR_TE			((uint32_t)0x80000000)		// Transmitter Enable
@@ -5505,7 +5516,7 @@ typedef struct __attribute__((packed)) {
 #define I2S_MDR_FRACT(n)		((uint32_t)(n & 0xff)<<12)	// MCLK Fraction
 #define I2S_MDR_DIVIDE(n)		((uint32_t)(n & 0xfff))		// MCLK Divide
 
-// General-Purpose Input/Output (GPIO)
+// General-Purpose Input/Output (GPIO) - SIM_SCGC5 bits set by startup code
 
 #define GPIOA_PDOR		(*(volatile uint32_t *)0x400FF000) // Port Data Output Register
 #define GPIOA_PSOR		(*(volatile uint32_t *)0x400FF004) // Port Set Output Register
@@ -5571,7 +5582,7 @@ typedef struct __attribute__((packed)) {
 #define FGPIOE_PDDR		(*(volatile uint32_t *)0xF8000114) // Port Data Direction Register
 #endif
 
-// Touch sense input (TSI)
+// Touch sense input (TSI) - requires SIM_SCGC5_TSI set before use
 
 #if defined(HAS_KINETIS_TSI)
 #define TSI0_GENCS		(*(volatile uint32_t *)0x40045000) // General Control and Status Register
