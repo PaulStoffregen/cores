@@ -52,7 +52,7 @@ void startup_default_early_hook(void) {}
 void startup_early_hook(void)		__attribute__ ((weak, alias("startup_default_early_hook")));
 void startup_default_late_hook(void) {}
 void startup_late_hook(void)		__attribute__ ((weak, alias("startup_default_late_hook")));
-__attribute__((section(".startup"), optimize("no-tree-loop-distribute-patterns")))
+__attribute__((section(".startup")))
 void ResetHandler(void)
 {
 	unsigned int i;
@@ -617,7 +617,7 @@ asm volatile(
     "b  1b;"
     "2:;":"+l"(dest),"+l"(src):"l"(dest_end):"cc","r3","memory");
 }
-        
+
 __attribute__((noinline,section(".startup")))
 static void memory_clear(uint32_t *dest, uint32_t *dest_end)
 {	
