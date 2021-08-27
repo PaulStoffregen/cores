@@ -601,24 +601,36 @@ void unused_interrupt_vector(void)
 	while (1) ;
 }
 
-__attribute__((section(".startup"), optimize("O1")))
+__attribute__((noinline,section(".startup")))
 static void memory_copy(uint32_t *dest, const uint32_t *src, uint32_t *dest_end)
-{
-	if (dest == src) return;
-	while (dest < dest_end) {
-		*dest++ = *src++;
-	}
+{	
+//if (dest == src) return;  
+//while (dest < dest_end) *dest++ = *src++;
+asm volatile(
+    "cmp     %0, %1;"
+    "beq     2f;"
+    "1:;"
+    "cmp    %2, %0;"
+    "bls    2f;"
+    "ldr    r3, [%1], #4;"
+    "str    r3, [%0], #4;"
+    "b  1b;"
+    "2:;":"+l"(dest),"+l"(src):"l"(dest_end):"cc","r3","memory");
 }
-
-__attribute__((section(".startup"), optimize("O1")))
+        
+__attribute__((noinline,section(".startup")))
 static void memory_clear(uint32_t *dest, uint32_t *dest_end)
-{
-	while (dest < dest_end) {
-		*dest++ = 0;
-	}
+{	
+//while (dest < dest_end) *dest++ = 0;
+asm volatile(
+    "movs    r3, #0;"
+    "1:;"
+    "cmp     %0, %1;"
+    "bcs     2f;"
+    "str     r3, [%0], #4;"
+    "b  1b;"
+    "2:;":"+r"(dest):"r"(dest_end):"cc","r3","memory");
 }
-
-
 
 // syscall functions need to be in the same C file as the entry point "ResetVector"
 // otherwise the linker will discard them in some cases.
