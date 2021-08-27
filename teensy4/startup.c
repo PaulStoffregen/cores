@@ -601,7 +601,7 @@ void unused_interrupt_vector(void)
 	while (1) ;
 }
 
-__attribute__((section(".startup"), optimize("no-tree-loop-distribute-patterns")))
+__attribute__((section(".startup"), optimize("O1")))
 static void memory_copy(uint32_t *dest, const uint32_t *src, uint32_t *dest_end)
 {
 	if (dest == src) return;
@@ -610,7 +610,7 @@ static void memory_copy(uint32_t *dest, const uint32_t *src, uint32_t *dest_end)
 	}
 }
 
-__attribute__((section(".startup"), optimize("no-tree-loop-distribute-patterns")))
+__attribute__((section(".startup"), optimize("O1")))
 static void memory_clear(uint32_t *dest, uint32_t *dest_end)
 {
 	while (dest < dest_end) {
