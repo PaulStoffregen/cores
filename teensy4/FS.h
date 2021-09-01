@@ -221,6 +221,10 @@ public:
 	size_t readBytes(char *buffer, size_t length) {
 		return read(buffer, length);
 	}
+	size_t write(unsigned long n) { return write((uint8_t)n); }
+	size_t write(long n) { return write((uint8_t)n); }
+	size_t write(unsigned int n) { return write((uint8_t)n); }
+	size_t write(int n) { return write((uint8_t)n); }
 	using Print::write;
 private:
 	void dec_refcount() {
