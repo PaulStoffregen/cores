@@ -677,7 +677,9 @@ static void startup_default_early_hook(void) {
 #endif
 }
 static void startup_default_late_hook(void) {}
+static void startup_default_before_usb_hook(void) {}
 void startup_early_hook(void)		__attribute__ ((weak, alias("startup_default_early_hook")));
+void startup_before_usb_hook(void)		__attribute__ ((weak, alias("startup_default_before_usb_hook")));
 void startup_late_hook(void)		__attribute__ ((weak, alias("startup_default_late_hook")));
 
 
@@ -1120,6 +1122,9 @@ void ResetHandler(void)
 
 	//init_pins();
 	__enable_irq();
+	
+	//call startup hook as late as possible but before delays introduced by waiting for USB to be up
+	startup_before_usb_hook();
 
 	_init_Teensyduino_internal_();
 

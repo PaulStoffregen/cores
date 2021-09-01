@@ -50,6 +50,8 @@ struct smalloc_pool extmem_smalloc_pool;
 extern int main (void);
 void startup_default_early_hook(void) {}
 void startup_early_hook(void)		__attribute__ ((weak, alias("startup_default_early_hook")));
+void startup_default_before_usb_hook(void) {}
+void startup_before_usb_hook(void)		__attribute__ ((weak, alias("startup_default_before_usb_hook")));
 void startup_default_late_hook(void) {}
 void startup_late_hook(void)		__attribute__ ((weak, alias("startup_default_late_hook")));
 __attribute__((section(".startup"), optimize("no-tree-loop-distribute-patterns")))
@@ -140,6 +142,9 @@ void ResetHandler(void)
 #endif
 	startup_early_hook();
 	while (millis() < 20) ; // wait at least 20ms before starting USB
+	//call startup hook as late as possible but just before USB is initialized. Note - not as necessary
+	//here as it is for Teensy 3.x, but added here for consistency
+	startup_before_usb_hook();
 	usb_init();
 	analog_init();
 	pwm_init();
