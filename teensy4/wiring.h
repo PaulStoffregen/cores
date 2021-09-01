@@ -155,10 +155,8 @@ constexpr auto max(A&& a, B&& b) -> decltype(a < b ? std::forward<A>(a) : std::f
   typeof(high) _high = (high); \
   (_amt < _low) ? _low : ((_amt > _high) ? _high : _amt); \
 })
-#define round(x) ({ \
-  typeof(x) _x = (x); \
-  (_x>=0) ? (long)(_x+0.5) : (long)(_x-0.5); \
-})
+#define round(x) ((long) __builtin_round(x))
+
 #define radians(deg) ((deg)*DEG_TO_RAD)
 #define degrees(rad) ((rad)*RAD_TO_DEG)
 #define sq(x) ({ \
