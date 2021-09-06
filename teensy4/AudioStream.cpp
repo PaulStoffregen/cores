@@ -79,6 +79,7 @@ SFSH();
 	*ppAfter = pItem;
 }
 
+
 // Unlink item from list, e.g. listUnlink(&first_update,&AudioStream.next_update);
 // Before:  first_update -> <first linked in> [ -> <more linked in> ] -> <something or NULL>
 // After: first_update -----> <something or NULL>
@@ -243,6 +244,7 @@ printAclan(newHead,NULL);
 	return pTail; // clan head, or first_update
 }
 
+
 // Unlink item from update list, e.g. updateListUnlinkFrom(&first_update,&AudioStream.next_update);
 // Before: first_update -> <first linked in> [ -> <more linked in> ] -> <something or NULL>
 // After:  first_update -----> <something or NULL>
@@ -260,6 +262,7 @@ AudioStream* AudioStream::updateListUnlinkFrom(AudioStream** ppAfter,AudioStream
 	
 	return pItem;
 }
+
 
 /************************************************************************************/
 /* Data blocks 																		*/
@@ -290,6 +293,7 @@ FLASHMEM void AudioStream::initialize_memory(audio_block_t *data, unsigned int n
 	__enable_irq();
 
 }
+
 
 // Allocate 1 audio data block.  If successful
 // the caller is the only owner of this new block
@@ -333,6 +337,7 @@ audio_block_t * AudioStream::allocate(void)
 	return block;
 }
 
+
 // Release ownership of a data block.  If no
 // other streams have ownership, the block is
 // returned to the free pool
@@ -373,6 +378,7 @@ void AudioStream::release(audio_block_t** blocks, int numBlocks, bool enableIRQ 
 		__enable_irq();
 }
 
+
 // Transmit an audio data block
 // to all streams that connect to an output.  The block
 // becomes owned by all the recepients, but also is still
@@ -405,6 +411,7 @@ audio_block_t * AudioStream::receiveReadOnly(unsigned int index)
 	return in;
 }
 
+
 // Receive block from an input.  The block will not
 // be shared, so its contents may be changed.
 audio_block_t * AudioStream::receiveWritable(unsigned int index)
@@ -423,6 +430,7 @@ audio_block_t * AudioStream::receiveWritable(unsigned int index)
 	return in;
 }
 
+
 /************************************************************************************/
 /* Connections 																		*/
 /************************************************************************************/
@@ -440,6 +448,7 @@ AudioConnection::AudioConnection(AudioStream &source, unsigned char sourceOutput
 	connect(source,sourceOutput,destination,destinationInput); 
 }
 
+
 // Simplified constructor assuming channel 0 at both ends
 AudioConnection::AudioConnection(AudioStream &source, AudioStream &destination)
 {
@@ -450,6 +459,7 @@ AudioConnection::AudioConnection(AudioStream &source, AudioStream &destination)
 	connect(source, 0, destination,0);
 }
 
+
 // construct the patchCord, but leave it unconnected
 AudioConnection::AudioConnection()
 {
@@ -458,6 +468,7 @@ AudioConnection::AudioConnection()
 	
 	isConnected = false;	  
 }
+
 
 // Destructor
 AudioConnection::~AudioConnection()
@@ -472,6 +483,7 @@ AudioConnection::~AudioConnection()
 	if (*pp) // found ourselves
 		*pp = next_dest; // remove ourselves from the unused list
 }
+
 
 /**************************************************************************************/
 int AudioConnection::connect(void)
@@ -616,20 +628,6 @@ int AudioConnection::disconnect(void)
 			src->destination_list = NULL;
 		}
 	} else {
-		/*  this is the old, buggy code
-		while (p) {
-			if (p == this) {
-				if (p->next_dest) {
-					p = next_dest; // just destroys our working pointer!
-					break;
-				} else {
-					p = NULL;
-					break;
-				}
-			}
-			p = p->next_dest;
-		}
-		*/
 		while (p)
 		{
 			if (p->next_dest == this) // found the parent of the disconnecting object
@@ -691,17 +689,6 @@ printClanList();
 	{
 		AudioStream** ppS;	
 		
-		/* // original link-in code: links in first, or at end
-		if (first_update == NULL) {
-			first_update = this;
-		} else {
-			AudioStream *p;
-			for (p=first_update; p->next_update; p = p->next_update) 
-				;
-			p->next_update = this;
-		}
-		next_update = NULL;
-		*/
 		// If the object to link is a non-orphan clan member, then we actually want to
 		// link the entire clan in, in order.
 		AudioStream* tail = this;		
@@ -718,7 +705,7 @@ SPRL((uint32_t) tail,HEX);
 SFSH();
 		// tail now points to the last member of our clan
 		// [this->]clan_head is the first member
-}//#endif		
+}		
 
 		// Scan the global update list looking for a place to link in
 		for (ppS = &first_update; *ppS != NULL; ppS = &((*ppS)->next_update))
@@ -781,7 +768,6 @@ SPRL("Source within other clan:");
 			else // we'd better be the destination, or something's gone Horribly Wrong...
 			{
 				ourDFU 	 = clanListUnlink(this); // remove ourselves from the clan list
-				//otherDFU = clanListUnlink(pC->src);
 				
 				// simpler case: if we're the destination, we can't be the new clan head
 				// and we shouldn't need to unlink and re-link the clan head, either
@@ -792,11 +778,7 @@ SPRL("Source within other clan:");
 				for (pAfter = otherDFU; NULL != pAfter && pC->src != pAfter->next_update; pAfter = pAfter->next_update)
 					;
 				updateListMergeInto(&pAfter,otherDFU,ourDFU);
-				//linkItem = otherDFU;
-				
-				//clanListLinkIn(linkItem); // link new clan back into clan list
 			}
-
 }
 		}
 		else
@@ -807,19 +789,9 @@ SPRL("...done");
 SPRL(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 printClanList();
 SFSH();
-			
-			//*** THIS COULD BE THE WRONG PLACE! Maybe in update_setup()? *****
-			/*
-			if (NULL == first_update) // first connection ever: bootstrap the update list
-			{
-				first_update = pC->src;
-				pC->src->active = true;
-				pC->dst->active = true;
-			}
-			*/
-		
 	}
 }
+
 
 // Unlink an AudioStream object from the active update list. This will occur when
 // its last connection is severed. Also inactivates the object, and moves it to the clan list.
@@ -850,6 +822,7 @@ SPRL("...nothing to do");
 SFSH();
 }
 }
+
 
 // Unlink an AudioStream object from its clan. This will occur when
 // its last connection is severed. Leaves the object in limbo, NOT
@@ -948,6 +921,7 @@ SPRT("] ");
 SFSH();
 }
 
+
 // Destructor: quite a lot of housekeeping to do
 AudioStream::~AudioStream()
 {
@@ -1012,6 +986,7 @@ SFSH();
 	__enable_irq();
 }
 
+
 // When an object has taken responsibility for calling update_all()
 // at each block interval (approx 2.9ms), this variable is set to
 // true.  Objects that are capable of calling update_all(), typically
@@ -1040,13 +1015,16 @@ SFSH();
 	return true;
 }
 
+
 void AudioStream::update_stop(void)
 {
 	NVIC_DISABLE_IRQ(IRQ_SOFTWARE);
 	update_scheduled = false;
 }
 
+
 AudioStream * AudioStream::first_update = NULL;
+
 
 void software_isr(void) // AudioStream::update_all()
 {
