@@ -570,7 +570,7 @@ int AudioConnection::connect(void)
 		
 		// deal with connecting up previously-unused AudioStream objects:
 		src->linkIntoUpdateList(this);
-		dst->linkIntoUpdateList(this); // unnecessary?
+		dst->linkIntoUpdateList(this); // unnecessary? 
 		
 		src->numConnections++;
 		//src->active = true;
@@ -733,8 +733,6 @@ SPRL("...active");
 		if (!active && // neither source nor destination is in update list, we're still in limbo
 		 pC->src->clan_head != pC->dst->clan_head) // and in different clans, which need merging
 		{
-			AudioStream* ourDFU, *otherDFU; // storage for "dummy first_update" pointers
-			AudioStream* linkItem; // actual "link here" item
 						
 if (!(simples & 2)) {
 			pC->src->next_update = pC->dst; // but we know this order is vaguely sane
@@ -742,12 +740,15 @@ if (!(simples & 2)) {
 			// if we want to relink, one clan will absorb another: do the housekeeping
 			if (this == pC->src) // if we're the source
 			{
+				AudioStream* ourDFU, *otherDFU; // storage for "dummy first_update" pointers
+				AudioStream* linkItem; // actual "link here" item
+
 				ourDFU 	 = clanListUnlink(this); // remove ourselves from the clan list
 				otherDFU = clanListUnlink(pC->dst);
 				
 				if (pC->dst == otherDFU) // we're the source and other clan head is destination
 				{
-SPRL("Source before other Head:");
+SPRL("src: before other Head:");
 					updateListMergeInto(&updateTailItem(ourDFU)->next_update,ourDFU,otherDFU);
 					linkItem = ourDFU;
 				}
@@ -755,7 +756,7 @@ SPRL("Source before other Head:");
 				{
 					AudioStream* pAfter;
 					
-SPRL("Source within other clan:");
+SPRL("src: dst within other clan:");
 					// find the preceding object, to link in after it and before our destination
 					for (pAfter = otherDFU; NULL != pAfter && pC->dst != pAfter->next_update; pAfter = pAfter->next_update)
 						;
@@ -767,17 +768,12 @@ SPRL("Source within other clan:");
 			}
 			else // we'd better be the destination, or something's gone Horribly Wrong...
 			{
+				AudioStream* ourDFU; 			 // storage for "dummy first_update" pointers
 				ourDFU 	 = clanListUnlink(this); // remove ourselves from the clan list
+SPRL("dst: src within other clan:");
 				
-				// simpler case: if we're the destination, we can't be the new clan head
-				// and we shouldn't need to unlink and re-link the clan head, either
-				AudioStream* pAfter;
-				
-				// find the preceding object, to link in after it and before our destination
-				//     This   vvvvvvvv   isn't initialised! Needs fixing...
-				for (pAfter = otherDFU; NULL != pAfter && pC->src != pAfter->next_update; pAfter = pAfter->next_update)
-					;
-				updateListMergeInto(&pAfter,otherDFU,ourDFU);
+				// merge ourselves in just after our source
+				updateListMergeInto(&pC->src->next_update,pC->src->clan_head,ourDFU);
 			}
 }
 		}

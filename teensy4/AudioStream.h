@@ -31,15 +31,18 @@
 #ifndef AudioStream_h
 #define AudioStream_h
 
+//#define DYNAMIC_AUDIO_DEBUG
+
 #ifndef __ASSEMBLER__
 #include <stdio.h>  // for NULL
 #include <string.h> // for memcpy
-
 #endif
 
-//#define DYNAMIC_AUDIO_DEBUG
 
 #if defined(DYNAMIC_AUDIO_DEBUG)
+#undef SPRT
+#undef SPRL
+#undef SFSH
 #define SPRT(...) Serial.print(__VA_ARGS__) 
 #define SPRL(...) Serial.println(__VA_ARGS__) 
 #define SFSH(...) Serial.flush(__VA_ARGS__) 
@@ -88,6 +91,7 @@
 #define OFFSET_OF(t,m) ((int)(&(((t*)0)->m)))
 
 #if defined(__cplusplus)
+#include <CrashReport.h> // for reporting crashes during audio clas construction
 class AudioStream;
 class AudioConnection;
 class AudioDebug;
@@ -153,6 +157,12 @@ public:
 				Serial.begin(115200);
 				while (!Serial)
 					;
+#if defined(DYNAMIC_AUDIO_DEBUG)
+				if (CrashReport) {
+					Serial.println(CrashReport);
+					CrashReport.clear();
+				}
+#endif // defined(DYNAMIC_AUDIO_DEBUG)
 				serialStarted = true;
 				simples = 7;
 			}
