@@ -2295,6 +2295,9 @@ static inline void analogReadResolution(unsigned int bits) { analogReadRes(bits)
 void analogReadAveraging(unsigned int num);
 void analog_init(void);
 int touchRead(uint8_t pin);
+uint32_t IMXRTfuseRead(volatile uint32_t *fuses);
+void IMXRTfuseWrite(volatile uint32_t *fuses, uint32_t value);
+void IMXRTfuseReload();
 
 static inline void shiftOut(uint8_t, uint8_t, uint8_t, uint8_t) __attribute__((always_inline, unused));
 extern void _shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t value) __attribute__((noinline));
