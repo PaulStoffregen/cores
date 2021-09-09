@@ -677,6 +677,7 @@ static void startup_default_early_hook(void) {
 #endif
 }
 static void startup_default_late_hook(void) {}
+// aberridg - startup before USB
 static void startup_default_before_usb_hook(void) {}
 void startup_early_hook(void)		__attribute__ ((weak, alias("startup_default_early_hook")));
 void startup_before_usb_hook(void)		__attribute__ ((weak, alias("startup_default_before_usb_hook")));
