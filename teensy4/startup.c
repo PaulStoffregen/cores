@@ -50,6 +50,7 @@ struct smalloc_pool extmem_smalloc_pool;
 extern int main (void);
 void startup_default_early_hook(void) {}
 void startup_early_hook(void)		__attribute__ ((weak, alias("startup_default_early_hook")));
+// aberridg - added startup_default_before_usb_hook for parity with T3
 void startup_default_before_usb_hook(void) {}
 void startup_before_usb_hook(void)		__attribute__ ((weak, alias("startup_default_before_usb_hook")));
 void startup_default_late_hook(void) {}
