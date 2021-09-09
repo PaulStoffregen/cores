@@ -166,6 +166,13 @@ public:
 		if (!buffer) return &zerotermination; // https://forum.pjrc.com/threads/63842
 		return buffer;
 	}
+	char * begin() {
+		if (!buffer) reserve(20);
+		return buffer;
+	}
+	char * end() { return begin() + length(); }
+	const char * begin() const { return c_str(); }
+	const char * end() const { return c_str() + length(); }
 
 	// search
 	int indexOf( char ch ) const;
