@@ -76,17 +76,18 @@ class usb_serial_class : public Stream
 public:
 	constexpr usb_serial_class() {}
         void begin(long) {
-		//uint32_t millis_begin = systick_millis_count;
-		//disabled for now - causes more trouble than it solves?
-		//while (!(*this)) {
-			// wait up to 2.5 seconds for Arduino Serial Monitor
-			// Yes, this is a long time, but some Windows systems open
-			// the port very slowly.  This wait allows programs for
-			// Arduino Uno to "just work" (without forcing a reboot when
-			// the port is opened), and when no PC is connected the user's
-			// sketch still gets to run normally after this wait time.
-			//if ((uint32_t)(systick_millis_count - millis_begin) > 2500) break;
-		//}
+		uint32_t millis_begin = systick_millis_count;
+		while (!(*this)) {
+			uint32_t elapsed = systick_millis_count - millis_begin;
+			if (usb_configuration) {
+				// Wait up to 2 seconds for Arduino Serial Monitor
+				if (elapsed > 2000) break;
+			} else {
+				// But wait only 3/4 second if there is no sign the
+				// USB host has begun the USB enumeration process.
+				if (elapsed > 750) break;
+			}
+		}
 	}
         void end() { /* TODO: flush output and shut down USB port */ };
         virtual int available() { return usb_serial_available(); }
