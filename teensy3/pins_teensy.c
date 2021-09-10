@@ -441,6 +441,8 @@ void init_rtc(void)
 
 extern void usb_init(void);
 
+static void startup_default_middle_hook(void) {}
+void startup_middle_hook(void)	__attribute__ ((weak, alias("startup_default_middle_hook")));
 
 // create a default PWM at the same 488.28 Hz as Arduino Uno
 
@@ -596,6 +598,7 @@ void _init_Teensyduino_internal_(void)
 	// https://forum.pjrc.com/threads/36606-startup-time-(400ms)?p=113980&viewfull=1#post113980
 	// https://forum.pjrc.com/threads/31290-Teensey-3-2-Teensey-Loader-1-24-Issues?p=87273&viewfull=1#post87273
 
+	startup_middle_hook();
 	delay(TEENSY_INIT_USB_DELAY_BEFORE);
 	usb_init();
 	delay(TEENSY_INIT_USB_DELAY_AFTER);
