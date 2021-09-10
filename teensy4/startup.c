@@ -139,11 +139,11 @@ void ResetHandler(void)
 	configure_external_ram();
 #endif
 	startup_early_hook();
-	while (millis() < 20) ; // wait at least 20ms before starting USB
-	usb_init();
 	analog_init();
 	pwm_init();
 	tempmon_init();
+	while (millis() < 20) ; // wait at least 20ms before starting USB
+	usb_init();
 
 	startup_late_hook();
 	while (millis() < 300) ; // wait at least 300ms before calling user code
