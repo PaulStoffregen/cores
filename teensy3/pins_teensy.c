@@ -585,19 +585,11 @@ void _init_Teensyduino_internal_(void)
 	analog_init();
 
 #if !defined(TEENSY_INIT_USB_DELAY_BEFORE)
-	#if TEENSYDUINO >= 142
-		#define TEENSY_INIT_USB_DELAY_BEFORE 25
-	#else
-		#define TEENSY_INIT_USB_DELAY_BEFORE 50
-	#endif
+	#define TEENSY_INIT_USB_DELAY_BEFORE 20
 #endif
 
 #if !defined(TEENSY_INIT_USB_DELAY_AFTER)
-	#if TEENSYDUINO >= 142
-		#define TEENSY_INIT_USB_DELAY_AFTER 275
-	#else
-		#define TEENSY_INIT_USB_DELAY_AFTER 350
-	#endif
+	#define TEENSY_INIT_USB_DELAY_AFTER 280
 #endif
 
 	// for background about this startup delay, please see these conversations
