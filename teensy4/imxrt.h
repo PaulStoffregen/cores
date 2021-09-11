@@ -9833,6 +9833,11 @@ static inline void arm_dcache_flush(void *addr, uint32_t size)
 // cached variables shared within the same 32 byte cache row(s)
 // will become collateral damage!
 //
+// If you wish to assure some variable or array or other data
+// is not cached, use arm_dcache_flush_delete().  This
+// arm_dcache_delete() should only be used for very special
+// cases like DMA buffers or hardware testing & benchmarks.
+//
 // See this forum thread for more detail:
 // https://forum.pjrc.com/threads/68100-BUG-in-arm_dcache_delete
 //
