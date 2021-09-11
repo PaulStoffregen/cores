@@ -9823,6 +9823,19 @@ static inline void arm_dcache_flush(void *addr, uint32_t size)
 
 // Delete data from the cache, without touching memory
 //
+// WARNING: This function is DANGEROUS!!  The address must be
+// 32 byte aligned and the size must be a multiple of 32 bytes.
+//
+// DO NOT USE this function with arbitrarily aligned data,
+// especially pointers from malloc() or C++ new.  The ARM cache
+// can only delete with granularity of 32 byte cache rows.  If
+// you attempt to delete improperly aligned data, any other
+// cached variables shared within the same 32 byte cache row(s)
+// will become collateral damage!
+//
+// See this forum thread for more detail:
+// https://forum.pjrc.com/threads/68100-BUG-in-arm_dcache_delete
+//
 // Normally arm_dcache_delete() is used before receiving data via
 // DMA or from bus-master peripherals which write to memory.  You
 // want to delete anything the cache may have stored, so your next
