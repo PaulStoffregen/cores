@@ -684,7 +684,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         4
   #define NUM_INTERFACE		2
-  #define MTP_INTERFACE		0	// MTP Disk
+  #define MTP_INTERFACE		1	// MTP Disk
   #define MTP_TX_ENDPOINT	3
   #define MTP_TX_SIZE_12	64
   #define MTP_TX_SIZE_480	512
@@ -695,7 +695,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define MTP_EVENT_SIZE	32
   #define MTP_EVENT_INTERVAL_12	10	// 10 = 10 ms
   #define MTP_EVENT_INTERVAL_480 7	// 7 = 8 ms
-  #define SEREMU_INTERFACE      1	// Serial emulation
+  #define SEREMU_INTERFACE      0	// Serial emulation
   #define SEREMU_TX_ENDPOINT    2
   #define SEREMU_TX_SIZE        64
   #define SEREMU_TX_INTERVAL    1
