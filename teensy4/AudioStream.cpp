@@ -989,6 +989,7 @@ SFSH();
 // input and output based on interrupts, must check this variable in
 // their constructors.
 bool AudioStream::update_scheduled = false;
+bool AudioStream::allClansActive = false;
 
 bool AudioStream::update_setup(void)
 {
@@ -1021,24 +1022,37 @@ void AudioStream::update_stop(void)
 
 AudioStream * AudioStream::first_update = NULL;
 
+inline void AudioStream::updateOne()
+{
+	uint32_t cycles = ARM_DWT_CYCCNT;
+	update();
+	// TODO: traverse inputQueueArray and release
+	// any input blocks that weren't consumed?
+	cycles = (ARM_DWT_CYCCNT - cycles) >> 6;
+	cpu_cycles = cycles;
+	if (cycles > cpu_cycles_max) cpu_cycles_max = cycles;
+}
 
 void software_isr(void) // AudioStream::update_all()
 {
-	AudioStream *p;
+	AudioStream *p, *pC;
 
 	uint32_t totalcycles = ARM_DWT_CYCCNT;
 	//digitalWriteFast(2, HIGH);
 	for (p = AudioStream::first_update; p; p = p->next_update) {
 		if (p->active) {
-			uint32_t cycles = ARM_DWT_CYCCNT;
-			p->update();
-			// TODO: traverse inputQueueArray and release
-			// any input blocks that weren't consumed?
-			cycles = (ARM_DWT_CYCCNT - cycles) >> 6;
-			p->cpu_cycles = cycles;
-			if (cycles > p->cpu_cycles_max) p->cpu_cycles_max = cycles;
+			p->updateOne();
 		}
 	}
+	for (pC = AudioStream::first_clan; pC; pC= pC->next_clan)
+	{
+		if (pC->clanActive || AudioStream::allClansActive)
+		{
+			for (p = pC; p; p = p->next_update) 
+				p->updateOne();
+		}
+	}
+		
 	//digitalWriteFast(2, LOW);
 	totalcycles = (ARM_DWT_CYCCNT - totalcycles) >> 6;
 	AudioStream::cpu_cycles_total = totalcycles;

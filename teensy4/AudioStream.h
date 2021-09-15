@@ -190,6 +190,10 @@ public:
 	float processorUsageMax(void) { return CYCLE_COUNTER_APPROX_PERCENT(cpu_cycles_max); }
 	void processorUsageMaxReset(void) { cpu_cycles_max = cpu_cycles; }
 	bool isActive(void) { return active; }
+	bool isClanActive(void) { return clan_head->clanActive; }
+	bool areAllClansActive(void) { return allClansActive; }
+	void setClanActive(bool state) { clan_head->clanActive = state; }	
+	static void setAllClansActive(bool state) { allClansActive = state; }	
 	uint16_t cpu_cycles;
 	uint16_t cpu_cycles_max;
 	static uint16_t cpu_cycles_total;
@@ -199,6 +203,8 @@ public:
 protected:
 	static bool serialStarted;
 	bool active;
+	bool clanActive;
+	static bool allClansActive;
 	unsigned char num_inputs;
 	static audio_block_t * allocate(void);
 	static void release(audio_block_t * block, bool enableIRQ = true);
@@ -219,6 +225,7 @@ private:
 	audio_block_t **inputQueue;
 	static bool update_scheduled;
 	static int simples;
+	inline void updateOne(void);
 	virtual void update(void) = 0;
 	void linkIntoUpdateList(const AudioConnection* pC);
 	
