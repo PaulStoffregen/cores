@@ -170,10 +170,26 @@ void HardwareSerial::begin(uint32_t baud, uint16_t format)
 	attachInterruptVector(hardware->irq, hardware->irq_handler);
 	NVIC_SET_PRIORITY(hardware->irq, hardware->irq_priority);	// maybe should put into hardware...
 	NVIC_ENABLE_IRQ(hardware->irq);
-	uint16_t tx_fifo_size = (((port->FIFO >> 4) & 0x7) << 2);
-	uint8_t tx_water = (tx_fifo_size < 16) ? tx_fifo_size >> 1 : 7;
-	uint16_t rx_fifo_size = (((port->FIFO >> 0) & 0x7) << 2);
-	uint8_t rx_water = (rx_fifo_size < 16) ? rx_fifo_size >> 1 : 7;
+
+	// FIFO size
+	// According to IMXRT1060RM_rev2.pdf, page 2875, Section 49.4.1.12.3 Diagram,
+	// both TXFIFOSIZE and RXFIFOSIZE are fixed at 4 (register value == 1)
+	uint16_t tx_fifo_size = 4;
+	uint8_t tx_water = 2;
+	uint16_t rx_fifo_size = 4;
+	uint8_t rx_water = 2;
+	// Original FIFO size calculation:
+	// uint16_t tx_fifo_size = (1 << (((port->FIFO >> 4) & 0x7) + 1));
+	// if (tx_fifo_size == 2) {  // The only case that doesn't fit the pattern
+	// 	tx_fifo_size = 1;
+	// }
+	// uint8_t tx_water = (tx_fifo_size < 16) ? tx_fifo_size >> 1 : 7;
+	// uint16_t rx_fifo_size = (1 << (((port->FIFO >> 0) & 0x7) + 1));
+	// if (rx_fifo_size == 2) {  // The only case that doesn't fit the pattern
+	// 	rx_fifo_size = 1;
+	// }
+	// uint8_t rx_water = (rx_fifo_size < 16) ? rx_fifo_size >> 1 : 7;
+
 	/*
 	Serial.printf("SerialX::begin stat:%x ctrl:%x fifo:%x water:%x\n", port->STAT, port->CTRL, port->FIFO, port->WATER );
 	Serial.printf("  FIFO sizes: tx:%d rx:%d\n",tx_fifo_size, rx_fifo_size);	
