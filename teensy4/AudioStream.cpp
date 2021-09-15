@@ -989,7 +989,7 @@ SFSH();
 // input and output based on interrupts, must check this variable in
 // their constructors.
 bool AudioStream::update_scheduled = false;
-bool AudioStream::allClansActive = false;
+bool AudioStream::allClansActive = true;
 
 bool AudioStream::update_setup(void)
 {
