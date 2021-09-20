@@ -53,8 +53,10 @@ SECTIONS
 	} > ITCM  AT> FLASH
 
 	.data : {
+		*(.endpoint_queue)   
 		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
 		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(.data*)))
+		KEEP(*(.vectorsram))
 	} > DTCM  AT> FLASH
 
 	.bss ALIGN(4) : {
