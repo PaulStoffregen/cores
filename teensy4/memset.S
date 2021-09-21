@@ -22,7 +22,7 @@
  */
 //#include <asm.h>
 //#include <arch/arm/cores.h>
-#if defined (__OPTIMIZE_SIZE__)
+#if (__GNUC__ >= 10) || defined (__OPTIMIZE_SIZE__)
 #if defined (__ARM_ARCH_7M__) || defined (__ARM_ARCH_7EM__)
 .global	memset
 .text
