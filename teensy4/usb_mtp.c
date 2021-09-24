@@ -69,7 +69,7 @@ void usb_mtp_configure(void)
 	} else {
 		tx_packet_size = MTP_TX_SIZE_12;
 		rx_packet_size = MTP_RX_SIZE_12;
-    }
+	}
 	memset(tx_transfer, 0, sizeof(tx_transfer));
 	memset(rx_transfer, 0, sizeof(rx_transfer));
 	tx_head = 0;
@@ -77,6 +77,7 @@ void usb_mtp_configure(void)
 	rx_tail = 0;
 	usb_config_tx(MTP_TX_ENDPOINT, tx_packet_size, 0, NULL);
 	usb_config_rx(MTP_RX_ENDPOINT, rx_packet_size, 0, rx_event);
+	usb_config_tx(MTP_EVENT_ENDPOINT, MTP_EVENT_SIZE, 0, NULL);
 	int i;
 	for (i=0; i < RX_NUM; i++) rx_queue_transfer(i);
 }
