@@ -52,13 +52,15 @@ SECTIONS
 	} > ITCM  AT> FLASH
 
 	.data : {
-		*(.rodata*)
-		*(.data*)
+    		*(.endpoint_queue)    
+		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
+		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(.data*)))
+    		KEEP(*(.vectorsram))	
 	} > DTCM  AT> FLASH
 
 	.bss ALIGN(4) : {
-		*(.bss*)
-		*(COMMON)
+		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(.bss*)))
+		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(COMMON)))
 		. = ALIGN(32);
 		. = . + 32; /* MPU to trap stack overflow */
 	} > DTCM

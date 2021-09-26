@@ -21,7 +21,7 @@ extern unsigned long _estack;
 extern unsigned long _extram_start;
 extern unsigned long _extram_end;
 
-__attribute__ ((used, aligned(1024)))
+__attribute__ ((used, aligned(1024), section(".vectorsram")))
 void (* volatile _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
 
 static void memory_copy(uint32_t *dest, const uint32_t *src, uint32_t *dest_end);
