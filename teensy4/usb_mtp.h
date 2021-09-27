@@ -44,6 +44,9 @@ void usb_mtp_configure(void);
 int usb_mtp_recv(void *buffer, uint32_t timeout);
 int usb_mtp_available(void);
 int usb_mtp_send(const void *buffer, uint32_t len, uint32_t timeout);
+
+extern uint32_t mtp_txEventCount;
+
 #ifdef __cplusplus
 }
 #endif
@@ -57,6 +60,8 @@ public:
 	int available(void) {return usb_mtp_available(); }
 	int recv(void *buffer, uint32_t timeout) { return usb_mtp_recv(buffer, timeout); }
 	int send(const void *buffer, uint32_t len, uint32_t timeout) { return usb_mtp_send(buffer, len, timeout); }
+
+    uint32_t txEventCount() { return mtp_txEventCount; }
 };
 
 extern usb_mtp_class mtp;
