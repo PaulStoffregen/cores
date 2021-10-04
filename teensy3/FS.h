@@ -270,6 +270,12 @@ public:
 	virtual bool rmdir(const char *filepath) = 0;
 	virtual uint64_t usedSize() = 0;
 	virtual uint64_t totalSize() = 0;
+	virtual bool format(int type=0, char progressChar=0, Print& pr=Serial) {
+		return false;
+	}
+	virtual bool mediaPresent() {
+		return true;
+	}
 	// for compatibility with String input
 	File open(const String &filepath, uint8_t mode = FILE_READ) {
 		return open(filepath.c_str(), mode);
