@@ -270,6 +270,31 @@ public:
 	virtual bool rmdir(const char *filepath) = 0;
 	virtual uint64_t usedSize() = 0;
 	virtual uint64_t totalSize() = 0;
+	// for compatibility with String input
+	File open(const String &filepath, uint8_t mode = FILE_READ) {
+		return open(filepath.c_str(), mode);
+	}
+	bool exists(const String &filepath) {
+		return exists(filepath.c_str());
+	}
+	bool mkdir(const String &filepath) {
+		return mkdir(filepath.c_str());
+	}
+	bool rename(const String &oldfilepath, const char *newfilepath) {
+		return rename(oldfilepath.c_str(), newfilepath);
+	}
+	bool rename(const char *oldfilepath, const String &newfilepath) {
+		return rename(oldfilepath, newfilepath.c_str());
+	}
+	bool rename(const String &oldfilepath, const String &newfilepath) {
+		return rename(oldfilepath.c_str(), newfilepath.c_str());
+	}
+	bool remove(const String &filepath) {
+		return remove(filepath.c_str());
+	}
+	bool rmdir(const String &filepath) {
+		return rmdir(filepath.c_str());
+	}
 };
 
 
