@@ -74,6 +74,10 @@ protected:
 	virtual bool isDirectory() = 0;
 	virtual File openNextFile(uint8_t mode=0) = 0;
 	virtual void rewindDirectory(void) = 0;
+	virtual bool getCreateTime(DateTimeFields &tm) { return false; }
+	virtual bool getModifyTime(DateTimeFields &tm) { return false; }
+	virtual bool setCreateTime(const DateTimeFields &tm) { return false; }
+	virtual bool setModifyTime(const DateTimeFields &tm) { return false; }
 private:
 	friend class File;
 	unsigned int refcount = 0; // number of File instances referencing this FileImpl
@@ -203,6 +207,18 @@ public:
 	void rewindDirectory(void) {
 		if (f) f->rewindDirectory();
 	}
+	bool getCreateTime(DateTimeFields &tm) {
+		return (f) ? f->getCreateTime(tm) : false;
+	}
+	bool getModifyTime(DateTimeFields &tm) {
+		return (f) ? f->getModifyTime(tm) : false;
+	}
+	bool setCreateTime(const DateTimeFields &tm) {
+		return (f) ? f->setCreateTime(tm) : false;
+	}
+	bool setModifyTime(const DateTimeFields &tm) {
+		return (f) ? f->setModifyTime(tm) : false;
+	}
 	bool seek(uint64_t pos) {
 		return seek(pos, SeekSet);
 	}
@@ -254,6 +270,37 @@ public:
 	virtual bool rmdir(const char *filepath) = 0;
 	virtual uint64_t usedSize() = 0;
 	virtual uint64_t totalSize() = 0;
+	virtual bool format(int type=0, char progressChar=0, Print& pr=Serial) {
+		return false;
+	}
+	virtual bool mediaPresent() {
+		return true;
+	}
+	// for compatibility with String input
+	File open(const String &filepath, uint8_t mode = FILE_READ) {
+		return open(filepath.c_str(), mode);
+	}
+	bool exists(const String &filepath) {
+		return exists(filepath.c_str());
+	}
+	bool mkdir(const String &filepath) {
+		return mkdir(filepath.c_str());
+	}
+	bool rename(const String &oldfilepath, const char *newfilepath) {
+		return rename(oldfilepath.c_str(), newfilepath);
+	}
+	bool rename(const char *oldfilepath, const String &newfilepath) {
+		return rename(oldfilepath, newfilepath.c_str());
+	}
+	bool rename(const String &oldfilepath, const String &newfilepath) {
+		return rename(oldfilepath.c_str(), newfilepath.c_str());
+	}
+	bool remove(const String &filepath) {
+		return remove(filepath.c_str());
+	}
+	bool rmdir(const String &filepath) {
+		return rmdir(filepath.c_str());
+	}
 };
 
 
