@@ -2128,7 +2128,13 @@ typedef struct {
 #define DMA_CINT_CAIR                   ((uint8_t)1<<6)         // Clear All Interrupt Requests
 #define DMA_CINT_NOP                    ((uint8_t)1<<7)         // NOP
 
-#define IMXRT_DMA_TCD		((IMXRT_DMA_TCD_t *)(IMXRT_DMA_ADDRESS+0x1000)
+// Normally these Transfer Control Descriptor (TCD) registers are accessed through
+// DMAChannel instances.  See DMAChannel.h for details.  Or refer to libraries which
+// use DMA (OctoWS2811, Audio, WS2812Serial, SmartMatrix, ILI9341_t3n, etc).
+// When you access TCD registers directly, you must edit all DMA-using code to
+// assure no conflicts among which of the 32 TCDs are used.  DMAChannel allocates
+// channels automatically, to avoid TCD usage conflicts.
+#define IMXRT_DMA_TCD		((IMXRT_DMA_TCD_t *)(IMXRT_DMA_ADDRESS+0x1000))
 #define DMA_TCD0_SADDR			(IMXRT_DMA_TCD[0].SADDR)
 #define DMA_TCD0_SOFF			(IMXRT_DMA_TCD[0].SOFF)
 #define DMA_TCD0_ATTR			(IMXRT_DMA_TCD[0].ATTR)
