@@ -979,6 +979,7 @@ typedef struct {
 
 // 65.3: page 3302
 #define IMXRT_CMP1		(*(IMXRT_REGISTER8_t *)IMXRT_CMP1_ADDRESS)
+// CMP1 requires CCM_CCGR3_ACMP1
 #define CMP1_CR0			(IMXRT_CMP1.offset00)
 #define CMP1_CR1			(IMXRT_CMP1.offset01)
 #define CMP1_FPR			(IMXRT_CMP1.offset02)
@@ -986,6 +987,7 @@ typedef struct {
 #define CMP1_DACCR			(IMXRT_CMP1.offset04)
 #define CMP1_MUXCR			(IMXRT_CMP1.offset05)
 #define IMXRT_CMP2		(*(IMXRT_REGISTER8_t *)IMXRT_CMP2_ADDRESS)
+// CMP2 requires CCM_CCGR3_ACMP2
 #define CMP2_CR0			(IMXRT_CMP2.offset00)
 #define CMP2_CR1			(IMXRT_CMP2.offset01)
 #define CMP2_FPR			(IMXRT_CMP2.offset02)
@@ -993,6 +995,7 @@ typedef struct {
 #define CMP2_DACCR			(IMXRT_CMP2.offset04)
 #define CMP2_MUXCR			(IMXRT_CMP2.offset05)
 #define IMXRT_CMP3		(*(IMXRT_REGISTER8_t *)IMXRT_CMP3_ADDRESS)
+// CMP3 requires CCM_CCGR3_ACMP3
 #define CMP3_CR0			(IMXRT_CMP3.offset00)
 #define CMP3_CR1			(IMXRT_CMP3.offset01)
 #define CMP3_FPR			(IMXRT_CMP3.offset02)
@@ -1000,6 +1003,7 @@ typedef struct {
 #define CMP3_DACCR			(IMXRT_CMP3.offset04)
 #define CMP3_MUXCR			(IMXRT_CMP3.offset05)
 #define IMXRT_CMP4		(*(IMXRT_REGISTER8_t *)IMXRT_CMP4_ADDRESS)
+// CMP4 requires CCM_CCGR3_ACMP4
 #define CMP4_CR0			(IMXRT_CMP4.offset00)
 #define CMP4_CR1			(IMXRT_CMP4.offset01)
 #define CMP4_FPR			(IMXRT_CMP4.offset02)
@@ -1037,6 +1041,7 @@ typedef struct {
 
 #define IMXRT_ADC1                  (*(IMXRT_ADCS_t *)IMXRT_ADC1_ADDRESS)
 #define IMXRT_ADC1S                 (*(IMXRT_ADCS_t *)IMXRT_ADC1_ADDRESS)
+// ADC1 requires CCM_CCGR1_ADC1
 #define ADC1_HC0			(IMXRT_ADC1.HC0)
 #define ADC1_HC1			(IMXRT_ADC1.HC1)
 #define ADC1_HC2			(IMXRT_ADC1.HC2)
@@ -1062,6 +1067,7 @@ typedef struct {
 #define ADC1_CAL			(IMXRT_ADC1.CAL)
 #define IMXRT_ADC2                 (*(IMXRT_ADCS_t *)IMXRT_ADC2_ADDRESS)
 #define IMXRT_ADC2S                (*(IMXRT_ADCS_t *)IMXRT_ADC2_ADDRESS)
+// ADC2 requires CCM_CCGR1_ADC2
 #define ADC2_HC0			(IMXRT_ADC2.HC0)
 #define ADC2_HC1			(IMXRT_ADC2.HC1)
 #define ADC2_HC2			(IMXRT_ADC2.HC2)
@@ -1296,6 +1302,7 @@ typedef struct {
 
 // 63.4: page 3287
 #define IMXRT_AOI1		(*(IMXRT_REGISTER16_t *)IMXRT_AOI1_ADDRESS)
+// AOI1 requires CCM_CCGR3_AOI1
 #define AOI1_BFCRT010			(IMXRT_AOI1.offset000)
 #define AOI1_BFCRT230			(IMXRT_AOI1.offset002)
 #define AOI1_BFCRT011			(IMXRT_AOI1.offset004)
@@ -1305,6 +1312,7 @@ typedef struct {
 #define AOI1_BFCRT013			(IMXRT_AOI1.offset00C)
 #define AOI1_BFCRT233			(IMXRT_AOI1.offset00E)
 #define IMXRT_AOI2		(*(IMXRT_REGISTER16_t *)IMXRT_AOI2_ADDRESS)
+// AOI2 requires CCM_CCGR1_AOI2
 #define AOI2_BFCRT010			(IMXRT_AOI2.offset000)
 #define AOI2_BFCRT230			(IMXRT_AOI2.offset002)
 #define AOI2_BFCRT011			(IMXRT_AOI2.offset004)
@@ -1479,6 +1487,7 @@ typedef struct {
 #define CCM_CCGR0_MQS_HMCLK(n)			((uint32_t)(((n) & 0x03) << 4))
 #define CCM_CCGR0_AIPS_TZ2(n)			((uint32_t)(((n) & 0x03) << 2))
 #define CCM_CCGR0_AIPS_TZ1(n)			((uint32_t)(((n) & 0x03) << 0))
+#define CCM_CCGR1_GPIO5(n)			((uint32_t)(((n) & 0x03) << 30))
 #define CCM_CCGR1_CSU(n)			((uint32_t)(((n) & 0x03) << 28))
 #define CCM_CCGR1_GPIO1(n)			((uint32_t)(((n) & 0x03) << 26))
 #define CCM_CCGR1_LPUART4(n)			((uint32_t)(((n) & 0x03) << 24))
@@ -1503,7 +1512,7 @@ typedef struct {
 #define CCM_CCGR2_IPMUX2(n)			((uint32_t)(((n) & 0x03) << 18))
 #define CCM_CCGR2_IPMUX1(n)			((uint32_t)(((n) & 0x03) << 16))
 #define CCM_CCGR2_XBAR3(n)			((uint32_t)(((n) & 0x03) << 14))
-#define CCM_CCGR2_IIM(n)			((uint32_t)(((n) & 0x03) << 12))
+#define CCM_CCGR2_OCOTP_CTRL(n)			((uint32_t)(((n) & 0x03) << 12))
 #define CCM_CCGR2_LPI2C3(n)			((uint32_t)(((n) & 0x03) << 10))
 #define CCM_CCGR2_LPI2C2(n)			((uint32_t)(((n) & 0x03) << 8))
 #define CCM_CCGR2_LPI2C1(n)			((uint32_t)(((n) & 0x03) << 6))
@@ -1753,6 +1762,7 @@ typedef struct {
 
 // 34.8: page 1818
 #define IMXRT_CSI		(*(IMXRT_REGISTER32_t *)IMXRT_CSI_ADDRESS)
+// CSI requires CCM_CCGR2_CSI
 #define CSI_CSICR1			(IMXRT_CSI.offset000)
 #define CSI_CSICR2			(IMXRT_CSI.offset004)
 #define CSI_CSICR3			(IMXRT_CSI.offset008)
@@ -1864,6 +1874,7 @@ typedef struct {
 
 // 18.7.1.1: page 1209
 #define IMXRT_DCDC		(*(IMXRT_REGISTER32_t *)IMXRT_DCDC_ADDRESS)
+// access to DCDC requires CCM_CCGR6_DCDC
 #define DCDC_REG0			(IMXRT_DCDC.offset000)
 #define DCDC_REG1			(IMXRT_DCDC.offset004)
 #define DCDC_REG2			(IMXRT_DCDC.offset008)
@@ -2042,6 +2053,7 @@ typedef struct {
 	};
 } IMXRT_DMA_TCD_t;
 #define IMXRT_DMA		(*(IMXRT_DMA_t *)IMXRT_DMA_ADDRESS)
+// DMA requires CCM_CCGR5_DMA (but normally DMAChannel.h is used to access DMA)
 #define DMA_CR				(IMXRT_DMA.CR)
 #define DMA_ES				(IMXRT_DMA.ES)
 #define DMA_ERQ				(IMXRT_DMA.ERQ)
@@ -2812,6 +2824,7 @@ typedef struct {
 
 
 #define IMXRT_ENC1		(*(IMXRT_ENC_t *)IMXRT_ENC1_ADDRESS)
+// ENC1 requires CCM_CCGR4_ENC1
 #define ENC1_CTRL			(IMXRT_ENC1.CTRL)
 #define ENC1_FILT			(IMXRT_ENC1.FILT)
 #define ENC1_WTR			(IMXRT_ENC1.WTR)
@@ -2833,6 +2846,7 @@ typedef struct {
 #define ENC1_UCOMP			(IMXRT_ENC1.UCOMP)
 #define ENC1_LCOMP			(IMXRT_ENC1.LCOMP)
 #define IMXRT_ENC2		(*(IMXRT_ENC_t *)IMXRT_ENC2_ADDRESS)
+// ENC2 requires CCM_CCGR4_ENC2
 #define ENC2_CTRL			(IMXRT_ENC2.CTRL)
 #define ENC2_FILT			(IMXRT_ENC2.FILT)
 #define ENC2_WTR			(IMXRT_ENC2.WTR)
@@ -2854,6 +2868,7 @@ typedef struct {
 #define ENC2_UCOMP			(IMXRT_ENC2.UCOMP)
 #define ENC2_LCOMP			(IMXRT_ENC2.LCOMP)
 #define IMXRT_ENC3		(*(IMXRT_ENC_t *)IMXRT_ENC3_ADDRESS)
+// ENC3 requires CCM_CCGR4_ENC3
 #define ENC3_CTRL			(IMXRT_ENC3.CTRL)
 #define ENC3_FILT			(IMXRT_ENC3.FILT)
 #define ENC3_WTR			(IMXRT_ENC3.WTR)
@@ -2875,6 +2890,7 @@ typedef struct {
 #define ENC3_UCOMP			(IMXRT_ENC3.UCOMP)
 #define ENC3_LCOMP			(IMXRT_ENC3.LCOMP)
 #define IMXRT_ENC4		(*(IMXRT_ENC_t *)IMXRT_ENC4_ADDRESS)
+// ENC4 requires CCM_CCGR4_ENC4
 #define ENC4_CTRL			(IMXRT_ENC4.CTRL)
 #define ENC4_FILT			(IMXRT_ENC4.FILT)
 #define ENC4_WTR			(IMXRT_ENC4.WTR)
@@ -2899,6 +2915,7 @@ typedef struct {
 // 41.6: page 2068
 #define IMXRT_ENET		(*(IMXRT_REGISTER32_t *)IMXRT_ENET_ADDRESS)
 #define IMXRT_ENET_TIMER	(*(IMXRT_REGISTER32_t *)(IMXRT_ENET_ADDRESS+0x400))
+// ENET requires CCM_CCGR1_ENET
 #define ENET_EIR			(IMXRT_ENET.offset004)
 #define ENET_EIMR			(IMXRT_ENET.offset008)
 #define ENET_RDAR			(IMXRT_ENET.offset010)
@@ -3103,6 +3120,7 @@ typedef struct {
 
 #define IMXRT_ENET2		(*(IMXRT_REGISTER32_t *)IMXRT_ENET2_ADDRESS)
 #define IMXRT_ENET2_TIMER	(*(IMXRT_REGISTER32_t *)(IMXRT_ENET2_ADDRESS+0x400))
+// ENET2 requires CCM_CCGR7_ENET2
 #define ENET2_EIR			(IMXRT_ENET2.offset004)
 #define ENET2_EIMR			(IMXRT_ENET2.offset008)
 #define ENET2_RDAR			(IMXRT_ENET2.offset010)
@@ -3210,6 +3228,7 @@ typedef struct {
 
 // 59.6.1.1: page 3221
 #define IMXRT_EWM		(*(IMXRT_REGISTER8_t *)IMXRT_EWM_ADDRESS)
+// EWM requires CCM_CCGR3_EWM
 #define EWM_CTRL			(IMXRT_EWM.offset00)
 #define EWM_SERV			(IMXRT_EWM.offset01)
 #define EWM_CMPL			(IMXRT_EWM.offset02)
@@ -3220,6 +3239,7 @@ typedef struct {
 // 44.9: page 2555
 #define IMXRT_FLEXCAN1		(*(IMXRT_REGISTER32_t *)IMXRT_FLEXCAN1_ADDRESS)
 #define IMXRT_FLEXCAN1_MASK	(*(IMXRT_REGISTER32_t *)(IMXRT_FLEXCAN1_ADDRESS+0x800))
+// FLEXCAN1 requires CCM_CCGR0_CAN1 and CCM_CCGR0_CAN1_SERIAL
 #define FLEXCAN1_MCR			(IMXRT_FLEXCAN1.offset000)
 #define FLEXCAN1_CTRL1			(IMXRT_FLEXCAN1.offset004)
 #define FLEXCAN1_TIMER			(IMXRT_FLEXCAN1.offset008)
@@ -3304,6 +3324,7 @@ typedef struct {
 #define FLEXCAN1_GFWR			(IMXRT_FLEXCAN1_MASK.offset1E0)
 #define IMXRT_FLEXCAN2		(*(IMXRT_REGISTER32_t *)IMXRT_FLEXCAN2_ADDRESS)
 #define IMXRT_FLEXCAN2_MASK	(*(IMXRT_REGISTER32_t *)(IMXRT_FLEXCAN2_ADDRESS+0x800))
+// FLEXCAN2 requires CCM_CCGR0_CAN2 and CCM_CCGR0_CAN2_SERIAL
 #define FLEXCAN2_MCR			(IMXRT_FLEXCAN2.offset000)
 #define FLEXCAN2_CTRL1			(IMXRT_FLEXCAN2.offset004)
 #define FLEXCAN2_TIMER			(IMXRT_FLEXCAN2.offset008)
@@ -3391,6 +3412,7 @@ typedef struct {
 #define IMXRT_FLEXCAN3_MASK	(*(IMXRT_REGISTER32_t *)(IMXRT_FLEXCAN3_ADDRESS+0x800))
 #define IMXRT_FLEXCAN3_EXT	(*(IMXRT_REGISTER32_t *)(IMXRT_FLEXCAN3_ADDRESS+0xB00))
 #define IMXRT_FLEXCAN3_ERXFIFO	(*(IMXRT_REGISTER32_t *)(IMXRT_FLEXCAN3_ADDRESS+0x3000))
+// FLEXCAN3 requires CCM_CCGR7_CAN3 and CCM_CCGR7_CAN3_SERIAL
 #define FLEXCAN3_MCR			(IMXRT_FLEXCAN3.offset000)
 #define FLEXCAN3_CTRL1			(IMXRT_FLEXCAN3.offset004)
 #define FLEXCAN3_TIMER			(IMXRT_FLEXCAN3.offset008)
@@ -3726,6 +3748,7 @@ typedef struct {
 
 #define IMXRT_FLEXIO1		(*(IMXRT_REGISTER32_t *)IMXRT_FLEXIO1_ADDRESS)
 #define IMXRT_FLEXIO1_b		(*(IMXRT_REGISTER32_t *)(IMXRT_FLEXIO1_ADDRESS+0x400))
+// FLEXIO1 requires CCM_CCGR5_FLEXIO1
 #define FLEXIO1_VERID			(IMXRT_FLEXIO1.offset000)
 #define FLEXIO1_PARAM			(IMXRT_FLEXIO1.offset004)
 #define FLEXIO1_CTRL			(IMXRT_FLEXIO1.offset008)
@@ -3836,6 +3859,7 @@ typedef struct {
 #define FLEXIO1_SHIFTBUFNIS7		(IMXRT_FLEXIO1_b.offset39C)
 #define IMXRT_FLEXIO2		(*(IMXRT_REGISTER32_t *)IMXRT_FLEXIO2_ADDRESS)
 #define IMXRT_FLEXIO2_b		(*(IMXRT_REGISTER32_t *)(IMXRT_FLEXIO2_ADDRESS+0x400))
+// FLEXIO2 requires CCM_CCGR3_FLEXIO2
 #define FLEXIO2_VERID			(IMXRT_FLEXIO2.offset000)
 #define FLEXIO2_PARAM			(IMXRT_FLEXIO2.offset004)
 #define FLEXIO2_CTRL			(IMXRT_FLEXIO2.offset008)
@@ -3947,6 +3971,7 @@ typedef struct {
 // FLEXIO3 only present in RT1062
 #define IMXRT_FLEXIO3		(*(IMXRT_REGISTER32_t *)IMXRT_FLEXIO3_ADDRESS)
 #define IMXRT_FLEXIO3_b		(*(IMXRT_REGISTER32_t *)(IMXRT_FLEXIO3_ADDRESS+0x400))
+// FLEXIO3 requires CCM_CCGR7_FLEXIO3
 #define FLEXIO3_VERID			(IMXRT_FLEXIO3.offset000)
 #define FLEXIO3_PARAM			(IMXRT_FLEXIO3.offset004)
 #define FLEXIO3_CTRL			(IMXRT_FLEXIO3.offset008)
@@ -4153,6 +4178,7 @@ typedef struct {
 #define IMXRT_FLEXPWM2		(*(IMXRT_FLEXPWM_t *)IMXRT_FLEXPWM2_ADDRESS)
 #define IMXRT_FLEXPWM3		(*(IMXRT_FLEXPWM_t *)IMXRT_FLEXPWM3_ADDRESS)
 #define IMXRT_FLEXPWM4		(*(IMXRT_FLEXPWM_t *)IMXRT_FLEXPWM4_ADDRESS)
+// FLEXPWM1 requires CCM_CCGR4_PWM1
 #define FLEXPWM1_SM0CNT			(IMXRT_FLEXPWM1.SM[0].CNT)
 #define FLEXPWM1_SM0INIT		(IMXRT_FLEXPWM1.SM[0].INIT)
 #define FLEXPWM1_SM0CTRL2		(IMXRT_FLEXPWM1.SM[0].CTRL2)
@@ -4336,6 +4362,7 @@ typedef struct {
 #define FLEXPWM1_FFILT0			(IMXRT_FLEXPWM1.FFILT0)
 #define FLEXPWM1_FTST0			(IMXRT_FLEXPWM1.FTST0)
 #define FLEXPWM1_FCTRL20		(IMXRT_FLEXPWM1.FCTRL20)
+// FLEXPWM2 requires CCM_CCGR4_PWM2
 #define FLEXPWM2_SM0CNT			(IMXRT_FLEXPWM2.SM[0].CNT)
 #define FLEXPWM2_SM0INIT		(IMXRT_FLEXPWM2.SM[0].INIT)
 #define FLEXPWM2_SM0CTRL2		(IMXRT_FLEXPWM2.SM[0].CTRL2)
@@ -4519,6 +4546,7 @@ typedef struct {
 #define FLEXPWM2_FFILT0			(IMXRT_FLEXPWM2.FFILT0)
 #define FLEXPWM2_FTST0			(IMXRT_FLEXPWM2.FTST0)
 #define FLEXPWM2_FCTRL20		(IMXRT_FLEXPWM2.FCTRL20)
+// FLEXPWM3 requires CCM_CCGR4_PWM3
 #define FLEXPWM3_SM0CNT			(IMXRT_FLEXPWM3.SM[0].CNT)
 #define FLEXPWM3_SM0INIT		(IMXRT_FLEXPWM3.SM[0].INIT)
 #define FLEXPWM3_SM0CTRL2		(IMXRT_FLEXPWM3.SM[0].CTRL2)
@@ -4702,6 +4730,7 @@ typedef struct {
 #define FLEXPWM3_FFILT0			(IMXRT_FLEXPWM3.FFILT0)
 #define FLEXPWM3_FTST0			(IMXRT_FLEXPWM3.FTST0)
 #define FLEXPWM3_FCTRL20		(IMXRT_FLEXPWM3.FCTRL20)
+// FLEXPWM4 requires CCM_CCGR4_PWM4
 #define FLEXPWM4_SM0CNT			(IMXRT_FLEXPWM4.SM[0].CNT)
 #define FLEXPWM4_SM0INIT		(IMXRT_FLEXPWM4.SM[0].INIT)
 #define FLEXPWM4_SM0CTRL2		(IMXRT_FLEXPWM4.SM[0].CTRL2)
@@ -5056,6 +5085,7 @@ typedef struct {
 
 // 27.7.2.1: page 1695
 #define IMXRT_FLEXSPI		(*(IMXRT_REGISTER32_t *)IMXRT_FLEXSPI_ADDRESS)
+// FLEXSPI requires CCM_CCGR6_FLEXSPI
 #define FLEXSPI_MCR0			(IMXRT_FLEXSPI.offset000)
 #define FLEXSPI_MCR0_AHBGRANTWAIT(n)		((uint32_t)(((n) & 0xFF) << 24))
 #define FLEXSPI_MCR0_AHBGRANTWAIT_MASK		((uint32_t)(0xFF << 24))
@@ -5384,6 +5414,7 @@ typedef struct {
 #define FLEXSPI_LUT_NUM_PADS_8			0x03
 
 #define IMXRT_FLEXSPI2		(*(IMXRT_REGISTER32_t *)IMXRT_FLEXSPI2_ADDRESS)
+// FLEXSPI2 requires CCM_CCGR7_FLEXSPI2
 #define FLEXSPI2_MCR0			(IMXRT_FLEXSPI2.offset000)
 #define FLEXSPI2_MCR1			(IMXRT_FLEXSPI2.offset004)
 #define FLEXSPI2_MCR2			(IMXRT_FLEXSPI2.offset008)
@@ -5607,6 +5638,8 @@ typedef struct {
 } IMXRT_GPIO_t;
 
 #define IMXRT_GPIO1		(*(IMXRT_GPIO_t *)IMXRT_GPIO1_ADDRESS)
+// GPIO1 requires CCM_CCGR1_GPIO1
+// on Teensy 4.0-4.1, GPIO6 is used for non-DMA access to GPIO1 pins
 #define GPIO1_DR			(IMXRT_GPIO1.DR)
 #define GPIO1_GDIR			(IMXRT_GPIO1.GDIR)
 #define GPIO1_PSR			(IMXRT_GPIO1.PSR)
@@ -5619,6 +5652,8 @@ typedef struct {
 #define GPIO1_DR_CLEAR			(IMXRT_GPIO1.DR_CLEAR)
 #define GPIO1_DR_TOGGLE			(IMXRT_GPIO1.DR_TOGGLE)
 #define IMXRT_GPIO2		(*(IMXRT_GPIO_t *)IMXRT_GPIO2_ADDRESS)
+// GPIO2 requires CCM_CCGR0_GPIO2
+// on Teensy 4.0-4.1, GPIO7 is used for non-DMA access to GPIO2 pins
 #define GPIO2_DR			(IMXRT_GPIO2.DR)
 #define GPIO2_GDIR			(IMXRT_GPIO2.GDIR)
 #define GPIO2_PSR			(IMXRT_GPIO2.PSR)
@@ -5631,6 +5666,8 @@ typedef struct {
 #define GPIO2_DR_CLEAR			(IMXRT_GPIO2.DR_CLEAR)
 #define GPIO2_DR_TOGGLE			(IMXRT_GPIO2.DR_TOGGLE)
 #define IMXRT_GPIO3		(*(IMXRT_GPIO_t *)IMXRT_GPIO3_ADDRESS)
+// GPIO3 requires CCM_CCGR2_GPIO3
+// on Teensy 4.0-4.1, GPIO8 is used for non-DMA access to GPIO3 pins
 #define GPIO3_DR			(IMXRT_GPIO3.DR)
 #define GPIO3_GDIR			(IMXRT_GPIO3.GDIR)
 #define GPIO3_PSR			(IMXRT_GPIO3.PSR)
@@ -5643,6 +5680,8 @@ typedef struct {
 #define GPIO3_DR_CLEAR			(IMXRT_GPIO3.DR_CLEAR)
 #define GPIO3_DR_TOGGLE			(IMXRT_GPIO3.DR_TOGGLE)
 #define IMXRT_GPIO4		(*(IMXRT_GPIO_t *)IMXRT_GPIO4_ADDRESS)
+// GPIO4 requires CCM_CCGR3_GPIO4
+// on Teensy 4.0-4.1, GPIO9 is used for non-DMA access to GPIO4 pins
 #define GPIO4_DR			(IMXRT_GPIO4.DR)
 #define GPIO4_GDIR			(IMXRT_GPIO4.GDIR)
 #define GPIO4_PSR			(IMXRT_GPIO4.PSR)
@@ -5655,6 +5694,7 @@ typedef struct {
 #define GPIO4_DR_CLEAR			(IMXRT_GPIO4.DR_CLEAR)
 #define GPIO4_DR_TOGGLE			(IMXRT_GPIO4.DR_TOGGLE)
 #define IMXRT_GPIO5		(*(IMXRT_GPIO_t *)IMXRT_GPIO5_ADDRESS)
+// GPIO5 requires CCM_CCGR1_GPIO5
 #define GPIO5_DR			(IMXRT_GPIO5.DR)
 #define GPIO5_GDIR			(IMXRT_GPIO5.GDIR)
 #define GPIO5_PSR			(IMXRT_GPIO5.PSR)
@@ -5717,6 +5757,7 @@ typedef struct {
 
 // 52.7: page 2957
 #define IMXRT_GPT1		(*(IMXRT_REGISTER32_t *)IMXRT_GPT1_ADDRESS)
+// GPT1 requires CCM_CCGR1_GPT1_BUS and CCM_CCGR1_GPT1_SERIAL
 #define GPT1_CR				(IMXRT_GPT1.offset000)
 #define GPT1_PR				(IMXRT_GPT1.offset004)
 #define GPT1_SR				(IMXRT_GPT1.offset008)
@@ -5728,6 +5769,7 @@ typedef struct {
 #define GPT1_ICR2			(IMXRT_GPT1.offset020)
 #define GPT1_CNT			(IMXRT_GPT1.offset024)
 #define IMXRT_GPT2		(*(IMXRT_REGISTER32_t *)IMXRT_GPT2_ADDRESS)
+// GPT2 requires CCM_CCGR0_GPT2_BUS and CCM_CCGR0_GPT2_SERIAL
 #define GPT2_CR				(IMXRT_GPT2.offset000)
 #define GPT2_PR				(IMXRT_GPT2.offset004)
 #define GPT2_SR				(IMXRT_GPT2.offset008)
@@ -5773,6 +5815,7 @@ typedef struct {
 
 // 11.4: page 327
 #define IMXRT_IOMUXC_GPR	(*(IMXRT_REGISTER32_t *)IMXRT_IOMUXC_GPR_ADDRESS)
+// IOMUXC GPR registers require CCM_CCGR4_IOMUXC_GPR
 #define IOMUXC_GPR_GPR0			(IMXRT_IOMUXC_GPR.offset000)
 #define IOMUXC_GPR_GPR1			(IMXRT_IOMUXC_GPR.offset004)
 #define IOMUXC_GPR_GPR2			(IMXRT_IOMUXC_GPR.offset008)
@@ -6068,6 +6111,7 @@ typedef struct {
 
 // 11.5: page 380
 #define IMXRT_IOMUXC_SNVS	(*(IMXRT_REGISTER32_t *)IMXRT_IOMUXC_SNVS_ADDRESS)
+// IOMUXC SNVS registers require CCM_CCGR2_IOMUXC_SNVS
 #define IOMUXC_SNVS_SW_MUX_CTL_PAD_WAKEUP		(IMXRT_IOMUXC_SNVS.offset000)
 #define IOMUXC_SNVS_SW_MUX_CTL_PAD_PMIC_ON_REQ		(IMXRT_IOMUXC_SNVS.offset004)
 #define IOMUXC_SNVS_SW_MUX_CTL_PAD_PMIC_STBY_REQ	(IMXRT_IOMUXC_SNVS.offset008)
@@ -6080,6 +6124,7 @@ typedef struct {
 
 // 11.6: page 399
 #define IMXRT_IOMUXC_SNVS_GPR	(*(IMXRT_REGISTER32_t *)IMXRT_IOMUXC_SNVS_GPR_ADDRESS)
+// IOMUXC SNVS GPR registers require CCM_CCGR3_IOMUXC_SNVS_GPR
 #define IOMUXC_SNVS_GPR_GPR0		(IMXRT_IOMUXC_SNVS_GPR.offset000)
 #define IOMUXC_SNVS_GPR_GPR1		(IMXRT_IOMUXC_SNVS_GPR.offset004)
 #define IOMUXC_SNVS_GPR_GPR2		(IMXRT_IOMUXC_SNVS_GPR.offset008)
@@ -6088,6 +6133,7 @@ typedef struct {
 // 11.7: page 403
 #define IMXRT_IOMUXC		(*(IMXRT_REGISTER32_t *)IMXRT_IOMUXC_ADDRESS)
 #define IMXRT_IOMUXC_b		(*(IMXRT_REGISTER32_t *)(IMXRT_IOMUXC_ADDRESS+0x400))
+// IOMUXC normal registers (which control the pins) require CCM_CCGR4_IOMUXC
 #define IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_00	(IMXRT_IOMUXC.offset014)
 #define IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_01	(IMXRT_IOMUXC.offset018)
 #define IOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_02	(IMXRT_IOMUXC.offset01C)
@@ -6578,6 +6624,7 @@ typedef struct {
 
 // 46.7: page 2732
 #define IMXRT_KPP		(*(IMXRT_REGISTER16_t *)IMXRT_KPP_ADDRESS)
+// KPP requires CCM_CCGR5_KPP
 #define KPP_KPCR			(IMXRT_KPP.offset000)
 #define KPP_KPSR			(IMXRT_KPP.offset002)
 #define KPP_KDDR			(IMXRT_KPP.offset004)
@@ -6585,6 +6632,7 @@ typedef struct {
 
 // 35.7: page 1860
 #define IMXRT_LCDIF		(*(IMXRT_REGISTER32_t *)IMXRT_LCDIF_ADDRESS)
+// LCDIF requires CCM_CCGR2_LCD
 #define LCDIF_CTRL			(IMXRT_LCDIF.offset000)
 #define LCDIF_CTRL_SET			(IMXRT_LCDIF.offset004)
 #define LCDIF_CTRL_CLR			(IMXRT_LCDIF.offset008)
@@ -6713,6 +6761,7 @@ typedef struct {
 	volatile uint32_t SRDR;			// 170
 } IMXRT_LPI2C_t;
 #define IMXRT_LPI2C1		(*(IMXRT_LPI2C_t *)IMXRT_LPI2C1_ADDRESS)
+// LPI2C1 requires CCM_CCGR2_LPI2C1
 #define LPI2C1_VERID			(IMXRT_LPI2C1.VERID)
 #define LPI2C1_PARAM			(IMXRT_LPI2C1.PARAM)
 #define LPI2C1_MCR			(IMXRT_LPI2C1.MCR)
@@ -6742,6 +6791,7 @@ typedef struct {
 #define LPI2C1_STDR			(IMXRT_LPI2C1.STDR)
 #define LPI2C1_SRDR			(IMXRT_LPI2C1.SRDR)
 #define IMXRT_LPI2C2		(*(IMXRT_LPI2C_t *)IMXRT_LPI2C2_ADDRESS)
+// LPI2C2 requires CCM_CCGR2_LPI2C2
 #define LPI2C2_VERID			(IMXRT_LPI2C2.VERID)
 #define LPI2C2_PARAM			(IMXRT_LPI2C2.PARAM)
 #define LPI2C2_MCR			(IMXRT_LPI2C2.MCR)
@@ -6771,6 +6821,7 @@ typedef struct {
 #define LPI2C2_STDR			(IMXRT_LPI2C2.STDR)
 #define LPI2C2_SRDR			(IMXRT_LPI2C2.SRDR)
 #define IMXRT_LPI2C3		(*(IMXRT_LPI2C_t *)IMXRT_LPI2C3_ADDRESS)
+// LPI2C3 requires CCM_CCGR2_LPI2C3
 #define LPI2C3_VERID			(IMXRT_LPI2C3.VERID)
 #define LPI2C3_PARAM			(IMXRT_LPI2C3.PARAM)
 #define LPI2C3_MCR			(IMXRT_LPI2C3.MCR)
@@ -6800,6 +6851,7 @@ typedef struct {
 #define LPI2C3_STDR			(IMXRT_LPI2C3.STDR)
 #define LPI2C3_SRDR			(IMXRT_LPI2C3.SRDR)
 #define IMXRT_LPI2C4		(*(IMXRT_LPI2C_t *)IMXRT_LPI2C4_ADDRESS)
+// LPI2C4 requires CCM_CCGR6_LPI2C4_SERIAL
 #define LPI2C4_VERID			(IMXRT_LPI2C4.VERID)
 #define LPI2C4_PARAM			(IMXRT_LPI2C4.PARAM)
 #define LPI2C4_MCR			(IMXRT_LPI2C4.MCR)
@@ -6993,6 +7045,7 @@ typedef struct {
 
 #define IMXRT_LPSPI1		(*(IMXRT_REGISTER32_t *)IMXRT_LPSPI1_ADDRESS)
 #define IMXRT_LPSPI1_S          (*(IMXRT_LPSPI_t *)IMXRT_LPSPI1_ADDRESS)
+// LPSPI1 requires CCM_CCGR1_LPSPI1
 #define LPSPI1_VERID			(IMXRT_LPSPI1.offset000)
 #define LPSPI1_PARAM			(IMXRT_LPSPI1.offset004)
 #define LPSPI1_CR			(IMXRT_LPSPI1.offset010)
@@ -7012,6 +7065,7 @@ typedef struct {
 #define LPSPI1_RDR			(IMXRT_LPSPI1.offset074)
 #define IMXRT_LPSPI2		(*(IMXRT_REGISTER32_t *)IMXRT_LPSPI2_ADDRESS)
 #define IMXRT_LPSPI2_S          (*(IMXRT_LPSPI_t *)IMXRT_LPSPI2_ADDRESS)
+// LPSPI1 requires CCM_CCGR1_LPSPI2
 #define LPSPI2_VERID			(IMXRT_LPSPI2.offset000)
 #define LPSPI2_PARAM			(IMXRT_LPSPI2.offset004)
 #define LPSPI2_CR			(IMXRT_LPSPI2.offset010)
@@ -7031,6 +7085,7 @@ typedef struct {
 #define LPSPI2_RDR			(IMXRT_LPSPI2.offset074)
 #define IMXRT_LPSPI3		(*(IMXRT_REGISTER32_t *)IMXRT_LPSPI3_ADDRESS)
 #define IMXRT_LPSPI3_S          (*(IMXRT_LPSPI_t *)IMXRT_LPSPI3_ADDRESS)
+// LPSPI1 requires CCM_CCGR1_LPSPI3
 #define LPSPI3_VERID			(IMXRT_LPSPI3.offset000)
 #define LPSPI3_PARAM			(IMXRT_LPSPI3.offset004)
 #define LPSPI3_CR			(IMXRT_LPSPI3.offset010)
@@ -7050,6 +7105,7 @@ typedef struct {
 #define LPSPI3_RDR			(IMXRT_LPSPI3.offset074)
 #define IMXRT_LPSPI4		(*(IMXRT_REGISTER32_t *)IMXRT_LPSPI4_ADDRESS)
 #define IMXRT_LPSPI4_S          (*(IMXRT_LPSPI_t *)IMXRT_LPSPI4_ADDRESS)
+// LPSPI1 requires CCM_CCGR1_LPSPI4
 #define LPSPI4_VERID			(IMXRT_LPSPI4.offset000)
 #define LPSPI4_PARAM			(IMXRT_LPSPI4.offset004)
 #define LPSPI4_CR			(IMXRT_LPSPI4.offset010)
@@ -7145,6 +7201,7 @@ typedef struct {
 	volatile uint32_t WATER;
 } IMXRT_LPUART_t;
 #define IMXRT_LPUART1		(*(IMXRT_LPUART_t *)IMXRT_LPUART1_ADDRESS)
+// LPUART1 requires CCM_CCGR5_LPUART1
 #define LPUART1_VERID			(IMXRT_LPUART1.VERID)
 #define LPUART1_PARAM			(IMXRT_LPUART1.PARAM)
 #define LPUART1_GLOBAL			(IMXRT_LPUART1.GLOBAL)
@@ -7158,6 +7215,7 @@ typedef struct {
 #define LPUART1_FIFO			(IMXRT_LPUART1.FIFO)
 #define LPUART1_WATER			(IMXRT_LPUART1.WATER)
 #define IMXRT_LPUART2		(*(IMXRT_LPUART_t *)IMXRT_LPUART2_ADDRESS)
+// LPUART2 requires CCM_CCGR0_LPUART2
 #define LPUART2_VERID			(IMXRT_LPUART2.VERID)
 #define LPUART2_PARAM			(IMXRT_LPUART2.PARAM)
 #define LPUART2_GLOBAL			(IMXRT_LPUART2.GLOBAL)
@@ -7171,6 +7229,7 @@ typedef struct {
 #define LPUART2_FIFO			(IMXRT_LPUART2.FIFO)
 #define LPUART2_WATER			(IMXRT_LPUART2.WATER)
 #define IMXRT_LPUART3		(*(IMXRT_LPUART_t *)IMXRT_LPUART3_ADDRESS)
+// LPUART3 requires CCM_CCGR0_LPUART3
 #define LPUART3_VERID			(IMXRT_LPUART3.VERID)
 #define LPUART3_PARAM			(IMXRT_LPUART3.PARAM)
 #define LPUART3_GLOBAL			(IMXRT_LPUART3.GLOBAL)
@@ -7184,6 +7243,7 @@ typedef struct {
 #define LPUART3_FIFO			(IMXRT_LPUART3.FIFO)
 #define LPUART3_WATER			(IMXRT_LPUART3.WATER)
 #define IMXRT_LPUART4		(*(IMXRT_LPUART_t *)IMXRT_LPUART4_ADDRESS)
+// LPUART4 requires CCM_CCGR1_LPUART4
 #define LPUART4_VERID			(IMXRT_LPUART4.VERID)
 #define LPUART4_PARAM			(IMXRT_LPUART4.PARAM)
 #define LPUART4_GLOBAL			(IMXRT_LPUART4.GLOBAL)
@@ -7197,6 +7257,7 @@ typedef struct {
 #define LPUART4_FIFO			(IMXRT_LPUART4.FIFO)
 #define LPUART4_WATER			(IMXRT_LPUART4.WATER)
 #define IMXRT_LPUART5		(*(IMXRT_LPUART_t *)IMXRT_LPUART5_ADDRESS)
+// LPUART5 requires CCM_CCGR3_LPUART5
 #define LPUART5_VERID			(IMXRT_LPUART5.VERID)
 #define LPUART5_PARAM			(IMXRT_LPUART5.PARAM)
 #define LPUART5_GLOBAL			(IMXRT_LPUART5.GLOBAL)
@@ -7210,6 +7271,7 @@ typedef struct {
 #define LPUART5_FIFO			(IMXRT_LPUART5.FIFO)
 #define LPUART5_WATER			(IMXRT_LPUART5.WATER)
 #define IMXRT_LPUART6		(*(IMXRT_LPUART_t *)IMXRT_LPUART6_ADDRESS)
+// LPUART6 requires CCM_CCGR3_LPUART6
 #define LPUART6_VERID			(IMXRT_LPUART6.VERID)
 #define LPUART6_PARAM			(IMXRT_LPUART6.PARAM)
 #define LPUART6_GLOBAL			(IMXRT_LPUART6.GLOBAL)
@@ -7223,6 +7285,7 @@ typedef struct {
 #define LPUART6_FIFO			(IMXRT_LPUART6.FIFO)
 #define LPUART6_WATER			(IMXRT_LPUART6.WATER)
 #define IMXRT_LPUART7		(*(IMXRT_LPUART_t *)IMXRT_LPUART7_ADDRESS)
+// LPUART7 requires CCM_CCGR5_LPUART7
 #define LPUART7_VERID			(IMXRT_LPUART7.VERID)
 #define LPUART7_PARAM			(IMXRT_LPUART7.PARAM)
 #define LPUART7_GLOBAL			(IMXRT_LPUART7.GLOBAL)
@@ -7236,6 +7299,7 @@ typedef struct {
 #define LPUART7_FIFO			(IMXRT_LPUART7.FIFO)
 #define LPUART7_WATER			(IMXRT_LPUART7.WATER)
 #define IMXRT_LPUART8		(*(IMXRT_LPUART_t *)IMXRT_LPUART8_ADDRESS)
+// LPUART8 requires CCM_CCGR6_LPUART8
 #define LPUART8_VERID			(IMXRT_LPUART8.VERID)
 #define LPUART8_PARAM			(IMXRT_LPUART8.PARAM)
 #define LPUART8_GLOBAL			(IMXRT_LPUART8.GLOBAL)
@@ -7351,6 +7415,7 @@ typedef struct {
 
 // 23.6.1.1: page 1331
 #define IMXRT_OCOTP		(*(IMXRT_REGISTER32_t *)IMXRT_OCOTP_ADDRESS)
+// OCOTP requires CCM_CCGR2_OCOTP_CTRL
 #define HW_OCOTP_CTRL			(IMXRT_OCOTP.offset000)
 #define HW_OCOTP_CTRL_SET		(IMXRT_OCOTP.offset004)
 #define HW_OCOTP_CTRL_CLR		(IMXRT_OCOTP.offset008)
@@ -7433,6 +7498,7 @@ typedef struct {
 
 // 53.9.1: page 2978
 #define IMXRT_PIT		(*(IMXRT_REGISTER32_t *)IMXRT_PIT_ADDRESS)
+// PIT requires CCM_CCGR1_PIT (but normally PIT is accessed by IntervalTimer)
 #define PIT_MCR				(IMXRT_PIT.offset000)
 #define PIT_LTMR64H			(IMXRT_PIT.offset0E0)
 #define PIT_LTMR64L			(IMXRT_PIT.offset0E4)
@@ -7652,6 +7718,7 @@ typedef struct
     volatile uint32_t PORTER_DUFF_CTRL;
 } IMXRT_PXP_t;
 #define IMXRT_PXP        (*(IMXRT_PXP_t *)IMXRT_PXP_ADDRESS)
+// PXP requires CCM_CCGR2_PXP
 #define PXP_CTRL            (IMXRT_PXP.CTRL)
 #define PXP_CTRL_SET            (IMXRT_PXP.CTRL_SET)
 #define PXP_CTRL_CLR            (IMXRT_PXP.CTRL_CLR)
@@ -7844,6 +7911,7 @@ typedef struct
    };
 } IMXRT_TMR_t;
 #define IMXRT_TMR1		(*(IMXRT_TMR_t *)IMXRT_TMR1_ADDRESS)
+// TMR1 requires CCM_CCGR6_QTIMER1
 #define TMR1_COMP10			(IMXRT_TMR1.CH[0].COMP1)
 #define TMR1_COMP20			(IMXRT_TMR1.CH[0].COMP2)
 #define TMR1_CAPT0			(IMXRT_TMR1.CH[0].CAPT)
@@ -7898,6 +7966,7 @@ typedef struct
 #define TMR1_FILT3			(IMXRT_TMR1.CH[3].FILT)
 #define TMR1_DMA3			(IMXRT_TMR1.CH[3].DMA)
 #define IMXRT_TMR2		(*(IMXRT_TMR_t *)IMXRT_TMR2_ADDRESS)
+// TMR2 requires CCM_CCGR6_QTIMER2
 #define TMR2_COMP10			(IMXRT_TMR2.CH[0].COMP1)
 #define TMR2_COMP20			(IMXRT_TMR2.CH[0].COMP2)
 #define TMR2_CAPT0			(IMXRT_TMR2.CH[0].CAPT)
@@ -7952,6 +8021,7 @@ typedef struct
 #define TMR2_FILT3			(IMXRT_TMR2.CH[3].FILT)
 #define TMR2_DMA3			(IMXRT_TMR2.CH[3].DMA)
 #define IMXRT_TMR3		(*(IMXRT_TMR_t *)IMXRT_TMR3_ADDRESS)
+// TMR3 requires CCM_CCGR6_QTIMER3
 #define TMR3_COMP10			(IMXRT_TMR3.CH[0].COMP1)
 #define TMR3_COMP20			(IMXRT_TMR3.CH[0].COMP2)
 #define TMR3_CAPT0			(IMXRT_TMR3.CH[0].CAPT)
@@ -8006,6 +8076,7 @@ typedef struct
 #define TMR3_FILT3			(IMXRT_TMR3.CH[3].FILT)
 #define TMR3_DMA3			(IMXRT_TMR3.CH[3].DMA)
 #define IMXRT_TMR4		(*(IMXRT_TMR_t *)IMXRT_TMR4_ADDRESS)
+// TMR4 requires CCM_CCGR6_QTIMER4
 #define TMR4_COMP10			(IMXRT_TMR4.CH[0].COMP1)
 #define TMR4_COMP20			(IMXRT_TMR4.CH[0].COMP2)
 #define TMR4_CAPT0			(IMXRT_TMR4.CH[0].CAPT)
@@ -8102,6 +8173,7 @@ typedef struct
 
 // 38.5.1.1: page 1981
 #define IMXRT_I2S1		(*(IMXRT_REGISTER32_t *)IMXRT_I2S1_ADDRESS)
+// I2S1 requires CCM_CCGR5_SAI1
 #define I2S1_VERID			(IMXRT_I2S1.offset000)
 #define I2S1_PARAM			(IMXRT_I2S1.offset004)
 #define I2S1_TCSR			(IMXRT_I2S1.offset008)
@@ -8135,6 +8207,7 @@ typedef struct
 #define I2S1_RFR3			(IMXRT_I2S1.offset0CC)
 #define I2S1_RMR			(IMXRT_I2S1.offset0E0)
 #define IMXRT_I2S2		(*(IMXRT_REGISTER32_t *)IMXRT_I2S2_ADDRESS)
+// I2S2 requires CCM_CCGR5_SAI2
 #define I2S2_VERID			(IMXRT_I2S2.offset000)
 #define I2S2_PARAM			(IMXRT_I2S2.offset004)
 #define I2S2_TCSR			(IMXRT_I2S2.offset008)
@@ -8168,6 +8241,7 @@ typedef struct
 #define I2S2_RFR3			(IMXRT_I2S2.offset0CC)
 #define I2S2_RMR			(IMXRT_I2S2.offset0E0)
 #define IMXRT_I2S3		(*(IMXRT_REGISTER32_t *)IMXRT_I2S3_ADDRESS)
+// I2S3 requires CCM_CCGR5_SAI3
 #define I2S3_VERID			(IMXRT_I2S3.offset000)
 #define I2S3_PARAM			(IMXRT_I2S3.offset004)
 #define I2S3_TCSR			(IMXRT_I2S3.offset008)
@@ -8256,6 +8330,7 @@ typedef struct
 
 // 25.4.1.1: page 1385
 #define IMXRT_SEMC		(*(IMXRT_REGISTER32_t *)IMXRT_SEMC_ADDRESS)
+// SEMC requires CCM_CCGR3_SEMC
 #define SEMC_MCR			(IMXRT_SEMC.offset000)
 #define SEMC_IOCR			(IMXRT_SEMC.offset004)
 #define SEMC_BMCR0			(IMXRT_SEMC.offset008)
@@ -8314,6 +8389,7 @@ typedef struct
 
 // 20.6.1: page 1242
 #define IMXRT_SNVS		(*(IMXRT_REGISTER32_t *)IMXRT_SNVS_ADDRESS)
+// SNVS requires CCM_CCGR5_SNVS_HP and CCM_CCGR5_SNVS_LP
 #define SNVS_HPLR			(IMXRT_SNVS.offset000)
 #define SNVS_HPCOMR			(IMXRT_SNVS.offset004)
 #define SNVS_HPCR			(IMXRT_SNVS.offset008)
@@ -8373,6 +8449,7 @@ typedef struct
 
 // 40.6: page 2035
 #define IMXRT_SPDIF		(*(IMXRT_REGISTER32_t *)IMXRT_SPDIF_ADDRESS)
+// SPDIF requires CCM_CCGR5_SPDIF
 #define SPDIF_SCR			(IMXRT_SPDIF.offset000)
 #define SPDIF_SRCD			(IMXRT_SPDIF.offset004)
 #define SPDIF_SRPC			(IMXRT_SPDIF.offset008)
@@ -8533,6 +8610,7 @@ These register are used by the ROM code and should not be used by application so
 #define TEMPMON_CTRL2_LOW_ALARM_VALUE(n)	((uint32_t)(((n) & 0x0fff) << 0))
 
 #define IMXRT_TRNG		(*(IMXRT_REGISTER32_t *)IMXRT_TRNG_ADDRESS)
+// TRNG requires CCM_CCGR6_TRNG
 #define TRNG_MCTL			(IMXRT_TRNG.offset000)
 #define TRNG_SCMISC			(IMXRT_TRNG.offset004)
 #define TRNG_PKRRNG			(IMXRT_TRNG.offset008)
@@ -8652,6 +8730,7 @@ These register are used by the ROM code and should not be used by application so
 //   image_enc.zip  sha256sum 6856a757fb0a9e13e926e8d461e23863d78568acebb81b6f361650ea4e050a03
 //   https://community.nxp.com/t5/i-MX-RT/image-enc2-zip-download/m-p/1174943#M10980
 #define IMXRT_BEE		(*(IMXRT_REGISTER32_t *)IMXRT_BEE_ADDRESS)
+// BEE requires CCM_CCGR4_BEE
 #define BEE_CTRL			(IMXRT_BEE.offset000)
 #define BEE_ADDR_OFFSET0		(IMXRT_BEE.offset004)
 #define BEE_ADDR_OFFSET1		(IMXRT_BEE.offset008)
@@ -8699,11 +8778,13 @@ These register are used by the ROM code and should not be used by application so
 
 // DCP definitions adapted from NXP SDK 2.8.0, MIMXRT1062.h, lines 11448-13123
 #define IMXRT_DCP		(*(IMXRT_REGISTER32_t *)IMXRT_DCP_ADDRESS)
+// DCP requires CCM_CCGR0_DCP
 // TODO - help wanted here....
 
 
 // 68.4: page 3406
 #define IMXRT_TSC		(*(IMXRT_REGISTER32_t *)IMXRT_TSC_ADDRESS)
+// TSC requires CCM_CCGR4_TSC
 #define TSC_BASIC_SETTING		(IMXRT_TSC.offset000)
 #define TSC_PS_INPUT_BUFFER_ADDR	(IMXRT_TSC.offset010)
 #define TSC_FLOW_CONTROL		(IMXRT_TSC.offset020)
@@ -8716,6 +8797,7 @@ These register are used by the ROM code and should not be used by application so
 
 // 42.5.1.1: page 2212
 #define IMXRT_USB1		(*(IMXRT_REGISTER32_t *)IMXRT_USB1_ADDRESS)
+// USB1 requires CCM_CCGR6_USBOH3
 #define USB1_ID				(IMXRT_USB1.offset000)
 #define USB1_HWGENERAL			(IMXRT_USB1.offset004)
 #define USB1_HWHOST			(IMXRT_USB1.offset008)
@@ -8762,6 +8844,7 @@ These register are used by the ROM code and should not be used by application so
 #define USB1_ENDPTCTRL6			(IMXRT_USB1.offset1D8)
 #define USB1_ENDPTCTRL7			(IMXRT_USB1.offset1DC)
 #define IMXRT_USB2		(*(IMXRT_REGISTER32_t *)IMXRT_USB2_ADDRESS)
+// USB2 requires CCM_CCGR6_USBOH3
 #define USB2_ID				(IMXRT_USB2.offset000)
 #define USB2_HWGENERAL			(IMXRT_USB2.offset004)
 #define USB2_HWHOST			(IMXRT_USB2.offset008)
@@ -9004,6 +9087,7 @@ These register are used by the ROM code and should not be used by application so
 
 // 26.9.1.1: page 1553
 #define IMXRT_USDHC1		(*(IMXRT_REGISTER32_t *)IMXRT_USDHC1_ADDRESS)
+// USDHC1 requires CCM_CCGR6_USDHC1
 #define USDHC1_DS_ADDR			(IMXRT_USDHC1.offset000)
 #define USDHC1_BLK_ATT			(IMXRT_USDHC1.offset004)
 #define USDHC1_CMD_ARG			(IMXRT_USDHC1.offset008)
@@ -9034,6 +9118,7 @@ These register are used by the ROM code and should not be used by application so
 #define USDHC1_VEND_SPEC2		(IMXRT_USDHC1.offset0C8)
 #define USDHC1_TUNING_CTRL		(IMXRT_USDHC1.offset0CC)
 #define IMXRT_USDHC2		(*(IMXRT_REGISTER32_t *)IMXRT_USDHC2_ADDRESS)
+// USDHC2 requires CCM_CCGR6_USDHC2
 #define USDHC2_DS_ADDR			(IMXRT_USDHC2.offset000)
 #define USDHC2_BLK_ATT			(IMXRT_USDHC2.offset004)
 #define USDHC2_CMD_ARG			(IMXRT_USDHC2.offset008)
@@ -9066,12 +9151,14 @@ These register are used by the ROM code and should not be used by application so
 
 // 57.8.1.1: page 3187
 #define IMXRT_WDOG1		(*(IMXRT_REGISTER16_t *)IMXRT_WDOG1_ADDRESS)
+// WDOG1 requires CCM_CCGR3_WDOG1
 #define WDOG1_WCR			(IMXRT_WDOG1.offset000)
 #define WDOG1_WSR			(IMXRT_WDOG1.offset002)
 #define WDOG1_WRSR			(IMXRT_WDOG1.offset004)
 #define WDOG1_WICR			(IMXRT_WDOG1.offset006)
 #define WDOG1_WMCR			(IMXRT_WDOG1.offset008)
 #define IMXRT_WDOG2		(*(IMXRT_REGISTER16_t *)IMXRT_WDOG2_ADDRESS)
+// WDOG2 requires CCM_CCGR5_WDOG2
 #define WDOG2_WCR			(IMXRT_WDOG2.offset000)
 #define WDOG2_WSR			(IMXRT_WDOG2.offset002)
 #define WDOG2_WRSR			(IMXRT_WDOG2.offset004)
@@ -9092,6 +9179,7 @@ These register are used by the ROM code and should not be used by application so
 
 // 58.5.1.1: page 3205
 #define IMXRT_WDOG3		(*(IMXRT_REGISTER32_t *)IMXRT_WDOG3_ADDRESS)
+// WDOG3 requires CCM_CCGR5_WDOG3
 #define WDOG3_CS			(IMXRT_WDOG3.offset000)
 #define WDOG3_CNT			(IMXRT_WDOG3.offset004)
 #define WDOG3_TOVAL			(IMXRT_WDOG3.offset008)
@@ -9113,6 +9201,7 @@ These register are used by the ROM code and should not be used by application so
 
 // 61.4: page 3235
 #define IMXRT_XBARA1		(*(IMXRT_REGISTER16_t *)IMXRT_XBARA1_ADDRESS)
+// XBAR1 requires CCM_CCGR2_XBAR1
 #define XBARA1_SEL0			(IMXRT_XBARA1.offset000)
 #define XBARA1_SEL1			(IMXRT_XBARA1.offset002)
 #define XBARA1_SEL2			(IMXRT_XBARA1.offset004)
@@ -9192,6 +9281,7 @@ These register are used by the ROM code and should not be used by application so
 
 // 62.3: page 3278
 #define IMXRT_XBARB2		(*(IMXRT_REGISTER16_t *)IMXRT_XBARB2_ADDRESS)
+// XBAR2 requires CCM_CCGR2_XBAR2
 #define XBARB2_SEL0			(IMXRT_XBARB2.offset000)
 #define XBARB2_SEL1			(IMXRT_XBARB2.offset002)
 #define XBARB2_SEL2			(IMXRT_XBARB2.offset004)
@@ -9201,6 +9291,7 @@ These register are used by the ROM code and should not be used by application so
 #define XBARB2_SEL6			(IMXRT_XBARB2.offset00C)
 #define XBARB2_SEL7			(IMXRT_XBARB2.offset00E)
 #define IMXRT_XBARB3		(*(IMXRT_REGISTER16_t *)IMXRT_XBARB3_ADDRESS)
+// XBAR3 requires CCM_CCGR2_XBAR3
 #define XBARB3_SEL0			(IMXRT_XBARB3.offset000)
 #define XBARB3_SEL1			(IMXRT_XBARB3.offset002)
 #define XBARB3_SEL2			(IMXRT_XBARB3.offset004)
