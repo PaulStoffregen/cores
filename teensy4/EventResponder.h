@@ -70,7 +70,9 @@ public:
 	constexpr EventResponder() {
 	}
 	~EventResponder() {
+		Serial.print("~EvR"); Serial.flush();
 		detach();
+		Serial.println("> "); Serial.flush();
 	}
 	enum EventType { // these are not meant for public consumption...
 		EventTypeDetached = 0, // no function is called
@@ -173,38 +175,47 @@ public:
 	bool waitForEvent(EventResponderRef event, int timeout);
 	EventResponder * waitForEvent(EventResponder *list, int listsize, int timeout);
 	static void runFromYield() {
-		if (!firstYield) return;  
-		// First, check if yield was called from an interrupt
-		// never call normal handler functions from any interrupt context
-		uint32_t ipsr;
-		__asm__ volatile("mrs %0, ipsr\n" : "=r" (ipsr)::);
-		if (ipsr != 0) return;
-		// Next, check if any events have been triggered
-		bool irq = disableInterrupts();
-		EventResponder *first = firstYield;
-		if (first == nullptr) {
+		//digitalWrite(13, HIGH);
+		do
+		{
+			if (!firstYield) break;  
+			// First, check if yield was called from an interrupt
+			// never call normal handler functions from any interrupt context
+			uint32_t ipsr;
+			__asm__ volatile("mrs %0, ipsr\n" : "=r" (ipsr)::);
+			if (ipsr != 0) break;
+			// Next, check if any events have been triggered
+			bool irq = disableInterrupts();
+			EventResponder *first = firstYield;
+			if (first == nullptr) {
+				enableInterrupts(irq);
+				break;
+			}
+			// Finally, make sure we're not being recursively called,
+			// which can happen if the user's function does anything
+			// that calls yield.
+			if (runningFromYield) {
+				enableInterrupts(irq);
+				break;
+			}
+			// Ok, update the runningFromYield flag and process event
+			if (deleting)
+			{
+				Serial.print("evt! "); Serial.flush();
+			}
+			runningFromYield = true;
+			firstYield = first->_next;
+			if (firstYield) {
+				firstYield->_prev = nullptr;
+			} else {
+				lastYield = nullptr;
+			}
 			enableInterrupts(irq);
-			return;
-		}
-		// Finally, make sure we're not being recursively called,
-		// which can happen if the user's function does anything
-		// that calls yield.
-		if (runningFromYield) {
-			enableInterrupts(irq);
-			return;
-		}
-		// Ok, update the runningFromYield flag and process event
-		runningFromYield = true;
-		firstYield = first->_next;
-		if (firstYield) {
-			firstYield->_prev = nullptr;
-		} else {
-			lastYield = nullptr;
-		}
-		enableInterrupts(irq);
-		first->_triggered = false;
-		(*(first->_function))(*first);
-		runningFromYield = false;
+			first->_triggered = false;
+			(*(first->_function))(*first);
+			runningFromYield = false;
+		} while (0);
+		//digitalWrite(13, LOW);
 	}
 	static void runFromInterrupt();
 	operator bool() { return _triggered; }

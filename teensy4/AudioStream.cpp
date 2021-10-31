@@ -918,11 +918,29 @@ SFSH();
 }
 
 
+extern uint32_t stuff[];
 // Destructor: quite a lot of housekeeping to do
 AudioStream::~AudioStream()
 {
+	delay(10);
 	AudioStream** ppS; // iterating pointer
-	
+stuff[7] = stuff[9];
+  for (int i=0;i<10;i++)
+  {
+    Serial.printf(F("%d: 0x%x\n"),i,stuff[i]);
+  }
+stuff[3] = 0;
+stuff[4] = 0;
+stuff[5] = 0;
+stuff[6] = 0;
+stuff[8]++;
+	digitalWrite(13, HIGH);
+	Serial.print("~AS"); Serial.flush();
+stuff[8]++;
+	delay(10);
+stuff[8]++;
+	digitalWrite(13, LOW);
+stuff[8]++;
 SPRT("\r\nDestructor: (");
 SPRT((uint32_t) this,HEX);
 SPRT(")...");
@@ -930,7 +948,8 @@ SFSH();
 
 	// associated audio blocks:
 	SAFE_RELEASE(inputQueue,num_inputs,false);	// release input blocks and disable interrupts
-	
+stuff[8]++;
+
 	// associated connections:
 	// run through all AudioStream objects in the active update list,
 	// except for ourselves
@@ -945,6 +964,7 @@ SFSH();
 		if (pS != this)
 			NULLifConnected(&(pS->destination_list));
 	}
+stuff[8]++;
 	
 	// do the same for the clan list: strictly it should be OK
 	// just to do this for our clan, but let's play safe
@@ -962,9 +982,11 @@ SPRT("...");
 				NULLifConnected(&(pS->destination_list));
 		}
 	}
+stuff[8]++;
 	
 	// now we can disconnect our own destinations
 	NULLifConnected(&destination_list);
+stuff[8]++;
 	
 	// there may be unused AudioConnections which refer to this: "disconnect" those
 	// (they're already disconnected, but that's safe, and we do want to NULL
@@ -972,14 +994,19 @@ SPRT("...");
 SPRT("\r\nUnused: ");
 SFSH();
 	NULLifConnected(&unused);
+stuff[8]++;
 	
 	// associated update lists (active or clan):
 	unlinkFromActiveUpdateList();	// unlink ourselves from active, move to clan list...
+stuff[8]++;
 	unlinkItemFromClanUpdateList(); // ...and remove from clan list
 SPRT("unlink\r\n\r\n");
 SFSH();
+stuff[8]++;
 	
+	digitalWrite(13, LOW);
 	__enable_irq();
+	Serial.print("> "); Serial.flush();
 }
 
 
@@ -1019,25 +1046,33 @@ void AudioStream::update_stop(void)
 	update_scheduled = false;
 }
 
-
+int udc;
 AudioStream * AudioStream::first_update = NULL;
 
 inline void AudioStream::updateOne()
 {
 	uint32_t cycles = ARM_DWT_CYCCNT;
+	digitalWrite(13, LOW);
+	if (udc < 7)
+		stuff[udc++] = (uint32_t) &cpu_cycles;
 	update();
 	// TODO: traverse inputQueueArray and release
 	// any input blocks that weren't consumed?
 	cycles = (ARM_DWT_CYCCNT - cycles) >> 6;
 	cpu_cycles = cycles;
 	if (cycles > cpu_cycles_max) cpu_cycles_max = cycles;
+	if (udc < 7)
+		stuff[udc++] = (uint32_t) &cpu_cycles;
 }
+
 
 void software_isr(void) // AudioStream::update_all()
 {
 	AudioStream *p, *pC;
 
 	uint32_t totalcycles = ARM_DWT_CYCCNT;
+	udc = 3;
+	stuff[9]++;
 	//digitalWriteFast(2, HIGH);
 	for (p = AudioStream::first_update; p; p = p->next_update) {
 		if (p->active) {

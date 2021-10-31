@@ -91,7 +91,7 @@
 #define OFFSET_OF(t,m) ((int)(&(((t*)0)->m)))
 
 #if defined(__cplusplus)
-#include <CrashReport.h> // for reporting crashes during audio clas construction
+#include <CrashReport.h> // for reporting crashes during audio class construction
 class AudioStream;
 class AudioConnection;
 class AudioDebug;
