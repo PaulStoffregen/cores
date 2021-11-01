@@ -2024,6 +2024,14 @@ enum IRQ_NUMBER_t {
 #define DMA_TCD_NBYTES_MLOFFYES_NBYTES(n)   ((uint32_t)((n) & 0x3FF))	    // NBytes transfer count when minor loop enabled
 #define DMA_TCD_NBYTES_MLOFFYES_MLOFF(n)    ((uint32_t)((n) & 0xFFFFF)<<10) // Minor loop offset
 
+
+// Normally these Transfer Control Descriptor (TCD) registers are accessed through
+// DMAChannel instances.  See DMAChannel.h for details.  Or refer to libraries which
+// use DMA (OctoWS2811, Audio, WS2812Serial, SmartMatrix, ILI9341_t3n, etc).
+// When you access TCD registers directly, you must edit all DMA-using code to
+// assure no conflicts among which of the 32 TCDs are used.  DMAChannel allocates
+// channels automatically, to avoid TCD usage conflicts.
+
 #if DMA_NUM_CHANNELS >= 4
 #define DMA_TCD0_SADDR		(*(volatile const void * volatile *)0x40009000) // TCD Source Address
 #define DMA_TCD0_SOFF		(*(volatile int16_t *)0x40009004)  // TCD Signed Source Address Offset
