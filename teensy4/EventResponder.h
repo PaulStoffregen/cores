@@ -199,10 +199,6 @@ public:
 				break;
 			}
 			// Ok, update the runningFromYield flag and process event
-			if (deleting)
-			{
-				Serial.print("evt! "); Serial.flush();
-			}
 			runningFromYield = true;
 			firstYield = first->_next;
 			if (firstYield) {

@@ -40,6 +40,9 @@
 
 
 #if defined(DYNAMIC_AUDIO_DEBUG)
+#define dbgPrintClanEntry(...) 	printClanEntry(__VA_ARGS__)
+#define dbgPrintAclan(...)		printAclan(__VA_ARGS__)
+#define dbgPrintClanList(...)	printClanList(__VA_ARGS__)
 #undef SPRT
 #undef SPRL
 #undef SFSH
@@ -47,9 +50,9 @@
 #define SPRL(...) Serial.println(__VA_ARGS__) 
 #define SFSH(...) Serial.flush(__VA_ARGS__) 
 #else
-#define printClanEntry(...)
-#define printAclan(...)
-#define printClanList(...)
+#define dbgPrintClanEntry(...)
+#define dbgPrintAclan(...)
+#define dbgPrintClanList(...)
 #define SPRT(...) 
 #define SPRL(...) 
 #define SFSH(...) 
@@ -215,11 +218,13 @@ protected:
 	bool update_setup(void);
 	static void update_stop(void);
 	static void update_all(void) { NVIC_SET_PENDING(IRQ_SOFTWARE); }
+	void destructorDisableNVIC(void) {destructorDisabledNVIC = true; NVIC_DISABLE_IRQ(IRQ_SOFTWARE);}
 	friend void software_isr(void);
 	friend class AudioConnection;
 	friend class AudioDebug;
 	uint8_t numConnections;
 private:
+	bool destructorDisabledNVIC;
 	static AudioConnection* unused; // linked list of unused but not destructed connections
 	AudioConnection *destination_list;
 	audio_block_t **inputQueue;

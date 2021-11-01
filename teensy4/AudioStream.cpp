@@ -148,7 +148,7 @@ AudioStream* AudioStream::clanListUnlink(AudioStream* pItem)
 	AudioStream* pHead = pItem->clan_head; // find the clan head
 	AudioStream** ppClanHead;
 SPRT("Clan unlink: ");
-printAclan(pHead,NULL);
+dbgPrintAclan(pHead,NULL);
 SFSH();
 
 	// find where we are in the clan list
@@ -195,13 +195,13 @@ AudioStream* AudioStream::updateListMergeInto(AudioStream** ppAfter,AudioStream*
 	AudioStream* pTail;
 	
 SPRT("Merge item: ");	
-printClanEntry(pItem,0,NULL,NULL,NULL);
+dbgPrintClanEntry(pItem,0,NULL,NULL,NULL);
 SPRL("from:");
-printAclan(pItem->clan_head,NULL);
+dbgPrintAclan(pItem->clan_head,NULL);
 SPRT("after: ");	
 SPRL((uint32_t) ppAfter,HEX);	
 SPRT("before: ");	
-printClanEntry(*ppAfter,0,NULL,NULL,NULL);
+dbgPrintClanEntry(*ppAfter,0,NULL,NULL,NULL);
 SPRT("new head: ");	
 SPRL((uint32_t) newHead,HEX);	
 SFSH();
@@ -238,7 +238,7 @@ SPRL("Merged to active updates");
 		// else we share the same clan head, no merge needed
 		pTail = newHead;
 SPRL("Merged clan is:");	
-printAclan(newHead,NULL);
+dbgPrintAclan(newHead,NULL);
 	}
 	
 	return pTail; // clan head, or first_update
@@ -683,7 +683,7 @@ int AudioStream::simples = 0;
 void AudioStream::linkIntoUpdateList(const AudioConnection* pC)
 {
 SPRT("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-printClanList();
+dbgPrintClanList();
 	
 	if (!active) // not yet linked in
 	{
@@ -783,7 +783,7 @@ SPRL("...already clanned up");
 		}
 SPRL("...done");
 SPRL(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-printClanList();
+dbgPrintClanList();
 SFSH();
 	}
 }
@@ -828,9 +828,9 @@ void AudioStream::unlinkItemFromClanUpdateList()
 {
 	AudioStream* pC, **ppS;
 		
-printClanList();				
+dbgPrintClanList();				
 	pC = clanListUnlink(this); // unlink whole clan from list, for now
-printClanList();				
+dbgPrintClanList();				
 	if (NULL != pC) // this is  a clan member, pC points to (unlinked) clan head
 	{
 		AudioStream* pH = pC; // take a copy that may get overwritten
@@ -842,7 +842,7 @@ SFSH();
 		{
 			if (*ppS == this) // found the link to us
 			{
-printClanEntry(pC,0,NULL,NULL,NULL);
+dbgPrintClanEntry(pC,0,NULL,NULL,NULL);
 				listUnlink(ppS,&this->next_update); // unlink this item
 SPRT("\r\n*ppS is: ");
 SPRL((uint32_t) *ppS,HEX);
@@ -922,25 +922,37 @@ extern uint32_t stuff[];
 // Destructor: quite a lot of housekeeping to do
 AudioStream::~AudioStream()
 {
-	delay(10);
 	AudioStream** ppS; // iterating pointer
+stuff[8] = 1;
+	
+	// Deal with interrupts: if an update() occurs while the destructor is
+	// being executed Bad Things can happen, and it's impossible for the programmer
+	// to wrap destructor calls in Audio[No]Interrupts() calls in every case (e.g.
+	// when an audio object goes out of scope), so we do it here.
+	// 
+	// It is recommended for every derived object's destructor to call 
+	// destructorDisableNVIC(), as it appears possible to get the update() between
+	// the delete call and NVIC_DISABLE_IRQ(), but this is better than nothing. I think.
+	bool reenableNVIC = (NVIC_IS_ENABLED(IRQ_SOFTWARE) != 0) || destructorDisabledNVIC;
+	NVIC_DISABLE_IRQ(IRQ_SOFTWARE);
+	
 stuff[7] = stuff[9];
   for (int i=0;i<10;i++)
   {
-    Serial.printf(F("%d: 0x%x\n"),i,stuff[i]);
+    //Serial.printf(F("%d: 0x%x\n"),i,stuff[i]);
+	//delay(1);
   }
 stuff[3] = 0;
 stuff[4] = 0;
 stuff[5] = 0;
 stuff[6] = 0;
-stuff[8]++;
 	digitalWrite(13, HIGH);
-	Serial.print("~AS"); Serial.flush();
 stuff[8]++;
-	delay(10);
+	Serial.printf("~AS(%d)",reenableNVIC?1:0); Serial.flush();
+stuff[8]++;
+	//delay(10); // crashes in here somewhere if interrupts are on
 stuff[8]++;
 	digitalWrite(13, LOW);
-stuff[8]++;
 SPRT("\r\nDestructor: (");
 SPRT((uint32_t) this,HEX);
 SPRT(")...");
@@ -948,7 +960,6 @@ SFSH();
 
 	// associated audio blocks:
 	SAFE_RELEASE(inputQueue,num_inputs,false);	// release input blocks and disable interrupts
-stuff[8]++;
 
 	// associated connections:
 	// run through all AudioStream objects in the active update list,
@@ -964,7 +975,6 @@ SFSH();
 		if (pS != this)
 			NULLifConnected(&(pS->destination_list));
 	}
-stuff[8]++;
 	
 	// do the same for the clan list: strictly it should be OK
 	// just to do this for our clan, but let's play safe
@@ -982,11 +992,9 @@ SPRT("...");
 				NULLifConnected(&(pS->destination_list));
 		}
 	}
-stuff[8]++;
 	
 	// now we can disconnect our own destinations
 	NULLifConnected(&destination_list);
-stuff[8]++;
 	
 	// there may be unused AudioConnections which refer to this: "disconnect" those
 	// (they're already disconnected, but that's safe, and we do want to NULL
@@ -994,19 +1002,17 @@ stuff[8]++;
 SPRT("\r\nUnused: ");
 SFSH();
 	NULLifConnected(&unused);
-stuff[8]++;
 	
 	// associated update lists (active or clan):
 	unlinkFromActiveUpdateList();	// unlink ourselves from active, move to clan list...
-stuff[8]++;
 	unlinkItemFromClanUpdateList(); // ...and remove from clan list
 SPRT("unlink\r\n\r\n");
 SFSH();
-stuff[8]++;
 	
-	digitalWrite(13, LOW);
 	__enable_irq();
-	Serial.print("> "); Serial.flush();
+	Serial.print("> \n"); Serial.flush();
+	if (reenableNVIC)
+		NVIC_ENABLE_IRQ(IRQ_SOFTWARE);
 }
 
 
