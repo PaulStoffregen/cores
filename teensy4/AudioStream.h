@@ -31,7 +31,7 @@
 #ifndef AudioStream_h
 #define AudioStream_h
 
-//#define DYNAMIC_AUDIO_DEBUG
+#define noDYNAMIC_AUDIO_DEBUG
 
 #ifndef __ASSEMBLER__
 #include <stdio.h>  // for NULL
@@ -228,7 +228,7 @@ private:
 	static AudioConnection* unused; // linked list of unused but not destructed connections
 	AudioConnection *destination_list;
 	audio_block_t **inputQueue;
-	static bool update_scheduled;
+	static AudioStream* update_owner;
 	static int simples;
 	inline void updateOne(void);
 	virtual void update(void) = 0;
@@ -242,7 +242,7 @@ private:
 	AudioStream* updateListMergeInto(AudioStream** ppAfter,AudioStream* newHead,AudioStream* pItem);
 	AudioStream* updateListUnlinkFrom(AudioStream** ppAfter,AudioStream** ppItemNext);
 	AudioStream* updateTailItem(AudioStream* pItem) {while (NULL != pItem && NULL != pItem->next_update) pItem=pItem->next_update; return pItem;}
-	void unlinkFromActiveUpdateList();
+	void unlinkFromActiveUpdateList(bool fromDestructor = false);
 	
 	// Clan list: AudioStream objects on this list are NOT yet on the update list,
 	// because no connection has yet been made which allows us to determine where

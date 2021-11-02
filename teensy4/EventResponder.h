@@ -60,6 +60,7 @@
  * event.
  */
 extern "C" void systick_isr_with_timer_events(void);
+extern uint32_t stuff[];
 
 class EventResponder;
 typedef EventResponder& EventResponderRef;
@@ -70,9 +71,9 @@ public:
 	constexpr EventResponder() {
 	}
 	~EventResponder() {
-		Serial.print("~EvR"); Serial.flush();
+		//Serial.print("~EvR"); Serial.flush();
 		detach();
-		Serial.println("> "); Serial.flush();
+		//Serial.println(">"); Serial.flush();
 	}
 	enum EventType { // these are not meant for public consumption...
 		EventTypeDetached = 0, // no function is called
@@ -141,6 +142,7 @@ public:
 	virtual void triggerEvent(int status=0, void *data=nullptr) {
 		_status = status;
 		_data = data;
+		stuff[11]++;
 		if (_type == EventTypeImmediate) {
 			(*_function)(*this);
 		} else {
