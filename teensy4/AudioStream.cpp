@@ -930,12 +930,10 @@ SFSH();
 }
 
 
-extern uint32_t stuff[];
 // Destructor: quite a lot of housekeeping to do
 AudioStream::~AudioStream()
 {
 	AudioStream** ppS; // iterating pointer
-stuff[8]++;
 	
 	// Deal with interrupts: if an update() occurs while the destructor is
 	// being executed Bad Things can happen, and it's impossible for the programmer
@@ -947,26 +945,8 @@ stuff[8]++;
 	// the delete call and NVIC_DISABLE_IRQ(), but this is better than nothing. I think.
 	bool reenableNVIC = (NVIC_IS_ENABLED(IRQ_SOFTWARE) != 0);// || destructorDisabledNVIC;
 	NVIC_DISABLE_IRQ(IRQ_SOFTWARE);
-stuff[8]++;
 	reenableNVIC = reenableNVIC || destructorDisabledNVIC;
-stuff[8]++;
 	
-stuff[7] = stuff[9];
-  for (int i=100;i<10;i++)
-  {
-    Serial.printf(F("%d: 0x%x\n"),i,stuff[i]);
-	delay(1);
-  }
-stuff[3] = 0;
-stuff[4] = 0;
-stuff[5] = 0;
-stuff[6] = 0;
-	//digitalWrite(13, HIGH);
-stuff[8]++;
-	//Serial.printf("~AS(%d)",reenableNVIC?1:0); Serial.flush();
-stuff[8]++;
-	//delay(10); // crashes in here somewhere if interrupts are on
-stuff[8]++;
 SPRT("\r\nDestructor: (");
 SPRT((uint32_t) this,HEX);
 SPRT(")...");
@@ -974,7 +954,6 @@ SFSH();
 
 	// associated audio blocks:
 	SAFE_RELEASE(inputQueue,num_inputs,false);	// release input blocks and disable interrupts
-stuff[8]++;
 
 	// associated connections:
 	// run through all AudioStream objects in the active update list,
@@ -990,7 +969,6 @@ SFSH();
 		if (pS != this)
 			NULLifConnected(&(pS->destination_list));
 	}
-stuff[8]++;
 	
 	// do the same for the clan list: strictly it should be OK
 	// just to do this for our clan, but let's play safe
@@ -1008,11 +986,9 @@ SPRT("...");
 				NULLifConnected(&(pS->destination_list));
 		}
 	}
-stuff[8]++;
 	
 	// now we can disconnect our own destinations
 	NULLifConnected(&destination_list);
-stuff[8]++;
 	
 	// there may be unused AudioConnections which refer to this: "disconnect" those
 	// (they're already disconnected, but that's safe, and we do want to NULL
@@ -1020,30 +996,23 @@ stuff[8]++;
 SPRT("\r\nUnused: ");
 SFSH();
 	NULLifConnected(&unused);
-stuff[8]++;
 	
 	// associated update lists (active or clan):
 	unlinkFromActiveUpdateList(true);	// [force] unlink ourselves from active, move to clan list...
-stuff[8]++;
 	unlinkItemFromClanUpdateList(); 	// ...and remove from clan list
-stuff[8]++;
 				
 	// special check for having had update responsibility: if
 	// so, we need to give that up 
 	if (this == update_owner)
 		update_stop();
-stuff[8]++;
 
 SPRT("unlink\r\n\r\n");
 SFSH();
 	
 	__enable_irq();
-stuff[8]++;
 	//Serial.print("> "); Serial.flush();
 	if (reenableNVIC)
 		NVIC_ENABLE_IRQ(IRQ_SOFTWARE);
-stuff[8]++;
-	digitalWrite(13, LOW);
 }
 
 
@@ -1083,30 +1052,17 @@ void AudioStream::update_stop(void)
 	update_owner = NULL;
 }
 
-int udc;
 AudioStream * AudioStream::first_update = NULL;
 
 inline void AudioStream::updateOne()
 {
 	uint32_t cycles = ARM_DWT_CYCCNT;
-	digitalWrite(13, LOW);
-stuff[12]+=0x100;
-	if (udc < 7)
-		stuff[udc++] = (uint32_t) &cpu_cycles;
-stuff[12]+=0x100;
-stuff[15] = (uint32_t) this;
 	update(); // N.B. this can FAIL if called while object is being destroyed: protection needed
-stuff[12]+=0x100;
 	// TODO: traverse inputQueueArray and release
 	// any input blocks that weren't consumed?
-stuff[12]+=0x100;
 	cycles = (ARM_DWT_CYCCNT - cycles) >> 6;
-stuff[12]+=0x100;
 	cpu_cycles = cycles;
-stuff[12]+=0x100;
 	if (cycles > cpu_cycles_max) cpu_cycles_max = cycles;
-	if (udc < 7)
-		stuff[udc++] = (uint32_t) &cpu_cycles;
 }
 
 
@@ -1115,24 +1071,16 @@ void software_isr(void) // AudioStream::update_all()
 	AudioStream *p, *pC;
 
 	uint32_t totalcycles = ARM_DWT_CYCCNT;
-	udc = 3;
-	stuff[9]++;
-stuff[12]++;
 	//digitalWriteFast(2, HIGH);
 	for (p = AudioStream::first_update; p; p = p->next_update) {
-stuff[12]++;
 		if (p->active) {
-stuff[12]++;
 			p->updateOne();
-stuff[12]++;
 		}
 	}
 	for (pC = AudioStream::first_clan; pC; pC= pC->next_clan)
 	{
-stuff[12]++;
 		if (pC->clanActive || AudioStream::allClansActive)
 		{
-stuff[12]++;
 			for (p = pC; p; p = p->next_update) 
 				p->updateOne();
 		}
