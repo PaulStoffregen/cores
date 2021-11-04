@@ -203,7 +203,8 @@ public:
 		}
 		enableInterrupts(irq);
 		first->_triggered = false;
-		(*(first->_function))(*first);
+		if (nullptr != first->_function)
+			(*(first->_function))(*first);
 		runningFromYield = false;
 	}
 	static void runFromInterrupt();

@@ -148,7 +148,7 @@ AudioStream* AudioStream::clanListUnlink(AudioStream* pItem)
 	AudioStream* pHead = pItem->clan_head; // find the clan head
 	AudioStream** ppClanHead;
 SPRT("Clan unlink: ");
-printAclan(pHead,NULL);
+dbgPrintAclan(pHead,NULL);
 SFSH();
 
 	// find where we are in the clan list
@@ -195,13 +195,13 @@ AudioStream* AudioStream::updateListMergeInto(AudioStream** ppAfter,AudioStream*
 	AudioStream* pTail;
 	
 SPRT("Merge item: ");	
-printClanEntry(pItem,0,NULL,NULL,NULL);
+dbgPrintClanEntry(pItem,0,NULL,NULL,NULL);
 SPRL("from:");
-printAclan(pItem->clan_head,NULL);
+dbgPrintAclan(pItem->clan_head,NULL);
 SPRT("after: ");	
 SPRL((uint32_t) ppAfter,HEX);	
 SPRT("before: ");	
-printClanEntry(*ppAfter,0,NULL,NULL,NULL);
+dbgPrintClanEntry(*ppAfter,0,NULL,NULL,NULL);
 SPRT("new head: ");	
 SPRL((uint32_t) newHead,HEX);	
 SFSH();
@@ -238,7 +238,7 @@ SPRL("Merged to active updates");
 		// else we share the same clan head, no merge needed
 		pTail = newHead;
 SPRL("Merged clan is:");	
-printAclan(newHead,NULL);
+dbgPrintAclan(newHead,NULL);
 	}
 	
 	return pTail; // clan head, or first_update
@@ -573,10 +573,7 @@ int AudioConnection::connect(void)
 		dst->linkIntoUpdateList(this); // unnecessary? 
 		
 		src->numConnections++;
-		//src->active = true;
-
 		dst->numConnections++;
-		//dst->active = true;
 
 		isConnected = true;
 		
@@ -648,16 +645,16 @@ int AudioConnection::disconnect(void)
 		dst->inputQueue[dest_index] = NULL;
 	}
 
-	//Check if the disconnected AudioStream objects should still be active
+	// Check if the disconnected AudioStream objects should still be active
+	// Note that if they have update responsibility then they stay active
+	// and in the update list
 	src->numConnections--;
 	if (src->numConnections == 0) {
-		//src->active = false;
 		src->unlinkFromActiveUpdateList();
 	}
 
 	dst->numConnections--;
 	if (dst->numConnections == 0) {
-		//dst->active = false;
 		dst->unlinkFromActiveUpdateList();
 	}
 	
@@ -683,7 +680,7 @@ int AudioStream::simples = 0;
 void AudioStream::linkIntoUpdateList(const AudioConnection* pC)
 {
 SPRT("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-printClanList();
+dbgPrintClanList();
 	
 	if (!active) // not yet linked in
 	{
@@ -783,7 +780,7 @@ SPRL("...already clanned up");
 		}
 SPRL("...done");
 SPRL(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-printClanList();
+dbgPrintClanList();
 SFSH();
 	}
 }
@@ -792,12 +789,17 @@ SFSH();
 // Unlink an AudioStream object from the active update list. This will occur when
 // its last connection is severed. Also inactivates the object, and moves it to the clan list.
 // Safe to call if already unlinked.
-void AudioStream::unlinkFromActiveUpdateList()
+// If the object has update responsibility and is NOT being destroyed then we leave it
+// active, as otherwise the audio system stops working.
+void AudioStream::unlinkFromActiveUpdateList(bool fromDestructor)
 {
 	AudioStream** ppS;
 SPRT("\r\nUnlink!");
 	
-	if (NULL == clan_head) // we are in the main update list
+	if (NULL == clan_head 		// we are in the main update list
+	 && (this != update_owner	// don't unlink update owner...
+	  || fromDestructor)		// ...unless it's being destroyed anyway
+	  )
 	{
 		// find our precursor pointer
 		for (ppS = &first_update; *ppS != NULL && *ppS != this; ppS = &((*ppS)->next_update))
@@ -812,11 +814,21 @@ SFSH();
 			clanListLinkIn(this); 	// and are in the clan list
 		}
 	}
+	
 else
 {
+	if (this != update_owner)
+	{
 SPRL("...nothing to do");
 SFSH();
+	}
+	else
+	{
+SPRL("...update owner - skipped");
+SFSH();
+	}
 }
+
 }
 
 
@@ -828,9 +840,9 @@ void AudioStream::unlinkItemFromClanUpdateList()
 {
 	AudioStream* pC, **ppS;
 		
-printClanList();				
+dbgPrintClanList();				
 	pC = clanListUnlink(this); // unlink whole clan from list, for now
-printClanList();				
+dbgPrintClanList();				
 	if (NULL != pC) // this is  a clan member, pC points to (unlinked) clan head
 	{
 		AudioStream* pH = pC; // take a copy that may get overwritten
@@ -842,7 +854,7 @@ SFSH();
 		{
 			if (*ppS == this) // found the link to us
 			{
-printClanEntry(pC,0,NULL,NULL,NULL);
+dbgPrintClanEntry(pC,0,NULL,NULL,NULL);
 				listUnlink(ppS,&this->next_update); // unlink this item
 SPRT("\r\n*ppS is: ");
 SPRL((uint32_t) *ppS,HEX);
@@ -923,6 +935,18 @@ AudioStream::~AudioStream()
 {
 	AudioStream** ppS; // iterating pointer
 	
+	// Deal with interrupts: if an update() occurs while the destructor is
+	// being executed Bad Things can happen, and it's impossible for the programmer
+	// to wrap destructor calls in Audio[No]Interrupts() calls in every case (e.g.
+	// when an audio object goes out of scope), so we do it here.
+	// 
+	// It is recommended for every derived object's destructor to call 
+	// destructorDisableNVIC(), as it appears possible to get the update() between
+	// the delete call and NVIC_DISABLE_IRQ(), but this is better than nothing. I think.
+	bool reenableNVIC = (NVIC_IS_ENABLED(IRQ_SOFTWARE) != 0);// || destructorDisabledNVIC;
+	NVIC_DISABLE_IRQ(IRQ_SOFTWARE);
+	reenableNVIC = reenableNVIC || destructorDisabledNVIC;
+	
 SPRT("\r\nDestructor: (");
 SPRT((uint32_t) this,HEX);
 SPRT(")...");
@@ -930,7 +954,7 @@ SFSH();
 
 	// associated audio blocks:
 	SAFE_RELEASE(inputQueue,num_inputs,false);	// release input blocks and disable interrupts
-	
+
 	// associated connections:
 	// run through all AudioStream objects in the active update list,
 	// except for ourselves
@@ -974,12 +998,21 @@ SFSH();
 	NULLifConnected(&unused);
 	
 	// associated update lists (active or clan):
-	unlinkFromActiveUpdateList();	// unlink ourselves from active, move to clan list...
-	unlinkItemFromClanUpdateList(); // ...and remove from clan list
+	unlinkFromActiveUpdateList(true);	// [force] unlink ourselves from active, move to clan list...
+	unlinkItemFromClanUpdateList(); 	// ...and remove from clan list
+				
+	// special check for having had update responsibility: if
+	// so, we need to give that up 
+	if (this == update_owner)
+		update_stop();
+
 SPRT("unlink\r\n\r\n");
 SFSH();
 	
 	__enable_irq();
+	//Serial.print("> "); Serial.flush();
+	if (reenableNVIC)
+		NVIC_ENABLE_IRQ(IRQ_SOFTWARE);
 }
 
 
@@ -988,12 +1021,12 @@ SFSH();
 // true.  Objects that are capable of calling update_all(), typically
 // input and output based on interrupts, must check this variable in
 // their constructors.
-bool AudioStream::update_scheduled = false;
+AudioStream* AudioStream::update_owner = NULL;
 bool AudioStream::allClansActive = true;
 
 bool AudioStream::update_setup(void)
 {
-	if (update_scheduled) return false;
+	if (NULL != update_owner) return false;
 	
 	if (NULL == first_update) // first connection ever: bootstrap the update list
 	{
@@ -1008,7 +1041,7 @@ SFSH();
 	attachInterruptVector(IRQ_SOFTWARE, software_isr);
 	NVIC_SET_PRIORITY(IRQ_SOFTWARE, 208); // 255 = lowest priority
 	NVIC_ENABLE_IRQ(IRQ_SOFTWARE);
-	update_scheduled = true;
+	update_owner = this;
 	return true;
 }
 
@@ -1016,22 +1049,22 @@ SFSH();
 void AudioStream::update_stop(void)
 {
 	NVIC_DISABLE_IRQ(IRQ_SOFTWARE);
-	update_scheduled = false;
+	update_owner = NULL;
 }
-
 
 AudioStream * AudioStream::first_update = NULL;
 
 inline void AudioStream::updateOne()
 {
 	uint32_t cycles = ARM_DWT_CYCCNT;
-	update();
+	update(); // N.B. this can FAIL if called while object is being destroyed: protection needed
 	// TODO: traverse inputQueueArray and release
 	// any input blocks that weren't consumed?
 	cycles = (ARM_DWT_CYCCNT - cycles) >> 6;
 	cpu_cycles = cycles;
 	if (cycles > cpu_cycles_max) cpu_cycles_max = cycles;
 }
+
 
 void software_isr(void) // AudioStream::update_all()
 {

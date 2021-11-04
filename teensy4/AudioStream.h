@@ -31,7 +31,7 @@
 #ifndef AudioStream_h
 #define AudioStream_h
 
-//#define DYNAMIC_AUDIO_DEBUG
+#define noDYNAMIC_AUDIO_DEBUG
 
 #ifndef __ASSEMBLER__
 #include <stdio.h>  // for NULL
@@ -40,6 +40,9 @@
 
 
 #if defined(DYNAMIC_AUDIO_DEBUG)
+#define dbgPrintClanEntry(...) 	printClanEntry(__VA_ARGS__)
+#define dbgPrintAclan(...)		printAclan(__VA_ARGS__)
+#define dbgPrintClanList(...)	printClanList(__VA_ARGS__)
 #undef SPRT
 #undef SPRL
 #undef SFSH
@@ -47,9 +50,9 @@
 #define SPRL(...) Serial.println(__VA_ARGS__) 
 #define SFSH(...) Serial.flush(__VA_ARGS__) 
 #else
-#define printClanEntry(...)
-#define printAclan(...)
-#define printClanList(...)
+#define dbgPrintClanEntry(...)
+#define dbgPrintAclan(...)
+#define dbgPrintClanList(...)
 #define SPRT(...) 
 #define SPRL(...) 
 #define SFSH(...) 
@@ -91,7 +94,7 @@
 #define OFFSET_OF(t,m) ((int)(&(((t*)0)->m)))
 
 #if defined(__cplusplus)
-#include <CrashReport.h> // for reporting crashes during audio clas construction
+#include <CrashReport.h> // for reporting crashes during audio class construction
 class AudioStream;
 class AudioConnection;
 class AudioDebug;
@@ -215,15 +218,17 @@ protected:
 	bool update_setup(void);
 	static void update_stop(void);
 	static void update_all(void) { NVIC_SET_PENDING(IRQ_SOFTWARE); }
+	void destructorDisableNVIC(void) {destructorDisabledNVIC = true; NVIC_DISABLE_IRQ(IRQ_SOFTWARE);}
 	friend void software_isr(void);
 	friend class AudioConnection;
 	friend class AudioDebug;
 	uint8_t numConnections;
 private:
+	bool destructorDisabledNVIC;
 	static AudioConnection* unused; // linked list of unused but not destructed connections
 	AudioConnection *destination_list;
 	audio_block_t **inputQueue;
-	static bool update_scheduled;
+	static AudioStream* update_owner;
 	static int simples;
 	inline void updateOne(void);
 	virtual void update(void) = 0;
@@ -237,7 +242,7 @@ private:
 	AudioStream* updateListMergeInto(AudioStream** ppAfter,AudioStream* newHead,AudioStream* pItem);
 	AudioStream* updateListUnlinkFrom(AudioStream** ppAfter,AudioStream** ppItemNext);
 	AudioStream* updateTailItem(AudioStream* pItem) {while (NULL != pItem && NULL != pItem->next_update) pItem=pItem->next_update; return pItem;}
-	void unlinkFromActiveUpdateList();
+	void unlinkFromActiveUpdateList(bool fromDestructor = false);
 	
 	// Clan list: AudioStream objects on this list are NOT yet on the update list,
 	// because no connection has yet been made which allows us to determine where
