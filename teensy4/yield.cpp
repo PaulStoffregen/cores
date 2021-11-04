@@ -55,7 +55,7 @@ void yield(void)
 	running = 1;
 
 
-	// USB Serail - Add hack to minimize impact...
+	// USB Serial - Add hack to minimize impact...
 	if (yield_active_check_flags & YIELD_CHECK_USB_SERIAL) {
 		if (Serial.available()) serialEvent();
 		if (_serialEvent_default) yield_active_check_flags &= ~YIELD_CHECK_USB_SERIAL;
