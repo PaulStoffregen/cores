@@ -90,10 +90,10 @@ void usb_mtp_configure(void)
 
 static void rx_queue_transfer(int i)
 {
+	NVIC_DISABLE_IRQ(IRQ_USB1);
 	void *buffer = rx_buffer + i * MTP_RX_SIZE_480;
 	arm_dcache_delete(buffer, rx_packet_size);
 	//memset(buffer, )
-	NVIC_DISABLE_IRQ(IRQ_USB1);
 	usb_prepare_transfer(rx_transfer + i, buffer, rx_packet_size, i);
 	usb_receive(MTP_RX_ENDPOINT, rx_transfer + i);
 	NVIC_ENABLE_IRQ(IRQ_USB1);

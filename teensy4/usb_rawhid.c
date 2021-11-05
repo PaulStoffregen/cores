@@ -76,10 +76,10 @@ void usb_rawhid_configure(void)
 
 static void rx_queue_transfer(int i)
 {
+	NVIC_DISABLE_IRQ(IRQ_USB1);
 	void *buffer = rx_buffer + i * RAWHID_RX_SIZE;
 	arm_dcache_delete(buffer, RAWHID_RX_SIZE);
 	//memset(buffer, )
-	NVIC_DISABLE_IRQ(IRQ_USB1);
 	usb_prepare_transfer(rx_transfer + i, buffer, RAWHID_RX_SIZE, i);
 	usb_receive(RAWHID_RX_ENDPOINT, rx_transfer + i);
 	NVIC_ENABLE_IRQ(IRQ_USB1);
