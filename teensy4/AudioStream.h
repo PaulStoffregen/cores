@@ -203,6 +203,7 @@ public:
 	static uint16_t cpu_cycles_total_max;
 	static uint16_t memory_used;
 	static uint16_t memory_used_max;
+	static audio_block_t silentBlock;	// lots of objects use this - let's provide one
 protected:
 	static bool serialStarted;
 	bool active;
@@ -259,6 +260,7 @@ private:
 	void unlinkItemFromClanUpdateList(); // remove single AudioStream object from clan
 	
 	static audio_block_t *memory_pool;
+	static unsigned int num_blocks_in_pool;
 	static uint32_t memory_pool_available_mask[];
 	static uint16_t memory_pool_first_mask;
 };

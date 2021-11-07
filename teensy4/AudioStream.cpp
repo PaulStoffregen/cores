@@ -38,7 +38,9 @@
 
 #define NUM_MASKS  (((MAX_AUDIO_MEMORY / AUDIO_BLOCK_SAMPLES / 2) + 31) / 32)
 
+audio_block_t   AudioStream::silentBlock = {0};
 audio_block_t * AudioStream::memory_pool;
+unsigned int AudioStream::num_blocks_in_pool;
 uint32_t AudioStream::memory_pool_available_mask[NUM_MASKS];
 uint16_t AudioStream::memory_pool_first_mask;
 
@@ -280,6 +282,7 @@ FLASHMEM void AudioStream::initialize_memory(audio_block_t *data, unsigned int n
 	if (num > maxnum) num = maxnum;
 	__disable_irq();
 	memory_pool = data;
+	num_blocks_in_pool = num;
 	memory_pool_first_mask = 0;
 	for (i=0; i < NUM_MASKS; i++) {
 		memory_pool_available_mask[i] = 0;
@@ -343,8 +346,11 @@ audio_block_t * AudioStream::allocate(void)
 // returned to the free pool
 void AudioStream::release(audio_block_t *block, bool enableIRQ /* = true */)
 {
-	if (block == NULL) 
+	// Don't allow returning blocks that aren't from the pool: this
+	// deals with bad / private blocks, NULL pointers, and the silent block
+	if (block < memory_pool || block >= (memory_pool + num_blocks_in_pool)) 
 		return;
+	
 	uint32_t mask = (0x80000000 >> (31 - (block->memory_pool_index & 0x1F)));
 	uint32_t index = block->memory_pool_index >> 5;
 
