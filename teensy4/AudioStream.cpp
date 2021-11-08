@@ -505,17 +505,18 @@ int AudioConnection::connect(void)
 		{
 			break;
 		}
-		if (dest_index >= dst->num_inputs) // input number too high
-		{
-			result = 2;
-			break;
-		}
+		
 		if (!src || !dst) // NULL src or dst - [old] Stream object destroyed
 		{
 			result = 3;
 			break;
 		}
 			
+		if (dest_index >= dst->num_inputs) // input number too high
+		{
+			result = 2;
+			break;
+		}
 		__disable_irq();
 		
 		// First check the destination's input isn't already in use
