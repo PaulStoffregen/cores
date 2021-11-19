@@ -36,14 +36,13 @@
 //#include "HardwareSerial.h"
 
 #include "debug/printf.h"
-
 #ifdef MTP_INTERFACE // defined by usb_dev.h -> usb_desc.h
 
 extern volatile uint8_t usb_high_speed;
 
 #define TX_NUM   4
 static transfer_t tx_transfer[TX_NUM] __attribute__ ((used, aligned(32)));
-DMAMEM static uint8_t txbuffer[MTP_TX_SIZE_480 * TX_NUM];
+DMAMEM static uint8_t txbuffer[MTP_TX_SIZE_480 * TX_NUM] __attribute__ ((aligned(32)));
 static uint8_t tx_head=0;
 static uint16_t tx_packet_size=0;
 
@@ -53,7 +52,8 @@ DMAMEM static uint8_t rx_buffer[MTP_RX_SIZE_480 * RX_NUM] __attribute__ ((aligne
 static volatile uint8_t rx_head;
 static volatile uint8_t rx_tail;
 static uint8_t rx_list[RX_NUM + 1];
-static volatile uint32_t rx_available;
+static int rx_list_transfer_len[RX_NUM + 1];
+
 static uint16_t rx_packet_size=0;
 static void rx_queue_transfer(int i);
 static void rx_event(transfer_t *t);
@@ -64,14 +64,14 @@ static void txEvent_event(transfer_t *t) { mtp_txEventCount++;}
 
 void usb_mtp_configure(void)
 {
-	printf("usb_mtp_configure\n");
-    	if (usb_high_speed) {
+	if (usb_high_speed) {
 		tx_packet_size = MTP_TX_SIZE_480;
 		rx_packet_size = MTP_RX_SIZE_480;
 	} else {
 		tx_packet_size = MTP_TX_SIZE_12;
 		rx_packet_size = MTP_RX_SIZE_12;
 	}
+	printf("usb_mtp_configure: TX:%u RX:%u\n", tx_packet_size, rx_packet_size);
 	memset(tx_transfer, 0, sizeof(tx_transfer));
 	memset(rx_transfer, 0, sizeof(rx_transfer));
 	tx_head = 0;
@@ -82,6 +82,16 @@ void usb_mtp_configure(void)
 	usb_config_tx(MTP_EVENT_ENDPOINT, MTP_EVENT_SIZE, 0, txEvent_event);
 	int i;
 	for (i=0; i < RX_NUM; i++) rx_queue_transfer(i);
+}
+
+int usb_mtp_rxSize(void)
+{
+	return rx_packet_size;
+}
+
+int usb_mtp_txSize(void)
+{
+	return tx_packet_size;	
 }
 
 /*************************************************************************/
@@ -95,6 +105,7 @@ static void rx_queue_transfer(int i)
 	//memset(buffer, )
 	NVIC_DISABLE_IRQ(IRQ_USB1);
 	usb_prepare_transfer(rx_transfer + i, buffer, rx_packet_size, i);
+	NVIC_DISABLE_IRQ(IRQ_USB1);
 	usb_receive(MTP_RX_ENDPOINT, rx_transfer + i);
 	NVIC_ENABLE_IRQ(IRQ_USB1);
 }
@@ -107,6 +118,9 @@ static void rx_event(transfer_t *t)
 	uint32_t head = rx_head;
 	if (++head > RX_NUM) head = 0;
 	rx_list[head] = i;
+	// remember how many bytes were actually sent by host...
+	int len = rx_packet_size - ((t->status >> 16) & 0x7FFF);
+	rx_list_transfer_len[head] = len;
 	rx_head = head;
 }
 
@@ -123,19 +137,32 @@ int usb_mtp_recv(void *buffer, uint32_t timeout)
 		}
 		yield();
 	}
-//	digitalWriteFast(0, LOW);
 	if (++tail > RX_NUM) tail = 0;
 	uint32_t i = rx_list[tail];
+	int len = rx_list_transfer_len[tail];
 	rx_tail = tail;
 
-	memcpy(buffer,  rx_buffer + i * MTP_RX_SIZE_480, rx_packet_size);
+	uint8_t *rx_item_buffer = rx_buffer + i * MTP_RX_SIZE_480;
+	// BUGBUG Should we use the 
+	memcpy(buffer,  rx_item_buffer, len);
 	rx_queue_transfer(i);
 	//memset(rx_transfer, 0, sizeof(rx_transfer));
 	//usb_prepare_transfer(rx_transfer + 0, rx_buffer, rx_packet_size, 0);
 	//usb_receive(MTP_RX_ENDPOINT, rx_transfer + 0);
-	return rx_packet_size;
+	return len;
 }
 
+int usb_mtp_available(void)
+{
+	if (!usb_configuration) return 0;
+	if (rx_head != rx_tail) return rx_packet_size;
+	//if (!(usb_transfer_status(rx_transfer) & 0x80)) return MTP_RX_SIZE;
+	return 0;
+}
+
+/*************************************************************************/
+/**                             Send                                    **/
+/*************************************************************************/
 int usb_mtp_send(const void *buffer, uint32_t len, uint32_t timeout)
 {
 	transfer_t *xfer = tx_transfer + tx_head;
@@ -155,14 +182,6 @@ int usb_mtp_send(const void *buffer, uint32_t len, uint32_t timeout)
 	usb_transmit(MTP_TX_ENDPOINT, xfer);
 	if (++tx_head >= TX_NUM) tx_head = 0;
 	return len;
-}
-
-int usb_mtp_available(void)
-{
-	if (!usb_configuration) return 0;
-	if (rx_head != rx_tail) return rx_packet_size;
-	//if (!(usb_transfer_status(rx_transfer) & 0x80)) return MTP_RX_SIZE;
-	return 0;
 }
 
 #endif // MTP_INTERFACE

@@ -162,6 +162,12 @@ public:
 	size_t read(void *buf, size_t nbyte) {
 		return (f) ? f->read(buf, nbyte) : 0;
 	}
+	
+	// override print version
+	virtual size_t write(const uint8_t *buf, size_t size) {
+		return (f) ? f->write((void*)buf, size) : 0;
+	}
+
 	size_t write(const void *buf, size_t size) {
 		return (f) ? f->write(buf, size) : 0;
 	}

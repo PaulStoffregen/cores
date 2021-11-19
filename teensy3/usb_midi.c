@@ -194,10 +194,14 @@ void usb_midi_send_sysex_add_term_bytes(const uint8_t *data, uint32_t length, ui
 
 void usb_midi_flush_output(void)
 {
-	if (tx_noautoflush == 0 && tx_packet && tx_packet->index > 0) {
-		tx_packet->len = tx_packet->index * 4;
-		usb_tx(MIDI_TX_ENDPOINT, tx_packet);
-		tx_packet = NULL;
+	if (tx_noautoflush == 0) {
+		tx_noautoflush = 1;
+		if (tx_packet && tx_packet->index > 0) {
+			tx_packet->len = tx_packet->index * 4;
+			usb_tx(MIDI_TX_ENDPOINT, tx_packet);
+			tx_packet = NULL;
+		}
+		tx_noautoflush = 0;
 	}
 }
 
