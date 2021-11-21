@@ -210,6 +210,7 @@ SFSH();
 
 	
 	if (ppAfter == &first_update ||
+		NULL == newHead ||
 		(NULL != *ppAfter &&  NULL == (*ppAfter)->clan_head)) // merging into active update list
 	{
 		if (NULL != pHead) // and we have a clan head, so we're not already in it!
