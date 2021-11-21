@@ -44,6 +44,8 @@ void usb_rawhid_configure(void);
 int usb_rawhid_recv(void *buffer, uint32_t timeout);
 int usb_rawhid_available(void);
 int usb_rawhid_send(const void *buffer, uint32_t timeout);
+int usb_rawhid_rxSize(void);
+int usb_rawhid_txSize(void);
 #ifdef __cplusplus
 }
 #endif
@@ -57,6 +59,8 @@ public:
 	int available(void) {return usb_rawhid_available(); }
 	int recv(void *buffer, uint16_t timeout) { return usb_rawhid_recv(buffer, timeout); }
 	int send(const void *buffer, uint16_t timeout) { return usb_rawhid_send(buffer, timeout); }
+    int rxSize(void) {return usb_rawhid_rxSize(); }
+    int txSize(void) {return usb_rawhid_txSize(); }
 };
 
 extern usb_rawhid_class RawHID;
