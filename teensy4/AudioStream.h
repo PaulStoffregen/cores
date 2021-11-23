@@ -157,10 +157,10 @@ public:
 		{
 			if (!serialStarted)
 			{
+#if defined(DYNAMIC_AUDIO_DEBUG)
 				Serial.begin(115200);
 				while (!Serial)
 					;
-#if defined(DYNAMIC_AUDIO_DEBUG)
 				if (CrashReport) {
 					Serial.println(CrashReport);
 					CrashReport.clear();
