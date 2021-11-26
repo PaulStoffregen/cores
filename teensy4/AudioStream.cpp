@@ -38,7 +38,7 @@
 
 #define NUM_MASKS  (((MAX_AUDIO_MEMORY / AUDIO_BLOCK_SAMPLES / 2) + 31) / 32)
 
-audio_block_t   AudioStream::silentBlock = {0};
+DMAMEM audio_block_t   AudioStream::silentBlock = {2,0}; //!< silent block: set ref_count so it's copied if receiveWriteable is used
 audio_block_t * AudioStream::memory_pool;
 unsigned int AudioStream::num_blocks_in_pool;
 uint32_t AudioStream::memory_pool_available_mask[NUM_MASKS];
@@ -395,11 +395,18 @@ void AudioStream::release(audio_block_t** blocks, int numBlocks, bool enableIRQ 
 // and then release it once after all transmit calls.
 void AudioStream::transmit(audio_block_t *block, unsigned char index)
 {
-	for (AudioConnection *c = destination_list; c != NULL; c = c->next_dest) {
-		if (c->src_index == index) {
-			if (c->dst->inputQueue[c->dest_index] == NULL) {
-				c->dst->inputQueue[c->dest_index] = block;
-				block->ref_count++;
+	if (NULL != block)
+	{
+		for (AudioConnection *c = destination_list; NULL != c; c = c->next_dest) 
+		{
+			if (c->src_index == index) 
+			{
+				if (NULL == c->dst->inputQueue[c->dest_index]) 
+				{
+					c->dst->inputQueue[c->dest_index] = block;
+					if (block < memory_pool || block >= (memory_pool + num_blocks_in_pool)) 
+						block->ref_count++;
+				}
 			}
 		}
 	}
@@ -428,10 +435,16 @@ audio_block_t * AudioStream::receiveWritable(unsigned int index)
 	if (index >= num_inputs) return NULL;
 	in = inputQueue[index];
 	inputQueue[index] = NULL;
-	if (in && in->ref_count > 1) {
+	
+	// If multiple objects are referring, we need our own copy to write to
+	if (in && in->ref_count > 1) 
+	{
 		p = allocate();
-		if (p) memcpy(p->data, in->data, sizeof(p->data));
-		in->ref_count--;
+		if (p) 
+			memcpy(p->data, in->data, sizeof(p->data));
+		// only modify ref_count for real pool blocks:
+		if (in < memory_pool || in >= (memory_pool + num_blocks_in_pool)) 
+			in->ref_count--;
 		in = p;
 	}
 	return in;
