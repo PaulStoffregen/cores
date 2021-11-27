@@ -68,10 +68,12 @@ void spi_ignore_bytes(uint8_t count)
 		spi_write(0xFF);
 	} while (--count);
 }
+inline void spi_select(void) __attribute__((always_inline));
 inline void spi_select(void)
 {
 	SPI_PORT &= ~(1<<SPI_SS_PIN);
 }
+inline void sd_deselect(void) __attribute__((always_inline));
 inline void sd_deselect(void)
 {
 	SPI_PORT |= (1<<SPI_SS_PIN);
@@ -295,6 +297,7 @@ void media_poll(void)
 	//return media_state;
 }
 
+inline uint32_t media_size(void) __attribute__((always_inline));
 inline uint32_t media_size(void)
 {
 	uint8_t r;
