@@ -7826,8 +7826,8 @@ typedef struct
 #define PXP_OUT_CTRL_ALPHA_OUTPUT           ((uint32_t)(1<<23))
 #define PXP_OUT_CTRL_ALPHA(n)               ((uint32_t)(((n) & 0xFF) << 24))
 
-#define PXP_PS_CTRL_FORMAT(n)               ((uint32_t)(((n) & 0x1F)))
-#define PXP_PS_CTRL_WB_SWAP                 ((uint32_t)(1<<5))
+#define PXP_PS_CTRL_FORMAT(n)               ((uint32_t)(((n) & 0x3F)))
+#define PXP_PS_CTRL_WB_SWAP                 ((uint32_t)(1<<6))
 #define PXP_PS_CTRL_DECY(n)                 ((uint32_t)(((n) & 0x3) << 8))
 #define PXP_PS_CTRL_DECX(n)                 ((uint32_t)(((n) & 0x3) << 10))
 
