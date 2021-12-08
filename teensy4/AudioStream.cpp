@@ -404,7 +404,7 @@ void AudioStream::transmit(audio_block_t *block, unsigned char index)
 				if (NULL == c->dst->inputQueue[c->dest_index]) 
 				{
 					c->dst->inputQueue[c->dest_index] = block;
-					if (block < memory_pool || block >= (memory_pool + num_blocks_in_pool)) 
+					if (block >= memory_pool && block < (memory_pool + num_blocks_in_pool)) 
 						block->ref_count++;
 				}
 			}
@@ -443,7 +443,7 @@ audio_block_t * AudioStream::receiveWritable(unsigned int index)
 		if (p) 
 			memcpy(p->data, in->data, sizeof(p->data));
 		// only modify ref_count for real pool blocks:
-		if (in < memory_pool || in >= (memory_pool + num_blocks_in_pool)) 
+		if (in >= memory_pool && in < (memory_pool + num_blocks_in_pool)) 
 			in->ref_count--;
 		in = p;
 	}
