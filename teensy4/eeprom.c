@@ -60,6 +60,8 @@
 // To be called from LittleFS_Program, any other use at your own risk!
 void eepromemu_flash_write(void *addr, const void *data, uint32_t len);
 void eepromemu_flash_erase_sector(void *addr);
+void eepromemu_flash_erase_32K_block(void *addr);
+void eepromemu_flash_erase_64K_block(void *addr);
 
 static uint8_t initialized=0;
 static uint16_t sector_index[FLASH_SECTORS];
@@ -306,3 +308,50 @@ void eepromemu_flash_erase_sector(void *addr)
 	flash_wait();
 }
 
+void eepromemu_flash_erase_32K_block(void *addr)
+{
+	__disable_irq();
+	FLEXSPI_LUTKEY = FLEXSPI_LUTKEY_VALUE;
+	FLEXSPI_LUTCR = FLEXSPI_LUTCR_UNLOCK;
+	FLEXSPI_LUT60 = LUT0(CMD_SDR, PINS1, 0x06); // 06 = write enable
+	FLEXSPI_LUT61 = 0;
+	FLEXSPI_LUT62 = 0;
+	FLEXSPI_LUT63 = 0;
+	FLEXSPI_IPCR0 = 0;
+	FLEXSPI_IPCR1 = FLEXSPI_IPCR1_ISEQID(15);
+	FLEXSPI_IPCMD = FLEXSPI_IPCMD_TRG;
+	arm_dcache_delete((void *)((uint32_t)addr & 0xFFFF8000), 32768); // purge data from cache
+	while (!(FLEXSPI_INTR & FLEXSPI_INTR_IPCMDDONE)) ; // wait
+	FLEXSPI_INTR = FLEXSPI_INTR_IPCMDDONE;
+	FLEXSPI_LUT60 = LUT0(CMD_SDR, PINS1, 0x52) | LUT1(ADDR_SDR, PINS1, 24); // 20 = sector erase
+	FLEXSPI_IPCR0 = (uint32_t)addr & 0x00FF8000;
+	FLEXSPI_IPCR1 = FLEXSPI_IPCR1_ISEQID(15);
+	FLEXSPI_IPCMD = FLEXSPI_IPCMD_TRG;
+	while (!(FLEXSPI_INTR & FLEXSPI_INTR_IPCMDDONE)) ; // wait
+	FLEXSPI_INTR = FLEXSPI_INTR_IPCMDDONE;
+	flash_wait();
+}
+
+void eepromemu_flash_erase_64K_block(void *addr)
+{
+	__disable_irq();
+	FLEXSPI_LUTKEY = FLEXSPI_LUTKEY_VALUE;
+	FLEXSPI_LUTCR = FLEXSPI_LUTCR_UNLOCK;
+	FLEXSPI_LUT60 = LUT0(CMD_SDR, PINS1, 0x06); // 06 = write enable
+	FLEXSPI_LUT61 = 0;
+	FLEXSPI_LUT62 = 0;
+	FLEXSPI_LUT63 = 0;
+	FLEXSPI_IPCR0 = 0;
+	FLEXSPI_IPCR1 = FLEXSPI_IPCR1_ISEQID(15);
+	FLEXSPI_IPCMD = FLEXSPI_IPCMD_TRG;
+	arm_dcache_delete((void *)((uint32_t)addr & 0xFFFF0000), 65536); // purge data from cache
+	while (!(FLEXSPI_INTR & FLEXSPI_INTR_IPCMDDONE)) ; // wait
+	FLEXSPI_INTR = FLEXSPI_INTR_IPCMDDONE;
+	FLEXSPI_LUT60 = LUT0(CMD_SDR, PINS1, 0xD8) | LUT1(ADDR_SDR, PINS1, 24); // 20 = sector erase
+	FLEXSPI_IPCR0 = (uint32_t)addr & 0x00FF0000;
+	FLEXSPI_IPCR1 = FLEXSPI_IPCR1_ISEQID(15);
+	FLEXSPI_IPCMD = FLEXSPI_IPCMD_TRG;
+	while (!(FLEXSPI_INTR & FLEXSPI_INTR_IPCMDDONE)) ; // wait
+	FLEXSPI_INTR = FLEXSPI_INTR_IPCMDDONE;
+	flash_wait();
+}
