@@ -918,6 +918,10 @@ static void schedule_transfer(endpoint_t *endpoint, uint32_t epmask, transfer_t 
 		//USB1_USBCMD &= ~USB_USBCMD_ATDTW;
 		if (status & epmask) goto end;
 		//ret |= 0x02;
+		endpoint->next = (uint32_t)transfer;
+		endpoint->status = 0;
+		USB1_ENDPTPRIME |= epmask;
+		goto end;
 	}
 	//digitalWriteFast(4, HIGH);
 	endpoint->next = (uint32_t)transfer;
