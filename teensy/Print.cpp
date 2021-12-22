@@ -102,7 +102,9 @@ int Print::printf(const char *format, ...)
 	fdev_setup_stream(&f, printf_putchar, NULL, _FDEV_SETUP_WRITE);
 	fdev_set_udata(&f, this);
 	va_start(ap, format);
-	return vfprintf(&f, format, ap);
+	int retval = vfprintf(&f, format, ap);
+	va_end(ap);
+	return retval;
 }
 
 int Print::printf(const __FlashStringHelper *format, ...)
@@ -113,7 +115,9 @@ int Print::printf(const __FlashStringHelper *format, ...)
 	fdev_setup_stream(&f, printf_putchar, NULL, _FDEV_SETUP_WRITE);
 	fdev_set_udata(&f, this);
 	va_start(ap, format);
-	return vfprintf_P(&f, (const char *)format, ap);
+	int retval = vfprintf_P(&f, (const char *)format, ap);
+	va_end(ap);
+	return retval;
 }
 
 
