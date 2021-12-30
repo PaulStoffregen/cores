@@ -89,8 +89,9 @@
 // By setting active=false, even if an audio interrupt does occur after
 // the blocks have been released, the dying object will NOT update()
 // and thus won't allocate any more blocks after SAFE_RELEASE has executed
-#define SAFE_RELEASE(...) __disable_irq(); active = false; release(__VA_ARGS__)
-#define SAFE_RELEASE_MANY(n,...) __disable_irq(); active = false; {audio_block_t* blx[]={__VA_ARGS__}; release(blx,n);}
+#define SAFE_RELEASE(...) __disable_irq(); active = false; release(__VA_ARGS__,false)
+#define SAFE_RELEASE_MANY(n,...) __disable_irq(); active = false; {audio_block_t* blx[]={__VA_ARGS__}; release(blx,n,false);}
+#define SAFE_RELEASE_INPUTS() __disable_irq(); active = false; releaseInputQueue(false)
 #define OFFSET_OF(t,m) ((int)(&(((t*)0)->m)))
 
 #if defined(__cplusplus)
@@ -213,6 +214,7 @@ protected:
 	static audio_block_t * allocate(void);
 	static void release(audio_block_t * block, bool enableIRQ = true);
 	static void release(audio_block_t** blocks, int numBlocks, bool enableIRQ = true);
+	void releaseInputQueue(bool enableIRQ = true);
 	void transmit(audio_block_t *block, unsigned char index = 0);
 	audio_block_t * receiveReadOnly(unsigned int index = 0);
 	audio_block_t * receiveWritable(unsigned int index = 0);

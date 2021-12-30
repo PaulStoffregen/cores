@@ -379,10 +379,20 @@ void AudioStream::release(audio_block_t** blocks, int numBlocks, bool enableIRQ 
 	while (numBlocks--)
 	{
 		release(*blocks,false); // NULL pointers are allowed, nothing will happen...
+		*blocks = NULL; // just to be sure
 		blocks++;
 	}
 	if (enableIRQ)
 		__enable_irq();
+}
+
+
+// Release ownership of all blocks in the inputQueue array.
+// Can't be done from derived objects because although they supply it, the
+// pointer is then kept private. Go figure...
+void AudioStream::releaseInputQueue(bool enableIRQ /* = true */)
+{
+	release(inputQueue,num_inputs,enableIRQ);
 }
 
 
@@ -973,8 +983,9 @@ SPRT((uint32_t) this,HEX);
 SPRT(")...");
 SFSH();
 
-	// associated audio blocks:
-	SAFE_RELEASE(inputQueue,num_inputs,false);	// release input blocks and disable interrupts
+	// Can't release associated audio blocks here, because the derived class has already been
+	// destroyed so inputQueue is no longer a pointer to valid memory!
+	//SAFE_RELEASE(inputQueue,num_inputs,false);	// release input blocks and disable interrupts
 
 	// associated connections:
 	// run through all AudioStream objects in the active update list,
