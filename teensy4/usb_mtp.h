@@ -48,6 +48,7 @@ int usb_mtp_rxSize(void);
 int usb_mtp_txSize(void);
 
 extern uint32_t mtp_txEventCount;
+extern volatile uint8_t usb_mtp_status;
 
 #ifdef __cplusplus
 }
