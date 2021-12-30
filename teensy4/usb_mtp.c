@@ -62,6 +62,13 @@ extern volatile uint8_t usb_configuration;
 uint32_t mtp_txEventCount = 0;
 static void txEvent_event(transfer_t *t) { mtp_txEventCount++;}
 
+// status values: 0x01=ok, 0x19=host cancel, 0x1F=device cancel (not supported)
+//  When the USB host wishes to cancel a transfer, usb_mtp_status is set to 0x19.
+//  Polling code which performs the data transfer must periodically check
+//  usb_mtp_status.  If it is equal to 0x19, the file in use must be closed and
+//  any required cleanup performed.  When ready for more transfers, set to 0x01.
+volatile uint8_t usb_mtp_status = 0x01;
+
 void usb_mtp_configure(void)
 {
 	if (usb_high_speed) {
