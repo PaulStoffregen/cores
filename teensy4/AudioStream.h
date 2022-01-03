@@ -31,7 +31,9 @@
 #ifndef AudioStream_h
 #define AudioStream_h
 
+// Debugging capabilities:
 #define noDYNAMIC_AUDIO_DEBUG
+#define SCOPE_PIN 25
 
 #ifndef __ASSEMBLER__
 #include <stdio.h>  // for NULL
@@ -46,6 +48,7 @@
 #undef SPRT
 #undef SPRL
 #undef SFSH
+#define SPTF(...) Serial.printf(__VA_ARGS__) 
 #define SPRT(...) Serial.print(__VA_ARGS__) 
 #define SPRL(...) Serial.println(__VA_ARGS__) 
 #define SFSH(...) Serial.flush(__VA_ARGS__) 
@@ -53,10 +56,23 @@
 #define dbgPrintClanEntry(...)
 #define dbgPrintAclan(...)
 #define dbgPrintClanList(...)
+#define SPTF(...) 
 #define SPRT(...) 
 #define SPRL(...) 
 #define SFSH(...) 
 #endif // DYNAMIC_AUDIO_DEBUG
+
+#if defined(SCOPE_PIN)
+#define SCOPE_ENABLE() pinMode(SCOPE_PIN,OUTPUT)
+#define SCOPE_HIGH() digitalWrite(SCOPE_PIN,scope_pin_value = 1)
+#define SCOPE_LOW() digitalWrite(SCOPE_PIN,scope_pin_value = 0)
+#define SCOPE_TOGGLE() digitalWrite(SCOPE_PIN,scope_pin_value = !scope_pin_value)
+#else
+#define SCOPE_ENABLE(...) 
+#define SCOPE_HIGH(...) 
+#define SCOPE_LOW(...) 
+#define SCOPE_TOGGLE(...) 
+#endif // defined(SCOPE_PIN)
 
 
 // AUDIO_BLOCK_SAMPLES determines how many samples the audio library processes

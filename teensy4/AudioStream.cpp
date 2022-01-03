@@ -36,6 +36,10 @@
   #define MAX_AUDIO_MEMORY 229376
 #endif
 
+#if defined(SCOPE_PIN)
+bool scope_pin_value;
+#endif // defined(SCOPE_PIN)
+
 #define NUM_MASKS  (((MAX_AUDIO_MEMORY / AUDIO_BLOCK_SAMPLES / 2) + 31) / 32)
 
 DMAMEM audio_block_t   AudioStream::silentBlock = {2,0}; //!< silent block: set ref_count so it's copied if receiveWriteable is used
@@ -411,7 +415,7 @@ void AudioStream::transmit(audio_block_t *block, unsigned char index)
 		{
 			if (c->src_index == index) 
 			{
-				if (NULL == c->dst->inputQueue[c->dest_index]) 
+				if (NULL != c->dst && NULL == c->dst->inputQueue[c->dest_index]) 
 				{
 					c->dst->inputQueue[c->dest_index] = block;
 					if (block >= memory_pool && block < (memory_pool + num_blocks_in_pool)) 
@@ -639,64 +643,67 @@ int AudioConnection::disconnect(void)
 {
 	AudioConnection *p;
 
-	if (!isConnected) return 1;
-	if (dest_index >= dst->num_inputs) return 2; // should never happen!
+	SPTF("\n*** Disconnecting %08X (%08X,%08X): ",(uint32_t) this,(uint32_t) src,(uint32_t) dst);
+	if (!isConnected) {SPRL(1); return 1;}
+	if (dest_index >= dst->num_inputs) {SPRL(2); return 2;} // should never happen!
 	__disable_irq();
 	
 	// Remove destination from source list
-	p = src->destination_list;
-	if (p == NULL) {
-//>>> PAH re-enable the IRQ
-		__enable_irq();
-		return 3;
-	} else if (p == this) {
-		if (p->next_dest) {
-			src->destination_list = next_dest;
-		} else {
-			src->destination_list = NULL;
-		}
-	} else {
-		while (p)
+	if (NULL != src) // may already be disconnected
+	{		
+		p = src->destination_list;
+		if (p == this) 
 		{
-			if (p->next_dest == this) // found the parent of the disconnecting object
-			{
-				p-> next_dest = this->next_dest; // skip parent's link past us
-				break;
-			}
-			else
-				p = p->next_dest; // carry on down the list
+			src->destination_list = next_dest;
+			SPRT("u1 ");
 		}
+		else 
+		{
+			while (p)
+			{
+				if (p->next_dest == this) // found the parent of the disconnecting object
+				{
+					p-> next_dest = this->next_dest; // skip parent's link past us
+					SPRT("uN ");
+					break;
+				}
+				else
+					p = p->next_dest; // carry on down the list
+			}
+		}
+		
+		// Check if the disconnected AudioStream objects should still be active
+		// Note that if they have update responsibility then they stay active
+		// and in the update list
+		src->numConnections--;
+		if (src->numConnections == 0) 
+			src->unlinkFromActiveUpdateList();
 	}
 //>>> PAH release the audio buffer properly
 	//Remove possible pending src block from destination
-	if(dst->inputQueue[dest_index] != NULL) {
-		AudioStream::release(dst->inputQueue[dest_index]);
-		// release() re-enables the IRQ. Need it to be disabled a little longer
-		__disable_irq();
-		dst->inputQueue[dest_index] = NULL;
-	}
+	if (NULL != dst)
+	{
+		if (NULL != dst->inputQueue) 
+		{
+			AudioStream::release(dst->inputQueue[dest_index],false); // release() does NULL pointer check
+			dst->inputQueue[dest_index] = NULL;
+		}
 
-	// Check if the disconnected AudioStream objects should still be active
-	// Note that if they have update responsibility then they stay active
-	// and in the update list
-	src->numConnections--;
-	if (src->numConnections == 0) {
-		src->unlinkFromActiveUpdateList();
+		// move destination to clan if no longer active
+		dst->numConnections--;
+		if (dst->numConnections == 0) 
+			dst->unlinkFromActiveUpdateList();		
 	}
-
-	dst->numConnections--;
-	if (dst->numConnections == 0) {
-		dst->unlinkFromActiveUpdateList();
-	}
+	
+	// link now-unused connection into "unused" list
+	next_dest = AudioStream::unused;
+	AudioStream::unused = this;
 	
 	isConnected = false;
 	
-	// link now-unused connection into "unused" list
-	next_dest = dst->unused;
-	dst->unused = this;
-
 	__enable_irq();
 	
+	SPTF(" now have %08X, %08X: done ***\n",(uint32_t) src,(uint32_t) dst);
 	return 0;
 }
 
@@ -925,11 +932,13 @@ SFSH();
 // because it no longer points to a valid object so automatic re-connection won't work
 void AudioStream::NULLifConnected(AudioConnection** ppC) //!< list of connections that might refer to this
 {
+	AudioConnection* oldNextDest;
 SPRT(" [disconnect ");
 SFSH();
 	while (*ppC != NULL)
 	{
 		AudioConnection* pC = *ppC;	// easier to get our head round!
+		oldNextDest = pC->next_dest; // gets changed if we disconnect
 		
 SPRT((uint32_t) pC,HEX);
 SFSH();
@@ -938,18 +947,20 @@ SFSH();
 		{
 			pC->disconnect();	// disconnect this connection
 			pC->dst = NULL;		// can never re-connect, source will no longer exist
-SPRT("=dst ");
+SPTF("%08X disconnect+NULL (%08X, %08X) ",(uint32_t) pC,(uint32_t) pC->src,(uint32_t) pC->dst);
+//SPRT("=dst ");
 SFSH();
 		}
 		if (pC->src == this) // dying AudioStream is source for this connection...
 		{
 			pC->disconnect();	// disconnect this connection
 			pC->src = NULL;		// can never re-connect, source will no longer exist
-SPRT("=src ");
+SPTF("%08X disconnect+NULL (%08X, %08X) ",(uint32_t) pC,(uint32_t) pC->src,(uint32_t) pC->dst);
+//SPRT("=src ");
 SFSH();
 		}
-		if (pC == *ppC) // link didn't change, so we weren't disconnected...
-			ppC = &((*ppC)->next_dest); // ...can follow link 
+
+		ppC = &oldNextDest; // follow what we were previously linked to
 if (*ppC != NULL)
 {	
 SPRT(", ");
@@ -965,6 +976,7 @@ SFSH();
 AudioStream::~AudioStream()
 {
 	AudioStream** ppS; // iterating pointer
+	AudioStream* oldNextUpdate; // copy of next pointer, which may get chaned as we iterate
 	
 	// Deal with interrupts: if an update() occurs while the destructor is
 	// being executed Bad Things can happen, and it's impossible for the programmer
@@ -990,9 +1002,10 @@ SFSH();
 	// associated connections:
 	// run through all AudioStream objects in the active update list,
 	// except for ourselves
-	for (ppS = &first_update; *ppS != NULL; ppS = &((*ppS)->next_update))
+	for (ppS = &first_update; *ppS != NULL; ppS = &oldNextUpdate)
 	{
 		AudioStream* pS = *ppS;	// easier to get our head round!
+		oldNextUpdate = (*ppS)->next_update; // may change
 SPRL();
 SPRT((uint32_t) pS,HEX);
 SPRT("...");
@@ -1006,9 +1019,10 @@ SFSH();
 	// just to do this for our clan, but let's play safe
 	for (AudioStream* pC = first_clan; NULL != pC && NULL != pC->next_clan; pC = pC->next_clan)
 	{
-		for (ppS = &pC; *ppS != NULL; ppS = &((*ppS)->next_update))
+		for (ppS = &pC; *ppS != NULL; ppS = &oldNextUpdate)
 		{
 			AudioStream* pS = *ppS;	// easier to get our head round!
+			oldNextUpdate = (*ppS)->next_update; // may change
 SPRL();
 SPRT((uint32_t) pS,HEX);
 SPRT("...");
@@ -1019,6 +1033,7 @@ SPRT("...");
 		}
 	}
 	
+SPRL("\nOur destinations:");	
 	// now we can disconnect our own destinations
 	NULLifConnected(&destination_list);
 	
@@ -1074,6 +1089,9 @@ SFSH();
 	NVIC_SET_PRIORITY(IRQ_SOFTWARE, 208); // 255 = lowest priority
 	NVIC_ENABLE_IRQ(IRQ_SOFTWARE);
 	update_owner = this;
+	
+	SCOPE_ENABLE();
+	
 	return true;
 }
 
@@ -1095,6 +1113,8 @@ inline void AudioStream::updateOne()
 	cycles = (ARM_DWT_CYCCNT - cycles) >> 6;
 	cpu_cycles = cycles;
 	if (cycles > cpu_cycles_max) cpu_cycles_max = cycles;
+	
+	SCOPE_TOGGLE();
 }
 
 
@@ -1102,6 +1122,7 @@ void software_isr(void) // AudioStream::update_all()
 {
 	AudioStream *p, *pC;
 
+	SCOPE_HIGH();
 	uint32_t totalcycles = ARM_DWT_CYCCNT;
 	//digitalWriteFast(2, HIGH);
 	for (p = AudioStream::first_update; p; p = p->next_update) {
@@ -1123,6 +1144,7 @@ void software_isr(void) // AudioStream::update_all()
 	AudioStream::cpu_cycles_total = totalcycles;
 	if (totalcycles > AudioStream::cpu_cycles_total_max)
 		AudioStream::cpu_cycles_total_max = totalcycles;
+	SCOPE_LOW();
 
 	asm("DSB");
 }
