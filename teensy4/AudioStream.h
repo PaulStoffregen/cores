@@ -193,8 +193,13 @@ public:
 			next_clan = first_clan;		// ...are in a new clan...
 			first_clan = this;
 			next_update = NULL;			// ...with only us in it
-			for (int i=0; i < num_inputs; i++) {
-				inputQueue[i] = NULL;
+			
+			if (NULL == inputQueue)		// could be a failed malloc()
+				num_inputs = 0;			// prevent use of queues
+			else
+			{
+				for (int i=0; i < num_inputs; i++) 
+					inputQueue[i] = NULL;
 			}
 			// add to a simple list, for update_all
 			// TODO: replace with a proper data flow analysis in update_all
