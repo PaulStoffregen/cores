@@ -807,6 +807,70 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT7_CONFIG	ENDPOINT_RECEIVE_ISOCHRONOUS
   #define ENDPOINT8_CONFIG	ENDPOINT_TRANSMIT_ISOCHRONOUS
 
+
+#elif defined(USB_MIDI_AUDIO_DUAL_SERIAL)
+// To get the menu option, add the following into \Arduino\hardware\teensy\avr\boards.txt:
+//   teensyNN.menu.usb.serial2midiaudio=Dual Serial + MIDI + Audio
+//   teensyNN.menu.usb.serial2midiaudio.build.usbtype=USB_MIDI_AUDIO_DUAL_SERIAL
+  #define VENDOR_ID		0x16C0
+  #define PRODUCT_ID		0x048D
+  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
+  #define MANUFACTURER_NAME_LEN	11
+  #define PRODUCT_NAME {'T','e','e','n','s','y',' ','D','S','e','r','i','a','l','/','M','I','D','I','/','A','u','d','i','o'}
+  #define PRODUCT_NAME_LEN 25
+  #define EP0_SIZE		64
+  #define NUM_ENDPOINTS         11
+  #define NUM_USB_BUFFERS	40
+  #define NUM_INTERFACE		6
+  
+  #define CDC_IAD_DESCRIPTOR	1
+  #define CDC_STATUS_INTERFACE	0
+  #define CDC_DATA_INTERFACE	1	// Serial
+  #define CDC_ACM_ENDPOINT	1
+  #define CDC_RX_ENDPOINT       2
+  #define CDC_TX_ENDPOINT       3
+  #define CDC_ACM_SIZE          16
+  #define CDC_RX_SIZE           64
+  #define CDC_TX_SIZE           64
+  
+  #define CDC2_STATUS_INTERFACE	2	// SerialUSB1
+  #define CDC2_DATA_INTERFACE	3
+  #define CDC2_ACM_ENDPOINT	4
+  #define CDC2_RX_ENDPOINT		5
+  #define CDC2_TX_ENDPOINT		6
+  #define CDC2_ACM_SIZE			16
+  #define CDC2_RX_SIZE			64
+  #define CDC2_TX_SIZE			64
+  
+  #define MIDI_INTERFACE        4	// MIDI
+  #define MIDI_NUM_CABLES       1
+  #define MIDI_TX_ENDPOINT      7
+  #define MIDI_TX_SIZE          64
+  #define MIDI_RX_ENDPOINT      8
+  #define MIDI_RX_SIZE          64
+  
+  #define AUDIO_INTERFACE	5	// Audio (uses 3 consecutive interfaces)
+  #define AUDIO_TX_ENDPOINT     9
+  #define AUDIO_TX_SIZE         180
+  #define AUDIO_RX_ENDPOINT     10
+  #define AUDIO_RX_SIZE         180
+  #define AUDIO_SYNC_ENDPOINT	11
+  
+  #define ENDPOINT1_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_ONLY
+  #define ENDPOINT3_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  
+  #define ENDPOINT4_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  #define ENDPOINT5_CONFIG	ENDPOINT_RECEIVE_ONLY
+  #define ENDPOINT6_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  
+  #define ENDPOINT7_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  #define ENDPOINT8_CONFIG	ENDPOINT_RECEIVE_ONLY
+  
+  #define ENDPOINT9_CONFIG	ENDPOINT_TRANSMIT_ISOCHRONOUS
+  #define ENDPOINT10_CONFIG	ENDPOINT_RECEIVE_ISOCHRONOUS
+  #define ENDPOINT11_CONFIG	ENDPOINT_TRANSMIT_ISOCHRONOUS
+
 #elif defined(USB_MIDI16_AUDIO_SERIAL)
   #define VENDOR_ID		0x16C0
   #define PRODUCT_ID		0x048A
