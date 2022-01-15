@@ -42,7 +42,7 @@ bool scope_pin_value;
 
 #define NUM_MASKS  (((MAX_AUDIO_MEMORY / AUDIO_BLOCK_SAMPLES / 2) + 31) / 32)
 
-DMAMEM audio_block_t   AudioStream::silentBlock = {2,0}; //!< silent block: set ref_count so it's copied if receiveWriteable is used
+DMAMEM audio_block_t AudioStream::silentBlock; //!< silent block
 audio_block_t * AudioStream::memory_pool;
 unsigned int AudioStream::num_blocks_in_pool;
 uint32_t AudioStream::memory_pool_available_mask[NUM_MASKS];
@@ -298,6 +298,12 @@ FLASHMEM void AudioStream::initialize_memory(audio_block_t *data, unsigned int n
 	for (i=0; i < num; i++) {
 		data[i].memory_pool_index = i;
 	}
+	
+	// Initialise silent block: in DMAMEM so can't be given an 
+	// initial value at compile time. 
+	silentBlock.ref_count = 2; // ensure receiveWriteable is forced to copy it
+	memset(silentBlock.data,0,sizeof silentBlock.data);
+
 	__enable_irq();
 
 }
