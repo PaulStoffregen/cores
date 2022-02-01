@@ -184,7 +184,6 @@ public:
 				}
 #endif // defined(DYNAMIC_AUDIO_DEBUG)
 				serialStarted = true;
-				simples = 7;
 			}
 			// at construction time we...
 			active = false;				// ...are inactive
@@ -253,7 +252,6 @@ private:
 	AudioConnection *destination_list;
 	audio_block_t **inputQueue;
 	static AudioStream* update_owner;
-	static int simples;
 	inline void updateOne(void);
 	virtual void update(void) = 0;
 	void linkIntoUpdateList(const AudioConnection* pC);
@@ -312,7 +310,6 @@ class AudioDebug
 		AudioStream* 	 clanHead(AudioStream& s) { return s.clan_head;}
 		uint8_t 	 	 getNumConnections(AudioStream& s) { return s.numConnections;}
 		bool 	 	 	 isActive(AudioStream& s) { return s.active;}
-		void			 setSimples(int v) {AudioStream::simples = v;}
 		void 			 zapClans() { AudioStream::first_clan = NULL;}
 		
 };
