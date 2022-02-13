@@ -96,7 +96,10 @@ int usb_seremu_available(void)
 
 	if (!rx_packet) {
 		if (usb_configuration) rx_packet = usb_rx(SEREMU_RX_ENDPOINT);
-		if (!rx_packet) return 0;
+		if (!rx_packet) {
+			yield();
+			return 0;
+		}
 	}
 	len = rx_packet->len;
 	i = rx_packet->index;
@@ -108,6 +111,7 @@ int usb_seremu_available(void)
 	if (count == 0) {
 		usb_free(rx_packet);
 		rx_packet = NULL;
+		yield();
 	}
 	return count;
 }

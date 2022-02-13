@@ -89,6 +89,7 @@ int usb_serial3_available(void)
 	int count;
 	count = usb_rx_byte_count(CDC3_RX_ENDPOINT);
 	if (rx_packet) count += rx_packet->len - rx_packet->index;
+	if (count == 0) yield();
 	return count;
 }
 

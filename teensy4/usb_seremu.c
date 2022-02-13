@@ -155,7 +155,10 @@ int usb_seremu_peekchar(void)
 int usb_seremu_available(void)
 {
 	uint32_t tail = rx_tail;
-	if (tail == rx_head) return 0;
+	if (tail == rx_head) {
+		yield();
+		return 0;
+	}
 	// TODO: how much is actually available?
 	return 1;
 }

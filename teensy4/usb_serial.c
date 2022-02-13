@@ -229,7 +229,9 @@ int usb_serial_peekchar(void)
 // number of bytes available in the receive buffer
 int usb_serial_available(void)
 {
-	return rx_available;
+	uint32_t n = rx_available;
+	if (n == 0) yield();
+	return n;
 }
 
 // discard any buffered input

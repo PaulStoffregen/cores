@@ -75,6 +75,7 @@ public:
 				// USB host has begun the USB enumeration process.
 				if (elapsed > 750) break;
 			}
+			yield();
 		}
 	}
         void end() { /* TODO: flush output and shut down USB port */ };
@@ -97,7 +98,7 @@ public:
         uint8_t numbits(void) { return 8; }
         uint8_t dtr(void) { return 1; }
         uint8_t rts(void) { return 1; }
-        operator bool() { return usb_configuration && usb_seremu_online; }
+        operator bool() { yield(); return usb_configuration && usb_seremu_online; }
 };
 extern usb_seremu_class Serial;
 extern void serialEvent(void);
