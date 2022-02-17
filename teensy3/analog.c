@@ -232,11 +232,11 @@ static void wait_for_cal(void)
 	//serial_print("wait_for_cal\n");
 #if defined(HAS_KINETIS_ADC0) && defined(HAS_KINETIS_ADC1)
 	while ((ADC0_SC3 & ADC_SC3_CAL) || (ADC1_SC3 & ADC_SC3_CAL)) {
-		// wait
+		yield(); // wait
 	}
 #elif defined(HAS_KINETIS_ADC0)
 	while (ADC0_SC3 & ADC_SC3_CAL) {
-		// wait
+		yield(); // wait
 	}
 #endif
 	__disable_irq();
@@ -453,6 +453,8 @@ int analogRead(uint8_t pin)
 	if (channel & 0x80) goto beginADC1;
 #endif
 
+	// This interrupt disable stuff is meant to allow use of
+	// analogRead() in both main program and interrupts.
 	__disable_irq();
 startADC0:
 	//serial_print("startADC0\n");
@@ -481,7 +483,7 @@ startADC0:
 		// be restarted.
 		if (!analogReadBusyADC0) goto startADC0;
 		__enable_irq();
-		yield();
+		yield(); // TODO: what happens if yield-called code uses analogRead()
 	}
 
 #ifdef HAS_KINETIS_ADC1
