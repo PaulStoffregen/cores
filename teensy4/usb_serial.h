@@ -84,7 +84,7 @@ public:
 				// USB host has begun the USB enumeration process.
 				if (elapsed > 750) break;
 			}
-			yeild();
+			yield();
 		}
 	}
         void end() { /* TODO: flush output and shut down USB port */ };
