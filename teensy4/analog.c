@@ -221,7 +221,7 @@ FLASHMEM void analog_init(void)
 	ADC1_GC = avg | ADC_GC_CAL;		// begin cal
 	calibrating = 1;
 	while (ADC1_GC & ADC_GC_CAL) {
-		yield();
+		//yield();
 	}
 	calibrating = 0;
 	//ADC2
@@ -229,7 +229,7 @@ FLASHMEM void analog_init(void)
 	ADC2_GC = avg | ADC_GC_CAL;		// begin cal
 	calibrating = 1;
 	while (ADC2_GC & ADC_GC_CAL) {
-		yield();
+		//yield();
 	}
 	calibrating = 0;
 }
