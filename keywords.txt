@@ -25,6 +25,7 @@ touchRead	KEYWORD2
 Teensy3Clock	KEYWORD2
 IntervalTimer	KEYWORD2
 CrashReport	KEYWORD1
+breadcrumb	KEYWORD2
 printf	KEYWORD2
 digitalWriteFast	KEYWORD2
 digitalReadFast	KEYWORD2

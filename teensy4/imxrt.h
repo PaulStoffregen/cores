@@ -9993,4 +9993,10 @@ struct arm_fault_info_struct {
 	uint32_t crc;  // crc must be last
 };
 
+// Breadcrumbs stored in the top 128 bytes of OCRAM (at 0x2027FFC0)
+struct crashreport_breadcrumbs_struct {
+	uint32_t bitmask;
+	uint32_t value[6];
+	uint32_t checksum; // currently unused
+};
 
