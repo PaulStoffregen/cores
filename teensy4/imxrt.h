@@ -6753,9 +6753,8 @@ typedef struct {
 	volatile uint32_t SAMR;			// 140
 	volatile uint32_t unused11[3];
 	volatile uint32_t SASR;			// 150
-	volatile uint32_t unused12[3];
 	volatile uint32_t STAR;			// 154
-	volatile uint32_t unused13[3];
+	volatile uint32_t unused13[2];
 	volatile uint32_t STDR;			// 160
 	volatile uint32_t unused14[3];
 	volatile uint32_t SRDR;			// 170
