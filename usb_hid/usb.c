@@ -21,6 +21,7 @@
  * THE SOFTWARE.
  */
 
+// This file is used only for Teensy 2.0 and Teensy++ 2.0
 
 #include "usb_common.h"
 #include "usb_private.h"

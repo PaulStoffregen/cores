@@ -4,6 +4,8 @@
 
 //#include "pauls_ugly_debug.h"
 
+// This file is used only for Teensy 2.0 and Teensy++ 2.0
+
 #include "core_pins.h" // for delayMicroseconds
 
 inline uint32_t media_size(void);

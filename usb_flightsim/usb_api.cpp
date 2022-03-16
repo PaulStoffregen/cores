@@ -29,6 +29,8 @@
 #include "usb_api.h"
 #include "wiring.h"
 
+// This file is used only for Teensy 2.0 and Teensy++ 2.0
+
 
 FlightSimCommand * FlightSimCommand::first = NULL;
 FlightSimCommand * FlightSimCommand::last = NULL;
