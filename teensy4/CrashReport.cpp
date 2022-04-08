@@ -202,13 +202,13 @@ size_t CrashReportClass::printTo(Print& p) const
   if (bc->bitmask) {
     for (int i=0; i < 6; i++) {
       if (bc->bitmask & (1 << i)) {
-        Serial.print("  Breadcrumb #");
-        Serial.print(i + 1);
-        Serial.print(" was ");
-        Serial.print(bc->value[i]);
-        Serial.print(" (0x");
-        Serial.print(bc->value[i], HEX);
-        Serial.println(")");
+        p.print("  Breadcrumb #");
+        p.print(i + 1);
+        p.print(" was ");
+        p.print(bc->value[i]);
+        p.print(" (0x");
+        p.print(bc->value[i], HEX);
+        p.println(")");
       }
     }
     *(volatile uint32_t *)(&bc->bitmask) = 0;
