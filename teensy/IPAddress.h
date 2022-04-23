@@ -59,6 +59,7 @@ public:
     // to a four-byte uint8_t array is expected
     operator uint32_t() { return _address.dword; };
     bool operator==(const IPAddress& addr) { return _address.dword == addr._address.dword; };
+    bool operator!=(const IPAddress& addr) { return _address.dword != addr._address.dword; };
     bool operator==(const uint8_t* addr);
 
     // Overloaded index operator to allow getting and setting individual octets of the address
