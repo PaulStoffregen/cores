@@ -377,20 +377,6 @@ int AudioConnection::disconnect(void)
 			src->destination_list = NULL;
 		}
 	} else {
-		/*  this is the old, buggy code
-		while (p) {
-			if (p == this) {
-				if (p->next_dest) {
-					p = next_dest; // just destroys our working pointer!
-					break;
-				} else {
-					p = NULL;
-					break;
-				}
-			}
-			p = p->next_dest;
-		}
-		*/
 		while (p)
 		{
 			if (p->next_dest == this) // found the parent of the disconnecting object
