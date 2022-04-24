@@ -35,15 +35,21 @@ static void dummy_funct(void);
 #if defined(KINETISK)
 #define NUM_CHANNELS 4
 static void (*funct_table[4])(void) = {dummy_funct, dummy_funct, dummy_funct, dummy_funct};
-
+static void (*funct_w_state_table[4])(void *) = {nullptr, nullptr, nullptr, nullptr};
+static void *funct_state[4] = {nullptr, nullptr, nullptr, nullptr};
 #elif defined(KINETISL)
 #define NUM_CHANNELS 2
 static void (*funct_table[2])(void) = {dummy_funct, dummy_funct};
+static void (*funct_w_state_table[2])(void *) = {nullptr, nullptr};
+static void *funct_state[2] = {nullptr, nullptr};
 uint8_t IntervalTimer::nvic_priorites[2] = {255, 255};
 #endif
 
 
-bool IntervalTimer::beginCycles(void (*funct)(), uint32_t cycles)
+bool IntervalTimer::beginCycles(
+		void (*funct)(),
+		void (*funct_w_state)(void *state), void *state,
+		uint32_t cycles)
 {
 	if (channel) {
 		channel->TCTRL = 0;
@@ -63,6 +69,8 @@ bool IntervalTimer::beginCycles(void (*funct)(), uint32_t cycles)
 	}
 	int index = channel - KINETISK_PIT_CHANNELS;
 	funct_table[index] = funct;
+	funct_w_state_table[index] = funct_w_state;
+	funct_state[index] = state;
 	channel->LDVAL = cycles;
 	channel->TCTRL = 3;
 #if defined(KINETISK)
@@ -90,6 +98,8 @@ void IntervalTimer::end() {
 		// TODO: disable IRQ_PIT, but only if both instances ended
 #endif
 		funct_table[index] = dummy_funct;
+		funct_w_state_table[index] = nullptr;
+		funct_state[index] = nullptr;
 		channel->TCTRL = 0;
 #if defined(KINETISL)
 		nvic_priorites[index] = 255;
@@ -108,21 +118,37 @@ void IntervalTimer::end() {
 void pit0_isr()
 {
 	PIT_TFLG0 = 1;
+	if (funct_w_state_table[0] != nullptr) {
+		funct_w_state_table[0](funct_state[0]);
+		return;
+	}
 	funct_table[0]();
 }
 
 void pit1_isr() {
 	PIT_TFLG1 = 1;
+	if (funct_w_state_table[1] != nullptr) {
+		funct_w_state_table[1](funct_state[1]);
+		return;
+	}
 	funct_table[1]();
 }
 
 void pit2_isr() {
 	PIT_TFLG2 = 1;
+	if (funct_w_state_table[2] != nullptr) {
+		funct_w_state_table[2](funct_state[2]);
+		return;
+	}
 	funct_table[2]();
 }
 
 void pit3_isr() {
 	PIT_TFLG3 = 1;
+	if (funct_w_state_table[3] != nullptr) {
+		funct_w_state_table[3](funct_state[3]);
+		return;
+	}
 	funct_table[3]();
 }
 
@@ -130,11 +156,19 @@ void pit3_isr() {
 void pit_isr() {
 	if (PIT_TFLG0) {
 		PIT_TFLG0 = 1;
-		funct_table[0]();
+		if (funct_w_state_table[0] != nullptr) {
+			funct_w_state_table[0](funct_state[0]);
+		} else {
+			funct_table[0]();
+		}
 	}
 	if (PIT_TFLG1) {
 		PIT_TFLG1 = 1;
-		funct_table[1]();
+		if (funct_w_state_table[1] != nullptr) {
+			funct_w_state_table[1](funct_state[1]);
+		} else {
+			funct_table[1]();
+		}
 	}
 }
 #endif
@@ -142,4 +176,3 @@ void pit_isr() {
 static void dummy_funct(void)
 {
 }
-

@@ -35,10 +35,15 @@ static void pit_isr(void);
 
 #define NUM_CHANNELS 4
 static void (*funct_table[4])(void) __attribute((aligned(32))) = {nullptr, nullptr, nullptr, nullptr};
+static void (*funct_w_state_table[4])(void *) __attribute((aligned(32))) = {nullptr, nullptr, nullptr, nullptr};
+static void *funct_state[4] __attribute((aligned(32))) = {nullptr, nullptr, nullptr, nullptr};
 uint8_t IntervalTimer::nvic_priorites[4] = {255, 255, 255, 255};
 
 
-bool IntervalTimer::beginCycles(void (*funct)(), uint32_t cycles)
+bool IntervalTimer::beginCycles(
+		void (*funct)(),
+		void (*funct_w_state)(void *state), void *state,
+		uint32_t cycles)
 {
 	printf("beginCycles %u\n", cycles);
 	if (channel) {
@@ -59,6 +64,8 @@ bool IntervalTimer::beginCycles(void (*funct)(), uint32_t cycles)
 	}
 	int index = channel - IMXRT_PIT_CHANNELS;
 	funct_table[index] = funct;
+	funct_w_state_table[index] = funct_w_state;
+	funct_state[index] = state;
 	channel->LDVAL = cycles;
 	channel->TCTRL = 3;
 	nvic_priorites[index] = nvic_priority;
@@ -79,6 +86,8 @@ void IntervalTimer::end() {
 		int index = channel - IMXRT_PIT_CHANNELS;
 		// TODO: disable IRQ_PIT, but only if all instances ended
 		funct_table[index] = nullptr;
+		funct_w_state_table[index] = nullptr;
+		funct_state[index] = nullptr;
 		channel->TCTRL = 0;
 		nvic_priorites[index] = 255;
 		uint8_t top_priority = 255;
@@ -97,20 +106,52 @@ static void pit_isr()
 #if 0
 	for (int i=0; i < NUM_CHANNELS; i++) {
 		IMXRT_PIT_CHANNEL_t *channel = IMXRT_PIT_CHANNELS + i;
-		if (funct_table[0] && channel->TFLG) {
+		if ((funct_table[0] || funct_w_state_table[0]) && channel->TFLG) {
 			channel->TFLG = 1;
-			funct_table[i]();
+			if (funct_w_state_table[i]) {
+				funct_w_state_table[i](funct_state[i]);
+			} else {
+				funct_table[i]();
+			}
 
 		}
 	}
 #else
 	IMXRT_PIT_CHANNEL_t *channel= IMXRT_PIT_CHANNELS;
-	if (funct_table[0] != nullptr && channel->TFLG) {channel->TFLG = 1;funct_table[0]();}
+	if ((funct_table[0] != nullptr || funct_w_state_table[0] != nullptr) && channel->TFLG) {
+		channel->TFLG = 1;
+		if (funct_w_state_table[0] != nullptr) {
+			funct_w_state_table[0](funct_state[0]);
+		} else {
+			funct_table[0]();
+		}
+	}
 	channel++;
-	if (funct_table[1] != nullptr && channel->TFLG) {channel->TFLG = 1;funct_table[1]();}
+	if ((funct_table[1] != nullptr || funct_w_state_table[1] != nullptr) && channel->TFLG) {
+		channel->TFLG = 1;
+		if (funct_w_state_table[1] != nullptr) {
+			funct_w_state_table[1](funct_state[1]);
+		} else {
+			funct_table[1]();
+		}
+	}
 	channel++;
-	if (funct_table[2] != nullptr && channel->TFLG) {channel->TFLG = 1;funct_table[2]();}
+	if ((funct_table[2] != nullptr || funct_w_state_table[2] != nullptr) && channel->TFLG) {
+		channel->TFLG = 1;
+		if (funct_w_state_table[2] != nullptr) {
+			funct_w_state_table[2](funct_state[2]);
+		} else {
+			funct_table[2]();
+		}
+	}
 	channel++;
-	if (funct_table[3] != nullptr && channel->TFLG) {channel->TFLG = 1;funct_table[3]();}
+	if ((funct_table[3] != nullptr || funct_w_state_table[3] != nullptr) && channel->TFLG) {
+		channel->TFLG = 1;
+		if (funct_w_state_table[3] != nullptr) {
+			funct_w_state_table[3](funct_state[3]);
+		} else {
+			funct_table[3]();
+		}
+	}
 #endif
 }
