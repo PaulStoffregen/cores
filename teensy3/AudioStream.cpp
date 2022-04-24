@@ -54,6 +54,7 @@ uint16_t AudioStream::cpu_cycles_total = 0;
 uint16_t AudioStream::cpu_cycles_total_max = 0;
 uint16_t AudioStream::memory_used = 0;
 uint16_t AudioStream::memory_used_max = 0;
+AudioConnection* AudioStream::unused = NULL; // linked list of unused but not destructed connections
 
 
 
@@ -345,8 +346,6 @@ int AudioConnection::connect(AudioStream &source, unsigned char sourceOutput,
 	
 	if (!isConnected)
 	{
-		int cr;
-		
 		src = &source;
 		dst = &destination;
 		src_index = sourceOutput;

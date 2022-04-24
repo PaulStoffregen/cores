@@ -61,14 +61,19 @@
 #elif defined(__MKL26Z64__)
 //#define AUDIO_SAMPLE_RATE_EXACT 22058.82353 // 48 MHz / 2176, or 96 MHz * 1 / 17 / 256
 #define AUDIO_SAMPLE_RATE_EXACT 44117.64706
-#endif
-#endif
+#endif // hardware type
+#endif // AUDIO_SAMPLE_RATE_EXACT defined
 
 #define AUDIO_SAMPLE_RATE AUDIO_SAMPLE_RATE_EXACT
+
+#define noAUDIO_DEBUG_CLASS // disable this class by default
 
 #ifndef __ASSEMBLER__
 class AudioStream;
 class AudioConnection;
+#if defined(AUDIO_DEBUG_CLASS)
+class AudioDebug;  // for testing only, never for public release
+#endif // defined(AUDIO_DEBUG_CLASS)
 
 typedef struct audio_block_struct {
 	uint8_t  ref_count;
@@ -81,31 +86,26 @@ typedef struct audio_block_struct {
 class AudioConnection
 {
 public:
-	AudioConnection(AudioStream &source, AudioStream &destination) :
-		src(source), dst(destination), src_index(0), dest_index(0),
-		next_dest(NULL)
-		{ isConnected = false;
-		  connect(); }
+	AudioConnection(AudioStream &source, AudioStream &destination);
 	AudioConnection(AudioStream &source, unsigned char sourceOutput,
-		AudioStream &destination, unsigned char destinationInput) :
-		src(source), dst(destination),
-		src_index(sourceOutput), dest_index(destinationInput),
-		next_dest(NULL)
-		{ isConnected = false;
-		  connect(); }
+		AudioStream &destination, unsigned char destinationInput);
 	friend class AudioStream;
-	~AudioConnection() {
-		disconnect();
-	}
-	void disconnect(void);
-	void connect(void);
+	~AudioConnection(); 
+	int disconnect(void);
+	int connect(void);
+	int connect(AudioStream &source, AudioStream &destination) {return connect(source,0,destination,0);};
+	int connect(AudioStream &source, unsigned char sourceOutput,
+		AudioStream &destination, unsigned char destinationInput);
 protected:
-	AudioStream &src;
-	AudioStream &dst;
+	AudioStream* src;	// can't use references as... 
+	AudioStream* dst;	// ...they can't be re-assigned!
 	unsigned char src_index;
 	unsigned char dest_index;
 	AudioConnection *next_dest;
 	bool isConnected;
+#if defined(AUDIO_DEBUG_CLASS)
+	friend class AudioDebug;
+#endif // defined(AUDIO_DEBUG_CLASS)
 };
 
 
@@ -175,8 +175,12 @@ protected:
 	static void update_all(void) { NVIC_SET_PENDING(IRQ_SOFTWARE); }
 	friend void software_isr(void);
 	friend class AudioConnection;
+#if defined(AUDIO_DEBUG_CLASS)
+	friend class AudioDebug;
+#endif // defined(AUDIO_DEBUG_CLASS)
 	uint8_t numConnections;
 private:
+	static AudioConnection* unused; // linked list of unused but not destructed connections
 	AudioConnection *destination_list;
 	audio_block_t **inputQueue;
 	static bool update_scheduled;
@@ -188,5 +192,34 @@ private:
 	static uint16_t memory_pool_first_mask;
 };
 
-#endif
-#endif
+#if defined(AUDIO_DEBUG_CLASS)
+// This class aids debugging of the internal functionality of the
+// AudioStream and AudioConnection classes, but is NOT intended
+// for general users of the Audio library.
+class AudioDebug
+{
+	public:
+		// info on connections
+		AudioStream* getSrc(AudioConnection& c) { return c.src;};
+		AudioStream* getDst(AudioConnection& c) { return c.dst;};
+		unsigned char getSrcN(AudioConnection& c) { return c.src_index;};
+		unsigned char getDstN(AudioConnection& c) { return c.dest_index;};
+		AudioConnection* getNext(AudioConnection& c) { return c.next_dest;};
+		bool isConnected(AudioConnection& c) { return c.isConnected;};
+		AudioConnection* unusedList() { return AudioStream::unused;};
+		
+		// info on streams
+		AudioConnection* dstList(AudioStream& s) { return s.destination_list;};
+		audio_block_t ** inqList(AudioStream& s) { return s.inputQueue;};
+		uint8_t 	 	 getNumInputs(AudioStream& s) { return s.num_inputs;};
+		AudioStream*     firstUpdate(AudioStream& s) { return s.first_update;};
+		AudioStream* 	 nextUpdate(AudioStream& s) { return s.next_update;};
+		uint8_t 	 	 getNumConnections(AudioStream& s) { return s.numConnections;};
+		bool 	 	 	 isActive(AudioStream& s) { return s.active;};
+		 
+		
+};
+#endif // defined(AUDIO_DEBUG_CLASS)
+
+#endif // __ASSEMBLER__
+#endif // AudioStream_h

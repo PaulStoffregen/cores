@@ -60,10 +60,14 @@
 
 #define AUDIO_SAMPLE_RATE AUDIO_SAMPLE_RATE_EXACT
 
+#define noAUDIO_DEBUG_CLASS // disable this class by default
+
 #ifndef __ASSEMBLER__
 class AudioStream;
 class AudioConnection;
-//class AudioDebug;  // for testing only, never for public release
+#if defined(AUDIO_DEBUG_CLASS)
+class AudioDebug;  // for testing only, never for public release
+#endif // defined(AUDIO_DEBUG_CLASS)
 
 typedef struct audio_block_struct {
 	uint8_t  ref_count;
@@ -94,7 +98,9 @@ protected:
 	unsigned char dest_index;
 	AudioConnection *next_dest; // linked list of connections from one source
 	bool isConnected;
-	//friend class AudioDebug;
+#if defined(AUDIO_DEBUG_CLASS)
+	friend class AudioDebug;
+#endif // defined(AUDIO_DEBUG_CLASS)
 };
 
 
@@ -160,7 +166,9 @@ protected:
 	static void update_all(void) { NVIC_SET_PENDING(IRQ_SOFTWARE); }
 	friend void software_isr(void);
 	friend class AudioConnection;
-	//friend class AudioDebug;
+#if defined(AUDIO_DEBUG_CLASS)
+	friend class AudioDebug;
+#endif // defined(AUDIO_DEBUG_CLASS)
 	uint8_t numConnections;
 private:
 	static AudioConnection* unused; // linked list of unused but not destructed connections
@@ -175,7 +183,10 @@ private:
 	static uint16_t memory_pool_first_mask;
 };
 
-#if 0
+#if defined(AUDIO_DEBUG_CLASS)
+// This class aids debugging of the internal functionality of the
+// AudioStream and AudioConnection classes, but is NOT intended
+// for general users of the Audio library.
 class AudioDebug
 {
 	public:
@@ -199,6 +210,7 @@ class AudioDebug
 		 
 		
 };
-#endif
+#endif // defined(AUDIO_DEBUG_CLASS)
+
 #endif // __ASSEMBLER__
 #endif // AudioStream_h
