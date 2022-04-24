@@ -52,13 +52,15 @@ SECTIONS
 	} > ITCM  AT> FLASH
 
 	.data : {
-		*(.rodata*)
-		*(.data*)
+    		*(.endpoint_queue)    
+		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
+		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(.data*)))
+    		KEEP(*(.vectorsram))	
 	} > DTCM  AT> FLASH
 
 	.bss ALIGN(4) : {
-		*(.bss*)
-		*(COMMON)
+		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(.bss*)))
+		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(COMMON)))
 		. = ALIGN(32);
 		. = . + 32; /* MPU to trap stack overflow */
 	} > DTCM
@@ -73,6 +75,7 @@ SECTIONS
 		FILL(0xFF)
 		. = ALIGN(1024);
 		KEEP(*(.csf))
+		__text_csf_end = .;
 	} > FLASH
 
 	_stext = ADDR(.text.itcm);
@@ -93,7 +96,7 @@ SECTIONS
 	_flexram_bank_config = 0xAAAAAAAA | ((1 << (_itcm_block_count * 2)) - 1);
 	_estack = ORIGIN(DTCM) + ((16 - _itcm_block_count) << 15);
 
-	_flashimagelen = SIZEOF(.text.headers) + SIZEOF(.text.code) + SIZEOF(.text.progmem) + SIZEOF(.text.itcm) + SIZEOF(.ARM.exidx) + SIZEOF(.data) + SIZEOF(.text.csf);
+	_flashimagelen = __text_csf_end - ORIGIN(FLASH);
 	_teensy_model_identifier = 0x26;
 
 	.debug_info     0 : { *(.debug_info) }

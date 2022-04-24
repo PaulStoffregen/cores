@@ -21,7 +21,7 @@ extern unsigned long _estack;
 extern unsigned long _extram_start;
 extern unsigned long _extram_end;
 
-__attribute__ ((used, aligned(1024)))
+__attribute__ ((used, aligned(1024), section(".vectorsram")))
 void (* volatile _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
 
 static void memory_copy(uint32_t *dest, const uint32_t *src, uint32_t *dest_end);
@@ -48,10 +48,12 @@ struct smalloc_pool extmem_smalloc_pool;
 #endif
 
 extern int main (void);
-void startup_default_early_hook(void) {}
-void startup_early_hook(void)		__attribute__ ((weak, alias("startup_default_early_hook")));
-void startup_default_late_hook(void) {}
-void startup_late_hook(void)		__attribute__ ((weak, alias("startup_default_late_hook")));
+FLASHMEM void startup_default_early_hook(void) {}
+void startup_early_hook(void)	__attribute__ ((weak, alias("startup_default_early_hook")));
+FLASHMEM void startup_default_middle_hook(void) {}
+void startup_middle_hook(void)	__attribute__ ((weak, alias("startup_default_middle_hook")));
+FLASHMEM void startup_default_late_hook(void) {}
+void startup_late_hook(void)	__attribute__ ((weak, alias("startup_default_late_hook")));
 __attribute__((section(".startup"), optimize("no-tree-loop-distribute-patterns")))
 void ResetHandler(void)
 {
@@ -63,7 +65,9 @@ void ResetHandler(void)
 	IOMUXC_GPR_GPR14 = 0x00AA0000;
 	__asm__ volatile("mov sp, %0" : : "r" ((uint32_t)&_estack) : );
 	__asm__ volatile("dsb":::"memory");
+	__asm__ volatile("isb":::"memory");
 #endif
+	startup_early_hook(); // must be in FLASHMEM, as ITCM is not yet initialized!
 	PMU_MISC0_SET = 1<<3; //Use bandgap-based bias currents for best performance (Page 1175)
 	// pin 13 - if startup crashes, use this to turn on the LED early for troubleshooting
 	//IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_03 = 5;
@@ -138,16 +142,16 @@ void ResetHandler(void)
 #ifdef ARDUINO_TEENSY41
 	configure_external_ram();
 #endif
-	startup_early_hook();
-	while (millis() < 20) ; // wait at least 20ms before starting USB
-	usb_init();
 	analog_init();
 	pwm_init();
 	tempmon_init();
+	startup_middle_hook();
+	while (millis() < 20) ; // wait at least 20ms before starting USB
+	usb_init();
 
-	startup_late_hook();
 	while (millis() < 300) ; // wait at least 300ms before calling user code
 	//printf("before C++ constructors\n");
+	startup_late_hook();
 	__libc_init_array();
 	//printf("after C++ constructors\n");
 	//printf("before setup\n");
@@ -601,7 +605,7 @@ void unused_interrupt_vector(void)
 	while (1) ;
 }
 
-__attribute__((section(".startup"), optimize("no-tree-loop-distribute-patterns")))
+__attribute__((section(".startup"), optimize("O1")))
 static void memory_copy(uint32_t *dest, const uint32_t *src, uint32_t *dest_end)
 {
 	if (dest == src) return;
@@ -610,7 +614,7 @@ static void memory_copy(uint32_t *dest, const uint32_t *src, uint32_t *dest_end)
 	}
 }
 
-__attribute__((section(".startup"), optimize("no-tree-loop-distribute-patterns")))
+__attribute__((section(".startup"), optimize("O1")))
 static void memory_clear(uint32_t *dest, uint32_t *dest_end)
 {
 	while (dest < dest_end) {

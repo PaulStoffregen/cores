@@ -25,6 +25,7 @@ touchRead	KEYWORD2
 Teensy3Clock	KEYWORD2
 IntervalTimer	KEYWORD2
 CrashReport	KEYWORD1
+breadcrumb	KEYWORD2
 printf	KEYWORD2
 digitalWriteFast	KEYWORD2
 digitalReadFast	KEYWORD2
@@ -69,6 +70,9 @@ extmem_free	KEYWORD2
 extmem_calloc	KEYWORD2
 extmem_realloc	KEYWORD2
 strcasecmp	KEYWORD2
+DateTimeFields	LITERAL1
+breakTime	KEYWORD2
+makeTime	KEYWORD2
 
 # removed by Arduino 1.0, now also removed from Teensyduino
 #BYTE	LITERAL1

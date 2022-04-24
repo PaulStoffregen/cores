@@ -63,7 +63,7 @@
 #ifndef __ASSEMBLER__
 class AudioStream;
 class AudioConnection;
-class AudioDebug;
+//class AudioDebug;  // for testing only, never for public release
 
 typedef struct audio_block_struct {
 	uint8_t  ref_count;
@@ -94,7 +94,7 @@ protected:
 	unsigned char dest_index;
 	AudioConnection *next_dest; // linked list of connections from one source
 	bool isConnected;
-	friend class AudioDebug;
+	//friend class AudioDebug;
 };
 
 
@@ -160,7 +160,7 @@ protected:
 	static void update_all(void) { NVIC_SET_PENDING(IRQ_SOFTWARE); }
 	friend void software_isr(void);
 	friend class AudioConnection;
-	friend class AudioDebug;
+	//friend class AudioDebug;
 	uint8_t numConnections;
 private:
 	static AudioConnection* unused; // linked list of unused but not destructed connections
@@ -175,6 +175,7 @@ private:
 	static uint16_t memory_pool_first_mask;
 };
 
+#if 0
 class AudioDebug
 {
 	public:
@@ -198,5 +199,6 @@ class AudioDebug
 		 
 		
 };
+#endif
 #endif // __ASSEMBLER__
 #endif // AudioStream_h

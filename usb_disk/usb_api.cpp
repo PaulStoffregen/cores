@@ -30,7 +30,7 @@
 #include "keylayouts.h"
 #include "wiring.h"
 
-
+// This file is used only for Teensy 2.0 and Teensy++ 2.0
 
 
 // Step #1, decode UTF8 to Unicode code points

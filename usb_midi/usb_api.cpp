@@ -29,6 +29,7 @@
 #include "usb_api.h"
 #include "wiring.h"
 
+// This file is used only for Teensy 2.0 and Teensy++ 2.0
 
 void usb_midi_class::sendSysEx_BufferHasTerm(uint16_t length, const uint8_t *data)
 {

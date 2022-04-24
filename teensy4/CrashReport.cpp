@@ -26,6 +26,7 @@ FLASHMEM
 size_t CrashReportClass::printTo(Print& p) const
 {
   struct arm_fault_info_struct *info = (struct arm_fault_info_struct *)0x2027FF80;
+  struct crashreport_breadcrumbs_struct *bc = (struct crashreport_breadcrumbs_struct *)0x2027FFC0;
 
   if (isvalid(info)) {
     p.println("CrashReport:");
@@ -197,6 +198,21 @@ size_t CrashReportClass::printTo(Print& p) const
 	  SNVS_LPCR |= SNVS_LPCR_TOP; //Switch off now
 	  asm volatile ("dsb":::"memory");
 	  while (1) asm ("wfi");
+  }
+  if (bc->bitmask) {
+    for (int i=0; i < 6; i++) {
+      if (bc->bitmask & (1 << i)) {
+        p.print("  Breadcrumb #");
+        p.print(i + 1);
+        p.print(" was ");
+        p.print(bc->value[i]);
+        p.print(" (0x");
+        p.print(bc->value[i], HEX);
+        p.println(")");
+      }
+    }
+    *(volatile uint32_t *)(&bc->bitmask) = 0;
+    arm_dcache_flush((void *)bc, sizeof(struct crashreport_breadcrumbs_struct));
   }
   cleardata(info);
   return 1;

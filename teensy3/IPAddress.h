@@ -79,6 +79,9 @@ public:
 	bool operator==(const IPAddress& addr) {
 		return _address.dword == addr._address.dword;
 	}
+	bool operator!=(const IPAddress& addr) {
+		return _address.dword != addr._address.dword;
+	}
 	bool operator==(const uint8_t* addr) {
 		// TODO: use unaligned read on Cortex-M4
 		return (_address.bytes[0] == addr[0]

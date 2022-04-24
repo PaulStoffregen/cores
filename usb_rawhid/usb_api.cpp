@@ -29,6 +29,8 @@
 #include "usb_api.h"
 #include "wiring.h"
 
+// This file is used only for Teensy 2.0 and Teensy++ 2.0
+
 
 int usb_rawhid_class::available(void)
 {

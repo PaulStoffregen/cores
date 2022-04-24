@@ -1252,8 +1252,8 @@
 #define CORE_PIN35_BIT		14
 #define CORE_PIN36_BIT		13
 #define CORE_PIN37_BIT		12
-#define CORE_PIN38_BIT		17
-#define CORE_PIN39_BIT		16
+#define CORE_PIN38_BIT		16
+#define CORE_PIN39_BIT		17
 #define CORE_PIN40_BIT		4
 #define CORE_PIN41_BIT		5
 #define CORE_PIN42_BIT		6
@@ -1634,8 +1634,8 @@
 #define CORE_PIN35_CONFIG	IOMUXC_SW_MUX_CTL_PAD_GPIO_SD_B0_02
 #define CORE_PIN36_CONFIG	IOMUXC_SW_MUX_CTL_PAD_GPIO_SD_B0_01
 #define CORE_PIN37_CONFIG	IOMUXC_SW_MUX_CTL_PAD_GPIO_SD_B0_00
-#define CORE_PIN38_CONFIG	IOMUXC_SW_MUX_CTL_PAD_GPIO_SD_B0_05
-#define CORE_PIN39_CONFIG	IOMUXC_SW_MUX_CTL_PAD_GPIO_SD_B0_04
+#define CORE_PIN38_CONFIG	IOMUXC_SW_MUX_CTL_PAD_GPIO_SD_B0_04
+#define CORE_PIN39_CONFIG	IOMUXC_SW_MUX_CTL_PAD_GPIO_SD_B0_05
 #define CORE_PIN40_CONFIG	IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_04
 #define CORE_PIN41_CONFIG	IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_05
 #define CORE_PIN42_CONFIG	IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_06
@@ -1682,8 +1682,8 @@
 #define CORE_PIN35_PADCONFIG	IOMUXC_SW_PAD_CTL_PAD_GPIO_SD_B0_02
 #define CORE_PIN36_PADCONFIG	IOMUXC_SW_PAD_CTL_PAD_GPIO_SD_B0_01
 #define CORE_PIN37_PADCONFIG	IOMUXC_SW_PAD_CTL_PAD_GPIO_SD_B0_00
-#define CORE_PIN38_PADCONFIG	IOMUXC_SW_PAD_CTL_PAD_GPIO_SD_B0_05
-#define CORE_PIN39_PADCONFIG	IOMUXC_SW_PAD_CTL_PAD_GPIO_SD_B0_04
+#define CORE_PIN38_PADCONFIG	IOMUXC_SW_PAD_CTL_PAD_GPIO_SD_B0_04
+#define CORE_PIN39_PADCONFIG	IOMUXC_SW_PAD_CTL_PAD_GPIO_SD_B0_05
 #define CORE_PIN40_PADCONFIG	IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_04
 #define CORE_PIN41_PADCONFIG	IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_05
 #define CORE_PIN42_PADCONFIG	IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_06
@@ -2295,6 +2295,9 @@ static inline void analogReadResolution(unsigned int bits) { analogReadRes(bits)
 void analogReadAveraging(unsigned int num);
 void analog_init(void);
 int touchRead(uint8_t pin);
+uint32_t IMXRTfuseRead(volatile uint32_t *fuses);
+void IMXRTfuseWrite(volatile uint32_t *fuses, uint32_t value);
+void IMXRTfuseReload();
 
 static inline void shiftOut(uint8_t, uint8_t, uint8_t, uint8_t) __attribute__((always_inline, unused));
 extern void _shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t value) __attribute__((noinline));
@@ -2391,6 +2394,19 @@ void tempmon_PwrDwn();
 
 #ifdef __cplusplus
 }
+
+// DateTimeFields follows C library "struct tm" convention, but uses much less memory
+typedef struct  {
+	uint8_t sec;   // 0-59
+	uint8_t min;   // 0-59
+	uint8_t hour;  // 0-23
+	uint8_t wday;  // 0-6, 0=sunday
+	uint8_t mday;  // 1-31
+	uint8_t mon;   // 0-11
+	uint8_t year;  // 70-206, 70=1970, 206=2106
+} DateTimeFields;
+void breakTime(uint32_t time, DateTimeFields &tm);  // break 32 bit time into DateTimeFields
+uint32_t makeTime(const DateTimeFields &tm); // convert DateTimeFields to 32 bit time
 
 class teensy3_clock_class
 {
