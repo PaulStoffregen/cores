@@ -336,8 +336,6 @@ int AudioConnection::connect(AudioStream &source, unsigned char sourceOutput,
 	
 	if (!isConnected)
 	{
-		int cr;
-		
 		src = &source;
 		dst = &destination;
 		src_index = sourceOutput;
