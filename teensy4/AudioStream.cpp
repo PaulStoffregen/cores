@@ -243,14 +243,16 @@ int AudioConnection::connect(void)
 		{
 			break;
 		}
-		if (dest_index >= dst->num_inputs) // input number too high
-		{
-			result = 2;
-			break;
-		}
+		
 		if (!src || !dst) // NULL src or dst - [old] Stream object destroyed
 		{
 			result = 3;
+			break;
+		}
+			
+		if (dest_index >= dst->num_inputs) // input number too high
+		{
+			result = 2;
 			break;
 		}
 			
@@ -336,8 +338,6 @@ int AudioConnection::connect(AudioStream &source, unsigned char sourceOutput,
 	
 	if (!isConnected)
 	{
-		int cr;
-		
 		src = &source;
 		dst = &destination;
 		src_index = sourceOutput;
@@ -369,20 +369,6 @@ int AudioConnection::disconnect(void)
 			src->destination_list = NULL;
 		}
 	} else {
-		/*  this is the old, buggy code
-		while (p) {
-			if (p == this) {
-				if (p->next_dest) {
-					p = next_dest; // just destroys our working pointer!
-					break;
-				} else {
-					p = NULL;
-					break;
-				}
-			}
-			p = p->next_dest;
-		}
-		*/
 		while (p)
 		{
 			if (p->next_dest == this) // found the parent of the disconnecting object
