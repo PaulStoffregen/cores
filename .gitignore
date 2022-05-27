@@ -9,3 +9,5 @@ nbproject
 *.orig
 *.tmp
 *.TMP
+.DS_Store
+*.txt

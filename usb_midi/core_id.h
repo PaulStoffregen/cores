@@ -1,1 +1,0 @@
-#define CORE_TEENSY_MIDI
