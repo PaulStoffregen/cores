@@ -738,14 +738,10 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #elif defined(USB_MTPDISK_SERIAL)
   #define VENDOR_ID             0x16C0
-  #define PRODUCT_ID    0x0476
-  #define RAWHID_USAGE_PAGE 0xFFAB  // recommended: 0xFF00 to 0xFFFF
-  #define RAWHID_USAGE    0x0200  // recommended: 0x0100 to 0xFFFF
+  #define PRODUCT_ID    0x04D5
   #define DEVICE_CLASS    0xEF
   #define DEVICE_SUBCLASS 0x02
   #define DEVICE_PROTOCOL 0x01
-
-  #define PRODUCT_ID    0x04D5
   #define MANUFACTURER_NAME {'T','e','e','n','s','y','d','u','i','n','o'}
   #define MANUFACTURER_NAME_LEN 11
   #define PRODUCT_NAME    {'T','e','e','n','s','y',' ','M','T','P',' ','D','i','s','k'}
