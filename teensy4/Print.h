@@ -110,10 +110,15 @@ class Print
 	size_t println(const Printable &obj)		{ return obj.printTo(*this) + println(); }
 	int getWriteError() { return write_error; }
 	void clearWriteError() { setWriteError(0); }
+
+	// printf is a C standard function which allows you to print any number of variables using a somewhat cryptic format string
+	int printf(const char *format, ...)
+	int printf(const __FlashStringHelper *format, ...);
+
 	// format warnings are too pedantic - disable until newer toolchain offers better...
 	// https://forum.pjrc.com/threads/62473?p=256873&viewfull=1#post256873
-	int printf(const char *format, ...) /*__attribute__ ((format (printf, 2, 3)))*/;
-	int printf(const __FlashStringHelper *format, ...);
+	// int printf(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
+
   protected:
 	void setWriteError(int err = 1) { write_error = err; }
   private:

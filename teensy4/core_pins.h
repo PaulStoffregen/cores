@@ -2357,6 +2357,9 @@ extern volatile uint32_t scale_cpu_cycles_to_microseconds;
 extern volatile uint32_t systick_millis_count;
 
 static inline uint32_t millis(void) __attribute__((always_inline, unused));
+// Returns the number of milliseconds since your program started running.
+// This 32 bit number will roll back to zero after about 49.7 days.  For a
+// simpler way to build delays or timeouts, consider using elapsedMillis.
 static inline uint32_t millis(void)
 {
 	return systick_millis_count;
@@ -2365,6 +2368,9 @@ static inline uint32_t millis(void)
 uint32_t micros(void);
 
 static inline void delayMicroseconds(uint32_t) __attribute__((always_inline, unused));
+// Wait for a number of microseconds.  During this time, interrupts remain
+// active, but the rest of your program becomes effectively stalled.  For shorter
+// delay, use delayNanoseconds().
 static inline void delayMicroseconds(uint32_t usec)
 {
 	uint32_t begin = ARM_DWT_CYCCNT;
@@ -2374,6 +2380,8 @@ static inline void delayMicroseconds(uint32_t usec)
 }
 
 static inline void delayNanoseconds(uint32_t) __attribute__((always_inline, unused));
+// Wait for a number of nanoseconds.  During this time, interrupts remain
+// active, but the rest of your program becomes effectively stalled.
 static inline void delayNanoseconds(uint32_t nsec)
 {
 	uint32_t begin = ARM_DWT_CYCCNT;

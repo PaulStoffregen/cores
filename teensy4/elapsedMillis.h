@@ -31,6 +31,10 @@
 #include "WProgram.h"
 #endif
 
+// elapsedMillis acts as an integer which autoamtically increments 1000 times
+// per second.  Useful for creating delays, timeouts, or measuing how long an
+// operation takes.  You can create as many elapsedMillis variables as needed.
+// All of them are independent.  Any may be written, modified or read at any time.
 class elapsedMillis
 {
 private:
@@ -54,6 +58,10 @@ public:
 	elapsedMillis operator + (unsigned long val) const { elapsedMillis r(*this); r.ms -= val; return r; }
 };
 
+// elapsedMicros acts as an integer which autoamtically increments 1 million times
+// per second.  Useful for creating delays, timeouts, or measuing how long an
+// operation takes.  You can create as many elapsedMicros variables as needed.
+// All of them are independent.  Any may be written, modified or read at any time.
 class elapsedMicros
 {
 private:

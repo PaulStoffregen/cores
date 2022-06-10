@@ -48,6 +48,11 @@ void millis_init(void)
 
 }*/
 
+// Wait for a number of milliseconds.  During this time, interrupts remain
+// active, but the rest of your program becomes effectively stalled.  Usually
+// delay() is used in very simple programs.  To achieve delay without waiting
+// use millis() or elapsedMillis.  For shorter delay, use delayMicroseconds()
+// or delayNanoseconds().
 void delay(uint32_t msec)
 {
 	uint32_t start;
@@ -64,6 +69,10 @@ void delay(uint32_t msec)
 	// TODO...
 }
 
+// Returns the number of microseconds since your program started running.
+// This 32 bit number will roll back to zero after about 71 minutes and
+// 35 seconds.  For a simpler way to build delays or timeouts, consider
+// using elapsedMicros.
 uint32_t micros(void)
 {
 	uint32_t smc, scc;

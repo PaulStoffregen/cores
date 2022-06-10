@@ -72,7 +72,12 @@ class usb_serial_class : public Stream
 {
 public:
 	constexpr usb_serial_class() {}
-        void begin(long) {
+	// Serial.begin(baud) is optional on Teensy.  The main USB device port
+	// is always initialized early during startup.  The baud rate setting
+	// is not used.  Communication occurs at USB native speed.  For
+	// compatibility with Arduino code, Serial.begin waits up to 2 seconds
+	// for your PC to open the virtual serial port.
+        void begin(long baud_unused) {
 		uint32_t millis_begin = systick_millis_count;
 		while (!(*this)) {
 			uint32_t elapsed = systick_millis_count - millis_begin;
@@ -88,31 +93,84 @@ public:
 		}
 	}
         void end() { /* TODO: flush output and shut down USB port */ };
+	// Returns the number of bytes which have been received from your PC and
+	// can be fetched using Serial.read() or Serial.readBytes().
         virtual int available() { return usb_serial_available(); }
+	// Reads the next received byte, or returns -1 if nothing has been received
+	// from your PC.
         virtual int read() { return usb_serial_getchar(); }
+	// Returns the next received byte, but does not remove it from the receive
+	// buffer.  Returns -1 if nothing has been received from your PC.
         virtual int peek() { return usb_serial_peekchar(); }
+	// Wait for all data written by print() or write() to actually transmit to
+	// your PC.  On Teensy 4, this function has a known limitation where it
+	// returns early, when buffered data has been given to Teensy's USB device
+	// controller, but before your PC's USB host controller actually transfers
+	// the data across your USB cable.
         virtual void flush() { usb_serial_flush_output(); }  // TODO: actually wait for data to leave USB...
+	// Discard all received data which has not been read.
         virtual void clear(void) { usb_serial_flush_input(); }
+	// Transmit a single byte to your PC
         virtual size_t write(uint8_t c) { return usb_serial_putchar(c); }
+	// Transmit a buffer containing any number of bytes to your PC
         virtual size_t write(const uint8_t *buffer, size_t size) { return usb_serial_write(buffer, size); }
+	// Transmit a single byte to your PC
 	size_t write(unsigned long n) { return write((uint8_t)n); }
+	// Transmit a single byte to your PC
 	size_t write(long n) { return write((uint8_t)n); }
+	// Transmit a single byte to your PC
 	size_t write(unsigned int n) { return write((uint8_t)n); }
+	// Transmit a single byte to your PC
 	size_t write(int n) { return write((uint8_t)n); }
+	// Returns the number of bytes which may be transmitted by write() or print()
+	// without waiting.  Typically programs which must maintain rapid checking
+	// and response to sensors use availableForWrite() to decide whether to
+	// transmit.
 	virtual int availableForWrite() { return usb_serial_write_buffer_free(); }
 	using Print::write;
+	// Cause any previously transmitted data written to buffers to be actually
+	// sent over the USB cable to your PC as soon as possible.  Normally writes
+	// are combined to efficiently use maximum size USB packets.  Use of send_now()
+	// minimizes latency, but excessive use can lead to inefficient utilization
+	// of USB bandwidth.
         void send_now(void) { usb_serial_flush_output(); }
+	// Returns the baud rate configuration set by PC software.  This setting is
+	// not used for USB communication.  You would typically call this function
+	// when making a USB to Serial converter, where you wish to know the baud
+	// rate software on the PC intends for you to configure on the serial port.
         uint32_t baud(void) { return usb_cdc_line_coding[0]; }
+	// Returns the baud rate configuration set by PC software.  This setting is
+	// not used for USB communication.  You would typically call this function
+	// when making a USB to Serial converter, where you wish to know the baud
+	// rate software on the PC intends for you to configure on the serial port.
         uint8_t stopbits(void) { uint8_t b = usb_cdc_line_coding[1]; if (!b) b = 1; return b; }
+	// Returns the number of stop bits configuration set by PC software.  This
+	// setting is not used for USB communication.  You would typically call this
+	// function when making a USB to Serial converter, where you wish to know how
+	// the PC software intends for you to configure the serial port.
         uint8_t paritytype(void) { return usb_cdc_line_coding[1] >> 8; } // 0=none, 1=odd, 2=even
+	// Returns the number of data bits configuration set by PC software.
+	// 0=none, 1=odd, 2=even.  This setting is not used for USB communication,
+	// which always checks for errors at the USB packet level.  You would typically
+	// call this function when making a USB to Serial converter, where you wish
+	// to know how the PC software intends for you to configure the serial port.
         uint8_t numbits(void) { return usb_cdc_line_coding[1] >> 16; }
+	// Returns the current state of the virtual serial DTR signal.
         uint8_t dtr(void) { return (usb_cdc_line_rtsdtr & USB_SERIAL_DTR) ? 1 : 0; }
+	// Returns the current state of the virtual serial RTS signal.
         uint8_t rts(void) { return (usb_cdc_line_rtsdtr & USB_SERIAL_RTS) ? 1 : 0; }
+	// Testing Serial as a boolean indicates whether USB is active and a program
+	// running on your PC has raised the DTR signal, which typically means it has
+	// opened the port and is ready to communicate.
         operator bool() {
 		yield();
 		return usb_configuration && (usb_cdc_line_rtsdtr & USB_SERIAL_DTR) &&
 		((uint32_t)(systick_millis_count - usb_cdc_line_rtsdtr_millis) >= 15);
 	}
+	// Read up to length bytes into a buffer.  readBytes() will wait up to
+	// the number of milliseconds configured by setTimeout().  The return value
+	// is the number of bytes actually read, which may be zero if your PC
+	// does not send anything.  To read without waiting, configure setTimeout(0).
 	size_t readBytes(char *buffer, size_t length) {
 		size_t count=0;
 		unsigned long startMillis = millis();
@@ -125,6 +183,7 @@ public:
 	}
 
 };
+// Serial provides USB Virtual Serial communication with your computer.
 extern usb_serial_class Serial;
 extern void serialEvent(void);
 #endif // __cplusplus
