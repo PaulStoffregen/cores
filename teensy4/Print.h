@@ -112,7 +112,7 @@ class Print
 	void clearWriteError() { setWriteError(0); }
 
 	// printf is a C standard function which allows you to print any number of variables using a somewhat cryptic format string
-	int printf(const char *format, ...)
+	int printf(const char *format, ...);
 	int printf(const __FlashStringHelper *format, ...);
 
 	// format warnings are too pedantic - disable until newer toolchain offers better...
