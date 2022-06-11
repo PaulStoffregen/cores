@@ -1783,8 +1783,16 @@ extern "C" {
 //#define digitalPinHasPWM(p)
 #define digitalPinToInterrupt(p)  ((p) < NUM_DIGITAL_PINS ? (p) : -1)
 
+// Cause a digital pin to output either HIGH or LOW.  The pin must
+// have been configured with pinMode() as either OUTPUT or
+// OUTPUT_OPENDRAIN mode.
 void digitalWrite(uint8_t pin, uint8_t val);
 static inline void digitalWriteFast(uint8_t pin, uint8_t val) __attribute__((always_inline, unused));
+// Cause a digital pin to output either HIGH or LOW.  The pin must
+// have been configured with pinMode().  This fast version of
+// digitalWrite has minimal overhead when the pin number is a
+// constant.  Successive digitalWriteFast without delays can be
+// too quick in many applications!
 static inline void digitalWriteFast(uint8_t pin, uint8_t val)
 {
 	if (__builtin_constant_p(pin)) {
@@ -2027,8 +2035,15 @@ static inline void digitalWriteFast(uint8_t pin, uint8_t val)
 	}
 }
 
+// Read the signal at a digital pin.  The pin must have previously been
+// configured with pinMode() as INPUT, INPUT_PULLUP, or INPUT_PULLDOWN.
+// The return value is either HIGH or LOW.
 uint8_t digitalRead(uint8_t pin);
 static inline uint8_t digitalReadFast(uint8_t pin) __attribute__((always_inline, unused));
+// Read the signal at a digital pin.  The pin must have previously been
+// configured with pinMode() as INPUT, INPUT_PULLUP, or INPUT_PULLDOWN.  The
+// return value is either HIGH or LOW.  This fast version of digitalRead()
+// has minimal overhead when the pin number is a constant.
 static inline uint8_t digitalReadFast(uint8_t pin)
 {
 	if (__builtin_constant_p(pin)) {
@@ -2154,8 +2169,15 @@ static inline uint8_t digitalReadFast(uint8_t pin)
 	}
 }
 
+// Cause a digital pin's output to change state.  If it was HIGH,
+// the pin outputs LOW, and if it was LOW the pin outputs HIGH.  The
+// pin must have been configured to OUTPUT mode with pinMode().
 void digitalToggle(uint8_t pin);
 static inline void digitalToggleFast(uint8_t pin) __attribute__((always_inline, unused));
+// Cause a digital pin's output to change state.  This fast version
+// of digitalToggle() has minimal overhead when the pin number is a
+// constant.  Without additional delay, successive digitalToggleFast()
+// can cause the pin to oscillate too quickly for many applications.
 static inline void digitalToggleFast(uint8_t pin)
 {
 	if (__builtin_constant_p(pin)) {
@@ -2279,26 +2301,75 @@ static inline void digitalToggleFast(uint8_t pin)
 	}
 }
 
+// Configure a digital pin.  The mode can be
+// INPUT, INPUT_PULLUP, INPUT_PULLDOWN, OUTPUT_OPENDRAIN or
+// INPUT_DISABLE.  Use INPUT_DISABLE to minimize power
+// consumption for unused pins and pins with analog voltages.
 void pinMode(uint8_t pin, uint8_t mode);
 void init_pins(void);
-void analogWrite(uint8_t pin, int val);
+// Causes a PWM capable pin to output a pulsing waveform with specific
+// duty cycle.  PWM is useful for varying the average power delivered to
+// LEDs, motors and other devices.  Unless analogWriteResolution() was
+// used, the range is 0 (pin stays LOW) to 256 (pin stays HIGH).  The
+// PWM frequency may be configured with analogWriteFrequency().
+void analogWrite(uint8_t pin, int value);
 uint32_t analogWriteRes(uint32_t bits);
+// Configure PWM resolution for the analogWrite() function.  For example, 12
+// bits gives a range of 0 to 4096.  This function returns the prior
+// resolution, allowing you to temporarily change resolution, call analogWrite()
+// and then restore the resolution, so other code or libraries using analogWrite()
+// are not impacted.
 static inline uint32_t analogWriteResolution(uint32_t bits) { return analogWriteRes(bits); }
+// Configure the PWM carrier frequency used by a specific PWM pin.  The frequency
+// is a floating point number, so you are not limited to integer frequency.  You can
+// have 261.63 Hz (musical note C4), if you like.  analogWriteFrequency() should
+// be called before analogWrite().  If the pin is already in PWM mode, the result is
+// unpredictagle.  Because groups of PWM pins are controlled by the same timer, changing
+// a pin may affect others in the same group.
+// See https://www.pjrc.com/teensy/td_pulse.html for details.
 void analogWriteFrequency(uint8_t pin, float frequency);
+// Run a function when a pin changes or has a specific input.  The function runs
+// as an interrupt, so care should be taken to minimize time spent.  The mode
+// may be RISING, FALLING, CHANGE, HIGH or LOW.  For best compatibility with
+// Arduino boards, the first parameter should be specified as
+// digitalPinToInterrupt(pin), even though not required by Teensy.
 void attachInterrupt(uint8_t pin, void (*function)(void), int mode);
+// Remove a previously configured attachInterrupt() function from a pin.
 void detachInterrupt(uint8_t pin);
 void _init_Teensyduino_internal_(void);
+// Read the voltage at an analog pin.  The pin may be specified as the actual
+// pin number, or names A0 to A17.  Unless analogReadResolution() was used, the
+// return value is a number from 0 to 1023, representing 0 to 3.3 volts.
 int analogRead(uint8_t pin);
+// On Teensy 4, analogRead() always uses the 3.3V power as its reference.  This
+// function has no effect, but is provided to allow programs developed for
+// Arduino boards to compile.
 void analogReference(uint8_t type);
 void analogReadRes(unsigned int bits);
+// Configure the number of bits resolution returned by analogRead().
 static inline void analogReadResolution(unsigned int bits) { analogReadRes(bits); }
+// Configure the number readings used (and averaged) internally when reading analog
+// voltage with analogRead().  Possible configurations are 1, 4, 8, 16, 32.  More
+// readings averaged gives better results, but takes longer.
 void analogReadAveraging(unsigned int num);
 void analog_init(void);
+// Teensy 4 boards to not have capacitive touch sensing hardware.  This function
+// is not implemented for Teensy 4.
 int touchRead(uint8_t pin);
+// Read a group of 32 fuse bits.  The input must be a fuse bits register name.
 uint32_t IMXRTfuseRead(volatile uint32_t *fuses);
+// Write to fuse bits.  This is a PERMANENT IRREVERSIBLE operation.  Writing can
+// only change fuse bits which are 0 to 1.  User programs should only write to
+// fuse registers HW_OCOTP_GP1, HW_OCOTP_GP2, HW_OCOTP_GP30, HW_OCOTP_GP31,
+// HW_OCOTP_GP32 and HW_OCOTP_GP33.  On Lockable Teensy, writing to the wrong
+// fuses can PERMANENTLY BRICK your hardware.  After writing 1 or more fuse bit
+// registers, call IMXRTfuseReload() for changes to become visible.
 void IMXRTfuseWrite(volatile uint32_t *fuses, uint32_t value);
+// Reloads the fuse bits buffer memory from actual fuse hardware.
 void IMXRTfuseReload();
 
+// Transmit 8 bits to a shift register connected to 2 digital pins.  bitOrder
+// may be MSBFIRST or LSBFIRST.
 static inline void shiftOut(uint8_t, uint8_t, uint8_t, uint8_t) __attribute__((always_inline, unused));
 extern void _shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t value) __attribute__((noinline));
 extern void shiftOut_lsbFirst(uint8_t dataPin, uint8_t clockPin, uint8_t value) __attribute__((noinline));
@@ -2317,6 +2388,8 @@ static inline void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder,
         }
 }
 
+// Receive 8 bits from a shift register connected to 2 digital pins.  bitOrder
+// may be MSBFIRST or LSBFIRST.
 static inline uint8_t shiftIn(uint8_t, uint8_t, uint8_t) __attribute__((always_inline, unused));
 extern uint8_t _shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) __attribute__((noinline));
 extern uint8_t shiftIn_lsbFirst(uint8_t dataPin, uint8_t clockPin) __attribute__((noinline));
@@ -2347,6 +2420,8 @@ extern uint8_t yield_active_check_flags;
 #define YIELD_CHECK_USB_SERIALUSB1  0x8		// Check for SerialUSB1
 #define YIELD_CHECK_USB_SERIALUSB2  0x10	// Check for SerialUSB2
 
+// Allow other functions to run.  Typically these will be serial event handlers
+// and functions call by certain libraries when lengthy operations complete.
 void yield(void);
 
 void delay(uint32_t msec);
@@ -2403,7 +2478,10 @@ void tempmon_PwrDwn();
 #ifdef __cplusplus
 }
 
-// DateTimeFields follows C library "struct tm" convention, but uses much less memory
+// DateTimeFields represents calendar date & time with 7 fields, hour (0-23), min
+// (0-59), sec (0-59), wday (0-6, 0=Sunday), mday (1-31), mon (0-11), year
+// (70-206, 70=1970, 206=2106).  These 7 fields follow C standard "struct tm"
+// convention, but are stored with only 8 bits to conserve memory.
 typedef struct  {
 	uint8_t sec;   // 0-59
 	uint8_t min;   // 0-59
@@ -2413,7 +2491,9 @@ typedef struct  {
 	uint8_t mon;   // 0-11
 	uint8_t year;  // 70-206, 70=1970, 206=2106
 } DateTimeFields;
+// Convert a "unixtime" number into 7-field DateTimeFields
 void breakTime(uint32_t time, DateTimeFields &tm);  // break 32 bit time into DateTimeFields
+// Convert 7-field DateTimeFields to a "unixtime" number.  The wday field is not used.
 uint32_t makeTime(const DateTimeFields &tm); // convert DateTimeFields to 32 bit time
 
 class teensy3_clock_class

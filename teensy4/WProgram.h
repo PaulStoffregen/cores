@@ -72,15 +72,48 @@ uint16_t makeWord(byte h, byte l);
 
 #define word(...) makeWord(__VA_ARGS__)
 
+// Measure the duration of a pulse at a digital pin.  The state may be
+// either HIGH or LOW, to measure a pulse remains either high or low.  Return
+// is pulse duration in microseconds, or zero if no pulse was detected.
 unsigned long pulseIn(uint8_t pin, uint8_t state, unsigned long timeout = 1000000L);
+static unsigned long pulseInLong(uint8_t pin, uint8_t state, unsigned long timeout = 1000000L) __attribute__((unused));
+// Measure the duration of a pulse at a digital pin.  The state may be
+// either HIGH or LOW, to measure a pulse remains either high or low.  Return
+// is pulse duration in microseconds, or zero if no pulse was detected.
+static unsigned long pulseInLong(uint8_t pin, uint8_t state, unsigned long timeout) {
+	return pulseIn(pin, state, timeout);
+}
 
+// Creates a square wave output on a digital pin at a specific frequency.  If
+// duration is specified (in milliseconds), the waveform will automatically
+// stop.  Otherwise, it continues into noTone() or another tone() call uses a
+// different pin.  Only 1 waveform at a time is supported.  This waveform works
+// on any digitial pin, but uses interrupts to create the output.  For more
+// efficient output, use PWM pins with analogWriteFrequency().
 void tone(uint8_t pin, uint16_t frequency, uint32_t duration = 0);
+// Ends a square wave output created by a prior called to tone().
 void noTone(uint8_t pin);
 
 // WMath prototypes
+
+// Returns a pseudo-random number as a 32 bit signed integer.  See randomSeed()
+// for info about pseudo-random properties.
 int32_t random(void);
+// Returns a pseudo-random number less "howbig".  For example, random(100)
+// will return numbers beteen 0 to 99.  See randomSeed() for info about
+// pseudo-random properties.
 uint32_t random(uint32_t howbig);
+// Returns a pseudo-random within a range.  For example, random(50, 100)
+// will return numbers beteen 50 to 99.  See randomSeed() for info about
+// pseudo-random properties.
 int32_t random(int32_t howsmall, int32_t howbig);
+// Initialize the pseudo-random number generator.  Pseudo-random numbers
+// follow a sequence, but the sequence is so long that initializing at an
+// unpredictable starting point gives effectively random numbers useful
+// for most non-cryptographic uses.  The Entropy library is recommended
+// to produce a truly random number for randomSeed().  You could just use
+// Entropy for all random numbers, but the speed is much slower than
+// generating pseudo-random numbers.
 void randomSeed(uint32_t newseed);
 void srandom(unsigned int newseed);
 

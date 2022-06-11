@@ -43,10 +43,17 @@
 // for Arduino compatibility
 #ifdef __cplusplus
 #include <type_traits>
-// when the input number is an integer type, do all math as 32 bit signed long
+
+// map() transforms input "x" from one numerical range to another.  For example, if
+// you have analogInput() from 0 to 1023 and you want 5 to 25, use
+// map(x, 0, 1023, 5, 25).  When "x" is an integer, the math is performed using
+// integers and an integer number is returned.  When "x" is a floating point number,
+// math is performed and result returned as floating point, to allow for fine grain
+// mapping.
 template <class T, class A, class B, class C, class D>
 long map(T _x, A _in_min, B _in_max, C _out_min, D _out_max, typename std::enable_if<std::is_integral<T>::value >::type* = 0)
 {
+	// when the input number is an integer type, do all math as 32 bit signed long
 	long x = _x, in_min = _in_min, in_max = _in_max, out_min = _out_min, out_max = _out_max;
 	// Arduino's traditional algorithm
 #if 0
@@ -86,19 +93,28 @@ long map(T _x, A _in_min, B _in_max, C _out_min, D _out_max, typename std::enabl
 	// more conversation:
 	// https://forum.pjrc.com/threads/44503-map()-function-improvements
 }
-// when the input is a float or double, do all math using the input's type
+// map() transforms input "x" from one numerical range to another.  For example, if
+// you have analogInput() from 0 to 1023 and you want 5 to 25, use
+// map(x, 0, 1023, 5, 25).  When "x" is an integer, the math is performed using
+// integers and an integer number is returned.  When "x" is a floating point number,
+// math is performed and result returned as floating point, to allow for fine grain
+// mapping.
 template <class T, class A, class B, class C, class D>
 T map(T x, A in_min, B in_max, C out_min, D out_max, typename std::enable_if<std::is_floating_point<T>::value >::type* = 0)
 {
+	// when the input is a float or double, do all math using the input's type
 	return (x - (T)in_min) * ((T)out_max - (T)out_min) / ((T)in_max - (T)in_min) + (T)out_min;
 }
 //#include <algorithm> // this isn't really needed, is it?  (slows down compiling)
 #include <utility>
 // https://forum.pjrc.com/threads/44596-Teensyduino-1-37-Beta-2-(Arduino-1-8-3-support)?p=145150&viewfull=1#post145150
+
+// Returns the minimum of 2 input numbers.
 template<class A, class B>
 constexpr auto min(A&& a, B&& b) -> decltype(a < b ? std::forward<A>(a) : std::forward<B>(b)) {
   return a < b ? std::forward<A>(a) : std::forward<B>(b);
 }
+// Returns the maximum of 2 input numbers.
 template<class A, class B>
 constexpr auto max(A&& a, B&& b) -> decltype(a < b ? std::forward<A>(a) : std::forward<B>(b)) {
   return a >= b ? std::forward<A>(a) : std::forward<B>(b);

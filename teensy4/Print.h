@@ -61,58 +61,99 @@ class Print
 	virtual int availableForWrite(void)		{ return 0; }
 	virtual void flush()				{ }
 	size_t write(const char *buffer, size_t size)	{ return write((const uint8_t *)buffer, size); }
+	// Print a string
 	size_t print(const String &s);
+	// Print a single character
 	size_t print(char c)				{ return write((uint8_t)c); }
+	// Print a string
 	size_t print(const char s[])			{ return write(s); }
+	// Print a string
 	size_t print(const __FlashStringHelper *f)	{ return write((const char *)f); }
-
+	// Print an unsigned number
 	size_t print(uint8_t b)				{ return printNumber(b, 10, 0); }
+	// Print a signed number
 	size_t print(int n)				{ return print((long)n); }
+	// Print an unsigned number
 	size_t print(unsigned int n)			{ return printNumber(n, 10, 0); }
+	// Print a signed number
 	size_t print(long n);
+	// Print an unsigned number
 	size_t print(unsigned long n)			{ return printNumber(n, 10, 0); }
+	// Print a signed number
 	size_t print(int64_t n);
+	// Print an unsigned number
 	size_t print(uint64_t n)			{ return printNumber64(n, 10, 0); }
 
+	// Print a number in any number base (eg, BIN, HEX, OCT)
 	size_t print(unsigned char n, int base)		{ return printNumber(n, base, 0); }
+	// Print a number in any number base (eg, BIN, HEX, OCT)
 	size_t print(int n, int base)			{ return (base == 10) ? print(n) : printNumber(n, base, 0); }
+	// Print a number in any number base (eg, BIN, HEX, OCT)
 	size_t print(unsigned int n, int base)		{ return printNumber(n, base, 0); }
+	// Print a number in any number base (eg, BIN, HEX, OCT)
 	size_t print(long n, int base)			{ return (base == 10) ? print(n) : printNumber(n, base, 0); }
+	// Print a number in any number base (eg, BIN, HEX, OCT)
 	size_t print(unsigned long n, int base)		{ return printNumber(n, base, 0); }
+	// Print a number in any number base (eg, BIN, HEX, OCT)
 	size_t print(int64_t n, int base)		{ return (base == 10) ? print(n) : printNumber64(n, base, 0); }
+	// Print a number in any number base (eg, BIN, HEX, OCT)
 	size_t print(uint64_t n, int base)		{ return printNumber64(n, base, 0); }
 
+	// Print a floating point (decimal) number
 	size_t print(double n, int digits = 2)		{ return printFloat(n, digits); }
+	// Print an object instance in human readable format
 	size_t print(const Printable &obj)		{ return obj.printTo(*this); }
+	// Print a newline
 	size_t println(void);
+	// Print a string and newline
 	size_t println(const String &s)			{ return print(s) + println(); }
+	// Print a single character and newline
 	size_t println(char c)				{ return print(c) + println(); }
+	// Print a string and newline
 	size_t println(const char s[])			{ return print(s) + println(); }
+	// Print a string and newline
 	size_t println(const __FlashStringHelper *f)	{ return print(f) + println(); }
 
+	// Print an unsigned number and newline
 	size_t println(uint8_t b)			{ return print(b) + println(); }
+	// Print a signed number and newline
 	size_t println(int n)				{ return print(n) + println(); }
+	// Print an unsigned number and newline
 	size_t println(unsigned int n)			{ return print(n) + println(); }
+	// Print a signed number and newline
 	size_t println(long n)				{ return print(n) + println(); }
+	// Print an unsigned number and newline
 	size_t println(unsigned long n)			{ return print(n) + println(); }
+	// Print a signed number and newline
 	size_t println(int64_t n)			{ return print(n) + println(); }
+	// Print an unsigned number and newline
 	size_t println(uint64_t n)			{ return print(n) + println(); }
 
+	// Print a number in any number base (eg, BIN, HEX, OCT) and a newline
 	size_t println(unsigned char n, int base)	{ return print(n, base) + println(); }
+	// Print a number in any number base (eg, BIN, HEX, OCT) and a newline
 	size_t println(int n, int base)			{ return print(n, base) + println(); }
+	// Print a number in any number base (eg, BIN, HEX, OCT) and a newline
 	size_t println(unsigned int n, int base)	{ return print(n, base) + println(); }
+	// Print a number in any number base (eg, BIN, HEX, OCT) and a newline
 	size_t println(long n, int base)		{ return print(n, base) + println(); }
+	// Print a number in any number base (eg, BIN, HEX, OCT) and a newline
 	size_t println(unsigned long n, int base)	{ return print(n, base) + println(); }
+	// Print a number in any number base (eg, BIN, HEX, OCT) and a newline
 	size_t println(int64_t n, int base)		{ return print(n, base) + println(); }
+	// Print a number in any number base (eg, BIN, HEX, OCT) and a newline
 	size_t println(uint64_t n, int base)		{ return print(n, base) + println(); }
 
+	// Print a floating point (decimal) number and a newline
 	size_t println(double n, int digits = 2)	{ return print(n, digits) + println(); }
+	// Print an object instance in human readable format, and a newline
 	size_t println(const Printable &obj)		{ return obj.printTo(*this) + println(); }
 	int getWriteError() { return write_error; }
 	void clearWriteError() { setWriteError(0); }
 
 	// printf is a C standard function which allows you to print any number of variables using a somewhat cryptic format string
 	int printf(const char *format, ...);
+	// printf is a C standard function which allows you to print any number of variables using a somewhat cryptic format string
 	int printf(const __FlashStringHelper *format, ...);
 
 	// format warnings are too pedantic - disable until newer toolchain offers better...
