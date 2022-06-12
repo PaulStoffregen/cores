@@ -38,6 +38,10 @@
 extern "C" {
 #endif
 
+// IntervalTimer provides access to hardware timers which can run an
+// interrupt function a precise timing intervals.  Up to 4 IntervalTimers
+// may be in use simultaneously.  Many libraries use IntervalTimer, so
+// some of these 4 possible instances may be in use by libraries.
 class IntervalTimer {
 private:
 	static const uint32_t MAX_PERIOD = UINT32_MAX / (24000000 / 1000000);
@@ -47,57 +51,100 @@ public:
 	~IntervalTimer() {
 		end();
 	}
+	// Start the hardware timer and begin calling the function.  The
+	// interval is specified in microseconds.  Returns true is sucessful,
+	// or false if all hardware timers are already in use.
 	bool begin(void (*funct)(), unsigned int microseconds) {
 		if (microseconds == 0 || microseconds > MAX_PERIOD) return false;
 		uint32_t cycles = (24000000 / 1000000) * microseconds - 1;
 		if (cycles < 17) return false;
 		return beginCycles(funct, cycles);
 	}
+	// Start the hardware timer and begin calling the function.  The
+	// interval is specified in microseconds.  Returns true is sucessful,
+	// or false if all hardware timers are already in use.
 	bool begin(void (*funct)(), int microseconds) {
 		if (microseconds < 0) return false;
 		return begin(funct, (unsigned int)microseconds);
 	}
+	// Start the hardware timer and begin calling the function.  The
+	// interval is specified in microseconds.  Returns true is sucessful,
+	// or false if all hardware timers are already in use.
 	bool begin(void (*funct)(), unsigned long microseconds) {
 		return begin(funct, (unsigned int)microseconds);
 	}
+	// Start the hardware timer and begin calling the function.  The
+	// interval is specified in microseconds.  Returns true is sucessful,
+	// or false if all hardware timers are already in use.
 	bool begin(void (*funct)(), long microseconds) {
 		return begin(funct, (int)microseconds);
 	}
+	// Start the hardware timer and begin calling the function.  The
+	// interval is specified in microseconds.  Returns true is sucessful,
+	// or false if all hardware timers are already in use.
 	bool begin(void (*funct)(), float microseconds) {
 		if (microseconds <= 0 || microseconds > MAX_PERIOD) return false;
 		uint32_t cycles = (float)(24000000 / 1000000) * microseconds - 0.5f;
 		if (cycles < 17) return false;
 		return beginCycles(funct, cycles);
 	}
+	// Start the hardware timer and begin calling the function.  The
+	// interval is specified in microseconds.  Returns true is sucessful,
+	// or false if all hardware timers are already in use.
 	bool begin(void (*funct)(), double microseconds) {
 		return begin(funct, (float)microseconds);
 	}
+	// Change the timer's interval.  The current interval is completed
+	// as previously configured, and then the next interval begins with
+	// with this new setting.
 	void update(unsigned int microseconds) {
 		if (microseconds == 0 || microseconds > MAX_PERIOD) return;
 		uint32_t cycles = (24000000 / 1000000) * microseconds - 1;
 		if (cycles < 17) return;
 		if (channel) channel->LDVAL = cycles;
 	}
+	// Change the timer's interval.  The current interval is completed
+	// as previously configured, and then the next interval begins with
+	// with this new setting.
 	void update(int microseconds) {
 		if (microseconds < 0) return;
 		return update((unsigned int)microseconds);
 	}
+	// Change the timer's interval.  The current interval is completed
+	// as previously configured, and then the next interval begins with
+	// with this new setting.
 	void update(unsigned long microseconds) {
 		return update((unsigned int)microseconds);
 	}
+	// Change the timer's interval.  The current interval is completed
+	// as previously configured, and then the next interval begins with
+	// with this new setting.
 	void update(long microseconds) {
 		return update((int)microseconds);
 	}
+	// Change the timer's interval.  The current interval is completed
+	// as previously configured, and then the next interval begins with
+	// with this new setting.
 	void update(float microseconds) {
 		if (microseconds <= 0 || microseconds > MAX_PERIOD) return;
 		uint32_t cycles = (float)(24000000 / 1000000) * microseconds - 0.5f;
 		if (cycles < 17) return;
 		if (channel) channel->LDVAL = cycles;
 	}
+	// Change the timer's interval.  The current interval is completed
+	// as previously configured, and then the next interval begins with
+	// with this new setting.
 	void update(double microseconds) {
 		return update((float)microseconds);
 	}
+	// Stop calling the function. The hardware timer resource becomes available
+	// for use by other IntervalTimer instances.
 	void end();
+	// Set the interrupt priority level, controlling which other interrupts this
+	// timer is allowed to interrupt. Lower numbers are higher priority, with 0
+	// the highest and 255 the lowest. Most other interrupts default to 128. As
+	// a general guideline, interrupt routines that run longer should be given
+	// lower priority (higher numerical values).
 	void priority(uint8_t n) {
 		nvic_priority = n;
 		if (channel) {

@@ -188,23 +188,61 @@ public:
 		tx_buffer_(_tx_buffer), rx_buffer_(_rx_buffer), tx_buffer_size_(_tx_buffer_size),  rx_buffer_size_(_rx_buffer_size),
 		tx_buffer_total_size_(_tx_buffer_size), rx_buffer_total_size_(_rx_buffer_size) {
 	}
+	// Initialize hardware serial port with baud rate and data format.  For a list
+	// of all supported formats, see https://www.pjrc.com/teensy/td_uart.html
 	void begin(uint32_t baud, uint16_t format=0);
 	void end(void);
-
+	// Returns the number of bytes which have been received and
+	// can be fetched with read() or readBytes().
 	virtual int available(void);
+	// Returns the next received byte, but does not remove it from the receive
+	// buffer.  Returns -1 if nothing has been received.
 	virtual int peek(void);
+	// Wait for all data written by print() or write() to actually transmit.
 	virtual void flush(void);
+	// Transmit a single byte
 	virtual size_t write(uint8_t c);
+	// Reads the next received byte, or returns -1 if nothing has been received.
 	virtual int read(void);
-
+	// Configures a digital pin to be HIGH while transmitting.  Typically this
+	// pin is used to control the DE and RE' pins of an 8 pin RS485 transceiver
+	// chip, which transmits when DE is high and receives when RE' is low.
 	void transmitterEnable(uint8_t pin);
+	// Configure the serial hardware to receive with an alternate pin.  This
+	// function may be called before begin(baud) so the default receive pin
+	// is never used, or may be called while the serial hardware is running.  Only
+	// specific pins are supported.  https://www.pjrc.com/teensy/td_uart.html
 	void setRX(uint8_t pin);
+	// Configure the serial hardware to transmit with an alternate pin.  This
+	// function may be called before begin(baud) so the default transmit pin
+	// is never used, or may be called while the serial hardware is running.  Only
+	// specific pins are supported.  https://www.pjrc.com/teensy/td_uart.html
 	void setTX(uint8_t pin, bool opendrain=false);
+	// Configure RTS flow control.  The pin will be LOW when Teensy is able to
+	// receive more data, or HIGH when the serial device should pause transmission.
+	// All digital pins are supported.
 	bool attachRts(uint8_t pin);
+	// Configure CTS flow control.  Teensy will transmit when this pin is LOw
+	// and will pause transmission when the pin is HIGH.  Only specific pins are
+	// supported.  See https://www.pjrc.com/teensy/td_uart.html
 	bool attachCts(uint8_t pin);
+	// // Discard all received data which has not been read.
 	void clear(void);
+	// Returns the number of bytes which may be transmitted by write() or print()
+	// without waiting.  Typically programs which must maintain rapid checking
+	// and response to sensors use availableForWrite() to decide whether to
+	// transmit.
 	int availableForWrite(void);
+	// Increase the amount of buffer memory between reception of bytes by the
+	// serial hardware and the available() and read() functions. This is useful
+	// when your program must spend lengthy times performing other work, like
+	// writing to a SD card, before it can return to reading the incoming serial
+	// data.  The buffer array must be a global or static variable.
 	void addMemoryForRead(void *buffer, size_t length);
+	// Increase the amount of buffer memory between print(), write() and actual
+	// hardware serial transmission. This can be useful when your program needs
+	// to print or write a large amount of data, without waiting.  The buffer
+	// array must be a global or static variable.
 	void addMemoryForWrite(void *buffer, size_t length);
 	void addStorageForRead(void *buffer, size_t length) __attribute__((deprecated("addStorageForRead was renamed to addMemoryForRead"))){
 		addMemoryForRead(buffer, length);
@@ -218,9 +256,13 @@ public:
 	static uint8_t serial_event_handlers_active;
 
 	using Print::write; 
+	// Transmit a single byte
 	size_t write(unsigned long n) { return write((uint8_t)n); }
+	// Transmit a single byte
 	size_t write(long n) { return write((uint8_t)n); }
+	// Transmit a single byte
 	size_t write(unsigned int n) { return write((uint8_t)n); }
+	// Transmit a single byte
 	size_t write(int n) { return write((uint8_t)n); }
 
 	// Only overwrite some of the virtualWrite functions if we are going to optimize them over Print version
@@ -294,12 +336,26 @@ private:
 
 
 };
+// Serial1 hardware serial port for pins RX1 and TX1.  More detail at
+// https://www.pjrc.com/teensy/td_uart.html
 extern HardwareSerial Serial1;
+// Serial2 hardware serial port for pins RX2 and TX2.  More detail at
+// https://www.pjrc.com/teensy/td_uart.html
 extern HardwareSerial Serial2;
+// Serial3 hardware serial port for pins RX3 and TX3.  More detail at
+// https://www.pjrc.com/teensy/td_uart.html
 extern HardwareSerial Serial3;
+// Serial4 hardware serial port for pins RX4 and TX4.  More detail at
+// https://www.pjrc.com/teensy/td_uart.html
 extern HardwareSerial Serial4;
+// Serial5 hardware serial port for pins RX5 and TX5.  More detail at
+// https://www.pjrc.com/teensy/td_uart.html
 extern HardwareSerial Serial5;
+// Serial6 hardware serial port for pins RX6 and TX6.  More detail at
+// https://www.pjrc.com/teensy/td_uart.html
 extern HardwareSerial Serial6;
+// Serial7 hardware serial port for pins RX7 and TX7.  More detail at
+// https://www.pjrc.com/teensy/td_uart.html
 extern HardwareSerial Serial7;
 extern void serialEvent1(void);
 extern void serialEvent2(void);
@@ -309,7 +365,9 @@ extern void serialEvent5(void);
 extern void serialEvent6(void);
 extern void serialEvent7(void);
 
-	#if defined(ARDUINO_TEENSY41)   
+#if defined(ARDUINO_TEENSY41)
+// Serial8 hardware serial port for pins RX8 and TX8.  More detail at
+// https://www.pjrc.com/teensy/td_uart.html
 extern HardwareSerial Serial8;
 extern void serialEvent8(void);
 #endif
