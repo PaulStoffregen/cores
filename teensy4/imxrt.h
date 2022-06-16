@@ -8171,6 +8171,38 @@ typedef struct
 #define TMR_DMA_IEFDE				((uint16_t)(1<<0))
 
 // 38.5.1.1: page 1981
+typedef struct {
+        const    uint32_t VERID;                // offset000
+        volatile uint32_t PARAM;                // offset004
+        volatile uint32_t TCSR;                 // offset008
+        volatile uint32_t TCR1;                 // offset00C
+        volatile uint32_t TCR2;                 // offset010
+        volatile uint32_t TCR3;                 // offset014
+        volatile uint32_t TCR4;                 // offset018
+        volatile uint32_t TCR5;                 // offset01C
+        volatile uint32_t TDR[4];               // offset020
+        const   uint32_t UNUSED0[4];    // 030
+        volatile uint32_t TFR[4];               // offset040
+        const   uint32_t UNUSED1[4];    // 050
+        volatile uint32_t TMR;                  // offset060
+        const   uint32_t UNUSED2[9];    // 064,8,C,070,4,8,c,080,4
+        volatile uint32_t RCSR;                 // offset088
+        volatile uint32_t RCR1;                 // offset08C
+        volatile uint32_t RCR2;                 // offset090
+        volatile uint32_t RCR3;                 // offset094
+        volatile uint32_t RCR4;                 // offset098
+        volatile uint32_t RCR5;                 // offset09C
+        volatile uint32_t RDR[4];               // offset0A0
+        const   uint32_t UNUSED3[4];    // 0B0
+        volatile uint32_t RFR[4];               // offset0C0
+        const   uint32_t UNUSED4[4];    // 0D0
+        volatile uint32_t RMR;                  // offset0E0
+} IMXRT_SAI_t;
+#define IMXRT_SAI1              (*(IMXRT_SAI_t *)IMXRT_I2S1_ADDRESS)
+#define IMXRT_SAI2              (*(IMXRT_SAI_t *)IMXRT_I2S2_ADDRESS)
+#define IMXRT_SAI3              (*(IMXRT_SAI_t *)IMXRT_I2S3_ADDRESS)
+
+
 #define IMXRT_I2S1		(*(IMXRT_REGISTER32_t *)IMXRT_I2S1_ADDRESS)
 // I2S1 requires CCM_CCGR5_SAI1
 #define I2S1_VERID			(IMXRT_I2S1.offset000)
