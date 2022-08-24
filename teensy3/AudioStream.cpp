@@ -61,7 +61,7 @@ AudioConnection* AudioStream::unused = NULL; // linked list of unused but not de
 
 // Set up the pool of audio data blocks
 // placing them all onto the free list
-void AudioStream::initialize_memory(audio_block_t *data, unsigned int num)
+void AudioStream::initialize_memory(audio_block_t *data, unsigned int num, bool force_update)
 {
 	unsigned int i;
 	unsigned int maxnum = MAX_AUDIO_MEMORY / AUDIO_BLOCK_SAMPLES / 2;
@@ -81,7 +81,7 @@ void AudioStream::initialize_memory(audio_block_t *data, unsigned int num)
 	for (i=0; i < num; i++) {
 		data[i].memory_pool_index = i;
 	}
-	if (update_scheduled == false) {
+	if (update_scheduled == false && force_update) {
 		// if no hardware I/O has taken responsibility for update,
 		// start a timer which will call update_all() at the correct rate
 		IntervalTimer *timer = new IntervalTimer();

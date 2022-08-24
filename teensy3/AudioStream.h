@@ -114,6 +114,13 @@ protected:
 	AudioStream::initialize_memory(data, num); \
 })
 
+#define AudioMemoryNoForceUpdate(num) ({ \
+	static DMAMEM audio_block_t data[num]; \
+	AudioStream::initialize_memory(data, num, false); \
+})
+
+#define CYCLE_COUNTER_APPROX_PERCENT(n) (((float)((uint32_t)(n) * 6400u) * (float)(AUDIO_SAMPLE_RATE_EXACT / AUDIO_BLOCK_SAMPLES)) / (float)(F_CPU_ACTUAL))
+
 #if defined(KINETISK)
 #define CYCLE_COUNTER_APPROX_PERCENT(n) (((n) + (F_CPU / 32 / AUDIO_SAMPLE_RATE * AUDIO_BLOCK_SAMPLES / 100)) / (F_CPU / 16 / AUDIO_SAMPLE_RATE * AUDIO_BLOCK_SAMPLES / 100))
 #elif defined(KINETISL)
@@ -151,7 +158,7 @@ public:
 			cpu_cycles_max = 0;
 			numConnections = 0;
 		}
-	static void initialize_memory(audio_block_t *data, unsigned int num);
+	static void initialize_memory(audio_block_t *data, unsigned int num, bool force_update = true);
 	int processorUsage(void) { return CYCLE_COUNTER_APPROX_PERCENT(cpu_cycles); }
 	int processorUsageMax(void) { return CYCLE_COUNTER_APPROX_PERCENT(cpu_cycles_max); }
 	void processorUsageMaxReset(void) { cpu_cycles_max = cpu_cycles; }
