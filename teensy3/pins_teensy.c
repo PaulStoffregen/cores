@@ -31,6 +31,7 @@
 #include "core_pins.h"
 #include "pins_arduino.h"
 #include "HardwareSerial.h"
+#include <sys/time.h>
 
 
 #if defined(KINETISK)
@@ -385,11 +386,29 @@ void rtc_compensate(int adjust)
 	RTC_TCR = ((interval - 1) << 8) | tcr;
 }
 
+int _gettimeofday(struct timeval *tv, void *ignore)
+{
+	uint32_t sec = RTC_TSR;
+	uint32_t pre = RTC_TPR;
+	while (1) {
+		uint32_t sec2 = RTC_TSR;  // MK20DX256 manual, page 949-950
+		uint32_t pre2 = RTC_TPR;
+		if (sec == sec2 && pre == pre2) {
+			tv->tv_sec = sec;
+			tv->tv_usec = ((pre & 0x7FFF) * 15625) >> 9;
+			return 0;
+		}
+		sec = sec2;
+		pre = pre2;
+	}
+}
+
 #else
 
 unsigned long rtc_get(void) { return 0; }
 void rtc_set(unsigned long t) { }
 void rtc_compensate(int adjust) { }
+int _gettimeofday(struct timeval *tv, void *ignore) { return -1; }
 
 #endif
 
