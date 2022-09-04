@@ -122,5 +122,5 @@ uint32_t makeTime(const DateTimeFields &tm)
   seconds += tm.hour * SECS_PER_HOUR;
   seconds += tm.min * SECS_PER_MIN;
   seconds += tm.sec;
-  return (time_t)seconds;
+  return /*(time_t)*/ seconds;
 }
