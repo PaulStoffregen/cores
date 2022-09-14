@@ -153,25 +153,27 @@ constexpr auto max(A&& a, B&& b) -> decltype(a < b ? std::forward<A>(a) : std::f
 #define DISPLAY 1
 
 // undefine stdlib's abs if encountered
-#ifdef abs
-#undef abs
+/*#ifdef abs
+  #undef abs
 #endif
+*/
 
 #if __cplusplus >= 201103L && defined(__STRICT_ANSI__)
 #define typeof(a) decltype(a)
 #endif
 
-#define abs(x) ({ \
+/*#define abs(x) ({ \
   typeof(x) _x = (x); \
   (_x > 0) ? _x : -_x; \
 })
+*/
 #define constrain(amt, low, high) ({ \
   typeof(amt) _amt = (amt); \
   typeof(low) _low = (low); \
   typeof(high) _high = (high); \
   (_amt < _low) ? _low : ((_amt > _high) ? _high : _amt); \
 })
-#define round(x) ((long) __builtin_round(x))
+//#define round(x) ((long) __builtin_round(x))
 
 #define radians(deg) ((deg)*DEG_TO_RAD)
 #define degrees(rad) ((rad)*RAD_TO_DEG)
