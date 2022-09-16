@@ -47,7 +47,7 @@ SECTIONS
 
 	.ARM.exidx : {
 		__exidx_start = .;
-		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
+		*(.ARM.exidx* .ARM.extab.text* .gnu.linkonce.armexidx.*)
 		__exidx_end = .;
 	} > ITCM  AT> FLASH
 

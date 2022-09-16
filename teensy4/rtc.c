@@ -30,7 +30,7 @@
 
 #include "imxrt.h"
 #include "debug/printf.h"
-
+#include <sys/time.h> // for struct timeval
 
 unsigned long rtc_get(void)
 {
@@ -69,3 +69,21 @@ void rtc_compensate(int adjust)
 {
 }
 
+// https://github.com/arduino-libraries/ArduinoBearSSL/issues/54
+// https://forum.pjrc.com/threads/70966
+int _gettimeofday(struct timeval *tv, void *ignore)
+{
+	uint32_t hi1 = SNVS_HPRTCMR;
+	uint32_t lo1 = SNVS_HPRTCLR;
+	while (1) {
+		uint32_t hi2 = SNVS_HPRTCMR;  // ref manual 20.3.3.1.3 page 1231
+		uint32_t lo2 = SNVS_HPRTCLR;
+		if (lo1 == lo2 && hi1 == hi2) {
+			tv->tv_sec = (hi2 << 17) | (lo2 >> 15);
+			tv->tv_usec = ((lo2 & 0x7FFF) * 15625) >> 9;
+			return 0;
+		}
+		hi1 = hi2;
+		lo1 = lo2;
+	}
+}

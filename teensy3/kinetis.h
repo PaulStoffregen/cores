@@ -1165,6 +1165,7 @@ enum IRQ_NUMBER_t {
 #define SIM_SOPT9_TPM2CH0SRC(n)		(uint32_t)(((n) & 3) << 20)	// TPM2 channel 0 input capture source select
 #define SIM_SOPT9_TPM1CH0SRC(n)		(uint32_t)(((n) & 3) << 18)	// TPM1 channel 0 input capture source select
 #define SIM_SDID		(*(const uint32_t *)0x40048024)    // System Device Identification Register
+#define SIM_SCGC1_ADDRESS	(0x40048028)
 #define SIM_SCGC1		(*(volatile uint32_t *)0x40048028) // System Clock Gating Control Register 1
 #define SIM_SCGC1_UART5			((uint32_t)0x00000800)		// UART5 Clock Gate Control
 #define SIM_SCGC1_UART4			((uint32_t)0x00000400)		// UART4 Clock Gate Control
@@ -1190,6 +1191,7 @@ enum IRQ_NUMBER_t {
 #define SIM_SCGC3_USBHSPHY		((uint32_t)0x00000004)		// USBHSPHY Clock Gate Control
 #define SIM_SCGC3_USBHS			((uint32_t)0x00000002)		// USBHS Clock Gate Control
 //#define SIM_SCGC3_RNGA		((uint32_t)0x00000001)		// RNGA Clock on APIS1 (base addr 400A0000)
+#define SIM_SCGC4_ADDRESS	(0x40048034)
 #define SIM_SCGC4		(*(volatile uint32_t *)0x40048034) // System Clock Gating Control Register 4
 #define SIM_SCGC4_VREF			((uint32_t)0x00100000)		// VREF Clock Gate Control
 #define SIM_SCGC4_CMP			((uint32_t)0x00080000)		// Comparator Clock Gate Control
@@ -4592,10 +4594,14 @@ typedef struct {
 	volatile uint8_t	SLTH;
 	volatile uint8_t	SLTL;
 } KINETIS_I2C_t;
-#define KINETIS_I2C0		(*(KINETIS_I2C_t *)0x40066000)
-#define KINETIS_I2C1		(*(KINETIS_I2C_t *)0x40067000)
-#define KINETIS_I2C2		(*(KINETIS_I2C_t *)0x400E6000)
-#define KINETIS_I2C3		(*(KINETIS_I2C_t *)0x400E7000)
+#define KINETIS_I2C0_ADDRESS	(0x40066000)
+#define KINETIS_I2C1_ADDRESS	(0x40067000)
+#define KINETIS_I2C2_ADDRESS	(0x400E6000)
+#define KINETIS_I2C3_ADDRESS	(0x400E7000)
+#define KINETIS_I2C0		(*(KINETIS_I2C_t *)KINETIS_I2C0_ADDRESS)
+#define KINETIS_I2C1		(*(KINETIS_I2C_t *)KINETIS_I2C1_ADDRESS)
+#define KINETIS_I2C2		(*(KINETIS_I2C_t *)KINETIS_I2C2_ADDRESS)
+#define KINETIS_I2C3		(*(KINETIS_I2C_t *)KINETIS_I2C3_ADDRESS)
 #define I2C0_A1			(KINETIS_I2C0.A1)		// I2C Address Register 1
 #define I2C0_F			(KINETIS_I2C0.F)		// I2C Frequency Divider register
 #define I2C_F_DIV20			((uint8_t)0x00)

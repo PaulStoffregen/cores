@@ -31,6 +31,7 @@
 #include "core_pins.h"
 #include "pins_arduino.h"
 #include "HardwareSerial.h"
+#include <sys/time.h>
 
 
 #if defined(KINETISK)
@@ -385,11 +386,29 @@ void rtc_compensate(int adjust)
 	RTC_TCR = ((interval - 1) << 8) | tcr;
 }
 
+int _gettimeofday(struct timeval *tv, void *ignore)
+{
+	uint32_t sec = RTC_TSR;
+	uint32_t pre = RTC_TPR;
+	while (1) {
+		uint32_t sec2 = RTC_TSR;  // MK20DX256 manual, page 949-950
+		uint32_t pre2 = RTC_TPR;
+		if (sec == sec2 && pre == pre2) {
+			tv->tv_sec = sec;
+			tv->tv_usec = ((pre & 0x7FFF) * 15625) >> 9;
+			return 0;
+		}
+		sec = sec2;
+		pre = pre2;
+	}
+}
+
 #else
 
 unsigned long rtc_get(void) { return 0; }
 void rtc_set(unsigned long t) { }
 void rtc_compensate(int adjust) { }
+int _gettimeofday(struct timeval *tv, void *ignore) { return -1; }
 
 #endif
 
@@ -599,9 +618,9 @@ void _init_Teensyduino_internal_(void)
 	// https://forum.pjrc.com/threads/31290-Teensey-3-2-Teensey-Loader-1-24-Issues?p=87273&viewfull=1#post87273
 
 	startup_middle_hook();
-	delay(TEENSY_INIT_USB_DELAY_BEFORE);
+	while (millis() < TEENSY_INIT_USB_DELAY_BEFORE) ; // wait
 	usb_init();
-	delay(TEENSY_INIT_USB_DELAY_AFTER);
+	while (millis() < TEENSY_INIT_USB_DELAY_AFTER + TEENSY_INIT_USB_DELAY_BEFORE) ; // wait
 }
 
 
