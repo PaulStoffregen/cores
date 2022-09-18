@@ -25,7 +25,9 @@ const static uint8_t SS   = CORE_SS0_PIN;
 const static uint8_t MOSI = CORE_MOSI0_PIN;
 const static uint8_t MISO = CORE_MISO0_PIN;
 const static uint8_t SCK  = CORE_SCLK0_PIN;
-const static uint8_t LED_BUILTIN = CORE_LED0_PIN;
+//IRremote (and maybe other libraries) expect LED_BUILTIN to be a preprocessor define
+//const static uint8_t LED_BUILTIN = CORE_LED0_PIN;
+#define LED_BUILTIN CORE_LED0_PIN
 #if defined(CORE_SDA0_PIN)
 const static uint8_t SDA  = CORE_SDA0_PIN;
 #endif
