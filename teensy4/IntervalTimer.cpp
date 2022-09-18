@@ -31,86 +31,95 @@
 #include "IntervalTimer.h"
 #include "debug/printf.h"
 
-static void pit_isr(void);
-
-#define NUM_CHANNELS 4
-static void (*funct_table[4])(void) __attribute((aligned(32))) = {nullptr, nullptr, nullptr, nullptr};
-uint8_t IntervalTimer::nvic_priorites[4] = {255, 255, 255, 255};
-
-
-bool IntervalTimer::beginCycles(void (*funct)(), uint32_t cycles)
+bool IntervalTimer::beginCycles(callback_t callback, uint32_t cycles)
 {
-	printf("beginCycles %u\n", cycles);
-	if (channel) {
-		channel->TCTRL = 0;
-		channel->TFLG = 1;
-	} else {
-		CCM_CCGR1 |= CCM_CCGR1_PIT(CCM_CCGR_ON);
-		//__asm__ volatile("nop"); // solves timing problem on Teensy 3.5
-		PIT_MCR = 1;
-		channel = IMXRT_PIT_CHANNELS;
-		while (1) {
-			if (channel->TCTRL == 0) break;
-			if (++channel >= IMXRT_PIT_CHANNELS + NUM_CHANNELS) {
-				channel = NULL;
-				return false;
-			}
-		}
-	}
-	int index = channel - IMXRT_PIT_CHANNELS;
-	funct_table[index] = funct;
-	channel->LDVAL = cycles;
-	channel->TCTRL = 3;
-	nvic_priorites[index] = nvic_priority;
-	uint8_t top_priority = 255;
-	for (int i=0; i < NUM_CHANNELS; i++) {
-		if (top_priority > nvic_priorites[i]) top_priority = nvic_priorites[i];
-	}
-	attachInterruptVector(IRQ_PIT, &pit_isr);
-	NVIC_SET_PRIORITY(IRQ_PIT, top_priority);
-	NVIC_ENABLE_IRQ(IRQ_PIT);
-	return true;
+    printf("beginCycles %u\n", cycles);
+    if (channel)
+    {
+        channel->TCTRL = 0;
+        channel->TFLG  = 1;
+    }
+    else
+    {
+        CCM_CCGR1 |= CCM_CCGR1_PIT(CCM_CCGR_ON);
+        //__asm__ volatile("nop"); // solves timing problem on Teensy 3.5
+        PIT_MCR = 1;
+        channel = IMXRT_PIT_CHANNELS;
+        while (1)
+        {
+            if (channel->TCTRL == 0) break;
+            if (++channel >= IMXRT_PIT_CHANNELS + numChannels)
+            {
+                channel = NULL;
+                return false;
+            }
+        }
+    }
+    int index             = channel - IMXRT_PIT_CHANNELS;
+    funct_table[index]    = callback;
+    channel->LDVAL        = cycles;
+    channel->TCTRL        = 3;
+    nvic_priorites[index] = nvic_priority;
+    uint8_t top_priority  = 255;
+    for (unsigned i = 0; i < numChannels; i++)
+    {
+        if (top_priority > nvic_priorites[i]) top_priority = nvic_priorites[i];
+    }
+    attachInterruptVector(IRQ_PIT, &pit_isr);
+    NVIC_SET_PRIORITY(IRQ_PIT, top_priority);
+    NVIC_ENABLE_IRQ(IRQ_PIT);
+    return true;
 }
-
-
-void IntervalTimer::end() {
+/**
+ * Stop the hardware timer
+ */
+void IntervalTimer::end()
+{
 #if 1
-	if (channel) {
-		int index = channel - IMXRT_PIT_CHANNELS;
-		// TODO: disable IRQ_PIT, but only if all instances ended
-		funct_table[index] = nullptr;
-		channel->TCTRL = 0;
-		nvic_priorites[index] = 255;
-		uint8_t top_priority = 255;
-		for (int i=0; i < NUM_CHANNELS; i++) {
-			if (top_priority > nvic_priorites[i]) top_priority = nvic_priorites[i];
-		}
-		NVIC_SET_PRIORITY(IRQ_PIT, top_priority);
-		channel = 0;
-	}
+    if (channel)
+    {
+        int index = channel - IMXRT_PIT_CHANNELS;
+        // TODO: disable IRQ_PIT, but only if all instances ended
+        funct_table[index]    = nullptr;
+        channel->TCTRL        = 0;
+        nvic_priorites[index] = 255;
+        uint8_t top_priority  = 255;
+        for (unsigned i = 0; i < numChannels; i++)
+        {
+            if (top_priority > nvic_priorites[i]) top_priority = nvic_priorites[i];
+        }
+        NVIC_SET_PRIORITY(IRQ_PIT, top_priority);
+        channel = 0;
+    }
 #endif
 }
 
-//FASTRUN
-static void pit_isr()
+void IntervalTimer::priority(uint8_t n)
 {
-#if 0
-	for (int i=0; i < NUM_CHANNELS; i++) {
-		IMXRT_PIT_CHANNEL_t *channel = IMXRT_PIT_CHANNELS + i;
-		if (funct_table[0] && channel->TFLG) {
-			channel->TFLG = 1;
-			funct_table[i]();
-
-		}
-	}
-#else
-	IMXRT_PIT_CHANNEL_t *channel= IMXRT_PIT_CHANNELS;
-	if (funct_table[0] != nullptr && channel->TFLG) {channel->TFLG = 1;funct_table[0]();}
-	channel++;
-	if (funct_table[1] != nullptr && channel->TFLG) {channel->TFLG = 1;funct_table[1]();}
-	channel++;
-	if (funct_table[2] != nullptr && channel->TFLG) {channel->TFLG = 1;funct_table[2]();}
-	channel++;
-	if (funct_table[3] != nullptr && channel->TFLG) {channel->TFLG = 1;funct_table[3]();}
-#endif
+    nvic_priority = n;
+    if (channel)
+    {
+        int index             = channel - IMXRT_PIT_CHANNELS;
+        nvic_priorites[index] = nvic_priority;
+        uint8_t top_priority  = nvic_priorites[0];
+        for (uint8_t i = 1; i < (sizeof(nvic_priorites) / sizeof(nvic_priorites[0])); i++)
+        {
+            if (top_priority > nvic_priorites[i]) top_priority = nvic_priorites[i];
+        }
+        NVIC_SET_PRIORITY(IRQ_PIT, top_priority);
+    }
 }
+
+IntervalTimer::operator IRQ_NUMBER_t()
+{
+    if (channel)
+    {
+        return IRQ_PIT;
+    }
+    return (IRQ_NUMBER_t)NVIC_NUM_INTERRUPTS;
+}
+
+
+// define static members
+IntervalTimer::callback_t IntervalTimer::funct_table[4]{nullptr, nullptr, nullptr, nullptr};
+uint8_t IntervalTimer::nvic_priorites[4]{255, 255, 255, 255};
