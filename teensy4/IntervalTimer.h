@@ -57,7 +57,6 @@ class IntervalTimer
     void update(period_t period);
 
     void end();
-
     void priority(uint8_t n);
     operator IRQ_NUMBER_t();
 
@@ -88,7 +87,7 @@ class IntervalTimer
 //==============================================================================================================
 // INLINE IMPLEMENTATION of templated member functions
 
-/**
+/***************************************************************************************************************
  * Start the hardware timer and begin invoking the callback.
  * @param callback the function to be invoked periodically (free function pointers, lambda expressions, functors etc)
  * @param period the time between successive calls in microseconds. begin also accepts time literals e.g. 1.2us, 13.9ms, 800ns etc
@@ -101,7 +100,7 @@ bool IntervalTimer::begin(callback_t callback, period_t period)
     return beginCycles(callback, cycles);
 }
 
-/**
+/****************************************************************************************************************
  * Changes the timer's interval. The current interval is completed as previously configured,
  * and then the next interval begins with this new setting.
  * @param period the new period between successive calls in microseconds. update also accepts time literals e.g. 1.2us, 13.9ms, 800ns etc.
@@ -114,41 +113,11 @@ void IntervalTimer::update(period_t period)
     if (channel) channel->LDVAL = cycles;
 }
 
-/**
- * Converts a period type to counter cycles
- * Conversion is done at runtime if period is known at runtime
- * @param period the period to be converted (integers, floats or numbers with std::chrono units (12ms, 0.89s, 123ns...))
- */
-template <typename period_t>
-uint32_t constexpr IntervalTimer::period2cycles(period_t period)
-{
-    using namespace std::chrono;
-
-    uint32_t cycles = 0;
-    if constexpr (std::is_arithmetic<period_t>::value) // arithmetic types (ints, floats etc)
-    {
-        if ((period < 0) || ((uint32_t)std::abs(period) > maxPeriod))
-            return 0;
-
-        if constexpr (std::is_integral<period_t>::value)          // integers
-            cycles = cyclesPerMicrosecond * (uint32_t)period - 1; // support switching clock frequency might be a good idea
-
-        else // floating point numbers
-            cycles = cyclesPerMicrosecond * period - 0.5f;
-    }
-    else if constexpr (__is_duration<period_t>::value) // chrono durations
-    {
-        float microseconds = duration_cast<duration<float, std::micro>>(period).count();
-        cycles             = microseconds * cyclesPerMicrosecond - 0.5;
-    }
-    return cycles > minCycles ? cycles : 0;
-}
-
-/**
+/****************************************************************************************************************
  * PIT ISR, handles flags and relays the ISR to the actual callbacks stored in func_table
  */
-void IntervalTimer::pit_isr() // have that in the header to allow the compiler for easier optimization. (Needs to be inline to avoid linker errors)
-{
+void IntervalTimer::pit_isr() // have that in the header to give the compiler more chances for optimization.
+{                             // needs to be declared inline to avoid linker errors!
     IMXRT_PIT_CHANNEL_t* channel = IMXRT_PIT_CHANNELS;
     if (funct_table[0] != nullptr && channel->TFLG)
     {
@@ -174,6 +143,38 @@ void IntervalTimer::pit_isr() // have that in the header to allow the compiler f
         funct_table[3]();
     }
     asm volatile("dsb"); // prevent double entry for very fast callbacks
+}
+
+#pragma GCC system_header // only chance to get rid of a warning a "constexpr if" is c++17, despite it works perfectly on GCC11.3, c++14
+                          // could of course work around if really necessary...
+
+/***************************************************************************************************************
+ * Converts a period-type to counter cycles. Conversion is done at compiletime if period is known at compiletime!
+ * @param period the period to be converted (accepts integers, floats or numbers with std::chrono units (12ms, 0.89s, 123ns...))
+ */
+template <typename period_t>
+uint32_t constexpr IntervalTimer::period2cycles(period_t period)
+{
+    using namespace std::chrono;
+
+    uint32_t cycles = 0;
+    if constexpr (std::is_arithmetic<period_t>::value) // arithmetic types (ints, floats etc)
+    {
+        if ((period < 0) || ((uint32_t)std::abs(period) > maxPeriod))
+            return 0;
+
+        if constexpr (std::is_integral<period_t>::value)          // integer values
+            cycles = cyclesPerMicrosecond * (uint32_t)period - 1; // support switching clock frequency might be a good idea
+
+        else // floating point values
+            cycles = cyclesPerMicrosecond * period - 0.5f;
+    }
+    else if constexpr (__is_duration<period_t>::value) // chrono durations
+    {
+        float microseconds = duration_cast<duration<float, std::micro>>(period).count();
+        cycles             = microseconds * cyclesPerMicrosecond - 0.5;
+    }
+    return cycles > minCycles ? cycles : 0;
 }
 
 #pragma pop_macro("abs")
