@@ -42,7 +42,6 @@ bool IntervalTimer::beginCycles(callback_t callback, uint32_t cycles)
     else
     {
         CCM_CCGR1 |= CCM_CCGR1_PIT(CCM_CCGR_ON);
-        //__asm__ volatile("nop"); // solves timing problem on Teensy 3.5
         PIT_MCR = 1;
         channel = IMXRT_PIT_CHANNELS;
         while (1)
@@ -50,7 +49,7 @@ bool IntervalTimer::beginCycles(callback_t callback, uint32_t cycles)
             if (channel->TCTRL == 0) break;
             if (++channel >= IMXRT_PIT_CHANNELS + numChannels)
             {
-                channel = NULL;
+                channel = nullptr;
                 return false;
             }
         }
@@ -71,11 +70,10 @@ bool IntervalTimer::beginCycles(callback_t callback, uint32_t cycles)
     return true;
 }
 /**
- * Stop the hardware timer
+ * Stop the timer
  */
 void IntervalTimer::end()
 {
-#if 1
     if (channel)
     {
         int index = channel - IMXRT_PIT_CHANNELS;
@@ -91,9 +89,13 @@ void IntervalTimer::end()
         NVIC_SET_PRIORITY(IRQ_PIT, top_priority);
         channel = 0;
     }
-#endif
 }
 
+/**
+ * Sets the interrupt priority. All intervalTimers run on the same timer module, -->
+ * the timer with the highest priority determines the total priority
+ * @param n: 0..255. smaller values set higher priority
+ */
 void IntervalTimer::priority(uint8_t n)
 {
     nvic_priority = n;
@@ -119,7 +121,6 @@ IntervalTimer::operator IRQ_NUMBER_t()
     return (IRQ_NUMBER_t)NVIC_NUM_INTERRUPTS;
 }
 
-
-// define static members
+// define static class members
 IntervalTimer::callback_t IntervalTimer::funct_table[4]{nullptr, nullptr, nullptr, nullptr};
 uint8_t IntervalTimer::nvic_priorites[4]{255, 255, 255, 255};
