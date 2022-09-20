@@ -122,5 +122,5 @@ IntervalTimer::operator IRQ_NUMBER_t()
 }
 
 // define static class members
-IntervalTimer::callback_t IntervalTimer::funct_table[4]{nullptr, nullptr, nullptr, nullptr};
+callback_t IntervalTimer::funct_table[4]{nullptr, nullptr, nullptr, nullptr};
 uint8_t IntervalTimer::nvic_priorites[4]{255, 255, 255, 255};

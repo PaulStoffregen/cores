@@ -37,7 +37,21 @@
 #include "imxrt.h"
 #include <chrono>
 #include <cstdlib>
-#include <staticFunctional.h>
+
+#define FUNCTION_TYPE 1 // 0: std::function, 1: stdex::inplace_function, 2: staticFunctional
+
+#if FUNCTION_TYPE == 0
+    #include <functional>
+    using callback_t = std::function<void(void)>;
+
+#elif FUNCTION_TYPE == 1
+    #include "inplace_function.h" // c++21 proposal from https://github.com/WG21-SG14/SG14
+    using callback_t = stdext::inplace_function<void(void)>;
+
+#elif FUNCTION_TYPE == 2
+    #include "staticFunctional.h"
+    using callback_t = staticFunctional::function<void(void)>;
+#endif
 
 /**
  * IntervalTimer provides access to hardware timers which can run an
@@ -48,8 +62,6 @@
 class IntervalTimer
 {
  public:
-    using callback_t = staticFunctional::function<void(void)>; // alias to save a lot of typing
-
     template <typename period_t>
     bool begin(callback_t callback, period_t period);
 
@@ -142,7 +154,7 @@ void IntervalTimer::pit_isr() // have that in the header to give the compiler mo
         channel->TFLG = 1;
         funct_table[3]();
     }
-    asm volatile("dsb"); // prevent double entry for very fast callbacks
+    // asm volatile("dsb"); // prevent double entry for very fast callbacks
 }
 
 #pragma GCC system_header // only chance to get rid of a warning a "constexpr if" is c++17, despite it works perfectly on GCC11.3, c++14
