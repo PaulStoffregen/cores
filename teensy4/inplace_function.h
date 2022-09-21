@@ -1,3 +1,18 @@
+
+// Added by luni64 ====================================================================================================================
+
+inline void panic() // could be weak to be overriden by a user error handler?
+{
+    // CrashReport.BreadCrumbString = "call of uninitialized function";  // something like this would be great to have...
+    *(int*)nullptr = 1; // provoke a crash
+}
+
+#define SG14_INPLACE_FUNCTION_THROW(x) ((panic())) // quick hack, make it crash instead of an exception
+
+//======================================================================================================================================
+// Original code from here on
+
+
 /*
  * Boost Software License - Version 1.0 - August 17th, 2003
  *
@@ -31,8 +46,7 @@
 #include <utility>
 
 #ifndef SG14_INPLACE_FUNCTION_THROW
-//#define SG14_INPLACE_FUNCTION_THROW(x) throw (x)
-#    define SG14_INPLACE_FUNCTION_THROW(x) // quick hack, better make it crash, invoked when trying to invoke an empty function
+    #define SG14_INPLACE_FUNCTION_THROW(x) throw(x)
 #endif
 
 namespace stdext
