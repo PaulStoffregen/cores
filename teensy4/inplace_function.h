@@ -1,17 +1,19 @@
 
 // Added by luni64 ====================================================================================================================
+[[noreturn]] void panic();
 
 inline void panic() // could be weak to be overriden by a user error handler?
 {
     // CrashReport.BreadCrumbString = "call of uninitialized function";  // something like this would be great to have...
     *(int*)nullptr = 1; // provoke a crash
+    while (1) { } // make the compiler happy
 }
 
+//#define SG14_INPLACE_FUNCTION_THROW(x)
 #define SG14_INPLACE_FUNCTION_THROW(x) ((panic())) // quick hack, make it crash instead of an exception
 
 //======================================================================================================================================
 // Original code from here on
-
 
 /*
  * Boost Software License - Version 1.0 - August 17th, 2003
@@ -122,7 +124,7 @@ namespace stdext
             const process_ptr_t relocate_ptr;
             const destructor_ptr_t destructor_ptr;
 
-            explicit constexpr vtable() noexcept : invoke_ptr{[](storage_ptr_t, Args&&...) -> R { SG14_INPLACE_FUNCTION_THROW(std::bad_function_call()); }},
+            explicit constexpr vtable() noexcept : invoke_ptr{[] [[noreturn]] (storage_ptr_t, Args && ...) -> R { SG14_INPLACE_FUNCTION_THROW(std::bad_function_call()); }},
                                                    copy_ptr{[](storage_ptr_t, storage_ptr_t) -> void {}},
                                                    relocate_ptr{[](storage_ptr_t, storage_ptr_t) -> void {}},
                                                    destructor_ptr{[](storage_ptr_t) -> void {}}
