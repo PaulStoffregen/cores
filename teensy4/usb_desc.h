@@ -587,7 +587,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 #elif defined(USB_MIDI16_DUAL_SERIAL)
   #define VENDOR_ID             0x16C0
   #define PRODUCT_ID            0x0489
-  #define BCD_DEVICE            0x0213
+  #define BCD_DEVICE            0x0413
   #define MANUFACTURER_NAME     {'T','e','e','n','s','y','d','u','i','n','o'}
   #define MANUFACTURER_NAME_LEN 11
   #define PRODUCT_NAME          {'T','e','e','n','s','y',' ','M','I','D','I','x','1','6',' ','D','u','a','l',' ','S','e','r','i','a','l'}
