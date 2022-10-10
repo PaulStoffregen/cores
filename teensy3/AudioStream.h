@@ -155,6 +155,8 @@ public:
 	int processorUsage(void) { return CYCLE_COUNTER_APPROX_PERCENT(cpu_cycles); }
 	int processorUsageMax(void) { return CYCLE_COUNTER_APPROX_PERCENT(cpu_cycles_max); }
 	void processorUsageMaxReset(void) { cpu_cycles_max = cpu_cycles; }
+	static void update_sample_rate(void);
+	static uint32_t actual_sample_rate(void) { return _actual_sample_rate; }
 	bool isActive(void) { return active; }
 	uint16_t cpu_cycles;
 	uint16_t cpu_cycles_max;
@@ -172,7 +174,7 @@ protected:
 	audio_block_t * receiveWritable(unsigned int index = 0);
 	static bool update_setup(void);
 	static void update_stop(void);
-	static void update_all(void) { NVIC_SET_PENDING(IRQ_SOFTWARE); }
+	static void update_all(void) { last_update_cycle = micros(); update_cycle_count++; NVIC_SET_PENDING(IRQ_SOFTWARE); }
 	friend void software_isr(void);
 	friend class AudioConnection;
 #if defined(AUDIO_DEBUG_CLASS)
@@ -190,6 +192,10 @@ private:
 	static audio_block_t *memory_pool;
 	static uint32_t memory_pool_available_mask[];
 	static uint16_t memory_pool_first_mask;
+	static uint32_t last_update_cycle;
+	static uint32_t first_update_cycle;
+	static int update_cycle_count;
+	static volatile uint32_t _actual_sample_rate;
 };
 
 #if defined(AUDIO_DEBUG_CLASS)

@@ -47,6 +47,10 @@ uint16_t AudioStream::cpu_cycles_total_max = 0;
 uint16_t AudioStream::memory_used = 0;
 uint16_t AudioStream::memory_used_max = 0;
 AudioConnection* AudioStream::unused = NULL; // linked list of unused but not destructed connections
+uint32_t AudioStream::last_update_cycle;
+uint32_t AudioStream::first_update_cycle;
+int AudioStream::update_cycle_count;
+volatile float AudioStream::_actual_sample_rate;
 
 void software_isr(void);
 
@@ -466,7 +470,26 @@ void software_isr(void) // AudioStream::update_all()
 	AudioStream::cpu_cycles_total = totalcycles;
 	if (totalcycles > AudioStream::cpu_cycles_total_max)
 		AudioStream::cpu_cycles_total_max = totalcycles;
-
+	
+	AudioStream::update_sample_rate();
+	
 	asm("DSB");
 }
 
+
+// compute actual sample rate
+void AudioStream::update_sample_rate(void)
+{
+#define AUDIO_COMPUTE_RATE_INTERVAL 16	
+	if (update_cycle_count >= AUDIO_COMPUTE_RATE_INTERVAL)
+	{
+		if (0 != first_update_cycle) // must have accumulated some cycles
+		{
+			float rate = (float)(F_CPU_ACTUAL) * AUDIO_BLOCK_SAMPLES * update_cycle_count;
+			rate /= last_update_cycle - first_update_cycle; // CPU cycles
+			_actual_sample_rate = rate;
+		}
+		first_update_cycle = last_update_cycle;
+		update_cycle_count = 0;
+	}
+}
