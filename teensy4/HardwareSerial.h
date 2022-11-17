@@ -287,6 +287,9 @@ private:
 	uint8_t				tx_pin_index_ = 0x0;
 	uint8_t				half_duplex_mode_ = 0; // are we in half duplex mode?
 
+	// 7-bit mode support
+	int				data_mask_ = 0x3ff;	// Use only up to 10 bits of data by default
+
 	volatile BUFTYPE 	*tx_buffer_;
 	volatile BUFTYPE 	*rx_buffer_;
 	volatile BUFTYPE	*rx_buffer_storage_ = nullptr;
