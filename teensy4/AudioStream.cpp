@@ -201,28 +201,19 @@ audio_block_t * AudioStream::receiveWritable(unsigned int index)
 }
 
 /**************************************************************************************/
-// Full constructor with 4 parameters
-AudioConnection::AudioConnection(AudioStream &source, unsigned char sourceOutput,
-		AudioStream &destination, unsigned char destinationInput)
+// Constructor with no parameters: leave unconnected
+AudioConnection::AudioConnection() 
+	: src(NULL), dst(NULL),
+	  src_index(0), dest_index(0),
+	  isConnected(false)
+
 {
-	// we are effectively unused right now, so
+	// we are unused right now, so
 	// link ourselves at the start of the unused list
 	next_dest = AudioStream::unused;
 	AudioStream::unused = this;
-	
-	isConnected = false;	  
-	connect(source,sourceOutput,destination,destinationInput); 
 }
 
-// Simplified constructor assuming channel 0 at both ends
-AudioConnection::AudioConnection(AudioStream &source, AudioStream &destination)
-{
-	next_dest = AudioStream::unused;
-	AudioStream::unused = this;
-	
-	isConnected = false;	  
-	connect(source, 0, destination,0);
-}
 
 // Destructor
 AudioConnection::~AudioConnection()
