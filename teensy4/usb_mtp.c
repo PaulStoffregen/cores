@@ -139,7 +139,7 @@ int usb_mtp_recv(void *buffer, uint32_t timeout)
 	while (1) {
 		if (!usb_configuration) return -1; // usb not enumerated by host
 		if (tail != rx_head) break;
-		if (systick_millis_count - wait_begin_at > timeout)  {
+		if (systick_millis_count - wait_begin_at >= timeout)  {
 			return 0;
 		}
 		yield();
