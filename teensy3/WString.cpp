@@ -304,6 +304,22 @@ String & String::append(unsigned long num)
 	return *this;
 }
 
+String & String::append(long long num)
+{
+	char buf[21];
+	lltoa(num, buf, 10);
+	append(buf, strlen(buf));
+	return *this;
+}
+
+String & String::append(unsigned long long num)
+{
+	char buf[21];
+	ulltoa(num, buf, 10);
+	append(buf, strlen(buf));
+	return *this;
+}
+
 String & String::append(float num)
 {
 	char buf[30];
