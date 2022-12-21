@@ -67,6 +67,8 @@ public:
 	String(unsigned int, unsigned char base=10);
 	String(long, unsigned char base=10);
 	String(unsigned long, unsigned char base=10);
+	String(long long, unsigned char base=10);
+	String(unsigned long long, unsigned char base=10);
         String(float num, unsigned char digits=2);
 	String(double num, unsigned char digits=2) : String((float)num, digits) {}
 	~String(void);
@@ -98,6 +100,8 @@ public:
 	String & append(unsigned int num);
 	String & append(long num);
 	String & append(unsigned long num);
+	String & append(long long num);
+	String & append(unsigned long long num);
 	String & append(float num);
 	String & append(double num)			{return append((float)num);}
 	String & operator += (const String &rhs)	{return append(rhs);}
@@ -109,6 +113,8 @@ public:
 	String & operator += (unsigned int num)		{return append(num);}
 	String & operator += (long num)			{return append(num);}
 	String & operator += (unsigned long num)	{return append(num);}
+	String & operator += (long long num)		{return append(num);}
+	String & operator += (unsigned long long num)	{return append(num);}
 	String & operator += (float num)		{return append(num);}
 	String & operator += (double num)		{return append(num);}
 

@@ -67,6 +67,39 @@ char * ltoa(long val, char *buf, int radix)
 	}
 }
 
+char * ulltoa(unsigned long long val, char *buf, int radix)
+{
+	unsigned digit;
+	int i=0, j;
+	char t;
+
+	while (1) {
+		digit = val % radix;
+		buf[i] = ((digit < 10) ? '0' + digit : 'A' + digit - 10);
+		val /= radix;
+		if (val == 0) break;
+		i++;
+	}
+	buf[i + 1] = 0;
+	for (j=0; j < i; j++, i--) {
+		t = buf[j];
+		buf[j] = buf[i];
+		buf[i] = t;
+	}
+	return buf;
+}
+
+char * lltoa(long long val, char *buf, int radix)
+{
+	if (val >= 0) {
+		return ulltoa(val, buf, radix);
+	} else {
+		buf[0] = '-';
+		ulltoa(-val, buf + 1, radix);
+		return buf;
+	}
+}
+
 #define DTOA_UPPER 0x04
 
 char * fcvtf(float, int, int *, int *);
