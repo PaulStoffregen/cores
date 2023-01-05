@@ -386,6 +386,7 @@ void rtc_compensate(int adjust)
 	RTC_TCR = ((interval - 1) << 8) | tcr;
 }
 
+__attribute__((weak))
 int _gettimeofday(struct timeval *tv, void *ignore)
 {
 	uint32_t sec = RTC_TSR;
@@ -408,6 +409,8 @@ int _gettimeofday(struct timeval *tv, void *ignore)
 unsigned long rtc_get(void) { return 0; }
 void rtc_set(unsigned long t) { }
 void rtc_compensate(int adjust) { }
+
+__attribute__((weak))
 int _gettimeofday(struct timeval *tv, void *ignore) { return -1; }
 
 #endif
