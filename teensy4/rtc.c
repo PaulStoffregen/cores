@@ -71,6 +71,7 @@ void rtc_compensate(int adjust)
 
 // https://github.com/arduino-libraries/ArduinoBearSSL/issues/54
 // https://forum.pjrc.com/threads/70966
+__attribute__((weak))
 int _gettimeofday(struct timeval *tv, void *ignore)
 {
 	uint32_t hi1 = SNVS_HPRTCMR;
