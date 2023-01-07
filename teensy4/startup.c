@@ -509,6 +509,11 @@ FLASHMEM void usb_pll_start()
 	}
 }
 
+// For some reason compiling this file with e.g. -Og causes an issue, resulting
+// in the Teensy never starting up and enumerating, and the user having to press
+// the Program button to get back to bootloader mode. Changing to -O2 optimisation
+// for this one function seems to fix the issue.
+__attribute__((optimize("O2")))
 FLASHMEM void reset_PFD()
 {	
 	//Reset PLL2 PFDs, set default frequencies:
