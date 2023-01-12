@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2017 PJRC.COM, LLC.
+ * Copyright (c) 2023 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -66,6 +66,8 @@ extern "C"{
 
 // http://en.wikipedia.org/wiki/Keyboard_layout
 
+// Explanation why 16 bits and the purpose of upper 8 bits of these defines
+// https://forum.pjrc.com/threads/71874?p=318669&viewfull=1#post318669
 
 #define MODIFIERKEY_CTRL        ( 0x01 | 0xE000 )
 #define MODIFIERKEY_SHIFT       ( 0x02 | 0xE000 )
