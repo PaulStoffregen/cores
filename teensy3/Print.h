@@ -56,7 +56,8 @@ class Print
   public:
 	constexpr Print() : write_error(0) {}
 	virtual size_t write(uint8_t b) = 0;
-	size_t write(const char *str)			{ return write((const uint8_t *)str, strlen(str)); }
+	size_t write(const char *str)			{ if (str == nullptr) return 0;
+							  return write((const uint8_t *)str, strlen(str)); }
 	virtual size_t write(const uint8_t *buffer, size_t size);
 	virtual int availableForWrite(void)		{ return 0; }
 	virtual void flush()				{ }
