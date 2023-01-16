@@ -91,6 +91,10 @@ void IntervalTimer::end() {
 #endif
 		funct_table[index] = dummy_funct;
 		channel->TCTRL = 0;
+		channel->TFLG = 1;
+#if defined(KINETISK)
+		NVIC_CLEAR_PENDING(IRQ_PIT_CH0 + index);
+#endif
 #if defined(KINETISL)
 		nvic_priorites[index] = 255;
 		if (nvic_priorites[0] <= nvic_priorites[1]) {
