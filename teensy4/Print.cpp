@@ -93,8 +93,7 @@ __attribute__((weak))
 int _write(int file, char *ptr, int len)
 {
 	if (file >= 0 && file <= 2) file = (int)&Serial;
-	((class Print *)file)->write((uint8_t *)ptr, len);
-	return len;
+	return ((class Print *)file)->write((uint8_t *)ptr, len);
 }
 }
 
