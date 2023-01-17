@@ -80,6 +80,7 @@ void IntervalTimer::end() {
 		// TODO: disable IRQ_PIT, but only if all instances ended
 		funct_table[index] = nullptr;
 		channel->TCTRL = 0;
+		channel->TFLG = 1;
 		nvic_priorites[index] = 255;
 		uint8_t top_priority = 255;
 		for (int i=0; i < NUM_CHANNELS; i++) {

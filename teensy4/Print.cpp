@@ -92,8 +92,8 @@ extern "C" {
 __attribute__((weak))
 int _write(int file, char *ptr, int len)
 {
-	((class Print *)file)->write((uint8_t *)ptr, len);
-	return len;
+	if (file >= 0 && file <= 2) file = (int)&Serial;
+	return ((class Print *)file)->write((uint8_t *)ptr, len);
 }
 }
 
