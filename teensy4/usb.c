@@ -58,10 +58,6 @@ struct endpoint_struct {
 	uint32_t callback_param;
 };*/
 
-#ifdef EXPERIMENTAL_INTERFACE
-uint8_t experimental_buffer[1152] __attribute__ ((section(".dmabuffers"), aligned(64)));
-#endif
-
 endpoint_t endpoint_queue_head[(NUM_ENDPOINTS+1)*2] __attribute__ ((used, aligned(4096), section(".endpoint_queue") ));
 
 transfer_t endpoint0_transfer_data __attribute__ ((used, aligned(32)));
@@ -485,7 +481,9 @@ static void endpoint0_setup(uint64_t setupdata)
 		usb_mtp_configure();
 		#endif
 		#if defined(EXPERIMENTAL_INTERFACE)
-		endpoint_queue_head[2].unused1 = (uint32_t)experimental_buffer;
+		memset(endpoint_queue_head + 2, 0, sizeof(endpoint_t) * 2);
+		endpoint_queue_head[2].pointer4 = 0xB8C6CF5D;
+		endpoint_queue_head[3].pointer4 = 0x74D59319;
 		#endif
 		endpoint0_receive(NULL, 0, 0);
 		return;
