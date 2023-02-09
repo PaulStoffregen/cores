@@ -1180,6 +1180,7 @@ char *__brkval = (char *)&_ebss;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
+__attribute__((weak))
 void * _sbrk(int incr)
 {
 	char *prev, *stack;
