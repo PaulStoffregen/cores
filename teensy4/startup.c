@@ -652,6 +652,7 @@ extern unsigned long _heap_end;
 
 char *__brkval = (char *)&_heap_start;
 
+__attribute__((weak))
 void * _sbrk(int incr)
 {
         char *prev = __brkval;
