@@ -262,7 +262,7 @@ String Stream::readString(size_t max)
 {
 	String str;
 	size_t length = 0;
-	while (length < max) {
+	while (length < max || !max) {
 		int c = timedRead();
 		if (c < 0) {
 			setReadError();
@@ -279,7 +279,7 @@ String Stream::readStringUntil(char terminator, size_t max)
 {
 	String str;
 	size_t length = 0;
-	while (length < max) {
+	while (length < max || !max) {
 		int c = timedRead();
 		if (c < 0) {
 			setReadError();
