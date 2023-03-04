@@ -202,4 +202,6 @@ static inline uint8_t digitalPinToTimer(uint8_t pin)
 
 #define SerialUSB			Serial
 
+#define WIRE_INTERFACES_COUNT		3
+
 #endif // pins_macros_for_arduino_compatibility_h

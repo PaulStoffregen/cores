@@ -283,4 +283,13 @@ static inline uint8_t digitalPinToTimer(uint8_t pin)
 
 #define SerialUSB			Serial
 
+#if defined(__MK66FX1M0__)
+#define WIRE_INTERFACES_COUNT		4
+#elif defined(__MK64FX512__)
+#define WIRE_INTERFACES_COUNT		3
+#else
+#define WIRE_INTERFACES_COUNT		2
+#endif
+
+
 #endif
