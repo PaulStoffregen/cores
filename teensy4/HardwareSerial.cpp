@@ -174,9 +174,9 @@ void HardwareSerial::begin(uint32_t baud, uint16_t format)
 	// FIFO size
 	// According to IMXRT1060RM_rev2.pdf, page 2875, Section 49.4.1.12.3 Diagram,
 	// both TXFIFOSIZE and RXFIFOSIZE are fixed at 4 (register value == 1)
-	uint16_t tx_fifo_size = 4;
+	//uint16_t tx_fifo_size = 4;
 	uint8_t tx_water = 2;
-	uint16_t rx_fifo_size = 4;
+	//uint16_t rx_fifo_size = 4;
 	uint8_t rx_water = 2;
 	// Original FIFO size calculation:
 	// uint16_t tx_fifo_size = (1 << (((port->FIFO >> 4) & 0x7) + 1));
