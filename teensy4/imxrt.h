@@ -4085,7 +4085,7 @@ typedef struct {
 #define FLEXIO_CTRL_FASTACC			((uint32_t)(1<<2))
 #define FLEXIO_CTRL_SWRST			((uint32_t)(1<<1))
 #define FLEXIO_CTRL_FLEXEN			((uint32_t)(1<<0))
-#define FLEXIO_SHIFTCTL_TIMSEL(n)		((uint32_t)(((n) & 0x03) << 24))
+#define FLEXIO_SHIFTCTL_TIMSEL(n)		((uint32_t)(((n) & 0x07) << 24))
 #define FLEXIO_SHIFTCTL_TIMPOL			((uint32_t)(1<<23))
 #define FLEXIO_SHIFTCTL_PINCFG(n)		((uint32_t)(((n) & 0x03) << 16))
 #define FLEXIO_SHIFTCTL_PINSEL(n)		((uint32_t)(((n) & 0x1F) << 8))
