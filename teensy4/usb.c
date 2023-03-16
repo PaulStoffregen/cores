@@ -534,6 +534,7 @@ static void endpoint0_setup(uint64_t setupdata)
 	  case 0xF8C0: // GET_MS_DESCRIPTOR (bRequest=0xF8 because microsoft_os_string_desc)
 		if ((setup.wIndex & 0xFF00) != 0) break; // 1=Genre, 4=Compat ID, 5=Properties
 		setup.wIndex |= 0xEE00; // alter wIndex and treat as normal USB descriptor
+		__attribute__((fallthrough));
 #endif
 	  case 0x0680: // GET_DESCRIPTOR
 	  case 0x0681:
@@ -591,6 +592,7 @@ static void endpoint0_setup(uint64_t setupdata)
 			usb_cdc3_line_rtsdtr = setup.wValue;
 		}
 		#endif
+		__attribute__((fallthrough));
 		// fall through to next case, to always send ZLP ACK
 	  case 0x2321: // CDC_SEND_BREAK
 		endpoint0_receive(NULL, 0, 0);
