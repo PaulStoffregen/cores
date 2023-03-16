@@ -38,7 +38,7 @@ static int smalloc_valid_tag(struct smalloc_hdr *shdr)
 	return 0;
 }
 
-static void smalloc_do_crash(struct smalloc_pool *spool, const void *p)
+static void smalloc_do_crash(struct smalloc_pool *spool __attribute__((unused)), const void *p __attribute__((unused)))
 {
 	char *c = NULL;
 	*c = 'X';

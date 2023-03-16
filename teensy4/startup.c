@@ -667,13 +667,13 @@ void * _sbrk(int incr)
 }
 
 __attribute__((weak))
-int _read(int file, char *ptr, int len)
+int _read(int file __attribute__((unused)), char *ptr __attribute__((unused)), int len __attribute__((unused)))
 {
 	return 0;
 }
 
 __attribute__((weak))
-int _close(int fd)
+int _close(int fd __attribute__((unused)))
 {
 	return -1;
 }
@@ -681,26 +681,26 @@ int _close(int fd)
 #include <sys/stat.h>
 
 __attribute__((weak))
-int _fstat(int fd, struct stat *st)
+int _fstat(int fd __attribute__((unused)), struct stat *st)
 {
 	st->st_mode = S_IFCHR;
 	return 0;
 }
 
 __attribute__((weak))
-int _isatty(int fd)
+int _isatty(int fd __attribute__((unused)))
 {
 	return 1;
 }
 
 __attribute__((weak))
-int _lseek(int fd, long long offset, int whence)
+int _lseek(int fd __attribute__((unused)), long long offset __attribute__((unused)), int whence __attribute__((unused)))
 {
 	return -1;
 }
 
 __attribute__((weak))
-void _exit(int status)
+void _exit(int status __attribute__((unused)))
 {
 	while (1) asm ("WFI");
 }

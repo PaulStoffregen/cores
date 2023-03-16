@@ -65,14 +65,14 @@ void rtc_set(unsigned long t)
 	SNVS_HPCR |= SNVS_HPCR_RTC_EN | SNVS_HPCR_HP_TS;
 }
 
-void rtc_compensate(int adjust)
+void rtc_compensate(int adjust __attribute__((unused)))
 {
 }
 
 // https://github.com/arduino-libraries/ArduinoBearSSL/issues/54
 // https://forum.pjrc.com/threads/70966
 __attribute__((weak))
-int _gettimeofday(struct timeval *tv, void *ignore)
+int _gettimeofday(struct timeval *tv, void *ignore __attribute__((unused)))
 {
 	uint32_t hi1 = SNVS_HPRTCMR;
 	uint32_t lo1 = SNVS_HPRTCLR;

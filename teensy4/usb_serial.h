@@ -77,7 +77,7 @@ public:
 	// is not used.  Communication occurs at USB native speed.  For
 	// compatibility with Arduino code, Serial.begin waits up to 2 seconds
 	// for your PC to open the virtual serial port.
-        void begin(long baud_unused) {
+        void begin(long baud_unused __attribute__((unused))) {
 		uint32_t millis_begin = systick_millis_count;
 		while (!(*this)) {
 			uint32_t elapsed = systick_millis_count - millis_begin;
