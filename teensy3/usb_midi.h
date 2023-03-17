@@ -69,7 +69,7 @@ extern void (*usb_midi_handleControlChange)(uint8_t ch, uint8_t control, uint8_t
 extern void (*usb_midi_handleProgramChange)(uint8_t ch, uint8_t program);
 extern void (*usb_midi_handleAfterTouch)(uint8_t ch, uint8_t pressure);
 extern void (*usb_midi_handlePitchChange)(uint8_t ch, int pitch);
-extern void (*usb_midi_handleSysExPartial)(const uint8_t *data, uint16_t length, uint8_t complete);
+extern void (*usb_midi_handleSysExPartial)(const uint8_t *data, uint16_t length, _Bool complete);
 extern void (*usb_midi_handleSysExComplete)(uint8_t *data, unsigned int size);
 extern void (*usb_midi_handleTimeCodeQuarterFrame)(uint8_t data);
 extern void (*usb_midi_handleSongPosition)(uint16_t beats);
@@ -324,11 +324,11 @@ class usb_midi_class
         }
         void setHandleSysEx(void (*fptr)(const uint8_t *data, uint16_t length, bool complete)) {
 		// type: 0xF0  SystemExclusive - multiple calls for message bigger than buffer
-                usb_midi_handleSysExPartial = (void (*)(const uint8_t *, uint16_t, uint8_t))fptr;
+                usb_midi_handleSysExPartial = fptr;
         }
         void setHandleSystemExclusive(void (*fptr)(const uint8_t *data, uint16_t length, bool complete)) {
 		// type: 0xF0  SystemExclusive - multiple calls for message bigger than buffer
-                usb_midi_handleSysExPartial = (void (*)(const uint8_t *, uint16_t, uint8_t))fptr;
+                usb_midi_handleSysExPartial = fptr;
         }
 	void setHandleSystemExclusive(void (*fptr)(uint8_t *data, unsigned int size)) {
 		// type: 0xF0  SystemExclusive - single call, message larger than buffer is truncated
