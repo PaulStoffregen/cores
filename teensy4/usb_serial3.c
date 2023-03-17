@@ -136,7 +136,7 @@ static void rx_event(transfer_t *t)
 			// a previous packet is still buffered
 			uint32_t ii = rx_list[head];
 			uint32_t count = rx_count[ii];
-			if (len <= CDC_RX_SIZE_480 - count) {
+			if ((uint32_t)len <= CDC_RX_SIZE_480 - count) {
 				// previous buffer has enough free space for this packet's data
 				memcpy(rx_buffer + ii * CDC_RX_SIZE_480 + count,
 					rx_buffer + i * CDC_RX_SIZE_480, len);
