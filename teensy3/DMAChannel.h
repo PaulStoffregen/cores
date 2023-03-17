@@ -408,6 +408,10 @@ public:
 		TCD = &tcddata;
 		*this = c;
 	}
+	DMASetting & operator = (const DMASetting &rhs) {
+		copy_tcd(TCD, rhs.TCD);
+		return *this;
+	}
 	DMASetting & operator = (const DMABaseClass &rhs) {
 		copy_tcd(TCD, rhs.TCD);
 		return *this;
