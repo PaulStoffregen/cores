@@ -128,6 +128,8 @@ public:
 	friend StringSumHelper & operator + (const StringSumHelper &lhs, unsigned int num);
 	friend StringSumHelper & operator + (const StringSumHelper &lhs, long num);
 	friend StringSumHelper & operator + (const StringSumHelper &lhs, unsigned long num);
+	friend StringSumHelper & operator + (const StringSumHelper &lhs, long long num);
+	friend StringSumHelper & operator + (const StringSumHelper &lhs, unsigned long long num);
 	friend StringSumHelper & operator + (const StringSumHelper &lhs, float num);
 	friend StringSumHelper & operator + (const StringSumHelper &lhs, double num);
 	String & concat(const String &str)		{return append(str);}
@@ -139,6 +141,8 @@ public:
 	String & concat(unsigned int num)		{return append(num);}
 	String & concat(long num)			{return append(num);}
 	String & concat(unsigned long num)		{return append(num);}
+	String & concat(long long num)			{return append(num);}
+	String & concat(unsigned long long num)		{return append(num);}
 	String & concat(float num)			{return append(num);}
 	String & concat(double num)			{return append(num);}
 
@@ -236,6 +240,8 @@ public:
 	StringSumHelper(unsigned int num) : String(num, 10) {}
 	StringSumHelper(long num) : String(num, 10) {}
 	StringSumHelper(unsigned long num) : String(num, 10) {}
+	StringSumHelper(long long num) : String(num, 10) {}
+	StringSumHelper(unsigned long long num) : String(num, 10) {}
 };
 
 #endif  // __cplusplus
