@@ -164,7 +164,7 @@ class Print
   protected:
 	void setWriteError(int err = 1) { write_error = err; }
   private:
-	char write_error;
+	int write_error;
 	size_t printFloat(double n, uint8_t digits);
 	size_t printNumber(unsigned long n, uint8_t base, uint8_t sign);
 	size_t printNumber64(uint64_t n, uint8_t base, uint8_t sign);

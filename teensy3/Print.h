@@ -118,7 +118,7 @@ class Print
   protected:
 	void setWriteError(int err = 1) { write_error = err; }
   private:
-	char write_error;
+	int write_error;
 	size_t printFloat(double n, uint8_t digits);
 #ifdef __MKL26Z64__
 	size_t printNumberDec(unsigned long n, uint8_t sign);
