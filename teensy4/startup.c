@@ -54,6 +54,8 @@ FLASHMEM void startup_default_middle_hook(void) {}
 void startup_middle_hook(void)	__attribute__ ((weak, alias("startup_default_middle_hook")));
 FLASHMEM void startup_default_late_hook(void) {}
 void startup_late_hook(void)	__attribute__ ((weak, alias("startup_default_late_hook")));
+extern void startup_debug_reset(void) __attribute__((noinline));
+FLASHMEM void startup_debug_reset(void) { __asm__ volatile("nop"); }
 
 static void ResetHandler2(void);
 
@@ -168,6 +170,7 @@ static void ResetHandler2(void)
 	usb_init();
 	while (millis() < TEENSY_INIT_USB_DELAY_AFTER + TEENSY_INIT_USB_DELAY_BEFORE) ; // wait
 	//printf("before C++ constructors\n");
+	startup_debug_reset();
 	startup_late_hook();
 	__libc_init_array();
 	//printf("after C++ constructors\n");
