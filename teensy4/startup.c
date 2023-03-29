@@ -72,7 +72,7 @@ void ResetHandler(void)
 	__builtin_unreachable();
 }
 
-__attribute__((section(".startup"), noreturn))
+__attribute__((section(".startup"), noinline, noreturn))
 static void ResetHandler2(void)
 {
 	unsigned int i;
