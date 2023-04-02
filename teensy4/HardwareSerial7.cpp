@@ -47,11 +47,10 @@ void IRQHandler_Serial7()
 // Serial7
 static BUFTYPE tx_buffer7[SERIAL7_TX_BUFFER_SIZE];
 static BUFTYPE rx_buffer7[SERIAL7_RX_BUFFER_SIZE];
-uint8_t _serialEvent7_default __attribute__((weak)) PROGMEM = 0 ;
 
 static HardwareSerial::hardware_t UART7_Hardware = {
 	6, IRQ_LPUART7, &IRQHandler_Serial7, 
-	&serialEvent7, &_serialEvent7_default,
+	&serialEvent7,
 	CCM_CCGR5, CCM_CCGR5_LPUART7(CCM_CCGR_ON),
 	{{28,2, &IOMUXC_LPUART7_RX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
 	{{29,2, &IOMUXC_LPUART7_TX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},

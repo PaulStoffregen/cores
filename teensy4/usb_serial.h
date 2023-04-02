@@ -58,6 +58,7 @@ extern volatile uint32_t systick_millis_count;
 extern volatile uint8_t usb_cdc_line_rtsdtr;
 extern volatile uint8_t usb_cdc_transmit_flush_timer;
 extern volatile uint8_t usb_configuration;
+extern void serialEvent(void) __attribute__((weak));
 #ifdef __cplusplus
 }
 #endif
@@ -185,7 +186,6 @@ public:
 };
 // Serial provides USB Virtual Serial communication with your computer.
 extern usb_serial_class Serial;
-extern void serialEvent(void);
 #endif // __cplusplus
 
 #else  // !defined(USB_DISABLED)
@@ -223,7 +223,6 @@ public:
 };
 
 extern usb_serial_class Serial;
-extern void serialEvent(void);
 #endif // __cplusplus
 
 #endif // !defined(USB_DISABLED)
@@ -253,6 +252,7 @@ extern uint32_t usb_cdc2_line_coding[2];
 extern volatile uint32_t usb_cdc2_line_rtsdtr_millis;
 extern volatile uint8_t usb_cdc2_line_rtsdtr;
 extern volatile uint8_t usb_cdc2_transmit_flush_timer;
+extern void serialEventUSB1(void) __attribute__((weak));
 #ifdef __cplusplus
 }
 #endif
@@ -316,7 +316,6 @@ public:
 
 };
 extern usb_serial2_class SerialUSB1;
-extern void serialEventUSB1(void);
 #endif // __cplusplus
 
 #endif // CDC2_STATUS_INTERFACE && CDC2_DATA_INTERFACE
@@ -343,6 +342,7 @@ extern uint32_t usb_cdc3_line_coding[2];
 extern volatile uint32_t usb_cdc3_line_rtsdtr_millis;
 extern volatile uint8_t usb_cdc3_line_rtsdtr;
 extern volatile uint8_t usb_cdc3_transmit_flush_timer;
+extern void serialEventUSB2(void) __attribute__((weak));
 #ifdef __cplusplus
 }
 #endif
@@ -406,7 +406,6 @@ public:
 
 };
 extern usb_serial3_class SerialUSB2;
-extern void serialEventUSB2(void);
 #endif // __cplusplus
 
 #endif // CDC3_STATUS_INTERFACE && CDC3_DATA_INTERFACE

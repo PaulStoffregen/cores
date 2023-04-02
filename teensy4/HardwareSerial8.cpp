@@ -49,11 +49,10 @@ void IRQHandler_Serial8()
 // Serial8
 static BUFTYPE tx_buffer8[SERIAL8_TX_BUFFER_SIZE];
 static BUFTYPE rx_buffer8[SERIAL8_RX_BUFFER_SIZE];
-uint8_t _serialEvent8_default __attribute__((weak)) PROGMEM = 0 ;
 
 static HardwareSerial::hardware_t UART5_Hardware = {
 	7, IRQ_LPUART5, &IRQHandler_Serial8, 
-	&serialEvent8, &_serialEvent8_default,
+	&serialEvent8,
 	CCM_CCGR3, CCM_CCGR3_LPUART5(CCM_CCGR_ON),
     {{34,1, &IOMUXC_LPUART5_RX_SELECT_INPUT, 1}, {48, 2, &IOMUXC_LPUART5_RX_SELECT_INPUT, 0}},
     {{35,1, &IOMUXC_LPUART5_TX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},

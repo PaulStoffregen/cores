@@ -47,11 +47,10 @@ void IRQHandler_Serial5()
 // Serial5
 static BUFTYPE tx_buffer5[SERIAL5_TX_BUFFER_SIZE];
 static BUFTYPE rx_buffer5[SERIAL5_RX_BUFFER_SIZE];
-uint8_t _serialEvent5_default __attribute__((weak)) PROGMEM = 0 ;
 
 static HardwareSerial::hardware_t UART8_Hardware = {
 	4, IRQ_LPUART8, &IRQHandler_Serial5, 
-	&serialEvent5, &_serialEvent5_default,
+	&serialEvent5,
 	CCM_CCGR6, CCM_CCGR6_LPUART8(CCM_CCGR_ON),
 	#if defined(ARDUINO_TEENSY41)
 	{{21,2, &IOMUXC_LPUART8_RX_SELECT_INPUT, 1}, {46, 2, &IOMUXC_LPUART8_RX_SELECT_INPUT, 0}},

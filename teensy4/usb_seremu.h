@@ -52,6 +52,7 @@ int usb_seremu_write_buffer_free(void);
 void usb_seremu_flush_output(void);
 extern volatile uint8_t usb_configuration;
 extern volatile uint8_t usb_seremu_online;
+extern void serialEvent(void) __attribute__((weak));
 #ifdef __cplusplus
 }
 #endif
@@ -101,7 +102,6 @@ public:
         operator bool() { yield(); return usb_configuration && usb_seremu_online; }
 };
 extern usb_seremu_class Serial;
-extern void serialEvent(void);
 #endif // __cplusplus
 
 
@@ -138,7 +138,6 @@ public:
 };
 
 extern usb_seremu_class Serial;
-extern void serialEvent(void);
 #endif // __cplusplus
 #endif
 

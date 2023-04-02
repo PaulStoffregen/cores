@@ -2414,11 +2414,11 @@ void _restart_Teensyduino_(void) __attribute__((noreturn));
 // Define a set of flags to know which things yield should check when called. 
 extern uint8_t yield_active_check_flags;
 
-#define YIELD_CHECK_USB_SERIAL 		0x1   	// check the USB for Serial.available()
-#define YIELD_CHECK_HARDWARE_SERIAL 0x2		// check Hardware Serial ports available
-#define YIELD_CHECK_EVENT_RESPONDER	0x4		// User has created eventResponders that use yield
-#define YIELD_CHECK_USB_SERIALUSB1  0x8		// Check for SerialUSB1
-#define YIELD_CHECK_USB_SERIALUSB2  0x10	// Check for SerialUSB2
+#define YIELD_CHECK_USB_SERIAL      0x01  // check the USB for Serial.available()
+#define YIELD_CHECK_HARDWARE_SERIAL 0x02  // check Hardware Serial ports available
+#define YIELD_CHECK_EVENT_RESPONDER 0x04  // User has created eventResponders that use yield
+#define YIELD_CHECK_USB_SERIALUSB1  0x08  // Check for SerialUSB1
+#define YIELD_CHECK_USB_SERIALUSB2  0x10  // Check for SerialUSB2
 
 // Allow other functions to run.  Typically these will be serial event handlers
 // and functions call by certain libraries when lengthy operations complete.

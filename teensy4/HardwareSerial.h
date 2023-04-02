@@ -168,7 +168,6 @@ public:
 		IRQ_NUMBER_t irq;
 		void (*irq_handler)(void);
 		void (* _serialEvent)(void);
-		const uint8_t *serial_event_handler_default;
 		volatile uint32_t &ccm_register;
 		const uint32_t ccm_value;
 		pin_info_t rx_pins[cnt_rx_pins];
@@ -357,19 +356,19 @@ extern HardwareSerial Serial6;
 // Serial7 hardware serial port for pins RX7 and TX7.  More detail at
 // https://www.pjrc.com/teensy/td_uart.html
 extern HardwareSerial Serial7;
-extern void serialEvent1(void);
-extern void serialEvent2(void);
-extern void serialEvent3(void);
-extern void serialEvent4(void);
-extern void serialEvent5(void);
-extern void serialEvent6(void);
-extern void serialEvent7(void);
+extern void serialEvent1(void) __attribute__((weak));
+extern void serialEvent2(void) __attribute__((weak));
+extern void serialEvent3(void) __attribute__((weak));
+extern void serialEvent4(void) __attribute__((weak));
+extern void serialEvent5(void) __attribute__((weak));
+extern void serialEvent6(void) __attribute__((weak));
+extern void serialEvent7(void) __attribute__((weak));
 
 #if defined(ARDUINO_TEENSY41)
 // Serial8 hardware serial port for pins RX8 and TX8.  More detail at
 // https://www.pjrc.com/teensy/td_uart.html
 extern HardwareSerial Serial8;
-extern void serialEvent8(void);
+extern void serialEvent8(void) __attribute__((weak));
 #endif
 
 

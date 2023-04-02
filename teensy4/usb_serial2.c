@@ -105,6 +105,8 @@ void usb_serial2_configure(void)
 	usb_config_tx(CDC2_TX_ENDPOINT, tx_packet_size, 1, NULL);
 	for (i=0; i < RX_NUM; i++) rx_queue_transfer(i);
 	timer_config(usb_serial2_flush_callback, TRANSMIT_FLUSH_TIMEOUT);
+	// weak serialEventUSB1 will be NULL unless user's program defines serialEventUSB1()
+	if (serialEventUSB1) yield_active_check_flags |= YIELD_CHECK_USB_SERIALUSB1;
 }
 
 

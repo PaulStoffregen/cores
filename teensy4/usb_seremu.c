@@ -83,6 +83,8 @@ void usb_seremu_configure(void)
 	int i;
 	for (i=0; i < RX_NUM; i++) rx_queue_transfer(i);
 	timer_config(usb_seremu_flush_callback, TRANSMIT_FLUSH_TIMEOUT);
+	// weak serialEvent will be NULL unless user's program defines serialEvent()
+	if (serialEvent) yield_active_check_flags |= YIELD_CHECK_USB_SERIAL;
 }
 
 

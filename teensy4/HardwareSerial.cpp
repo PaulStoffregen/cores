@@ -230,8 +230,10 @@ void HardwareSerial::begin(uint32_t baud, uint16_t format)
 	if ( format & 0x100) port->BAUD |= LPUART_BAUD_SBNS;	
 
 	//Serial.printf("    stat:%x ctrl:%x fifo:%x water:%x\n", port->STAT, port->CTRL, port->FIFO, port->WATER );
-	// Only if the user implemented their own...
-	if (!(*hardware->serial_event_handler_default)) addToSerialEventsList(); 		// Enable the processing of serialEvent for this object
+
+	// Enable the processing of serialEvent for this object, if user function exists.
+	// Linker will assign NULL for a weak function which isn't implemented.
+	if (hardware->_serialEvent) addToSerialEventsList();
 };
 
 inline void HardwareSerial::rts_assert() 
