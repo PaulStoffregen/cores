@@ -32,6 +32,7 @@
 #define __INTERVALTIMER_H__
 
 #include "kinetis.h"
+#include "inplace_function.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,29 +49,30 @@ public:
 	~IntervalTimer() {
 		end();
 	}
-	bool begin(void (*funct)(), unsigned int microseconds) {
+	using callback = stdext::inplace_function<void(void), 16>;
+	bool begin(callback funct, unsigned int microseconds) {
 		if (microseconds == 0 || microseconds > MAX_PERIOD) return false;
 		uint32_t cycles = (F_BUS / 1000000) * microseconds - 1;
 		if (cycles < 36) return false;
 		return beginCycles(funct, cycles);
 	}
-	bool begin(void (*funct)(), int microseconds) {
+	bool begin(callback funct, int microseconds) {
 		if (microseconds < 0) return false;
 		return begin(funct, (unsigned int)microseconds);
 	}
-	bool begin(void (*funct)(), unsigned long microseconds) {
+	bool begin(callback funct, unsigned long microseconds) {
 		return begin(funct, (unsigned int)microseconds);
 	}
-	bool begin(void (*funct)(), long microseconds) {
+	bool begin(callback funct, long microseconds) {
 		return begin(funct, (int)microseconds);
 	}
-	bool begin(void (*funct)(), float microseconds) {
+	bool begin(callback funct, float microseconds) {
 		if (microseconds <= 0 || microseconds > MAX_PERIOD) return false;
 		uint32_t cycles = (float)(F_BUS / 1000000) * microseconds - 0.5;
 		if (cycles < 36) return false;
 		return beginCycles(funct, cycles);
 	}
-	bool begin(void (*funct)(), double microseconds) {
+	bool begin(callback funct, double microseconds) {
 		return begin(funct, (float)microseconds);
 	}
 	void update(unsigned int microseconds) {
@@ -135,7 +137,7 @@ private:
 	#if defined(KINETISL)
 	static uint8_t nvic_priorites[2];
 	#endif
-	bool beginCycles(void (*funct)(), uint32_t cycles);
+	bool beginCycles(callback funct, uint32_t cycles);
 
 };
 

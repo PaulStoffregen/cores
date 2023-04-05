@@ -33,6 +33,7 @@
 
 #include <stddef.h>
 #include "imxrt.h"
+#include "inplace_function.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,10 +52,11 @@ public:
 	~IntervalTimer() {
 		end();
 	}
+	using callback = stdext::inplace_function<void(void), 16>;
 	// Start the hardware timer and begin calling the function.  The
 	// interval is specified in microseconds.  Returns true is sucessful,
 	// or false if all hardware timers are already in use.
-	bool begin(void (*funct)(), unsigned int microseconds) {
+	bool begin(callback funct, unsigned int microseconds) {
 		if (microseconds == 0 || microseconds > MAX_PERIOD) return false;
 		uint32_t cycles = (24000000 / 1000000) * microseconds - 1;
 		if (cycles < 17) return false;
@@ -63,26 +65,26 @@ public:
 	// Start the hardware timer and begin calling the function.  The
 	// interval is specified in microseconds.  Returns true is sucessful,
 	// or false if all hardware timers are already in use.
-	bool begin(void (*funct)(), int microseconds) {
+	bool begin(callback funct, int microseconds) {
 		if (microseconds < 0) return false;
 		return begin(funct, (unsigned int)microseconds);
 	}
 	// Start the hardware timer and begin calling the function.  The
 	// interval is specified in microseconds.  Returns true is sucessful,
 	// or false if all hardware timers are already in use.
-	bool begin(void (*funct)(), unsigned long microseconds) {
+	bool begin(callback funct, unsigned long microseconds) {
 		return begin(funct, (unsigned int)microseconds);
 	}
 	// Start the hardware timer and begin calling the function.  The
 	// interval is specified in microseconds.  Returns true is sucessful,
 	// or false if all hardware timers are already in use.
-	bool begin(void (*funct)(), long microseconds) {
+	bool begin(callback funct, long microseconds) {
 		return begin(funct, (int)microseconds);
 	}
 	// Start the hardware timer and begin calling the function.  The
 	// interval is specified in microseconds.  Returns true is sucessful,
 	// or false if all hardware timers are already in use.
-	bool begin(void (*funct)(), float microseconds) {
+	bool begin(callback funct, float microseconds) {
 		if (microseconds <= 0 || microseconds > MAX_PERIOD) return false;
 		uint32_t cycles = (float)(24000000 / 1000000) * microseconds - 0.5f;
 		if (cycles < 17) return false;
@@ -91,7 +93,7 @@ public:
 	// Start the hardware timer and begin calling the function.  The
 	// interval is specified in microseconds.  Returns true is sucessful,
 	// or false if all hardware timers are already in use.
-	bool begin(void (*funct)(), double microseconds) {
+	bool begin(callback funct, double microseconds) {
 		return begin(funct, (float)microseconds);
 	}
 	// Change the timer's interval.  The current interval is completed
@@ -168,7 +170,7 @@ private:
 	IMXRT_PIT_CHANNEL_t *channel = nullptr;
 	uint8_t nvic_priority = 128;
 	static uint8_t nvic_priorites[4];
-	bool beginCycles(void (*funct)(), uint32_t cycles);
+	bool beginCycles(callback funct, uint32_t cycles);
 
 };
 

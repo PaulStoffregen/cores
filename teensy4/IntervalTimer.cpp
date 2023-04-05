@@ -34,11 +34,11 @@
 static void pit_isr(void);
 
 #define NUM_CHANNELS 4
-static void (*funct_table[4])(void) __attribute((aligned(32))) = {nullptr, nullptr, nullptr, nullptr};
+static IntervalTimer::callback funct_table[4] __attribute((aligned(32))) = {nullptr, nullptr, nullptr, nullptr};
 uint8_t IntervalTimer::nvic_priorites[4] = {255, 255, 255, 255};
 
 
-bool IntervalTimer::beginCycles(void (*funct)(), uint32_t cycles)
+bool IntervalTimer::beginCycles(callback funct, uint32_t cycles)
 {
 	printf("beginCycles %u\n", cycles);
 	if (channel) {
