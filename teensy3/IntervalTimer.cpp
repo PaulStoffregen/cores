@@ -34,16 +34,16 @@ static void dummy_funct(void);
 
 #if defined(KINETISK)
 #define NUM_CHANNELS 4
-static IntervalTimer::callback funct_table[4] = {dummy_funct, dummy_funct, dummy_funct, dummy_funct};
+static IntervalTimer::callback_t funct_table[4] = {dummy_funct, dummy_funct, dummy_funct, dummy_funct};
 
 #elif defined(KINETISL)
 #define NUM_CHANNELS 2
-static IntervalTimer::callback funct_table[2] = {dummy_funct, dummy_funct};
+static IntervalTimer::callback_t funct_table[2] = {dummy_funct, dummy_funct};
 uint8_t IntervalTimer::nvic_priorites[2] = {255, 255};
 #endif
 
 
-bool IntervalTimer::beginCycles(callback funct, uint32_t cycles)
+bool IntervalTimer::beginCycles(callback_t funct, uint32_t cycles)
 {
 	if (channel) {
 		channel->TCTRL = 0;
