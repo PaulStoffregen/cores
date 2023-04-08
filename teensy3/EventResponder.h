@@ -174,7 +174,7 @@ public:
 	EventResponder * waitForEvent(EventResponder *list, int listsize, int timeout);
 
 	static void runFromYield() {
-		if (!firstYield) return;  
+		if (!firstYield) return;
 		// First, check if yield was called from an interrupt
 		// never call normal handler functions from any interrupt context
 		uint32_t ipsr;
@@ -219,7 +219,7 @@ protected:
 	EventResponder *_next = nullptr;
 	EventResponder *_prev = nullptr;
 	EventType _type = EventTypeDetached;
-	bool _triggered = false;
+	volatile bool _triggered = false;
 	static EventResponder *firstYield;
 	static EventResponder *lastYield;
 	static EventResponder *firstInterrupt;
