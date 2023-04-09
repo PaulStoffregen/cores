@@ -33,155 +33,97 @@
 
 #include <stddef.h>
 #include "imxrt.h"
+#include <type_traits>
+
 #if TEENSYDUINO >= 159
-#include "inplace_function.h"
-#endif
-#ifdef __cplusplus
-extern "C" {
+#    include "inplace_function.h"
 #endif
 
 // IntervalTimer provides access to hardware timers which can run an
 // interrupt function a precise timing intervals.  Up to 4 IntervalTimers
 // may be in use simultaneously.  Many libraries use IntervalTimer, so
 // some of these 4 possible instances may be in use by libraries.
-class IntervalTimer {
-private:
-	static const uint32_t MAX_PERIOD = UINT32_MAX / (24000000 / 1000000);
-public:
-	constexpr IntervalTimer() {
-	}
-	~IntervalTimer() {
-		end();
-	}
+class IntervalTimer{
+ private:
+    static const int32_t MAX_PERIOD = UINT32_MAX / (24'000'000 / 1'000'000);  // type: int32_t to avoid warning comparing differnt types
+
+ public:
+    constexpr IntervalTimer(){
+    }
+    ~IntervalTimer(){
+        end();
+    }
 #if TEENSYDUINO >= 159
-	using callback_t = stdext::inplace_function<void(void), 16>;
+    using callback_t = stdext::inplace_function<void(void), 16>;
 #else
-	using callback_t = void (*)(void);
+    using callback_t = void (*)(void);
 #endif
-	// Start the hardware timer and begin calling the function.  The
-	// interval is specified in microseconds.  Returns true is sucessful,
-	// or false if all hardware timers are already in use.
-	bool begin(callback_t funct, unsigned int microseconds) {
-		if (microseconds == 0 || microseconds > MAX_PERIOD) return false;
-		uint32_t cycles = (24000000 / 1000000) * microseconds - 1;
-		if (cycles < 17) return false;
-		return beginCycles(funct, cycles);
-	}
-	// Start the hardware timer and begin calling the function.  The
-	// interval is specified in microseconds.  Returns true is sucessful,
-	// or false if all hardware timers are already in use.
-	bool begin(callback_t funct, int microseconds) {
-		if (microseconds < 0) return false;
-		return begin(funct, (unsigned int)microseconds);
-	}
-	// Start the hardware timer and begin calling the function.  The
-	// interval is specified in microseconds.  Returns true is sucessful,
-	// or false if all hardware timers are already in use.
-	bool begin(callback_t funct, unsigned long microseconds) {
-		return begin(funct, (unsigned int)microseconds);
-	}
-	// Start the hardware timer and begin calling the function.  The
-	// interval is specified in microseconds.  Returns true is sucessful,
-	// or false if all hardware timers are already in use.
-	bool begin(callback_t funct, long microseconds) {
-		return begin(funct, (int)microseconds);
-	}
-	// Start the hardware timer and begin calling the function.  The
-	// interval is specified in microseconds.  Returns true is sucessful,
-	// or false if all hardware timers are already in use.
-	bool begin(callback_t funct, float microseconds) {
-		if (microseconds <= 0 || microseconds > MAX_PERIOD) return false;
-		uint32_t cycles = (float)(24000000 / 1000000) * microseconds - 0.5f;
-		if (cycles < 17) return false;
-		return beginCycles(funct, cycles);
-	}
-	// Start the hardware timer and begin calling the function.  The
-	// interval is specified in microseconds.  Returns true is sucessful,
-	// or false if all hardware timers are already in use.
-	bool begin(callback_t funct, double microseconds) {
-		return begin(funct, (float)microseconds);
-	}
-	// Change the timer's interval.  The current interval is completed
-	// as previously configured, and then the next interval begins with
-	// with this new setting.
-	void update(unsigned int microseconds) {
-		if (microseconds == 0 || microseconds > MAX_PERIOD) return;
-		uint32_t cycles = (24000000 / 1000000) * microseconds - 1;
-		if (cycles < 17) return;
-		if (channel) channel->LDVAL = cycles;
-	}
-	// Change the timer's interval.  The current interval is completed
-	// as previously configured, and then the next interval begins with
-	// with this new setting.
-	void update(int microseconds) {
-		if (microseconds < 0) return;
-		return update((unsigned int)microseconds);
-	}
-	// Change the timer's interval.  The current interval is completed
-	// as previously configured, and then the next interval begins with
-	// with this new setting.
-	void update(unsigned long microseconds) {
-		return update((unsigned int)microseconds);
-	}
-	// Change the timer's interval.  The current interval is completed
-	// as previously configured, and then the next interval begins with
-	// with this new setting.
-	void update(long microseconds) {
-		return update((int)microseconds);
-	}
-	// Change the timer's interval.  The current interval is completed
-	// as previously configured, and then the next interval begins with
-	// with this new setting.
-	void update(float microseconds) {
-		if (microseconds <= 0 || microseconds > MAX_PERIOD) return;
-		uint32_t cycles = (float)(24000000 / 1000000) * microseconds - 0.5f;
-		if (cycles < 17) return;
-		if (channel) channel->LDVAL = cycles;
-	}
-	// Change the timer's interval.  The current interval is completed
-	// as previously configured, and then the next interval begins with
-	// with this new setting.
-	void update(double microseconds) {
-		return update((float)microseconds);
-	}
-	// Stop calling the function. The hardware timer resource becomes available
-	// for use by other IntervalTimer instances.
-	void end();
+
+    // Start the hardware timer and begin calling the function.  The
+    // interval is specified in microseconds.  Returns true is sucessful,
+    // or false if all hardware timers are already in use.
+    template <typename period_t>
+    bool begin(callback_t funct, period_t period){
+        uint32_t cycles = cyclesFromPeriod(period);
+        return cycles >= 17 ? beginCycles(funct, cycles) : false;
+    }
+
+    // Change the timer's interval.  The current interval is completed
+    // as previously configured, and then the next interval begins with
+    // with this new setting.
+    template <typename period_t>
+    void update(period_t period){
+        uint32_t cycles = cyclesFromPeriod(period);
+        if (cycles < 17) return;
+        if (channel) channel->LDVAL = cycles;
+    }
+
+    void end();
+
 	// Set the interrupt priority level, controlling which other interrupts this
 	// timer is allowed to interrupt. Lower numbers are higher priority, with 0
 	// the highest and 255 the lowest. Most other interrupts default to 128. As
 	// a general guideline, interrupt routines that run longer should be given
 	// lower priority (higher numerical values).
-	void priority(uint8_t n) {
-		nvic_priority = n;
-		if (channel) {
-			int index = channel - IMXRT_PIT_CHANNELS;
-			nvic_priorites[index] = nvic_priority;
-			uint8_t top_priority = nvic_priorites[0];
-			for (uint8_t i=1; i < (sizeof(nvic_priorites)/sizeof(nvic_priorites[0])); i++) {
-				if (top_priority > nvic_priorites[i]) top_priority = nvic_priorites[i];
-			}
-			NVIC_SET_PRIORITY(IRQ_PIT, top_priority);
-		}
-	}
-	operator IRQ_NUMBER_t() {
-		if (channel) {
-			return IRQ_PIT;
-		}
-		return (IRQ_NUMBER_t)NVIC_NUM_INTERRUPTS;
-	}
-private:
-//#define IMXRT_PIT_CHANNELS              ((IMXRT_PIT_CHANNEL_t *)(&(IMXRT_PIT.offset100)))
-	IMXRT_PIT_CHANNEL_t *channel = nullptr;
-	uint8_t nvic_priority = 128;
-	static uint8_t nvic_priorites[4];
-	bool beginCycles(callback_t funct, uint32_t cycles);
+    void priority(uint8_t n){
+        nvic_priority = n;
+        if (channel){
+            int index             = channel - IMXRT_PIT_CHANNELS;
+            nvic_priorites[index] = nvic_priority;
+            uint8_t top_priority  = nvic_priorites[0];
+            for (uint8_t i = 1; i < (sizeof(nvic_priorites) / sizeof(nvic_priorites[0])); i++){
+                if (top_priority > nvic_priorites[i]) top_priority = nvic_priorites[i];
+            }
+            NVIC_SET_PRIORITY(IRQ_PIT, top_priority);
+        }
+    }
+    operator IRQ_NUMBER_t(){
+        if (channel){
+            return IRQ_PIT;
+        }
+        return (IRQ_NUMBER_t)NVIC_NUM_INTERRUPTS;
+    }
 
+ private:
+    // #define IMXRT_PIT_CHANNELS              ((IMXRT_PIT_CHANNEL_t *)(&(IMXRT_PIT.offset100)))
+    IMXRT_PIT_CHANNEL_t* channel = nullptr;
+    uint8_t nvic_priority        = 128;
+    static uint8_t nvic_priorites[4];
+    bool beginCycles(callback_t funct, uint32_t cycles);
+
+    template <typename period_t>
+    uint32_t cyclesFromPeriod(period_t period){
+        static_assert(std::is_arithmetic_v<period_t>, "Period must be arithmetic");
+        if (period < 0 || period > MAX_PERIOD) return 0;
+
+        if constexpr (std::is_integral_v<period_t>)       // evaluated at compiletime, handles all integral types
+            return (24000000 / 1000000) * period - 1;
+
+        if constexpr (std::is_floating_point_v<period_t>) // evaluated at compiletime, handles all floating point types
+            return (float)(24000000 / 1000000) * period - 0.5f;
+
+        //Can't fall through, arithmetic is either integral or floting_point
+    }
 };
-
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
