@@ -586,7 +586,7 @@ void unused_interrupt_vector(void)
 	asm volatile("mrs %0, ipsr\n" : "=r" (ipsr) :: "memory");
 	info = (struct arm_fault_info_struct *)0x2027FF80;
 	info->ipsr = ipsr;
-	asm volatile("mrs %0, msp\n" : "=r" (stack) :: "memory");
+	asm volatile("tst lr, #4\nite eq\nmrseq %0, msp\nmrsne %0, psp\n" : "=r" (stack) :: "memory");
 	info->cfsr = SCB_CFSR;
 	info->hfsr = SCB_HFSR;
 	info->mmfar = SCB_MMFAR;
