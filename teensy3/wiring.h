@@ -129,29 +129,38 @@ constexpr auto max(A&& a, B&& b) -> decltype(a < b ? std::forward<A>(a) : std::f
 #define SERIAL  0
 #define DISPLAY 1
 
+//commented out as a result of moving to 11.3.1 toolchain
 // undefine stdlib's abs if encountered
-#ifdef abs
+/*#ifdef abs
 #undef abs
 #endif
+*/
 
 #if __cplusplus >= 201103L && defined(__STRICT_ANSI__)
 #define typeof(a) decltype(a)
 #endif
 
+/* 11.3.1 toolchain change
 #define abs(x) ({ \
   typeof(x) _x = (x); \
   (_x > 0) ? _x : -_x; \
 })
+*/
+
 #define constrain(amt, low, high) ({ \
   typeof(amt) _amt = (amt); \
   typeof(low) _low = (low); \
   typeof(high) _high = (high); \
   (_amt < _low) ? _low : ((_amt > _high) ? _high : _amt); \
 })
+
+/* 11.3.1 toolchain change
 #define round(x) ({ \
   typeof(x) _x = (x); \
   (_x>=0) ? (long)(_x+0.5) : (long)(_x-0.5); \
 })
+*/
+
 #define radians(deg) ((deg)*DEG_TO_RAD)
 #define degrees(rad) ((rad)*RAD_TO_DEG)
 #define sq(x) ({ \
