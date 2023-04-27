@@ -167,6 +167,10 @@ public:
 	// depending on which EventResponder called it.
 	void setContext(void *context) { _context = context; }
 	void * getContext() { return _context; }
+	
+	// Set flag to force all triggered events to be processed on
+	// yield(), rather than a single one on each yield
+	static void processAllEvents(bool flag) { _processAllEvents = flag; }
 
 	// Wait for event(s) to occur.  These are most likely to be useful when
 	// used with a scheduler or RTOS.
@@ -179,32 +183,36 @@ public:
 		uint32_t ipsr;
 		__asm__ volatile("mrs %0, ipsr\n" : "=r" (ipsr)::);
 		if (ipsr != 0) return;
+		
 		// Next, check if any events have been triggered
-		bool irq = disableInterrupts();
-		EventResponder *first = firstYield;
-		if (first == nullptr) {
+		do
+		{
+			bool irq = disableInterrupts();
+			EventResponder *first = firstYield;
+			if (first == nullptr) {
+				enableInterrupts(irq);
+				return;
+			}
+			// Finally, make sure we're not being recursively called,
+			// which can happen if the user's function does anything
+			// that calls yield.
+			if (runningFromYield) {
+				enableInterrupts(irq);
+				return;
+			}
+			// Ok, update the runningFromYield flag and process event
+			runningFromYield = true;
+			firstYield = first->_next;
+			if (firstYield) {
+				firstYield->_prev = nullptr;
+			} else {
+				lastYield = nullptr;
+			}
 			enableInterrupts(irq);
-			return;
-		}
-		// Finally, make sure we're not being recursively called,
-		// which can happen if the user's function does anything
-		// that calls yield.
-		if (runningFromYield) {
-			enableInterrupts(irq);
-			return;
-		}
-		// Ok, update the runningFromYield flag and process event
-		runningFromYield = true;
-		firstYield = first->_next;
-		if (firstYield) {
-			firstYield->_prev = nullptr;
-		} else {
-			lastYield = nullptr;
-		}
-		enableInterrupts(irq);
-		first->_triggered = false;
-		(*(first->_function))(*first);
-		runningFromYield = false;
+			first->_triggered = false;
+			(*(first->_function))(*first);
+			runningFromYield = false;
+		} while (_processAllEvents);
 	}
 	static void runFromInterrupt();
 	operator bool() { return _triggered; }
@@ -224,6 +232,7 @@ protected:
 	static EventResponder *firstInterrupt;
 	static EventResponder *lastInterrupt;
 	static bool runningFromYield;
+	static bool _processAllEvents;
 private:
 	static bool disableInterrupts() {
 		uint32_t primask;

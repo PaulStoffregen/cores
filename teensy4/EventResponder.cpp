@@ -39,6 +39,7 @@ EventResponder * EventResponder::lastYield = nullptr;
 EventResponder * EventResponder::firstInterrupt = nullptr;
 EventResponder * EventResponder::lastInterrupt = nullptr;
 bool EventResponder::runningFromYield = false;
+bool EventResponder::_processAllEvents = false;
 
 // TODO: interrupt disable/enable needed in many places!!!
 // BUGBUG: See if file name order makes difference?
