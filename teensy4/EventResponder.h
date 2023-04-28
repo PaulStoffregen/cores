@@ -185,6 +185,7 @@ public:
 	// used with a scheduler or RTOS.
 	bool waitForEvent(EventResponderRef event, int timeout);
 	EventResponder * waitForEvent(EventResponder *list, int listsize, int timeout);
+
 	static void runFromYield() {
 		if (!firstYield) return;
 		// First, check if yield was called from an interrupt
