@@ -28,6 +28,7 @@
  * SOFTWARE.
  */
 
+#ifdef __cplusplus
 #ifndef __INTERVALTIMER_H__
 #define __INTERVALTIMER_H__
 
@@ -36,14 +37,13 @@
 #if TEENSYDUINO >= 159
 #include "inplace_function.h"
 #endif
-// #ifdef __cplusplus     Is this really needed?
-// extern "C" {
-// #endif
 
 // IntervalTimer provides access to hardware timers which can run an
-// interrupt function a precise timing intervals.  Up to 4 IntervalTimers
-// may be in use simultaneously.  Many libraries use IntervalTimer, so
-// some of these 4 possible instances may be in use by libraries.
+// interrupt function a precise timing intervals.
+// https://www.pjrc.com/teensy/td_timing_IntervalTimer.html
+// Up to 4 IntervalTimers may be in use simultaneously.  Many
+// libraries use IntervalTimer, so some of these 4 possible
+// instances may be in use by libraries.
 class IntervalTimer {
 private:
 	static const int32_t MAX_PERIOD = UINT32_MAX / (24000000 / 1000000); // need to change to int32_t to avoid warnings
@@ -59,13 +59,14 @@ public:
 	using callback_t = void (*)(void);
 #endif
 	// Start the hardware timer and begin calling the function.  The
-	// interval is specified in microseconds.  Returns true is sucessful,
-	// or false if all hardware timers are already in use.
+	// interval is specified in microseconds, using integer or float
+	// for precise timing.  Returns true is sucessful, or false if
+	// all hardware timers are already in use.
 	template <typename period_t>
-    bool begin(callback_t funct, period_t period) {
-        uint32_t cycles = cyclesFromPeriod(period);
-        return cycles >= 17 ? beginCycles(funct, cycles) : false;
-    }
+	bool begin(callback_t funct, period_t period) {
+		uint32_t cycles = cyclesFromPeriod(period);
+		return cycles >= 17 ? beginCycles(funct, cycles) : false;
+	}
 	// Change the timer's interval.  The current interval is completed
 	// as previously configured, and then the next interval begins with
 	// with this new setting.
@@ -83,7 +84,7 @@ public:
 		uint32_t cycles = cyclesFromPeriod(period);
 		if (cycles < 17) return;
 		if (channel) channel->LDVAL = cycles;
-    }
+	}
 	// Stop calling the function. The hardware timer resource becomes available
 	// for use by other IntervalTimer instances.
 	void end();
@@ -118,23 +119,19 @@ private:
 	bool beginCycles(callback_t funct, uint32_t cycles);
 
 	template <typename period_t>
-	uint32_t cyclesFromPeriod(period_t period){
+	uint32_t cyclesFromPeriod(period_t period) {
 		static_assert(std::is_arithmetic_v<period_t>, "Period must be arithmetic");
 		
 		if (period < 0 || period > MAX_PERIOD)
 			return 0;
-		if constexpr (std::is_integral_v<period_t>)       // evaluated at compiletime, handles all integral types
+		if constexpr (std::is_integral_v<period_t>)       // handles all integral types
 			return (24000000 / 1000000) * period - 1;
-		if constexpr (std::is_floating_point_v<period_t>) // evaluated at compiletime, handles all floating point types
+		if constexpr (std::is_floating_point_v<period_t>) // handles all float types
 			return (float)(24000000 / 1000000) * period - 0.5f;
 
-        //Can't fall through, arithmetic is either integral or floting_point
-    }
+		//Can't fall through, arithmetic is either integral or floting_point
+	}
 };
 
-
-// #ifdef __cplusplus
-// }
-// #endif
-
-#endif
+#endif //__INTERVALTIMER_H__
+#endif //__cplusplus
