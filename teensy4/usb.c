@@ -674,6 +674,19 @@ static void endpoint0_setup(uint64_t setupdata)
 		}
 		break;
 #endif
+#if defined(MULTITOUCH_INTERFACE)
+	  case 0x01A1:
+		if (setup.wValue == 0x0300 && setup.wIndex == MULTITOUCH_INTERFACE) {
+			endpoint0_buffer[0] = MULTITOUCH_FINGERS;
+			endpoint0_transmit(endpoint0_buffer, 1, 0);
+			return;
+		} else if (setup.wValue == 0x0100 && setup.wIndex == MULTITOUCH_INTERFACE) {
+			memset(endpoint0_buffer, 0, 8);
+			endpoint0_transmit(endpoint0_buffer, 8, 0);
+			return;
+		}
+		break;
+#endif
 #if defined(MTP_INTERFACE)
 	  case 0x6421: // Cancel Request, Still Image Class 1.0, 5.2.1, page 8
 		if (setup.wLength == 6) {
