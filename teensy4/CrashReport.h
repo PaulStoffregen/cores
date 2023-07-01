@@ -16,6 +16,7 @@ public:
 			num--;
 			bc->value[num] = value;
 			bc->bitmask |= (1 << num);
+			bc->checksum = bc->bitmask;
 			arm_dcache_flush((void *)bc, sizeof(struct crashreport_breadcrumbs_struct));
 		}
 	}
