@@ -287,6 +287,8 @@ static inline uint8_t digitalPinToTimer(uint8_t pin)
 #define WIRE_INTERFACES_COUNT		4
 #elif defined(__MK64FX512__)
 #define WIRE_INTERFACES_COUNT		3
+#elif defined(__MK20DX128__)
+#define WIRE_INTERFACES_COUNT		1
 #else
 #define WIRE_INTERFACES_COUNT		2
 #endif
