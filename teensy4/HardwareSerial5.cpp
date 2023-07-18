@@ -71,5 +71,5 @@ static HardwareSerial::hardware_t UART8_Hardware = {
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 	XBARA1_OUT_LPUART8_TRG_INPUT
 };
-HardwareSerial Serial5(&IMXRT_LPUART8, &UART8_Hardware, tx_buffer5, SERIAL5_TX_BUFFER_SIZE,
+HardwareSerial Serial5(IMXRT_LPUART8_ADDRESS, &UART8_Hardware, tx_buffer5, SERIAL5_TX_BUFFER_SIZE,
 	rx_buffer5,  SERIAL5_RX_BUFFER_SIZE);

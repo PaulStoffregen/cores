@@ -59,6 +59,6 @@ static HardwareSerial::hardware_t UART2_Hardware = {
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 	XBARA1_OUT_LPUART2_TRG_INPUT
 };
-HardwareSerial Serial3(&IMXRT_LPUART2, &UART2_Hardware,tx_buffer3, SERIAL3_TX_BUFFER_SIZE,
+HardwareSerial Serial3(IMXRT_LPUART2_ADDRESS, &UART2_Hardware,tx_buffer3, SERIAL3_TX_BUFFER_SIZE,
 	rx_buffer3,  SERIAL3_RX_BUFFER_SIZE);
 

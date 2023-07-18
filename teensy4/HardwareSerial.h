@@ -180,10 +180,10 @@ public:
 		const uint8_t xbar_out_lpuartX_trig_input;
 	} hardware_t;
 public:
-	constexpr HardwareSerial(IMXRT_LPUART_t *myport, const hardware_t *myhardware, 
+	constexpr HardwareSerial(uintptr_t myport, const hardware_t *myhardware,
 		volatile BUFTYPE *_tx_buffer, size_t _tx_buffer_size, 
 		volatile BUFTYPE *_rx_buffer, size_t _rx_buffer_size) :
-		port(myport), hardware(myhardware),
+		port_addr(myport), hardware(myhardware),
 		tx_buffer_(_tx_buffer), rx_buffer_(_rx_buffer), tx_buffer_size_(_tx_buffer_size),  rx_buffer_size_(_rx_buffer_size),
 		tx_buffer_total_size_(_tx_buffer_size), rx_buffer_total_size_(_rx_buffer_size) {
 	}
@@ -282,7 +282,7 @@ public:
 		}
 	}
 private:
-	IMXRT_LPUART_t * const port;
+	const uintptr_t port_addr;
 	const hardware_t * const hardware;
 	uint8_t				rx_pin_index_ = 0x0;	// default is always first item
 	uint8_t				tx_pin_index_ = 0x0;

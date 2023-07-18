@@ -66,7 +66,7 @@ const HardwareSerial::hardware_t UART6_Hardware = {
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 	XBARA1_OUT_LPUART6_TRG_INPUT	// XBar Tigger 
 };
-HardwareSerial Serial1(&IMXRT_LPUART6, &UART6_Hardware, tx_buffer1, SERIAL1_TX_BUFFER_SIZE,
+HardwareSerial Serial1(IMXRT_LPUART6_ADDRESS, &UART6_Hardware, tx_buffer1, SERIAL1_TX_BUFFER_SIZE,
 	rx_buffer1,  SERIAL1_RX_BUFFER_SIZE);
 
 //void serialEvent1() __attribute__((weak));

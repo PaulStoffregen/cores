@@ -108,6 +108,7 @@ int nvic_execution_priority(void)
 void HardwareSerial::begin(uint32_t baud, uint16_t format)
 {
 	//printf("HardwareSerial begin\n");
+	IMXRT_LPUART_t *port = (IMXRT_LPUART_t *)port_addr;
 	float base = (float)UART_CLOCK / (float)baud;
 	float besterr = 1e20;
 	int bestdiv = 1;
@@ -249,6 +250,7 @@ inline void HardwareSerial::rts_deassert()
 
 void HardwareSerial::end(void)
 {
+	IMXRT_LPUART_t *port = (IMXRT_LPUART_t *)port_addr;
 	if (!(hardware->ccm_register & hardware->ccm_value)) return;
 	while (transmitting_) yield();  // wait for buffered data to send
 	port->CTRL = 0;	// disable the TX and RX ...
@@ -276,6 +278,7 @@ void HardwareSerial::transmitterEnable(uint8_t pin)
 
 void HardwareSerial::setRX(uint8_t pin)
 {
+	IMXRT_LPUART_t *port = (IMXRT_LPUART_t *)port_addr;
 	if (pin != hardware->rx_pins[rx_pin_index_].pin) {
 		for (uint8_t rx_pin_new_index = 0; rx_pin_new_index < cnt_rx_pins; rx_pin_new_index++) {
 			if (pin == hardware->rx_pins[rx_pin_new_index].pin) {
@@ -368,6 +371,7 @@ bool HardwareSerial::attachRts(uint8_t pin)
 
 bool HardwareSerial::attachCts(uint8_t pin)
 {
+	IMXRT_LPUART_t *port = (IMXRT_LPUART_t *)port_addr;
 	if (!(hardware->ccm_register & hardware->ccm_value)) return false;
 	if ((pin != 0xff) && (pin == hardware->cts_pin)) {
 		// Setup the IO pin as weak PULL down. 
@@ -427,6 +431,7 @@ int HardwareSerial::availableForWrite(void)
 
 int HardwareSerial::available(void)
 {
+	IMXRT_LPUART_t *port = (IMXRT_LPUART_t *)port_addr;
 	uint32_t head, tail;
 
 	// WATER> 0 so IDLE involved may want to check if port has already has RX data to retrieve
@@ -472,6 +477,7 @@ void HardwareSerial::addMemoryForWrite(void *buffer, size_t length)
 
 int HardwareSerial::peek(void)
 {
+	IMXRT_LPUART_t *port = (IMXRT_LPUART_t *)port_addr;
 	uint32_t head, tail;
 
 	head = rx_buffer_head_;
@@ -506,6 +512,7 @@ int HardwareSerial::peek(void)
 
 int HardwareSerial::read(void)
 {
+	IMXRT_LPUART_t *port = (IMXRT_LPUART_t *)port_addr;
 	uint32_t head, tail;
 	int c;
 
@@ -556,6 +563,7 @@ size_t HardwareSerial::write(uint8_t c)
 
 size_t HardwareSerial::write9bit(uint32_t c)
 {
+	IMXRT_LPUART_t *port = (IMXRT_LPUART_t *)port_addr;
 	uint32_t head, n;
 	//digitalWrite(3, HIGH);
 	//digitalWrite(5, HIGH);
@@ -607,6 +615,7 @@ size_t HardwareSerial::write9bit(uint32_t c)
 void HardwareSerial::IRQHandler() 
 {
 	//digitalWrite(4, HIGH);
+	IMXRT_LPUART_t *port = (IMXRT_LPUART_t *)port_addr;
 	uint32_t head, tail, n;
 	uint32_t ctrl;
 
