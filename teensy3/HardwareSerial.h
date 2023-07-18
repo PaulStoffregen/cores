@@ -276,6 +276,7 @@ class HardwareSerial : public Stream
 {
 public:
 	constexpr HardwareSerial(void (* const se)()) : _serialEvent(se) {}
+	friend uintptr_t Teensyduino_Test_constinit_HardwareSerial(int instance, int index);
 	#if defined(__MK64FX512__) || defined(__MK66FX1M0__) 
 	enum {CNT_HARDWARE_SERIAL = 6};
 	#else //(__MK64FX512__) || defined(__MK66FX1M0__) 

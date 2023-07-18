@@ -187,6 +187,7 @@ public:
 		tx_buffer_(_tx_buffer), rx_buffer_(_rx_buffer), tx_buffer_size_(_tx_buffer_size),  rx_buffer_size_(_rx_buffer_size),
 		tx_buffer_total_size_(_tx_buffer_size), rx_buffer_total_size_(_rx_buffer_size) {
 	}
+	friend uintptr_t Teensyduino_Test_constinit_HardwareSerial(int instance, int index);
 	// Initialize hardware serial port with baud rate and data format.  For a list
 	// of all supported formats, see https://www.pjrc.com/teensy/td_uart.html
 	void begin(uint32_t baud, uint16_t format=0);

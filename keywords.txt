@@ -9,6 +9,7 @@ noexcept	LITERAL1
 static_assert	LITERAL1
 thread_local	LITERAL1
 size_t	LITERAL1
+uintptr_t	LITERAL1
 
 # teensy specific functions
 elapsedMillis	LITERAL1
