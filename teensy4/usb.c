@@ -208,7 +208,7 @@ FLASHMEM void usb_init(void)
 }
 
 
-FLASHMEM void _reboot_Teensyduino_(void)
+FLASHMEM __attribute__((noinline)) void _reboot_Teensyduino_(void)
 {
 	if (!(HW_OCOTP_CFG5 & 0x02)) {
 		asm("bkpt #251"); // run bootloader
