@@ -199,7 +199,7 @@ size_t CrashReportClass::printTo(Print& p) const
 	  asm volatile ("dsb":::"memory");
 	  while (1) asm ("wfi");
   }
-  if (bc->bitmask) {
+  if (bc->bitmask && bc->bitmask == bc->checksum) {
     for (int i=0; i < 6; i++) {
       if (bc->bitmask & (1 << i)) {
         p.print("  Breadcrumb #");
@@ -212,8 +212,15 @@ size_t CrashReportClass::printTo(Print& p) const
       }
     }
     *(volatile uint32_t *)(&bc->bitmask) = 0;
+    *(volatile uint32_t *)(&bc->checksum) = 0;
     arm_dcache_flush((void *)bc, sizeof(struct crashreport_breadcrumbs_struct));
   }
+    else if (bc->bitmask) {
+      p.print("FALSE Panic Breadcrumb printing! BUGBUG DEBUG >>bitmask==");
+      p.println(bc->bitmask, HEX);
+      p.print("FALSE Panic Breadcrumb printing! BUGBUG DEBUG >>checksum==");
+      p.println(bc->checksum, HEX);
+    }
   cleardata(info);
   return 1;
 }
