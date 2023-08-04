@@ -199,7 +199,7 @@ size_t CrashReportClass::printTo(Print& p) const
 	  asm volatile ("dsb":::"memory");
 	  while (1) asm ("wfi");
   }
-  if (bc->bitmask && bc->bitmask == bc->checksum) {
+  if (bc->bitmask && bc->checksum == checksum(bc, 28)) {
     for (int i=0; i < 6; i++) {
       if (bc->bitmask & (1 << i)) {
         p.print("  Breadcrumb #");
@@ -211,17 +211,8 @@ size_t CrashReportClass::printTo(Print& p) const
         p.println(")");
       }
     }
-    *(volatile uint32_t *)(&bc->bitmask) = 0;
-    *(volatile uint32_t *)(&bc->checksum) = 0;
-    arm_dcache_flush((void *)bc, sizeof(struct crashreport_breadcrumbs_struct));
   }
-    else if (bc->bitmask) {
-      p.print("FALSE Panic Breadcrumb printing! BUGBUG DEBUG >>bitmask==");
-      p.println(bc->bitmask, HEX);
-      p.print("FALSE Panic Breadcrumb printing! BUGBUG DEBUG >>checksum==");
-      p.println(bc->checksum, HEX);
-    }
-  cleardata(info);
+  clear();
   return 1;
 }
 
@@ -230,6 +221,10 @@ void CrashReportClass::clear()
 {
   struct arm_fault_info_struct *info = (struct arm_fault_info_struct *)0x2027FF80;
   cleardata(info);
+  struct crashreport_breadcrumbs_struct *bc = (struct crashreport_breadcrumbs_struct *)0x2027FFC0;
+  *(volatile uint32_t *)(&bc->bitmask) = 0;
+  *(volatile uint32_t *)(&bc->checksum) = checksum(bc, 28);
+  arm_dcache_flush((void *)bc, sizeof(struct crashreport_breadcrumbs_struct));
 }
 
 FLASHMEM
