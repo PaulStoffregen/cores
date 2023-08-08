@@ -232,7 +232,7 @@ public:
 	// without waiting.  Typically programs which must maintain rapid checking
 	// and response to sensors use availableForWrite() to decide whether to
 	// transmit.
-	int availableForWrite(void);
+	virtual int availableForWrite(void);
 	// Increase the amount of buffer memory between reception of bytes by the
 	// serial hardware and the available() and read() functions. This is useful
 	// when your program must spend lengthy times performing other work, like

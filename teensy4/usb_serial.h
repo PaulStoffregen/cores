@@ -210,7 +210,7 @@ public:
     size_t write(long n) { return 1; }
     size_t write(unsigned int n) { return 1; }
     size_t write(int n) { return 1; }
-    int availableForWrite() { return 0; }
+    virtual int availableForWrite() { return 0; }
     using Print::write;
         void send_now(void) { }
         uint32_t baud(void) { return 0; }
