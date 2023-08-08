@@ -167,7 +167,7 @@ public:
 		return (f) ? f->read(buf, nbyte) : 0;
 	}
 	// Write bytes to a file
-	virtual size_t write(const uint8_t *buf, size_t size) {
+	size_t write(const uint8_t *buf, size_t size) override {
 		// override print version
 		return (f) ? f->write((void*)buf, size) : 0;
 	}
