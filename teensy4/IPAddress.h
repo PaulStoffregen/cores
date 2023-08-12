@@ -73,16 +73,16 @@ public:
 
 	// Overloaded cast operator to allow IPAddress objects to be used where a pointer
 	// to a four-byte uint8_t array is expected
-	operator uint32_t () {
+	operator uint32_t () const {
 		return _address.dword;
 	}
-	bool operator==(const IPAddress& addr) {
+	bool operator==(const IPAddress& addr) const {
 		return _address.dword == addr._address.dword;
 	}
-	bool operator!=(const IPAddress& addr) {
+	bool operator!=(const IPAddress& addr) const {
 		return _address.dword != addr._address.dword;
 	}
-	bool operator==(const uint8_t* addr) {
+	bool operator==(const uint8_t* addr) const {
 		// TODO: use unaligned read on Cortex-M4
 		return (_address.bytes[0] == addr[0]
 			&& _address.bytes[1] == addr[1]
