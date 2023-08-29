@@ -115,6 +115,7 @@ class Print
 	// https://forum.pjrc.com/threads/62473?p=256873&viewfull=1#post256873
 	int printf(const char *format, ...) /*__attribute__ ((format (printf, 2, 3)))*/;
 	int printf(const __FlashStringHelper *format, ...);
+	int vprintf(const char *format, va_list ap) { return vdprintf((int)this, format, ap); }
   protected:
 	void setWriteError(int err = 1) { write_error = err; }
   private:
