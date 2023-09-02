@@ -89,6 +89,9 @@ public:
 			&& _address.bytes[2] == addr[2]
 			&& _address.bytes[3] == addr[3]);
 	}
+	bool operator!=(const uint8_t* addr) const {
+		return !(*this == addr);
+	}
 
 	// Overloaded index operator to allow getting and setting individual octets of the address
 	uint8_t operator[](int index) const {
