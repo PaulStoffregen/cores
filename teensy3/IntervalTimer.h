@@ -52,7 +52,7 @@ public:
 		end();
 	}
 #if TEENSYDUINO >= 159
-	using callback_t = stdext::inplace_function<void(void), 16>;
+	using callback_t = teensy::inplace_function<void(void), 16>;
 #else
 	using callback_t = void (*)(void);
 #endif

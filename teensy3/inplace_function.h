@@ -40,7 +40,7 @@
 #define SG14_INPLACE_FUNCTION_THROW(x) throw (x)
 #endif
 
-namespace stdext {
+namespace teensy {
 
 namespace inplace_function_detail {
 
@@ -385,6 +385,6 @@ private:
     }
 };
 
-} // namespace stdext
+} // namespace teensy
 
 #undef SG14_INPLACE_FUNCTION_THROW
