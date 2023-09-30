@@ -2743,7 +2743,7 @@ PROGMEM const struct usb_string_descriptor_struct usb_string_product_name_defaul
         PRODUCT_NAME
 };
 struct usb_string_descriptor_struct usb_string_serial_number_default = {
-        12,
+        22,
         3,
         {0,0,0,0,0,0,0,0,0,0}
 };
