@@ -175,7 +175,9 @@ void serial4_format(uint32_t format)
 	if ((format & SERIAL_HALF_DUPLEX) != 0) {
 		UART3_C1 |= UART_C1_LOOPS | UART_C1_RSRC;
 		volatile uint32_t *reg = portConfigRegister(tx_pin_num);
-		*reg = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3) | PORT_PCR_PE | PORT_PCR_PS; // pullup on output pin;
+		uint32_t pin_cfg = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3) | PORT_PCR_PE;
+		if ((format & 0x20) == 0) pin_cfg |=  PORT_PCR_PS;  // if not inverted PU else leve as PD
+		*reg = pin_cfg;
 
 		// Lets try to make use of bitband address to set the direction for ue...
 		#if defined(KINETISL)

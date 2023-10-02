@@ -243,7 +243,9 @@ void serial6_format(uint32_t format)
 		BITBAND_SET_BIT(LPUART0_CTRL, CTRL_LOOPS_BIT);
 		BITBAND_SET_BIT(LPUART0_CTRL, CTRL_RSRC_BIT);
 
-		CORE_PIN48_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(5);
+		uint32_t pin_cfg = PORT_PCR_PE | PORT_PCR_PFE | PORT_PCR_MUX(5);
+		if ((format & 0x20) == 0) pin_cfg |=  PORT_PCR_PS;  // if not inverted PU else leve as PD
+		CORE_PIN48_CONFIG = pin_cfg;
 
 		// Lets try to make use of bitband address to set the direction for ue...
 		transmit_pin = (uint8_t*)GPIO_BITBAND_PTR(LPUART0_CTRL, CTRL_TXDIR_BIT);
