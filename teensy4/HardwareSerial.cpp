@@ -210,7 +210,12 @@ void HardwareSerial::begin(uint32_t baud, uint16_t format)
 	if ((format & 0x0F) == 0x04) ctrl |=  LPUART_CTRL_R9T8; // 8N2 is 9 bit with 9th bit always 1
 
 	// Bit 5 TXINVERT
-	if (format & 0x20) ctrl |= LPUART_CTRL_TXINV;		// tx invert
+	if (format & 0x20) {
+		ctrl |= LPUART_CTRL_TXINV;		// tx invert
+
+		// if half duplex mode - PU on TX should be PD. 
+		if (half_duplex_mode_) *(portControlRegister(hardware->tx_pins[tx_pin_index_].pin)) &=  ~IOMUXC_PAD_PUS(3);
+	}
 
 	// Now see if the user asked for Half duplex:
 	if (half_duplex_mode_) ctrl |= (LPUART_CTRL_LOOPS | LPUART_CTRL_RSRC);
