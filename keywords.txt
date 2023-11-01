@@ -465,6 +465,13 @@ sendAfterTouch	KEYWORD2
 sendPitchBend	KEYWORD2
 sendSysEx	KEYWORD2
 sendRealTime	KEYWORD2
+sendClock	KEYWORD2
+sendStart	KEYWORD2
+sendStop	KEYWORD2
+sendTick	KEYWORD2
+sendContinue	KEYWORD2
+sendActiveSensing	KEYWORD2
+sendSystemReset	KEYWORD2
 sendTimeCodeQuarterFrame	KEYWORD2
 sendSongPosition	KEYWORD2
 sendSongSelect	KEYWORD2

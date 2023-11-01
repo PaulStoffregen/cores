@@ -75,6 +75,7 @@ public:
 	void sendRealTime(uint8_t type, uint8_t cable=0) __attribute__((always_inline)) __attribute__((always_inline)) {
                 switch (type) {
                         case 0xF8: // Clock
+                        case 0xF9: // Tick
                         case 0xFA: // Start
                         case 0xFB: // Continue
                         case 0xFC: // Stop
@@ -86,6 +87,27 @@ public:
                                 break;
                 }
         }
+	void sendClock(uint8_t cable=0) {
+		sendRealTime(0xF8, cable);
+	}
+	void sendStart(uint8_t cable=0) {
+		sendRealTime(0xFA, cable);
+	}
+	void sendStop(uint8_t cable=0) {
+		sendRealTime(0xFB, cable);
+	}
+	void sendTick(uint8_t cable=0) {
+		sendRealTime(0xF9, cable);
+	}
+	void sendContinue(uint8_t cable=0) {
+		sendRealTime(0xFB, cable);
+	}
+	void sendActiveSensing(uint8_t cable=0) {
+		sendRealTime(0xFE, cable);
+	}
+	void sendSystemReset(uint8_t cable=0) {
+		sendRealTime(0xFF, cable);
+	}
         void sendTimeCodeQuarterFrame(uint8_t type, uint8_t value, uint8_t cable=0) __attribute__((always_inline)) __attribute__((always_inline)) {
                 send(0xF1, ((type & 0x07) << 4) | (value & 0x0F), 0, 0, cable);
         }
