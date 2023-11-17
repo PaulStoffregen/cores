@@ -48,7 +48,7 @@ void IRQHandler_Serial7()
 static BUFTYPE tx_buffer7[SERIAL7_TX_BUFFER_SIZE];
 static BUFTYPE rx_buffer7[SERIAL7_RX_BUFFER_SIZE];
 
-static HardwareSerial::hardware_t UART7_Hardware = {
+static HardwareSerialIMXRT::hardware_t UART7_Hardware = {
 	6, IRQ_LPUART7, &IRQHandler_Serial7, 
 	&serialEvent7,
 	CCM_CCGR5, CCM_CCGR5_LPUART7(CCM_CCGR_ON),
@@ -59,5 +59,5 @@ static HardwareSerial::hardware_t UART7_Hardware = {
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 	XBARA1_OUT_LPUART7_TRG_INPUT
 };
-HardwareSerial Serial7(IMXRT_LPUART7_ADDRESS, &UART7_Hardware, tx_buffer7, SERIAL7_TX_BUFFER_SIZE,
-	rx_buffer7,  SERIAL7_RX_BUFFER_SIZE);
+HardwareSerialIMXRT Serial7(IMXRT_LPUART7_ADDRESS, &UART7_Hardware, tx_buffer7,
+	SERIAL7_TX_BUFFER_SIZE, rx_buffer7, SERIAL7_RX_BUFFER_SIZE);

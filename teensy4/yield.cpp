@@ -64,7 +64,7 @@ void yield(void)
 
 	// Current workaround until integrate with EventResponder.
 	if (check_flags & YIELD_CHECK_HARDWARE_SERIAL) {
-		HardwareSerial::processSerialEventsList();
+		HardwareSerialIMXRT::processSerialEventsList();
 	}
 
 	running = 0;

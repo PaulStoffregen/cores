@@ -48,7 +48,7 @@ void IRQHandler_Serial5()
 static BUFTYPE tx_buffer5[SERIAL5_TX_BUFFER_SIZE];
 static BUFTYPE rx_buffer5[SERIAL5_RX_BUFFER_SIZE];
 
-static HardwareSerial::hardware_t UART8_Hardware = {
+static HardwareSerialIMXRT::hardware_t UART8_Hardware = {
 	4, IRQ_LPUART8, &IRQHandler_Serial5, 
 	&serialEvent5,
 	CCM_CCGR6, CCM_CCGR6_LPUART8(CCM_CCGR_ON),
@@ -71,5 +71,5 @@ static HardwareSerial::hardware_t UART8_Hardware = {
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 	XBARA1_OUT_LPUART8_TRG_INPUT
 };
-HardwareSerial Serial5(IMXRT_LPUART8_ADDRESS, &UART8_Hardware, tx_buffer5, SERIAL5_TX_BUFFER_SIZE,
-	rx_buffer5,  SERIAL5_RX_BUFFER_SIZE);
+HardwareSerialIMXRT Serial5(IMXRT_LPUART8_ADDRESS, &UART8_Hardware, tx_buffer5,
+	SERIAL5_TX_BUFFER_SIZE, rx_buffer5, SERIAL5_RX_BUFFER_SIZE);
