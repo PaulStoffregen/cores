@@ -323,7 +323,7 @@ void eepromemu_flash_erase_32K_block(void *addr)
 	arm_dcache_delete((void *)((uint32_t)addr & 0xFFFF8000), 32768); // purge data from cache
 	while (!(FLEXSPI_INTR & FLEXSPI_INTR_IPCMDDONE)) ; // wait
 	FLEXSPI_INTR = FLEXSPI_INTR_IPCMDDONE;
-	FLEXSPI_LUT60 = LUT0(CMD_SDR, PINS1, 0x52) | LUT1(ADDR_SDR, PINS1, 24); // 20 = sector erase
+	FLEXSPI_LUT60 = LUT0(CMD_SDR, PINS1, 0x52) | LUT1(ADDR_SDR, PINS1, 24); // 52 = 32K erase
 	FLEXSPI_IPCR0 = (uint32_t)addr & 0x00FF8000;
 	FLEXSPI_IPCR1 = FLEXSPI_IPCR1_ISEQID(15);
 	FLEXSPI_IPCMD = FLEXSPI_IPCMD_TRG;
@@ -347,7 +347,7 @@ void eepromemu_flash_erase_64K_block(void *addr)
 	arm_dcache_delete((void *)((uint32_t)addr & 0xFFFF0000), 65536); // purge data from cache
 	while (!(FLEXSPI_INTR & FLEXSPI_INTR_IPCMDDONE)) ; // wait
 	FLEXSPI_INTR = FLEXSPI_INTR_IPCMDDONE;
-	FLEXSPI_LUT60 = LUT0(CMD_SDR, PINS1, 0xD8) | LUT1(ADDR_SDR, PINS1, 24); // 20 = sector erase
+	FLEXSPI_LUT60 = LUT0(CMD_SDR, PINS1, 0xD8) | LUT1(ADDR_SDR, PINS1, 24); // D8 = 64K erase
 	FLEXSPI_IPCR0 = (uint32_t)addr & 0x00FF0000;
 	FLEXSPI_IPCR1 = FLEXSPI_IPCR1_ISEQID(15);
 	FLEXSPI_IPCMD = FLEXSPI_IPCMD_TRG;
