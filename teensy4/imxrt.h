@@ -8537,7 +8537,7 @@ typedef struct {
 #define SEMC_SDRAMCR0_CL(n)		((uint32_t)(n & 0x03)<<10)
 #define SEMC_SDRAMCR0_COL(n)		((uint32_t)(n & 0x03)<<8)
 #define SEMC_SDRAMCR0_COL8		((uint32_t)(1<<7))
-#define SEMC_SDRAMCR0_BL(n		((uint32_t)(n & 0x07)<<4))
+#define SEMC_SDRAMCR0_BL(n)		((uint32_t)(n & 0x07)<<4))
 #define SEMC_SDRAMCR0_PS		((uint32_t)(1<<0))
 #define SEMC_SDRAMCR1_ACT2PRE(n)	((uint32_t)(n & 0x0F)<<20)
 #define SEMC_SDRAMCR1_CKEOFF(n)		((uint32_t)(n & 0x0F)<<16)
