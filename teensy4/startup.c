@@ -319,10 +319,12 @@ FLASHMEM void configure_cache(void)
 	SCB_MPU_RBAR = 0x70000000 | REGION(i++); // FlexSPI2
 	SCB_MPU_RASR = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_16M;
 
-	// interferes with Wire library, reason unknown...
-	//SCB_MPU_RBAR = 0x80000000 | REGION(i++); // SEMC: SDRAM, NAND, SRAM, etc
-	//SCB_MPU_RASR = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_1G;
+	SCB_MPU_RBAR = 0x80000000 | REGION(i++); // SEMC: SDRAM, NAND, SRAM, etc
+	SCB_MPU_RASR = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_32M;
+	SCB_MPU_RBAR = 0x81E00000 | REGION(i++);
+	SCB_MPU_RASR = MEM_NOCACHE | READWRITE | NOEXEC | SIZE_2M;
 	// SDRAM PCB: https://forum.pjrc.com/index.php?threads/73898/#post-334041
+	// 81E00000:  https://forum.pjrc.com/index.php?threads/73898/page-11#post-336064
 
 	SCB_MPU_CTRL = SCB_MPU_CTRL_ENABLE;
 
