@@ -320,12 +320,14 @@ FLASHMEM void configure_cache(void)
 	SCB_MPU_RASR = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_16M;
 
 	SCB_MPU_RBAR = 0x80000000 | REGION(i++); // SEMC: SDRAM, NAND, SRAM, etc
-	SCB_MPU_RASR = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_32M;
-	SCB_MPU_RBAR = 0x81E00000 | REGION(i++);
-	SCB_MPU_RASR = MEM_NOCACHE | READWRITE | NOEXEC | SIZE_2M;
-	// SDRAM PCB: https://forum.pjrc.com/index.php?threads/73898/#post-334041
-	// 81E00000:  https://forum.pjrc.com/index.php?threads/73898/page-11#post-336064
+	SCB_MPU_RASR = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_1G;
+	// hardware: https://forum.pjrc.com/index.php?threads/73898/#post-334041
+	// software: https://github.com/mjs513/SDRAM_t4
 
+	asm("nop"); // allow a few cycles for bus writes before enable MPU
+	asm("nop");
+	asm("nop");
+	asm("nop");
 	SCB_MPU_CTRL = SCB_MPU_CTRL_ENABLE;
 
 	// cache enable, ARM DDI0403E, pg 628
