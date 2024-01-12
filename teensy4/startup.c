@@ -329,7 +329,6 @@ FLASHMEM void configure_cache(void)
 	asm("nop");
 	asm("nop");
 	asm("nop");
-	asm("nop");
 	SCB_MPU_CTRL = SCB_MPU_CTRL_ENABLE;
 
 	// cache enable, ARM DDI0403E, pg 628
