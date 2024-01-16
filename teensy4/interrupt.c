@@ -50,6 +50,7 @@ void irq_gpio6789(void)
 	irq_anyport(&GPIO7_DR, isr_table_gpio2);
 	irq_anyport(&GPIO8_DR, isr_table_gpio3);
 	irq_anyport(&GPIO9_DR, isr_table_gpio4);
+	asm volatile ("dsb":::"memory");
 }
 
 #endif
