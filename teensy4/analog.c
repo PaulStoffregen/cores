@@ -78,6 +78,15 @@ int analogRead(uint8_t pin)
 	if (calibrating) wait_for_cal();
 	uint8_t ch = pin_to_channel[pin];
 	if (ch == 255) return 0;
+	// check if pin has input "keeper"
+	volatile uint32_t *pad = portControlRegister(pin);
+	uint32_t padval = *pad;
+	if ((padval & (IOMUXC_PAD_PUE | IOMUXC_PAD_PKE)) == IOMUXC_PAD_PKE) {
+		// disable keeper, as it messes up analog with higher source impedance
+		// but don't touch user's setting if ordinary pullup, which some
+		// people use together with capacitors or other circuitry
+		*pad = padval & ~IOMUXC_PAD_PKE;
+	}
 //	printf("%d\n", ch);
 //	if (ch > 15) return 0;
 	if(!(ch & 0x80)) {
