@@ -20,6 +20,9 @@ extern unsigned long _flexram_bank_config;
 extern unsigned long _estack;
 extern unsigned long _extram_start;
 extern unsigned long _extram_end;
+extern void (*_startup_early_array)(void);
+extern void (*_startup_middle_array)(void);
+extern void (*_startup_late_array)(void);
 
 __attribute__ ((used, aligned(1024), section(".vectorsram")))
 void (* volatile _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
@@ -48,14 +51,45 @@ struct smalloc_pool extmem_smalloc_pool;
 #endif
 
 extern int main (void);
-FLASHMEM void startup_default_early_hook(void) {}
-void startup_early_hook(void)	__attribute__ ((weak, alias("startup_default_early_hook")));
-FLASHMEM void startup_default_middle_hook(void) {}
-void startup_middle_hook(void)	__attribute__ ((weak, alias("startup_default_middle_hook")));
-FLASHMEM void startup_default_late_hook(void) {}
-void startup_late_hook(void)	__attribute__ ((weak, alias("startup_default_late_hook")));
+FLASHMEM void startup_default_hook(void) {}
+void startup_early_hook(void)	__attribute__ ((weak, alias("startup_default_hook")));
+void startup_middle_hook(void)	__attribute__ ((weak, alias("startup_default_hook")));
+void startup_late_hook(void)	__attribute__ ((weak, alias("startup_default_hook")));
 extern void startup_debug_reset(void) __attribute__((noinline));
 FLASHMEM void startup_debug_reset(void) { __asm__ volatile("nop"); }
+
+FLASHMEM static void run_startup_early_hooks(void)
+{
+	startup_early_hook();
+	void (**f)(void) = &_startup_early_array;
+	while ((*f) != NULL)
+	{
+		(*f)();
+		f++;
+	}
+}
+
+FLASHMEM static void run_startup_middle_hooks(void)
+{
+	startup_middle_hook();
+	void (**f)(void) = &_startup_middle_array;
+	while ((*f) != NULL)
+	{
+		(*f)();
+		f++;
+	}
+}
+
+FLASHMEM static void run_startup_late_hooks(void)
+{
+	startup_late_hook();
+	void (**f)(void) = &_startup_late_array;
+	while ((*f) != NULL)
+	{
+		(*f)();
+		f++;
+	}
+}
 
 static void ResetHandler2(void);
 
@@ -86,7 +120,7 @@ static void ResetHandler2(void)
 	asm volatile("nop");
 	asm volatile("nop");
 #endif
-	startup_early_hook(); // must be in FLASHMEM, as ITCM is not yet initialized!
+	run_startup_early_hooks(); // must be in FLASHMEM, as ITCM is not yet initialized!
 	PMU_MISC0_SET = 1<<3; //Use bandgap-based bias currents for best performance (Page 1175)
 #if 1
 	// Some optimization with LTO won't start without this delay, but why?
@@ -183,7 +217,7 @@ static void ResetHandler2(void)
 	analog_init();
 	pwm_init();
 	tempmon_init();
-	startup_middle_hook();
+	run_startup_middle_hooks();
 
 #if !defined(TEENSY_INIT_USB_DELAY_BEFORE)
         #define TEENSY_INIT_USB_DELAY_BEFORE 20
@@ -200,7 +234,7 @@ static void ResetHandler2(void)
 	while (millis() < TEENSY_INIT_USB_DELAY_AFTER + TEENSY_INIT_USB_DELAY_BEFORE) ; // wait
 	//printf("before C++ constructors\n");
 	startup_debug_reset();
-	startup_late_hook();
+	run_startup_late_hooks();
 	__libc_init_array();
 	//printf("after C++ constructors\n");
 	//printf("before setup\n");
