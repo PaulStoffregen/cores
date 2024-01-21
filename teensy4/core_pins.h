@@ -47,8 +47,11 @@
 #define FALLING			2
 #define RISING			3
 
-
-#if defined(__IMXRT1062__) && defined(ARDUINO_TEENSY40)
+#if __has_include("variant.h")
+#  include "variant.h"
+//#pragma message "core_pins.h" - included variant.h
+// Default no override file
+#elif defined(__IMXRT1062__) && defined(ARDUINO_TEENSY40)
 
 #define CORE_NUM_TOTAL_PINS	40
 #define CORE_NUM_DIGITAL	40
