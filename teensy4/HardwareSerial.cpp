@@ -717,7 +717,7 @@ void HardwareSerialIMXRT::addToSerialEventsList() {
 }
 
 
-const pin_to_xbar_info_t PROGMEM pin_to_xbar_info[] = {
+extern const pin_to_xbar_info_t PROGMEM pin_to_xbar_info[] __attribute__((weak)) = {
 	{0,  17, 1, &IOMUXC_XBAR1_IN17_SELECT_INPUT, 0x1},
 	{1,  16, 1, nullptr, 0},
 	{2,   6, 3, &IOMUXC_XBAR1_IN06_SELECT_INPUT, 0x0},
@@ -757,5 +757,5 @@ const pin_to_xbar_info_t PROGMEM pin_to_xbar_info[] = {
 #endif
 };
 
-const uint8_t PROGMEM count_pin_to_xbar_info = sizeof(pin_to_xbar_info)/sizeof(pin_to_xbar_info[0]);
+extern const uint8_t PROGMEM count_pin_to_xbar_info __attribute__((weak)) = sizeof(pin_to_xbar_info)/sizeof(pin_to_xbar_info[0]);
 
