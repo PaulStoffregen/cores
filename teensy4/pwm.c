@@ -16,7 +16,7 @@ uint8_t analog_write_res = 8;
 
 #if defined(__IMXRT1062__)
 
-const struct pwm_pin_info_struct pwm_pin_info[] = {
+const struct pwm_pin_info_struct pwm_pin_info[]  __attribute__((weak)) = {
 	{1, M(1, 1), 0, 4},  // FlexPWM1_1_X   0  // AD_B0_03
 	{1, M(1, 0), 0, 4},  // FlexPWM1_0_X   1  // AD_B0_02
 	{1, M(4, 2), 1, 1},  // FlexPWM4_2_A   2  // EMC_04
