@@ -70,15 +70,6 @@ public:
 	// Change the timer's interval.  The current interval is completed
 	// as previously configured, and then the next interval begins with
 	// with this new setting.
-	void update(unsigned int microseconds) {
-		if (microseconds == 0 || microseconds > MAX_PERIOD) return;
-		uint32_t cycles = (24000000 / 1000000) * microseconds - 1;
-		if (cycles < 17) return;
-		if (channel) channel->LDVAL = cycles;
-	}
-	// Change the timer's interval.  The current interval is completed
-	// as previously configured, and then the next interval begins with
-	// with this new setting.
 	template <typename period_t>
 	void update(period_t period){
 		uint32_t cycles = cyclesFromPeriod(period);
@@ -121,7 +112,7 @@ private:
 	template <typename period_t>
 	uint32_t cyclesFromPeriod(period_t period) {
 		static_assert(std::is_arithmetic_v<period_t>, "Period must be arithmetic");
-		
+
 		if (period < 0 || period > MAX_PERIOD)
 			return 0;
 		if constexpr (std::is_integral_v<period_t>)       // handles all integral types
