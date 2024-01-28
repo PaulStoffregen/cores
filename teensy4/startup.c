@@ -497,12 +497,12 @@ FLASHMEM void configure_external_ram()
 			// One PSRAM chip is present, 8 MByte
 			external_psram_size = 8;
 		}
-		// TODO: zero uninitialized EXTMEM variables
+		memset(&_extram_start, 0, (uint32_t)&_extram_end - (uint32_t)&_extram_start);
 		// TODO: copy from flash to initialize EXTMEM variables
 		sm_set_pool(&extmem_smalloc_pool, &_extram_end,
 			external_psram_size * 0x100000 -
 			((uint32_t)&_extram_end - (uint32_t)&_extram_start),
-			1, NULL);
+			0, NULL);
 	} else {
 		// No PSRAM
 		memset(&extmem_smalloc_pool, 0, sizeof(extmem_smalloc_pool));
