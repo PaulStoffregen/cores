@@ -85,7 +85,7 @@ size_t CrashReportClass::printTo(Print& p) const
       if (((_CFSR & 0x100) >> 8) == 1) {
         p.println("\t(IBUSERR) Instruction Bus Error");
       } else  if (((_CFSR & (0x200)) >> 9) == 1) {
-        p.println("\t(PRECISERR) Data bus error(address in BFAR)");
+        p.println("\t(PRECISERR) Data bus error (address in BFAR)");
       } else if (((_CFSR & (0x400)) >> 10) == 1) {
         p.println("\t(IMPRECISERR) Data bus error but address not related to instruction");
       } else if (((_CFSR & (0x800)) >> 11) == 1) {
@@ -103,7 +103,7 @@ size_t CrashReportClass::printTo(Print& p) const
       if (((_CFSR & 0x10000) >> 16) == 1) {
         p.println("\t(UNDEFINSTR) Undefined instruction");
       } else  if (((_CFSR & (0x20000)) >> 17) == 1) {
-        p.println("\t(INVSTATE) Instruction makes illegal use of EPSR)");
+        p.println("\t(INVSTATE) Instruction makes illegal use of EPSR");
       } else if (((_CFSR & (0x40000)) >> 18) == 1) {
         p.println("\t(INVPC) Usage fault: invalid EXC_RETURN");
       } else if (((_CFSR & (0x80000)) >> 19) == 1) {
