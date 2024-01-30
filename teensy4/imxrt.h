@@ -8448,6 +8448,11 @@ typedef struct {
 #define I2S_RCR4_SYWD(n)		((uint32_t)((n) & 0x1f)<<8)	// Sync Width
 #define I2S_RCR4_FRSZ(n)		((uint32_t)((n) & 0x0f)<<16)	// Frame Size
 #define I2S_RCR4_FCONT			((uint32_t)1<<28)	// FIFO Continue on Error
+#define I2S_RCR4_FCOMB(n)               ((uint32_t)(n & 0x3)<<26)	// FIFO Combine Mode
+#define I2S_RCR4_FCOMB_DISABLED          I2S_RCR4_FCOMB(0) // No FIFO combining
+#define I2S_RCR4_FCOMB_ENABLED_ON_WRITES I2S_RCR4_FCOMB(1) // <-- this is the one you want.
+#define I2S_RCR4_FCOMB_ENABLED_ON_READS  I2S_RCR4_FCOMB(2) 
+#define I2S_RCR4_FCOMB_ENABLED_ON_RW     I2S_RCR4_FCOMB(3)
 #define I2S_RCR5_FBT(n)			((uint32_t)((n) & 0x1f)<<8)	// First Bit Shifted
 #define I2S_RCR5_W0W(n)			((uint32_t)((n) & 0x1f)<<16)	// Word 0 Width
 #define I2S_RCR5_WNW(n)			((uint32_t)((n) & 0x1f)<<24)	// Word N Width
@@ -8472,6 +8477,11 @@ typedef struct {
 #define I2S_TCR4_SYWD(n)		((uint32_t)((n) & 0x1f)<<8)	// Sync Width
 #define I2S_TCR4_FRSZ(n)		((uint32_t)((n) & 0x0f)<<16)	// Frame Size
 #define I2S_TCR4_FCONT			((uint32_t)1<<28)	// FIFO Continue on Error
+#define I2S_TCR4_FCOMB(n)               ((uint32_t)(n & 0x3)<<26)	// FIFO Combine Mode
+#define I2S_TCR4_FCOMB_DISABLED          I2S_TCR4_FCOMB(0)
+#define I2S_TCR4_FCOMB_ENABLED_ON_READS  I2S_TCR4_FCOMB(1) // <--- this is the one you want
+#define I2S_TCR4_FCOMB_ENABLED_ON_WRITES I2S_TCR4_FCOMB(2)
+#define I2S_TCR4_FCOMB_ENABLED_ON_RW     I2S_TCR4_FCOMB(3)
 #define I2S_TCR5_FBT(n)			((uint32_t)((n) & 0x1f)<<8) 	// First Bit Shifted
 #define I2S_TCR5_W0W(n)			((uint32_t)((n) & 0x1f)<<16)	// Word 0 Width
 #define I2S_TCR5_WNW(n)			((uint32_t)((n) & 0x1f)<<24)	// Word N Width
