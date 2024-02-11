@@ -111,7 +111,12 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 */
 
 
-#if defined(USB_SERIAL)
+#if defined(USB_CUSTOM)
+#include "usb_custom.h"  // use custom include file to set up USB configuration
+                         // requires to set include path, so that usb_custom.h
+                         // is found in user sketch directory
+
+#elif defined(USB_SERIAL)
   #define VENDOR_ID		0x16C0
   #define PRODUCT_ID		0x0483
   #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
