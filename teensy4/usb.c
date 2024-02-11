@@ -1111,4 +1111,8 @@ void usb_init(void)
 {
 }
 
+void usb_isr(void)
+{
+}
+
 #endif // defined(NUM_ENDPOINTS)
