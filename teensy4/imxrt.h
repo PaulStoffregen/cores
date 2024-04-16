@@ -1688,7 +1688,7 @@ typedef struct {
 #define CCM_ANALOG_PLL_SYS_BYPASS		((uint32_t)(1<<16))
 #define CCM_ANALOG_PLL_SYS_ENABLE		((uint32_t)(1<<13))
 #define CCM_ANALOG_PLL_SYS_POWERDOWN		((uint32_t)(1<<12))
-#define CCM_ANALOG_PLL_SYS_DIV_SELECT		((uint32_t)(1<<1))
+#define CCM_ANALOG_PLL_SYS_DIV_SELECT		((uint32_t)(1<<0))
 #define CCM_ANALOG_PLL_AUDIO_POST_DIV_SELECT(n)	((uint32_t)(((n) & 0x03) <<19)) 
 #define CCM_ANALOG_PLL_AUDIO_BYPASS		((uint32_t)(1<<16)) 
 #define CCM_ANALOG_PLL_AUDIO_BYPASS_CLK_SRC(n)	((uint32_t)(((n) & 0x03) <<14)) 
