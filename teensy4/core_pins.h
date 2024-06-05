@@ -2301,10 +2301,10 @@ static inline void digitalToggleFast(uint8_t pin)
 	}
 }
 
-// Configure a digital pin.  The mode can be
-// INPUT, INPUT_PULLUP, INPUT_PULLDOWN, OUTPUT_OPENDRAIN or
-// INPUT_DISABLE.  Use INPUT_DISABLE to minimize power
-// consumption for unused pins and pins with analog voltages.
+// Configure a digital pin.  The mode can be INPUT, INPUT_PULLUP,
+// INPUT_PULLDOWN, OUTPUT, OUTPUT_OPENDRAIN or INPUT_DISABLE. Use
+// INPUT_DISABLE to minimize power consumption for unused pins
+// and pins with analog voltages.
 void pinMode(uint8_t pin, uint8_t mode);
 void init_pins(void);
 // Causes a PWM capable pin to output a pulsing waveform with specific
