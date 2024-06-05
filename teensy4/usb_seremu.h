@@ -34,6 +34,7 @@
 
 #if defined(SEREMU_INTERFACE) && !defined(CDC_STATUS_INTERFACE) && !defined(CDC_DATA_INTERFACE)
 
+#include <stdarg.h>
 #include <stdint.h>
 
 // C language implementation
@@ -92,6 +93,13 @@ public:
         size_t write(int n) { return write((uint8_t)n); }
 	virtual int availableForWrite() { return usb_seremu_write_buffer_free(); }
 	using Print::write;
+	int printf(const char *format, ...) {
+		va_list args;
+		va_start(args, format);
+		int retval = vprintf(format, args);
+		va_end(args);
+		return retval;
+	}
         void send_now(void) { usb_seremu_flush_output(); };
         uint32_t baud(void) { return 9600; }
         uint8_t stopbits(void) { return 1; }

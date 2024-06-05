@@ -36,6 +36,7 @@
 #if defined(SEREMU_INTERFACE)
 
 #include <inttypes.h>
+#include <stdarg.h>
 
 #if F_CPU >= 20000000
 
@@ -94,6 +95,13 @@ public:
         size_t write(int n) { return write((uint8_t)n); }
 	virtual int availableForWrite() { return usb_seremu_write_buffer_free(); }
 	using Print::write;
+	int printf(const char *format, ...) {
+		va_list args;
+		va_start(args, format);
+		int retval = vprintf(format, args);
+		va_end(args);
+		return retval;
+	}
         void send_now(void) { usb_seremu_flush_output(); };
         uint32_t baud(void) { return 9600; }
         uint8_t stopbits(void) { return 1; }
@@ -132,6 +140,13 @@ public:
 	size_t write(int n) { return 1; }
 	virtual int availableForWrite() { return 0; }
 	using Print::write;
+	int printf(const char *format, ...) {
+		va_list args;
+		va_start(args, format);
+		int retval = vprintf(format, args);
+		va_end(args);
+		return retval;
+	}
 	void send_now(void) { }
 	uint32_t baud(void) { return 0; }
 	uint8_t stopbits(void) { return 1; }

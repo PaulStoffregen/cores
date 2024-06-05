@@ -31,6 +31,7 @@
 #pragma once
 
 #include "usb_desc.h"
+#include <stdarg.h>
 #include <stdint.h>
 
 #if (defined(CDC_STATUS_INTERFACE) && defined(CDC_DATA_INTERFACE)) || defined(USB_DISABLED)
@@ -129,6 +130,13 @@ public:
 	// transmit.
 	virtual int availableForWrite() { return usb_serial_write_buffer_free(); }
 	using Print::write;
+	int printf(const char *format, ...) {
+		va_list args;
+		va_start(args, format);
+		int retval = vprintf(format, args);
+		va_end(args);
+		return retval;
+	}
 	// Cause any previously transmitted data written to buffers to be actually
 	// sent over the USB cable to your PC as soon as possible.  Normally writes
 	// are combined to efficiently use maximum size USB packets.  Use of send_now()
@@ -212,6 +220,13 @@ public:
     size_t write(int n) { return 1; }
     virtual int availableForWrite() { return 0; }
     using Print::write;
+	int printf(const char *format, ...) {
+		va_list args;
+		va_start(args, format);
+		int retval = vprintf(format, args);
+		va_end(args);
+		return retval;
+	}
         void send_now(void) { }
         uint32_t baud(void) { return 0; }
         uint8_t stopbits(void) { return 1; }
@@ -291,6 +306,13 @@ public:
         size_t write(int n) { return write((uint8_t)n); }
         virtual int availableForWrite() { return usb_serial2_write_buffer_free(); }
         using Print::write;
+	int printf(const char *format, ...) {
+		va_list args;
+		va_start(args, format);
+		int retval = vprintf(format, args);
+		va_end(args);
+		return retval;
+	}
         void send_now(void) { usb_serial2_flush_output(); }
         uint32_t baud(void) { return usb_cdc2_line_coding[0]; }
         uint8_t stopbits(void) { uint8_t b = usb_cdc2_line_coding[1]; if (!b) b = 1; return b; }
@@ -381,6 +403,13 @@ public:
         size_t write(int n) { return write((uint8_t)n); }
         virtual int availableForWrite() { return usb_serial3_write_buffer_free(); }
         using Print::write;
+	int printf(const char *format, ...) {
+		va_list args;
+		va_start(args, format);
+		int retval = vprintf(format, args);
+		va_end(args);
+		return retval;
+	}
         void send_now(void) { usb_serial3_flush_output(); }
         uint32_t baud(void) { return usb_cdc3_line_coding[0]; }
         uint8_t stopbits(void) { uint8_t b = usb_cdc3_line_coding[1]; if (!b) b = 1; return b; }
