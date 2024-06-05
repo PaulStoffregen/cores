@@ -153,7 +153,7 @@ class Print
 	void clearWriteError() { setWriteError(0); }
 
 	// printf is a C standard function which allows you to print any number of variables using a somewhat cryptic format string
-	int printf(const char *format, ...);
+	int printf(const char *format, ...) __attribute__((format(printf, 2, 3)));
 	// printf is a C standard function which allows you to print any number of variables using a somewhat cryptic format string
 	int printf(const __FlashStringHelper *format, ...);
 	// vprintf is a C standard function that allows you to print a variable argument list with a format string
