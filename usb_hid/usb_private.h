@@ -90,6 +90,7 @@ void usb_shutdown(void);		// shut off USB
 extern volatile uint8_t usb_configuration;
 extern volatile uint8_t usb_suspended;
 extern volatile uint8_t debug_flush_timer;
+uint8_t keyboard_report_buffer[8];
 extern uint8_t keyboard_report_data[];
 extern uint8_t keyboard_idle_count;
 extern volatile uint8_t keyboard_leds;
