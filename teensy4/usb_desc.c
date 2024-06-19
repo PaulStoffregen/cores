@@ -71,6 +71,17 @@
 
 #define LSB(n) ((n) & 255)
 #define MSB(n) (((n) >> 8) & 255)
+#define MMSB(n) (((n) >> 16) & 255)
+#define TSAMFREQ LSB(AUDIO_SAMPLE_RATE), MSB(AUDIO_SAMPLE_RATE), MMSB(AUDIO_SAMPLE_RATE)
+
+// This defines the channel config, which is basically a
+// '1' in every bit, filling from the LSbit for each channel.
+// when the number of channels is > 16, just fill the
+// wChannelCoinfig with all 1s.
+#define WCHANNELCONFIG(N_CHANNELS)                      \
+    (uint8_t) ((N_CHANNELS<16) ? LSB((1ULL<<N_CHANNELS)-1) : 0xff), \
+    (uint8_t) ((N_CHANNELS<16) ? MSB((1ULL<<N_CHANNELS)-1) : 0xff)
+
 
 #ifdef CDC_IAD_DESCRIPTOR
 #ifndef DEVICE_CLASS
@@ -1444,8 +1455,8 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 	//0x03, 0x06,				// wTerminalType, 0x0603 = Line Connector
 	0x02, 0x06,				// wTerminalType, 0x0602 = Digital Audio
 	0,					// bAssocTerminal, 0 = unidirectional
-	2,					// bNrChannels
-	0x03, 0x00,				// wChannelConfig, 0x0003 = Left & Right Front
+	USB_AUDIO_TX_CHANNELS,			// bNrChannels
+	WCHANNELCONFIG(USB_AUDIO_TX_CHANNELS),	// wChannelConfig, 0x0003 = Left & Right Front.
 	0,					// iChannelNames
 	0, 					// iTerminal
 	// Output Terminal Descriptor
@@ -1466,8 +1477,8 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 	3,					// bTerminalID
 	0x01, 0x01,				// wTerminalType, 0x0101 = USB_STREAMING
 	0,					// bAssocTerminal, 0 = unidirectional
-	2,					// bNrChannels
-	0x03, 0x00,				// wChannelConfig, 0x0003 = Left & Right Front
+	USB_AUDIO_RX_CHANNELS,			// bNrChannels
+	WCHANNELCONFIG(USB_AUDIO_RX_CHANNELS),	// wChannelConfig, 0x0003 = Left & Right Front
 	0,					// iChannelNames
 	0, 					// iTerminal
 	// Volume feature descriptor
@@ -1528,11 +1539,11 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 	0x24,					// bDescriptorType = CS_INTERFACE
 	2,					// bDescriptorSubtype = FORMAT_TYPE
 	1,					// bFormatType = FORMAT_TYPE_I
-	2,					// bNrChannels = 2
+	USB_AUDIO_TX_CHANNELS,			// bNrChannels = 2
 	2,					// bSubFrameSize = 2 byte
 	16,					// bBitResolution = 16 bits
 	1,					// bSamFreqType = 1 frequency
-	LSB(44100), MSB(44100), 0,		// tSamFreq
+        TSAMFREQ,                               // tSamFreq
 	// Standard AS Isochronous Audio Data Endpoint Descriptor
 	// USB DCD for Audio Devices 1.0, Section 4.6.1.1, Table 4-20, page 61-62
 	9, 					// bLength
@@ -1587,11 +1598,11 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 	0x24,					// bDescriptorType = CS_INTERFACE
 	2,					// bDescriptorSubtype = FORMAT_TYPE
 	1,					// bFormatType = FORMAT_TYPE_I
-	2,					// bNrChannels = 2
+	USB_AUDIO_RX_CHANNELS,			// bNrChannels = 2
 	2,					// bSubFrameSize = 2 byte
 	16,					// bBitResolution = 16 bits
 	1,					// bSamFreqType = 1 frequency
-	LSB(44100), MSB(44100), 0,		// tSamFreq
+        TSAMFREQ,                               // tSamFreq
 	// Standard AS Isochronous Audio Data Endpoint Descriptor
 	// USB DCD for Audio Devices 1.0, Section 4.6.1.1, Table 4-20, page 61-62
 	9, 					// bLength
@@ -2458,8 +2469,8 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 	//0x03, 0x06,				// wTerminalType, 0x0603 = Line Connector
 	0x02, 0x06,				// wTerminalType, 0x0602 = Digital Audio
 	0,					// bAssocTerminal, 0 = unidirectional
-	2,					// bNrChannels
-	0x03, 0x00,				// wChannelConfig, 0x0003 = Left & Right Front
+	USB_AUDIO_TX_CHANNELS,			// bNrChannels
+	WCHANNELCONFIG(USB_AUDIO_TX_CHANNELS),	// wChannelConfig, 0x0003 = Left & Right Front.
 	0,					// iChannelNames
 	0, 					// iTerminal
 	// Output Terminal Descriptor
@@ -2480,8 +2491,8 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 	3,					// bTerminalID
 	0x01, 0x01,				// wTerminalType, 0x0101 = USB_STREAMING
 	0,					// bAssocTerminal, 0 = unidirectional
-	2,					// bNrChannels
-	0x03, 0x00,				// wChannelConfig, 0x0003 = Left & Right Front
+	USB_AUDIO_RX_CHANNELS,			// bNrChannels
+	WCHANNELCONFIG(USB_AUDIO_RX_CHANNELS),	// wChannelConfig, 0x0003 = Left & Right Front
 	0,					// iChannelNames
 	0, 					// iTerminal
 	// Volume feature descriptor
@@ -2542,11 +2553,11 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 	0x24,					// bDescriptorType = CS_INTERFACE
 	2,					// bDescriptorSubtype = FORMAT_TYPE
 	1,					// bFormatType = FORMAT_TYPE_I
-	2,					// bNrChannels = 2
+	USB_AUDIO_TX_CHANNELS,			// bNrChannels = 2
 	2,					// bSubFrameSize = 2 byte
 	16,					// bBitResolution = 16 bits
 	1,					// bSamFreqType = 1 frequency
-	LSB(44100), MSB(44100), 0,		// tSamFreq
+        TSAMFREQ,                               // tSamFreq
 	// Standard AS Isochronous Audio Data Endpoint Descriptor
 	// USB DCD for Audio Devices 1.0, Section 4.6.1.1, Table 4-20, page 61-62
 	9, 					// bLength
@@ -2601,11 +2612,11 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 	0x24,					// bDescriptorType = CS_INTERFACE
 	2,					// bDescriptorSubtype = FORMAT_TYPE
 	1,					// bFormatType = FORMAT_TYPE_I
-	2,					// bNrChannels = 2
+	USB_AUDIO_RX_CHANNELS,			// bNrChannels = 2
 	2,					// bSubFrameSize = 2 byte
 	16,					// bBitResolution = 16 bits
 	1,					// bSamFreqType = 1 frequency
-	LSB(44100), MSB(44100), 0,		// tSamFreq
+        TSAMFREQ,                               // tSamFreq
 	// Standard AS Isochronous Audio Data Endpoint Descriptor
 	// USB DCD for Audio Devices 1.0, Section 4.6.1.1, Table 4-20, page 61-62
 	9, 					// bLength
