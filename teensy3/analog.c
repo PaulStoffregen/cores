@@ -348,6 +348,9 @@ void analogReadAveraging(unsigned int num)
 	if (num <= 1) {
 		num = 0;
 		ADC0_SC3 = 0;
+#ifdef HAS_KINETIS_ADC1
+		ADC1_SC3 = 0;
+#endif
 	} else if (num <= 4) {
 		num = 4;
 		ADC0_SC3 = ADC_SC3_AVGE + ADC_SC3_AVGS(0);
