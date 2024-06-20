@@ -112,7 +112,7 @@ uint32_t makeTime(const DateTimeFields &tm)
 
   // add days for this year, months start from 1
   for (i = 0; i < tm.mon; i++) {
-    if ( (i == 1) && LEAP_YEAR(tm.year)) {
+    if ( (i == 1) && LEAP_YEAR(tm.year - 70)) {
       seconds += SECS_PER_DAY * 29;
     } else {
       seconds += SECS_PER_DAY * monthDays[i];
