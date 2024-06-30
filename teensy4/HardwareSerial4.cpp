@@ -46,36 +46,34 @@ void IRQHandler_Serial4()
 }
 
 // Serial4
+
+#ifndef SERIAL4_RX_PINS 
+#define SERIAL4_CTS_PIN 0xff, 0 
+#if !defined(ARDUINO_TEENSY_MICROMOD)
+#define SERIAL4_UART_ADDR IMXRT_LPUART3_ADDRESS
+#define SERIAL4_LPUART   IRQ_LPUART3, CCM_CCGR0, CCM_CCGR0_LPUART3(CCM_CCGR_ON), XBARA1_OUT_LPUART3_TRG_INPUT
+#define SERIAL4_RX_PINS  {{16,2, &IOMUXC_LPUART3_RX_SELECT_INPUT, 0}, {0xff, 0xff, nullptr, 0}}
+#define SERIAL4_TX_PINS  {{17,2, &IOMUXC_LPUART3_TX_SELECT_INPUT, 0}, {0xff, 0xff, nullptr, 0}}
+
+#else
+#define SERIAL4_UART_ADDR IMXRT_LPUART4_ADDRESS
+#define SERIAL4_LPUART	IRQ_LPUART4, CCM_CCGR1, CCM_CCGR1_LPUART4(CCM_CCGR_ON), XBARA1_OUT_LPUART4_TRG_INPUT
+#define SERIAL4_RX_PINS	{{7,2, &IOMUXC_LPUART4_RX_SELECT_INPUT, 2}, {0xff, 0xff, nullptr, 0}}
+#define SERIAL4_TX_PINS	{{8,2, &IOMUXC_LPUART4_TX_SELECT_INPUT, 2}, {0xff, 0xff, nullptr, 0}}
+#endif
+#endif
+
 static BUFTYPE tx_buffer4[SERIAL4_TX_BUFFER_SIZE];
 static BUFTYPE rx_buffer4[SERIAL4_RX_BUFFER_SIZE];
 
-#ifndef ARDUINO_TEENSY_MICROMOD
-static HardwareSerialIMXRT::hardware_t UART3_Hardware = {
-	3, IRQ_LPUART3, &IRQHandler_Serial4, 
+static HardwareSerialIMXRT::hardware_t SERIAL4_Hardware = {
+	3, 
+	&IRQHandler_Serial4, 
 	&serialEvent4,
-	CCM_CCGR0, CCM_CCGR0_LPUART3(CCM_CCGR_ON),
-	{{16,2, &IOMUXC_LPUART3_RX_SELECT_INPUT, 0}, {0xff, 0xff, nullptr, 0}},
-	{{17,2, &IOMUXC_LPUART3_TX_SELECT_INPUT, 0}, {0xff, 0xff, nullptr, 0}},
-	0xff, // No CTS pin
-	0, // No CTS
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
-	XBARA1_OUT_LPUART3_TRG_INPUT
+	// Stuff that can be overwritten easily by variant
+	SERIAL4_LPUART, SERIAL4_RX_PINS, SERIAL4_TX_PINS, SERIAL4_CTS_PIN
 };
-HardwareSerialIMXRT Serial4(IMXRT_LPUART3_ADDRESS, &UART3_Hardware, tx_buffer4,
+HardwareSerialIMXRT Serial4(SERIAL4_UART_ADDR, &SERIAL4_Hardware, tx_buffer4,
 	SERIAL4_TX_BUFFER_SIZE, rx_buffer4, SERIAL4_RX_BUFFER_SIZE);
 
-#else
-static HardwareSerialIMXRT::hardware_t UART4_Hardware = {
-    1, IRQ_LPUART4, &IRQHandler_Serial4, 
-    &serialEvent4, /*&_serialEvent4_default,*/
-    CCM_CCGR1, CCM_CCGR1_LPUART4(CCM_CCGR_ON),
-    {{7,2, &IOMUXC_LPUART4_RX_SELECT_INPUT, 2}, {0xff, 0xff, nullptr, 0}},
-    {{8,2, &IOMUXC_LPUART4_TX_SELECT_INPUT, 2}, {0xff, 0xff, nullptr, 0}},
-    0xff, // No CTS pin
-    0, // No CTS
-    IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
-    XBARA1_OUT_LPUART4_TRG_INPUT
-};
-HardwareSerialIMXRT Serial4(IMXRT_LPUART4_ADDRESS, &UART4_Hardware, tx_buffer4,
-	 SERIAL4_TX_BUFFER_SIZE, rx_buffer4, SERIAL4_RX_BUFFER_SIZE);
-#endif
