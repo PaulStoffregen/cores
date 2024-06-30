@@ -182,20 +182,25 @@ public:
 	} pin_info_t;
 
 	typedef struct {
+		// General settings for this Serial object.
 		uint8_t serial_index;	// which object are we? 0 based
-		IRQ_NUMBER_t irq;
 		void (*irq_handler)(void);
 		void (* _serialEvent)(void);
+		const uint16_t irq_priority;
+		const uint16_t rts_low_watermark;
+		const uint16_t rts_high_watermark;
+
+		// Settings that apply to underlying LPUART object.
+		IRQ_NUMBER_t irq;
 		volatile uint32_t &ccm_register;
 		const uint32_t ccm_value;
+		const uint8_t xbar_out_lpuartX_trig_input;
+
+		// Pin lists
 		pin_info_t rx_pins[cnt_rx_pins];
 		pin_info_t tx_pins[cnt_tx_pins];
 		const uint8_t cts_pin;
 		const uint8_t cts_mux_val;
-		const uint16_t irq_priority;
-		const uint16_t rts_low_watermark;
-		const uint16_t rts_high_watermark;
-		const uint8_t xbar_out_lpuartX_trig_input;
 	} hardware_t;
 public:
 	constexpr HardwareSerialIMXRT(uintptr_t myport, const hardware_t *myhardware,

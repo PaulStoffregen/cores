@@ -48,16 +48,20 @@ void IRQHandler_Serial7()
 static BUFTYPE tx_buffer7[SERIAL7_TX_BUFFER_SIZE];
 static BUFTYPE rx_buffer7[SERIAL7_RX_BUFFER_SIZE];
 
-static HardwareSerialIMXRT::hardware_t UART7_Hardware = {
-	6, IRQ_LPUART7, &IRQHandler_Serial7, 
+#ifndef SERIAL7_RX_PINS 
+#define SERIAL7_UART_ADDR IMXRT_LPUART7_ADDRESS
+#define SERIAL7_LPUART IRQ_LPUART7, CCM_CCGR5, CCM_CCGR5_LPUART7(CCM_CCGR_ON), XBARA1_OUT_LPUART7_TRG_INPUT
+#define SERIAL7_CTS_PIN 0xff, 0 
+#define SERIAL7_RX_PINS {{28,2, &IOMUXC_LPUART7_RX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}}
+#define SERIAL7_TX_PINS {{29,2, &IOMUXC_LPUART7_TX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}}
+#endif
+
+static HardwareSerialIMXRT::hardware_t Serial7_Hardware = {
+	6, 
+	&IRQHandler_Serial7, 
 	&serialEvent7,
-	CCM_CCGR5, CCM_CCGR5_LPUART7(CCM_CCGR_ON),
-	{{28,2, &IOMUXC_LPUART7_RX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
-	{{29,2, &IOMUXC_LPUART7_TX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
-	0xff, // No CTS pin
-	0, // No CTS
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
-	XBARA1_OUT_LPUART7_TRG_INPUT
+	SERIAL7_LPUART, SERIAL7_RX_PINS, SERIAL7_TX_PINS, SERIAL7_CTS_PIN
 };
-HardwareSerialIMXRT Serial7(IMXRT_LPUART7_ADDRESS, &UART7_Hardware, tx_buffer7,
+HardwareSerialIMXRT Serial7(IMXRT_LPUART7_ADDRESS, &Serial7_Hardware, tx_buffer7,
 	SERIAL7_TX_BUFFER_SIZE, rx_buffer7, SERIAL7_RX_BUFFER_SIZE);

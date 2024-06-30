@@ -1914,6 +1914,8 @@ static inline void digitalWriteFast(uint8_t pin, uint8_t val)
 			} else if (pin == 54) {
 				CORE_PIN54_PORTSET = CORE_PIN54_BITMASK;
 #endif
+			} else if (pin < CORE_NUM_DIGITAL) {
+				*portSetRegister(pin) = digitalPinToBitMask(pin);
 			}
 		} else {
 			if (pin == 0) {
@@ -2030,9 +2032,13 @@ static inline void digitalWriteFast(uint8_t pin, uint8_t val)
 			} else if (pin == 54) {
 				CORE_PIN54_PORTCLEAR = CORE_PIN54_BITMASK;
 #endif
+			} else if (pin < CORE_NUM_DIGITAL) {
+				*portClearRegister(pin) = digitalPinToBitMask(pin);
 			}
+
 		}
 	} else {
+		if (pin >= CORE_NUM_DIGITAL) return;
 		if(val) *portSetRegister(pin) = digitalPinToBitMask(pin);
 		else *portClearRegister(pin) = digitalPinToBitMask(pin);
 	}
@@ -2164,11 +2170,15 @@ static inline uint8_t digitalReadFast(uint8_t pin)
 		} else if (pin == 54) {
 			return (CORE_PIN54_PINREG & CORE_PIN54_BITMASK) ? 1 : 0;
 #endif
+		} else if (pin < CORE_NUM_DIGITAL) {
+			return (*portInputRegister(pin) & digitalPinToBitMask(pin)) ? 1 : 0;
 		} else {
 			return 0;
 		}
-	} else {
+	} else if (pin < CORE_NUM_DIGITAL) {
 		return (*portInputRegister(pin) & digitalPinToBitMask(pin)) ? 1 : 0;
+	} else {
+		return 0;
 	}
 }
 
@@ -2298,6 +2308,8 @@ static inline void digitalToggleFast(uint8_t pin)
 		} else if (pin == 54) {
 			CORE_PIN54_PORTTOGGLE = CORE_PIN54_BITMASK;
 #endif
+		} else {
+			digitalToggle(pin);
 		}
 	} else {
 		digitalToggle(pin);
