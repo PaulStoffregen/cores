@@ -65,5 +65,5 @@ static HardwareSerialIMXRT::hardware_t Serial6_Hardware = {
 	SERIAL6_LPUART, SERIAL6_RX_PINS, SERIAL6_TX_PINS, SERIAL6_CTS_PIN
 };
 
-HardwareSerialIMXRT Serial6(IMXRT_LPUART1_ADDRESS, &Serial6_Hardware, tx_buffer6,
+HardwareSerialIMXRT Serial6(SERIAL6_UART_ADDR, &Serial6_Hardware, tx_buffer6,
 	SERIAL6_TX_BUFFER_SIZE, rx_buffer6, SERIAL6_RX_BUFFER_SIZE);
