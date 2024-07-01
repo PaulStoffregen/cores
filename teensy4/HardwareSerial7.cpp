@@ -63,5 +63,5 @@ static HardwareSerialIMXRT::hardware_t Serial7_Hardware = {
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
 	SERIAL7_LPUART, SERIAL7_RX_PINS, SERIAL7_TX_PINS, SERIAL7_CTS_PIN
 };
-HardwareSerialIMXRT Serial7(IMXRT_LPUART7_ADDRESS, &Serial7_Hardware, tx_buffer7,
+HardwareSerialIMXRT Serial7(SERIAL7_UART_ADDR, &Serial7_Hardware, tx_buffer7,
 	SERIAL7_TX_BUFFER_SIZE, rx_buffer7, SERIAL7_RX_BUFFER_SIZE);
