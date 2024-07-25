@@ -64,7 +64,6 @@ void pinMode(IMXRT_PIN_t pin_name, uint8_t mode)
 
 	Serial.printf("pinMode %x mux:%p pad:%p gdir:%p mask:%x\n", pin_name, mux, pad, gdir, mask);
 
-	const struct digital_pin_bitband_and_config_table_struct *p;
 	if (mode == OUTPUT || mode == OUTPUT_OPENDRAIN) {
 		*gdir |= mask; // TODO: atomic
 		if (mode == OUTPUT) {
