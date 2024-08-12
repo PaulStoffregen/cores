@@ -318,6 +318,9 @@ FLASHMEM void configure_cache(void)
 
 	SCB_MPU_RBAR = 0x70000000 | REGION(i++); // FlexSPI2
 	SCB_MPU_RASR = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_16M;
+	// We default RAM meant for data to NOEXEC as a proactive security measure.
+	// If you wish to dynamically load code into RAM and execute it, start here:
+	// https://forum.pjrc.com/index.php?threads/75610/#post-347791
 
 	SCB_MPU_RBAR = 0x80000000 | REGION(i++); // SEMC: SDRAM, NAND, SRAM, etc
 	SCB_MPU_RASR = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_1G;
