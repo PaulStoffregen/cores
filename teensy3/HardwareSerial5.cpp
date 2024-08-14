@@ -37,8 +37,9 @@ HardwareSerial5 Serial5(&serialEvent5);
 
 uint8_t _serialEvent5_default __attribute__((weak)) PROGMEM = 0 ;
 
-void HardwareSerial5::begin(uint32_t baud) { 
+void HardwareSerial5::begin(uint32_t baud, uint32_t format) { 
 	serial5_begin(BAUD2DIV3(baud));
+	if (format != (uint32_t)-1)  serial5_format(format);
 	if (!_serialEvent5_default) addToSerialEventsList();
 }
 
