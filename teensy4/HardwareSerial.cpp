@@ -728,7 +728,6 @@ const pin_to_xbar_info_t PROGMEM pin_to_xbar_info[] = {
 	{8,  14, 1, &IOMUXC_XBAR1_IN14_SELECT_INPUT, 0x1},
 	{30, 23, 1, &IOMUXC_XBAR1_IN23_SELECT_INPUT, 0x0},
 	{31, 22, 1, &IOMUXC_XBAR1_IN22_SELECT_INPUT, 0x0},
-	{32, 10, 1, nullptr, 0},
 	{33,  9, 3, &IOMUXC_XBAR1_IN09_SELECT_INPUT, 0x0},
 
 #ifdef ARDUINO_TEENSY41
