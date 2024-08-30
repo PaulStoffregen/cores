@@ -111,6 +111,62 @@
 // bit8: 2 stop bits 
 // bit9: Half Duplex Mode
 
+#define CREATE_SERIAL_INSTANCE(n)                                            \
+void IRQHandler_Serial##n()                                                  \
+{                                                                            \
+    Serial##n.IRQHandler();                                                  \
+}                                                                            \
+                                                                             \
+static BUFTYPE tx_buffer##n[SERIAL##n##_TX_BUFFER_SIZE];                     \
+static BUFTYPE rx_buffer##n[SERIAL##n##_RX_BUFFER_SIZE];                     \
+                                                                             \
+static HardwareSerialIMXRT::hardware_t Serial##n##_Hardware = {              \
+    (n - 1),                                                                 \
+    SERIAL##n##_IRQ,                                                         \
+    &IRQHandler_Serial##n,                                                   \
+    &serialEvent##n,                                                         \
+    SERIAL##n##_CCM_REGISTER,                                                \
+    SERIAL##n##_CCM_VALUE,                                                   \
+    {                                                                        \
+        {                                                                    \
+            SERIAL##n##_RX_PIN,                                              \
+            SERIAL##n##_RX_MUX_VAL,                                          \
+            SERIAL##n##_RX_INPUT_REGISTER,                                   \
+            SERIAL##n##_RX_INPUT_VALUE                                       \
+        },                                                                   \
+        {                                                                    \
+            SERIAL##n##_RX_ALT_PIN,                                          \
+            SERIAL##n##_RX_ALT_MUX_VAL,                                      \
+            SERIAL##n##_RX_ALT_INPUT_REGISTER,                               \
+            SERIAL##n##_RX_ALT_INPUT_VALUE                                   \
+        }                                                                    \
+    },                                                                       \
+    {                                                                        \
+        {                                                                    \
+            SERIAL##n##_TX_PIN,                                              \
+            SERIAL##n##_TX_MUX_VAL,                                          \
+            SERIAL##n##_TX_INPUT_REGISTER,                                   \
+            SERIAL##n##_TX_INPUT_VALUE                                       \
+        },                                                                   \
+        {                                                                    \
+            SERIAL##n##_TX_ALT_PIN,                                          \
+            SERIAL##n##_TX_ALT_MUX_VAL,                                      \
+            SERIAL##n##_TX_ALT_INPUT_REGISTER,                               \
+            SERIAL##n##_TX_ALT_INPUT_VALUE                                   \
+        }                                                                    \
+    },                                                                       \
+    SERIAL##n##_CTS_PIN,                                                     \
+    SERIAL##n##_CTS_MUX_VAL,                                                 \
+    IRQ_PRIORITY,                                                            \
+    SERIAL##n##_RTS_LOW_WATERMARK,                                           \
+    SERIAL##n##_RTS_HIGH_WATERMARK,                                          \
+    SERIAL##n##_XBAR_TRIGGER                                                 \
+};                                                                           \
+HardwareSerialIMXRT Serial##n(SERIAL##n##_UART_ADDR, &Serial##n##_Hardware,  \
+    tx_buffer##n, SERIAL##n##_TX_BUFFER_SIZE, rx_buffer##n,                  \
+    SERIAL##n##_RX_BUFFER_SIZE);
+
+
 #ifdef __cplusplus
 #include "Stream.h"
 #include "core_pins.h"
@@ -122,14 +178,28 @@
 #endif
 
 extern "C" {
+	#if defined(SERIAL1_UART_ADDR)
 	extern void IRQHandler_Serial1();
+	#endif
+	#if defined(SERIAL2_UART_ADDR)
 	extern void IRQHandler_Serial2();
+	#endif
+	#if defined(SERIAL3_UART_ADDR)
 	extern void IRQHandler_Serial3();
+	#endif
+	#if defined(SERIAL4_UART_ADDR)
 	extern void IRQHandler_Serial4();
+	#endif
+	#if defined(SERIAL5_UART_ADDR)
 	extern void IRQHandler_Serial5();
+	#endif
+	#if defined(SERIAL6_UART_ADDR)
 	extern void IRQHandler_Serial6();
+	#endif
+	#if defined(SERIAL7_UART_ADDR)
 	extern void IRQHandler_Serial7();
-	#if defined(ARDUINO_TEENSY41)   
+	#endif
+	#if defined(SERIAL8_UART_ADDR)
 	extern void IRQHandler_Serial8();
 	#endif
 }
@@ -332,19 +402,32 @@ private:
   	inline void rts_deassert();
 
 	void IRQHandler();
+
+	#if defined(SERIAL1_UART_ADDR)
 	friend void IRQHandler_Serial1();
-	friend void IRQHandler_Serial2();
-	friend void IRQHandler_Serial3();
-	friend void IRQHandler_Serial4();
-	friend void IRQHandler_Serial5();
-	friend void IRQHandler_Serial6();
-	friend void IRQHandler_Serial7();
-	#if defined(ARDUINO_TEENSY41)   
-	friend void IRQHandler_Serial8();
-	static HardwareSerialIMXRT 	*s_serials_with_serial_events[8];
-	#else	
-	static HardwareSerialIMXRT 	*s_serials_with_serial_events[7];
 	#endif
+	#if defined(SERIAL2_UART_ADDR)
+	friend void IRQHandler_Serial2();
+	#endif
+	#if defined(SERIAL3_UART_ADDR)
+	friend void IRQHandler_Serial3();
+	#endif
+	#if defined(SERIAL4_UART_ADDR)
+	friend void IRQHandler_Serial4();
+	#endif
+	#if defined(SERIAL5_UART_ADDR)
+	friend void IRQHandler_Serial5();
+	#endif
+	#if defined(SERIAL6_UART_ADDR)
+	friend void IRQHandler_Serial6();
+	#endif
+	#if defined(SERIAL7_UART_ADDR)
+	friend void IRQHandler_Serial7();
+	#endif
+	#if defined(SERIAL8_UART_ADDR)
+	friend void IRQHandler_Serial8();
+	#endif
+	static HardwareSerialIMXRT 	*s_serials_with_serial_events[CORE_NUM_SERIAL_INSTANCES];
 	static uint8_t 			s_count_serials_with_serial_events;
 	void addToSerialEventsList(); 
 	inline void doYieldCode()  {
@@ -354,36 +437,61 @@ private:
 
 
 };
+
+
+
+
+
+#if defined(SERIAL1_UART_ADDR)
 // Serial1 hardware serial port for pins RX1 and TX1.  More detail at
 // https://www.pjrc.com/teensy/td_uart.html
 extern HardwareSerialIMXRT Serial1;
+extern void serialEvent1(void) __attribute__((weak));
+#endif
+
+#if defined(SERIAL2_UART_ADDR)
 // Serial2 hardware serial port for pins RX2 and TX2.  More detail at
 // https://www.pjrc.com/teensy/td_uart.html
 extern HardwareSerialIMXRT Serial2;
+extern void serialEvent2(void) __attribute__((weak));
+#endif
+
+#if defined(SERIAL3_UART_ADDR)
 // Serial3 hardware serial port for pins RX3 and TX3.  More detail at
 // https://www.pjrc.com/teensy/td_uart.html
 extern HardwareSerialIMXRT Serial3;
+extern void serialEvent3(void) __attribute__((weak));
+#endif
+
+#if defined(SERIAL4_UART_ADDR)
 // Serial4 hardware serial port for pins RX4 and TX4.  More detail at
 // https://www.pjrc.com/teensy/td_uart.html
 extern HardwareSerialIMXRT Serial4;
+extern void serialEvent4(void) __attribute__((weak));
+#endif
+
+#if defined(SERIAL5_UART_ADDR)
 // Serial5 hardware serial port for pins RX5 and TX5.  More detail at
 // https://www.pjrc.com/teensy/td_uart.html
 extern HardwareSerialIMXRT Serial5;
+extern void serialEvent5(void) __attribute__((weak));
+#endif
+
+#if defined(SERIAL6_UART_ADDR)
 // Serial6 hardware serial port for pins RX6 and TX6.  More detail at
 // https://www.pjrc.com/teensy/td_uart.html
 extern HardwareSerialIMXRT Serial6;
+extern void serialEvent6(void) __attribute__((weak));
+#endif
+
+#if defined(SERIAL7_UART_ADDR)
 // Serial7 hardware serial port for pins RX7 and TX7.  More detail at
 // https://www.pjrc.com/teensy/td_uart.html
 extern HardwareSerialIMXRT Serial7;
-extern void serialEvent1(void) __attribute__((weak));
-extern void serialEvent2(void) __attribute__((weak));
-extern void serialEvent3(void) __attribute__((weak));
-extern void serialEvent4(void) __attribute__((weak));
-extern void serialEvent5(void) __attribute__((weak));
-extern void serialEvent6(void) __attribute__((weak));
 extern void serialEvent7(void) __attribute__((weak));
+#endif
 
-#if defined(ARDUINO_TEENSY41)
+#if defined(SERIAL8_UART_ADDR)
 // Serial8 hardware serial port for pins RX8 and TX8.  More detail at
 // https://www.pjrc.com/teensy/td_uart.html
 extern HardwareSerialIMXRT Serial8;
