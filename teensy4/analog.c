@@ -8,7 +8,7 @@ static uint8_t analog_config_bits = 10;
 static uint8_t analog_num_average = 4;
 
 
-const uint8_t pin_to_channel[] = PINS_TO_ANALOG_CHANNELS
+const uint8_t pin_to_channel[] = PINS_TO_ANALOG_CHANNELS;
 
 
 static void wait_for_cal(void)

@@ -931,7 +931,7 @@
   {&CORE_PIN52_PORTREG, &CORE_PIN52_CONFIG, &CORE_PIN52_PADCONFIG, CORE_PIN52_BITMASK}, \
   {&CORE_PIN53_PORTREG, &CORE_PIN53_CONFIG, &CORE_PIN53_PADCONFIG, CORE_PIN53_BITMASK}, \
   {&CORE_PIN54_PORTREG, &CORE_PIN54_CONFIG, &CORE_PIN54_PADCONFIG, CORE_PIN54_BITMASK}, \
-};
+}
 
 // used in cores/analog.c for `pin_to_channel[]`
 #define PINS_TO_ANALOG_CHANNELS {         \
@@ -977,7 +977,7 @@
   128+2, /* 39 ADC2_IN2  GPIO_AD_B1_13 */ \
   9,     /* 40 ADC1_IN9  GPIO_AD_B1_04 */ \
   10,    /* 41 ADC1_IN10 GPIO_AD_B1_05 */ \
-};
+}
 
 #define M(a, b) ((((a) - 1) << 4) | (b))
 
@@ -1038,7 +1038,7 @@
   {0, M(1, 0), 0, 0}, /* 52 dupe FLEXPWM1_PWMB01 */ \
   {0, M(1, 0), 0, 0}, /* 53 dupe FLEXPWM1_PWMA01 */ \
   {1, M(3, 0), 1, 1}, /* 54 FLEXPWM3_PWMA00      */ \
-};
+}
 
 // used in cores/HardwareSerial.cpp for `pin_to_xbar_info[]`
 #define PINS_TO_XBAR_INFO {                          \
@@ -1052,6 +1052,7 @@
   { 8, 14, 1, &IOMUXC_XBAR1_IN14_SELECT_INPUT, 0x1}, \
   {30, 23, 1, &IOMUXC_XBAR1_IN23_SELECT_INPUT, 0x0}, \
   {31, 22, 1, &IOMUXC_XBAR1_IN22_SELECT_INPUT, 0x0}, \
+  {32, 10, 1, nullptr, 0  },                         \
   {33,  9, 3, &IOMUXC_XBAR1_IN09_SELECT_INPUT, 0x0}, \
   {36, 16, 1, &IOMUXC_XBAR1_IN16_SELECT_INPUT, 0x1}, \
   {37, 17, 1, &IOMUXC_XBAR1_IN17_SELECT_INPUT, 0x3}, \

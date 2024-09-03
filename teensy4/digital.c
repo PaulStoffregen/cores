@@ -21,7 +21,7 @@ extern const struct digital_pin_bitband_and_config_table_struct digital_pin_to_i
 #define digitalPinToPortReg(pin) (portOutputRegister(pin))
 */
 
-const struct digital_pin_bitband_and_config_table_struct digital_pin_to_info_PGM[] = PINS_TO_DIGITAL_INFO
+const struct digital_pin_bitband_and_config_table_struct digital_pin_to_info_PGM[] = PINS_TO_DIGITAL_INFO;
 
 void digitalWrite(uint8_t pin, uint8_t val)
 {

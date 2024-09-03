@@ -16,7 +16,7 @@ uint8_t analog_write_res = 8;
 
 #if defined(__IMXRT1062__)
 
-const struct pwm_pin_info_struct pwm_pin_info[] = PINS_TO_PWM_INFO
+const struct pwm_pin_info_struct pwm_pin_info[] = PINS_TO_PWM_INFO;
 
 // Known usage of FlexPWM and QuadTimers
 // -------------------------------------

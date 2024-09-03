@@ -68,7 +68,7 @@
 #elif !defined(PINS_TO_ANALOG_CHANNELS)
 #error "teensy cores requires analog pins to be defined in 'PINS_TO_ANALOG_CHANNELS'"
 #elif !defined(PINS_TO_DIGITAL_INFO)
-#error "teensy cores requires digital pins to be configured in 'PINS_TO_ANALOG_CHANNELS'"
+#error "teensy cores requires digital pins to be configured in 'PINS_TO_DIGITAL_INFO'"
 #endif
 
 #ifdef __cplusplus
@@ -96,233 +96,601 @@ static inline void digitalWriteFast(uint8_t pin, uint8_t val)
 		if (val) {
 			if (pin == 0) {
 				CORE_PIN0_PORTSET = CORE_PIN0_BITMASK;
+#if CORE_NUM_DIGITAL > 1
 			} else if (pin == 1) {
 				CORE_PIN1_PORTSET = CORE_PIN1_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 2
 			} else if (pin == 2) {
 				CORE_PIN2_PORTSET = CORE_PIN2_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 3
 			} else if (pin == 3) {
 				CORE_PIN3_PORTSET = CORE_PIN3_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 4
 			} else if (pin == 4) {
 				CORE_PIN4_PORTSET = CORE_PIN4_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 5
 			} else if (pin == 5) {
 				CORE_PIN5_PORTSET = CORE_PIN5_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 6
 			} else if (pin == 6) {
 				CORE_PIN6_PORTSET = CORE_PIN6_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 7
 			} else if (pin == 7) {
 				CORE_PIN7_PORTSET = CORE_PIN7_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 8
 			} else if (pin == 8) {
 				CORE_PIN8_PORTSET = CORE_PIN8_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 9
 			} else if (pin == 9) {
 				CORE_PIN9_PORTSET = CORE_PIN9_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 10
 			} else if (pin == 10) {
 				CORE_PIN10_PORTSET = CORE_PIN10_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 11
 			} else if (pin == 11) {
 				CORE_PIN11_PORTSET = CORE_PIN11_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 12
 			} else if (pin == 12) {
 				CORE_PIN12_PORTSET = CORE_PIN12_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 13
 			} else if (pin == 13) {
 				CORE_PIN13_PORTSET = CORE_PIN13_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 14
 			} else if (pin == 14) {
 				CORE_PIN14_PORTSET = CORE_PIN14_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 15
 			} else if (pin == 15) {
 				CORE_PIN15_PORTSET = CORE_PIN15_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 16
 			} else if (pin == 16) {
 				CORE_PIN16_PORTSET = CORE_PIN16_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 17
 			} else if (pin == 17) {
 				CORE_PIN17_PORTSET = CORE_PIN17_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 18
 			} else if (pin == 18) {
 				CORE_PIN18_PORTSET = CORE_PIN18_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 19
 			} else if (pin == 19) {
 				CORE_PIN19_PORTSET = CORE_PIN19_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 20
 			} else if (pin == 20) {
 				CORE_PIN20_PORTSET = CORE_PIN20_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 21
 			} else if (pin == 21) {
 				CORE_PIN21_PORTSET = CORE_PIN21_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 22
 			} else if (pin == 22) {
 				CORE_PIN22_PORTSET = CORE_PIN22_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 23
 			} else if (pin == 23) {
 				CORE_PIN23_PORTSET = CORE_PIN23_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 24
 			} else if (pin == 24) {
 				CORE_PIN24_PORTSET = CORE_PIN24_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 25
 			} else if (pin == 25) {
 				CORE_PIN25_PORTSET = CORE_PIN25_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 26
 			} else if (pin == 26) {
 				CORE_PIN26_PORTSET = CORE_PIN26_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 27
 			} else if (pin == 27) {
 				CORE_PIN27_PORTSET = CORE_PIN27_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 28
 			} else if (pin == 28) {
 				CORE_PIN28_PORTSET = CORE_PIN28_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 29
 			} else if (pin == 29) {
 				CORE_PIN29_PORTSET = CORE_PIN29_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 30
 			} else if (pin == 30) {
 				CORE_PIN30_PORTSET = CORE_PIN30_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 31
 			} else if (pin == 31) {
 				CORE_PIN31_PORTSET = CORE_PIN31_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 32
 			} else if (pin == 32) {
 				CORE_PIN32_PORTSET = CORE_PIN32_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 33
 			} else if (pin == 33) {
 				CORE_PIN33_PORTSET = CORE_PIN33_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 34
 			} else if (pin == 34) {
 				CORE_PIN34_PORTSET = CORE_PIN34_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 35
 			} else if (pin == 35) {
 				CORE_PIN35_PORTSET = CORE_PIN35_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 36
 			} else if (pin == 36) {
 				CORE_PIN36_PORTSET = CORE_PIN36_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 37
 			} else if (pin == 37) {
 				CORE_PIN37_PORTSET = CORE_PIN37_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 38
 			} else if (pin == 38) {
 				CORE_PIN38_PORTSET = CORE_PIN38_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 39
 			} else if (pin == 39) {
 				CORE_PIN39_PORTSET = CORE_PIN39_BITMASK;
+#endif
 #if CORE_NUM_DIGITAL > 40
 			} else if (pin == 40) {
 				CORE_PIN40_PORTSET = CORE_PIN40_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 41
 			} else if (pin == 41) {
 				CORE_PIN41_PORTSET = CORE_PIN41_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 42
 			} else if (pin == 42) {
 				CORE_PIN42_PORTSET = CORE_PIN42_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 43
 			} else if (pin == 43) {
 				CORE_PIN43_PORTSET = CORE_PIN43_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 44
 			} else if (pin == 44) {
 				CORE_PIN44_PORTSET = CORE_PIN44_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 45
 			} else if (pin == 45) {
 				CORE_PIN45_PORTSET = CORE_PIN45_BITMASK;
 #endif
 #if CORE_NUM_DIGITAL > 46
 			} else if (pin == 46) {
 				CORE_PIN46_PORTSET = CORE_PIN46_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 47
 			} else if (pin == 47) {
 				CORE_PIN47_PORTSET = CORE_PIN47_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 48
 			} else if (pin == 48) {
 				CORE_PIN48_PORTSET = CORE_PIN48_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 49
 			} else if (pin == 49) {
 				CORE_PIN49_PORTSET = CORE_PIN49_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 50
 			} else if (pin == 50) {
 				CORE_PIN50_PORTSET = CORE_PIN50_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 51
 			} else if (pin == 51) {
 				CORE_PIN51_PORTSET = CORE_PIN51_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 52
 			} else if (pin == 52) {
 				CORE_PIN52_PORTSET = CORE_PIN52_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 53
 			} else if (pin == 53) {
 				CORE_PIN53_PORTSET = CORE_PIN53_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 54
 			} else if (pin == 54) {
 				CORE_PIN54_PORTSET = CORE_PIN54_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 55
+			} else if (pin == 55) {
+				CORE_PIN55_PORTSET = CORE_PIN55_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 56
+			} else if (pin == 56) {
+				CORE_PIN56_PORTSET = CORE_PIN56_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 57
+			} else if (pin == 57) {
+				CORE_PIN57_PORTSET = CORE_PIN57_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 58
+			} else if (pin == 58) {
+				CORE_PIN58_PORTSET = CORE_PIN58_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 59
+			} else if (pin == 59) {
+				CORE_PIN59_PORTSET = CORE_PIN59_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 60
+			} else if (pin == 60) {
+				CORE_PIN60_PORTSET = CORE_PIN60_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 61
+			} else if (pin == 61) {
+				CORE_PIN61_PORTSET = CORE_PIN61_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 62
+			} else if (pin == 62) {
+				CORE_PIN62_PORTSET = CORE_PIN62_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 63
+			} else if (pin == 63) {
+				CORE_PIN63_PORTSET = CORE_PIN63_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 64
+			} else if (pin == 64) {
+				CORE_PIN64_PORTSET = CORE_PIN64_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 65
+			} else if (pin == 65) {
+				CORE_PIN65_PORTSET = CORE_PIN65_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 66
+			} else if (pin == 66) {
+				CORE_PIN66_PORTSET = CORE_PIN66_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 67
+			} else if (pin == 67) {
+				CORE_PIN67_PORTSET = CORE_PIN67_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 68
+			} else if (pin == 68) {
+				CORE_PIN68_PORTSET = CORE_PIN68_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 69
+			} else if (pin == 69) {
+				CORE_PIN69_PORTSET = CORE_PIN69_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 70
+			} else if (pin == 70) {
+				CORE_PIN70_PORTSET = CORE_PIN70_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 71
+			} else if (pin == 71) {
+				CORE_PIN71_PORTSET = CORE_PIN71_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 72
+			} else if (pin == 72) {
+				CORE_PIN72_PORTSET = CORE_PIN72_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 73
+			} else if (pin == 73) {
+				CORE_PIN73_PORTSET = CORE_PIN73_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 74
+			} else if (pin == 74) {
+				CORE_PIN74_PORTSET = CORE_PIN74_BITMASK;
 #endif
 			}
 		} else {
 			if (pin == 0) {
 				CORE_PIN0_PORTCLEAR = CORE_PIN0_BITMASK;
+#if CORE_NUM_DIGITAL > 1
 			} else if (pin == 1) {
 				CORE_PIN1_PORTCLEAR = CORE_PIN1_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 2
 			} else if (pin == 2) {
 				CORE_PIN2_PORTCLEAR = CORE_PIN2_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 3
 			} else if (pin == 3) {
 				CORE_PIN3_PORTCLEAR = CORE_PIN3_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 4
 			} else if (pin == 4) {
 				CORE_PIN4_PORTCLEAR = CORE_PIN4_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 5
 			} else if (pin == 5) {
 				CORE_PIN5_PORTCLEAR = CORE_PIN5_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 6
 			} else if (pin == 6) {
 				CORE_PIN6_PORTCLEAR = CORE_PIN6_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 7
 			} else if (pin == 7) {
 				CORE_PIN7_PORTCLEAR = CORE_PIN7_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 8
 			} else if (pin == 8) {
 				CORE_PIN8_PORTCLEAR = CORE_PIN8_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 9
 			} else if (pin == 9) {
 				CORE_PIN9_PORTCLEAR = CORE_PIN9_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 10
 			} else if (pin == 10) {
 				CORE_PIN10_PORTCLEAR = CORE_PIN10_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 11
 			} else if (pin == 11) {
 				CORE_PIN11_PORTCLEAR = CORE_PIN11_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 12
 			} else if (pin == 12) {
 				CORE_PIN12_PORTCLEAR = CORE_PIN12_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 13
 			} else if (pin == 13) {
 				CORE_PIN13_PORTCLEAR = CORE_PIN13_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 14
 			} else if (pin == 14) {
 				CORE_PIN14_PORTCLEAR = CORE_PIN14_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 15
 			} else if (pin == 15) {
 				CORE_PIN15_PORTCLEAR = CORE_PIN15_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 16
 			} else if (pin == 16) {
 				CORE_PIN16_PORTCLEAR = CORE_PIN16_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 17
 			} else if (pin == 17) {
 				CORE_PIN17_PORTCLEAR = CORE_PIN17_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 18
 			} else if (pin == 18) {
 				CORE_PIN18_PORTCLEAR = CORE_PIN18_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 19
 			} else if (pin == 19) {
 				CORE_PIN19_PORTCLEAR = CORE_PIN19_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 20
 			} else if (pin == 20) {
 				CORE_PIN20_PORTCLEAR = CORE_PIN20_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 21
 			} else if (pin == 21) {
 				CORE_PIN21_PORTCLEAR = CORE_PIN21_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 22
 			} else if (pin == 22) {
 				CORE_PIN22_PORTCLEAR = CORE_PIN22_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 23
 			} else if (pin == 23) {
 				CORE_PIN23_PORTCLEAR = CORE_PIN23_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 24
 			} else if (pin == 24) {
 				CORE_PIN24_PORTCLEAR = CORE_PIN24_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 25
 			} else if (pin == 25) {
 				CORE_PIN25_PORTCLEAR = CORE_PIN25_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 26
 			} else if (pin == 26) {
 				CORE_PIN26_PORTCLEAR = CORE_PIN26_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 27
 			} else if (pin == 27) {
 				CORE_PIN27_PORTCLEAR = CORE_PIN27_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 28
 			} else if (pin == 28) {
 				CORE_PIN28_PORTCLEAR = CORE_PIN28_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 29
 			} else if (pin == 29) {
 				CORE_PIN29_PORTCLEAR = CORE_PIN29_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 30
 			} else if (pin == 30) {
 				CORE_PIN30_PORTCLEAR = CORE_PIN30_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 31
 			} else if (pin == 31) {
 				CORE_PIN31_PORTCLEAR = CORE_PIN31_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 32
 			} else if (pin == 32) {
 				CORE_PIN32_PORTCLEAR = CORE_PIN32_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 33
 			} else if (pin == 33) {
 				CORE_PIN33_PORTCLEAR = CORE_PIN33_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 34
 			} else if (pin == 34) {
 				CORE_PIN34_PORTCLEAR = CORE_PIN34_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 35
 			} else if (pin == 35) {
 				CORE_PIN35_PORTCLEAR = CORE_PIN35_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 36
 			} else if (pin == 36) {
 				CORE_PIN36_PORTCLEAR = CORE_PIN36_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 37
 			} else if (pin == 37) {
 				CORE_PIN37_PORTCLEAR = CORE_PIN37_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 38
 			} else if (pin == 38) {
 				CORE_PIN38_PORTCLEAR = CORE_PIN38_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 39
 			} else if (pin == 39) {
 				CORE_PIN39_PORTCLEAR = CORE_PIN39_BITMASK;
+#endif
 #if CORE_NUM_DIGITAL > 40
 			} else if (pin == 40) {
 				CORE_PIN40_PORTCLEAR = CORE_PIN40_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 41
 			} else if (pin == 41) {
 				CORE_PIN41_PORTCLEAR = CORE_PIN41_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 42
 			} else if (pin == 42) {
 				CORE_PIN42_PORTCLEAR = CORE_PIN42_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 43
 			} else if (pin == 43) {
 				CORE_PIN43_PORTCLEAR = CORE_PIN43_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 44
 			} else if (pin == 44) {
 				CORE_PIN44_PORTCLEAR = CORE_PIN44_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 45
 			} else if (pin == 45) {
 				CORE_PIN45_PORTCLEAR = CORE_PIN45_BITMASK;
 #endif
 #if CORE_NUM_DIGITAL > 46
 			} else if (pin == 46) {
 				CORE_PIN46_PORTCLEAR = CORE_PIN46_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 47
 			} else if (pin == 47) {
 				CORE_PIN47_PORTCLEAR = CORE_PIN47_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 48
 			} else if (pin == 48) {
 				CORE_PIN48_PORTCLEAR = CORE_PIN48_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 49
 			} else if (pin == 49) {
 				CORE_PIN49_PORTCLEAR = CORE_PIN49_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 50
 			} else if (pin == 50) {
 				CORE_PIN50_PORTCLEAR = CORE_PIN50_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 51
 			} else if (pin == 51) {
 				CORE_PIN51_PORTCLEAR = CORE_PIN51_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 52
 			} else if (pin == 52) {
 				CORE_PIN52_PORTCLEAR = CORE_PIN52_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 53
 			} else if (pin == 53) {
 				CORE_PIN53_PORTCLEAR = CORE_PIN53_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 54
 			} else if (pin == 54) {
 				CORE_PIN54_PORTCLEAR = CORE_PIN54_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 55
+			} else if (pin == 55) {
+				CORE_PIN55_PORTCLEAR = CORE_PIN55_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 56
+			} else if (pin == 56) {
+				CORE_PIN56_PORTCLEAR = CORE_PIN56_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 57
+			} else if (pin == 57) {
+				CORE_PIN57_PORTCLEAR = CORE_PIN57_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 58
+			} else if (pin == 58) {
+				CORE_PIN58_PORTCLEAR = CORE_PIN58_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 59
+			} else if (pin == 59) {
+				CORE_PIN59_PORTCLEAR = CORE_PIN59_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 60
+			} else if (pin == 60) {
+				CORE_PIN60_PORTCLEAR = CORE_PIN60_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 61
+			} else if (pin == 61) {
+				CORE_PIN61_PORTCLEAR = CORE_PIN61_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 62
+			} else if (pin == 62) {
+				CORE_PIN62_PORTCLEAR = CORE_PIN62_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 63
+			} else if (pin == 63) {
+				CORE_PIN63_PORTCLEAR = CORE_PIN63_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 64
+			} else if (pin == 64) {
+				CORE_PIN64_PORTCLEAR = CORE_PIN64_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 65
+			} else if (pin == 65) {
+				CORE_PIN65_PORTCLEAR = CORE_PIN65_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 66
+			} else if (pin == 66) {
+				CORE_PIN66_PORTCLEAR = CORE_PIN66_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 67
+			} else if (pin == 67) {
+				CORE_PIN67_PORTCLEAR = CORE_PIN67_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 68
+			} else if (pin == 68) {
+				CORE_PIN68_PORTCLEAR = CORE_PIN68_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 69
+			} else if (pin == 69) {
+				CORE_PIN69_PORTCLEAR = CORE_PIN69_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 70
+			} else if (pin == 70) {
+				CORE_PIN70_PORTCLEAR = CORE_PIN70_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 71
+			} else if (pin == 71) {
+				CORE_PIN71_PORTCLEAR = CORE_PIN71_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 72
+			} else if (pin == 72) {
+				CORE_PIN72_PORTCLEAR = CORE_PIN72_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 73
+			} else if (pin == 73) {
+				CORE_PIN73_PORTCLEAR = CORE_PIN73_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 74
+			} else if (pin == 74) {
+				CORE_PIN74_PORTCLEAR = CORE_PIN74_BITMASK;
 #endif
 			}
 		}
@@ -346,118 +714,303 @@ static inline uint8_t digitalReadFast(uint8_t pin)
 	if (__builtin_constant_p(pin)) {
 		if (pin == 0) {
 			return (CORE_PIN0_PINREG & CORE_PIN0_BITMASK) ? 1 : 0;
+#if CORE_NUM_DIGITAL > 1
 		} else if (pin == 1) {
 			return (CORE_PIN1_PINREG & CORE_PIN1_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 2
 		} else if (pin == 2) {
 			return (CORE_PIN2_PINREG & CORE_PIN2_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 3
 		} else if (pin == 3) {
 			return (CORE_PIN3_PINREG & CORE_PIN3_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 4
 		} else if (pin == 4) {
 			return (CORE_PIN4_PINREG & CORE_PIN4_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 5
 		} else if (pin == 5) {
 			return (CORE_PIN5_PINREG & CORE_PIN5_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 6
 		} else if (pin == 6) {
 			return (CORE_PIN6_PINREG & CORE_PIN6_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 7
 		} else if (pin == 7) {
 			return (CORE_PIN7_PINREG & CORE_PIN7_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 8
 		} else if (pin == 8) {
 			return (CORE_PIN8_PINREG & CORE_PIN8_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 9
 		} else if (pin == 9) {
 			return (CORE_PIN9_PINREG & CORE_PIN9_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 10
 		} else if (pin == 10) {
 			return (CORE_PIN10_PINREG & CORE_PIN10_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 11
 		} else if (pin == 11) {
 			return (CORE_PIN11_PINREG & CORE_PIN11_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 12
 		} else if (pin == 12) {
 			return (CORE_PIN12_PINREG & CORE_PIN12_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 13
 		} else if (pin == 13) {
 			return (CORE_PIN13_PINREG & CORE_PIN13_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 14
 		} else if (pin == 14) {
 			return (CORE_PIN14_PINREG & CORE_PIN14_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 15
 		} else if (pin == 15) {
 			return (CORE_PIN15_PINREG & CORE_PIN15_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 16
 		} else if (pin == 16) {
 			return (CORE_PIN16_PINREG & CORE_PIN16_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 17
 		} else if (pin == 17) {
 			return (CORE_PIN17_PINREG & CORE_PIN17_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 18
 		} else if (pin == 18) {
 			return (CORE_PIN18_PINREG & CORE_PIN18_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 19
 		} else if (pin == 19) {
 			return (CORE_PIN19_PINREG & CORE_PIN19_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 20
 		} else if (pin == 20) {
 			return (CORE_PIN20_PINREG & CORE_PIN20_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 21
 		} else if (pin == 21) {
 			return (CORE_PIN21_PINREG & CORE_PIN21_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 22
 		} else if (pin == 22) {
 			return (CORE_PIN22_PINREG & CORE_PIN22_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 23
 		} else if (pin == 23) {
 			return (CORE_PIN23_PINREG & CORE_PIN23_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 24
 		} else if (pin == 24) {
 			return (CORE_PIN24_PINREG & CORE_PIN24_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 25
 		} else if (pin == 25) {
 			return (CORE_PIN25_PINREG & CORE_PIN25_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 26
 		} else if (pin == 26) {
 			return (CORE_PIN26_PINREG & CORE_PIN26_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 27
 		} else if (pin == 27) {
 			return (CORE_PIN27_PINREG & CORE_PIN27_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 28
 		} else if (pin == 28) {
 			return (CORE_PIN28_PINREG & CORE_PIN28_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 29
 		} else if (pin == 29) {
 			return (CORE_PIN29_PINREG & CORE_PIN29_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 30
 		} else if (pin == 30) {
 			return (CORE_PIN30_PINREG & CORE_PIN30_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 31
 		} else if (pin == 31) {
 			return (CORE_PIN31_PINREG & CORE_PIN31_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 32
 		} else if (pin == 32) {
 			return (CORE_PIN32_PINREG & CORE_PIN32_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 33
 		} else if (pin == 33) {
 			return (CORE_PIN33_PINREG & CORE_PIN33_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 34
 		} else if (pin == 34) {
 			return (CORE_PIN34_PINREG & CORE_PIN34_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 35
 		} else if (pin == 35) {
 			return (CORE_PIN35_PINREG & CORE_PIN35_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 36
 		} else if (pin == 36) {
 			return (CORE_PIN36_PINREG & CORE_PIN36_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 37
 		} else if (pin == 37) {
 			return (CORE_PIN37_PINREG & CORE_PIN37_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 38
 		} else if (pin == 38) {
 			return (CORE_PIN38_PINREG & CORE_PIN38_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 39
 		} else if (pin == 39) {
 			return (CORE_PIN39_PINREG & CORE_PIN39_BITMASK) ? 1 : 0;
+#endif
 #if CORE_NUM_DIGITAL > 40
 		} else if (pin == 40) {
 			return (CORE_PIN40_PINREG & CORE_PIN40_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 41
 		} else if (pin == 41) {
 			return (CORE_PIN41_PINREG & CORE_PIN41_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 42
 		} else if (pin == 42) {
 			return (CORE_PIN42_PINREG & CORE_PIN42_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 43
 		} else if (pin == 43) {
 			return (CORE_PIN43_PINREG & CORE_PIN43_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 44
 		} else if (pin == 44) {
 			return (CORE_PIN44_PINREG & CORE_PIN44_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 45
 		} else if (pin == 45) {
 			return (CORE_PIN45_PINREG & CORE_PIN45_BITMASK) ? 1 : 0;
 #endif
 #if CORE_NUM_DIGITAL > 46
 		} else if (pin == 46) {
 			return (CORE_PIN46_PINREG & CORE_PIN46_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 47
 		} else if (pin == 47) {
 			return (CORE_PIN47_PINREG & CORE_PIN47_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 48
 		} else if (pin == 48) {
 			return (CORE_PIN48_PINREG & CORE_PIN48_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 49
 		} else if (pin == 49) {
 			return (CORE_PIN49_PINREG & CORE_PIN49_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 50
 		} else if (pin == 50) {
 			return (CORE_PIN50_PINREG & CORE_PIN50_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 51
 		} else if (pin == 51) {
 			return (CORE_PIN51_PINREG & CORE_PIN51_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 52
 		} else if (pin == 52) {
 			return (CORE_PIN52_PINREG & CORE_PIN52_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 53
 		} else if (pin == 53) {
 			return (CORE_PIN53_PINREG & CORE_PIN53_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 54
 		} else if (pin == 54) {
 			return (CORE_PIN54_PINREG & CORE_PIN54_BITMASK) ? 1 : 0;
 #endif
+#if CORE_NUM_DIGITAL > 55
+			} else if (pin == 55) {
+				return (CORE_PIN55_PINREG & CORE_PIN55_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 56
+			} else if (pin == 56) {
+				return (CORE_PIN56_PINREG & CORE_PIN56_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 57
+			} else if (pin == 57) {
+				return (CORE_PIN57_PINREG & CORE_PIN57_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 58
+			} else if (pin == 58) {
+				return (CORE_PIN58_PINREG & CORE_PIN58_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 59
+			} else if (pin == 59) {
+				return (CORE_PIN59_PINREG & CORE_PIN59_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 60
+			} else if (pin == 60) {
+				return (CORE_PIN60_PINREG & CORE_PIN60_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 61
+			} else if (pin == 61) {
+				return (CORE_PIN61_PINREG & CORE_PIN61_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 62
+			} else if (pin == 62) {
+				return (CORE_PIN62_PINREG & CORE_PIN62_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 63
+			} else if (pin == 63) {
+				return (CORE_PIN63_PINREG & CORE_PIN63_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 64
+			} else if (pin == 64) {
+				return (CORE_PIN64_PINREG & CORE_PIN64_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 65
+			} else if (pin == 65) {
+				return (CORE_PIN65_PINREG & CORE_PIN65_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 66
+			} else if (pin == 66) {
+				return (CORE_PIN66_PINREG & CORE_PIN66_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 67
+			} else if (pin == 67) {
+				return (CORE_PIN67_PINREG & CORE_PIN67_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 68
+			} else if (pin == 68) {
+				return (CORE_PIN68_PINREG & CORE_PIN68_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 69
+			} else if (pin == 69) {
+				return (CORE_PIN69_PINREG & CORE_PIN69_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 70
+			} else if (pin == 70) {
+				return (CORE_PIN70_PINREG & CORE_PIN70_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 71
+			} else if (pin == 71) {
+				return (CORE_PIN71_PINREG & CORE_PIN71_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 72
+			} else if (pin == 72) {
+				return (CORE_PIN72_PINREG & CORE_PIN72_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 73
+			} else if (pin == 73) {
+				return (CORE_PIN73_PINREG & CORE_PIN73_BITMASK) ? 1 : 0;
+#endif
+#if CORE_NUM_DIGITAL > 74
+			} else if (pin == 74) {
+				return (CORE_PIN74_PINREG & CORE_PIN74_BITMASK) ? 1 : 0;
+#endif
+
 		} else {
 			return 0;
 		}
@@ -480,117 +1033,301 @@ static inline void digitalToggleFast(uint8_t pin)
 	if (__builtin_constant_p(pin)) {
 		if (pin == 0) {
 			CORE_PIN0_PORTTOGGLE = CORE_PIN0_BITMASK;
+#if CORE_NUM_DIGITAL > 1
 		} else if (pin == 1) {
 			CORE_PIN1_PORTTOGGLE = CORE_PIN1_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 2
 		} else if (pin == 2) {
 			CORE_PIN2_PORTTOGGLE = CORE_PIN2_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 3
 		} else if (pin == 3) {
 			CORE_PIN3_PORTTOGGLE = CORE_PIN3_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 4
 		} else if (pin == 4) {
 			CORE_PIN4_PORTTOGGLE = CORE_PIN4_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 5
 		} else if (pin == 5) {
 			CORE_PIN5_PORTTOGGLE = CORE_PIN5_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 6
 		} else if (pin == 6) {
 			CORE_PIN6_PORTTOGGLE = CORE_PIN6_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 7
 		} else if (pin == 7) {
 			CORE_PIN7_PORTTOGGLE = CORE_PIN7_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 8
 		} else if (pin == 8) {
 			CORE_PIN8_PORTTOGGLE = CORE_PIN8_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 9
 		} else if (pin == 9) {
 			CORE_PIN9_PORTTOGGLE = CORE_PIN9_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 10
 		} else if (pin == 10) {
 			CORE_PIN10_PORTTOGGLE = CORE_PIN10_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 11
 		} else if (pin == 11) {
 			CORE_PIN11_PORTTOGGLE = CORE_PIN11_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 12
 		} else if (pin == 12) {
 			CORE_PIN12_PORTTOGGLE = CORE_PIN12_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 13
 		} else if (pin == 13) {
 			CORE_PIN13_PORTTOGGLE = CORE_PIN13_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 14
 		} else if (pin == 14) {
 			CORE_PIN14_PORTTOGGLE = CORE_PIN14_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 15
 		} else if (pin == 15) {
 			CORE_PIN15_PORTTOGGLE = CORE_PIN15_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 16
 		} else if (pin == 16) {
 			CORE_PIN16_PORTTOGGLE = CORE_PIN16_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 17
 		} else if (pin == 17) {
 			CORE_PIN17_PORTTOGGLE = CORE_PIN17_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 18
 		} else if (pin == 18) {
 			CORE_PIN18_PORTTOGGLE = CORE_PIN18_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 19
 		} else if (pin == 19) {
 			CORE_PIN19_PORTTOGGLE = CORE_PIN19_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 20
 		} else if (pin == 20) {
 			CORE_PIN20_PORTTOGGLE = CORE_PIN20_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 21
 		} else if (pin == 21) {
 			CORE_PIN21_PORTTOGGLE = CORE_PIN21_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 22
 		} else if (pin == 22) {
 			CORE_PIN22_PORTTOGGLE = CORE_PIN22_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 23
 		} else if (pin == 23) {
 			CORE_PIN23_PORTTOGGLE = CORE_PIN23_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 24
 		} else if (pin == 24) {
 			CORE_PIN24_PORTTOGGLE = CORE_PIN24_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 25
 		} else if (pin == 25) {
 			CORE_PIN25_PORTTOGGLE = CORE_PIN25_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 26
 		} else if (pin == 26) {
 			CORE_PIN26_PORTTOGGLE = CORE_PIN26_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 27
 		} else if (pin == 27) {
 			CORE_PIN27_PORTTOGGLE = CORE_PIN27_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 28
 		} else if (pin == 28) {
 			CORE_PIN28_PORTTOGGLE = CORE_PIN28_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 29
 		} else if (pin == 29) {
 			CORE_PIN29_PORTTOGGLE = CORE_PIN29_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 30
 		} else if (pin == 30) {
 			CORE_PIN30_PORTTOGGLE = CORE_PIN30_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 31
 		} else if (pin == 31) {
 			CORE_PIN31_PORTTOGGLE = CORE_PIN31_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 32
 		} else if (pin == 32) {
 			CORE_PIN32_PORTTOGGLE = CORE_PIN32_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 33
 		} else if (pin == 33) {
 			CORE_PIN33_PORTTOGGLE = CORE_PIN33_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 34
 		} else if (pin == 34) {
 			CORE_PIN34_PORTTOGGLE = CORE_PIN34_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 35
 		} else if (pin == 35) {
 			CORE_PIN35_PORTTOGGLE = CORE_PIN35_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 36
 		} else if (pin == 36) {
 			CORE_PIN36_PORTTOGGLE = CORE_PIN36_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 37
 		} else if (pin == 37) {
 			CORE_PIN37_PORTTOGGLE = CORE_PIN37_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 38
 		} else if (pin == 38) {
 			CORE_PIN38_PORTTOGGLE = CORE_PIN38_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 39
 		} else if (pin == 39) {
 			CORE_PIN39_PORTTOGGLE = CORE_PIN39_BITMASK;
+#endif
 #if CORE_NUM_DIGITAL > 40
 		} else if (pin == 40) {
 			CORE_PIN40_PORTTOGGLE = CORE_PIN40_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 41
 		} else if (pin == 41) {
 			CORE_PIN41_PORTTOGGLE = CORE_PIN41_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 42
 		} else if (pin == 42) {
 			CORE_PIN42_PORTTOGGLE = CORE_PIN42_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 43
 		} else if (pin == 43) {
 			CORE_PIN43_PORTTOGGLE = CORE_PIN43_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 44
 		} else if (pin == 44) {
 			CORE_PIN44_PORTTOGGLE = CORE_PIN44_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 45
 		} else if (pin == 45) {
 			CORE_PIN45_PORTTOGGLE = CORE_PIN45_BITMASK;
 #endif
 #if CORE_NUM_DIGITAL > 46
 		} else if (pin == 46) {
 			CORE_PIN46_PORTTOGGLE = CORE_PIN46_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 47
 		} else if (pin == 47) {
 			CORE_PIN47_PORTTOGGLE = CORE_PIN47_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 48
 		} else if (pin == 48) {
 			CORE_PIN48_PORTTOGGLE = CORE_PIN48_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 49
 		} else if (pin == 49) {
 			CORE_PIN49_PORTTOGGLE = CORE_PIN49_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 50
 		} else if (pin == 50) {
 			CORE_PIN50_PORTTOGGLE = CORE_PIN50_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 51
 		} else if (pin == 51) {
 			CORE_PIN51_PORTTOGGLE = CORE_PIN51_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 52
 		} else if (pin == 52) {
 			CORE_PIN52_PORTTOGGLE = CORE_PIN52_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 53
 		} else if (pin == 53) {
 			CORE_PIN53_PORTTOGGLE = CORE_PIN53_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 54
 		} else if (pin == 54) {
 			CORE_PIN54_PORTTOGGLE = CORE_PIN54_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 55
+			} else if (pin == 55) {
+				CORE_PIN55_PORTTOGGLE = CORE_PIN55_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 56
+			} else if (pin == 56) {
+				CORE_PIN56_PORTTOGGLE = CORE_PIN56_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 57
+			} else if (pin == 57) {
+				CORE_PIN57_PORTTOGGLE = CORE_PIN57_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 58
+			} else if (pin == 58) {
+				CORE_PIN58_PORTTOGGLE = CORE_PIN58_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 59
+			} else if (pin == 59) {
+				CORE_PIN59_PORTTOGGLE = CORE_PIN59_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 60
+			} else if (pin == 60) {
+				CORE_PIN60_PORTTOGGLE = CORE_PIN60_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 61
+			} else if (pin == 61) {
+				CORE_PIN61_PORTTOGGLE = CORE_PIN61_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 62
+			} else if (pin == 62) {
+				CORE_PIN62_PORTTOGGLE = CORE_PIN62_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 63
+			} else if (pin == 63) {
+				CORE_PIN63_PORTTOGGLE = CORE_PIN63_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 64
+			} else if (pin == 64) {
+				CORE_PIN64_PORTTOGGLE = CORE_PIN64_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 65
+			} else if (pin == 65) {
+				CORE_PIN65_PORTTOGGLE = CORE_PIN65_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 66
+			} else if (pin == 66) {
+				CORE_PIN66_PORTTOGGLE = CORE_PIN66_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 67
+			} else if (pin == 67) {
+				CORE_PIN67_PORTTOGGLE = CORE_PIN67_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 68
+			} else if (pin == 68) {
+				CORE_PIN68_PORTTOGGLE = CORE_PIN68_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 69
+			} else if (pin == 69) {
+				CORE_PIN69_PORTTOGGLE = CORE_PIN69_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 70
+			} else if (pin == 70) {
+				CORE_PIN70_PORTTOGGLE = CORE_PIN70_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 71
+			} else if (pin == 71) {
+				CORE_PIN71_PORTTOGGLE = CORE_PIN71_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 72
+			} else if (pin == 72) {
+				CORE_PIN72_PORTTOGGLE = CORE_PIN72_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 73
+			} else if (pin == 73) {
+				CORE_PIN73_PORTTOGGLE = CORE_PIN73_BITMASK;
+#endif
+#if CORE_NUM_DIGITAL > 74
+			} else if (pin == 74) {
+				CORE_PIN74_PORTTOGGLE = CORE_PIN74_BITMASK;
 #endif
 		}
 	} else {
