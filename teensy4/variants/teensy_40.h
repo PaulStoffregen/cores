@@ -517,6 +517,7 @@
 #define SERIAL1_TX_ALT_MUX_VAL        0xff                           
 #define SERIAL1_TX_ALT_INPUT_REGISTER nullptr                        
 #define SERIAL1_TX_ALT_INPUT_VALUE    0                              
+#define SERIAL1_TX_DMAMUX_SOURCE      DMAMUX_SOURCE_LPUART6_TX       
 #define SERIAL1_CTS_PIN               0xff                           
 #define SERIAL1_CTS_MUX_VAL           0                              
 #define SERIAL1_RTS_LOW_WATERMARK     38                             
@@ -543,6 +544,7 @@
 #define SERIAL2_TX_ALT_MUX_VAL        0xff                           
 #define SERIAL2_TX_ALT_INPUT_REGISTER nullptr                        
 #define SERIAL2_TX_ALT_INPUT_VALUE    0                              
+#define SERIAL2_TX_DMAMUX_SOURCE      DMAMUX_SOURCE_LPUART4_TX       
 #define SERIAL2_CTS_PIN               0xff                           
 #define SERIAL2_CTS_MUX_VAL           0                              
 #define SERIAL2_RTS_LOW_WATERMARK     38                             
@@ -569,6 +571,7 @@
 #define SERIAL3_TX_ALT_MUX_VAL        0xff                           
 #define SERIAL3_TX_ALT_INPUT_REGISTER nullptr                        
 #define SERIAL3_TX_ALT_INPUT_VALUE    0                              
+#define SERIAL3_TX_DMAMUX_SOURCE      DMAMUX_SOURCE_LPUART2_TX       
 #define SERIAL3_CTS_PIN               19                             
 #define SERIAL3_CTS_MUX_VAL           2                              
 #define SERIAL3_RTS_LOW_WATERMARK     38                             
@@ -595,6 +598,7 @@
 #define SERIAL4_TX_ALT_MUX_VAL        0xff                           
 #define SERIAL4_TX_ALT_INPUT_REGISTER nullptr                        
 #define SERIAL4_TX_ALT_INPUT_VALUE    0                              
+#define SERIAL4_TX_DMAMUX_SOURCE      DMAMUX_SOURCE_LPUART3_TX       
 #define SERIAL4_CTS_PIN               0xff                           
 #define SERIAL4_CTS_MUX_VAL           0                              
 #define SERIAL4_RTS_LOW_WATERMARK     38                             
@@ -621,6 +625,7 @@
 #define SERIAL5_TX_ALT_MUX_VAL        2                              
 #define SERIAL5_TX_ALT_INPUT_REGISTER &IOMUXC_LPUART8_TX_SELECT_INPUT
 #define SERIAL5_TX_ALT_INPUT_VALUE    0                              
+#define SERIAL5_TX_DMAMUX_SOURCE      DMAMUX_SOURCE_LPUART8_TX       
 #define SERIAL5_CTS_PIN               35                             
 #define SERIAL5_CTS_MUX_VAL           2                              
 #define SERIAL5_RTS_LOW_WATERMARK     38                             
@@ -647,6 +652,7 @@
 #define SERIAL6_TX_ALT_MUX_VAL        0xff                          
 #define SERIAL6_TX_ALT_INPUT_REGISTER nullptr                       
 #define SERIAL6_TX_ALT_INPUT_VALUE    0                             
+#define SERIAL6_TX_DMAMUX_SOURCE      DMAMUX_SOURCE_LPUART1_TX      
 #define SERIAL6_CTS_PIN               0xff                          
 #define SERIAL6_CTS_MUX_VAL           0                             
 #define SERIAL6_RTS_LOW_WATERMARK     38                            
@@ -673,6 +679,7 @@
 #define SERIAL7_TX_ALT_MUX_VAL        0xff                           
 #define SERIAL7_TX_ALT_INPUT_REGISTER nullptr                        
 #define SERIAL7_TX_ALT_INPUT_VALUE    0                              
+#define SERIAL7_TX_DMAMUX_SOURCE      DMAMUX_SOURCE_LPUART7_TX       
 #define SERIAL7_CTS_PIN               0xff                           
 #define SERIAL7_CTS_MUX_VAL           0                              
 #define SERIAL7_RTS_LOW_WATERMARK     38                             
