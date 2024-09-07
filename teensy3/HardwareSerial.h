@@ -284,7 +284,7 @@ public:
 	#endif
 	virtual void begin(uint32_t baud);
 	virtual void begin(uint32_t baud, uint32_t format) {
-					  serial_begin(BAUD2DIV(baud));
+					  begin(baud);
 					  serial_format(format); }
 	virtual void end(void)		{ serial_end(); }
 	virtual void transmitterEnable(uint8_t pin) { serial_set_transmit_pin(pin); }
