@@ -45,7 +45,7 @@ void *extmem_calloc(size_t nmemb, size_t size)
 void *extmem_realloc(void *ptr, size_t size)
 {
 #ifdef HAS_EXTRAM
-	if (IS_EXTMEM(ptr)) {
+	if (IS_EXTMEM(ptr) || ptr == NULL) {
 		return sm_realloc_pool(&extmem_smalloc_pool, ptr, size);
 	}
 #endif
