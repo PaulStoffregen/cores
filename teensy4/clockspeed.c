@@ -16,6 +16,8 @@ volatile uint32_t F_BUS_ACTUAL = 132000000;
 #define OVERCLOCK_STEPSIZE  28000000
 #define OVERCLOCK_MAX_VOLT  1575
 
+// Industrial temperature chips may require different parameters
+// https://forum.pjrc.com/index.php?threads/75798/#post-349215
 
 uint32_t set_arm_clock(uint32_t frequency);
 
