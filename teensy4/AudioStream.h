@@ -145,6 +145,7 @@ public:
 			cpu_cycles_max = 0;
 			numConnections = 0;
 		}
+	virtual ~AudioStream(void);
 	static void initialize_memory(audio_block_t *data, unsigned int num);
 	float processorUsage(void) { return CYCLE_COUNTER_APPROX_PERCENT(cpu_cycles); }
 	float processorUsageMax(void) { return CYCLE_COUNTER_APPROX_PERCENT(cpu_cycles_max); }

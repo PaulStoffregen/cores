@@ -200,6 +200,31 @@ audio_block_t * AudioStream::receiveWritable(unsigned int index)
 	return in;
 }
 
+//Define the destructor for AudioStream.  
+//The contract here is that the user has already disconnected all or
+//destroyed all of the AudioConnections.  Therefore, the clean-up activities
+//that remain are to remove this instance from the update list and
+//to release any audio_block_t pointers in this instance's input queue.
+AudioStream::~AudioStream(void)
+{
+	//remove this instance from the update list
+	__disable_irq(); //make sure no update() happens while we're changing the update list
+	AudioStream *p = first_update;
+	while (p != NULL) {
+		if (p->next_update == this) {
+			p->next_update = this->next_update; //remove the pointer to this instance and replace it with the next instance
+		}
+		p = p->next_update; //go to next step in linked list
+	}
+	__enable_irq();
+
+	//release any audio blocks held in the input queue for this instance of AudioStream
+	for (int i=0; i<num_inputs; i++) {
+		audio_block_t *block = inputQueue[i];
+		if  (block != NULL) release(block);
+	}
+}
+
 /**************************************************************************************/
 // Constructor with no parameters: leave unconnected
 AudioConnection::AudioConnection() 
