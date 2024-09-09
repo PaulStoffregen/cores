@@ -210,11 +210,16 @@ AudioStream::~AudioStream(void)
 	//remove this instance from the update list
 	__disable_irq(); //make sure no update() happens while we're changing the update list
 	AudioStream *p = first_update;
-	while (p != NULL) {
-		if (p->next_update == this) {
-			p->next_update = this->next_update; //remove the pointer to this instance and replace it with the next instance
+	if (p == this) {
+		first_update = this->next_update;
+	} else {
+		while (p != NULL) {
+			if (p->next_update == this) {
+				p->next_update = this->next_update; //remove the pointer to this instance and replace it with the next instance
+				break;
+			}
+			p = p->next_update; //go to next step in linked list
 		}
-		p = p->next_update; //go to next step in linked list
 	}
 	__enable_irq();
 
