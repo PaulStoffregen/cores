@@ -226,11 +226,15 @@ AudioStream::~AudioStream(void)
 	}
 	__enable_irq();
 
-	//release any audio blocks held in the input queue for this instance of AudioStream
-	for (int i=0; i<num_inputs; i++) {
-		audio_block_t *block = inputQueue[i];
-		if  (block != NULL) release(block);
-	}
+	//Since AudioStream is a virtual class, the code seen in this file will only
+	//be invoked by derive classes.  All AudioStream instances have an inputQueue.
+	//There could be audio blocks assigned to the slots in the inputQueue.  The
+	//derived class should have its own destructor to release() any audio blocks
+	//in its input queue.  In the derived class's destructor, it could look like this:
+	//for (int i=0; i<num_inputs; i++) {
+	//	audio_block_t *block = inputQueue[i];
+	//	if  (block != NULL) release(block);
+	//}
 }
 
 /**************************************************************************************/
