@@ -271,6 +271,7 @@ class FS
 {
 public:
 	FS() {}
+	virtual ~FS() {}
 	virtual File open(const char *filename, uint8_t mode = FILE_READ) = 0;
 	virtual bool exists(const char *filepath) = 0;
 	virtual bool mkdir(const char *filepath) = 0;
