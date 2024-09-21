@@ -81,7 +81,6 @@ typedef union {
         uint32_t word1;
         uint32_t word2;
  };
-	uint64_t bothwords;
 } setup_t;
 
 static setup_t endpoint0_setupdata;
@@ -791,7 +790,6 @@ static void endpoint0_receive(void *data, uint32_t len, int notify)
         uint32_t word1;
         uint32_t word2;
  };
-	uint64_t bothwords;
 } setup_t; */
 
 
