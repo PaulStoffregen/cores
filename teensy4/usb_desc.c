@@ -2821,8 +2821,8 @@ const usb_descriptor_list_t usb_descriptor_list[] = {
 	{0x0304, 0x0409, (const uint8_t *)&usb_string_mtp, 0},
 #endif
 #ifdef EXPERIMENTAL_INTERFACE
-	{0x03EE, 0x0000, microsoft_os_string_desc, 18},
-	{0x0000, 0xEE04, microsoft_os_compatible_id_desc, 40},
+	{0x03EE, 0x0000, microsoft_os_string_desc, sizeof(microsoft_os_string_desc)},
+	{0x0000, 0xEE04, microsoft_os_compatible_id_desc, sizeof(microsoft_os_compatible_id_desc)},
 #endif
         {0x0300, 0x0000, (const uint8_t *)&string0, 0},
         {0x0301, 0x0409, (const uint8_t *)&usb_string_manufacturer_name, 0},
