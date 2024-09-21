@@ -102,7 +102,7 @@ void (*usb_timer0_callback)(void) = NULL;
 void (*usb_timer1_callback)(void) = NULL;
 
 void usb_isr(void);
-static void endpoint0_setup(uint64_t setupdata);
+static void endpoint0_setup(setup_t setup);
 static void endpoint0_transmit(const void *data, uint32_t len, int notify);
 static void endpoint0_receive(void *data, uint32_t len, int notify);
 static void endpoint0_complete(void);
@@ -257,7 +257,7 @@ void usb_isr(void)
 			USB1_ENDPTFLUSH = (1<<16) | (1<<0); // page 3174
 			while (USB1_ENDPTFLUSH & ((1<<16) | (1<<0))) ;
 			endpoint0_notify_mask = 0;
-			endpoint0_setup(s.bothwords);
+			endpoint0_setup(s);
 			setupstatus = USB1_ENDPTSETUPSTAT; // page 3175
 		}
 		uint32_t completestatus = USB1_ENDPTCOMPLETE;
@@ -409,13 +409,11 @@ transfer_t endpoint0_transfer_ack  __attribute__ ((aligned(32)));;
 
 static uint8_t reply_buffer[8];
 
-static void endpoint0_setup(uint64_t setupdata)
+static void endpoint0_setup(setup_t setup)
 {
-	setup_t setup;
 	uint32_t endpoint, dir, ctrl;
 	const usb_descriptor_list_t *list;
 
-	setup.bothwords = setupdata;
 	switch (setup.wRequestAndType) {
 	  case 0x0500: // SET_ADDRESS
 		endpoint0_receive(NULL, 0, 0);
@@ -599,7 +597,7 @@ static void endpoint0_setup(uint64_t setupdata)
 		return;
 	  case 0x2021: // CDC_SET_LINE_CODING
 		if (setup.wLength != 7) break;
-		endpoint0_setupdata.bothwords = setupdata;
+		endpoint0_setupdata = setup;
 		endpoint0_receive(endpoint0_buffer, 7, 1);
 		return;
 #endif
@@ -607,7 +605,7 @@ static void endpoint0_setup(uint64_t setupdata)
 	  case 0x0921: // HID SET_REPORT
 		if (setup.wLength <= sizeof(endpoint0_buffer)) {
 			//printf("hid set report %x %x\n", setup.word1, setup.word2);
-			endpoint0_setupdata.bothwords = setup.bothwords;
+			endpoint0_setupdata = setup;
 			endpoint0_buffer[0] = 0xE9;
 			endpoint0_receive(endpoint0_buffer, setup.wLength, 1);
 			return;
@@ -646,7 +644,7 @@ static void endpoint0_setup(uint64_t setupdata)
 	  case 0x0421:
 		//printf("set_feature, word1=%x, len=%d\n", setup.word1, setup.wLength);
 		if (setup.wLength <= sizeof(endpoint0_buffer)) {
-			endpoint0_setupdata.bothwords = setupdata;
+			endpoint0_setupdata = setup;
 			endpoint0_receive(endpoint0_buffer, setup.wLength, 1);
 			return; // handle these after ACK
 		}
@@ -690,7 +688,7 @@ static void endpoint0_setup(uint64_t setupdata)
 #if defined(MTP_INTERFACE)
 	  case 0x6421: // Cancel Request, Still Image Class 1.0, 5.2.1, page 8
 		if (setup.wLength == 6) {
-			endpoint0_setupdata.bothwords = setupdata;
+			endpoint0_setupdata = setup;
 			endpoint0_receive(endpoint0_buffer, setup.wLength, 1);
 			return;
 		}
@@ -801,7 +799,7 @@ static void endpoint0_complete(void)
 {
 	setup_t setup;
 
-	setup.bothwords = endpoint0_setupdata.bothwords;
+	setup = endpoint0_setupdata;
 	//printf("complete %x %x %x\n", setup.word1, setup.word2, endpoint0_buffer[0]);
 #ifdef CDC_STATUS_INTERFACE
 	// 0x2021 is CDC_SET_LINE_CODING
