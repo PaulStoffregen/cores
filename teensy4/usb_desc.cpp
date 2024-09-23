@@ -2755,7 +2755,7 @@ PROGMEM const struct usb_string_descriptor_struct usb_string_mtp = {
 };
 #endif
 
-void usb_init_serialnumber(void)
+extern "C" void usb_init_serialnumber(void)
 {
 	char buf[11];
 	uint32_t i, num;
