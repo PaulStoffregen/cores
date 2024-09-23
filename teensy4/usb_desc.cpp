@@ -2719,9 +2719,9 @@ struct usb_string_descriptor_struct {
 };
 */
 
-extern struct usb_string_descriptor_struct usb_string_manufacturer_name
+extern const struct usb_string_descriptor_struct usb_string_manufacturer_name
         __attribute__ ((weak, alias("usb_string_manufacturer_name_default")));
-extern struct usb_string_descriptor_struct usb_string_product_name
+extern const struct usb_string_descriptor_struct usb_string_product_name
         __attribute__ ((weak, alias("usb_string_product_name_default")));
 extern struct usb_string_descriptor_struct usb_string_serial_number
         __attribute__ ((weak, alias("usb_string_serial_number_default")));
@@ -2732,12 +2732,12 @@ PROGMEM const struct usb_string_descriptor_struct string0 = {
         {0x0409}
 };
 
-PROGMEM const struct usb_string_descriptor_struct usb_string_manufacturer_name_default = {
+extern "C" PROGMEM const struct usb_string_descriptor_struct usb_string_manufacturer_name_default = {
         2 + MANUFACTURER_NAME_LEN * 2,
         3,
         MANUFACTURER_NAME
 };
-PROGMEM const struct usb_string_descriptor_struct usb_string_product_name_default = {
+extern "C" PROGMEM const struct usb_string_descriptor_struct usb_string_product_name_default = {
 	2 + PRODUCT_NAME_LEN * 2,
         3,
         PRODUCT_NAME
