@@ -95,8 +95,8 @@ static uint8_t sof_usage = 0;
 static uint8_t usb_reboot_timer = 0;
 
 extern uint8_t usb_descriptor_buffer[]; // defined in usb_desc.c
-extern const uint8_t usb_config_descriptor_480[];
-extern const uint8_t usb_config_descriptor_12[];
+extern "C" const uint8_t usb_config_descriptor_480[];
+extern "C" const uint8_t usb_config_descriptor_12[];
 
 void (*usb_timer0_callback)(void) = NULL;
 void (*usb_timer1_callback)(void) = NULL;
