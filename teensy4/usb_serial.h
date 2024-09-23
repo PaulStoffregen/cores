@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include "core_pins.h"
 #include "usb_desc.h"
 #include <stdint.h>
 
