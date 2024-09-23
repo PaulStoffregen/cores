@@ -352,7 +352,7 @@ void usb_isr(void)
 		//printf("sof %d\n", usb_reboot_timer);
 		if (usb_reboot_timer) {
 			if (--usb_reboot_timer == 0) {
-				usb_stop_sof_interrupts(NUM_INTERFACE);
+				usb_stop_sof_interrupts(NUM_INTERFACE());
 				_reboot_Teensyduino_();
 			}
 		}
@@ -809,7 +809,7 @@ static void endpoint0_complete(void)
 		memcpy(usb_cdc_line_coding, endpoint0_buffer, 7);
 		printf("usb_cdc_line_coding, baud=%u\n", usb_cdc_line_coding[0]);
 		if (usb_cdc_line_coding[0] == 134) {
-			usb_start_sof_interrupts(NUM_INTERFACE);
+			usb_start_sof_interrupts(NUM_INTERFACE());
 			usb_reboot_timer = 80; // TODO: 10 if only 12 Mbit/sec
 		}
 	}
@@ -819,7 +819,7 @@ static void endpoint0_complete(void)
 		memcpy(usb_cdc2_line_coding, endpoint0_buffer, 7);
 		printf("usb_cdc2_line_coding, baud=%u\n", usb_cdc2_line_coding[0]);
 		if (usb_cdc2_line_coding[0] == 134) {
-			usb_start_sof_interrupts(NUM_INTERFACE);
+			usb_start_sof_interrupts(NUM_INTERFACE());
 			usb_reboot_timer = 80; // TODO: 10 if only 12 Mbit/sec
 		}
 	}
@@ -829,7 +829,7 @@ static void endpoint0_complete(void)
 		memcpy(usb_cdc3_line_coding, endpoint0_buffer, 7);
 		printf("usb_cdc3_line_coding, baud=%u\n", usb_cdc3_line_coding[0]);
 		if (usb_cdc3_line_coding[0] == 134) {
-			usb_start_sof_interrupts(NUM_INTERFACE);
+			usb_start_sof_interrupts(NUM_INTERFACE());
 			usb_reboot_timer = 80; // TODO: 10 if only 12 Mbit/sec
 		}
 	}
@@ -845,7 +845,7 @@ static void endpoint0_complete(void)
 		if (endpoint0_buffer[0] == 0xA9 && endpoint0_buffer[1] == 0x45
 		  && endpoint0_buffer[2] == 0xC2 && endpoint0_buffer[3] == 0x6B) {
 			printf("seremu reboot request\n");
-			usb_start_sof_interrupts(NUM_INTERFACE);
+			usb_start_sof_interrupts(NUM_INTERFACE());
 			usb_reboot_timer = 80; // TODO: 10 if only 12 Mbit/sec
 		} else {
 			// any other feature report means Arduino Serial Monitor is open

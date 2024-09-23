@@ -674,7 +674,7 @@ extern "C" PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
         2,                                      // bDescriptorType;
         LSB(CONFIG_DESC_SIZE),                 // wTotalLength
         MSB(CONFIG_DESC_SIZE),
-        NUM_INTERFACE,                          // bNumInterfaces
+        NUM_INTERFACE(),                        // bNumInterfaces
         1,                                      // bConfigurationValue
         0,                                      // iConfiguration
         0xC0,                                   // bmAttributes
@@ -1688,7 +1688,7 @@ extern "C" PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
         2,                                      // bDescriptorType;
         LSB(CONFIG_DESC_SIZE),                 // wTotalLength
         MSB(CONFIG_DESC_SIZE),
-        NUM_INTERFACE,                          // bNumInterfaces
+        NUM_INTERFACE(),                        // bNumInterfaces
         1,                                      // bConfigurationValue
         0,                                      // iConfiguration
         0xC0,                                   // bmAttributes
