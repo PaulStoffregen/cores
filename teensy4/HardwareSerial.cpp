@@ -244,11 +244,13 @@ void HardwareSerialIMXRT::begin(uint32_t baud, uint16_t format)
 
 inline void HardwareSerialIMXRT::rts_assert()
 {
-	DIRECT_WRITE_LOW(rts_pin_baseReg_, rts_pin_bitmask_);
+	if (rts_pin_invert_) DIRECT_WRITE_HIGH(rts_pin_baseReg_, rts_pin_bitmask_);
+	else DIRECT_WRITE_LOW(rts_pin_baseReg_, rts_pin_bitmask_);
 }
 
 inline void HardwareSerialIMXRT::rts_deassert()
 {
+	if (rts_pin_invert_) DIRECT_WRITE_LOW(rts_pin_baseReg_, rts_pin_bitmask_);
 	DIRECT_WRITE_HIGH(rts_pin_baseReg_, rts_pin_bitmask_);
 }
 
@@ -359,12 +361,13 @@ void HardwareSerialIMXRT::setTX(uint8_t pin, bool opendrain)
 }
 
 
-bool HardwareSerialIMXRT::attachRts(uint8_t pin)
+bool HardwareSerialIMXRT::attachRts(uint8_t pin, bool invert_signal)
 {
 	if (!(hardware->ccm_register & hardware->ccm_value)) return 0;
 	if (pin < CORE_NUM_DIGITAL) {
 		rts_pin_baseReg_ = PIN_TO_BASEREG(pin);
 		rts_pin_bitmask_ = PIN_TO_BITMASK(pin);
+		rts_pin_invert_ = invert_signal;
 		pinMode(pin, OUTPUT);
 		rts_assert();
 	} else {

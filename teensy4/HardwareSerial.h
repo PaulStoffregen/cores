@@ -244,7 +244,8 @@ public:
 	// Configure RTS flow control.  The pin will be LOW when Teensy is able to
 	// receive more data, or HIGH when the serial device should pause transmission.
 	// All digital pins are supported.
-	bool attachRts(uint8_t pin);
+	// The optional invert_signal parameter will invert these signals.
+	bool attachRts(uint8_t pin, bool invert_signal=false);
 	// Configure CTS flow control.  Teensy will transmit when this pin is LOw
 	// and will pause transmission when the pin is HIGH.  Only specific pins are
 	// supported.  See https://www.pjrc.com/teensy/td_uart.html
@@ -332,6 +333,7 @@ private:
 
 	volatile uint32_t 	*rts_pin_baseReg_ = 0;
 	uint32_t 			rts_pin_bitmask_ = 0;
+	bool				rts_pin_invert_ = false;
 
   	inline void rts_assert();
   	inline void rts_deassert();
