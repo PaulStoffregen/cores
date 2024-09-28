@@ -361,13 +361,29 @@ void HardwareSerialIMXRT::setTX(uint8_t pin, bool opendrain)
 }
 
 
-bool HardwareSerialIMXRT::attachRts(uint8_t pin, bool invert_signal)
+bool HardwareSerialIMXRT::attachRts(uint8_t pin)
 {
 	if (!(hardware->ccm_register & hardware->ccm_value)) return 0;
 	if (pin < CORE_NUM_DIGITAL) {
 		rts_pin_baseReg_ = PIN_TO_BASEREG(pin);
 		rts_pin_bitmask_ = PIN_TO_BITMASK(pin);
-		rts_pin_invert_ = invert_signal;
+		rts_pin_invert_ = false;
+		pinMode(pin, OUTPUT);
+		rts_assert();
+	} else {
+		rts_pin_baseReg_ = NULL;
+		return 0;
+	}
+	return 1;
+}
+
+bool HardwareSerialIMXRT::attachRtsInverted(uint8_t pin)
+{
+	if (!(hardware->ccm_register & hardware->ccm_value)) return 0;
+	if (pin < CORE_NUM_DIGITAL) {
+		rts_pin_baseReg_ = PIN_TO_BASEREG(pin);
+		rts_pin_bitmask_ = PIN_TO_BITMASK(pin);
+		rts_pin_invert_ = true;
 		pinMode(pin, OUTPUT);
 		rts_assert();
 	} else {
