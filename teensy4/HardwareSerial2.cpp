@@ -31,6 +31,8 @@
 #include <Arduino.h>
 #include "HardwareSerial.h"
 
+#if defined(SERIAL2_UART_ADDR)
+
 #ifndef SERIAL2_TX_BUFFER_SIZE
 #define SERIAL2_TX_BUFFER_SIZE     40 // number of outgoing bytes to buffer
 #endif
@@ -39,44 +41,6 @@
 #endif
 #define IRQ_PRIORITY  64  // 0 = highest priority, 255 = lowest
 
+CREATE_SERIAL_INSTANCE(2)
 
-void IRQHandler_Serial2()
-{
-	Serial2.IRQHandler();
-}
-
-
-// Serial2
-static BUFTYPE tx_buffer2[SERIAL2_TX_BUFFER_SIZE];
-static BUFTYPE rx_buffer2[SERIAL2_RX_BUFFER_SIZE];
-
-#ifndef ARDUINO_TEENSY_MICROMOD
-static HardwareSerialIMXRT::hardware_t UART4_Hardware = {
-	1, IRQ_LPUART4, &IRQHandler_Serial2, 
-	&serialEvent2,
-	CCM_CCGR1, CCM_CCGR1_LPUART4(CCM_CCGR_ON),
-	{{7,2, &IOMUXC_LPUART4_RX_SELECT_INPUT, 2}, {0xff, 0xff, nullptr, 0}},
-	{{8,2, &IOMUXC_LPUART4_TX_SELECT_INPUT, 2}, {0xff, 0xff, nullptr, 0}},
-	0xff, // No CTS pin
-	0, // No CTS
-	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
-	XBARA1_OUT_LPUART4_TRG_INPUT
-};
-HardwareSerialIMXRT Serial2(IMXRT_LPUART4_ADDRESS, &UART4_Hardware, tx_buffer2,
-	SERIAL2_TX_BUFFER_SIZE, rx_buffer2, SERIAL2_RX_BUFFER_SIZE);
-
-#else  // Teensy Micromod
-static HardwareSerialIMXRT::hardware_t UART3_Hardware = {
-    3, IRQ_LPUART3, &IRQHandler_Serial2, 
-    &serialEvent2,
-    CCM_CCGR0, CCM_CCGR0_LPUART3(CCM_CCGR_ON),
-    {{16,2, &IOMUXC_LPUART3_RX_SELECT_INPUT, 0}, {0xff, 0xff, nullptr, 0}},
-    {{17,2, &IOMUXC_LPUART3_TX_SELECT_INPUT, 0}, {0xff, 0xff, nullptr, 0}},
-    0xff, // No CTS pin
-    0, // No CTS
-    IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
-    XBARA1_OUT_LPUART3_TRG_INPUT
-};
-HardwareSerialIMXRT Serial2(IMXRT_LPUART3_ADDRESS, &UART3_Hardware, tx_buffer2,
-	 SERIAL2_TX_BUFFER_SIZE, rx_buffer2, SERIAL2_RX_BUFFER_SIZE);
-#endif
+#endif // defined(SERIAL2_UART_ADDR)
