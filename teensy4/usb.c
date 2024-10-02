@@ -536,7 +536,7 @@ static void endpoint0_setup(uint64_t setupdata)
 		setup.wIndex |= 0xEE00; // alter wIndex and treat as normal USB descriptor
 		__attribute__((fallthrough));
 #endif
-	  case 0x0680: // GET_DESCRIPTOR
+	  case 0x0680: // GET_DESCRIPTOR (bmRequestType=0x80, bRequest=0x06)
 	  case 0x0681:
 		for (list = usb_descriptor_list; list->addr != NULL; list++) {
 			if (setup.wValue == list->wValue && setup.wIndex == list->wIndex) {
