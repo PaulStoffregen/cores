@@ -30,11 +30,9 @@
 
 #include "usb_dev.h"
 #include "usb_seremu.h"
-#include "core_pins.h" // for yield()
 #include <string.h> // for memcpy()
 #include "avr/pgmspace.h" // for PROGMEM, DMAMEM, FASTRUN
 #include "debug/printf.h"
-#include "core_pins.h"
 
 #if defined(SEREMU_INTERFACE) && !defined(CDC_STATUS_INTERFACE) && !defined(CDC_DATA_INTERFACE)
 

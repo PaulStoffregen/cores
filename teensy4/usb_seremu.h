@@ -31,6 +31,7 @@
 #pragma once
 
 #include "usb_desc.h"
+#include "core_pins.h" // for yield()
 
 #if defined(SEREMU_INTERFACE) && !defined(CDC_STATUS_INTERFACE) && !defined(CDC_DATA_INTERFACE)
 
