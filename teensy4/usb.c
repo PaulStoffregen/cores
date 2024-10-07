@@ -1,6 +1,7 @@
 #include "usb_dev.h"
 #define USB_DESC_LIST_DEFINE
 #include "usb_desc.h"
+#include "core_pins.h" // for delay()
 #include "usb_serial.h"
 #include "usb_seremu.h"
 #include "usb_rawhid.h"
@@ -12,7 +13,6 @@
 #include "usb_midi.h"
 #include "usb_audio.h"
 #include "usb_mtp.h"
-#include "core_pins.h" // for delay()
 #include "avr/pgmspace.h"
 #include <string.h>
 #include "debug/printf.h"
