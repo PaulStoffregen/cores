@@ -280,6 +280,9 @@ public:
 	virtual bool mediaPresent() {
 		return true;
 	}
+	virtual const char * name() {
+		return true;
+	}
 	// for compatibility with String input
 	File open(const String &filepath, uint8_t mode = FILE_READ) {
 		return open(filepath.c_str(), mode);
