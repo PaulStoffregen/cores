@@ -33,6 +33,8 @@
 #include "HardwareSerial.h"
 
 #ifndef SERIAL1_TX_BUFFER_SIZE
+#if defined(SERIAL1_UART_ADDR)
+
 #define SERIAL1_TX_BUFFER_SIZE     64 // number of outgoing bytes to buffer
 #endif
 #ifndef SERIAL1_RX_BUFFER_SIZE
@@ -40,37 +42,9 @@
 #endif
 #define IRQ_PRIORITY  64  // 0 = highest priority, 255 = lowest
 
-void IRQHandler_Serial1()
-{
-	Serial1.IRQHandler();
-}
+CREATE_SERIAL_INSTANCE(1)
 
-
-// Serial1
-static BUFTYPE tx_buffer1[SERIAL1_TX_BUFFER_SIZE];
-static BUFTYPE rx_buffer1[SERIAL1_RX_BUFFER_SIZE];
-
-const HardwareSerialIMXRT::hardware_t UART6_Hardware = {
-	0, IRQ_LPUART6, &IRQHandler_Serial1, 
-	&serialEvent1,
-	CCM_CCGR3, CCM_CCGR3_LPUART6(CCM_CCGR_ON),
-	#if defined(ARDUINO_TEENSY41)
-	{{0,2, &IOMUXC_LPUART6_RX_SELECT_INPUT, 1}, {52, 2, &IOMUXC_LPUART6_RX_SELECT_INPUT, 0}},
-	{{1,2, &IOMUXC_LPUART6_TX_SELECT_INPUT, 1}, {53, 2, &IOMUXC_LPUART6_TX_SELECT_INPUT, 0}},
-	#else
-	{{0,2, &IOMUXC_LPUART6_RX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
-	{{1,2, &IOMUXC_LPUART6_TX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
-	#endif
-	0xff, // No CTS pin
-	0, // No CTS
-	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
-	XBARA1_OUT_LPUART6_TRG_INPUT	// XBar Tigger 
-};
-HardwareSerialIMXRT Serial1(IMXRT_LPUART6_ADDRESS, &UART6_Hardware, tx_buffer1,
-	SERIAL1_TX_BUFFER_SIZE, rx_buffer1, SERIAL1_RX_BUFFER_SIZE);
-
-//void serialEvent1() __attribute__((weak));
-//void serialEvent1() {Serial1.disableSerialEvents(); }		// No use calling this so disable if called...
+#endif // defined(SERIAL1_UART_ADDR)
 
 // C wrapper functions to help take care of places that used to call these from standard C
 void serial_print(const char *p)

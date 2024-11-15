@@ -31,6 +31,8 @@
 #include <Arduino.h>
 #include "HardwareSerial.h"
 
+#if defined(SERIAL5_UART_ADDR)
+
 #ifndef SERIAL5_TX_BUFFER_SIZE
 #define SERIAL5_TX_BUFFER_SIZE     40 // number of outgoing bytes to buffer
 #endif
@@ -39,37 +41,6 @@
 #endif
 #define IRQ_PRIORITY  64  // 0 = highest priority, 255 = lowest
 
+CREATE_SERIAL_INSTANCE(5)
 
-void IRQHandler_Serial5()
-{
-	Serial5.IRQHandler();
-}
-// Serial5
-static BUFTYPE tx_buffer5[SERIAL5_TX_BUFFER_SIZE];
-static BUFTYPE rx_buffer5[SERIAL5_RX_BUFFER_SIZE];
-
-static HardwareSerialIMXRT::hardware_t UART8_Hardware = {
-	4, IRQ_LPUART8, &IRQHandler_Serial5, 
-	&serialEvent5,
-	CCM_CCGR6, CCM_CCGR6_LPUART8(CCM_CCGR_ON),
-	#if defined(ARDUINO_TEENSY41)
-	{{21,2, &IOMUXC_LPUART8_RX_SELECT_INPUT, 1}, {46, 2, &IOMUXC_LPUART8_RX_SELECT_INPUT, 0}},
-	{{20,2, &IOMUXC_LPUART8_TX_SELECT_INPUT, 1}, {47, 2, &IOMUXC_LPUART8_TX_SELECT_INPUT, 0}},
-	43, //  CTS pin
-	2, //  CTS
-	#elif defined(ARDUINO_TEENSY40)
-	{{21,2, &IOMUXC_LPUART8_RX_SELECT_INPUT, 1}, {38, 2, &IOMUXC_LPUART8_RX_SELECT_INPUT, 0}},
-	{{20,2, &IOMUXC_LPUART8_TX_SELECT_INPUT, 1}, {39, 2, &IOMUXC_LPUART8_TX_SELECT_INPUT, 0}},
-	35, //  CTS pin
-	2, //  CTS
-	#else // ARDUINO_TEENSY_MICROMOD
-	{{21,2, &IOMUXC_LPUART8_RX_SELECT_INPUT, 1}, {39, 2, &IOMUXC_LPUART8_RX_SELECT_INPUT, 0}},
-	{{20,2, &IOMUXC_LPUART8_TX_SELECT_INPUT, 1}, {38, 2, &IOMUXC_LPUART8_TX_SELECT_INPUT, 0}},
-	35, //  CTS pin
-	2, //  CTS
-	#endif
-	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
-	XBARA1_OUT_LPUART8_TRG_INPUT
-};
-HardwareSerialIMXRT Serial5(IMXRT_LPUART8_ADDRESS, &UART8_Hardware, tx_buffer5,
-	SERIAL5_TX_BUFFER_SIZE, rx_buffer5, SERIAL5_RX_BUFFER_SIZE);
+#endif // defined(SERIAL5_UART_ADDR)

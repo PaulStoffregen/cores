@@ -66,11 +66,7 @@ extern "C" {
     extern void xbar_connect(unsigned int input, unsigned int output);
 }
 
-#if defined(ARDUINO_TEENSY41)   
-HardwareSerialIMXRT *HardwareSerialIMXRT::s_serials_with_serial_events[8];
-#else
-HardwareSerialIMXRT *HardwareSerialIMXRT::s_serials_with_serial_events[7];
-#endif
+HardwareSerialIMXRT *HardwareSerialIMXRT::s_serials_with_serial_events[CORE_NUM_SERIAL_INSTANCES];
 
 // define our static objects
 uint8_t	HardwareSerialIMXRT::s_count_serials_with_serial_events = 0;
@@ -717,45 +713,7 @@ void HardwareSerialIMXRT::addToSerialEventsList() {
 }
 
 
-const pin_to_xbar_info_t PROGMEM pin_to_xbar_info[] = {
-	{0,  17, 1, &IOMUXC_XBAR1_IN17_SELECT_INPUT, 0x1},
-	{1,  16, 1, nullptr, 0},
-	{2,   6, 3, &IOMUXC_XBAR1_IN06_SELECT_INPUT, 0x0},
-	{3,   7, 3, &IOMUXC_XBAR1_IN07_SELECT_INPUT, 0x0},
-	{4,   8, 3, &IOMUXC_XBAR1_IN08_SELECT_INPUT, 0x0},
-	{5,  17, 3, &IOMUXC_XBAR1_IN17_SELECT_INPUT, 0x0},
-	{7,  15, 1, &IOMUXC_XBAR1_IN15_SELECT_INPUT, 0x1},
-	{8,  14, 1, &IOMUXC_XBAR1_IN14_SELECT_INPUT, 0x1},
-	{30, 23, 1, &IOMUXC_XBAR1_IN23_SELECT_INPUT, 0x0},
-	{31, 22, 1, &IOMUXC_XBAR1_IN22_SELECT_INPUT, 0x0},
-	{32, 10, 1, nullptr, 0},
-	{33,  9, 3, &IOMUXC_XBAR1_IN09_SELECT_INPUT, 0x0},
-
-#ifdef ARDUINO_TEENSY41
-	{36, 16, 1, &IOMUXC_XBAR1_IN16_SELECT_INPUT, 0x1},
-	{37, 17, 1, &IOMUXC_XBAR1_IN17_SELECT_INPUT, 0x3},
-	{42,  7, 3, &IOMUXC_XBAR1_IN07_SELECT_INPUT, 0x1},
-	{43,  6, 3, &IOMUXC_XBAR1_IN06_SELECT_INPUT, 0x1},
-	{44,  5, 3, &IOMUXC_XBAR1_IN05_SELECT_INPUT, 0x1},
-	{45,  4, 3, &IOMUXC_XBAR1_IN04_SELECT_INPUT, 0x1},
-	{46,  9, 3, &IOMUXC_XBAR1_IN09_SELECT_INPUT, 0x1},
-	{47,  8, 3, &IOMUXC_XBAR1_IN08_SELECT_INPUT, 0x1}
-#elif defined(ARDUINO_TEENSY_MICROMOD)
-	{34,  7, 3, &IOMUXC_XBAR1_IN07_SELECT_INPUT, 0x1},
-	{35,  6, 3, &IOMUXC_XBAR1_IN06_SELECT_INPUT, 0x1},
-	{36,  5, 3, &IOMUXC_XBAR1_IN05_SELECT_INPUT, 0x1},
-	{37,  4, 3, &IOMUXC_XBAR1_IN04_SELECT_INPUT, 0x1},
-	{38,  8, 3, &IOMUXC_XBAR1_IN08_SELECT_INPUT, 0x1},
-	{39,  9, 3, &IOMUXC_XBAR1_IN09_SELECT_INPUT, 0x1}
-#else	
-	{34,  7, 3, &IOMUXC_XBAR1_IN07_SELECT_INPUT, 0x1},
-	{35,  6, 3, &IOMUXC_XBAR1_IN06_SELECT_INPUT, 0x1},
-	{36,  5, 3, &IOMUXC_XBAR1_IN05_SELECT_INPUT, 0x1},
-	{37,  4, 3, &IOMUXC_XBAR1_IN04_SELECT_INPUT, 0x1},
-	{38,  9, 3, &IOMUXC_XBAR1_IN09_SELECT_INPUT, 0x1},
-	{39,  8, 3, &IOMUXC_XBAR1_IN08_SELECT_INPUT, 0x1}
-#endif
-};
+const pin_to_xbar_info_t PROGMEM pin_to_xbar_info[] = PINS_TO_XBAR_INFO
 
 const uint8_t PROGMEM count_pin_to_xbar_info = sizeof(pin_to_xbar_info)/sizeof(pin_to_xbar_info[0]);
 

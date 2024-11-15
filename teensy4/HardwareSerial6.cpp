@@ -31,6 +31,8 @@
 #include <Arduino.h>
 #include "HardwareSerial.h"
 
+#if defined(SERIAL6_UART_ADDR)
+
 #ifndef SERIAL6_TX_BUFFER_SIZE
 #define SERIAL6_TX_BUFFER_SIZE     40 // number of outgoing bytes to buffer
 #endif
@@ -39,27 +41,6 @@
 #endif
 #define IRQ_PRIORITY  64  // 0 = highest priority, 255 = lowest
 
-void IRQHandler_Serial6()
-{
-	Serial6.IRQHandler();
-}
+CREATE_SERIAL_INSTANCE(6)
 
-
-// Serial6
-static BUFTYPE tx_buffer6[SERIAL6_TX_BUFFER_SIZE];
-static BUFTYPE rx_buffer6[SERIAL6_RX_BUFFER_SIZE];
-
-static HardwareSerialIMXRT::hardware_t UART1_Hardware = {
-	5, IRQ_LPUART1, &IRQHandler_Serial6, 
-	&serialEvent6,
-	CCM_CCGR5, CCM_CCGR5_LPUART1(CCM_CCGR_ON),
-	{{25,2, nullptr, 0}, {0xff, 0xff, nullptr, 0}},
-	{{24,2, nullptr, 0}, {0xff, 0xff, nullptr, 0}},
-	0xff, // No CTS pin
-	0, // No CTS
-	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
-	XBARA1_OUT_LPUART1_TRG_INPUT
-};
-
-HardwareSerialIMXRT Serial6(IMXRT_LPUART1_ADDRESS, &UART1_Hardware, tx_buffer6,
-	SERIAL6_TX_BUFFER_SIZE, rx_buffer6, SERIAL6_RX_BUFFER_SIZE);
+#endif // defined(SERIAL6_UART_ADDR)
