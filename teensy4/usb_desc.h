@@ -37,6 +37,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include "AudioRate.h"
 
 #define ENDPOINT_TRANSMIT_UNUSED	0x00020000
 #define ENDPOINT_TRANSMIT_ISOCHRONOUS	0x00C40000
@@ -762,9 +763,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define SEREMU_RX_INTERVAL    2
   #define AUDIO_INTERFACE	1	// Audio (uses 3 consecutive interfaces)
   #define AUDIO_TX_ENDPOINT     3
-  #define AUDIO_TX_SIZE         180
   #define AUDIO_RX_ENDPOINT     3
-  #define AUDIO_RX_SIZE         180
   #define AUDIO_SYNC_ENDPOINT	4
   #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_INTERRUPT + ENDPOINT_TRANSMIT_INTERRUPT
   #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_ISOCHRONOUS + ENDPOINT_TRANSMIT_ISOCHRONOUS
@@ -801,9 +800,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define MIDI_RX_SIZE_480      512
   #define AUDIO_INTERFACE	3	// Audio (uses 3 consecutive interfaces)
   #define AUDIO_TX_ENDPOINT     5
-  #define AUDIO_TX_SIZE         180
   #define AUDIO_RX_ENDPOINT     5
-  #define AUDIO_RX_SIZE         180
   #define AUDIO_SYNC_ENDPOINT	6
   #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
   #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
@@ -843,9 +840,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define MIDI_RX_SIZE_480      512
   #define AUDIO_INTERFACE	3	// Audio (uses 3 consecutive interfaces)
   #define AUDIO_TX_ENDPOINT     5
-  #define AUDIO_TX_SIZE         180
   #define AUDIO_RX_ENDPOINT     5
-  #define AUDIO_RX_SIZE         180
   #define AUDIO_SYNC_ENDPOINT	6
   #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
   #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
@@ -925,9 +920,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define KEYMEDIA_INTERVAL     4
   #define AUDIO_INTERFACE	9	// Audio (uses 3 consecutive interfaces)
   #define AUDIO_TX_ENDPOINT     13
-  #define AUDIO_TX_SIZE         180
   #define AUDIO_RX_ENDPOINT     13
-  #define AUDIO_RX_SIZE         180
   #define AUDIO_SYNC_ENDPOINT	14
   #define MULTITOUCH_INTERFACE  12	// Touchscreen
   #define MULTITOUCH_ENDPOINT   15
