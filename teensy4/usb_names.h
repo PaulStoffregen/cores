@@ -46,8 +46,8 @@ struct usb_string_descriptor_struct {
 	uint16_t wString[];
 };
 
-extern struct usb_string_descriptor_struct usb_string_manufacturer_name;
-extern struct usb_string_descriptor_struct usb_string_product_name;
+extern const struct usb_string_descriptor_struct usb_string_manufacturer_name;
+extern const struct usb_string_descriptor_struct usb_string_product_name;
 extern struct usb_string_descriptor_struct usb_string_serial_number;
 
 #ifdef __cplusplus
