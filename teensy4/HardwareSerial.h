@@ -212,16 +212,16 @@ public:
 	void end(void);
 	// Returns the number of bytes which have been received and
 	// can be fetched with read() or readBytes().
-	virtual int available(void);
+	int available(void) override;
 	// Returns the next received byte, but does not remove it from the receive
 	// buffer.  Returns -1 if nothing has been received.
-	virtual int peek(void);
+	int peek(void) override;
 	// Wait for all data written by print() or write() to actually transmit.
-	virtual void flush(void);
+	void flush(void) override;
 	// Transmit a single byte
-	virtual size_t write(uint8_t c);
+	size_t write(uint8_t c) override;
 	// Reads the next received byte, or returns -1 if nothing has been received.
-	virtual int read(void);
+	int read(void) override;
 	// Configures a digital pin to be HIGH while transmitting.  Typically this
 	// pin is used to control the DE and RE' pins of an 8 pin RS485 transceiver
 	// chip, which transmits when DE is high and receives when RE' is low.
@@ -250,7 +250,7 @@ public:
 	// without waiting.  Typically programs which must maintain rapid checking
 	// and response to sensors use availableForWrite() to decide whether to
 	// transmit.
-	virtual int availableForWrite(void);
+	int availableForWrite(void) override;
 	// Increase the amount of buffer memory between reception of bytes by the
 	// serial hardware and the available() and read() functions. This is useful
 	// when your program must spend lengthy times performing other work, like
