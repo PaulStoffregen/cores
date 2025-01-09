@@ -5,7 +5,7 @@
 
 class CrashReportClass: public Printable {
 public:
-	virtual size_t printTo(Print& p) const;
+	size_t printTo(Print& p) const override ;
 	static void clear();
 	operator bool();
 	static void breadcrumb(unsigned int num, unsigned int value) {
