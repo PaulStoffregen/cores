@@ -2778,6 +2778,8 @@ void usb_init_serialnumber(void)
 // **************************************************************
 
 // This table provides access to all the descriptor data above.
+#define HID_HID    0x2100
+#define HID_REPORT 0x2200
 
 const usb_descriptor_list_t usb_descriptor_list[] = {
 	//wValue, wIndex, address,          length
@@ -2786,36 +2788,36 @@ const usb_descriptor_list_t usb_descriptor_list[] = {
 	{0x0200, 0x0000, usb_config_descriptor_480, CONFIG_DESC_SIZE},
 	{0x0700, 0x0000, usb_config_descriptor_12, CONFIG_DESC_SIZE},
 #ifdef SEREMU_INTERFACE
-	{0x2200, SEREMU_INTERFACE, seremu_report_desc, sizeof(seremu_report_desc)},
-	{0x2100, SEREMU_INTERFACE, usb_config_descriptor_480+SEREMU_HID_DESC_OFFSET, 9},
+	{HID_REPORT, SEREMU_INTERFACE, seremu_report_desc, sizeof(seremu_report_desc)},
+	{HID_HID,    SEREMU_INTERFACE, usb_config_descriptor_480+SEREMU_HID_DESC_OFFSET, 9},
 #endif
 #ifdef KEYBOARD_INTERFACE
-        {0x2200, KEYBOARD_INTERFACE, keyboard_report_desc, sizeof(keyboard_report_desc)},
-        {0x2100, KEYBOARD_INTERFACE, usb_config_descriptor_480+KEYBOARD_HID_DESC_OFFSET, 9},
+        {HID_REPORT, KEYBOARD_INTERFACE, keyboard_report_desc, sizeof(keyboard_report_desc)},
+        {HID_HID,    KEYBOARD_INTERFACE, usb_config_descriptor_480+KEYBOARD_HID_DESC_OFFSET, 9},
 #endif
 #ifdef MOUSE_INTERFACE
-        {0x2200, MOUSE_INTERFACE, mouse_report_desc, sizeof(mouse_report_desc)},
-        {0x2100, MOUSE_INTERFACE, usb_config_descriptor_480+MOUSE_HID_DESC_OFFSET, 9},
+        {HID_REPORT, MOUSE_INTERFACE, mouse_report_desc, sizeof(mouse_report_desc)},
+        {HID_HID,    MOUSE_INTERFACE, usb_config_descriptor_480+MOUSE_HID_DESC_OFFSET, 9},
 #endif
 #ifdef JOYSTICK_INTERFACE
-        {0x2200, JOYSTICK_INTERFACE, joystick_report_desc, sizeof(joystick_report_desc)},
-        {0x2100, JOYSTICK_INTERFACE, usb_config_descriptor_480+JOYSTICK_HID_DESC_OFFSET, 9},
+        {HID_REPORT, JOYSTICK_INTERFACE, joystick_report_desc, sizeof(joystick_report_desc)},
+        {HID_HID,    JOYSTICK_INTERFACE, usb_config_descriptor_480+JOYSTICK_HID_DESC_OFFSET, 9},
 #endif
 #ifdef RAWHID_INTERFACE
-	{0x2200, RAWHID_INTERFACE, rawhid_report_desc, sizeof(rawhid_report_desc)},
-	{0x2100, RAWHID_INTERFACE, usb_config_descriptor_480+RAWHID_HID_DESC_OFFSET, 9},
+	{HID_REPORT, RAWHID_INTERFACE, rawhid_report_desc, sizeof(rawhid_report_desc)},
+	{HID_HID,    RAWHID_INTERFACE, usb_config_descriptor_480+RAWHID_HID_DESC_OFFSET, 9},
 #endif
 #ifdef FLIGHTSIM_INTERFACE
-	{0x2200, FLIGHTSIM_INTERFACE, flightsim_report_desc, sizeof(flightsim_report_desc)},
-	{0x2100, FLIGHTSIM_INTERFACE, usb_config_descriptor_480+FLIGHTSIM_HID_DESC_OFFSET, 9},
+	{HID_REPORT, FLIGHTSIM_INTERFACE, flightsim_report_desc, sizeof(flightsim_report_desc)},
+	{HID_HID,    FLIGHTSIM_INTERFACE, usb_config_descriptor_480+FLIGHTSIM_HID_DESC_OFFSET, 9},
 #endif
 #ifdef KEYMEDIA_INTERFACE
-        {0x2200, KEYMEDIA_INTERFACE, keymedia_report_desc, sizeof(keymedia_report_desc)},
-        {0x2100, KEYMEDIA_INTERFACE, usb_config_descriptor_480+KEYMEDIA_HID_DESC_OFFSET, 9},
+        {HID_REPORT, KEYMEDIA_INTERFACE, keymedia_report_desc, sizeof(keymedia_report_desc)},
+        {HID_HID,    KEYMEDIA_INTERFACE, usb_config_descriptor_480+KEYMEDIA_HID_DESC_OFFSET, 9},
 #endif
 #ifdef MULTITOUCH_INTERFACE
-        {0x2200, MULTITOUCH_INTERFACE, multitouch_report_desc, sizeof(multitouch_report_desc)},
-        {0x2100, MULTITOUCH_INTERFACE, usb_config_descriptor_480+MULTITOUCH_HID_DESC_OFFSET, 9},
+        {HID_REPORT, MULTITOUCH_INTERFACE, multitouch_report_desc, sizeof(multitouch_report_desc)},
+        {HID_HID,    MULTITOUCH_INTERFACE, usb_config_descriptor_480+MULTITOUCH_HID_DESC_OFFSET, 9},
 #endif
 #ifdef MTP_INTERFACE
 	{0x0304, 0x0409, (const uint8_t *)&usb_string_mtp, 0},
