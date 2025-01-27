@@ -668,7 +668,7 @@ static uint8_t microsoft_os_compatible_id_desc[] = {
 // USB Configuration Descriptor.  This huge descriptor tells all
 // of the devices capabilities.
 
-PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
+extern "C" PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
         // configuration descriptor, USB spec 9.6.3, page 264-266, Table 9-10
         9,                                      // bLength;
         2,                                      // bDescriptorType;
@@ -1682,7 +1682,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 };
 
 
-PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
+extern "C" PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
         // configuration descriptor, USB spec 9.6.3, page 264-266, Table 9-10
         9,                                      // bLength;
         2,                                      // bDescriptorType;
@@ -2719,9 +2719,9 @@ struct usb_string_descriptor_struct {
 };
 */
 
-extern struct usb_string_descriptor_struct usb_string_manufacturer_name
+extern const struct usb_string_descriptor_struct usb_string_manufacturer_name
         __attribute__ ((weak, alias("usb_string_manufacturer_name_default")));
-extern struct usb_string_descriptor_struct usb_string_product_name
+extern const struct usb_string_descriptor_struct usb_string_product_name
         __attribute__ ((weak, alias("usb_string_product_name_default")));
 extern struct usb_string_descriptor_struct usb_string_serial_number
         __attribute__ ((weak, alias("usb_string_serial_number_default")));
@@ -2732,12 +2732,12 @@ PROGMEM const struct usb_string_descriptor_struct string0 = {
         {0x0409}
 };
 
-PROGMEM const struct usb_string_descriptor_struct usb_string_manufacturer_name_default = {
+extern "C" PROGMEM const struct usb_string_descriptor_struct usb_string_manufacturer_name_default = {
         2 + MANUFACTURER_NAME_LEN * 2,
         3,
         MANUFACTURER_NAME
 };
-PROGMEM const struct usb_string_descriptor_struct usb_string_product_name_default = {
+extern "C" PROGMEM const struct usb_string_descriptor_struct usb_string_product_name_default = {
 	2 + PRODUCT_NAME_LEN * 2,
         3,
         PRODUCT_NAME
@@ -2755,7 +2755,7 @@ PROGMEM const struct usb_string_descriptor_struct usb_string_mtp = {
 };
 #endif
 
-void usb_init_serialnumber(void)
+extern "C" void usb_init_serialnumber(void)
 {
 	char buf[11];
 	uint32_t i, num;
