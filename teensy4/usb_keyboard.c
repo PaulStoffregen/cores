@@ -83,7 +83,6 @@ static void usb_keymedia_press_consumer_key(uint16_t key);
 static void usb_keymedia_release_consumer_key(uint16_t key);
 static void usb_keymedia_press_system_key(uint8_t key);
 static void usb_keymedia_release_system_key(uint8_t key);
-static int usb_keymedia_send(void);
 #endif
 
 
@@ -653,7 +652,7 @@ void usb_keymedia_release_all(void)
 }
 
 // send the contents of keyboard_keys and keyboard_modifier_keys
-static int usb_keymedia_send(void)
+int usb_keymedia_send(void)
 {
 	uint8_t buffer[8];
 	const uint16_t *consumer = keymedia_consumer_keys;
