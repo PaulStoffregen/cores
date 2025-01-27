@@ -63,8 +63,7 @@ To modify a USB Type, delete the XYZ_INTERFACE lines for any
 interfaces you wish to remove, and copy them from another USB Type
 for any you want to add.
 
-Give each interface a unique number, and edit NUM_INTERFACE to
-reflect the total number of interfaces.
+Give each interface a unique number.
 
 Next, assign unique endpoint numbers to all the endpoints across
 all the interfaces your device has.  You can reuse an endpoint
@@ -121,7 +120,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS		4
   #define NUM_USB_BUFFERS	12
-  #define NUM_INTERFACE		3
   #define CDC_IAD_DESCRIPTOR    1       // Serial
   #define CDC_STATUS_INTERFACE	0
   #define CDC_DATA_INTERFACE	1
@@ -147,7 +145,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME_LEN      11
   #define EP0_SIZE              64
   #define NUM_ENDPOINTS         5
-  #define NUM_INTERFACE         4
   #define CDC_IAD_DESCRIPTOR    1       // Serial
   #define CDC_STATUS_INTERFACE  0
   #define CDC_DATA_INTERFACE    1
@@ -178,7 +175,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME_LEN      13
   #define EP0_SIZE              64
   #define NUM_ENDPOINTS         7
-  #define NUM_INTERFACE         6
   #define CDC_IAD_DESCRIPTOR    1       // Serial
   #define CDC_STATUS_INTERFACE  0
   #define CDC_DATA_INTERFACE    1
@@ -217,7 +213,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         4
   #define NUM_USB_BUFFERS	14
-  #define NUM_INTERFACE		3
   #define SEREMU_INTERFACE      1	// Serial emulation
   #define SEREMU_TX_ENDPOINT    2
   #define SEREMU_TX_SIZE        64
@@ -247,7 +242,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         6
   #define NUM_USB_BUFFERS	24
-  #define NUM_INTERFACE		5
   #define SEREMU_INTERFACE      2	// Serial emulation
   #define SEREMU_TX_ENDPOINT    2
   #define SEREMU_TX_SIZE        64
@@ -289,7 +283,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME_LEN	30
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS		7
-  #define NUM_INTERFACE		6
   #define CDC_IAD_DESCRIPTOR	1
   #define CDC_STATUS_INTERFACE	0
   #define CDC_DATA_INTERFACE	1	// Serial
@@ -333,7 +326,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME_LEN	20
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         5
-  #define NUM_INTERFACE		4
   #define SEREMU_INTERFACE      1	// Serial emulation
   #define SEREMU_TX_ENDPOINT    2
   #define SEREMU_TX_SIZE        64
@@ -367,7 +359,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME_LEN	26
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         6
-  #define NUM_INTERFACE		5
   #define SEREMU_INTERFACE      2	// Serial emulation
   #define SEREMU_TX_ENDPOINT    2
   #define SEREMU_TX_SIZE        64
@@ -406,7 +397,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME_LEN	11
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         4
-  #define NUM_INTERFACE		2
   #define SEREMU_INTERFACE      1	// Serial emulation
   #define SEREMU_TX_ENDPOINT    2
   #define SEREMU_TX_SIZE        64
@@ -435,7 +425,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME_LEN	13
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         3
-  #define NUM_INTERFACE		2
   #define SEREMU_INTERFACE      1	// Serial emulation
   #define SEREMU_TX_ENDPOINT    2
   #define SEREMU_TX_SIZE        64
@@ -464,7 +453,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME_LEN	14
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         3
-  #define NUM_INTERFACE		2
   #define SEREMU_INTERFACE      1	// Serial emulation
   #define SEREMU_TX_ENDPOINT    2
   #define SEREMU_TX_SIZE        64
@@ -492,7 +480,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME_LEN	11
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         4
-  #define NUM_INTERFACE		3
   #define CDC_IAD_DESCRIPTOR	1
   #define CDC_STATUS_INTERFACE	0
   #define CDC_DATA_INTERFACE	1	// Serial
@@ -526,7 +513,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME_LEN	13
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         4
-  #define NUM_INTERFACE		3
   #define CDC_IAD_DESCRIPTOR	1
   #define CDC_STATUS_INTERFACE	0
   #define CDC_DATA_INTERFACE	1	// Serial
@@ -560,7 +546,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME_LEN	14
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         4
-  #define NUM_INTERFACE		3
   #define CDC_IAD_DESCRIPTOR	1
   #define CDC_STATUS_INTERFACE	0
   #define CDC_DATA_INTERFACE	1	// Serial
@@ -595,7 +580,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME_LEN	18
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         4
-  #define NUM_INTERFACE		2
   #define RAWHID_INTERFACE      0	// RawHID
   #define RAWHID_TX_ENDPOINT    3
   #define RAWHID_TX_SIZE        64
@@ -623,7 +607,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME_LEN	26
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         3
-  #define NUM_INTERFACE		2
   #define FLIGHTSIM_INTERFACE	0	// Flight Sim Control
   #define FLIGHTSIM_TX_ENDPOINT	3
   #define FLIGHTSIM_TX_SIZE	64
@@ -651,7 +634,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME_LEN	26
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         4
-  #define NUM_INTERFACE		3
   #define FLIGHTSIM_INTERFACE	0	// Flight Sim Control
   #define FLIGHTSIM_TX_ENDPOINT	3
   #define FLIGHTSIM_TX_SIZE	64
@@ -683,7 +665,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME_LEN	15
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         4
-  #define NUM_INTERFACE		2
   #define MTP_INTERFACE		1	// MTP Disk
   #define MTP_TX_ENDPOINT	3
   #define MTP_TX_SIZE_12	64
@@ -715,7 +696,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME_LEN	15
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         5
-  #define NUM_INTERFACE		3
   #define CDC_IAD_DESCRIPTOR	1
   #define CDC_STATUS_INTERFACE	0
   #define CDC_DATA_INTERFACE	1	// Serial
@@ -752,7 +732,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME_LEN	12
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         4
-  #define NUM_INTERFACE		4
   #define SEREMU_INTERFACE      0	// Serial emulation
   #define SEREMU_TX_ENDPOINT    2
   #define SEREMU_TX_SIZE        64
@@ -779,7 +758,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME_LEN	17
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         6
-  #define NUM_INTERFACE		6
   #define CDC_IAD_DESCRIPTOR	1
   #define CDC_STATUS_INTERFACE	0
   #define CDC_DATA_INTERFACE	1	// Serial
@@ -821,7 +799,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME_LEN	20
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         8
-  #define NUM_INTERFACE		6
   #define CDC_IAD_DESCRIPTOR	1
   #define CDC_STATUS_INTERFACE	0
   #define CDC_DATA_INTERFACE	1	// Serial
@@ -867,7 +844,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME_LEN	14
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS         15
-  #define NUM_INTERFACE		13
   #define CDC_IAD_DESCRIPTOR	1
   #define CDC_STATUS_INTERFACE	0
   #define CDC_DATA_INTERFACE	1	// Serial
@@ -967,3 +943,52 @@ extern const usb_descriptor_list_t usb_descriptor_list[];
 #endif // NUM_ENDPOINTS
 #endif // USB_DESC_LIST_DEFINE
 
+constexpr uint8_t NUM_INTERFACE() {
+    uint8_t interfaceCount = 0;
+#ifdef CDC_DATA_INTERFACE
+    interfaceCount += 2;
+#endif
+#ifdef CDC2_DATA_INTERFACE
+    interfaceCount += 2;
+#endif
+#ifdef CDC3_DATA_INTERFACE
+    interfaceCount += 2;
+#endif
+#ifdef MIDI_INTERFACE
+    interfaceCount += 1;
+#endif
+#ifdef KEYBOARD_INTERFACE
+    interfaceCount += 1;
+#endif
+#ifdef MOUSE_INTERFACE
+    interfaceCount += 1;
+#endif
+#ifdef RAWHID_INTERFACE
+    interfaceCount += 1;
+#endif
+#ifdef FLIGHTSIM_INTERFACE
+    interfaceCount += 1;
+#endif
+#ifdef SEREMU_INTERFACE
+    interfaceCount += 1;
+#endif
+#ifdef JOYSTICK_INTERFACE
+    interfaceCount += 1;
+#endif
+#ifdef MTP_INTERFACE
+    interfaceCount += 1;
+#endif
+#ifdef KEYMEDIA_INTERFACE
+    interfaceCount += 1;
+#endif
+#ifdef AUDIO_INTERFACE
+    interfaceCount += 3;
+#endif
+#ifdef MULTITOUCH_INTERFACE
+    interfaceCount += 1;
+#endif
+#ifdef EXPERIMENTAL_INTERFACE
+    interfaceCount += 1;
+#endif
+    return interfaceCount;
+}
