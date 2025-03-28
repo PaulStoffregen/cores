@@ -4,6 +4,8 @@
 #include "../usb_hid/usb_private.h"
 #elif defined(USB_SERIAL_HID)
 #include "../usb_serial_hid/usb_private.h"
+#elif defined(USB_MIX_AND_MATCH)
+#include "../usb_mix_and_match/usb_private.h"
 #elif defined(USB_DISK) || defined(USB_DISK_SDFLASH)
 #include "../usb_disk/usb_private.h"
 #elif defined(USB_MIDI)
