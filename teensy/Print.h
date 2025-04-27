@@ -101,6 +101,8 @@ class Print
 	void clearWriteError() { setWriteError(0); }
 	int printf(const char *format, ...);
 	int printf(const __FlashStringHelper *format, ...);
+	int vprintf(const char *format, va_list ap);
+	int vprintf(const __FlashStringHelper *format, va_list ap);
   protected:
 	void setWriteError(int err = 1) { write_error = err; }
   private:

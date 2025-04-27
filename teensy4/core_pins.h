@@ -2029,7 +2029,7 @@ static inline void digitalWriteFast(uint8_t pin, uint8_t val)
 #endif
 			}
 		}
-	} else {
+	} else if (pin < CORE_NUM_DIGITAL) {
 		if(val) *portSetRegister(pin) = digitalPinToBitMask(pin);
 		else *portClearRegister(pin) = digitalPinToBitMask(pin);
 	}
@@ -2164,8 +2164,10 @@ static inline uint8_t digitalReadFast(uint8_t pin)
 		} else {
 			return 0;
 		}
-	} else {
+	} else if (pin < CORE_NUM_DIGITAL) {
 		return (*portInputRegister(pin) & digitalPinToBitMask(pin)) ? 1 : 0;
+	} else {
+		return 0;
 	}
 }
 
@@ -2296,15 +2298,15 @@ static inline void digitalToggleFast(uint8_t pin)
 			CORE_PIN54_PORTTOGGLE = CORE_PIN54_BITMASK;
 #endif
 		}
-	} else {
-		digitalToggle(pin);
+	} else if (pin < CORE_NUM_DIGITAL) {
+		*portToggleRegister(pin) = digitalPinToBitMask(pin);
 	}
 }
 
-// Configure a digital pin.  The mode can be
-// INPUT, INPUT_PULLUP, INPUT_PULLDOWN, OUTPUT_OPENDRAIN or
-// INPUT_DISABLE.  Use INPUT_DISABLE to minimize power
-// consumption for unused pins and pins with analog voltages.
+// Configure a digital pin.  The mode can be INPUT, INPUT_PULLUP,
+// INPUT_PULLDOWN, OUTPUT, OUTPUT_OPENDRAIN or INPUT_DISABLE. Use
+// INPUT_DISABLE to minimize power consumption for unused pins
+// and pins with analog voltages.
 void pinMode(uint8_t pin, uint8_t mode);
 void init_pins(void);
 // Causes a PWM capable pin to output a pulsing waveform with specific
@@ -2414,11 +2416,11 @@ void _restart_Teensyduino_(void) __attribute__((noreturn));
 // Define a set of flags to know which things yield should check when called. 
 extern uint8_t yield_active_check_flags;
 
-#define YIELD_CHECK_USB_SERIAL 		0x1   	// check the USB for Serial.available()
-#define YIELD_CHECK_HARDWARE_SERIAL 0x2		// check Hardware Serial ports available
-#define YIELD_CHECK_EVENT_RESPONDER	0x4		// User has created eventResponders that use yield
-#define YIELD_CHECK_USB_SERIALUSB1  0x8		// Check for SerialUSB1
-#define YIELD_CHECK_USB_SERIALUSB2  0x10	// Check for SerialUSB2
+#define YIELD_CHECK_USB_SERIAL      0x01  // check the USB for Serial.available()
+#define YIELD_CHECK_HARDWARE_SERIAL 0x02  // check Hardware Serial ports available
+#define YIELD_CHECK_EVENT_RESPONDER 0x04  // User has created eventResponders that use yield
+#define YIELD_CHECK_USB_SERIALUSB1  0x08  // Check for SerialUSB1
+#define YIELD_CHECK_USB_SERIALUSB2  0x10  // Check for SerialUSB2
 
 // Allow other functions to run.  Typically these will be serial event handlers
 // and functions call by certain libraries when lengthy operations complete.

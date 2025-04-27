@@ -205,7 +205,7 @@ void usb_midi_flush_output(void)
 	}
 }
 
-void static sysex_byte(uint8_t b)
+static void sysex_byte(uint8_t b)
 {
 	if (usb_midi_handleSysExPartial && usb_midi_msg_sysex_len >= USB_MIDI_SYSEX_MAX) {
 		// when buffer is full, send another chunk to partial handler.

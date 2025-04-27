@@ -54,21 +54,59 @@ FLASHMEM void startup_default_middle_hook(void) {}
 void startup_middle_hook(void)	__attribute__ ((weak, alias("startup_default_middle_hook")));
 FLASHMEM void startup_default_late_hook(void) {}
 void startup_late_hook(void)	__attribute__ ((weak, alias("startup_default_late_hook")));
-__attribute__((section(".startup"), optimize("no-tree-loop-distribute-patterns")))
+extern void startup_debug_reset(void) __attribute__((noinline));
+FLASHMEM void startup_debug_reset(void) { __asm__ volatile("nop"); }
+
+static void ResetHandler2(void);
+
+__attribute__((section(".startup"), naked))
 void ResetHandler(void)
 {
-	unsigned int i;
-
-#if defined(__IMXRT1062__)
 	IOMUXC_GPR_GPR17 = (uint32_t)&_flexram_bank_config;
 	IOMUXC_GPR_GPR16 = 0x00200007;
 	IOMUXC_GPR_GPR14 = 0x00AA0000;
-	__asm__ volatile("mov sp, %0" : : "r" ((uint32_t)&_estack) : );
+	__asm__ volatile("mov sp, %0" : : "r" ((uint32_t)&_estack) : "memory");
+#if 0
 	__asm__ volatile("dsb":::"memory");
 	__asm__ volatile("isb":::"memory");
 #endif
+	ResetHandler2();
+	__builtin_unreachable();
+}
+
+__attribute__((section(".startup"), noinline, noreturn))
+static void ResetHandler2(void)
+{
+	unsigned int i;
+	__asm__ volatile("dsb":::"memory");
+#if 1
+	// Some optimization with LTO won't start without this delay, but why?
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+#endif
 	startup_early_hook(); // must be in FLASHMEM, as ITCM is not yet initialized!
 	PMU_MISC0_SET = 1<<3; //Use bandgap-based bias currents for best performance (Page 1175)
+#if 1
+	// Some optimization with LTO won't start without this delay, but why?
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+#endif
 	// pin 13 - if startup crashes, use this to turn on the LED early for troubleshooting
 	//IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_03 = 5;
 	//IOMUXC_SW_PAD_CTL_PAD_GPIO_B0_03 = IOMUXC_PAD_DSE(7);
@@ -161,6 +199,7 @@ void ResetHandler(void)
 	usb_init();
 	while (millis() < TEENSY_INIT_USB_DELAY_AFTER + TEENSY_INIT_USB_DELAY_BEFORE) ; // wait
 	//printf("before C++ constructors\n");
+	startup_debug_reset();
 	startup_late_hook();
 	__libc_init_array();
 	//printf("after C++ constructors\n");
@@ -252,7 +291,7 @@ FLASHMEM void configure_cache(void)
 	SCB_MPU_RASR = SCB_MPU_RASR_TEX(0) | NOACCESS | NOEXEC | SIZE_4G;
 	
 	SCB_MPU_RBAR = 0x00000000 | REGION(i++); // ITCM
-	SCB_MPU_RASR = MEM_NOCACHE | READWRITE | SIZE_512K;
+	SCB_MPU_RASR = MEM_NOCACHE | READONLY | SIZE_512K;
 
 	// TODO: trap regions should be created last, because the hardware gives
 	//  priority to the higher number ones.
@@ -279,9 +318,20 @@ FLASHMEM void configure_cache(void)
 
 	SCB_MPU_RBAR = 0x70000000 | REGION(i++); // FlexSPI2
 	SCB_MPU_RASR = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_16M;
+	// We default RAM meant for data to NOEXEC as a proactive security measure.
+	// If you wish to dynamically load code into RAM and execute it, start here:
+	// https://forum.pjrc.com/index.php?threads/75610/#post-347791
 
-	// TODO: protect access to power supply config
+	SCB_MPU_RBAR = 0x80000000 | REGION(i++); // SEMC: SDRAM, NAND, SRAM, etc
+	SCB_MPU_RASR = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_1G;
+	// hardware: https://forum.pjrc.com/index.php?threads/73898/#post-334041
+	// software: https://github.com/mjs513/SDRAM_t4
 
+	asm("nop"); // allow a few cycles for bus writes before enable MPU
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	asm("nop");
 	SCB_MPU_CTRL = SCB_MPU_CTRL_ENABLE;
 
 	// cache enable, ARM DDI0403E, pg 628
@@ -552,7 +602,7 @@ void unused_interrupt_vector(void)
 	asm volatile("mrs %0, ipsr\n" : "=r" (ipsr) :: "memory");
 	info = (struct arm_fault_info_struct *)0x2027FF80;
 	info->ipsr = ipsr;
-	asm volatile("mrs %0, msp\n" : "=r" (stack) :: "memory");
+	asm volatile("tst lr, #4\nite eq\nmrseq %0, msp\nmrsne %0, psp\n" : "=r" (stack) :: "memory");
 	info->cfsr = SCB_CFSR;
 	info->hfsr = SCB_HFSR;
 	info->mmfar = SCB_MMFAR;
@@ -620,21 +670,42 @@ void unused_interrupt_vector(void)
 	while (1) ;
 }
 
-__attribute__((section(".startup"), optimize("O1")))
+__attribute__((section(".startup"), noinline))
 static void memory_copy(uint32_t *dest, const uint32_t *src, uint32_t *dest_end)
 {
+#if 0
 	if (dest == src) return;
-	while (dest < dest_end) {
+	do {
 		*dest++ = *src++;
-	}
+	} while (dest < dest_end);
+#else
+	asm volatile(
+	"	cmp	%[src], %[dest]		\n"
+	"	beq.n	2f			\n"
+	"1:	ldr.w	r3, [%[src]], #4	\n"
+	"	str.w	r3, [%[dest]], #4	\n"
+	"	cmp	%[end], %[dest]		\n"
+	"	bhi.n	1b			\n"
+	"2:					\n"
+	: [dest] "+r" (dest), [src] "+r" (src) : [end] "r" (dest_end) : "r3", "memory");
+#endif
 }
 
-__attribute__((section(".startup"), optimize("O1")))
+__attribute__((section(".startup"), noinline))
 static void memory_clear(uint32_t *dest, uint32_t *dest_end)
 {
+#if 0
 	while (dest < dest_end) {
 		*dest++ = 0;
 	}
+#else
+	asm volatile(
+	"	ldr	r3, =0			\n"
+	"1:	str.w	r3, [%[dest]], #4	\n"
+	"	cmp	%[end], %[dest]		\n"
+	"	bhi.n	1b			\n"
+	: [dest] "+r" (dest) : [end] "r" (dest_end) : "r3", "memory");
+#endif
 }
 
 
@@ -650,6 +721,7 @@ extern unsigned long _heap_end;
 
 char *__brkval = (char *)&_heap_start;
 
+__attribute__((weak))
 void * _sbrk(int incr)
 {
         char *prev = __brkval;
@@ -664,13 +736,13 @@ void * _sbrk(int incr)
 }
 
 __attribute__((weak))
-int _read(int file, char *ptr, int len)
+int _read(int file __attribute__((unused)), char *ptr __attribute__((unused)), int len __attribute__((unused)))
 {
 	return 0;
 }
 
 __attribute__((weak))
-int _close(int fd)
+int _close(int fd __attribute__((unused)))
 {
 	return -1;
 }
@@ -678,26 +750,26 @@ int _close(int fd)
 #include <sys/stat.h>
 
 __attribute__((weak))
-int _fstat(int fd, struct stat *st)
+int _fstat(int fd __attribute__((unused)), struct stat *st)
 {
 	st->st_mode = S_IFCHR;
 	return 0;
 }
 
 __attribute__((weak))
-int _isatty(int fd)
+int _isatty(int fd __attribute__((unused)))
 {
 	return 1;
 }
 
 __attribute__((weak))
-int _lseek(int fd, long long offset, int whence)
+int _lseek(int fd __attribute__((unused)), long long offset __attribute__((unused)), int whence __attribute__((unused)))
 {
 	return -1;
 }
 
 __attribute__((weak))
-void _exit(int status)
+void _exit(int status __attribute__((unused)))
 {
 	while (1) asm ("WFI");
 }

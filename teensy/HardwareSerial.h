@@ -25,6 +25,7 @@ public:
 	virtual void write(uint8_t);
 #endif
 	using Print::write;
+	friend uintptr_t Teensyduino_Test_constinit_HardwareSerial(int instance, int index);
 };
 
 extern HardwareSerial Serial1;

@@ -508,6 +508,22 @@ static uint8_t flightsim_report_desc[] = {
 };
 #endif
 
+#ifdef EXPERIMENTAL_INTERFACE
+static uint8_t microsoft_os_string_desc[] = {
+	18, 3,
+	'M', 0, 'S', 0, 'F', 0, 'T', 0, '1', 0, '0', 0, '0', 0,
+	0xF8, 0  // GET_MS_DESCRIPTOR will use bRequest=0xF8
+};
+static uint8_t microsoft_os_compatible_id_desc[] = {
+	40, 0, 0, 0, // total length, 16 header + 24 function * 1
+	0, 1, 4, 0,  // version 1.00, wIndex=4 (Compat ID)
+	1, 0, 0, 0, 0, 0, 0, 0, // 1 function
+	EXPERIMENTAL_INTERFACE, 1,
+	'W','I','N','U','S','B',0,0, // compatibleID
+	0,0,0,0,0,0,0,0,             // subCompatibleID
+	0,0,0,0,0,0
+};
+#endif
 
 // **************************************************************
 //   USB Descriptor Sizes
@@ -1646,7 +1662,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
         2,                                      // bNumEndpoints
         0xFF,                                   // bInterfaceClass (0xFF = Vendor)
         0x6A,                                   // bInterfaceSubClass
-        0xFF,                                   // bInterfaceProtocol
+        0xC7,                                   // bInterfaceProtocol
         0,                                      // iInterface
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         7,                                      // bLength
@@ -2803,6 +2819,10 @@ const usb_descriptor_list_t usb_descriptor_list[] = {
 #endif
 #ifdef MTP_INTERFACE
 	{0x0304, 0x0409, (const uint8_t *)&usb_string_mtp, 0},
+#endif
+#ifdef EXPERIMENTAL_INTERFACE
+	{0x03EE, 0x0000, microsoft_os_string_desc, 18},
+	{0x0000, 0xEE04, microsoft_os_compatible_id_desc, 40},
 #endif
         {0x0300, 0x0000, (const uint8_t *)&string0, 0},
         {0x0301, 0x0409, (const uint8_t *)&usb_string_manufacturer_name, 0},

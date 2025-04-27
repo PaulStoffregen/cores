@@ -153,7 +153,7 @@ extern const struct digital_pin_bitband_and_config_table_struct digital_pin_to_i
 
 #define NOT_ON_TIMER 0
 static inline uint8_t digitalPinToTimer(uint8_t) __attribute__((always_inline, unused));
-static inline uint8_t digitalPinToTimer(uint8_t pin)
+static inline uint8_t digitalPinToTimer(uint8_t pin __attribute__((unused)))
 {
 	// TODO: does anything meaningful use this?
 	return NOT_ON_TIMER;
@@ -201,5 +201,8 @@ static inline uint8_t digitalPinToTimer(uint8_t pin)
 #endif
 
 #define SerialUSB			Serial
+
+#define WIRE_INTERFACES_COUNT		3
+#define SPI_INTERFACES_COUNT		3
 
 #endif // pins_macros_for_arduino_compatibility_h

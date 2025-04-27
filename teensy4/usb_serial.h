@@ -58,6 +58,7 @@ extern volatile uint32_t systick_millis_count;
 extern volatile uint8_t usb_cdc_line_rtsdtr;
 extern volatile uint8_t usb_cdc_transmit_flush_timer;
 extern volatile uint8_t usb_configuration;
+extern void serialEvent(void) __attribute__((weak));
 #ifdef __cplusplus
 }
 #endif
@@ -77,7 +78,7 @@ public:
 	// is not used.  Communication occurs at USB native speed.  For
 	// compatibility with Arduino code, Serial.begin waits up to 2 seconds
 	// for your PC to open the virtual serial port.
-        void begin(long baud_unused) {
+        void begin(long baud_unused __attribute__((unused))) {
 		uint32_t millis_begin = systick_millis_count;
 		while (!(*this)) {
 			uint32_t elapsed = systick_millis_count - millis_begin;
@@ -185,7 +186,6 @@ public:
 };
 // Serial provides USB Virtual Serial communication with your computer.
 extern usb_serial_class Serial;
-extern void serialEvent(void);
 #endif // __cplusplus
 
 #else  // !defined(USB_DISABLED)
@@ -210,7 +210,7 @@ public:
     size_t write(long n) { return 1; }
     size_t write(unsigned int n) { return 1; }
     size_t write(int n) { return 1; }
-    int availableForWrite() { return 0; }
+    virtual int availableForWrite() { return 0; }
     using Print::write;
         void send_now(void) { }
         uint32_t baud(void) { return 0; }
@@ -223,7 +223,6 @@ public:
 };
 
 extern usb_serial_class Serial;
-extern void serialEvent(void);
 #endif // __cplusplus
 
 #endif // !defined(USB_DISABLED)
@@ -253,6 +252,7 @@ extern uint32_t usb_cdc2_line_coding[2];
 extern volatile uint32_t usb_cdc2_line_rtsdtr_millis;
 extern volatile uint8_t usb_cdc2_line_rtsdtr;
 extern volatile uint8_t usb_cdc2_transmit_flush_timer;
+extern void serialEventUSB1(void) __attribute__((weak));
 #ifdef __cplusplus
 }
 #endif
@@ -298,7 +298,9 @@ public:
         uint8_t numbits(void) { return usb_cdc2_line_coding[1] >> 16; }
         uint8_t dtr(void) { return (usb_cdc2_line_rtsdtr & USB_SERIAL_DTR) ? 1 : 0; }
         uint8_t rts(void) { return (usb_cdc2_line_rtsdtr & USB_SERIAL_RTS) ? 1 : 0; }
-        operator bool() { return usb_configuration && (usb_cdc2_line_rtsdtr & USB_SERIAL_DTR) &&
+        operator bool() {
+		yield();
+		return usb_configuration && (usb_cdc2_line_rtsdtr & USB_SERIAL_DTR) &&
                 ((uint32_t)(systick_millis_count - usb_cdc2_line_rtsdtr_millis) >= 15);
         }
         size_t readBytes(char *buffer, size_t length) {
@@ -314,7 +316,6 @@ public:
 
 };
 extern usb_serial2_class SerialUSB1;
-extern void serialEventUSB1(void);
 #endif // __cplusplus
 
 #endif // CDC2_STATUS_INTERFACE && CDC2_DATA_INTERFACE
@@ -341,6 +342,7 @@ extern uint32_t usb_cdc3_line_coding[2];
 extern volatile uint32_t usb_cdc3_line_rtsdtr_millis;
 extern volatile uint8_t usb_cdc3_line_rtsdtr;
 extern volatile uint8_t usb_cdc3_transmit_flush_timer;
+extern void serialEventUSB2(void) __attribute__((weak));
 #ifdef __cplusplus
 }
 #endif
@@ -386,7 +388,9 @@ public:
         uint8_t numbits(void) { return usb_cdc3_line_coding[1] >> 16; }
         uint8_t dtr(void) { return (usb_cdc3_line_rtsdtr & USB_SERIAL_DTR) ? 1 : 0; }
         uint8_t rts(void) { return (usb_cdc3_line_rtsdtr & USB_SERIAL_RTS) ? 1 : 0; }
-        operator bool() { return usb_configuration && (usb_cdc3_line_rtsdtr & USB_SERIAL_DTR) &&
+        operator bool() {
+		yield();
+		return usb_configuration && (usb_cdc3_line_rtsdtr & USB_SERIAL_DTR) &&
                 ((uint32_t)(systick_millis_count - usb_cdc3_line_rtsdtr_millis) >= 15);
         }
         size_t readBytes(char *buffer, size_t length) {
@@ -402,7 +406,6 @@ public:
 
 };
 extern usb_serial3_class SerialUSB2;
-extern void serialEventUSB2(void);
 #endif // __cplusplus
 
 #endif // CDC3_STATUS_INTERFACE && CDC3_DATA_INTERFACE

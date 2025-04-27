@@ -48,11 +48,10 @@ void IRQHandler_Serial6()
 // Serial6
 static BUFTYPE tx_buffer6[SERIAL6_TX_BUFFER_SIZE];
 static BUFTYPE rx_buffer6[SERIAL6_RX_BUFFER_SIZE];
-uint8_t _serialEvent6_default __attribute__((weak)) PROGMEM = 0 ;
 
-static HardwareSerial::hardware_t UART1_Hardware = {
+static HardwareSerialIMXRT::hardware_t UART1_Hardware = {
 	5, IRQ_LPUART1, &IRQHandler_Serial6, 
-	&serialEvent6, &_serialEvent6_default, 
+	&serialEvent6,
 	CCM_CCGR5, CCM_CCGR5_LPUART1(CCM_CCGR_ON),
 	{{25,2, nullptr, 0}, {0xff, 0xff, nullptr, 0}},
 	{{24,2, nullptr, 0}, {0xff, 0xff, nullptr, 0}},
@@ -62,5 +61,5 @@ static HardwareSerial::hardware_t UART1_Hardware = {
 	XBARA1_OUT_LPUART1_TRG_INPUT
 };
 
-HardwareSerial Serial6(&IMXRT_LPUART1, &UART1_Hardware, tx_buffer6, SERIAL6_TX_BUFFER_SIZE,
-	rx_buffer6,  SERIAL6_RX_BUFFER_SIZE);
+HardwareSerialIMXRT Serial6(IMXRT_LPUART1_ADDRESS, &UART1_Hardware, tx_buffer6,
+	SERIAL6_TX_BUFFER_SIZE, rx_buffer6, SERIAL6_RX_BUFFER_SIZE);

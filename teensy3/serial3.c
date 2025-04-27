@@ -207,14 +207,18 @@ void serial3_format(uint32_t format)
 
 		// Lets try to make use of bitband address to set the direction for ue...
 		#if defined(KINETISL)
+		uint32_t pin_cfg = PORT_PCR_PE | PORT_PCR_PFE | PORT_PCR_MUX(3);
+		if ((format & 0x20) == 0) pin_cfg |=  PORT_PCR_PS;  // if not inverted PU else leve as PD
 		switch (tx_pin_num) {
-			case 8:  CORE_PIN8_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
-			case 20: CORE_PIN20_CONFIG = PORT_PCR_PE | PORT_PCR_PS | PORT_PCR_PFE | PORT_PCR_MUX(3); break;
+			case 8:  CORE_PIN8_CONFIG = pin_cfg; break;
+			case 20: CORE_PIN20_CONFIG = pin_cfg; break;
 		}
 		half_duplex_mode = 1; 
 		#else
 		volatile uint32_t *reg = portConfigRegister(tx_pin_num);
-		*reg = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3) | PORT_PCR_PE | PORT_PCR_PS; // pullup on output pin;
+		uint32_t pin_cfg = PORT_PCR_DSE | PORT_PCR_SRE | PORT_PCR_MUX(3) | PORT_PCR_PE;
+		if ((format & 0x20) == 0) pin_cfg |=  PORT_PCR_PS;  // if not inverted PU else leve as PD
+		*reg = pin_cfg;
 		transmit_pin = (uint8_t*)GPIO_BITBAND_PTR(UART2_C3, C3_TXDIR_BIT);
 		#endif
 

@@ -1180,6 +1180,7 @@ char *__brkval = (char *)&_ebss;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
+__attribute__((weak))
 void * _sbrk(int incr)
 {
 	char *prev, *stack;
@@ -1242,7 +1243,7 @@ void __cxa_pure_virtual()
 }
 
 __attribute__((weak)) 
-int __cxa_guard_acquire (char *g) 
+int __cxa_guard_acquire (char *g)
 {
 	return !(*g);
 }

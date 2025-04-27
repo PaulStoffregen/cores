@@ -120,6 +120,23 @@ int Print::printf(const __FlashStringHelper *format, ...)
 	return retval;
 }
 
+int Print::vprintf(const char *format, va_list ap)
+{
+	FILE f;
+
+	fdev_setup_stream(&f, printf_putchar, NULL, _FDEV_SETUP_WRITE);
+	fdev_set_udata(&f, this);
+	return vfprintf(&f, format, ap);
+}
+
+int Print::vprintf(const __FlashStringHelper *format, va_list ap)
+{
+	FILE f;
+
+	fdev_setup_stream(&f, printf_putchar, NULL, _FDEV_SETUP_WRITE);
+	fdev_set_udata(&f, this);
+	return vfprintf_P(&f, (const char *)format, ap);
+}
 
 //#define USE_HACKER_DELIGHT_OPTIMIZATION
 #define USE_STIMMER_OPTIMIZATION
