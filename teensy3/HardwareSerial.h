@@ -276,6 +276,7 @@ class HardwareSerial : public Stream
 {
 public:
 	constexpr HardwareSerial(void (* const se)()) : _serialEvent(se) {}
+	friend uintptr_t Teensyduino_Test_constinit_HardwareSerial(int instance, int index);
 	#if defined(__MK64FX512__) || defined(__MK66FX1M0__) 
 	enum {CNT_HARDWARE_SERIAL = 6};
 	#else //(__MK64FX512__) || defined(__MK66FX1M0__) 
@@ -283,7 +284,7 @@ public:
 	#endif
 	virtual void begin(uint32_t baud);
 	virtual void begin(uint32_t baud, uint32_t format) {
-					  serial_begin(BAUD2DIV(baud));
+					  begin(baud);
 					  serial_format(format); }
 	virtual void end(void)		{ serial_end(); }
 	virtual void transmitterEnable(uint8_t pin) { serial_set_transmit_pin(pin); }

@@ -4388,7 +4388,8 @@ typedef struct {
 	volatile uint32_t	TXFR[16]; // 3c
 	volatile uint32_t	RXFR[16]; // 7c
 } KINETISK_SPI_t;
-#define KINETISK_SPI0		(*(KINETISK_SPI_t *)0x4002C000)
+#define KINETISK_SPI0_ADDR	(0x4002C000)
+#define KINETISK_SPI0		(*(KINETISK_SPI_t *)KINETISK_SPI0_ADDR)
 #define SPI0_MCR		(KINETISK_SPI0.MCR)	// DSPI Module Configuration Register
 #define SPI_MCR_MSTR			((uint32_t)0x80000000)		// Master/Slave Mode Select
 #define SPI_MCR_CONT_SCKE		((uint32_t)0x40000000)		//
@@ -4457,7 +4458,8 @@ typedef struct {
 #define SPI0_RXFR3		(KINETISK_SPI0.RXFR[3])	// DSPI Receive FIFO Registers
 
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
-#define KINETISK_SPI1		(*(KINETISK_SPI_t *)0x4002D000)
+#define KINETISK_SPI1_ADDR	(0x4002D000)
+#define KINETISK_SPI1		(*(KINETISK_SPI_t *)KINETISK_SPI1_ADDR)
 #define SPI1_MCR		(KINETISK_SPI1.MCR)	// DSPI Module Configuration Register
 #define SPI1_TCR		(KINETISK_SPI1.TCR)	// DSPI Transfer Count Register
 #define SPI1_CTAR0		(KINETISK_SPI1.CTAR0)	// DSPI Clock and Transfer Attributes Register, In Master Mode
@@ -4477,7 +4479,8 @@ typedef struct {
 #define SPI1_RXFR2		(KINETISK_SPI1.RXFR[2])	// DSPI Receive FIFO Registers
 #define SPI1_RXFR3		(KINETISK_SPI1.RXFR[3])	// DSPI Receive FIFO Registers
 
-#define KINETISK_SPI2		(*(KINETISK_SPI_t *)0x400AC000)
+#define KINETISK_SPI2_ADDR	(0x400AC000)
+#define KINETISK_SPI2		(*(KINETISK_SPI_t *)KINETISK_SPI2_ADDR)
 #define SPI2_MCR		(KINETISK_SPI2.MCR)	// DSPI Module Configuration Register
 #define SPI2_TCR		(KINETISK_SPI2.TCR)	// DSPI Transfer Count Register
 #define SPI2_CTAR0		(KINETISK_SPI2.CTAR0)	// DSPI Clock and Transfer Attributes Register, In Master Mode
@@ -4513,8 +4516,10 @@ typedef struct {
 	volatile uint8_t	CI;
 	volatile uint8_t	C3;
 } KINETISL_SPI_t;
-#define KINETISL_SPI0		(*(KINETISL_SPI_t *)0x40076000)
-#define KINETISL_SPI1		(*(KINETISL_SPI_t *)0x40077000)
+#define KINETISL_SPI0_ADDR	(0x40076000)
+#define KINETISL_SPI1_ADDR	(0x40077000)
+#define KINETISL_SPI0		(*(KINETISL_SPI_t *)KINETISL_SPI0_ADDR)
+#define KINETISL_SPI1		(*(KINETISL_SPI_t *)KINETISL_SPI1_ADDR)
 #define SPI0_S			(KINETISL_SPI0.S)		// Status
 #define SPI_S_SPRF			((uint8_t)0x80)			// Read Buffer Full Flag
 #define SPI_S_SPMF			((uint8_t)0x40)			// Match Flag

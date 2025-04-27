@@ -61,6 +61,6 @@ int32_t random(int32_t howsmall, int32_t howbig)
 	return random(diff) + howsmall;
 }
 
-unsigned int makeWord(unsigned int w) { return w; }
-unsigned int makeWord(unsigned char h, unsigned char l) { return (h << 8) | l; }
+uint16_t makeWord(uint16_t w) { return w; }
+uint16_t makeWord(unsigned char h, unsigned char l) { return (h << 8) | l; }
 

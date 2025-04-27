@@ -51,6 +51,7 @@
 
 #ifdef __cplusplus
 
+#include "inplace_function.h"
 #include "avr_emulation.h"
 #include "usb_serial.h"
 #include "usb_serial2.h"

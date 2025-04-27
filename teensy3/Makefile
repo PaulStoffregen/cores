@@ -53,7 +53,7 @@ endif
 OPTIONS = -DF_CPU=48000000 -DUSB_SERIAL -DLAYOUT_US_ENGLISH -DUSING_MAKEFILE
 
 # options needed by many Arduino libraries to configure for Teensy 3.x
-OPTIONS += -D__$(MCU)__ -DARDUINO=10805 -DTEENSYDUINO=144
+OPTIONS += -D__$(MCU)__ -DARDUINO=10805 -DTEENSYDUINO=159
 
 # use "cortex-m4" for Teensy 3.x
 # use "cortex-m0plus" for Teensy LC
@@ -100,7 +100,7 @@ endif
 CPPFLAGS = -Wall -g -Os -mcpu=$(CPUARCH) -mthumb -MMD $(OPTIONS) -I.
 
 # compiler options for C++ only
-CXXFLAGS = -std=gnu++14 -felide-constructors -fno-exceptions -fno-rtti
+CXXFLAGS = -std=gnu++17 -felide-constructors -fno-exceptions -fno-rtti
 
 # compiler options for C only
 CFLAGS =

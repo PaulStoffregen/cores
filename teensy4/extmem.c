@@ -8,7 +8,7 @@
 #if defined(ARDUINO_TEENSY41)
 // Teensy 4.1 external RAM address range is 0x70000000 to 0x7FFFFFFF
 #define HAS_EXTRAM
-#define IS_EXTMEM(addr) (((uint32_t)ptr >> 28) == 7)
+#define IS_EXTMEM(addr) (((uint32_t)(addr) >> 28) == 7)
 #endif
 
 
@@ -34,17 +34,20 @@ void extmem_free(void *ptr)
 
 void *extmem_calloc(size_t nmemb, size_t size)
 {
-	return extmem_malloc(nmemb * size);
+#ifdef HAS_EXTRAM
+	// Note: It is assumed that the pool was created with do_zero set to true
+	void *ptr = sm_malloc_pool(&extmem_smalloc_pool, nmemb*size);
+	if (ptr) return ptr;
+#endif
+	return calloc(nmemb, size);
 }
 
 void *extmem_realloc(void *ptr, size_t size)
 {
 #ifdef HAS_EXTRAM
-	if (IS_EXTMEM(ptr)) {
+	if (IS_EXTMEM(ptr) || ptr == NULL) {
 		return sm_realloc_pool(&extmem_smalloc_pool, ptr, size);
 	}
 #endif
 	return realloc(ptr, size);
 }
-
-

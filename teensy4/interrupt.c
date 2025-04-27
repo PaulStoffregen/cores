@@ -50,6 +50,7 @@ void irq_gpio6789(void)
 	irq_anyport(&GPIO7_DR, isr_table_gpio2);
 	irq_anyport(&GPIO8_DR, isr_table_gpio3);
 	irq_anyport(&GPIO9_DR, isr_table_gpio4);
+	asm volatile ("dsb":::"memory");
 }
 
 #endif
@@ -60,7 +61,7 @@ void attachInterrupt(uint8_t pin, void (*function)(void), int mode)
 	//printf("attachInterrupt, pin=%u\n", pin);
 	volatile uint32_t *gpio = portOutputRegister(pin);
 	volatile uint32_t *mux = portConfigRegister(pin);
-	//volatile uint32_t *pad = portControlRegister(pin);
+	volatile uint32_t *pad = portControlRegister(pin);
 	uint32_t mask = digitalPinToBitMask(pin);
 
 	voidFuncPtr *table;
@@ -101,7 +102,8 @@ void attachInterrupt(uint8_t pin, void (*function)(void), int mode)
 
 	// TODO: global interrupt disable to protect these read-modify-write accesses?
 	gpio[IMR_INDEX] &= ~mask;	// disable interrupt
-	*mux = 5;		// pin is GPIO
+	*mux = 5;			// pin is GPIO
+	*pad |= IOMUXC_PAD_HYS;		// use hystersis avoid false trigger by slow signals
 	gpio[GDIR_INDEX] &= ~mask;	// pin to input mode
 	uint32_t index = __builtin_ctz(mask);
 	table[index] = function;

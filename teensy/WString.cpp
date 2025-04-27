@@ -131,7 +131,7 @@ inline void String::init(void)
 	buffer = NULL;
 	capacity = 0;
 	len = 0;
-	flags = 0;
+	//flags = 0;
 }
 
 unsigned char String::reserve(unsigned int size)

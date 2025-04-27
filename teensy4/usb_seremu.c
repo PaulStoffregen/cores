@@ -83,6 +83,8 @@ void usb_seremu_configure(void)
 	int i;
 	for (i=0; i < RX_NUM; i++) rx_queue_transfer(i);
 	timer_config(usb_seremu_flush_callback, TRANSMIT_FLUSH_TIMEOUT);
+	// weak serialEvent will be NULL unless user's program defines serialEvent()
+	if (serialEvent) yield_active_check_flags |= YIELD_CHECK_USB_SERIAL;
 }
 
 
@@ -302,7 +304,15 @@ int usb_seremu_write(const void *buffer, uint32_t size)
 
 int usb_seremu_write_buffer_free(void)
 {
-	return 1;
+	uint32_t sum = 0;
+	tx_noautoflush = 1;
+	for (uint32_t i=0; i < TX_NUM; i++) {
+		if (i == tx_head) continue; // never promise current buffer, might autoflush
+		if (!(usb_transfer_status(tx_transfer + i) & 0x80)) sum += SEREMU_TX_SIZE;
+	}
+	asm("dsb" ::: "memory");
+	tx_noautoflush = 0;
+	return sum;
 }
 
 void usb_seremu_flush_output(void)

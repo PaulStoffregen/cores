@@ -67,13 +67,13 @@ extern "C" {
 }
 
 #if defined(ARDUINO_TEENSY41)   
-HardwareSerial 	*HardwareSerial::s_serials_with_serial_events[8];
+HardwareSerialIMXRT *HardwareSerialIMXRT::s_serials_with_serial_events[8];
 #else
-HardwareSerial 	*HardwareSerial::s_serials_with_serial_events[7];
+HardwareSerialIMXRT *HardwareSerialIMXRT::s_serials_with_serial_events[7];
 #endif
 
 // define our static objects
-uint8_t 		HardwareSerial::s_count_serials_with_serial_events = 0;
+uint8_t	HardwareSerialIMXRT::s_count_serials_with_serial_events = 0;
 
 
 
@@ -105,9 +105,10 @@ int nvic_execution_priority(void)
 }
 
 
-void HardwareSerial::begin(uint32_t baud, uint16_t format)
+void HardwareSerialIMXRT::begin(uint32_t baud, uint16_t format)
 {
 	//printf("HardwareSerial begin\n");
+	IMXRT_LPUART_t *port = (IMXRT_LPUART_t *)port_addr;
 	float base = (float)UART_CLOCK / (float)baud;
 	float besterr = 1e20;
 	int bestdiv = 1;
@@ -174,9 +175,9 @@ void HardwareSerial::begin(uint32_t baud, uint16_t format)
 	// FIFO size
 	// According to IMXRT1060RM_rev2.pdf, page 2875, Section 49.4.1.12.3 Diagram,
 	// both TXFIFOSIZE and RXFIFOSIZE are fixed at 4 (register value == 1)
-	uint16_t tx_fifo_size = 4;
+	//uint16_t tx_fifo_size = 4;
 	uint8_t tx_water = 2;
-	uint16_t rx_fifo_size = 4;
+	//uint16_t rx_fifo_size = 4;
 	uint8_t rx_water = 2;
 	// Original FIFO size calculation:
 	// uint16_t tx_fifo_size = (1 << (((port->FIFO >> 4) & 0x7) + 1));
@@ -209,7 +210,12 @@ void HardwareSerial::begin(uint32_t baud, uint16_t format)
 	if ((format & 0x0F) == 0x04) ctrl |=  LPUART_CTRL_R9T8; // 8N2 is 9 bit with 9th bit always 1
 
 	// Bit 5 TXINVERT
-	if (format & 0x20) ctrl |= LPUART_CTRL_TXINV;		// tx invert
+	if (format & 0x20) {
+		ctrl |= LPUART_CTRL_TXINV;		// tx invert
+
+		// if half duplex mode - PU on TX should be PD. 
+		if (half_duplex_mode_) *(portControlRegister(hardware->tx_pins[tx_pin_index_].pin)) &=  ~IOMUXC_PAD_PUS(3);
+	}
 
 	// Now see if the user asked for Half duplex:
 	if (half_duplex_mode_) ctrl |= (LPUART_CTRL_LOOPS | LPUART_CTRL_RSRC);
@@ -230,23 +236,26 @@ void HardwareSerial::begin(uint32_t baud, uint16_t format)
 	if ( format & 0x100) port->BAUD |= LPUART_BAUD_SBNS;	
 
 	//Serial.printf("    stat:%x ctrl:%x fifo:%x water:%x\n", port->STAT, port->CTRL, port->FIFO, port->WATER );
-	// Only if the user implemented their own...
-	if (!(*hardware->serial_event_handler_default)) addToSerialEventsList(); 		// Enable the processing of serialEvent for this object
+
+	// Enable the processing of serialEvent for this object, if user function exists.
+	// Linker will assign NULL for a weak function which isn't implemented.
+	if (hardware->_serialEvent) addToSerialEventsList();
 };
 
-inline void HardwareSerial::rts_assert() 
+inline void HardwareSerialIMXRT::rts_assert()
 {
 	DIRECT_WRITE_LOW(rts_pin_baseReg_, rts_pin_bitmask_);
 }
 
-inline void HardwareSerial::rts_deassert()
+inline void HardwareSerialIMXRT::rts_deassert()
 {
 	DIRECT_WRITE_HIGH(rts_pin_baseReg_, rts_pin_bitmask_);
 }
 
 
-void HardwareSerial::end(void)
+void HardwareSerialIMXRT::end(void)
 {
+	IMXRT_LPUART_t *port = (IMXRT_LPUART_t *)port_addr;
 	if (!(hardware->ccm_register & hardware->ccm_value)) return;
 	while (transmitting_) yield();  // wait for buffered data to send
 	port->CTRL = 0;	// disable the TX and RX ...
@@ -263,7 +272,7 @@ void HardwareSerial::end(void)
 	// 
 }
 
-void HardwareSerial::transmitterEnable(uint8_t pin)
+void HardwareSerialIMXRT::transmitterEnable(uint8_t pin)
 {
 	while (transmitting_) ;
 	pinMode(pin, OUTPUT);
@@ -272,8 +281,9 @@ void HardwareSerial::transmitterEnable(uint8_t pin)
 	DIRECT_WRITE_LOW(transmit_pin_baseReg_, transmit_pin_bitmask_);
 }
 
-void HardwareSerial::setRX(uint8_t pin)
+void HardwareSerialIMXRT::setRX(uint8_t pin)
 {
+	IMXRT_LPUART_t *port = (IMXRT_LPUART_t *)port_addr;
 	if (pin != hardware->rx_pins[rx_pin_index_].pin) {
 		for (uint8_t rx_pin_new_index = 0; rx_pin_new_index < cnt_rx_pins; rx_pin_new_index++) {
 			if (pin == hardware->rx_pins[rx_pin_new_index].pin) {
@@ -308,7 +318,7 @@ void HardwareSerial::setRX(uint8_t pin)
 				//  configure the pin. 
 				*(portControlRegister(pin)) = IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS;;
 				*(portConfigRegister(pin)) = pin_to_xbar_info[i].mux_val;
-				port->MODIR |= LPUART_MODIR_TXCTSE;
+
 				if (pin_to_xbar_info[i].select_input_register) *(pin_to_xbar_info[i].select_input_register) = pin_to_xbar_info[i].select_val;
 				//Serial.printf("SerialX::begin stat:%x ctrl:%x fifo:%x water:%x\n", port->STAT, port->CTRL, port->FIFO, port->WATER );
 				//Serial.printf("  PINCFG: %x MODIR: %x\n", port->PINCFG, port->MODIR);	
@@ -318,7 +328,7 @@ void HardwareSerial::setRX(uint8_t pin)
 	}
 }
 
-void HardwareSerial::setTX(uint8_t pin, bool opendrain)
+void HardwareSerialIMXRT::setTX(uint8_t pin, bool opendrain)
 {
 	uint8_t tx_pin_new_index = tx_pin_index_;
 
@@ -349,7 +359,7 @@ void HardwareSerial::setTX(uint8_t pin, bool opendrain)
 }
 
 
-bool HardwareSerial::attachRts(uint8_t pin)
+bool HardwareSerialIMXRT::attachRts(uint8_t pin)
 {
 	if (!(hardware->ccm_register & hardware->ccm_value)) return 0;
 	if (pin < CORE_NUM_DIGITAL) {
@@ -364,8 +374,9 @@ bool HardwareSerial::attachRts(uint8_t pin)
 	return 1;
 }
 
-bool HardwareSerial::attachCts(uint8_t pin)
+bool HardwareSerialIMXRT::attachCts(uint8_t pin)
 {
+	IMXRT_LPUART_t *port = (IMXRT_LPUART_t *)port_addr;
 	if (!(hardware->ccm_register & hardware->ccm_value)) return false;
 	if ((pin != 0xff) && (pin == hardware->cts_pin)) {
 		// Setup the IO pin as weak PULL down. 
@@ -403,14 +414,14 @@ bool HardwareSerial::attachCts(uint8_t pin)
 	}
 }
 
-void HardwareSerial::clear(void)
+void HardwareSerialIMXRT::clear(void)
 {
 	// BUGBUG:: deal with FIFO
 	rx_buffer_head_ = rx_buffer_tail_;
 	if (rts_pin_baseReg_) rts_assert();
 }
 
-int HardwareSerial::availableForWrite(void)
+int HardwareSerialIMXRT::availableForWrite(void)
 {
 	uint32_t head, tail;
 
@@ -423,8 +434,9 @@ int HardwareSerial::availableForWrite(void)
 
 
 
-int HardwareSerial::available(void)
+int HardwareSerialIMXRT::available(void)
 {
+	IMXRT_LPUART_t *port = (IMXRT_LPUART_t *)port_addr;
 	uint32_t head, tail;
 
 	// WATER> 0 so IDLE involved may want to check if port has already has RX data to retrieve
@@ -439,7 +451,7 @@ int HardwareSerial::available(void)
 	return avail;
 }
 
-void HardwareSerial::addMemoryForRead(void *buffer, size_t length)
+void HardwareSerialIMXRT::addMemoryForRead(void *buffer, size_t length)
 {
 	rx_buffer_storage_ = (BUFTYPE*)buffer;
 	if (buffer) {
@@ -455,7 +467,7 @@ void HardwareSerial::addMemoryForRead(void *buffer, size_t length)
 	rts_high_watermark_ = rx_buffer_total_size_ - hardware->rts_high_watermark;
 }
 
-void HardwareSerial::addMemoryForWrite(void *buffer, size_t length)
+void HardwareSerialIMXRT::addMemoryForWrite(void *buffer, size_t length)
 {
 	tx_buffer_storage_ = (BUFTYPE*)buffer;
 	if (buffer) {
@@ -468,8 +480,9 @@ void HardwareSerial::addMemoryForWrite(void *buffer, size_t length)
 	tx_buffer_tail_ = 0;
 }
 
-int HardwareSerial::peek(void)
+int HardwareSerialIMXRT::peek(void)
 {
+	IMXRT_LPUART_t *port = (IMXRT_LPUART_t *)port_addr;
 	uint32_t head, tail;
 
 	head = rx_buffer_head_;
@@ -502,8 +515,9 @@ int HardwareSerial::peek(void)
 	}
 }
 
-int HardwareSerial::read(void)
+int HardwareSerialIMXRT::read(void)
 {
+	IMXRT_LPUART_t *port = (IMXRT_LPUART_t *)port_addr;
 	uint32_t head, tail;
 	int c;
 
@@ -541,19 +555,20 @@ int HardwareSerial::read(void)
 	return c;
 }	
 
-void HardwareSerial::flush(void)
+void HardwareSerialIMXRT::flush(void)
 {
 	while (transmitting_) yield(); // wait
 }
 
-size_t HardwareSerial::write(uint8_t c)
+size_t HardwareSerialIMXRT::write(uint8_t c)
 {
 	// use the 9 bit version (maybe 10 bit) do do the work. 
 	return write9bit(c);
 }
 
-size_t HardwareSerial::write9bit(uint32_t c)
+size_t HardwareSerialIMXRT::write9bit(uint32_t c)
 {
+	IMXRT_LPUART_t *port = (IMXRT_LPUART_t *)port_addr;
 	uint32_t head, n;
 	//digitalWrite(3, HIGH);
 	//digitalWrite(5, HIGH);
@@ -602,9 +617,10 @@ size_t HardwareSerial::write9bit(uint32_t c)
 	return 1;
 }
 
-void HardwareSerial::IRQHandler() 
+void HardwareSerialIMXRT::IRQHandler()
 {
 	//digitalWrite(4, HIGH);
+	IMXRT_LPUART_t *port = (IMXRT_LPUART_t *)port_addr;
 	uint32_t head, tail, n;
 	uint32_t ctrl;
 
@@ -692,7 +708,7 @@ void HardwareSerial::IRQHandler()
 }
 
 
-void HardwareSerial::addToSerialEventsList() {
+void HardwareSerialIMXRT::addToSerialEventsList() {
 	for (uint8_t i = 0; i < s_count_serials_with_serial_events; i++) {
 		if (s_serials_with_serial_events[i] == this) return; // already in the list.
 	}
@@ -708,15 +724,15 @@ const pin_to_xbar_info_t PROGMEM pin_to_xbar_info[] = {
 	{3,   7, 3, &IOMUXC_XBAR1_IN07_SELECT_INPUT, 0x0},
 	{4,   8, 3, &IOMUXC_XBAR1_IN08_SELECT_INPUT, 0x0},
 	{5,  17, 3, &IOMUXC_XBAR1_IN17_SELECT_INPUT, 0x0},
-	{7,  15, 1, nullptr, 0 },
-	{8,  14, 1, nullptr, 0},
+	{7,  15, 1, &IOMUXC_XBAR1_IN15_SELECT_INPUT, 0x1},
+	{8,  14, 1, &IOMUXC_XBAR1_IN14_SELECT_INPUT, 0x1},
 	{30, 23, 1, &IOMUXC_XBAR1_IN23_SELECT_INPUT, 0x0},
 	{31, 22, 1, &IOMUXC_XBAR1_IN22_SELECT_INPUT, 0x0},
 	{32, 10, 1, nullptr, 0},
 	{33,  9, 3, &IOMUXC_XBAR1_IN09_SELECT_INPUT, 0x0},
 
 #ifdef ARDUINO_TEENSY41
-	{36, 16, 1, nullptr, 0},
+	{36, 16, 1, &IOMUXC_XBAR1_IN16_SELECT_INPUT, 0x1},
 	{37, 17, 1, &IOMUXC_XBAR1_IN17_SELECT_INPUT, 0x3},
 	{42,  7, 3, &IOMUXC_XBAR1_IN07_SELECT_INPUT, 0x1},
 	{43,  6, 3, &IOMUXC_XBAR1_IN06_SELECT_INPUT, 0x1},

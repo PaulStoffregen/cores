@@ -32,6 +32,9 @@
 #define __INTERVALTIMER_H__
 
 #include "kinetis.h"
+#if TEENSYDUINO >= 159
+#include "inplace_function.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,29 +51,34 @@ public:
 	~IntervalTimer() {
 		end();
 	}
-	bool begin(void (*funct)(), unsigned int microseconds) {
+#if TEENSYDUINO >= 159
+	using callback_t = teensy::inplace_function<void(void), 16>;
+#else
+	using callback_t = void (*)(void);
+#endif
+	bool begin(callback_t funct, unsigned int microseconds) {
 		if (microseconds == 0 || microseconds > MAX_PERIOD) return false;
 		uint32_t cycles = (F_BUS / 1000000) * microseconds - 1;
 		if (cycles < 36) return false;
 		return beginCycles(funct, cycles);
 	}
-	bool begin(void (*funct)(), int microseconds) {
+	bool begin(callback_t funct, int microseconds) {
 		if (microseconds < 0) return false;
 		return begin(funct, (unsigned int)microseconds);
 	}
-	bool begin(void (*funct)(), unsigned long microseconds) {
+	bool begin(callback_t funct, unsigned long microseconds) {
 		return begin(funct, (unsigned int)microseconds);
 	}
-	bool begin(void (*funct)(), long microseconds) {
+	bool begin(callback_t funct, long microseconds) {
 		return begin(funct, (int)microseconds);
 	}
-	bool begin(void (*funct)(), float microseconds) {
+	bool begin(callback_t funct, float microseconds) {
 		if (microseconds <= 0 || microseconds > MAX_PERIOD) return false;
 		uint32_t cycles = (float)(F_BUS / 1000000) * microseconds - 0.5;
 		if (cycles < 36) return false;
 		return beginCycles(funct, cycles);
 	}
-	bool begin(void (*funct)(), double microseconds) {
+	bool begin(callback_t funct, double microseconds) {
 		return begin(funct, (float)microseconds);
 	}
 	void update(unsigned int microseconds) {
@@ -135,7 +143,7 @@ private:
 	#if defined(KINETISL)
 	static uint8_t nvic_priorites[2];
 	#endif
-	bool beginCycles(void (*funct)(), uint32_t cycles);
+	bool beginCycles(callback_t funct, uint32_t cycles);
 
 };
 

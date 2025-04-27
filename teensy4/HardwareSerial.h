@@ -151,7 +151,25 @@ extern const pin_to_xbar_info_t pin_to_xbar_info[];
 extern const uint8_t count_pin_to_xbar_info;
 
 
+// HardwareSerial is now an abstract class, intended to allow FlexIO and USB Host
+// serial devices to be compatible with libraries like MIDI, OSC, Adafruit_GPS
+// which expect a pointer or reference to a HardwareSerial port.
 class HardwareSerial : public Stream
+{
+public:
+	virtual void begin(uint32_t baud, uint16_t format=0) = 0;
+	virtual void end() = 0;
+	virtual int available(void) = 0;
+	virtual int peek(void) = 0;
+	virtual int read(void) = 0;
+	virtual void flush(void) = 0;
+	virtual int availableForWrite(void) = 0;
+	virtual size_t write(uint8_t) = 0;
+	using Print::write;
+	virtual operator bool() = 0;
+};
+
+class HardwareSerialIMXRT : public HardwareSerial
 {
 public:
 	static const uint8_t cnt_tx_pins = 2;
@@ -168,7 +186,6 @@ public:
 		IRQ_NUMBER_t irq;
 		void (*irq_handler)(void);
 		void (* _serialEvent)(void);
-		const uint8_t *serial_event_handler_default;
 		volatile uint32_t &ccm_register;
 		const uint32_t ccm_value;
 		pin_info_t rx_pins[cnt_rx_pins];
@@ -181,13 +198,14 @@ public:
 		const uint8_t xbar_out_lpuartX_trig_input;
 	} hardware_t;
 public:
-	constexpr HardwareSerial(IMXRT_LPUART_t *myport, const hardware_t *myhardware, 
+	constexpr HardwareSerialIMXRT(uintptr_t myport, const hardware_t *myhardware,
 		volatile BUFTYPE *_tx_buffer, size_t _tx_buffer_size, 
 		volatile BUFTYPE *_rx_buffer, size_t _rx_buffer_size) :
-		port(myport), hardware(myhardware),
+		port_addr(myport), hardware(myhardware),
 		tx_buffer_(_tx_buffer), rx_buffer_(_rx_buffer), tx_buffer_size_(_tx_buffer_size),  rx_buffer_size_(_rx_buffer_size),
 		tx_buffer_total_size_(_tx_buffer_size), rx_buffer_total_size_(_rx_buffer_size) {
 	}
+	friend uintptr_t Teensyduino_Test_constinit_HardwareSerial(int instance, int index);
 	// Initialize hardware serial port with baud rate and data format.  For a list
 	// of all supported formats, see https://www.pjrc.com/teensy/td_uart.html
 	void begin(uint32_t baud, uint16_t format=0);
@@ -232,7 +250,7 @@ public:
 	// without waiting.  Typically programs which must maintain rapid checking
 	// and response to sensors use availableForWrite() to decide whether to
 	// transmit.
-	int availableForWrite(void);
+	virtual int availableForWrite(void);
 	// Increase the amount of buffer memory between reception of bytes by the
 	// serial hardware and the available() and read() functions. This is useful
 	// when your program must spend lengthy times performing other work, like
@@ -282,7 +300,7 @@ public:
 		}
 	}
 private:
-	IMXRT_LPUART_t * const port;
+	const uintptr_t port_addr;
 	const hardware_t * const hardware;
 	uint8_t				rx_pin_index_ = 0x0;	// default is always first item
 	uint8_t				tx_pin_index_ = 0x0;
@@ -323,9 +341,9 @@ private:
 	friend void IRQHandler_Serial7();
 	#if defined(ARDUINO_TEENSY41)   
 	friend void IRQHandler_Serial8();
-	static HardwareSerial 	*s_serials_with_serial_events[8];
+	static HardwareSerialIMXRT 	*s_serials_with_serial_events[8];
 	#else	
-	static HardwareSerial 	*s_serials_with_serial_events[7];
+	static HardwareSerialIMXRT 	*s_serials_with_serial_events[7];
 	#endif
 	static uint8_t 			s_count_serials_with_serial_events;
 	void addToSerialEventsList(); 
@@ -338,38 +356,38 @@ private:
 };
 // Serial1 hardware serial port for pins RX1 and TX1.  More detail at
 // https://www.pjrc.com/teensy/td_uart.html
-extern HardwareSerial Serial1;
+extern HardwareSerialIMXRT Serial1;
 // Serial2 hardware serial port for pins RX2 and TX2.  More detail at
 // https://www.pjrc.com/teensy/td_uart.html
-extern HardwareSerial Serial2;
+extern HardwareSerialIMXRT Serial2;
 // Serial3 hardware serial port for pins RX3 and TX3.  More detail at
 // https://www.pjrc.com/teensy/td_uart.html
-extern HardwareSerial Serial3;
+extern HardwareSerialIMXRT Serial3;
 // Serial4 hardware serial port for pins RX4 and TX4.  More detail at
 // https://www.pjrc.com/teensy/td_uart.html
-extern HardwareSerial Serial4;
+extern HardwareSerialIMXRT Serial4;
 // Serial5 hardware serial port for pins RX5 and TX5.  More detail at
 // https://www.pjrc.com/teensy/td_uart.html
-extern HardwareSerial Serial5;
+extern HardwareSerialIMXRT Serial5;
 // Serial6 hardware serial port for pins RX6 and TX6.  More detail at
 // https://www.pjrc.com/teensy/td_uart.html
-extern HardwareSerial Serial6;
+extern HardwareSerialIMXRT Serial6;
 // Serial7 hardware serial port for pins RX7 and TX7.  More detail at
 // https://www.pjrc.com/teensy/td_uart.html
-extern HardwareSerial Serial7;
-extern void serialEvent1(void);
-extern void serialEvent2(void);
-extern void serialEvent3(void);
-extern void serialEvent4(void);
-extern void serialEvent5(void);
-extern void serialEvent6(void);
-extern void serialEvent7(void);
+extern HardwareSerialIMXRT Serial7;
+extern void serialEvent1(void) __attribute__((weak));
+extern void serialEvent2(void) __attribute__((weak));
+extern void serialEvent3(void) __attribute__((weak));
+extern void serialEvent4(void) __attribute__((weak));
+extern void serialEvent5(void) __attribute__((weak));
+extern void serialEvent6(void) __attribute__((weak));
+extern void serialEvent7(void) __attribute__((weak));
 
 #if defined(ARDUINO_TEENSY41)
 // Serial8 hardware serial port for pins RX8 and TX8.  More detail at
 // https://www.pjrc.com/teensy/td_uart.html
-extern HardwareSerial Serial8;
-extern void serialEvent8(void);
+extern HardwareSerialIMXRT Serial8;
+extern void serialEvent8(void) __attribute__((weak));
 #endif
 
 
