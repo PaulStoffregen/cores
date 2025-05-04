@@ -376,12 +376,13 @@ protected:
 	static inline void copy_tcd(TCD_t *dst, const TCD_t *src) {
 		dst->CSR &= ~DMA_TCD_CSR_DONE;
 		const uint32_t *p = (const uint32_t *)src;
-		uint32_t *q = (uint32_t *)dst;
+		volatile uint32_t *q = (uint32_t *)dst;
 		uint32_t t1, t2, t3, t4;
 		t1 = *p++; t2 = *p++; t3 = *p++; t4 = *p++;
 		*q++ = t1; *q++ = t2; *q++ = t3; *q++ = t4;
 		t1 = *p++; t2 = *p++; t3 = *p++; t4 = *p++;
 		*q++ = t1; *q++ = t2; *q++ = t3; *q++ = t4;
+		asm volatile("dmb");
 	}
 };
 
