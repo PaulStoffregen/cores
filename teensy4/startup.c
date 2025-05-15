@@ -548,7 +548,7 @@ FLASHMEM void configure_external_ram()
         uint32_t rsz = flexspi2_psram_id(0);
         if (rsz > 0) {
                 uint32_t rad = rsz << 20; // next PSRAM address
-                external_psram_size = rid;
+                external_psram_size = rsz;
                 FLEXSPI2_FLSHA1CR0 = rsz << 10;
                 
                 flexspi2_command(4, 0);
