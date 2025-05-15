@@ -365,6 +365,9 @@ FLASHMEM static void flexspi2_command(uint32_t index, uint32_t addr)
 	FLEXSPI2_INTR = FLEXSPI_INTR_IPCMDDONE;
 }
 
+
+/* reference
+
 FLASHMEM static uint32_t flexspi2_psram_id(uint32_t addr)
 {
 	FLEXSPI2_IPCR0 = addr;
@@ -374,6 +377,31 @@ FLASHMEM static uint32_t flexspi2_psram_id(uint32_t addr)
 	uint32_t id = FLEXSPI2_RFDR0;
 	FLEXSPI2_INTR = FLEXSPI_INTR_IPCMDDONE | FLEXSPI_INTR_IPRXWA;
 	return id & 0xFFFF;
+}
+*/
+
+FLASHMEM static uint32_t flexspi2_psram_id(uint32_t addr)
+{
+        FLEXSPI2_IPCR0 = addr;
+        FLEXSPI2_IPCR1 = FLEXSPI_IPCR1_ISEQID(3) | FLEXSPI_IPCR1_IDATSZ(4);
+        FLEXSPI2_IPCMD = FLEXSPI_IPCMD_TRG;
+        while (!(FLEXSPI2_INTR & FLEXSPI_INTR_IPCMDDONE)); // wait
+        uint32_t id = (FLEXSPI2_RFDR0) & 0xE0FFFF;;
+        FLEXSPI2_INTR = FLEXSPI_INTR_IPCMDDONE | FLEXSPI_INTR_IPRXWA;
+        // NOTE: Teensy 4.1 already utilizes 8MB of area, but is set as 16MB? 
+        // This leaves us with 496MB out of the 512MB maximum.
+        // Maximum current size is 32MB due to the protocol using 24bits.
+        // A plausable setup could be 256MB + 128MB for a 384MB external maximum, or
+        // it is possible to waste some RAM to get the full amount by claiming less.
+        // Unfortunately the original code limits us to 192MB.
+        // This is because size is stored in a unit8_t.
+        // FIXME:
+        // The FlexSPI2 trap region is also limited to 16M, and should be changed.
+        // Would be better to modify it on-the-fly.
+        if(id == 0x405D9D) return 0x04; // 4MB
+        if(id == 0x405D0D || id == 0x605D9D) return 0x08; // 8MB
+        if(id == 0x805D9D) return 0x10; // 16MB
+        return 0; // no PSRAM.
 }
 
 FLASHMEM void configure_external_ram()
@@ -440,13 +468,13 @@ FLASHMEM void configure_external_ram()
 	FLEXSPI2_IPTXFCR = (FLEXSPI_IPTXFCR & 0xFFFFFFC0) | FLEXSPI_IPTXFCR_CLRIPTXF;
 
 	FLEXSPI2_INTEN = 0;
-	FLEXSPI2_FLSHA1CR0 = 0x2000; // 8 MByte
+	FLEXSPI2_FLSHA1CR0 = 0x0001; // 1KByte
 	FLEXSPI2_FLSHA1CR1 = FLEXSPI_FLSHCR1_CSINTERVAL(2)
 		| FLEXSPI_FLSHCR1_TCSH(3) | FLEXSPI_FLSHCR1_TCSS(3);
 	FLEXSPI2_FLSHA1CR2 = FLEXSPI_FLSHCR2_AWRSEQID(6) | FLEXSPI_FLSHCR2_AWRSEQNUM(0)
 		| FLEXSPI_FLSHCR2_ARDSEQID(5) | FLEXSPI_FLSHCR2_ARDSEQNUM(0);
 
-	FLEXSPI2_FLSHA2CR0 = 0x2000; // 8 MByte
+	FLEXSPI2_FLSHA2CR0 = 0x0001; // 1 KByte
 	FLEXSPI2_FLSHA2CR1 = FLEXSPI_FLSHCR1_CSINTERVAL(2)
 		| FLEXSPI_FLSHCR1_TCSH(3) | FLEXSPI_FLSHCR1_TCSS(3);
 	FLEXSPI2_FLSHA2CR2 = FLEXSPI_FLSHCR2_AWRSEQID(6) | FLEXSPI_FLSHCR2_AWRSEQNUM(0)
@@ -482,6 +510,7 @@ FLASHMEM void configure_external_ram()
 	FLEXSPI2_LUT24 = LUT0(CMD_SDR, PINS4, 0x38) | LUT1(ADDR_SDR, PINS4, 24);
 	FLEXSPI2_LUT25 = LUT0(WRITE_SDR, PINS4, 1);
 
+/* reference
 	// look for the first PSRAM chip
 	flexspi2_command(0, 0); // exit quad mode
 	flexspi2_command(1, 0); // reset enable
@@ -510,6 +539,39 @@ FLASHMEM void configure_external_ram()
 		// No PSRAM
 		memset(&extmem_smalloc_pool, 0, sizeof(extmem_smalloc_pool));
 	}
+*/
+
+        // look for the first PSRAM chip
+        flexspi2_command(0, 0); // exit quad mode
+        flexspi2_command(1, 0); // reset enable
+        flexspi2_command(2, 0); // reset (is this really necessary?) YES --AJK
+        uint32_t rsz = flexspi2_psram_id(0);
+        if (rsz > 0) {
+                uint32_t rad = rsz << 20; // next PSRAM address
+                external_psram_size = rid;
+                FLEXSPI2_FLSHA1CR0 = rsz << 10;
+                
+                flexspi2_command(4, 0);
+                // first PSRAM chip is present, look for a second PSRAM chip
+                flexspi2_command(0, rad); // exit quad mode
+                flexspi2_command(1, rad); // reset enable
+                flexspi2_command(2, rad); // reset (is this really necessary?) YES --AJK
+                rsz = flexspi2_psram_id(rad);
+                if (rsz) {
+                        external_psram_size += rsz;
+                        FLEXSPI2_FLSHA2CR0 = rsz << 10;
+                        flexspi2_command(4, rad);
+                }
+                // TODO: zero uninitialized EXTMEM variables
+                // TODO: copy from flash to initialize EXTMEM variables
+                sm_set_pool(&extmem_smalloc_pool, &_extram_end,
+                        external_psram_size * 0x100000 -
+                        ((uint32_t)&_extram_end - (uint32_t)&_extram_start),
+                        1, NULL);
+        } else {
+                // No PSRAM
+                memset(&extmem_smalloc_pool, 0, sizeof(extmem_smalloc_pool));
+        }
 }
 
 #endif // ARDUINO_TEENSY41
