@@ -380,6 +380,44 @@ FLASHMEM static uint32_t flexspi2_psram_id(uint32_t addr)
 	return id;
 }
 
+
+/**
+ * \return size of PSRAM in MBytes, or 0 if not present
+ */
+FLASHMEM static uint8_t flexspi2_psram_size(uint32_t addr)
+{
+	uint8_t result = 0; // assume we don't have PSRAM at this address
+	flexspi2_command(0, addr); // exit quad mode
+	flexspi2_command(1, addr); // reset enable
+	flexspi2_command(2, addr); // reset (is this really necessary?)
+	uint32_t id = flexspi2_psram_id(addr);
+
+	switch (id & 0xFFFF)
+	{
+		default:
+			break;
+
+		case 0x5D0D: // AP / Ipus / ESP / Lyontek
+			result = 8;
+			break;
+
+		case 0x5D9D: // ISSI
+			switch ((id >> 21) & 0x7) // get size (Datasheet Table 6.2)
+			{
+				case 0b011: 
+					result = 8;
+					break;
+				case 0b100: 
+					result = 16;
+					break;
+			}
+			break;
+	}
+
+	return result;
+}
+
+
 FLASHMEM void configure_external_ram()
 {
 	// initialize pins
@@ -487,51 +525,29 @@ FLASHMEM void configure_external_ram()
 	FLEXSPI2_LUT25 = LUT0(WRITE_SDR, PINS4, 1);
 
 	// look for the first PSRAM chip
-	flexspi2_command(0, 0); // exit quad mode
-	flexspi2_command(1, 0); // reset enable
-	flexspi2_command(2, 0); // reset (is this really necessary?)
-	uint32_t id = flexspi2_psram_id(0);
-	if ((id & 0xFFFF) == 0x5D0D
-	 || (id & 0xFFFF) == 0x5D9D
-	   )
+	uint8_t sz = flexspi2_psram_size(0);
+	if (0 != sz) // first PSRAM chip is present
 	{
-		// first PSRAM chip is present, see how big it is
-		uint8_t sz = 8; // assume 8MB
-
-		// See datasheet Table 6.2 
-		// ID bits 47-45	size
-		//		011			64Mb =  8MB
-		//		100		   128Mb = 16MB
-		if ((id & 0xE0FFFF) == 0x805D9D) 
+		if (8 != sz) 
 		{
-			sz = 16; // it's a 16MB part
-			qspi_memory_base = 16*0x100000; // QSPI Flash at 16MB, maybe
+			qspi_memory_base = sz*0x100000; // QSPI Flash here, maybe
 			// should we do some stop/reset/start stuff here?
 			// appears to work OK without...
-			FLEXSPI2_FLSHA1CR0 = 0x4000; // 16384k = 16 MByte
+			FLEXSPI2_FLSHA1CR0 = sz*1024; // 16384k = 16 MByte
 		}
 		flexspi2_command(4, 0); // enter QPI mode
+		external_psram_size = sz;
 
 		// look for a second PSRAM chip
-		flexspi2_command(0, qspi_memory_base); // exit quad mode
-		flexspi2_command(1, qspi_memory_base); // reset enable
-		flexspi2_command(2, qspi_memory_base); // reset (is this really necessary?)
-		id = flexspi2_psram_id(qspi_memory_base);
-		if ((id & 0xFFFF) == 0x5D0D
-		 || (id & 0xFFFF) == 0x5D9D
-		   )
+		sz = flexspi2_psram_size(qspi_memory_base);
+		if (0 != sz)
 	   	{
 			// Two PSRAM chips are present, compute total size
-			if ((id & 0xE0FFFF) == 0x805D9D) 
-			{
-				sz += 16;
-				FLEXSPI2_FLSHA2CR0 = 0x4000; // 16384k = 16 MByte
-			}
-			else 
-				sz += 8;
+			if (8 != sz) 
+				FLEXSPI2_FLSHA2CR0 = sz*1024; // 16384k = 16 MByte
 			flexspi2_command(4, qspi_memory_base);  // enter QPI mode
+			external_psram_size += sz;
 		}
-		external_psram_size = sz;
 		// TODO: zero uninitialized EXTMEM variables
 		// TODO: copy from flash to initialize EXTMEM variables
 		sm_set_pool(&extmem_smalloc_pool, &_extram_end,
