@@ -536,8 +536,8 @@ static void endpoint0_setup(uint64_t setupdata)
 		setup.wIndex |= 0xEE00; // alter wIndex and treat as normal USB descriptor
 		__attribute__((fallthrough));
 #endif
-	  case 0x0680: // GET_DESCRIPTOR
-	  case 0x0681:
+	  case 0x0680: // GET_DESCRIPTOR (bRequest=0x06) for device (bmRequestType=0x80)
+	  case 0x0681: // GET_DESCRIPTOR (bRequest=0x06) for interface (bmRequestType=0x81)
 		for (list = usb_descriptor_list; list->addr != NULL; list++) {
 			if (setup.wValue == list->wValue && setup.wIndex == list->wIndex) {
 				uint32_t datalen;
