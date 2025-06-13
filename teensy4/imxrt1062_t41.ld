@@ -24,6 +24,15 @@ SECTIONS
 		KEEP(*(.startup))
 		*(.flashmem*)
 		. = ALIGN(4);
+		_startup_early_array = .;
+		KEEP(*(.early_hook))
+		LONG(0);
+		_startup_middle_array = .;
+		KEEP(*(.middle_hook))
+		LONG(0);
+		_startup_late_array = .;
+		KEEP(*(.late_hook))
+		LONG(0);
 		KEEP(*(.init))
 		__preinit_array_start = .;
 		KEEP (*(.preinit_array))
