@@ -459,8 +459,6 @@ uint32_t MTP_class::SendObject(struct MTPContainer &cmd) {
   // TODO: should we do storage_.Create() here?  Can we preallocate file size?
   uint32_t ret = MTP_RESPONSE_OK;
   uint64_t pos = 0;
-  uint32_t count_reads = 0;
-  uint32_t to_copy_prev = 0;
 
   // index into our disk buffer.
 
@@ -471,6 +469,8 @@ uint32_t MTP_class::SendObject(struct MTPContainer &cmd) {
   #if DEBUG
   elapsedMillis em_send;
   elapsedMillis emPrint;
+  uint32_t count_reads = 0;
+  uint32_t to_copy_prev = 0;
   #endif
 
   // lets go ahead and copy the rest of the first receive buffer into
