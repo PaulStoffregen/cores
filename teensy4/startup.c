@@ -366,7 +366,6 @@ FLASHMEM static void flexspi2_command(uint32_t index, uint32_t addr)
 	FLEXSPI2_INTR = FLEXSPI_INTR_IPCMDDONE;
 }
 
-uint32_t PSRAM_IDs[2];
 FLASHMEM static uint32_t flexspi2_psram_id(uint32_t addr)
 {
 	FLEXSPI2_IPCR0 = addr;
@@ -375,8 +374,6 @@ FLASHMEM static uint32_t flexspi2_psram_id(uint32_t addr)
 	while (!(FLEXSPI2_INTR & FLEXSPI_INTR_IPCMDDONE)); // wait
 	uint32_t id = FLEXSPI2_RFDR0;
 	FLEXSPI2_INTR = FLEXSPI_INTR_IPCMDDONE | FLEXSPI_INTR_IPRXWA;
-
-	PSRAM_IDs[addr?1:0] = id;
 	return id;
 }
 
