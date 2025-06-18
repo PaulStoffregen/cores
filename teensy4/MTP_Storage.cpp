@@ -1065,13 +1065,13 @@ uint32_t MTPStorage::read(uint32_t handle, uint64_t pos, char *out, uint32_t byt
 	static uint64_t last_pos = (uint64_t)-1;
 	// if the file was not te same or the like clear last position.
 	if (!OpenFileByIndex(handle)) {
-		Serial.write('@');
+		//Serial.write('@');
 		last_pos = (uint64_t)-1; 
 	}
 	mtp_lock_storage(true);
 	if (pos != last_pos) {
 		file_.seek(pos, SeekSet);
-		Serial.write("$");
+		//Serial.write("$");
 	}
 	uint32_t cb_read = file_.read(out, bytes);
 	last_pos = pos + cb_read;

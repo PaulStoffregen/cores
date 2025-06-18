@@ -27,8 +27,7 @@
 // 19-nov-2020 adapted to FS
 
 
-#ifndef MTP_Storage_H
-#define MTP_Storage_H
+#pragma once
 
 #include "core_pins.h"
 
@@ -301,4 +300,3 @@ private:
 };
 
 void mtp_yield(void);
-#endif

@@ -25,17 +25,11 @@
 // modified for SDFS by WMXZ
 // Modified by KurtE and mjs513 for Teensy Integration. 
 
-#ifndef MTP_TEENSY_H
-#define MTP_TEENSY_H
+#pragma once
 
-#if !defined(USB_MTPDISK) && !defined(USB_MTPDISK_SERIAL)
-#error "You need to select USB Type: 'MTP Disk (Experimental)' or 'Serial + MTP Disk (Experimental)'"
-#endif
+#if defined(USB_MTPDISK) || defined(USB_MTPDISK_SERIAL)
 
-#if TEENSYDUINO < 157
-#error "Teensyduino 1.57-beta is required, get it at https://forum.pjrc.com/threads/70196"
-#endif
-
+#include "IntervalTimer.h"
 #include "core_pins.h"
 #include "usb_dev.h"
 extern "C" int usb_mtp_sendEvent(const void *buffer, uint32_t len,
@@ -320,4 +314,4 @@ private:
 
 extern MTP_class MTP;
 
-#endif
+#endif // USB_MTPDISK or USB_MTPDISK_SERIAL
