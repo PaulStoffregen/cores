@@ -78,29 +78,28 @@ public:
 	}
 private:
 	static bool update_responsibility;
-	static audio_block_t *incoming_left;
-	static audio_block_t *incoming_right;
-	static audio_block_t *ready_left;
-	static audio_block_t *ready_right;
+	static audio_block_t *incoming[USB_AUDIO_RX_CHANNELS];
+	static audio_block_t *ready[USB_AUDIO_RX_CHANNELS];
 	static uint16_t incoming_count;
 	static uint8_t receive_flag;
+	static int all_ready(void);
 };
 
 class AudioOutputUSB : public AudioStream
 {
 public:
-	AudioOutputUSB(void) : AudioStream(2, inputQueueArray) { begin(); }
+	AudioOutputUSB(void) : AudioStream(USB_AUDIO_TX_CHANNELS, inputQueueArray) { begin(); }
 	virtual void update(void);
 	void begin(void);
 	friend unsigned int usb_audio_transmit_callback(void);
 private:
 	static bool update_responsibility;
-	static audio_block_t *left_1st;
-	static audio_block_t *left_2nd;
-	static audio_block_t *right_1st;
-	static audio_block_t *right_2nd;
+	static audio_block_t *chan_1st[USB_AUDIO_TX_CHANNELS];
+	static audio_block_t *chan_2nd[USB_AUDIO_TX_CHANNELS];
 	static uint16_t offset_1st;
-	audio_block_t *inputQueueArray[2];
+	audio_block_t *inputQueueArray[USB_AUDIO_TX_CHANNELS];
+        static int allocate_tx_blocks(audio_block_t *blocks[USB_AUDIO_TX_CHANNELS]);
+
 };
 #endif // __cplusplus
 
