@@ -136,15 +136,24 @@ public:
 	// Trigger the event.  An optional status code and data may be provided.
 	// The code triggering the event does NOT control which of the above
 	// response methods will be used.
-	virtual void triggerEvent(int status=0, void *data=nullptr) {
+	virtual void triggerEvent(int status=0, void *data=nullptr, bool nextYield = false) {
 		_status = status;
 		_data = data;
 		if (_type == EventTypeImmediate) {
-			(*_function)(*this);
+			if (nullptr != _function)
+				(*_function)(*this);
 		} else {
-			triggerEventNotImmediate();
+			triggerEventNotImmediate(nextYield);
 		}
 	}
+
+	// Trigger an event that's guaranteed to be responded to on the
+	// next yield(), rather than after an indeterminate number of
+	// yield()s before it reaches the head of the list.
+	virtual void triggerEventNextYield(int status=0, void *data=nullptr) {
+		triggerEvent(status,data,true);
+	}
+
 	// Clear an event which has been triggered, but has not yet caused a
 	// function to be called.
 	bool clearEvent();
@@ -168,6 +177,10 @@ public:
 	void setContext(void *context) { _context = context; }
 	void * getContext() { return _context; }
 
+	// Set flag to force all triggered events to be processed on
+	// yield(), rather than a single one on each yield
+	static void processAllEvents(bool flag) { _processAllEvents = flag; }
+
 	// Wait for event(s) to occur.  These are most likely to be useful when
 	// used with a scheduler or RTOS.
 	bool waitForEvent(EventResponderRef event, int timeout);
@@ -180,37 +193,56 @@ public:
 		uint32_t ipsr;
 		__asm__ volatile("mrs %0, ipsr\n" : "=r" (ipsr)::);
 		if (ipsr != 0) return;
-		// Next, check if any events have been triggered
-		bool irq = disableInterrupts();
-		EventResponder *first = firstYield;
-		if (first == nullptr) {
+
+		// Next, check if any events have been triggered.
+		// We do all nextYield events, plus the first of any
+		// per-yield events, unless _processAllEvents is true
+		// in which case we do all events no matter how
+		// they were triggered.
+		bool keepLooping;
+		do
+		{
+			bool irq = disableInterrupts();
+
+			EventResponder *first = firstYield;
+
+			if (first == nullptr) {
+				enableInterrupts(irq);
+				return;
+			}
+			// Finally, make sure we're not being recursively called,
+			// which can happen if the user's function does anything
+			// that calls yield.
+			if (runningFromYield) {
+				enableInterrupts(irq);
+				return;
+			}
+
+			// Ok, update the runningFromYield flag and process event
+			runningFromYield = true;
+
+			keepLooping = nullptr != nextYield;
+			if (first == nextYield) 	// last of the nextYield events...
+				nextYield = nullptr;	// ...say they're all done
+
+			firstYield = first->_next;
+			if (firstYield) {
+				firstYield->_prev = nullptr;
+			} else {
+				lastYield = nullptr;
+			}
 			enableInterrupts(irq);
-			return;
-		}
-		// Finally, make sure we're not being recursively called,
-		// which can happen if the user's function does anything
-		// that calls yield.
-		if (runningFromYield) {
-			enableInterrupts(irq);
-			return;
-		}
-		// Ok, update the runningFromYield flag and process event
-		runningFromYield = true;
-		firstYield = first->_next;
-		if (firstYield) {
-			firstYield->_prev = nullptr;
-		} else {
-			lastYield = nullptr;
-		}
-		enableInterrupts(irq);
-		first->_triggered = false;
-		(*(first->_function))(*first);
-		runningFromYield = false;
+			first->_triggered = false;
+			if (nullptr != first->_function)
+				(*(first->_function))(*first);
+			runningFromYield = false;
+		} while (_processAllEvents || keepLooping);
 	}
 	static void runFromInterrupt();
 	operator bool() { return _triggered; }
+	static bool isActive(void) { return 0 != (yield_active_check_flags | YIELD_CHECK_EVENT_RESPONDER); }
 protected:
-	void triggerEventNotImmediate();
+	void triggerEventNotImmediate(bool _nextYield);
 	void detachNoInterrupts();
 	int _status = 0;
 	EventResponderFunction _function = nullptr;
@@ -221,10 +253,12 @@ protected:
 	EventType _type = EventTypeDetached;
 	bool _triggered = false;
 	static EventResponder *firstYield;
+	static EventResponder *nextYield;
 	static EventResponder *lastYield;
 	static EventResponder *firstInterrupt;
 	static EventResponder *lastInterrupt;
 	static bool runningFromYield;
+	static bool _processAllEvents;
 private:
 	static bool disableInterrupts() {
 		uint32_t primask;
