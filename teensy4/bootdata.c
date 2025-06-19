@@ -84,9 +84,9 @@ uint32_t FlexSPI_NOR_Config[128] = {
 	0,			// dataValidTime
 	0x00000000,		// busyBitPolarity,busyOffset
 
-	0x0A1804EB,		// lookupTable[0]		0x80
-	0x26043206,		// lookupTable[1]
-	0,			// lookupTable[2]
+	0x0A1804EB,		// lookupTable[0]		0x80 READ: CMD_SDR(1) 0xEB, RADDR_SDR(4) 24 bits,
+	0x32041E20,		// lookupTable[1]				MODE8_SDR(4) 0x20, DUMMY_SDR(4) 4 cycles,
+	0x7C012604,		// lookupTable[2]				READ_SDR(4) 4 bytes, JUMP_ON_CS
 	0,			// lookupTable[3]
 
 	0x24040405,		// lookupTable[4]		0x90
