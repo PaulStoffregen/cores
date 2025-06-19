@@ -2554,4 +2554,4 @@ void MTP_class::printContainer(const void *container, const char *msg) {
 
 
 
-#endif // USB_MTPDISK
+#endif // USB_MTPDISK or USB_MTPDISK_SERIAL

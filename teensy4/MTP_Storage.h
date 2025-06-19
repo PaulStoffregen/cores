@@ -29,6 +29,8 @@
 
 #pragma once
 
+#if defined(USB_MTPDISK) || defined(USB_MTPDISK_SERIAL)
+
 #include "core_pins.h"
 
 #include "FS.h"
@@ -300,3 +302,5 @@ private:
 };
 
 void mtp_yield(void);
+
+#endif // USB_MTPDISK or USB_MTPDISK_SERIAL
