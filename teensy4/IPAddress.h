@@ -94,12 +94,12 @@ public:
 	}
 
 	// Overloaded index operator to allow getting and setting individual octets of the address
-	uint8_t operator[](int index) const {
+	uint8_t& operator[](const size_t index) {
 		return _address.bytes[index];
-	};
-	uint8_t& operator[](int index) {
+	}
+	const uint8_t& operator[](const size_t index) const {
 		return _address.bytes[index];
-	};
+	}
 
 	// Overloaded copy operators to allow initialisation of IPAddress objects from other types
 	IPAddress& operator=(const uint8_t *address) {
