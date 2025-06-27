@@ -272,7 +272,7 @@ private:
 class FS
 {
 public:
-	FS() {}
+	constexpr FS() {}
 	virtual ~FS() {}
 	virtual File open(const char *filename, uint8_t mode = FILE_READ) = 0;
 	virtual bool exists(const char *filepath) = 0;
