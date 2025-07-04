@@ -43,7 +43,6 @@ uint32_t set_arm_clock(uint32_t frequency); // clockspeed.c
 extern void __libc_init_array(void); // C++ standard library
 
 uint8_t external_psram_size = 0;
-uint32_t qspi_memory_base = 8*0x100000; // expect at +8MB
 #ifdef ARDUINO_TEENSY41
 struct smalloc_pool extmem_smalloc_pool;
 #endif
@@ -479,13 +478,11 @@ FLASHMEM void configure_external_ram()
 	FLEXSPI2_IPTXFCR = (FLEXSPI_IPTXFCR & 0xFFFFFFC0) | FLEXSPI_IPTXFCR_CLRIPTXF;
 
 	FLEXSPI2_INTEN = 0;
-	FLEXSPI2_FLSHA1CR0 = 0x2000; // 8192k = 8 MByte
 	FLEXSPI2_FLSHA1CR1 = FLEXSPI_FLSHCR1_CSINTERVAL(2)
 		| FLEXSPI_FLSHCR1_TCSH(3) | FLEXSPI_FLSHCR1_TCSS(3);
 	FLEXSPI2_FLSHA1CR2 = FLEXSPI_FLSHCR2_AWRSEQID(6) | FLEXSPI_FLSHCR2_AWRSEQNUM(0)
 		| FLEXSPI_FLSHCR2_ARDSEQID(5) | FLEXSPI_FLSHCR2_ARDSEQNUM(0);
 
-	FLEXSPI2_FLSHA2CR0 = 0x2000; // 8192k = 8 MByte
 	FLEXSPI2_FLSHA2CR1 = FLEXSPI_FLSHCR1_CSINTERVAL(2)
 		| FLEXSPI_FLSHCR1_TCSH(3) | FLEXSPI_FLSHCR1_TCSS(3);
 	FLEXSPI2_FLSHA2CR2 = FLEXSPI_FLSHCR2_AWRSEQID(6) | FLEXSPI_FLSHCR2_AWRSEQNUM(0)
@@ -522,28 +519,16 @@ FLASHMEM void configure_external_ram()
 	FLEXSPI2_LUT25 = LUT0(WRITE_SDR, PINS4, 1);
 
 	// look for the first PSRAM chip
-	uint8_t sz = flexspi2_psram_size(0);
-	if (0 != sz) // first PSRAM chip is present
-	{
-		if (8 != sz) 
-		{
-			qspi_memory_base = sz*0x100000; // QSPI Flash here, maybe
-			// should we do some stop/reset/start stuff here?
-			// appears to work OK without...
-			FLEXSPI2_FLSHA1CR0 = sz*1024; // 16384k = 16 MByte
-		}
+	uint8_t size1 = flexspi2_psram_size(0);
+	if (size1 > 0) {
+		FLEXSPI2_FLSHA1CR0 = size1 << 10;
 		flexspi2_command(4, 0); // enter QPI mode
-		external_psram_size = sz;
-
 		// look for a second PSRAM chip
-		sz = flexspi2_psram_size(qspi_memory_base);
-		if (0 != sz)
-	   	{
-			// Two PSRAM chips are present, compute total size
-			if (8 != sz) 
-				FLEXSPI2_FLSHA2CR0 = sz*1024; // 16384k = 16 MByte
-			flexspi2_command(4, qspi_memory_base);  // enter QPI mode
-			external_psram_size += sz;
+		uint8_t size2 = flexspi2_psram_size(size1 << 20);
+		external_psram_size = size1 + size2;
+		if (size2 > 0) {
+			FLEXSPI2_FLSHA2CR0 = size2 << 10;
+			flexspi2_command(4, size1 << 20);  // enter QPI mode
 		}
 		// TODO: zero uninitialized EXTMEM variables
 		// TODO: copy from flash to initialize EXTMEM variables
@@ -553,6 +538,7 @@ FLASHMEM void configure_external_ram()
 			1, NULL);
 	} else {
 		// No PSRAM
+		external_psram_size = 0;
 		memset(&extmem_smalloc_pool, 0, sizeof(extmem_smalloc_pool));
 	}
 }
