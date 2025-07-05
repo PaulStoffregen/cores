@@ -58,6 +58,12 @@ FLASHMEM void startup_debug_reset(void) { __asm__ volatile("nop"); }
 
 static void ResetHandler2(void);
 
+// In theory we're supposed to gate off the PFD outputs, but
+// in practice it causes strange crashing, especially with LTO.
+// https://www.nxp.com/docs/en/engineering-bulletin/EB790.pdf
+// Uncomment this if you want to try the "correct" way.
+//#define GATE_PFD_WHILE_CHANGE
+
 __attribute__((section(".startup"), naked))
 void ResetHandler(void)
 {
@@ -78,7 +84,8 @@ static void ResetHandler2(void)
 {
 	unsigned int i;
 	__asm__ volatile("dsb":::"memory");
-#if 1
+#if 0
+	// TODO: can we safely delete this delay?
 	// Some optimization with LTO won't start without this delay, but why?
 	asm volatile("nop");
 	asm volatile("nop");
@@ -88,13 +95,29 @@ static void ResetHandler2(void)
 	startup_early_hook(); // must be in FLASHMEM, as ITCM is not yet initialized!
 	PMU_MISC0_SET = 1<<3; //Use bandgap-based bias currents for best performance (Page 1175)
 
-	// configure System PLL's PFD outputs (assume already running by NXP ROM)
-	// https://www.nxp.com/docs/en/engineering-bulletin/EB790.pdf
+	// Configure PLL PFD outputs
+	// Sys PFD Frequency = 528 MHz * 18 / frac8   (where frac8 range is 12 to 35)
+	const uint32_t sys_pfd = 0x2018101B; // PFD3:297,PFD2:396,PFD1:594,PFD0:352 MHz
+	// USB PFD Freq uency= 480 MHz * 18 / frac8   (where frac8 range is 12 to 35)
+	const uint32_t usb_pfd = 0x13110D0C; // PFD3:454,PFD2:508,PFD1:664,PFD0:720 MHz
+#ifdef GATE_PFD_WHILE_CHANGE
 	CCM_ANALOG_PFD_528_SET = 0x80808080;
-	CCM_ANALOG_PFD_528 = 0x2018101B | 0x80808080; // PFD0:352,PFD1:594,PFD2:396,PFD3:297 MHz
-	__asm__ volatile("dsb":::"memory");
+	CCM_ANALOG_PFD_528 = sys_pfd | 0x80808080;
+	CCM_ANALOG_PFD_528;
+	//while ((CCM_ANALOG_PFD_528 & 0x40404040) != 0x40404040) ; // wait for stable
 	CCM_ANALOG_PFD_528_CLR = 0x80808080;
-#if 1
+	CCM_ANALOG_PFD_480_SET = 0x80808080;
+	CCM_ANALOG_PFD_480 = usb_pfd | 0x80808080;
+	CCM_ANALOG_PFD_480;
+	//while ((CCM_ANALOG_PFD_480 & 0x40404040) != 0x40404040) ; // wait for stable
+	CCM_ANALOG_PFD_480_CLR = 0x80808080;
+#else
+	CCM_ANALOG_PFD_528 = sys_pfd;
+	CCM_ANALOG_PFD_480 = usb_pfd;
+#endif
+
+#if 0
+	// TODO: can we safely delete this delay?
 	// Some optimization with LTO won't start without this delay, but why?
 	asm volatile("nop");
 	asm volatile("nop");
@@ -573,7 +596,6 @@ FLASHMEM void usb_pll_start()
 		}
 		if (!(n & CCM_ANALOG_PLL_USB1_ENABLE)) {
 			printf("  enable PLL\n");
-			CCM_ANALOG_PFD_480_SET = 0x80808080; // gate off all PFD outputs
 			CCM_ANALOG_PLL_USB1_SET = CCM_ANALOG_PLL_USB1_ENABLE;
 			continue;
 		}
@@ -594,10 +616,6 @@ FLASHMEM void usb_pll_start()
 		if (!(n & CCM_ANALOG_PLL_USB1_EN_USB_CLKS)) {
 			printf("  enable USB clocks\n");
 			CCM_ANALOG_PLL_USB1_SET = CCM_ANALOG_PLL_USB1_EN_USB_CLKS;
-			uint32_t pfdval =  0x13110D0C; //PFD0:720,PFD1:664,PFD2:508,PFD3:454 MHz
-			CCM_ANALOG_PFD_480 = pfdval | 0x80808080;
-			__asm__ volatile("dsb":::"memory");
-			CCM_ANALOG_PFD_480_CLR = 0x80808080;
 			continue;
 		}
 		return; // everything is as it should be  :-)
