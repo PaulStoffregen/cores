@@ -78,8 +78,7 @@ static void ResetHandler2(void)
 {
 	unsigned int i;
 	__asm__ volatile("dsb":::"memory");
-#if 0
-	// TODO: can we safely delete this delay?
+#if 1
 	// Some optimization with LTO won't start without this delay, but why?
 	asm volatile("nop");
 	asm volatile("nop");
@@ -95,8 +94,7 @@ static void ResetHandler2(void)
 	CCM_ANALOG_PFD_528 = 0x2018101B | 0x80808080; // PFD0:352,PFD1:594,PFD2:396,PFD3:297 MHz
 	__asm__ volatile("dsb":::"memory");
 	CCM_ANALOG_PFD_528_CLR = 0x80808080;
-#if 0
-	// TODO: can we safely delete this delay?
+#if 1
 	// Some optimization with LTO won't start without this delay, but why?
 	asm volatile("nop");
 	asm volatile("nop");
