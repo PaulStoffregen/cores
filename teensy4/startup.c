@@ -133,7 +133,7 @@ static void ResetHandler2(void)
 	for (i=0; i < NVIC_NUM_INTERRUPTS; i++) NVIC_SET_PRIORITY(i, 128);
 	SCB_VTOR = (uint32_t)_VectorsRam;
 
-	reset_PFD();
+	// reset_PFD();
 
 	// enable exception handling
 	SCB_SHCSR |= SCB_SHCSR_MEMFAULTENA | SCB_SHCSR_BUSFAULTENA | SCB_SHCSR_USGFAULTENA;
@@ -596,6 +596,11 @@ FLASHMEM void usb_pll_start()
 	}
 }
 
+// For some reason compiling this file with e.g. -Og causes an issue, resulting
+// in the Teensy never starting up and enumerating, and the user having to press
+// the Program button to get back to bootloader mode. Changing to -O2 optimisation
+// for this one function seems to fix the issue.
+__attribute__((optimize("O2")))
 FLASHMEM void reset_PFD()
 {	
 	//Reset PLL2 PFDs, set default frequencies:
