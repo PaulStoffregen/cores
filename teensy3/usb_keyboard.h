@@ -48,8 +48,21 @@ void usb_keyboard_write_unicode(uint16_t cpoint);
 void usb_keyboard_press_keycode(uint16_t n);
 void usb_keyboard_release_keycode(uint16_t n);
 void usb_keyboard_release_all(void);
+// press oem key 'key' with modifiers 'modifier', and release all other keys
 int usb_keyboard_press(uint8_t key, uint8_t modifier);
+// press oem key 'key' with modifiers 'modifier', do not modify other keys
+// if there are less than 6 keys pressed. Otherwise release the oldest key pressed.
+void usb_keyboard_press_key_raw(uint8_t key, uint8_t modifier);
+// release oem key 'key' with modifiers 'modifier', do not modify other keys.
+void usb_keyboard_release_key_raw(uint8_t key, uint8_t modifier);
+// set keyboard modifiers to 'modifiers'
+void usb_keyboard_set_modifiers(uint8_t modifiers);
+// set keyboard state to 'report' and send it
+void usb_keyboard_send_report(const uint8_t report[8]);
+// send keyboard state report
 int usb_keyboard_send(void);
+// set led state change callback function
+void usb_keyboard_set_led_callback(void (*f)(uint8_t keyboard_leds));
 #ifdef KEYMEDIA_INTERFACE
 void usb_keymedia_release_all(void);
 #endif
@@ -59,6 +72,7 @@ extern uint8_t keyboard_protocol;
 extern uint8_t keyboard_idle_config;
 extern uint8_t keyboard_idle_count;
 extern volatile uint8_t keyboard_leds;
+extern void (*led_callback)(uint8_t keyboard_leds);
 #ifdef __cplusplus
 }
 #endif
