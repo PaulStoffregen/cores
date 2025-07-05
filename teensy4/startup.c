@@ -106,6 +106,12 @@ static void ResetHandler2(void)
 	asm volatile("nop");
 	asm volatile("nop");
 	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
 #endif
 	// pin 13 - if startup crashes, use this to turn on the LED early for troubleshooting
 	//IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_03 = 5;
@@ -700,13 +706,13 @@ __attribute__((section(".startup"), noinline))
 static void memory_copy(uint32_t *dest, const uint32_t *src, uint32_t *dest_end)
 {
 #if 0
-	if (dest == src) return;
+	if (dest == dest_end) return;
 	do {
 		*dest++ = *src++;
 	} while (dest < dest_end);
 #else
 	asm volatile(
-	"	cmp	%[src], %[dest]		\n"
+	"	cmp	%[end], %[dest]		\n"
 	"	beq.n	2f			\n"
 	"1:	ldr.w	r3, [%[src]], #4	\n"
 	"	str.w	r3, [%[dest]], #4	\n"
