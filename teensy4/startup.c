@@ -27,7 +27,6 @@ void (* volatile _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
 static void memory_copy(uint32_t *dest, const uint32_t *src, uint32_t *dest_end);
 static void memory_clear(uint32_t *dest, uint32_t *dest_end);
 static void configure_systick(void);
-static void reset_PFD();
 extern void systick_isr(void);
 extern void pendablesrvreq_isr(void);
 void configure_cache(void);
@@ -79,7 +78,8 @@ static void ResetHandler2(void)
 {
 	unsigned int i;
 	__asm__ volatile("dsb":::"memory");
-#if 1
+#if 0
+	// TODO: can we safely delete this delay?
 	// Some optimization with LTO won't start without this delay, but why?
 	asm volatile("nop");
 	asm volatile("nop");
@@ -88,7 +88,15 @@ static void ResetHandler2(void)
 #endif
 	startup_early_hook(); // must be in FLASHMEM, as ITCM is not yet initialized!
 	PMU_MISC0_SET = 1<<3; //Use bandgap-based bias currents for best performance (Page 1175)
-#if 1
+
+	// configure System PLL's PFD outputs (assume already running by NXP ROM)
+	// https://www.nxp.com/docs/en/engineering-bulletin/EB790.pdf
+	CCM_ANALOG_PFD_528_SET = 0x80808080;
+	CCM_ANALOG_PFD_528 = 0x2018101B | 0x80808080; // PFD0:352,PFD1:594,PFD2:396,PFD3:297 MHz
+	__asm__ volatile("dsb":::"memory");
+	CCM_ANALOG_PFD_528_CLR = 0x80808080;
+#if 0
+	// TODO: can we safely delete this delay?
 	// Some optimization with LTO won't start without this delay, but why?
 	asm volatile("nop");
 	asm volatile("nop");
@@ -133,8 +141,6 @@ static void ResetHandler2(void)
 	for (i=0; i < NVIC_NUM_INTERRUPTS; i++) NVIC_SET_PRIORITY(i, 128);
 	SCB_VTOR = (uint32_t)_VectorsRam;
 
-	// reset_PFD();
-
 	// enable exception handling
 	SCB_SHCSR |= SCB_SHCSR_MEMFAULTENA | SCB_SHCSR_BUSFAULTENA | SCB_SHCSR_USGFAULTENA;
 
@@ -161,7 +167,6 @@ static void ResetHandler2(void)
 	configure_cache();
 	configure_systick();
 	usb_pll_start();	
-	reset_PFD(); //TODO: is this really needed?
 #ifdef F_CPU
 	set_arm_clock(F_CPU);
 #endif
@@ -554,6 +559,7 @@ FLASHMEM void configure_external_ram()
 
 FLASHMEM void usb_pll_start()
 {
+	// https://www.nxp.com/docs/en/engineering-bulletin/EB790.pdf
 	while (1) {
 		uint32_t n = CCM_ANALOG_PLL_USB1; // pg 759
 		printf("CCM_ANALOG_PLL_USB1=%08lX\n", n);
@@ -569,7 +575,7 @@ FLASHMEM void usb_pll_start()
 		}
 		if (!(n & CCM_ANALOG_PLL_USB1_ENABLE)) {
 			printf("  enable PLL\n");
-			// TODO: should this be done so early, or later??
+			CCM_ANALOG_PFD_480_SET = 0x80808080; // gate off all PFD outputs
 			CCM_ANALOG_PLL_USB1_SET = CCM_ANALOG_PLL_USB1_ENABLE;
 			continue;
 		}
@@ -590,26 +596,16 @@ FLASHMEM void usb_pll_start()
 		if (!(n & CCM_ANALOG_PLL_USB1_EN_USB_CLKS)) {
 			printf("  enable USB clocks\n");
 			CCM_ANALOG_PLL_USB1_SET = CCM_ANALOG_PLL_USB1_EN_USB_CLKS;
+			uint32_t pfdval =  0x13110D0C; //PFD0:720,PFD1:664,PFD2:508,PFD3:454 MHz
+			CCM_ANALOG_PFD_480 = pfdval | 0x80808080;
+			__asm__ volatile("dsb":::"memory");
+			CCM_ANALOG_PFD_480_CLR = 0x80808080;
 			continue;
 		}
 		return; // everything is as it should be  :-)
 	}
 }
 
-// For some reason compiling this file with e.g. -Og causes an issue, resulting
-// in the Teensy never starting up and enumerating, and the user having to press
-// the Program button to get back to bootloader mode. Changing to -O2 optimisation
-// for this one function seems to fix the issue.
-__attribute__((optimize("O2")))
-FLASHMEM void reset_PFD()
-{	
-	//Reset PLL2 PFDs, set default frequencies:
-	CCM_ANALOG_PFD_528_SET = (1 << 31) | (1 << 23) | (1 << 15) | (1 << 7);
-	CCM_ANALOG_PFD_528 = 0x2018101B; // PFD0:352, PFD1:594, PFD2:396, PFD3:297 MHz 	
-	//PLL3:
-	CCM_ANALOG_PFD_480_SET = (1 << 31) | (1 << 23) | (1 << 15) | (1 << 7);	
-	CCM_ANALOG_PFD_480 = 0x13110D0C; // PFD0:720, PFD1:664, PFD2:508, PFD3:454 MHz
-}
 
 extern void usb_isr(void);
 
