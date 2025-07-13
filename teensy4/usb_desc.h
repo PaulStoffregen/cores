@@ -584,7 +584,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
   #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
 
-#elif defined(USB_RAWHID)
+#elif defined(USB_RAWHID) || defined(USB_RAWHID512)
   #define VENDOR_ID		0x16C0
   #define PRODUCT_ID		0x0486
   #define RAWHID_USAGE_PAGE	0xFFAB  // recommended: 0xFF00 to 0xFFFF
@@ -598,10 +598,21 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define NUM_INTERFACE		2
   #define RAWHID_INTERFACE      0	// RawHID
   #define RAWHID_TX_ENDPOINT    3
-  #define RAWHID_TX_SIZE        64
+  #define RAWHID_TX_SIZE_12     64
+
+#if defined(USB_RAWHID)
+  #define RAWHID_TX_SIZE_480    64 // either 64 or 512
+#else
+  #define RAWHID_TX_SIZE_480    512 // either 64 or 512
+#endif
   #define RAWHID_TX_INTERVAL    1	 // TODO: is this ok for 480 Mbit speed
   #define RAWHID_RX_ENDPOINT    4
-  #define RAWHID_RX_SIZE        64
+  #define RAWHID_RX_SIZE_12     64
+#if defined(USB_RAWHID)
+  #define RAWHID_RX_SIZE_480    64 // either 64 or 512
+#else
+  #define RAWHID_RX_SIZE_480    512 // either 64 or 512
+#endif
   #define RAWHID_RX_INTERVAL    1	 // TODO: is this ok for 480 Mbit speed
   #define SEREMU_INTERFACE      1	// Serial emulation
   #define SEREMU_TX_ENDPOINT    2
