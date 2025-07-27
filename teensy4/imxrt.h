@@ -2139,6 +2139,9 @@ typedef struct {
 #define DMA_CINT_CINT(n)                ((uint8_t)((n) & 0x1F)) // Clear Interrupt Request
 #define DMA_CINT_CAIR                   ((uint8_t)1<<6)         // Clear All Interrupt Requests
 #define DMA_CINT_NOP                    ((uint8_t)1<<7)         // NOP
+#define DMA_DCHPRI_ECP			((uint8_t)1<<7)		// Enable Preemption
+#define DMA_DCHPRI_DPA			((uint8_t)1<<6)		// Disable Preempt Ability
+#define DMA_DCHPRI_CHPRI(n)		((uint8_t)((n) & 0x0F))
 
 // Normally these Transfer Control Descriptor (TCD) registers are accessed through
 // DMAChannel instances.  See DMAChannel.h for details.  Or refer to libraries which

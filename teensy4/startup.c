@@ -27,7 +27,6 @@ void (* volatile _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
 static void memory_copy(uint32_t *dest, const uint32_t *src, uint32_t *dest_end);
 static void memory_clear(uint32_t *dest, uint32_t *dest_end);
 static void configure_systick(void);
-static void reset_PFD();
 extern void systick_isr(void);
 extern void pendablesrvreq_isr(void);
 void configure_cache(void);
@@ -59,6 +58,12 @@ FLASHMEM void startup_debug_reset(void) { __asm__ volatile("nop"); }
 
 static void ResetHandler2(void);
 
+// In theory we're supposed to gate off the PFD outputs, but
+// in practice it causes strange crashing, especially with LTO.
+// https://www.nxp.com/docs/en/engineering-bulletin/EB790.pdf
+// Uncomment this if you want to try the "correct" way.
+//#define GATE_PFD_WHILE_CHANGE
+
 __attribute__((section(".startup"), naked))
 void ResetHandler(void)
 {
@@ -79,7 +84,8 @@ static void ResetHandler2(void)
 {
 	unsigned int i;
 	__asm__ volatile("dsb":::"memory");
-#if 1
+#if 0
+	// TODO: can we safely delete this delay?
 	// Some optimization with LTO won't start without this delay, but why?
 	asm volatile("nop");
 	asm volatile("nop");
@@ -88,8 +94,37 @@ static void ResetHandler2(void)
 #endif
 	startup_early_hook(); // must be in FLASHMEM, as ITCM is not yet initialized!
 	PMU_MISC0_SET = 1<<3; //Use bandgap-based bias currents for best performance (Page 1175)
-#if 1
+
+	// Configure PLL PFD outputs
+	// Sys PFD Frequency = 528 MHz * 18 / frac8   (where frac8 range is 12 to 35)
+	const uint32_t sys_pfd = 0x2018101B; // PFD3:297,PFD2:396,PFD1:594,PFD0:352 MHz
+	// USB PFD Freq uency= 480 MHz * 18 / frac8   (where frac8 range is 12 to 35)
+	const uint32_t usb_pfd = 0x13110D0C; // PFD3:454,PFD2:508,PFD1:664,PFD0:720 MHz
+#ifdef GATE_PFD_WHILE_CHANGE
+	CCM_ANALOG_PFD_528_SET = 0x80808080;
+	CCM_ANALOG_PFD_528 = sys_pfd | 0x80808080;
+	CCM_ANALOG_PFD_528;
+	//while ((CCM_ANALOG_PFD_528 & 0x40404040) != 0x40404040) ; // wait for stable
+	CCM_ANALOG_PFD_528_CLR = 0x80808080;
+	CCM_ANALOG_PFD_480_SET = 0x80808080;
+	CCM_ANALOG_PFD_480 = usb_pfd | 0x80808080;
+	CCM_ANALOG_PFD_480;
+	//while ((CCM_ANALOG_PFD_480 & 0x40404040) != 0x40404040) ; // wait for stable
+	CCM_ANALOG_PFD_480_CLR = 0x80808080;
+#else
+	CCM_ANALOG_PFD_528 = sys_pfd;
+	CCM_ANALOG_PFD_480 = usb_pfd;
+#endif
+
+#if 0
+	// TODO: can we safely delete this delay?
 	// Some optimization with LTO won't start without this delay, but why?
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
 	asm volatile("nop");
 	asm volatile("nop");
 	asm volatile("nop");
@@ -127,8 +162,6 @@ static void ResetHandler2(void)
 	for (i=0; i < NVIC_NUM_INTERRUPTS; i++) NVIC_SET_PRIORITY(i, 128);
 	SCB_VTOR = (uint32_t)_VectorsRam;
 
-	reset_PFD();
-
 	// enable exception handling
 	SCB_SHCSR |= SCB_SHCSR_MEMFAULTENA | SCB_SHCSR_BUSFAULTENA | SCB_SHCSR_USGFAULTENA;
 
@@ -155,7 +188,6 @@ static void ResetHandler2(void)
 	configure_cache();
 	configure_systick();
 	usb_pll_start();	
-	reset_PFD(); //TODO: is this really needed?
 #ifdef F_CPU
 	set_arm_clock(F_CPU);
 #endif
@@ -317,7 +349,7 @@ FLASHMEM void configure_cache(void)
 	SCB_MPU_RASR = MEM_CACHE_WBWA | READONLY | SIZE_16M;
 
 	SCB_MPU_RBAR = 0x70000000 | REGION(i++); // FlexSPI2
-	SCB_MPU_RASR = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_16M;
+	SCB_MPU_RASR = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_32M;
 	// We default RAM meant for data to NOEXEC as a proactive security measure.
 	// If you wish to dynamically load code into RAM and execute it, start here:
 	// https://forum.pjrc.com/index.php?threads/75610/#post-347791
@@ -373,8 +405,46 @@ FLASHMEM static uint32_t flexspi2_psram_id(uint32_t addr)
 	while (!(FLEXSPI2_INTR & FLEXSPI_INTR_IPCMDDONE)); // wait
 	uint32_t id = FLEXSPI2_RFDR0;
 	FLEXSPI2_INTR = FLEXSPI_INTR_IPCMDDONE | FLEXSPI_INTR_IPRXWA;
-	return id & 0xFFFF;
+	return id;
 }
+
+
+/**
+ * \return size of PSRAM in MBytes, or 0 if not present
+ */
+FLASHMEM static uint8_t flexspi2_psram_size(uint32_t addr)
+{
+	uint8_t result = 0; // assume we don't have PSRAM at this address
+	flexspi2_command(0, addr); // exit quad mode
+	flexspi2_command(1, addr); // reset enable
+	flexspi2_command(2, addr); // reset (is this really necessary?)
+	uint32_t id = flexspi2_psram_id(addr);
+
+	switch (id & 0xFFFF)
+	{
+		default:
+			break;
+
+		case 0x5D0D: // AP / Ipus / ESP / Lyontek
+			result = 8;
+			break;
+
+		case 0x5D9D: // ISSI
+			switch ((id >> 21) & 0x7) // get size (Datasheet Table 6.2)
+			{
+				case 0b011: 
+					result = 8;
+					break;
+				case 0b100: 
+					result = 16;
+					break;
+			}
+			break;
+	}
+
+	return result;
+}
+
 
 FLASHMEM void configure_external_ram()
 {
@@ -404,9 +474,18 @@ FLASHMEM void configure_external_ram()
 	IOMUXC_FLEXSPI2_IPP_IND_IO_FA_BIT3_SELECT_INPUT = 1; // GPIO_EMC_29 for Mode: ALT8
 	IOMUXC_FLEXSPI2_IPP_IND_SCK_FA_SELECT_INPUT = 1; // GPIO_EMC_25 for Mode: ALT8
 
-	// turn on clock  (TODO: increase clock speed later, slow & cautious for first release)
+	// turn on clock  (QSPI flash & PSRAM chips usually spec max clock 100 to 133 MHz)
 	CCM_CBCMR = (CCM_CBCMR & ~(CCM_CBCMR_FLEXSPI2_PODF_MASK | CCM_CBCMR_FLEXSPI2_CLK_SEL_MASK))
-		| CCM_CBCMR_FLEXSPI2_PODF(5) | CCM_CBCMR_FLEXSPI2_CLK_SEL(3); // 88 MHz
+		//| CCM_CBCMR_FLEXSPI2_PODF(5) | CCM_CBCMR_FLEXSPI2_CLK_SEL(3); // 88.0 MHz
+		//| CCM_CBCMR_FLEXSPI2_PODF(3) | CCM_CBCMR_FLEXSPI2_CLK_SEL(0); // 99.0 MHz
+		//| CCM_CBCMR_FLEXSPI2_PODF(6) | CCM_CBCMR_FLEXSPI2_CLK_SEL(1); // 102.9 MHz
+		| CCM_CBCMR_FLEXSPI2_PODF(4) | CCM_CBCMR_FLEXSPI2_CLK_SEL(3); // 105.6 MHz
+		//| CCM_CBCMR_FLEXSPI2_PODF(5) | CCM_CBCMR_FLEXSPI2_CLK_SEL(2); // 110.8 MHz
+		//| CCM_CBCMR_FLEXSPI2_PODF(5) | CCM_CBCMR_FLEXSPI2_CLK_SEL(1); // 120.0 MHz
+		//| CCM_CBCMR_FLEXSPI2_PODF(3) | CCM_CBCMR_FLEXSPI2_CLK_SEL(3); // 132.0 MHz
+		//| CCM_CBCMR_FLEXSPI2_PODF(4) | CCM_CBCMR_FLEXSPI2_CLK_SEL(1); // 144.0 MHz
+		//| CCM_CBCMR_FLEXSPI2_PODF(3) | CCM_CBCMR_FLEXSPI2_CLK_SEL(2); // 166.2 MHz
+		//| CCM_CBCMR_FLEXSPI2_PODF(2) | CCM_CBCMR_FLEXSPI2_CLK_SEL(3); // 176.0 MHz
 	CCM_CCGR7 |= CCM_CCGR7_FLEXSPI2(CCM_CCGR_ON);
 
 	FLEXSPI2_MCR0 |= FLEXSPI_MCR0_MDIS;
@@ -440,15 +519,13 @@ FLASHMEM void configure_external_ram()
 	FLEXSPI2_IPTXFCR = (FLEXSPI_IPTXFCR & 0xFFFFFFC0) | FLEXSPI_IPTXFCR_CLRIPTXF;
 
 	FLEXSPI2_INTEN = 0;
-	FLEXSPI2_FLSHA1CR0 = 0x2000; // 8 MByte
-	FLEXSPI2_FLSHA1CR1 = FLEXSPI_FLSHCR1_CSINTERVAL(2)
-		| FLEXSPI_FLSHCR1_TCSH(3) | FLEXSPI_FLSHCR1_TCSS(3);
+	FLEXSPI2_FLSHA1CR1 = FLEXSPI_FLSHCR1_CSINTERVAL(0)
+		| FLEXSPI_FLSHCR1_TCSH(1) | FLEXSPI_FLSHCR1_TCSS(1);
 	FLEXSPI2_FLSHA1CR2 = FLEXSPI_FLSHCR2_AWRSEQID(6) | FLEXSPI_FLSHCR2_AWRSEQNUM(0)
 		| FLEXSPI_FLSHCR2_ARDSEQID(5) | FLEXSPI_FLSHCR2_ARDSEQNUM(0);
 
-	FLEXSPI2_FLSHA2CR0 = 0x2000; // 8 MByte
-	FLEXSPI2_FLSHA2CR1 = FLEXSPI_FLSHCR1_CSINTERVAL(2)
-		| FLEXSPI_FLSHCR1_TCSH(3) | FLEXSPI_FLSHCR1_TCSS(3);
+	FLEXSPI2_FLSHA2CR1 = FLEXSPI_FLSHCR1_CSINTERVAL(0)
+		| FLEXSPI_FLSHCR1_TCSH(1) | FLEXSPI_FLSHCR1_TCSS(1);
 	FLEXSPI2_FLSHA2CR2 = FLEXSPI_FLSHCR2_AWRSEQID(6) | FLEXSPI_FLSHCR2_AWRSEQNUM(0)
 		| FLEXSPI_FLSHCR2_ARDSEQID(5) | FLEXSPI_FLSHCR2_ARDSEQNUM(0);
 
@@ -483,22 +560,16 @@ FLASHMEM void configure_external_ram()
 	FLEXSPI2_LUT25 = LUT0(WRITE_SDR, PINS4, 1);
 
 	// look for the first PSRAM chip
-	flexspi2_command(0, 0); // exit quad mode
-	flexspi2_command(1, 0); // reset enable
-	flexspi2_command(2, 0); // reset (is this really necessary?)
-	if (flexspi2_psram_id(0) == 0x5D0D) {
-		// first PSRAM chip is present, look for a second PSRAM chip
-		flexspi2_command(4, 0);
-		flexspi2_command(0, 0x800000); // exit quad mode
-		flexspi2_command(1, 0x800000); // reset enable
-		flexspi2_command(2, 0x800000); // reset (is this really necessary?)
-		if (flexspi2_psram_id(0x800000) == 0x5D0D) {
-			flexspi2_command(4, 0x800000);
-			// Two PSRAM chips are present, 16 MByte
-			external_psram_size = 16;
-		} else {
-			// One PSRAM chip is present, 8 MByte
-			external_psram_size = 8;
+	uint8_t size1 = flexspi2_psram_size(0);
+	if (size1 > 0) {
+		FLEXSPI2_FLSHA1CR0 = size1 << 10;
+		flexspi2_command(4, 0); // enter QPI mode
+		// look for a second PSRAM chip
+		uint8_t size2 = flexspi2_psram_size(size1 << 20);
+		external_psram_size = size1 + size2;
+		if (size2 > 0) {
+			FLEXSPI2_FLSHA2CR0 = size2 << 10;
+			flexspi2_command(4, size1 << 20);  // enter QPI mode
 		}
 		// TODO: zero uninitialized EXTMEM variables
 		// TODO: copy from flash to initialize EXTMEM variables
@@ -508,6 +579,7 @@ FLASHMEM void configure_external_ram()
 			1, NULL);
 	} else {
 		// No PSRAM
+		external_psram_size = 0;
 		memset(&extmem_smalloc_pool, 0, sizeof(extmem_smalloc_pool));
 	}
 }
@@ -517,6 +589,7 @@ FLASHMEM void configure_external_ram()
 
 FLASHMEM void usb_pll_start()
 {
+	// https://www.nxp.com/docs/en/engineering-bulletin/EB790.pdf
 	while (1) {
 		uint32_t n = CCM_ANALOG_PLL_USB1; // pg 759
 		printf("CCM_ANALOG_PLL_USB1=%08lX\n", n);
@@ -532,7 +605,6 @@ FLASHMEM void usb_pll_start()
 		}
 		if (!(n & CCM_ANALOG_PLL_USB1_ENABLE)) {
 			printf("  enable PLL\n");
-			// TODO: should this be done so early, or later??
 			CCM_ANALOG_PLL_USB1_SET = CCM_ANALOG_PLL_USB1_ENABLE;
 			continue;
 		}
@@ -559,15 +631,6 @@ FLASHMEM void usb_pll_start()
 	}
 }
 
-FLASHMEM void reset_PFD()
-{	
-	//Reset PLL2 PFDs, set default frequencies:
-	CCM_ANALOG_PFD_528_SET = (1 << 31) | (1 << 23) | (1 << 15) | (1 << 7);
-	CCM_ANALOG_PFD_528 = 0x2018101B; // PFD0:352, PFD1:594, PFD2:396, PFD3:297 MHz 	
-	//PLL3:
-	CCM_ANALOG_PFD_480_SET = (1 << 31) | (1 << 23) | (1 << 15) | (1 << 7);	
-	CCM_ANALOG_PFD_480 = 0x13110D0C; // PFD0:720, PFD1:664, PFD2:508, PFD3:454 MHz
-}
 
 extern void usb_isr(void);
 
@@ -669,13 +732,13 @@ __attribute__((section(".startup"), noinline))
 static void memory_copy(uint32_t *dest, const uint32_t *src, uint32_t *dest_end)
 {
 #if 0
-	if (dest == src) return;
+	if (dest == dest_end) return;
 	do {
 		*dest++ = *src++;
 	} while (dest < dest_end);
 #else
 	asm volatile(
-	"	cmp	%[src], %[dest]		\n"
+	"	cmp	%[end], %[dest]		\n"
 	"	beq.n	2f			\n"
 	"1:	ldr.w	r3, [%[src]], #4	\n"
 	"	str.w	r3, [%[dest]], #4	\n"

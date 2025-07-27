@@ -86,6 +86,8 @@ void DMAChannel::begin(bool force_initialization)
 	*p++ = 0;
 	*p++ = 0;
 	*p++ = 0;
+	volatile uint8_t *dchpri = &DMA_DCHPRI3;
+	dchpri[(ch & 0x1C) | (3 - (ch & 0x03))] |= DMA_DCHPRI_ECP | DMA_DCHPRI_DPA;
 }
 
 void DMAChannel::release(void)

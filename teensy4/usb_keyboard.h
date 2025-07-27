@@ -54,7 +54,9 @@ int usb_keyboard_send(void);
 void usb_keymedia_release_all(void);
 #endif
 extern uint8_t keyboard_modifier_keys;
+#if KEYBOARD_SIZE == 8
 extern uint8_t keyboard_keys[6];
+#endif
 extern uint8_t keyboard_protocol;
 extern uint8_t keyboard_idle_config;
 extern uint8_t keyboard_idle_count;
@@ -82,12 +84,16 @@ public:
 	using Print::write;
 	void write_unicode(uint16_t n) { usb_keyboard_write_unicode(n); }
 	void set_modifier(uint16_t c) { keyboard_modifier_keys = (uint8_t)c; }
+#if KEYBOARD_SIZE == 8
 	void set_key1(uint8_t c) { keyboard_keys[0] = c; }
 	void set_key2(uint8_t c) { keyboard_keys[1] = c; }
 	void set_key3(uint8_t c) { keyboard_keys[2] = c; }
 	void set_key4(uint8_t c) { keyboard_keys[3] = c; }
 	void set_key5(uint8_t c) { keyboard_keys[4] = c; }
 	void set_key6(uint8_t c) { keyboard_keys[5] = c; }
+#elif KEYBOARD_SIZE == 16
+	// TODO, how to keep compatibility with this old 6KRO API?
+#endif
 #ifdef KEYMEDIA_INTERFACE
 	void set_media(uint16_t c) {
 		if (c == 0) {
