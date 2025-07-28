@@ -45,7 +45,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern uint16_t dma_channel_allocated_mask;
+extern uint32_t dma_channel_allocated_mask;
 #ifdef __cplusplus
 }
 #endif
@@ -65,23 +65,7 @@ extern uint16_t dma_channel_allocated_mask;
 
 class DMABaseClass {
 public:
-	typedef struct __attribute__((packed, aligned(4))) {
-		volatile const void * volatile SADDR;
-		int16_t SOFF;
-		union { uint16_t ATTR;
-			struct { uint8_t ATTR_DST; uint8_t ATTR_SRC; }; };
-		union { uint32_t NBYTES; uint32_t NBYTES_MLNO;
-			uint32_t NBYTES_MLOFFNO; uint32_t NBYTES_MLOFFYES; };
-		int32_t SLAST;
-		volatile void * volatile DADDR;
-		int16_t DOFF;
-		union { volatile uint16_t CITER;
-			volatile uint16_t CITER_ELINKYES; volatile uint16_t CITER_ELINKNO; };
-		int32_t DLASTSGA;
-		volatile uint16_t CSR;
-		union { volatile uint16_t BITER;
-			volatile uint16_t BITER_ELINKYES; volatile uint16_t BITER_ELINKNO; };
-	} TCD_t;
+	typedef IMXRT_DMA_TCD_t TCD_t;
 	TCD_t *TCD;
 
 	/***************************************/
@@ -310,11 +294,11 @@ public:
 
 	// Set the data size used for each triggered transfer
 	void transferSize(unsigned int len) {
-		if (len == 16) {
-			TCD->NBYTES = 16;
-			if (TCD->SOFF != 0) TCD->SOFF = 16;
-			if (TCD->DOFF != 0) TCD->DOFF = 16;
-			TCD->ATTR = (TCD->ATTR & 0xF8F8) | 0x0404;
+		if (len == 8) {
+			TCD->NBYTES = 8;
+			if (TCD->SOFF != 0) TCD->SOFF = 8;
+			if (TCD->DOFF != 0) TCD->DOFF = 8;
+			TCD->ATTR = (TCD->ATTR & 0xF8F8) | 0x0303;
 		} else if (len == 4) {
 			TCD->NBYTES = 4;
 			if (TCD->SOFF != 0) TCD->SOFF = 4;
@@ -449,7 +433,9 @@ public:
 	~DMAChannel() {
 		release();
 	}
-	void begin(bool force_initialization = false);
+
+	// preemptible channels may be interrupted by non-preemptible channels
+	void begin(bool force_initialization = false, bool preemptible = false);
 private:
 	void release(void);
 
@@ -510,20 +496,9 @@ public:
 	// An interrupt routine can be run when the DMA channel completes
 	// the entire transfer, and also optionally when half of the
 	// transfer is completed.
-	void attachInterrupt(void (*isr)(void)) {
-		_VectorsRam[channel + IRQ_DMA_CH0 + 16] = isr;
-		NVIC_ENABLE_IRQ(IRQ_DMA_CH0 + channel);
-	}
-
-	void attachInterrupt(void (*isr)(void), uint8_t prio) {
-		_VectorsRam[channel + IRQ_DMA_CH0 + 16] = isr;
-		NVIC_ENABLE_IRQ(IRQ_DMA_CH0 + channel);
-		NVIC_SET_PRIORITY(IRQ_DMA_CH0 + channel, prio);
-	}
-	
-	void detachInterrupt(void) {
-		NVIC_DISABLE_IRQ(IRQ_DMA_CH0 + channel);
-	}
+	void attachInterrupt(void (*isr)(void));
+	void attachInterrupt(void (*isr)(void), uint8_t prio);
+	void detachInterrupt(void);
 
 	void clearInterrupt(void) {
 		DMA_CINT = channel;
