@@ -38,6 +38,7 @@
 
 #define DMACHANNEL_HAS_BEGIN
 #define DMACHANNEL_HAS_BOOLEAN_CTOR
+#define DMACHANNEL_HAS_PREEMPTION
 
 
 // The channel allocation bitmask is accessible from "C" namespace,
