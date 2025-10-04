@@ -27,7 +27,7 @@
 
 #pragma once
 
-#if defined(USB_MTPDISK) || defined(USB_MTPDISK_SERIAL)
+#if defined(USB_MTPDISK) || defined(USB_MTPDISK_SERIAL) || defined(USB_MTPDISK_DUAL_SERIAL) || defined(USB_MTPDISK_TRIPLE_SERIAL)
 
 #include "IntervalTimer.h"
 #include "core_pins.h"
@@ -314,4 +314,4 @@ private:
 
 extern MTP_class MTP;
 
-#endif // USB_MTPDISK or USB_MTPDISK_SERIAL
+#endif // USB_MTPDISK || USB_MTPDISK_SERIAL || USB_MTPDISK_DUAL_SERIAL || USB_MTPDISK_TRIPLE_SERIAL
