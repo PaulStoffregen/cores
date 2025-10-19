@@ -743,6 +743,101 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
   #define ENDPOINT5_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
 
+#elif defined(USB_MTPDISK_DUAL_SERIAL)
+  #define VENDOR_ID		0x16C0
+  #define PRODUCT_ID		0x04D6
+  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
+  #define MANUFACTURER_NAME_LEN	11
+  #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','M','T','P',' ','D','u','a','l',' ','S','e','r','i','a','l'}
+  #define PRODUCT_NAME_LEN	21
+  #define EP0_SIZE		64
+  #define NUM_ENDPOINTS         7
+  #define NUM_INTERFACE		5
+  #define CDC_IAD_DESCRIPTOR	1       // Serial
+  #define CDC_STATUS_INTERFACE	0
+  #define CDC_DATA_INTERFACE	1
+  #define CDC_ACM_ENDPOINT	2
+  #define CDC_RX_ENDPOINT       3
+  #define CDC_TX_ENDPOINT       3
+  #define CDC_ACM_SIZE          16
+  #define CDC_RX_SIZE_480       512
+  #define CDC_TX_SIZE_480       512
+  #define CDC_RX_SIZE_12        64
+  #define CDC_TX_SIZE_12        64
+  #define CDC2_STATUS_INTERFACE	2       // SerialUSB1
+  #define CDC2_DATA_INTERFACE	3
+  #define CDC2_ACM_ENDPOINT	4
+  #define CDC2_RX_ENDPOINT      5
+  #define CDC2_TX_ENDPOINT      5
+  #define MTP_INTERFACE		4       // MTP Disk
+  #define MTP_TX_ENDPOINT       6
+  #define MTP_TX_SIZE_12        64
+  #define MTP_TX_SIZE_480       512
+  #define MTP_RX_ENDPOINT       6
+  #define MTP_RX_SIZE_12        64
+  #define MTP_RX_SIZE_480       512
+  #define MTP_EVENT_ENDPOINT    7
+  #define MTP_EVENT_SIZE        32
+  #define MTP_EVENT_INTERVAL_12	10	// 10 = 10 ms
+  #define MTP_EVENT_INTERVAL_480 7	// 7 = 8 ms
+  #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
+  #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
+  #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
+  #define ENDPOINT5_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
+  #define ENDPOINT6_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
+  #define ENDPOINT7_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
+
+#elif defined(USB_MTPDISK_TRIPLE_SERIAL)
+  #define VENDOR_ID		0x16C0
+  #define PRODUCT_ID		0x04D6
+  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
+  #define MANUFACTURER_NAME_LEN	11
+  #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','M','T','P',' ','T','r','i','p','l','e',' ','S','e','r','i','a','l'}
+  #define PRODUCT_NAME_LEN	23
+  #define EP0_SIZE		64
+  #define NUM_ENDPOINTS         9
+  #define NUM_INTERFACE		7
+  #define CDC_IAD_DESCRIPTOR	1       // Serial
+  #define CDC_STATUS_INTERFACE	0
+  #define CDC_DATA_INTERFACE	1
+  #define CDC_ACM_ENDPOINT	2
+  #define CDC_RX_ENDPOINT       3
+  #define CDC_TX_ENDPOINT       3
+  #define CDC_ACM_SIZE          16
+  #define CDC_RX_SIZE_480       512
+  #define CDC_TX_SIZE_480       512
+  #define CDC_RX_SIZE_12        64
+  #define CDC_TX_SIZE_12        64
+  #define CDC2_STATUS_INTERFACE	2       // SerialUSB1
+  #define CDC2_DATA_INTERFACE	3
+  #define CDC2_ACM_ENDPOINT	4
+  #define CDC2_RX_ENDPOINT      5
+  #define CDC2_TX_ENDPOINT      5
+  #define CDC3_STATUS_INTERFACE	4       // SerialUSB2
+  #define CDC3_DATA_INTERFACE	5
+  #define CDC3_ACM_ENDPOINT	6
+  #define CDC3_RX_ENDPOINT      7
+  #define CDC3_TX_ENDPOINT      7
+  #define MTP_INTERFACE		6       // MTP Disk
+  #define MTP_TX_ENDPOINT       8
+  #define MTP_TX_SIZE_12        64
+  #define MTP_TX_SIZE_480       512
+  #define MTP_RX_ENDPOINT       8
+  #define MTP_RX_SIZE_12        64
+  #define MTP_RX_SIZE_480       512
+  #define MTP_EVENT_ENDPOINT    9
+  #define MTP_EVENT_SIZE        32
+  #define MTP_EVENT_INTERVAL_12	10	// 10 = 10 ms
+  #define MTP_EVENT_INTERVAL_480 7	// 7 = 8 ms
+  #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
+  #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
+  #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
+  #define ENDPOINT5_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
+  #define ENDPOINT6_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
+  #define ENDPOINT7_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
+  #define ENDPOINT8_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
+  #define ENDPOINT9_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
+
 #elif defined(USB_AUDIO)
   #define VENDOR_ID		0x16C0
   #define PRODUCT_ID		0x04D2

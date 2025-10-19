@@ -33,6 +33,7 @@
 #define __INTERVALTIMER_H__
 
 #include <stddef.h>
+#include <type_traits>
 #include "imxrt.h"
 #if TEENSYDUINO >= 159
 #include "inplace_function.h"
