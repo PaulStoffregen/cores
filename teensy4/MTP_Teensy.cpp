@@ -24,14 +24,14 @@
 
 // modified for SDFS by WMXZ
 
-#if defined(USB_MTPDISK) || defined(USB_MTPDISK_SERIAL)
+#include "usb_desc.h"
+#if defined(MTP_INTERFACE)
 
 #define USE_DISK_BUFFER // only currently on T4.x
 
 #include "MTP_Teensy.h"
 #include "MTP_Const.h"
 #undef USB_DESC_LIST_DEFINE
-#include "usb_desc.h"
 
 #if defined(__IMXRT1062__)
 // following only while usb_mtp is not included in cores
@@ -2554,4 +2554,4 @@ void MTP_class::printContainer(const void *container, const char *msg) {
 
 
 
-#endif // USB_MTPDISK or USB_MTPDISK_SERIAL
+#endif // MTP_INTERFACE
