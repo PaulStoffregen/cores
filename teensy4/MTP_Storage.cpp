@@ -25,7 +25,8 @@
 // modified for SDFS by WMXZ
 // Nov 2020 adapted to SdFat-beta / SD combo
 
-#if defined(USB_MTPDISK) || defined(USB_MTPDISK_SERIAL)
+#include "usb_desc.h"
+#if defined(MTP_INTERFACE)
 
 #include "core_pins.h"
 #include "usb_dev.h"
@@ -1927,4 +1928,4 @@ void MTPStorage::loop() {
   }
 }
 
-#endif // USB_MTPDISK or USB_MTPDISK_SERIAL
+#endif // MTP_INTERFACE
