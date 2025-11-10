@@ -5,7 +5,7 @@
 
 class CrashReportClass: public Printable {
 public:
-	virtual size_t printTo(Print& p) const;
+	size_t printTo(Print& p) const override;
 	void clear();
 	operator bool();
 };
