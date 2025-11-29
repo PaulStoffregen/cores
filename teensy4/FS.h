@@ -70,6 +70,7 @@ protected:
 	virtual uint64_t size() = 0;
 	virtual void close() = 0;
 	virtual bool isOpen() = 0;
+	virtual int fgets(char* str, int num, char* delim = nullptr) = 0;
 	virtual const char* name() = 0;
 	virtual bool isDirectory() = 0;
 	virtual File openNextFile(uint8_t mode=0) = 0;
@@ -205,6 +206,9 @@ public:
 	}
 	operator bool() {
 		return (f) ? f->isOpen() : false;
+	}
+	int fgets(char* str, int num, char* delim = nullptr) {
+		return f->fgets(str, num, delim);
 	}
 	const char* name() {
 		return (f) ? f->name() : "";
