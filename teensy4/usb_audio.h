@@ -46,6 +46,7 @@ public:
 	float getBufferedSamples() const;
 	float getBufferedSamplesSmooth() const;
 	float getRequestedSamplingFrequ() const;
+	float getActualBIntervalUs() const;
 	USBAudioInInterface::Status getStatus() const;
 	float volume(void);
 
@@ -82,6 +83,7 @@ public:
     
 	float getBufferedSamples() const;
 	float getBufferedSamplesSmooth() const;
+	float getActualBIntervalUs() const;
 	USBAudioOutInterface::Status getStatus() const;    
 
 private:

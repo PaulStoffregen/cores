@@ -71,6 +71,9 @@ float AudioInputUSB::getBufferedSamplesSmooth() const{
 float AudioInputUSB::getRequestedSamplingFrequ() const{
 	return _usbInterface.getRequestedSamplingFrequ();
 }
+float AudioInputUSB::getActualBIntervalUs() const{
+	return _usbInterface.getActualBIntervalUs();
+}
 USBAudioInInterface::Status AudioInputUSB::getStatus() const{
 	return _usbInterface.getStatus();
 }
@@ -196,6 +199,9 @@ float AudioOutputUSB::getBufferedSamples() const{
 }
 float AudioOutputUSB::getBufferedSamplesSmooth() const{
 	return _usbInterface.getBufferedSamplesSmooth();
+}
+float AudioOutputUSB::getActualBIntervalUs() const{
+	return _usbInterface.getActualBIntervalUs();
 }
 USBAudioOutInterface::Status AudioOutputUSB::getStatus() const{
 	return _usbInterface.getStatus();

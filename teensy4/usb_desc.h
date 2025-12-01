@@ -980,6 +980,13 @@ extern const usb_descriptor_list_t usb_descriptor_list[];
   #define USB_AUDIO_CHANNEL_BR  (1<<5)  //sometimes called RR (rear right)
   #define USB_AUDIO_CHANNEL_SL  (1<<9)
   #define USB_AUDIO_CHANNEL_SR  (1<<10)
+
+  //ASYNC_TX_ENDPOINT: if defined, the output behaves like an asynchronous endpoint, and like an adaptive one otherwise
+	//Asynchronous: The usb audio output sometimes sends a sample more or less to the host to prevent buffer over- and underruns.
+  //Adaptive: The usb audio output sends samples twice or discards samples to prevent buffer over- and underruns.
+  //Asynchronous should be better. However, at the original usb audio implementation, the endpoint was adaptive and it therefore
+  //possible to switch back to adaptive by commenting out this define. (e.g. for debugging purposes)
+  #define ASYNC_TX_ENDPOINT
   
   // defines for 480MBit ================================
   #if defined(AUDIO_USB_CHANNEL_COUNT) // channel count set on Tools menu...
@@ -1010,7 +1017,7 @@ extern const usb_descriptor_list_t usb_descriptor_list[];
       #define AUDIO_POLLING_INTERVAL_480 1  //1 -> 2^(1-1)=1 -> every micro-frame
     #elif BANDWIDTH_BYTES_PER_SEC_480 > 1024000 *2 //more than 1024bytes/500us -> we need 4 micro frames per ms
       #define AUDIO_POLLING_INTERVAL_480 2  //2 -> 2^(2-1)=2 -> every 2 micro-frames
-    #elif BANDWIDTH_BYTES_PER_SEC_480 > 1024000 //more than 1024bytes/500us -> we need 2 micro frames per ms
+    #elif BANDWIDTH_BYTES_PER_SEC_480 > 1024000 //more than 1024bytes/1000us -> we need 2 micro frames per ms
       #define AUDIO_POLLING_INTERVAL_480 3  //3 -> 2^(3-1)=4 -> every 4 micro-frames
     #else
       #define AUDIO_POLLING_INTERVAL_480 4  //4 -> 2^(4-1)=8 -> every 8 micro-frames

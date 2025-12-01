@@ -66,15 +66,16 @@ class USBAudioInInterface
 {
 public:
 	struct Status {
-		uint32_t usb_audio_underrun_count;
-		uint32_t usb_audio_overrun_count;
-		uint32_t audio_memory_underrun_count;
-		float target_num_buffered_samples;
-		uint16_t num_transmitted_channels;		//might be smaller than expected in case the 12Mbit/s bandwidth limits the number of channels
-		uint16_t ring_buffer_size;
-		uint16_t usb_rx_tx_buffer_size;
-		uint16_t bInterval_uS;
-		bool receivingData;
+		uint32_t usb_audio_underrun_count;		//How often did we run out of audio samples. (usb host sends audio data too slowly)
+		uint32_t usb_audio_overrun_count;		//How often did we run out of buffer space.  (usb host sends audio data too fast)
+		uint32_t audio_memory_underrun_count;	//How often did we run out audio blocks.  (Increase N in AudioMemory(N) if that happens)
+		float target_num_buffered_samples;		//How many samples do want to be in the buffer directly after an 'update' call (the more samples, the more stable. Should at least be: (bInterval_uS*e-6) * AUDIO_SAMPLE_RATE)
+		uint16_t num_transmitted_channels;		//How many audio channels do we receive (might be smaller than expected in case the 12Mbit/s bandwidth limits the number of channels)
+		uint16_t ring_buffer_size;				//Number of audio blocks per channel in the ring buffer (received audio data from the host is stored in this buffer)
+		uint16_t usb_rx_tx_buffer_size;			//=AUDIO_RX_SIZE_480 or AUDIO_RX_SIZE_12 (bytes, must be larger than AUDIO_SAMPLE_RATE * bInterval_uS*1e-6 * USB_AUDIO_NO_CHANNELS_480 * AUDIO_SUBSLOT_SIZE 
+		uint16_t bInterval_uS;					//polling interval as requested by the Teensy (125, 256, 512 or 1024)
+		bool receivingData;						//Teensy is currently receiving data (There was at least one 'usb_audio_receive_callback' since the last 'update' call)
+		uint8_t usb_high_speed;					// 1 for high speed, 0 otherwise
 	};
 	typedef bool (*SetBlockQuite) (uint16_t bIdx, uint16_t channel);
 	typedef void (*ReleaseBlock)(uint16_t bIdx, uint16_t channel);
@@ -106,6 +107,7 @@ public:
 	float getBufferedSamples() const;
 	float getBufferedSamplesSmooth() const;
 	float getRequestedSamplingFrequ() const;
+	float getActualBIntervalUs() const;
 	Status getStatus() const;
 	friend void usb_audio_receive_callback(unsigned int len);
 	friend int usb_audio_set_feature(void *stp, uint8_t *buf);
@@ -143,16 +145,19 @@ class USBAudioOutInterface {
 public:
 	enum BufferState{ready, full, overrun};
 	struct Status {
-		uint32_t usb_audio_underrun_count;
-		uint32_t usb_audio_overrun_count;
-		float target_num_buffered_samples;
-		uint16_t num_transmitted_channels;
-		uint16_t ring_buffer_size;
-		uint16_t usb_rx_tx_buffer_size;
-		uint16_t bInterval_uS;
-		uint32_t num_skipped_Samples;
-		uint32_t num_padded_Samples;
-		bool transmittingData;
+		uint32_t usb_audio_underrun_count;	//How often did we run out of audio samples. (usb host requests audio data too fast)
+		uint32_t usb_audio_overrun_count;	//How often did we run out of buffer space.  (usb host requests audio data too slowly)
+		float target_num_buffered_samples;	//How many samples do want to be in the buffer directly after an 'usb_audio_transmit_callback' call (the more samples, the more stable. Should at least be: AUDIO_BLOCK_SAMPLES)
+		uint16_t num_transmitted_channels;	//How many audio channels do we transmit (might be smaller than expected in case the 12Mbit/s bandwidth limits the number of channels)
+		uint16_t ring_buffer_size;			//Number of audio blocks per channel in the ring buffer (audio blocks from the Teensy are stored in this buffer, before the data is sent to the host.)
+		uint16_t usb_rx_tx_buffer_size;		//=AUDIO_TX_SIZE_480 or AUDIO_TX_SIZE_12 (bytes, must be larger than AUDIO_SAMPLE_RATE * bInterval_uS*1e-6 * USB_AUDIO_NO_CHANNELS_480 * AUDIO_SUBSLOT_SIZE 
+		uint16_t bInterval_uS;				//polling interval as requested by the Teensy (125, 256, 512 or 1024)
+		uint32_t num_skipped_Samples;		//only used if not ASYNC_TX_ENDPOINT (->adaptive endpoint)	In usb_audio_transmit_callback: how often was a sample skipped to prevent a buffer overrun.
+		uint32_t num_padded_Samples;		//only used if not ASYNC_TX_ENDPOINT (->sdaptive endpoint)	In usb_audio_transmit_callback: how often was a sample padded to prevent a buffer underrun.
+		uint32_t num_send_one_less;			//only used if ASYNC_TX_ENDPOINT (-> asynchronous endpoint)	In usb_audio_transmit_callback: how often was a sample less than initially planned sent to prevent a buffer underrun.
+		uint32_t num_send_one_more;			//only used if ASYNC_TX_ENDPOINT (-> asynchronous endpoint)	In usb_audio_transmit_callback: how often was a sample more than initially planned sent to prevent a buffer overrun.
+		bool transmittingData;				//Teensy is currently sending data to the host (There was at least one 'usb_audio_transmit_callback' since the last 'update' call)
+		uint8_t usb_high_speed;				// 1 for high speed, 0 otherwise
 	};
 
 	typedef void (*ReleaseBlocks)(uint16_t bIdx, uint16_t noChannels);
@@ -170,6 +175,7 @@ public:
 	friend unsigned int usb_audio_transmit_callback(void);
 	float getBufferedSamples() const;
 	float getBufferedSamplesSmooth() const;
+	float getActualBIntervalUs() const;
 	Status getStatus() const;
 private:
 	static void tryIncreaseIdxTransmission(uint16_t& tBIdx, uint16_t& offset);

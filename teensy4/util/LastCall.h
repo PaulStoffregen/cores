@@ -53,6 +53,11 @@ class LastCall
         History<N> getHistory() const {
             return _history;
         }
+        uint32_t getLastDuration()const{
+            int32_t upperIdx = (_history.currentWriteIndex +(N-1))%N;
+            int32_t lowerIdx = (_history.currentWriteIndex +(N-2))%N;
+            return _history.data[upperIdx] - _history.data[lowerIdx];
+        }
         template <int O>
         double getLastCall(const History<N>& history, double expectedTimeStep) const {
             //We shift all data samples, so that the oldest sample becomes 0 and compute the center of mass of the shifted samples.
