@@ -48,8 +48,8 @@ extern unsigned long _sbss;
 extern unsigned long _ebss;
 extern unsigned long _flexram_bank_config;
 extern unsigned long _estack;
-extern unsigned long _extram_start;
-extern unsigned long _extram_end;
+extern char _extram_start[];
+extern char _extram_end[];
 
 __attribute__ ((used, aligned(1024), section(".vectorsram")))
 void (* volatile _VectorsRam[NVIC_NUM_INTERRUPTS+16])(void);
@@ -601,12 +601,12 @@ FLASHMEM void configure_external_ram()
 			FLEXSPI2_FLSHA2CR0 = size2 << 10;
 			flexspi2_command(4, size1 << 20);  // enter QPI mode
 		}
-		// TODO: zero uninitialized EXTMEM variables
+		memset(_extram_start, 0, external_psram_size << 20);
 		// TODO: copy from flash to initialize EXTMEM variables
-		sm_set_pool(&extmem_smalloc_pool, &_extram_end,
+		sm_set_pool(&extmem_smalloc_pool, _extram_end,
 			external_psram_size * 0x100000 -
-			((uint32_t)&_extram_end - (uint32_t)&_extram_start),
-			1, NULL);
+			(_extram_end - _extram_start),
+			0, NULL);
 	} else {
 		// No PSRAM
 		external_psram_size = 0;
