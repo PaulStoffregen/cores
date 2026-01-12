@@ -977,11 +977,11 @@ extern const usb_descriptor_list_t usb_descriptor_list[];
   #define USB_AUDIO_CHANNEL_FR  (1<<1)  //front right
   #define USB_AUDIO_CHANNEL_FC  (1<<2)  //front center
   #define USB_AUDIO_CHANNEL_LFE (1<<3)  //low frequency effects
-  #define USB_AUDIO_CHANNEL_BL  (1<<4)  //back left sometimes called RL (rear left)
-  #define USB_AUDIO_CHANNEL_BR  (1<<5)  //back right sometimes called RR (rear right)
+  #define USB_AUDIO_CHANNEL_RL  (1<<4)  //rear left sometimes called BL (back left)
+  #define USB_AUDIO_CHANNEL_RR  (1<<5)  //rear right sometimes called BR (back right)
   #define USB_AUDIO_CHANNEL_FLC (1<<6)  //front left of center
   #define USB_AUDIO_CHANNEL_FRC (1<<7)  //front right of center
-  #define USB_AUDIO_CHANNEL_BC  (1<<8)  //back center
+  #define USB_AUDIO_CHANNEL_RC  (1<<8)  //rear center
   #define USB_AUDIO_CHANNEL_SL  (1<<9)  //side left
   #define USB_AUDIO_CHANNEL_SR  (1<<10) //side right
 
@@ -989,9 +989,9 @@ extern const usb_descriptor_list_t usb_descriptor_list[];
   #define USB_AUDIO_CHANNEL_TFL  (1<<12)  //top front left
   #define USB_AUDIO_CHANNEL_TFC  (1<<13)  //top front center
   #define USB_AUDIO_CHANNEL_TFR  (1<<14)  //top front right
-  #define USB_AUDIO_CHANNEL_TBL  (1<<15)  //top back left
-  #define USB_AUDIO_CHANNEL_TBC  (1<<16)  //top back center
-  #define USB_AUDIO_CHANNEL_TBR  (1<<17)  //top back right
+  #define USB_AUDIO_CHANNEL_TRL  (1<<15)  //top rear left
+  #define USB_AUDIO_CHANNEL_TRC  (1<<16)  //top rear center
+  #define USB_AUDIO_CHANNEL_TRR  (1<<17)  //top rear right
   #define USB_AUDIO_CHANNEL_TFLC  (1<<18) //top front left of center
   #define USB_AUDIO_CHANNEL_TFRC  (1<<19) //top front right of center
 
@@ -1000,8 +1000,8 @@ extern const usb_descriptor_list_t usb_descriptor_list[];
   #define USB_AUDIO_CHANNEL_TSL  (1<<22)  //top side left
   #define USB_AUDIO_CHANNEL_TSR  (1<<23)  //top side right
   #define USB_AUDIO_CHANNEL_BC  (1<<24)   //bottom center
-  #define USB_AUDIO_CHANNEL_BLC  (1<<25)  //back left of center
-  #define USB_AUDIO_CHANNEL_BRC  (1<<26)  //back right of center
+  #define USB_AUDIO_CHANNEL_RLC  (1<<25)  //rear left of center
+  #define USB_AUDIO_CHANNEL_RRC  (1<<26)  //rear right of center
   #define USB_AUDIO_CHANNEL_RD  (1<<27)   //raw data
 
   //ASYNC_TX_ENDPOINT: if defined, the output behaves like an asynchronous endpoint, and like an adaptive one otherwise
@@ -1023,13 +1023,13 @@ extern const usb_descriptor_list_t usb_descriptor_list[];
       #define CHANNEL_CONFIG_480  (USB_AUDIO_CHANNEL_FL | USB_AUDIO_CHANNEL_FR)
   #endif
   #if USB_AUDIO_NO_CHANNELS_480 == 4
-        #define CHANNEL_CONFIG_480  (USB_AUDIO_CHANNEL_FL | USB_AUDIO_CHANNEL_FR |USB_AUDIO_CHANNEL_BL | USB_AUDIO_CHANNEL_BR)
+        #define CHANNEL_CONFIG_480  (USB_AUDIO_CHANNEL_FL | USB_AUDIO_CHANNEL_FR |USB_AUDIO_CHANNEL_RL | USB_AUDIO_CHANNEL_RR)
   #endif
   #if USB_AUDIO_NO_CHANNELS_480 == 6
         #define CHANNEL_CONFIG_480  (USB_AUDIO_CHANNEL_FL | USB_AUDIO_CHANNEL_FR |USB_AUDIO_CHANNEL_FC | USB_AUDIO_CHANNEL_LFE | USB_AUDIO_CHANNEL_SL | USB_AUDIO_CHANNEL_SR)
   #endif
   #if USB_AUDIO_NO_CHANNELS_480 == 8
-        #define CHANNEL_CONFIG_480  (USB_AUDIO_CHANNEL_FL | USB_AUDIO_CHANNEL_FR |USB_AUDIO_CHANNEL_FC | USB_AUDIO_CHANNEL_LFE | USB_AUDIO_CHANNEL_BL | USB_AUDIO_CHANNEL_BR | USB_AUDIO_CHANNEL_SL | USB_AUDIO_CHANNEL_SR)
+        #define CHANNEL_CONFIG_480  (USB_AUDIO_CHANNEL_FL | USB_AUDIO_CHANNEL_FR |USB_AUDIO_CHANNEL_FC | USB_AUDIO_CHANNEL_LFE | USB_AUDIO_CHANNEL_RL | USB_AUDIO_CHANNEL_RR | USB_AUDIO_CHANNEL_SL | USB_AUDIO_CHANNEL_SR)
   #endif
 
   
@@ -1090,13 +1090,13 @@ extern const usb_descriptor_list_t usb_descriptor_list[];
       #define CHANNEL_CONFIG_12  (USB_AUDIO_CHANNEL_FL | USB_AUDIO_CHANNEL_FR)
   #endif
   #if USB_AUDIO_NO_CHANNELS_12 == 4
-        #define CHANNEL_CONFIG_12  (USB_AUDIO_CHANNEL_FL | USB_AUDIO_CHANNEL_FR |USB_AUDIO_CHANNEL_BL | USB_AUDIO_CHANNEL_BR)
+        #define CHANNEL_CONFIG_12  (USB_AUDIO_CHANNEL_FL | USB_AUDIO_CHANNEL_FR |USB_AUDIO_CHANNEL_RL | USB_AUDIO_CHANNEL_RR)
   #endif
   #if USB_AUDIO_NO_CHANNELS_12 == 6
         #define CHANNEL_CONFIG_12  (USB_AUDIO_CHANNEL_FL | USB_AUDIO_CHANNEL_FR |USB_AUDIO_CHANNEL_FC | USB_AUDIO_CHANNEL_LFE | USB_AUDIO_CHANNEL_SL | USB_AUDIO_CHANNEL_SR)
   #endif
   #if USB_AUDIO_NO_CHANNELS_12 == 8
-        #define CHANNEL_CONFIG_12  (USB_AUDIO_CHANNEL_FL | USB_AUDIO_CHANNEL_FR |USB_AUDIO_CHANNEL_FC | USB_AUDIO_CHANNEL_LFE | USB_AUDIO_CHANNEL_BL | USB_AUDIO_CHANNEL_BR | USB_AUDIO_CHANNEL_SL | USB_AUDIO_CHANNEL_SR)
+        #define CHANNEL_CONFIG_12  (USB_AUDIO_CHANNEL_FL | USB_AUDIO_CHANNEL_FR |USB_AUDIO_CHANNEL_FC | USB_AUDIO_CHANNEL_LFE | USB_AUDIO_CHANNEL_RL | USB_AUDIO_CHANNEL_RR | USB_AUDIO_CHANNEL_SL | USB_AUDIO_CHANNEL_SR)
   #endif
 
   #define AUDIO_NUM_SUBFRAMES_PER_POLLING_12 (1<<(AUDIO_POLLING_INTERVAL_12-1))

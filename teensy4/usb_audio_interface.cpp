@@ -581,7 +581,7 @@ namespace {
 			target++;
 		}
 	}
-
+#ifndef ASYNC_TX_ENDPOINT
 	void updateBufferOffset(int8_t sign, uint32_t& devCounter, uint16_t& offset){
 		if(sign == -1 && offset > 0){
 			devCounter=0;
@@ -596,7 +596,7 @@ namespace {
 			offset++;
 		}
 	}
-
+#endif
 	uint32_t getTransmissionTarget(){
 		// Depending on the sampling frequency and the bInterval, we compute the number of samples that need to be transmitted.
 		//
