@@ -815,6 +815,11 @@
 
 #ifdef __cplusplus
 extern "C"{
+// C++ compilers shouldn't use 'static inline' because then there may be more
+// than one copy of the function; 'static' implies internal linkage
+#define STATIC_INLINE inline
+#else
+#define STATIC_INLINE static inline
 #endif
 
 
@@ -822,8 +827,8 @@ extern void _digitalWrite(void);
 extern void _digitalWrite_HIGH(void);
 extern void _digitalWrite_LOW(void);
 
-static inline void digitalWrite(uint8_t, uint8_t) __attribute__((always_inline, unused));
-static inline void digitalWrite(uint8_t pin, uint8_t val)
+STATIC_INLINE void digitalWrite(uint8_t, uint8_t) __attribute__((always_inline, unused));
+STATIC_INLINE void digitalWrite(uint8_t pin, uint8_t val)
 {
 	if (__builtin_constant_p(pin)) {
 		if (val) {
@@ -1136,8 +1141,8 @@ static inline void digitalWrite(uint8_t pin, uint8_t val)
 	}
 }
 
-static inline void digitalWriteFast(uint8_t, uint8_t) __attribute__((always_inline, unused));
-static inline void digitalWriteFast(uint8_t pin, uint8_t val)
+STATIC_INLINE void digitalWriteFast(uint8_t, uint8_t) __attribute__((always_inline, unused));
+STATIC_INLINE void digitalWriteFast(uint8_t pin, uint8_t val)
 {
 	if (__builtin_constant_p(pin)) {
 		if (val) {
@@ -1349,8 +1354,8 @@ static inline void digitalWriteFast(uint8_t pin, uint8_t val)
 
 extern void _digitalRead(void) __attribute__((noinline));
 
-static inline uint8_t digitalRead(uint8_t) __attribute__((always_inline, unused));
-static inline uint8_t digitalRead(uint8_t pin)
+STATIC_INLINE uint8_t digitalRead(uint8_t) __attribute__((always_inline, unused));
+STATIC_INLINE uint8_t digitalRead(uint8_t pin)
 {
 	if (__builtin_constant_p(pin)) {
 		if (pin == 0) {
@@ -1465,8 +1470,8 @@ static inline uint8_t digitalRead(uint8_t pin)
 	}
 }
 
-static inline uint8_t digitalReadFast(uint8_t) __attribute__((always_inline, unused));
-static inline uint8_t digitalReadFast(uint8_t pin)
+STATIC_INLINE uint8_t digitalReadFast(uint8_t) __attribute__((always_inline, unused));
+STATIC_INLINE uint8_t digitalReadFast(uint8_t pin)
 {
 	return digitalRead(pin);
 }
@@ -1476,8 +1481,8 @@ extern void _pinMode_output(uint8_t pin) __attribute__((noinline));
 extern void _pinMode_input(uint8_t pin) __attribute__((noinline));
 extern void _pinMode_input_pullup(uint8_t pin) __attribute__((noinline));
 
-static inline void pinMode(uint8_t, uint8_t) __attribute__((always_inline, unused));
-static inline void pinMode(uint8_t pin, uint8_t mode)
+STATIC_INLINE void pinMode(uint8_t, uint8_t) __attribute__((always_inline, unused));
+STATIC_INLINE void pinMode(uint8_t pin, uint8_t mode)
 {
 	if (__builtin_constant_p(pin) && __builtin_constant_p(mode)) {
 		if (mode == OUTPUT) {
@@ -1935,8 +1940,8 @@ static inline void pinMode(uint8_t pin, uint8_t mode)
 	}
 }
 
-static inline void digitalToggle(uint8_t) __attribute__((always_inline, unused));
-static inline void digitalToggle(uint8_t pin)
+STATIC_INLINE void digitalToggle(uint8_t) __attribute__((always_inline, unused));
+STATIC_INLINE void digitalToggle(uint8_t pin)
 {
 	if (__builtin_constant_p(pin)) {
 		if (pin == 0) {
@@ -2074,8 +2079,8 @@ static inline void digitalToggle(uint8_t pin)
 	}
 }
 
-static inline void digitalToggleFast(uint8_t) __attribute__((always_inline, unused));
-static inline void digitalToggleFast(uint8_t pin)
+STATIC_INLINE void digitalToggleFast(uint8_t) __attribute__((always_inline, unused));
+STATIC_INLINE void digitalToggleFast(uint8_t pin)
 {
 	if (__builtin_constant_p(pin)) {
 		if (pin == 0) {
@@ -2187,8 +2192,8 @@ extern int analogRead(uint8_t);
 
 extern void _analogWrite(uint8_t pin, int val) __attribute__((noinline));
 
-static inline void analogWrite(uint8_t, int) __attribute__((always_inline, unused));
-static inline void analogWrite(uint8_t pin, int val)
+STATIC_INLINE void analogWrite(uint8_t, int) __attribute__((always_inline, unused));
+STATIC_INLINE void analogWrite(uint8_t pin, int val)
 {
 	if (__builtin_constant_p(pin)) {
 		if (pin == CORE_OC0B_PIN) {	// TIMER0B
@@ -2266,12 +2271,12 @@ static inline void analogWrite(uint8_t pin, int val)
 	}
 }
 
-static inline void shiftOut(uint8_t, uint8_t, uint8_t, uint8_t) __attribute__((always_inline, unused));
+STATIC_INLINE void shiftOut(uint8_t, uint8_t, uint8_t, uint8_t) __attribute__((always_inline, unused));
 extern void _shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t value) __attribute__((noinline));
 extern void shiftOut_lsbFirst(uint8_t dataPin, uint8_t clockPin, uint8_t value) __attribute__((noinline));
 extern void shiftOut_msbFirst(uint8_t dataPin, uint8_t clockPin, uint8_t value) __attribute__((noinline));
 
-static inline void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t value)
+STATIC_INLINE void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t value)
 {
 	if (__builtin_constant_p(bitOrder)) {
 		if (bitOrder == LSBFIRST) {
@@ -2284,12 +2289,12 @@ static inline void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder,
 	}
 }
 
-static inline uint8_t shiftIn(uint8_t, uint8_t, uint8_t) __attribute__((always_inline, unused));
+STATIC_INLINE uint8_t shiftIn(uint8_t, uint8_t, uint8_t) __attribute__((always_inline, unused));
 extern uint8_t _shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) __attribute__((noinline));
 extern uint8_t shiftIn_lsbFirst(uint8_t dataPin, uint8_t clockPin) __attribute__((noinline));
 extern uint8_t shiftIn_msbFirst(uint8_t dataPin, uint8_t clockPin) __attribute__((noinline));
 
-static inline uint8_t shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder)
+STATIC_INLINE uint8_t shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder)
 {
 	if (__builtin_constant_p(bitOrder)) {
 		if (bitOrder == LSBFIRST) {
@@ -2310,7 +2315,7 @@ void _restart_Teensyduino_(void) __attribute__((noreturn));
 #define analogReference(mode)
 #else
 extern uint8_t w_analog_reference;
-static inline void analogReference(uint8_t mode)
+STATIC_INLINE void analogReference(uint8_t mode)
 {
 	w_analog_reference = (mode << 6);
 }
@@ -2322,8 +2327,8 @@ extern void delay(uint32_t);
 
 extern volatile uint32_t timer0_millis_count;
 
-static inline uint32_t millis(void) __attribute__((always_inline, unused));
-static inline uint32_t millis(void)
+STATIC_INLINE uint32_t millis(void) __attribute__((always_inline, unused));
+STATIC_INLINE uint32_t millis(void)
 {
 	uint32_t out;
 	asm volatile(
@@ -2341,8 +2346,8 @@ static inline uint32_t millis(void)
 
 extern uint32_t _micros(void) __attribute__((noinline));
 
-static inline uint32_t micros(void) __attribute__((always_inline, unused));
-static inline uint32_t micros(void)
+STATIC_INLINE uint32_t micros(void) __attribute__((always_inline, unused));
+STATIC_INLINE uint32_t micros(void)
 {
 	register uint32_t out asm("r22");
 	asm volatile("call _micros" : "=d" (out) : : "r0");
@@ -2350,8 +2355,8 @@ static inline uint32_t micros(void)
 }
 
 
-static inline void delayMicroseconds(uint16_t) __attribute__((always_inline, unused));
-static inline void delayMicroseconds(uint16_t usec)
+STATIC_INLINE void delayMicroseconds(uint16_t) __attribute__((always_inline, unused));
+STATIC_INLINE void delayMicroseconds(uint16_t usec)
 {
 	if (__builtin_constant_p(usec)) {
 		#if F_CPU == 16000000L
@@ -2445,8 +2450,8 @@ static inline void delayMicroseconds(uint16_t usec)
 }
 
 
-static inline void delayNanoseconds(uint16_t) __attribute__((always_inline, unused));
-static inline void delayNanoseconds(uint16_t nsec)
+STATIC_INLINE void delayNanoseconds(uint16_t) __attribute__((always_inline, unused));
+STATIC_INLINE void delayNanoseconds(uint16_t nsec)
 {
 	if (__builtin_constant_p(nsec)) {
 		// use NOPs for the common usage of a constexpr input and short delay
@@ -2550,4 +2555,7 @@ void breakTime(uint32_t time, DateTimeFields &tm);  // break 32 bit time into Da
 uint32_t makeTime(const DateTimeFields &tm); // convert DateTimeFields to 32 bit time
 
 #endif // __cplusplus
+
+#undef STATIC_INLINE
+
 #endif

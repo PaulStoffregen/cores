@@ -39,13 +39,13 @@
 
 
 // bitband addressing for atomic access to data direction register
-static inline void GPIO_SETBIT_ATOMIC(volatile uint32_t *reg, uint32_t mask) {
+inline void GPIO_SETBIT_ATOMIC(volatile uint32_t *reg, uint32_t mask) {
 	__disable_irq();
 	*reg |= mask;
 	__enable_irq();
 }
 
-static inline void GPIO_CLRBIT_ATOMIC(volatile uint32_t *reg, uint32_t mask) {
+inline void GPIO_CLRBIT_ATOMIC(volatile uint32_t *reg, uint32_t mask) {
 	__disable_irq();
 	*reg &= ~mask;
 	__enable_irq();

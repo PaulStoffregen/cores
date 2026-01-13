@@ -45,6 +45,11 @@
 
 #ifdef __cplusplus
 extern "C" {
+// C++ compilers shouldn't use 'static inline' because then there may be more
+// than one copy of the function; 'static' implies internal linkage
+#define STATIC_INLINE inline
+#else
+#define STATIC_INLINE static inline
 #endif
 
 void usb_init(void);
@@ -59,8 +64,8 @@ void usb_tx_isochronous(uint32_t endpoint, void *data, uint32_t len);
 extern volatile uint8_t usb_configuration;
 
 extern uint16_t usb_rx_byte_count_data[NUM_ENDPOINTS];
-static inline uint32_t usb_rx_byte_count(uint32_t endpoint) __attribute__((always_inline));
-static inline uint32_t usb_rx_byte_count(uint32_t endpoint)
+STATIC_INLINE uint32_t usb_rx_byte_count(uint32_t endpoint) __attribute__((always_inline));
+STATIC_INLINE uint32_t usb_rx_byte_count(uint32_t endpoint)
 {
         endpoint--;
         if (endpoint >= NUM_ENDPOINTS) return 0;
@@ -137,5 +142,7 @@ void usb_init(void);
 
 
 #endif // F_CPU
+
+#undef STATIC_INLINE
 
 #endif
