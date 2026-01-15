@@ -1115,7 +1115,7 @@ void usb_receive(int endpoint_number, transfer_t *transfer)
 
 uint32_t usb_transfer_status(const transfer_t *transfer)
 {
-#if defined(USB_MTPDISK) || defined(USB_MTPDISK_SERIAL)
+#if defined(MTP_INTERFACE)
 	uint32_t status, cmd;
 	//int count=0;
 	cmd = USB1_USBCMD;
