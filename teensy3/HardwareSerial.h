@@ -314,7 +314,7 @@ public:
 	virtual size_t write9bit(uint32_t c)	{ serial_putchar(c); return 1; }
 	operator bool()			{ return true; }
 
-	static inline void processSerialEventsList() {
+	static void processSerialEventsList() {
 		for (uint8_t i = 0; i < s_count_serials_with_serial_events; i++) {
 			s_serials_with_serial_events[i]->doYieldCode();
 		}
@@ -324,7 +324,7 @@ protected:
 	static uint8_t 			s_count_serials_with_serial_events;
 	void 		(* const _serialEvent)(); 
 	void addToSerialEventsList(); 
-	inline void doYieldCode()  {
+	void doYieldCode()  {
 		if (available()) (*_serialEvent)();
 	}
 

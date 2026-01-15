@@ -173,7 +173,7 @@ public:
 	void send_now(void);
 	uint8_t analog2velocity(uint16_t val, uint8_t range);
 	bool read(uint8_t channel=0);
-	inline uint8_t getType(void) {
+	uint8_t getType(void) {
 		return msg_type;
 	}
 	uint8_t getCable(void) {

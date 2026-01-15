@@ -379,7 +379,7 @@ protected:
 	// require the inheriting class to initialize the TCD pointer.
 	DMABaseClass() {}
 
-	static inline void copy_tcd(TCD_t *dst, const TCD_t *src) {
+	static void copy_tcd(TCD_t *dst, const TCD_t *src) {
 		dst->CSR = 0;
 		const uint32_t *p = (const uint32_t *)src;
 		uint32_t *q = (uint32_t *)dst;
@@ -860,14 +860,14 @@ protected:
 	// require the inheriting class to initialize the TCD pointer.
 	DMABaseClass() {}
 
-	static inline void copy_cfg(CFG_t *dst, const CFG_t *src) {
+	static void copy_cfg(CFG_t *dst, const CFG_t *src) {
 		dst->SAR = src->SAR;
 		dst->DAR = src->DAR;
 		dst->DSR_BCR = src->DSR_BCR;
 		dst->DCR = src->DCR;
 	}
 private:
-	static inline uint32_t len2mod(uint32_t len) {
+	static uint32_t len2mod(uint32_t len) {
 		if (len < 16) return 0;
 		if (len < 32) return 1;
 		if (len < 64) return 2;

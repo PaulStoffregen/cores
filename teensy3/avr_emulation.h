@@ -55,7 +55,7 @@
 class PORTDemulation
 {
 public:
-	inline PORTDemulation & operator = (int val) __attribute__((always_inline)) {
+	PORTDemulation & operator = (int val) __attribute__((always_inline)) {
 		digitalWriteFast(0, (val & (1<<0)));
 		if (!(CORE_PIN0_DDRREG & CORE_PIN0_BIT))
 			CORE_PIN0_CONFIG = ((val & (1<<0)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
@@ -82,7 +82,7 @@ public:
 			CORE_PIN7_CONFIG = ((val & (1<<7)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		return *this;
 	}
-	inline PORTDemulation & operator |= (int val) __attribute__((always_inline)) {
+	PORTDemulation & operator |= (int val) __attribute__((always_inline)) {
 		if (val & (1<<0)) {
 			digitalWriteFast(0, HIGH);
 			if (!(CORE_PIN0_DDRREG & CORE_PIN0_BIT)) CORE_PIN0_CONFIG = CONFIG_PULLUP;
@@ -117,7 +117,7 @@ public:
 		}
 		return *this;
 	}
-	inline PORTDemulation & operator &= (int val) __attribute__((always_inline)) {
+	PORTDemulation & operator &= (int val) __attribute__((always_inline)) {
 		if (!(val & (1<<0))) {
 			digitalWriteFast(0, LOW);
 			if (!(CORE_PIN0_DDRREG & CORE_PIN0_BIT)) CORE_PIN0_CONFIG = CONFIG_NOPULLUP;
@@ -158,7 +158,7 @@ extern PORTDemulation PORTD;
 class PINDemulation
 {
 public:
-	inline int operator & (int val) const __attribute__((always_inline)) {
+	int operator & (int val) const __attribute__((always_inline)) {
 		int ret = 0;
 		if ((val & (1<<0)) && digitalReadFast(0)) ret |= (1<<0);
 		if ((val & (1<<1)) && digitalReadFast(1)) ret |= (1<<1);
@@ -188,7 +188,7 @@ extern PINDemulation PIND;
 class DDRDemulation
 {
 public:
-	inline DDRDemulation & operator = (int val) __attribute__((always_inline)) {
+	DDRDemulation & operator = (int val) __attribute__((always_inline)) {
 		if (val & (1<<0)) set0(); else clr0();
 		if (val & (1<<1)) set1(); else clr1();
 		if (val & (1<<2)) set2(); else clr2();
@@ -199,7 +199,7 @@ public:
 		if (val & (1<<7)) set7(); else clr7();
 		return *this;
 	}
-	inline DDRDemulation & operator |= (int val) __attribute__((always_inline)) {
+	DDRDemulation & operator |= (int val) __attribute__((always_inline)) {
 		if (val & (1<<0)) set0();
 		if (val & (1<<1)) set1();
 		if (val & (1<<2)) set2();
@@ -210,7 +210,7 @@ public:
 		if (val & (1<<7)) set7();
 		return *this;
 	}
-	inline DDRDemulation & operator &= (int val) __attribute__((always_inline)) {
+	DDRDemulation & operator &= (int val) __attribute__((always_inline)) {
 		if (!(val & (1<<0))) clr0();
 		if (!(val & (1<<1))) clr1();
 		if (!(val & (1<<2))) clr2();
@@ -222,74 +222,74 @@ public:
 		return *this;
 	}
 private:
-	inline void set0() __attribute__((always_inline)) {
+	void set0() __attribute__((always_inline)) {
 		GPIO_SETBIT_ATOMIC(CORE_PIN0_DDRREG, CORE_PIN0_BIT);
 		CORE_PIN0_CONFIG = CONFIG_PULLUP;
 	}
-	inline void set1() __attribute__((always_inline)) {
+	void set1() __attribute__((always_inline)) {
 		GPIO_SETBIT_ATOMIC(CORE_PIN1_DDRREG, CORE_PIN1_BIT);
 		CORE_PIN1_CONFIG = CONFIG_PULLUP;
 	}
-	inline void set2() __attribute__((always_inline)) {
+	void set2() __attribute__((always_inline)) {
 		GPIO_SETBIT_ATOMIC(CORE_PIN2_DDRREG, CORE_PIN2_BIT);
 		CORE_PIN2_CONFIG = CONFIG_PULLUP;
 	}
-	inline void set3() __attribute__((always_inline)) {
+	void set3() __attribute__((always_inline)) {
 		GPIO_SETBIT_ATOMIC(CORE_PIN3_DDRREG, CORE_PIN3_BIT);
 		CORE_PIN3_CONFIG = CONFIG_PULLUP;
 	}
-	inline void set4() __attribute__((always_inline)) {
+	void set4() __attribute__((always_inline)) {
 		GPIO_SETBIT_ATOMIC(CORE_PIN4_DDRREG, CORE_PIN4_BIT);
 		CORE_PIN4_CONFIG = CONFIG_PULLUP;
 	}
-	inline void set5() __attribute__((always_inline)) {
+	void set5() __attribute__((always_inline)) {
 		GPIO_SETBIT_ATOMIC(CORE_PIN5_DDRREG, CORE_PIN5_BIT);
 		CORE_PIN5_CONFIG = CONFIG_PULLUP;
 	}
-	inline void set6() __attribute__((always_inline)) {
+	void set6() __attribute__((always_inline)) {
 		GPIO_SETBIT_ATOMIC(CORE_PIN6_DDRREG, CORE_PIN6_BIT);
 		CORE_PIN6_CONFIG = CONFIG_PULLUP;
 	}
-	inline void set7() __attribute__((always_inline)) {
+	void set7() __attribute__((always_inline)) {
 		GPIO_SETBIT_ATOMIC(CORE_PIN7_DDRREG, CORE_PIN7_BIT);
 		CORE_PIN7_CONFIG = CONFIG_PULLUP;
 	}
-	inline void clr0() __attribute__((always_inline)) {
+	void clr0() __attribute__((always_inline)) {
 		CORE_PIN0_CONFIG = ((CORE_PIN0_PORTREG & CORE_PIN0_BITMASK)
 		  ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		GPIO_CLRBIT_ATOMIC(CORE_PIN0_DDRREG, CORE_PIN0_BIT);
 	}
-	inline void clr1() __attribute__((always_inline)) {
+	void clr1() __attribute__((always_inline)) {
 		CORE_PIN1_CONFIG = ((CORE_PIN1_PORTREG & CORE_PIN1_BITMASK)
 		  ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		GPIO_CLRBIT_ATOMIC(CORE_PIN1_DDRREG, CORE_PIN1_BIT);
 	}
-	inline void clr2() __attribute__((always_inline)) {
+	void clr2() __attribute__((always_inline)) {
 		CORE_PIN2_CONFIG = ((CORE_PIN2_PORTREG & CORE_PIN2_BITMASK)
 		  ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		GPIO_CLRBIT_ATOMIC(CORE_PIN2_DDRREG, CORE_PIN2_BIT);
 	}
-	inline void clr3() __attribute__((always_inline)) {
+	void clr3() __attribute__((always_inline)) {
 		CORE_PIN3_CONFIG = ((CORE_PIN3_PORTREG & CORE_PIN3_BITMASK)
 		  ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		GPIO_CLRBIT_ATOMIC(CORE_PIN3_DDRREG, CORE_PIN3_BIT);
 	}
-	inline void clr4() __attribute__((always_inline)) {
+	void clr4() __attribute__((always_inline)) {
 		CORE_PIN4_CONFIG = ((CORE_PIN4_PORTREG & CORE_PIN4_BITMASK)
 		  ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		GPIO_CLRBIT_ATOMIC(CORE_PIN4_DDRREG, CORE_PIN4_BIT);
 	}
-	inline void clr5() __attribute__((always_inline)) {
+	void clr5() __attribute__((always_inline)) {
 		CORE_PIN5_CONFIG = ((CORE_PIN5_PORTREG & CORE_PIN5_BITMASK)
 		  ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		GPIO_CLRBIT_ATOMIC(CORE_PIN5_DDRREG, CORE_PIN5_BIT);
 	}
-	inline void clr6() __attribute__((always_inline)) {
+	void clr6() __attribute__((always_inline)) {
 		CORE_PIN6_CONFIG = ((CORE_PIN6_PORTREG & CORE_PIN6_BITMASK)
 		  ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		GPIO_CLRBIT_ATOMIC(CORE_PIN6_DDRREG, CORE_PIN6_BIT);
 	}
-	inline void clr7() __attribute__((always_inline)) {
+	void clr7() __attribute__((always_inline)) {
 		CORE_PIN7_CONFIG = ((CORE_PIN7_PORTREG & CORE_PIN7_BITMASK)
 		  ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		GPIO_CLRBIT_ATOMIC(CORE_PIN7_DDRREG, CORE_PIN7_BIT);
@@ -306,7 +306,7 @@ extern DDRDemulation DDRD;
 class PORTBemulation
 {
 public:
-	inline PORTBemulation & operator = (int val) __attribute__((always_inline)) {
+	PORTBemulation & operator = (int val) __attribute__((always_inline)) {
 		digitalWriteFast(8, (val & (1<<0)));
 		if (!(CORE_PIN8_DDRREG & CORE_PIN8_BIT))
 			CORE_PIN8_CONFIG = ((val & (1<<0)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
@@ -327,7 +327,7 @@ public:
 			CORE_PIN13_CONFIG = ((val & (1<<5)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		return *this;
 	}
-	inline PORTBemulation & operator |= (int val) __attribute__((always_inline)) {
+	PORTBemulation & operator |= (int val) __attribute__((always_inline)) {
 		if (val & (1<<0)) {
 			digitalWriteFast(8, HIGH);
 			if (!(CORE_PIN7_DDRREG & CORE_PIN7_BIT)) CORE_PIN8_CONFIG = CONFIG_PULLUP;
@@ -354,7 +354,7 @@ public:
 		}
 		return *this;
 	}
-	inline PORTBemulation & operator &= (int val) __attribute__((always_inline)) {
+	PORTBemulation & operator &= (int val) __attribute__((always_inline)) {
 		if (!(val & (1<<0))) {
 			digitalWriteFast(8, LOW);
 			if (!(CORE_PIN8_DDRREG & CORE_PIN8_BIT)) CORE_PIN8_CONFIG = CONFIG_NOPULLUP;
@@ -387,7 +387,7 @@ extern PORTBemulation PORTB;
 class PINBemulation
 {
 public:
-	inline int operator & (int val) const __attribute__((always_inline)) {
+	int operator & (int val) const __attribute__((always_inline)) {
 		int ret = 0;
 		if ((val & (1<<0)) && digitalReadFast(8)) ret |= (1<<0);
 		if ((val & (1<<1)) && digitalReadFast(9)) ret |= (1<<1);
@@ -413,7 +413,7 @@ extern PINBemulation PINB;
 class DDRBemulation
 {
 public:
-	inline DDRBemulation & operator = (int val) __attribute__((always_inline)) {
+	DDRBemulation & operator = (int val) __attribute__((always_inline)) {
 		if (val & (1<<0)) set0(); else clr0();
 		if (val & (1<<1)) set1(); else clr1();
 		if (val & (1<<2)) set2(); else clr2();
@@ -422,7 +422,7 @@ public:
 		if (val & (1<<5)) set5(); else clr5();
 		return *this;
 	}
-	inline DDRBemulation & operator |= (int val) __attribute__((always_inline)) {
+	DDRBemulation & operator |= (int val) __attribute__((always_inline)) {
 		if (val & (1<<0)) set0();
 		if (val & (1<<1)) set1();
 		if (val & (1<<2)) set2();
@@ -431,7 +431,7 @@ public:
 		if (val & (1<<5)) set5();
 		return *this;
 	}
-	inline DDRBemulation & operator &= (int val) __attribute__((always_inline)) {
+	DDRBemulation & operator &= (int val) __attribute__((always_inline)) {
 		if (!(val & (1<<0))) clr0();
 		if (!(val & (1<<1))) clr1();
 		if (!(val & (1<<2))) clr2();
@@ -441,56 +441,56 @@ public:
 		return *this;
 	}
 private:
-	inline void set0() __attribute__((always_inline)) {
+	void set0() __attribute__((always_inline)) {
 		GPIO_SETBIT_ATOMIC(CORE_PIN8_DDRREG, CORE_PIN8_BIT);
 		CORE_PIN8_CONFIG = CONFIG_PULLUP;
 	}
-	inline void set1() __attribute__((always_inline)) {
+	void set1() __attribute__((always_inline)) {
 		GPIO_SETBIT_ATOMIC(CORE_PIN9_DDRREG, CORE_PIN9_BIT);
 		CORE_PIN9_CONFIG = CONFIG_PULLUP;
 	}
-	inline void set2() __attribute__((always_inline)) {
+	void set2() __attribute__((always_inline)) {
 		GPIO_SETBIT_ATOMIC(CORE_PIN10_DDRREG, CORE_PIN10_BIT);
 		CORE_PIN10_CONFIG = CONFIG_PULLUP;
 	}
-	inline void set3() __attribute__((always_inline)) {
+	void set3() __attribute__((always_inline)) {
 		GPIO_SETBIT_ATOMIC(CORE_PIN11_DDRREG, CORE_PIN11_BIT);
 		CORE_PIN11_CONFIG = CONFIG_PULLUP;
 	}
-	inline void set4() __attribute__((always_inline)) {
+	void set4() __attribute__((always_inline)) {
 		GPIO_SETBIT_ATOMIC(CORE_PIN12_DDRREG, CORE_PIN12_BIT);
 		CORE_PIN12_CONFIG = CONFIG_PULLUP;
 	}
-	inline void set5() __attribute__((always_inline)) {
+	void set5() __attribute__((always_inline)) {
 		GPIO_SETBIT_ATOMIC(CORE_PIN13_DDRREG, CORE_PIN13_BIT);
 		CORE_PIN13_CONFIG = CONFIG_PULLUP;
 	}
-	inline void clr0() __attribute__((always_inline)) {
+	void clr0() __attribute__((always_inline)) {
 		CORE_PIN8_CONFIG = ((CORE_PIN8_PORTREG & CORE_PIN8_BITMASK)
 		  ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		GPIO_CLRBIT_ATOMIC(CORE_PIN8_DDRREG, CORE_PIN8_BIT);
 	}
-	inline void clr1() __attribute__((always_inline)) {
+	void clr1() __attribute__((always_inline)) {
 		CORE_PIN9_CONFIG = ((CORE_PIN9_PORTREG & CORE_PIN9_BITMASK)
 		  ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		GPIO_CLRBIT_ATOMIC(CORE_PIN9_DDRREG, CORE_PIN9_BIT);
 	}
-	inline void clr2() __attribute__((always_inline)) {
+	void clr2() __attribute__((always_inline)) {
 		CORE_PIN10_CONFIG = ((CORE_PIN10_PORTREG & CORE_PIN10_BITMASK)
 		  ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		GPIO_CLRBIT_ATOMIC(CORE_PIN10_DDRREG, CORE_PIN10_BIT);
 	}
-	inline void clr3() __attribute__((always_inline)) {
+	void clr3() __attribute__((always_inline)) {
 		CORE_PIN11_CONFIG = ((CORE_PIN11_PORTREG & CORE_PIN11_BITMASK)
 		  ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		GPIO_CLRBIT_ATOMIC(CORE_PIN11_DDRREG, CORE_PIN11_BIT);
 	}
-	inline void clr4() __attribute__((always_inline)) {
+	void clr4() __attribute__((always_inline)) {
 		CORE_PIN12_CONFIG = ((CORE_PIN12_PORTREG & CORE_PIN12_BITMASK)
 		  ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		GPIO_CLRBIT_ATOMIC(CORE_PIN12_DDRREG, CORE_PIN12_BIT);
 	}
-	inline void clr5() __attribute__((always_inline)) {
+	void clr5() __attribute__((always_inline)) {
 		CORE_PIN13_CONFIG = ((CORE_PIN13_PORTREG & CORE_PIN13_BITMASK)
 		  ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		GPIO_CLRBIT_ATOMIC(CORE_PIN13_DDRREG, CORE_PIN13_BIT);
@@ -507,7 +507,7 @@ extern DDRBemulation DDRB;
 class PORTCemulation
 {
 public:
-	inline PORTCemulation & operator = (int val) __attribute__((always_inline)) {
+	PORTCemulation & operator = (int val) __attribute__((always_inline)) {
 		digitalWriteFast(14, (val & (1<<0)));
 		if (!(CORE_PIN14_DDRREG & CORE_PIN14_BIT))
 			CORE_PIN14_CONFIG = ((val & (1<<0)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
@@ -528,7 +528,7 @@ public:
 			CORE_PIN19_CONFIG = ((val & (1<<5)) ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		return *this;
 	}
-	inline PORTCemulation & operator |= (int val) __attribute__((always_inline)) {
+	PORTCemulation & operator |= (int val) __attribute__((always_inline)) {
 		if (val & (1<<0)) {
 			digitalWriteFast(14, HIGH);
 			if (!(CORE_PIN14_DDRREG & CORE_PIN14_BIT)) CORE_PIN14_CONFIG = CONFIG_PULLUP;
@@ -555,7 +555,7 @@ public:
 		}
 		return *this;
 	}
-	inline PORTCemulation & operator &= (int val) __attribute__((always_inline)) {
+	PORTCemulation & operator &= (int val) __attribute__((always_inline)) {
 		if (!(val & (1<<0))) {
 			digitalWriteFast(14, LOW);
 			if (!(CORE_PIN14_DDRREG & CORE_PIN14_BIT)) CORE_PIN14_CONFIG = CONFIG_NOPULLUP;
@@ -588,7 +588,7 @@ extern PORTCemulation PORTC;
 class PINCemulation
 {
 public:
-	inline int operator & (int val) const __attribute__((always_inline)) {
+	int operator & (int val) const __attribute__((always_inline)) {
 		int ret = 0;
 		if ((val & (1<<0)) && digitalReadFast(14)) ret |= (1<<0);
 		if ((val & (1<<1)) && digitalReadFast(15)) ret |= (1<<1);
@@ -614,7 +614,7 @@ extern PINCemulation PINC;
 class DDRCemulation
 {
 public:
-	inline DDRCemulation & operator = (int val) __attribute__((always_inline)) {
+	DDRCemulation & operator = (int val) __attribute__((always_inline)) {
 		if (val & (1<<0)) set0(); else clr0();
 		if (val & (1<<1)) set1(); else clr1();
 		if (val & (1<<2)) set2(); else clr2();
@@ -623,7 +623,7 @@ public:
 		if (val & (1<<5)) set5(); else clr5();
 		return *this;
 	}
-	inline DDRCemulation & operator |= (int val) __attribute__((always_inline)) {
+	DDRCemulation & operator |= (int val) __attribute__((always_inline)) {
 		if (val & (1<<0)) set0();
 		if (val & (1<<1)) set1();
 		if (val & (1<<2)) set2();
@@ -632,7 +632,7 @@ public:
 		if (val & (1<<5)) set5();
 		return *this;
 	}
-	inline DDRCemulation & operator &= (int val) __attribute__((always_inline)) {
+	DDRCemulation & operator &= (int val) __attribute__((always_inline)) {
 		if (!(val & (1<<0))) clr0();
 		if (!(val & (1<<1))) clr1();
 		if (!(val & (1<<2))) clr2();
@@ -642,56 +642,56 @@ public:
 		return *this;
 	}
 private:
-	inline void set0() __attribute__((always_inline)) {
+	void set0() __attribute__((always_inline)) {
 		GPIO_SETBIT_ATOMIC(CORE_PIN14_DDRREG, CORE_PIN14_BIT);
 		CORE_PIN14_CONFIG = CONFIG_PULLUP;
 	}
-	inline void set1() __attribute__((always_inline)) {
+	void set1() __attribute__((always_inline)) {
 		GPIO_SETBIT_ATOMIC(CORE_PIN15_DDRREG, CORE_PIN15_BIT);
 		CORE_PIN15_CONFIG = CONFIG_PULLUP;
 	}
-	inline void set2() __attribute__((always_inline)) {
+	void set2() __attribute__((always_inline)) {
 		GPIO_SETBIT_ATOMIC(CORE_PIN16_DDRREG, CORE_PIN16_BIT);
 		CORE_PIN16_CONFIG = CONFIG_PULLUP;
 	}
-	inline void set3() __attribute__((always_inline)) {
+	void set3() __attribute__((always_inline)) {
 		GPIO_SETBIT_ATOMIC(CORE_PIN17_DDRREG, CORE_PIN17_BIT);
 		CORE_PIN17_CONFIG = CONFIG_PULLUP;
 	}
-	inline void set4() __attribute__((always_inline)) {
+	void set4() __attribute__((always_inline)) {
 		GPIO_SETBIT_ATOMIC(CORE_PIN18_DDRREG, CORE_PIN18_BIT);
 		CORE_PIN18_CONFIG = CONFIG_PULLUP;
 	}
-	inline void set5() __attribute__((always_inline)) {
+	void set5() __attribute__((always_inline)) {
 		GPIO_SETBIT_ATOMIC(CORE_PIN19_DDRREG, CORE_PIN19_BIT);
 		CORE_PIN19_CONFIG = CONFIG_PULLUP;
 	}
-	inline void clr0() __attribute__((always_inline)) {
+	void clr0() __attribute__((always_inline)) {
 		CORE_PIN14_CONFIG = ((CORE_PIN14_PORTREG & CORE_PIN14_BITMASK)
 		  ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		GPIO_CLRBIT_ATOMIC(CORE_PIN14_DDRREG, CORE_PIN14_BIT);
 	}
-	inline void clr1() __attribute__((always_inline)) {
+	void clr1() __attribute__((always_inline)) {
 		CORE_PIN15_CONFIG = ((CORE_PIN15_PORTREG & CORE_PIN15_BITMASK)
 		  ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		GPIO_CLRBIT_ATOMIC(CORE_PIN15_DDRREG, CORE_PIN15_BIT);
 	}
-	inline void clr2() __attribute__((always_inline)) {
+	void clr2() __attribute__((always_inline)) {
 		CORE_PIN16_CONFIG = ((CORE_PIN16_PORTREG & CORE_PIN16_BITMASK)
 		  ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		GPIO_CLRBIT_ATOMIC(CORE_PIN16_DDRREG, CORE_PIN16_BIT);
 	}
-	inline void clr3() __attribute__((always_inline)) {
+	void clr3() __attribute__((always_inline)) {
 		CORE_PIN17_CONFIG = ((CORE_PIN17_PORTREG & CORE_PIN17_BITMASK)
 		  ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		GPIO_CLRBIT_ATOMIC(CORE_PIN17_DDRREG, CORE_PIN17_BIT);
 	}
-	inline void clr4() __attribute__((always_inline)) {
+	void clr4() __attribute__((always_inline)) {
 		CORE_PIN18_CONFIG = ((CORE_PIN18_PORTREG & CORE_PIN18_BITMASK)
 		  ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		GPIO_CLRBIT_ATOMIC(CORE_PIN18_DDRREG, CORE_PIN18_BIT);
 	}
-	inline void clr5() __attribute__((always_inline)) {
+	void clr5() __attribute__((always_inline)) {
 		CORE_PIN19_CONFIG = ((CORE_PIN19_PORTREG & CORE_PIN19_BITMASK)
 		  ? CONFIG_PULLUP : CONFIG_NOPULLUP);
 		GPIO_CLRBIT_ATOMIC(CORE_PIN19_DDRREG, CORE_PIN19_BIT);
@@ -810,7 +810,7 @@ class SPDRemulation;
 class SPCRemulation
 {
 public:
-	inline SPCRemulation & operator = (int val) __attribute__((always_inline)) {
+	SPCRemulation & operator = (int val) __attribute__((always_inline)) {
 		uint32_t ctar, mcr, sim6;
 		//serial_print("SPCR=");
 		//serial_phex(val);
@@ -869,7 +869,7 @@ public:
 		//serial_print("\n");
 		return *this;
 	}
-	inline SPCRemulation & operator |= (int val) __attribute__((always_inline)) {
+	SPCRemulation & operator |= (int val) __attribute__((always_inline)) {
 		uint32_t sim6;
 		//serial_print("SPCR |= ");
 		//serial_phex(val);
@@ -924,7 +924,7 @@ public:
 		//serial_print("\n");
 		return *this;
 	}
-	inline SPCRemulation & operator &= (int val) __attribute__((always_inline)) {
+	SPCRemulation & operator &= (int val) __attribute__((always_inline)) {
 		//serial_print("SPCR &= ");
 		//serial_phex(val);
 		//serial_print("\n");
@@ -968,7 +968,7 @@ public:
 		if (!(val & (1<<MSTR))) SPI0_MCR &= ~SPI_MCR_MSTR;
 		return *this;
 	}
-	inline int operator & (int val) const __attribute__((always_inline)) {
+	int operator & (int val) const __attribute__((always_inline)) {
 		int ret = 0;
 		//serial_print("SPCR & ");
 		//serial_phex(val);
@@ -1020,7 +1020,7 @@ public:
 		}
 		return ret;
 	}
-	inline void setMOSI(uint8_t pin) __attribute__((always_inline)) {
+	void setMOSI(uint8_t pin) __attribute__((always_inline)) {
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 		uint8_t newpinout = pinout;
 		// More than two options so now 2 bits
@@ -1057,7 +1057,7 @@ public:
 		pinout = newpinout;
 #endif
 	}
-	inline void setMOSI_soft(uint8_t pin) __attribute__((always_inline)) {
+	void setMOSI_soft(uint8_t pin) __attribute__((always_inline)) {
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 		if (pin == 11) pinout &= ~3;
 		if (pin == 7)  pinout = (pinout & ~0x3) | 1;
@@ -1067,7 +1067,7 @@ public:
 		if (pin == 7)  pinout |= 1;
 #endif
 	}
-	inline void setMISO(uint8_t pin) __attribute__((always_inline)) {
+	void setMISO(uint8_t pin) __attribute__((always_inline)) {
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 		uint8_t newpinout = pinout;
 		// More than two options so now 2 bits
@@ -1104,7 +1104,7 @@ public:
 		pinout = newpinout;
 #endif
 	}
-	inline void setMISO_soft(uint8_t pin) __attribute__((always_inline)) {
+	void setMISO_soft(uint8_t pin) __attribute__((always_inline)) {
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 		if (pin == 12) pinout &= ~0xc;
 		if (pin == 8)  pinout = (pinout & ~0xc) | 4;
@@ -1114,7 +1114,7 @@ public:
 		if (pin == 8)  pinout |= 2;
 #endif
 	}
-	inline void setSCK(uint8_t pin) __attribute__((always_inline)) {
+	void setSCK(uint8_t pin) __attribute__((always_inline)) {
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 		uint8_t newpinout = pinout;
 		// More than two options so now 2 bits
@@ -1151,7 +1151,7 @@ public:
 		pinout = newpinout;
 #endif
 	}
-	inline void setSCK_soft(uint8_t pin) __attribute__((always_inline)) {
+	void setSCK_soft(uint8_t pin) __attribute__((always_inline)) {
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 		if (pin == 13) pinout &= ~0x30;
 		if (pin == 14) pinout = (pinout & ~0x30) | 0x10;
@@ -1164,7 +1164,7 @@ public:
 	friend class SPSRemulation;
 	friend class SPIFIFOclass;
 private:
-	static inline void update_ctar(uint32_t ctar) __attribute__((always_inline)) {
+	static void update_ctar(uint32_t ctar) __attribute__((always_inline)) {
 		if (SPI0_CTAR0 == ctar) return;
 		uint32_t mcr = SPI0_MCR;
 		if (mcr & SPI_MCR_MDIS) {
@@ -1177,7 +1177,7 @@ private:
 	}
 	static uint8_t pinout;
 public:
-	inline void enable_pins(void) __attribute__((always_inline)) {
+	void enable_pins(void) __attribute__((always_inline)) {
 		//serial_print("enable_pins\n");
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 		switch (pinout & 3) {
@@ -1213,7 +1213,7 @@ public:
 		}
 #endif
 	}
-	inline void disable_pins(void) __attribute__((always_inline)) {
+	void disable_pins(void) __attribute__((always_inline)) {
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 		switch (pinout & 3) {
 			case 0: CORE_PIN11_CONFIG = PORT_PCR_SRE | PORT_PCR_DSE | PORT_PCR_MUX(1); break;
@@ -1257,7 +1257,7 @@ extern SPCRemulation SPCR;
 class SPCR1emulation
 {
 public:
-	inline SPCR1emulation & operator = (int val) __attribute__((always_inline)) {
+	SPCR1emulation & operator = (int val) __attribute__((always_inline)) {
 		uint32_t ctar, mcr, sim6;
 		//serial_print("SPCR=");
 		//serial_phex(val);
@@ -1316,7 +1316,7 @@ public:
 		//serial_print("\n");
 		return *this;
 	}
-	inline SPCR1emulation & operator |= (int val) __attribute__((always_inline)) {
+	SPCR1emulation & operator |= (int val) __attribute__((always_inline)) {
 		uint32_t sim6;
 		//serial_print("SPCR |= ");
 		//serial_phex(val);
@@ -1356,7 +1356,7 @@ public:
 		//serial_print("\n");
 		return *this;
 	}
-	inline SPCR1emulation & operator &= (int val) __attribute__((always_inline)) {
+	SPCR1emulation & operator &= (int val) __attribute__((always_inline)) {
 		//serial_print("SPCR &= ");
 		//serial_phex(val);
 		//serial_print("\n");
@@ -1385,7 +1385,7 @@ public:
 		if (!(val & (1<<MSTR))) SPI1_MCR &= ~SPI_MCR_MSTR;
 		return *this;
 	}
-	inline int operator & (int val) const __attribute__((always_inline)) {
+	int operator & (int val) const __attribute__((always_inline)) {
 		int ret = 0;
 		//serial_print("SPCR & ");
 		//serial_phex(val);
@@ -1422,7 +1422,7 @@ public:
 		//serial_print("\n");
 		return ret;
 	}
-	inline void setMOSI(uint8_t pin) __attribute__((always_inline)) {
+	void setMOSI(uint8_t pin) __attribute__((always_inline)) {
 		// More options, so 2 bits
 		pinout &= ~3;
 		switch (pin) {
@@ -1432,7 +1432,7 @@ public:
 			case 59: pinout |= 3; break;
 		}
 	}
-	inline void setMISO(uint8_t pin) __attribute__((always_inline)) {
+	void setMISO(uint8_t pin) __attribute__((always_inline)) {
 		// More options, so 2 bits
 		pinout &= ~0xc;
 		switch (pin) {
@@ -1442,7 +1442,7 @@ public:
 			case 59: pinout |= 0xc; break;
 		}
 	}
-	inline void setSCK(uint8_t pin) __attribute__((always_inline)) {
+	void setSCK(uint8_t pin) __attribute__((always_inline)) {
 		// More options, so 2 bits
 		pinout &= ~0x30;
 		switch (pin) {
@@ -1451,7 +1451,7 @@ public:
 			case 60: pinout |= 0x20; break;
 		}
 	}
-	inline void enable_pins(void) __attribute__((always_inline)) {
+	void enable_pins(void) __attribute__((always_inline)) {
 		//serial_print("enable_pins\n");
 		// MOSI (SOUT)
 		switch (pinout & 0x3) {
@@ -1474,7 +1474,7 @@ public:
 			case 0x20: CORE_PIN60_CONFIG = PORT_PCR_MUX(2); break;
 		}
 	}
-	inline void disable_pins(void) __attribute__((always_inline)) {
+	void disable_pins(void) __attribute__((always_inline)) {
 		switch (pinout & 0x3) {
 			case 0: CORE_PIN0_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1); break;
 			case 1: CORE_PIN21_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1); break;
@@ -1496,7 +1496,7 @@ public:
 	friend class SPIFIFO1class;
 private:
 	static uint8_t pinout;
-	static inline void update_ctar(uint32_t ctar) __attribute__((always_inline)) {
+	static void update_ctar(uint32_t ctar) __attribute__((always_inline)) {
 		if (SPI1_CTAR0 == ctar) return;
 		uint32_t mcr = SPI1_MCR;
 		if (mcr & SPI_MCR_MDIS) {
@@ -1515,7 +1515,7 @@ extern SPCR1emulation SPCR1;
 class SPCR2emulation
 {
 public:
-	inline SPCR2emulation & operator = (int val) __attribute__((always_inline)) {
+	SPCR2emulation & operator = (int val) __attribute__((always_inline)) {
 		uint32_t ctar, mcr, sim3;
 		//serial_print("SPCR=");
 		//serial_phex(val);
@@ -1574,7 +1574,7 @@ public:
 		//serial_print("\n");
 		return *this;
 	}
-	inline SPCR2emulation & operator |= (int val) __attribute__((always_inline)) {
+	SPCR2emulation & operator |= (int val) __attribute__((always_inline)) {
 		uint32_t sim3;
 		//serial_print("SPCR |= ");
 		//serial_phex(val);
@@ -1614,7 +1614,7 @@ public:
 		//serial_print("\n");
 		return *this;
 	}
-	inline SPCR2emulation & operator &= (int val) __attribute__((always_inline)) {
+	SPCR2emulation & operator &= (int val) __attribute__((always_inline)) {
 		//serial_print("SPCR &= ");
 		//serial_phex(val);
 		//serial_print("\n");
@@ -1643,7 +1643,7 @@ public:
 		if (!(val & (1<<MSTR))) SPI2_MCR &= ~SPI_MCR_MSTR;
 		return *this;
 	}
-	inline int operator & (int val) const __attribute__((always_inline)) {
+	int operator & (int val) const __attribute__((always_inline)) {
 		int ret = 0;
 		//serial_print("SPCR & ");
 		//serial_phex(val);
@@ -1680,19 +1680,19 @@ public:
 		//serial_print("\n");
 		return ret;
 	}
-	inline void setMOSI(uint8_t pin) __attribute__((always_inline)) {
+	void setMOSI(uint8_t pin) __attribute__((always_inline)) {
 		if (pin == 44) pinout &= ~1; 
 		if (pin == 52) pinout |= 1; 
 	}
-	inline void setMISO(uint8_t pin) __attribute__((always_inline)) {
+	void setMISO(uint8_t pin) __attribute__((always_inline)) {
 		if (pin == 45) pinout &= ~2; 
 		if (pin == 51) pinout |= 2; 
 	}
-	inline void setSCK(uint8_t pin) __attribute__((always_inline)) {
+	void setSCK(uint8_t pin) __attribute__((always_inline)) {
 		if (pin == 46) pinout &= ~4; 
 		if (pin == 53) pinout |= 4; 
 	}
-	inline void enable_pins(void) __attribute__((always_inline)) {
+	void enable_pins(void) __attribute__((always_inline)) {
 		//serial_print("enable_pins\n");
 		if ((pinout & 1) == 0) {
 			CORE_PIN44_CONFIG = PORT_PCR_MUX(2);
@@ -1710,7 +1710,7 @@ public:
 			CORE_PIN53_CONFIG = PORT_PCR_MUX(2); 
 		}
 	}
-	inline void disable_pins(void) __attribute__((always_inline)) {
+	void disable_pins(void) __attribute__((always_inline)) {
 		//serial_print("disable_pins\n");
 		if ((pinout & 1) == 0) {
 			CORE_PIN44_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1);
@@ -1731,7 +1731,7 @@ public:
 	friend class SPIFIFO1class;
 private:
 	static uint8_t pinout;
-	static inline void update_ctar(uint32_t ctar) __attribute__((always_inline)) {
+	static void update_ctar(uint32_t ctar) __attribute__((always_inline)) {
 		if (SPI2_CTAR0 == ctar) return;
 		uint32_t mcr = SPI2_MCR;
 		if (mcr & SPI_MCR_MDIS) {
@@ -1752,7 +1752,7 @@ extern SPCR2emulation SPCR2;
 class SPSRemulation
 {
 public:
-	inline SPSRemulation & operator = (int val) __attribute__((always_inline)) {
+	SPSRemulation & operator = (int val) __attribute__((always_inline)) {
 		//serial_print("SPSR=");
 		//serial_phex(val);
 		//serial_print("\n");
@@ -1770,21 +1770,21 @@ public:
 		//serial_print("\n");
 		return *this;
 	}
-	inline SPSRemulation & operator |= (int val) __attribute__((always_inline)) {
+	SPSRemulation & operator |= (int val) __attribute__((always_inline)) {
 		//serial_print("SPSR |= ");
 		//serial_phex(val);
 		//serial_print("\n");
 		if (val & (1<<SPI2X)) SPCRemulation::update_ctar(SPI0_CTAR0 |= SPI_CTAR_DBR);
 		return *this;
 	}
-	inline SPSRemulation & operator &= (int val) __attribute__((always_inline)) {
+	SPSRemulation & operator &= (int val) __attribute__((always_inline)) {
 		//serial_print("SPSR &= ");
 		//serial_phex(val);
 		//serial_print("\n");
 		if (!(val & (1<<SPI2X))) SPCRemulation::update_ctar(SPI0_CTAR0 &= ~SPI_CTAR_DBR);
 		return *this;
 	}
-	inline int operator & (int val) const __attribute__((always_inline)) {
+	int operator & (int val) const __attribute__((always_inline)) {
 		int ret = 0;
 		//serial_print("SPSR & ");
 		//serial_phex(val);
@@ -1815,7 +1815,7 @@ extern SPSRemulation SPSR;
 class SPDRemulation
 {
 public:
-	inline SPDRemulation & operator = (int val) __attribute__((always_inline)) {
+	SPDRemulation & operator = (int val) __attribute__((always_inline)) {
 		//serial_print("SPDR = ");
 		//serial_phex(val);
 		//serial_print("\n");
@@ -1862,7 +1862,7 @@ extern SPDRemulation SPDR;
 class SPCRemulation
 {
 public:
-	inline SPCRemulation & operator = (int val) __attribute__((always_inline)) {
+	SPCRemulation & operator = (int val) __attribute__((always_inline)) {
 		uint32_t sim4 = SIM_SCGC4;
 		if (!(sim4 & SIM_SCGC4_SPI0)) {
 			SIM_SCGC4 = sim4 | SIM_SCGC4_SPI0;
@@ -1887,7 +1887,7 @@ public:
 		else disable_pins();
 		return *this;
 	}
-	inline SPCRemulation & operator |= (int val) __attribute__((always_inline)) {
+	SPCRemulation & operator |= (int val) __attribute__((always_inline)) {
 		uint32_t sim4 = SIM_SCGC4;
 		if (!(sim4 & SIM_SCGC4_SPI0)) {
 			SIM_SCGC4 = sim4 | SIM_SCGC4_SPI0;
@@ -1918,7 +1918,7 @@ public:
 		}
 		return *this;
 	}
-	inline SPCRemulation & operator &= (int val) __attribute__((always_inline)) {
+	SPCRemulation & operator &= (int val) __attribute__((always_inline)) {
 		uint32_t sim4 = SIM_SCGC4;
 		if (!(sim4 & SIM_SCGC4_SPI0)) {
 			SIM_SCGC4 = sim4 | SIM_SCGC4_SPI0;
@@ -1949,7 +1949,7 @@ public:
 		}
 		return *this;
 	}
-	inline int operator & (int val) const __attribute__((always_inline)) {
+	int operator & (int val) const __attribute__((always_inline)) {
 		int ret = 0;
 		uint32_t sim4 = SIM_SCGC4;
 		if (!(sim4 & SIM_SCGC4_SPI0)) {
@@ -1983,7 +1983,7 @@ public:
 		ret |= baud2avr(SPI0_BR);
 		return ret;
 	}
-	inline void setMOSI(uint8_t pin) __attribute__((always_inline)) {
+	void setMOSI(uint8_t pin) __attribute__((always_inline)) {
 		uint8_t newpinout = pinout;
 		if (pin == 11) newpinout &= ~1;
 		if (pin == 7) newpinout |= 1;
@@ -1998,7 +1998,7 @@ public:
 		}
 		pinout = newpinout;
 	}
-	inline void setMISO(uint8_t pin) __attribute__((always_inline)) {
+	void setMISO(uint8_t pin) __attribute__((always_inline)) {
 		uint8_t newpinout = pinout;
 		if (pin == 12) newpinout &= ~2;
 		if (pin == 8) newpinout |= 2;
@@ -2013,7 +2013,7 @@ public:
 		}
 		pinout = newpinout;
 	}
-	inline void setSCK(uint8_t pin) __attribute__((always_inline)) {
+	void setSCK(uint8_t pin) __attribute__((always_inline)) {
 		uint8_t newpinout = pinout;
 		if (pin == 13) newpinout &= ~4;
 		if (pin == 14) newpinout |= 4;
@@ -2031,7 +2031,7 @@ public:
 	friend class SPSRemulation;
 	friend class SPIFIFOclass;
 private:
-	static inline uint32_t baud2avr(uint32_t br) __attribute__((always_inline)) {
+	static uint32_t baud2avr(uint32_t br) __attribute__((always_inline)) {
 		br &= 15;
 		if (br == 0) return 0;
 		if (br <= 2) return 1;
@@ -2040,7 +2040,7 @@ private:
 	}
 	static uint8_t pinout;
 public:
-	inline void enable_pins(void) __attribute__((always_inline)) {
+	void enable_pins(void) __attribute__((always_inline)) {
 		//serial_print("enable_pins\n");
 		if ((pinout & 1) == 0) {
 			CORE_PIN11_CONFIG = PORT_PCR_DSE | PORT_PCR_MUX(2); // MOSI0 = 11 (PTC6)
@@ -2058,7 +2058,7 @@ public:
 			CORE_PIN14_CONFIG = PORT_PCR_MUX(2); // SCK0 = 14 (PTD1)
 		}
 	}
-	inline void disable_pins(void) __attribute__((always_inline)) {
+	void disable_pins(void) __attribute__((always_inline)) {
 		//serial_print("disable_pins\n");
 		if ((pinout & 1) == 0) {
 			CORE_PIN11_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1);
@@ -2083,18 +2083,18 @@ extern SPCRemulation SPCR;
 class SPCR1emulation
 {
 public:
-	inline void setMOSI(uint8_t pin) __attribute__((always_inline)) {
+	void setMOSI(uint8_t pin) __attribute__((always_inline)) {
 		if (pin == 0) pinout &= ~1; // MOSI1 = 0  (PTB16)
 		if (pin == 21) pinout |= 1; // MOSI1 = 21 (PTD6)
 	}
-	inline void setMISO(uint8_t pin) __attribute__((always_inline)) {
+	void setMISO(uint8_t pin) __attribute__((always_inline)) {
 		if (pin == 1) pinout &= ~2; // MISO1 = 1  (PTB17)
 		if (pin == 5) pinout |= 2;  // MISO1 = 5  (PTD7)
 	}
-	inline void setSCK(uint8_t pin) __attribute__((always_inline)) {
+	void setSCK(uint8_t pin) __attribute__((always_inline)) {
 		// SCK1 = 20 (PTD5) - no alternative pin
 	}
-	inline void enable_pins(void) __attribute__((always_inline)) {
+	void enable_pins(void) __attribute__((always_inline)) {
 		//serial_print("enable_pins\n");
 		if ((pinout & 1) == 0) {
 			CORE_PIN0_CONFIG = PORT_PCR_MUX(2);  // MOSI1 = 0  (PTB16)
@@ -2108,7 +2108,7 @@ public:
 		}
 		CORE_PIN20_CONFIG = PORT_PCR_MUX(2); // SCK1 = 20 (PTD5)
 	}
-	inline void disable_pins(void) __attribute__((always_inline)) {
+	void disable_pins(void) __attribute__((always_inline)) {
 		//serial_print("disable_pins\n");
 		if ((pinout & 1) == 0) {
 			CORE_PIN0_CONFIG = PORT_PCR_SRE | PORT_PCR_MUX(1);
@@ -2132,7 +2132,7 @@ extern SPCR1emulation SPCR1;
 class SPSRemulation
 {
 public:
-	inline SPSRemulation & operator = (int val) __attribute__((always_inline)) {
+	SPSRemulation & operator = (int val) __attribute__((always_inline)) {
 		if (val & (1<<SPI2X)) {
 			SPI0_BR &= ~0x10;
 		} else {
@@ -2140,15 +2140,15 @@ public:
 		}
 		return *this;
 	}
-	inline SPSRemulation & operator |= (int val) __attribute__((always_inline)) {
+	SPSRemulation & operator |= (int val) __attribute__((always_inline)) {
 		if (val & (1<<SPI2X)) SPI0_BR &= ~0x10;
 		return *this;
 	}
-	inline SPSRemulation & operator &= (int val) __attribute__((always_inline)) {
+	SPSRemulation & operator &= (int val) __attribute__((always_inline)) {
 		if (!(val & (1<<SPI2X))) SPI0_BR |= 0x10;
 		return *this;
 	}
-	inline int operator & (int val) const __attribute__((always_inline)) {
+	int operator & (int val) const __attribute__((always_inline)) {
 		int ret = 0;
 		if ((val & (1<<SPIF)) && (SPI0_S & SPI_S_SPRF)) ret = (1<<SPIF);
 		if ((val & (1<<SPI2X)) && (!(SPI0_BR & 0x10))) ret |= (1<<SPI2X);
@@ -2167,7 +2167,7 @@ extern SPSRemulation SPSR;
 class SPDRemulation
 {
 public:
-	inline SPDRemulation & operator = (int val) __attribute__((always_inline)) {
+	SPDRemulation & operator = (int val) __attribute__((always_inline)) {
 		if ((SPI0_S & SPI_S_SPTEF)) {
 			uint32_t tmp __attribute__((unused)) = SPI0_DL;
 		}
@@ -2199,7 +2199,7 @@ public:
 		if (primask) return 0;
 		return (1<<7);
 	}
-	inline SREGemulation & operator = (int val) __attribute__((always_inline)) {
+	SREGemulation & operator = (int val) __attribute__((always_inline)) {
 		if (val & (1<<7)) {
 			__enable_irq();
 		} else {
@@ -2244,7 +2244,7 @@ public:
 		if (icer[IRQ_PORTE >> 5] & (1 << (IRQ_PORTE & 31))) mask |= EIMSK_pE;
 		return mask;
 	}
-	inline EIMSKemulation & operator |= (int val) __attribute__((always_inline)) {
+	EIMSKemulation & operator |= (int val) __attribute__((always_inline)) {
 		if (val & EIMSK_pA) NVIC_ENABLE_IRQ(IRQ_PORTA);
 		if (val & EIMSK_pB) NVIC_ENABLE_IRQ(IRQ_PORTB);
 		if (val & EIMSK_pC) NVIC_ENABLE_IRQ(IRQ_PORTC);
@@ -2252,7 +2252,7 @@ public:
 		if (val & EIMSK_pE) NVIC_ENABLE_IRQ(IRQ_PORTE);
 		return *this;
 	}
-	inline EIMSKemulation & operator &= (int val) __attribute__((always_inline)) {
+	EIMSKemulation & operator &= (int val) __attribute__((always_inline)) {
 		uint32_t n = val;
 		if ((n | ~EIMSK_pA) != 0xFFFFFFFF) NVIC_DISABLE_IRQ(IRQ_PORTA);
 		if ((n | ~EIMSK_pB) != 0xFFFFFFFF) NVIC_DISABLE_IRQ(IRQ_PORTB);
@@ -2280,12 +2280,12 @@ public:
 		if (icer[IRQ_PORTCD >> 5] & (1 << (IRQ_PORTCD & 31))) mask |= (EIMSK_pC | EIMSK_pD);
 		return mask;
 	}
-	inline EIMSKemulation & operator |= (int val) __attribute__((always_inline)) {
+	EIMSKemulation & operator |= (int val) __attribute__((always_inline)) {
 		if (val & EIMSK_pA) NVIC_ENABLE_IRQ(IRQ_PORTA);
 		if (val & (EIMSK_pC | EIMSK_pD)) NVIC_ENABLE_IRQ(IRQ_PORTCD);
 		return *this;
 	}
-	inline EIMSKemulation & operator &= (int val) __attribute__((always_inline)) {
+	EIMSKemulation & operator &= (int val) __attribute__((always_inline)) {
 		uint32_t n = val;
 		if ((n | ~EIMSK_pA) != 0xFFFFFFFF) NVIC_DISABLE_IRQ(IRQ_PORTA);
 		if ((n | ~(EIMSK_pC | EIMSK_pD)) != 0xFFFFFFFF) NVIC_DISABLE_IRQ(IRQ_PORTCD);

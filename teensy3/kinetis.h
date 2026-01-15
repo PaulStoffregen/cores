@@ -5761,6 +5761,11 @@ typedef struct __attribute__((packed)) {
 
 #ifdef __cplusplus
 extern "C" {
+// C++ compilers shouldn't use 'static inline' because then there may be more
+// than one copy of the function; 'static' implies internal linkage
+#define STATIC_INLINE inline
+#else
+#define STATIC_INLINE static inline
 #endif
 extern int nvic_execution_priority(void);
 
@@ -5768,8 +5773,8 @@ extern int nvic_execution_priority(void);
 extern int kinetis_hsrun_disable(void);
 extern int kinetis_hsrun_enable(void);
 #else
-__attribute__((always_inline)) static inline int kinetis_hsrun_disable(void) { return 0; }
-__attribute__((always_inline)) static inline int kinetis_hsrun_enable(void)  { return 0; }
+__attribute__((always_inline)) STATIC_INLINE int kinetis_hsrun_disable(void) { return 0; }
+__attribute__((always_inline)) STATIC_INLINE int kinetis_hsrun_enable(void)  { return 0; }
 #endif
 
 extern void nmi_isr(void);
@@ -5890,11 +5895,11 @@ extern void (* const _VectorsFlash[NVIC_NUM_INTERRUPTS+16])(void);
 
 // Cache management functions for compatibility with Teensy 4.0
 __attribute__((always_inline, unused))
-static inline void arm_dcache_flush(void *addr, uint32_t size) { }
+STATIC_INLINE void arm_dcache_flush(void *addr, uint32_t size) { }
 __attribute__((always_inline, unused))
-static inline void arm_dcache_delete(void *addr, uint32_t size) { }
+STATIC_INLINE void arm_dcache_delete(void *addr, uint32_t size) { }
 __attribute__((always_inline, unused))
-static inline void arm_dcache_flush_delete(void *addr, uint32_t size) { }
+STATIC_INLINE void arm_dcache_flush_delete(void *addr, uint32_t size) { }
 
 #ifdef __cplusplus
 }
@@ -5902,4 +5907,6 @@ static inline void arm_dcache_flush_delete(void *addr, uint32_t size) { }
 
 #undef BEGIN_ENUM
 #undef END_ENUM
+#undef STATIC_INLINE
+
 #endif

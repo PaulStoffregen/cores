@@ -91,25 +91,25 @@ void media_unlock(void);
 class usb_disk_class
 {
 	public:
-	inline void pause(void) {
+	void pause(void) {
 		while (!media_lock()) /* wait */ ;
 	}
-	inline void resume(void) {
+	void resume(void) {
 		media_unlock();
 	}
-	inline void claim(void) {
+	void claim(void) {
 		media_claim();
 	}
-	inline uint8_t readSector(uint32_t addr, uint8_t *buffer) {
+	uint8_t readSector(uint32_t addr, uint8_t *buffer) {
 		return media_read_sector(addr, buffer);
 	}
-	inline uint8_t writeSector(uint32_t addr, const uint8_t *buffer) {
+	uint8_t writeSector(uint32_t addr, const uint8_t *buffer) {
 		return media_write_sector(addr, buffer);
 	}
-	inline void release(void) {
+	void release(void) {
 		media_release(0);
 	}
-	inline void releaseReadOnly(void) {
+	void releaseReadOnly(void) {
 		media_release(1);
 	}
 };

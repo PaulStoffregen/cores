@@ -82,7 +82,7 @@ public:
 
 #if 1
   // returns the count of file systems that have been added to the storage list
-  //inline uint32_t getFilesystemCount(void) { return storage_.get_FSCount(); }
+  //uint32_t getFilesystemCount(void) { return storage_.get_FSCount(); }
 
   FS* getFilesystemByIndex(uint32_t store) {
     if (store >= storage_.get_FSCount()) return nullptr;
@@ -109,16 +109,16 @@ public:
     return false;
   }
 
-  //inline bool useFileSystemIndexFileStore(uint32_t store = 0) { return storage_.setIndexStore(store); }
+  //bool useFileSystemIndexFileStore(uint32_t store = 0) { return storage_.setIndexStore(store); }
 
   // maps a file system name (The diskname parameter in addFilesystem)
   // and returns the file system index.
-  //inline uint32_t getFilesystemIndexFromName(const char *fsname) { return storage_.getStoreID(fsname); }
+  //uint32_t getFilesystemIndexFromName(const char *fsname) { return storage_.getStoreID(fsname); }
 
   // Reurns a pointer to stream object that is being used within MTP_Teensy
   // code to output debug and informational messages.  By default it
   // is a pointer to the Serial object.
-  static inline Stream *PrintStream(void) { return printStream_; }
+  static Stream *PrintStream(void) { return printStream_; }
 
   // Set what stream object should be used to output debug and information 
   // messages.  By default the system uses the Serial object.
@@ -266,10 +266,10 @@ private:
   // location, such as a removable memory card or an internal memory bank. The
   // least-significant 16 bits identify a logical partition of that physical
   // storage."
-  inline uint32_t Store2Storage(uint32_t store) {
+  uint32_t Store2Storage(uint32_t store) {
     return ((store + 1) << 16) | 0x0001;
   }
-  static inline uint32_t Storage2Store(uint32_t storage) {
+  static uint32_t Storage2Store(uint32_t storage) {
     return (storage >> 16) - 1;
   }
 

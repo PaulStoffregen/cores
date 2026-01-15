@@ -1776,6 +1776,11 @@
 
 #ifdef __cplusplus
 extern "C" {
+// C++ compilers shouldn't use 'static inline' because then there may be more
+// than one copy of the function; 'static' implies internal linkage
+#define STATIC_INLINE inline
+#else
+#define STATIC_INLINE static inline
 #endif
 
 //TODO:
@@ -1787,13 +1792,13 @@ extern "C" {
 // have been configured with pinMode() as either OUTPUT or
 // OUTPUT_OPENDRAIN mode.
 void digitalWrite(uint8_t pin, uint8_t val);
-static inline void digitalWriteFast(uint8_t pin, uint8_t val) __attribute__((always_inline, unused));
+STATIC_INLINE void digitalWriteFast(uint8_t pin, uint8_t val) __attribute__((always_inline, unused));
 // Cause a digital pin to output either HIGH or LOW.  The pin must
 // have been configured with pinMode().  This fast version of
 // digitalWrite has minimal overhead when the pin number is a
 // constant.  Successive digitalWriteFast without delays can be
 // too quick in many applications!
-static inline void digitalWriteFast(uint8_t pin, uint8_t val)
+STATIC_INLINE void digitalWriteFast(uint8_t pin, uint8_t val)
 {
 	if (__builtin_constant_p(pin)) {
 		if (val) {
@@ -2039,12 +2044,12 @@ static inline void digitalWriteFast(uint8_t pin, uint8_t val)
 // configured with pinMode() as INPUT, INPUT_PULLUP, or INPUT_PULLDOWN.
 // The return value is either HIGH or LOW.
 uint8_t digitalRead(uint8_t pin);
-static inline uint8_t digitalReadFast(uint8_t pin) __attribute__((always_inline, unused));
+STATIC_INLINE uint8_t digitalReadFast(uint8_t pin) __attribute__((always_inline, unused));
 // Read the signal at a digital pin.  The pin must have previously been
 // configured with pinMode() as INPUT, INPUT_PULLUP, or INPUT_PULLDOWN.  The
 // return value is either HIGH or LOW.  This fast version of digitalRead()
 // has minimal overhead when the pin number is a constant.
-static inline uint8_t digitalReadFast(uint8_t pin)
+STATIC_INLINE uint8_t digitalReadFast(uint8_t pin)
 {
 	if (__builtin_constant_p(pin)) {
 		if (pin == 0) {
@@ -2175,12 +2180,12 @@ static inline uint8_t digitalReadFast(uint8_t pin)
 // the pin outputs LOW, and if it was LOW the pin outputs HIGH.  The
 // pin must have been configured to OUTPUT mode with pinMode().
 void digitalToggle(uint8_t pin);
-static inline void digitalToggleFast(uint8_t pin) __attribute__((always_inline, unused));
+STATIC_INLINE void digitalToggleFast(uint8_t pin) __attribute__((always_inline, unused));
 // Cause a digital pin's output to change state.  This fast version
 // of digitalToggle() has minimal overhead when the pin number is a
 // constant.  Without additional delay, successive digitalToggleFast()
 // can cause the pin to oscillate too quickly for many applications.
-static inline void digitalToggleFast(uint8_t pin)
+STATIC_INLINE void digitalToggleFast(uint8_t pin)
 {
 	if (__builtin_constant_p(pin)) {
 		if (pin == 0) {
@@ -2321,7 +2326,7 @@ uint32_t analogWriteRes(uint32_t bits);
 // resolution, allowing you to temporarily change resolution, call analogWrite()
 // and then restore the resolution, so other code or libraries using analogWrite()
 // are not impacted.
-static inline uint32_t analogWriteResolution(uint32_t bits) { return analogWriteRes(bits); }
+STATIC_INLINE uint32_t analogWriteResolution(uint32_t bits) { return analogWriteRes(bits); }
 // Configure the PWM carrier frequency used by a specific PWM pin.  The frequency
 // is a floating point number, so you are not limited to integer frequency.  You can
 // have 261.63 Hz (musical note C4), if you like.  analogWriteFrequency() should
@@ -2349,7 +2354,7 @@ int analogRead(uint8_t pin);
 void analogReference(uint8_t type);
 void analogReadRes(unsigned int bits);
 // Configure the number of bits resolution returned by analogRead().
-static inline void analogReadResolution(unsigned int bits) { analogReadRes(bits); }
+STATIC_INLINE void analogReadResolution(unsigned int bits) { analogReadRes(bits); }
 // Configure the number readings used (and averaged) internally when reading analog
 // voltage with analogRead().  Possible configurations are 1, 4, 8, 16, 32.  More
 // readings averaged gives better results, but takes longer.
@@ -2372,12 +2377,12 @@ void IMXRTfuseReload();
 
 // Transmit 8 bits to a shift register connected to 2 digital pins.  bitOrder
 // may be MSBFIRST or LSBFIRST.
-static inline void shiftOut(uint8_t, uint8_t, uint8_t, uint8_t) __attribute__((always_inline, unused));
+STATIC_INLINE void shiftOut(uint8_t, uint8_t, uint8_t, uint8_t) __attribute__((always_inline, unused));
 extern void _shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t value) __attribute__((noinline));
 extern void shiftOut_lsbFirst(uint8_t dataPin, uint8_t clockPin, uint8_t value) __attribute__((noinline));
 extern void shiftOut_msbFirst(uint8_t dataPin, uint8_t clockPin, uint8_t value) __attribute__((noinline));
 
-static inline void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t value)
+STATIC_INLINE void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t value)
 {
         if (__builtin_constant_p(bitOrder)) {
                 if (bitOrder == LSBFIRST) {
@@ -2392,12 +2397,12 @@ static inline void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder,
 
 // Receive 8 bits from a shift register connected to 2 digital pins.  bitOrder
 // may be MSBFIRST or LSBFIRST.
-static inline uint8_t shiftIn(uint8_t, uint8_t, uint8_t) __attribute__((always_inline, unused));
+STATIC_INLINE uint8_t shiftIn(uint8_t, uint8_t, uint8_t) __attribute__((always_inline, unused));
 extern uint8_t _shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) __attribute__((noinline));
 extern uint8_t shiftIn_lsbFirst(uint8_t dataPin, uint8_t clockPin) __attribute__((noinline));
 extern uint8_t shiftIn_msbFirst(uint8_t dataPin, uint8_t clockPin) __attribute__((noinline));
 
-static inline uint8_t shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder)
+STATIC_INLINE uint8_t shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder)
 {
         if (__builtin_constant_p(bitOrder)) {
                 if (bitOrder == LSBFIRST) {
@@ -2433,22 +2438,22 @@ extern volatile uint32_t F_BUS_ACTUAL;
 extern volatile uint32_t scale_cpu_cycles_to_microseconds;
 extern volatile uint32_t systick_millis_count;
 
-static inline uint32_t millis(void) __attribute__((always_inline, unused));
+STATIC_INLINE uint32_t millis(void) __attribute__((always_inline, unused));
 // Returns the number of milliseconds since your program started running.
 // This 32 bit number will roll back to zero after about 49.7 days.  For a
 // simpler way to build delays or timeouts, consider using elapsedMillis.
-static inline uint32_t millis(void)
+STATIC_INLINE uint32_t millis(void)
 {
 	return systick_millis_count;
 }
 
 uint32_t micros(void);
 
-static inline void delayMicroseconds(uint32_t) __attribute__((always_inline, unused));
+STATIC_INLINE void delayMicroseconds(uint32_t) __attribute__((always_inline, unused));
 // Wait for a number of microseconds.  During this time, interrupts remain
 // active, but the rest of your program becomes effectively stalled.  For shorter
 // delay, use delayNanoseconds().
-static inline void delayMicroseconds(uint32_t usec)
+STATIC_INLINE void delayMicroseconds(uint32_t usec)
 {
 	uint32_t begin = ARM_DWT_CYCCNT;
 	uint32_t cycles = F_CPU_ACTUAL / 1000000 * usec;
@@ -2456,10 +2461,10 @@ static inline void delayMicroseconds(uint32_t usec)
 	while (ARM_DWT_CYCCNT - begin < cycles) ; // wait
 }
 
-static inline void delayNanoseconds(uint32_t) __attribute__((always_inline, unused));
+STATIC_INLINE void delayNanoseconds(uint32_t) __attribute__((always_inline, unused));
 // Wait for a number of nanoseconds.  During this time, interrupts remain
 // active, but the rest of your program becomes effectively stalled.
-static inline void delayNanoseconds(uint32_t nsec)
+STATIC_INLINE void delayNanoseconds(uint32_t nsec)
 {
 	uint32_t begin = ARM_DWT_CYCCNT;
 	uint32_t cycles =   ((F_CPU_ACTUAL>>16) * nsec) / (1000000000UL>>16);
@@ -2509,6 +2514,4 @@ extern teensy3_clock_class Teensy3Clock;
 
 #endif // __cplusplus
 
-
-
-
+#undef STATIC_INLINE

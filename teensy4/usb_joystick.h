@@ -107,7 +107,7 @@ class usb_joystick_class
 			| (val << 12) | (val << 22);
 		if (!manual_mode) usb_joystick_send();
 	}
-        inline void hat(int dir) {
+        void hat(int dir) {
                 uint32_t val = 0;
                 if (dir < 0) val = 15;
                 else if (dir < 23) val = 0;
@@ -140,7 +140,7 @@ class usb_joystick_class
 		if (--num >= 17) return;
 		analog16(num + 6, position);
 	}
-        inline void hat(unsigned int num, int angle) {
+        void hat(unsigned int num, int angle) {
 		uint32_t val=15;
 		if (angle > 0 && angle < 23) val = 0;
 		else if (angle < 68) val = 1;

@@ -69,7 +69,7 @@ public:
 
 	// memory management
 	unsigned char reserve(unsigned int size);
-	inline unsigned int length(void) const {return len;}
+	unsigned int length(void) const {return len;}
 
 	// copy and move
 	String & copy(const char *cstr, unsigned int length);

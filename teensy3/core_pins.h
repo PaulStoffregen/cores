@@ -1598,14 +1598,18 @@
 #define CORE_TPM1_CH1_PIN	17
 #endif
 
-
 #ifdef __cplusplus
 extern "C" {
+// C++ compilers shouldn't use 'static inline' because then there may be more
+// than one copy of the function; 'static' implies internal linkage
+#define STATIC_INLINE inline
+#else
+#define STATIC_INLINE static inline
 #endif
 
 void digitalWrite(uint8_t pin, uint8_t val);
-static inline void digitalWriteFast(uint8_t pin, uint8_t val) __attribute__((always_inline, unused));
-static inline void digitalWriteFast(uint8_t pin, uint8_t val)
+STATIC_INLINE void digitalWriteFast(uint8_t pin, uint8_t val) __attribute__((always_inline, unused));
+STATIC_INLINE void digitalWriteFast(uint8_t pin, uint8_t val)
 {
 	if (__builtin_constant_p(pin)) {
 		if (val) {
@@ -1891,8 +1895,8 @@ static inline void digitalWriteFast(uint8_t pin, uint8_t val)
 }
 
 void digitalToggle(uint8_t pin);
-static inline void digitalToggleFast(uint8_t pin) __attribute__((always_inline, unused));
-static inline void digitalToggleFast(uint8_t pin)
+STATIC_INLINE void digitalToggleFast(uint8_t pin) __attribute__((always_inline, unused));
+STATIC_INLINE void digitalToggleFast(uint8_t pin)
 {
 	if (__builtin_constant_p(pin)) {
 		if (pin == 0) {
@@ -2098,8 +2102,8 @@ static inline void digitalToggleFast(uint8_t pin)
 }
 
 uint8_t digitalRead(uint8_t pin);
-static inline uint8_t digitalReadFast(uint8_t pin) __attribute__((always_inline, unused));
-static inline uint8_t digitalReadFast(uint8_t pin)
+STATIC_INLINE uint8_t digitalReadFast(uint8_t pin) __attribute__((always_inline, unused));
+STATIC_INLINE uint8_t digitalReadFast(uint8_t pin)
 {
 	if (__builtin_constant_p(pin)) {
 		if (pin == 0) {
@@ -2254,7 +2258,7 @@ void pinMode(uint8_t pin, uint8_t mode);
 void init_pins(void);
 void analogWrite(uint8_t pin, int val);
 uint32_t analogWriteRes(uint32_t bits);
-static inline uint32_t analogWriteResolution(uint32_t bits) { return analogWriteRes(bits); }
+STATIC_INLINE uint32_t analogWriteResolution(uint32_t bits) { return analogWriteRes(bits); }
 void analogWriteFrequency(uint8_t pin, float frequency);
 void analogWriteDAC0(int val);
 void analogWriteDAC1(int val);
@@ -2270,7 +2274,7 @@ void _init_Teensyduino_internal_(void);
 int analogRead(uint8_t pin);
 void analogReference(uint8_t type);
 void analogReadRes(unsigned int bits);
-static inline void analogReadResolution(unsigned int bits) { analogReadRes(bits); }
+STATIC_INLINE void analogReadResolution(unsigned int bits) { analogReadRes(bits); }
 void analogReadAveraging(unsigned int num);
 void analog_init(void);
 
@@ -2292,12 +2296,12 @@ void analog_init(void);
 int touchRead(uint8_t pin);
 
 
-static inline void shiftOut(uint8_t, uint8_t, uint8_t, uint8_t) __attribute__((always_inline, unused));
+STATIC_INLINE void shiftOut(uint8_t, uint8_t, uint8_t, uint8_t) __attribute__((always_inline, unused));
 extern void _shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t value) __attribute__((noinline));
 extern void shiftOut_lsbFirst(uint8_t dataPin, uint8_t clockPin, uint8_t value) __attribute__((noinline));
 extern void shiftOut_msbFirst(uint8_t dataPin, uint8_t clockPin, uint8_t value) __attribute__((noinline));
 
-static inline void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t value)
+STATIC_INLINE void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t value)
 {
         if (__builtin_constant_p(bitOrder)) {
                 if (bitOrder == LSBFIRST) {
@@ -2310,12 +2314,12 @@ static inline void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder,
         }
 }
 
-static inline uint8_t shiftIn(uint8_t, uint8_t, uint8_t) __attribute__((always_inline, unused));
+STATIC_INLINE uint8_t shiftIn(uint8_t, uint8_t, uint8_t) __attribute__((always_inline, unused));
 extern uint8_t _shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) __attribute__((noinline));
 extern uint8_t shiftIn_lsbFirst(uint8_t dataPin, uint8_t clockPin) __attribute__((noinline));
 extern uint8_t shiftIn_msbFirst(uint8_t dataPin, uint8_t clockPin) __attribute__((noinline));
 
-static inline uint8_t shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder)
+STATIC_INLINE uint8_t shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder)
 {
         if (__builtin_constant_p(bitOrder)) {
                 if (bitOrder == LSBFIRST) {
@@ -2347,8 +2351,8 @@ void delay(uint32_t msec);
 
 extern volatile uint32_t systick_millis_count;
 
-static inline uint32_t millis(void) __attribute__((always_inline, unused));
-static inline uint32_t millis(void)
+STATIC_INLINE uint32_t millis(void) __attribute__((always_inline, unused));
+STATIC_INLINE uint32_t millis(void)
 {
 	// Reading a volatile variable to another volatile
 	// seems redundant, but isn't for some cases.
@@ -2365,8 +2369,8 @@ static inline uint32_t millis(void)
 
 uint32_t micros(void);
 
-static inline void delayMicroseconds(uint32_t) __attribute__((always_inline, unused));
-static inline void delayMicroseconds(uint32_t usec)
+STATIC_INLINE void delayMicroseconds(uint32_t) __attribute__((always_inline, unused));
+STATIC_INLINE void delayMicroseconds(uint32_t usec)
 {
 #if F_CPU == 256000000
 	uint32_t n = usec * 85;
@@ -2424,8 +2428,8 @@ static inline void delayMicroseconds(uint32_t usec)
 }
 #endif
 
-static inline void delayNanoseconds(uint32_t) __attribute__((always_inline, unused));
-static inline void delayNanoseconds(uint32_t nsec)
+STATIC_INLINE void delayNanoseconds(uint32_t) __attribute__((always_inline, unused));
+STATIC_INLINE void delayNanoseconds(uint32_t nsec)
 {
 	if (__builtin_constant_p(nsec)) {
 		// use NOPs for the common usage of a constexpr input and short delay
@@ -2557,7 +2561,6 @@ public:
 extern teensy3_clock_class Teensy3Clock;
 #endif
 
-
-
+#undef STATIC_INLINE
 
 #endif
