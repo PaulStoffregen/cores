@@ -373,7 +373,7 @@ protected:
 	// require the inheriting class to initialize the TCD pointer.
 	DMABaseClass() {}
 
-	static inline void copy_tcd(TCD_t *dst, const TCD_t *src) {
+	static void copy_tcd(TCD_t *dst, const TCD_t *src) {
 		dst->CSR &= ~DMA_TCD_CSR_DONE;
 		const uint32_t *p = (const uint32_t *)src;
 		volatile uint32_t *q = (uint32_t *)dst;

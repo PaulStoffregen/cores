@@ -111,7 +111,7 @@ class Print
 	size_t printNumberHex(unsigned long n);
 	size_t printNumberBin(unsigned long n);
 	size_t printNumberAny(unsigned long n, uint8_t base);
-	inline size_t printNumber(unsigned long n, uint8_t sign, uint8_t base) __attribute__((always_inline)) {
+	size_t printNumber(unsigned long n, uint8_t sign, uint8_t base) __attribute__((always_inline)) {
 		// when "base" is a constant (pretty much always), the
 		// compiler optimizes this to a single function call.
 		if (base == 0) return write((uint8_t)n);

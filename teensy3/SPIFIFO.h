@@ -237,7 +237,7 @@ for $i (2, 3, 5, 7) {
 class SPIFIFOclass
 {
 public:
-	inline void begin(uint8_t pin, uint32_t speed, uint32_t mode=SPI_MODE0) __attribute__((always_inline, deprecated)) {
+	void begin(uint8_t pin, uint32_t speed, uint32_t mode=SPI_MODE0) __attribute__((always_inline, deprecated)) {
 		uint32_t p, ctar = speed;
 		SIM_SCGC6 |= SIM_SCGC6_SPI0;
 
@@ -293,7 +293,7 @@ public:
 		clear();
 		SPCR.enable_pins();
 	}
-	inline void write(uint32_t b, uint32_t cont=0) __attribute__((always_inline)) {
+	void write(uint32_t b, uint32_t cont=0) __attribute__((always_inline)) {
 		uint32_t pcsbits = pcs << 16;
 		if (pcsbits) {
 			KINETISK_SPI0.PUSHR = (b & 0xFF) | pcsbits | (cont ? SPI_PUSHR_CONT : 0);
@@ -310,7 +310,7 @@ public:
 			}
 		}
 	}
-	inline void write16(uint32_t b, uint32_t cont=0) __attribute__((always_inline)) {
+	void write16(uint32_t b, uint32_t cont=0) __attribute__((always_inline)) {
 		uint32_t pcsbits = pcs << 16;
 		if (pcsbits) {
 			KINETISK_SPI0.PUSHR = (b & 0xFFFF) | (pcs << 16) |
@@ -328,11 +328,11 @@ public:
 			}
 		}
 	}
-	inline uint32_t read(void) __attribute__((always_inline)) {
+	uint32_t read(void) __attribute__((always_inline)) {
 		while ((KINETISK_SPI0.SR & (15 << 4)) == 0) ;  // TODO, could wait forever
 		return KINETISK_SPI0.POPR;
 	}
-	inline void clear(void) __attribute__((always_inline)) {
+	void clear(void) __attribute__((always_inline)) {
 		KINETISK_SPI0.MCR = SPI_MCR_MSTR | SPI_MCR_PCSIS(0x1F) | SPI_MCR_CLR_TXF | SPI_MCR_CLR_RXF;
 	}
 private:

@@ -294,7 +294,7 @@ public:
 
 	operator bool()			{ return true; }
 
-	static inline void processSerialEventsList() {
+	static void processSerialEventsList() {
 		for (uint8_t i = 0; i < s_count_serials_with_serial_events; i++) {
 			s_serials_with_serial_events[i]->doYieldCode();
 		}
@@ -328,8 +328,8 @@ private:
 	volatile uint32_t 	*rts_pin_baseReg_ = 0;
 	uint32_t 			rts_pin_bitmask_ = 0;
 
-  	inline void rts_assert();
-  	inline void rts_deassert();
+  	void rts_assert();
+  	void rts_deassert();
 
 	void IRQHandler();
 	friend void IRQHandler_Serial1();
@@ -347,7 +347,7 @@ private:
 	#endif
 	static uint8_t 			s_count_serials_with_serial_events;
 	void addToSerialEventsList(); 
-	inline void doYieldCode()  {
+	void doYieldCode()  {
 		if (available()) (*hardware->_serialEvent)();
 	}
 
