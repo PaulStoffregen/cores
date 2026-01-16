@@ -110,6 +110,9 @@ static volatile uint8_t rx_buffer_tail = 0;
 
 static uint8_t tx_pin_num = 48;
 
+// 7-bit mode support
+static uint32_t data_mask = 0x3ff;  // Use only the 10 data bits by default
+
 
 void serial6_begin(uint32_t desiredBaudRate)
 {
@@ -224,7 +227,14 @@ void serial6_format(uint32_t format)
 	// Bit 3 10 bit - Will assume that begin already cleared it.
 	if (format & 0x08)
 		LPUART0_BAUD |= LPUART_BAUD_M10;
-	
+
+	// 7-bit support
+	if ((format & 0x0E) == 0x02) {
+		data_mask = 0x7f;	// Use only 7 bits of data
+	} else {
+		data_mask = 0x3ff;	// Use only the 10 data bits
+	}
+
 	// Bit 4 RXINVERT 
 	c = LPUART0_STAT & ~LPUART_STAT_RXINV;
 	if (format & 0x10) c |= LPUART_STAT_RXINV;		// rx invert
@@ -458,9 +468,9 @@ void lpuart0_status_isr(void)
 //		if (use9Bits && (UART5_C3 & 0x80)) {
 //			n = UART5_D | 0x100;
 //		} else {
-//			n = UART5_D;
+//			n = UART5_D & data_mask;
 //		}
-		n = LPUART0_DATA & 0x3ff;	// use only the 10 data bits
+		n = LPUART0_DATA & data_mask;
 		head = rx_buffer_head + 1;
 		if (head >= rx_buffer_total_size_) head = 0;
 		if (head != rx_buffer_tail) {
