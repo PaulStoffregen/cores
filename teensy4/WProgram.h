@@ -100,7 +100,7 @@ void noTone(uint8_t pin);
 
 // Returns a pseudo-random number as a 32 bit signed integer.  See randomSeed()
 // for info about pseudo-random properties.
-int32_t random(void);
+long random(void);
 // Returns a pseudo-random number less "howbig".  For example, random(100)
 // will return numbers beteen 0 to 99.  See randomSeed() for info about
 // pseudo-random properties.
