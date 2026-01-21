@@ -65,8 +65,7 @@ void extmem_free(void *ptr)
 void *extmem_calloc(size_t nmemb, size_t size)
 {
 #ifdef HAS_EXTRAM
-	// Note: It is assumed that the pool was created with do_zero set to true
-	void *ptr = sm_malloc_pool(&extmem_smalloc_pool, nmemb*size);
+	void *ptr = sm_calloc_pool(&extmem_smalloc_pool, nmemb, size);
 	if (ptr) return ptr;
 #endif
 	return calloc(nmemb, size);
