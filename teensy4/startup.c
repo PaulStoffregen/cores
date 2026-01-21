@@ -851,7 +851,7 @@ int _isatty(int fd __attribute__((unused)))
 }
 
 __attribute__((weak))
-int _lseek(int fd __attribute__((unused)), long long offset __attribute__((unused)), int whence __attribute__((unused)))
+off_t _lseek(int fd __attribute__((unused)), off_t offset __attribute__((unused)), int whence __attribute__((unused)))
 {
 	return -1;
 }
