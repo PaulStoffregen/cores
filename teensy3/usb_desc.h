@@ -115,8 +115,12 @@ If these instructions are missing steps or could be improved, please
 let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 */
 
+#if defined(USB_CUSTOM)
+#include "usb_custom.h"  // use custom include file to set up USB configuration
+                         // requires to set include path, so that usb_custom.h
+                         // is found in user sketch directory
 
-#if defined(USB_SERIAL)
+#elif defined(USB_SERIAL)
   #define VENDOR_ID		0x16C0
   #define PRODUCT_ID		0x0483
   #define DEVICE_CLASS		2	// 2 = Communication Class
