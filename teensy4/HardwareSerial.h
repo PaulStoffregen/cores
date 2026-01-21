@@ -182,20 +182,25 @@ public:
 	} pin_info_t;
 
 	typedef struct {
+		// General settings for this Serial object.
 		uint8_t serial_index;	// which object are we? 0 based
-		IRQ_NUMBER_t irq;
 		void (*irq_handler)(void);
 		void (* _serialEvent)(void);
+		const uint16_t irq_priority;
+		const uint16_t rts_low_watermark;
+		const uint16_t rts_high_watermark;
+
+		// Settings that apply to underlying LPUART object.
+		IRQ_NUMBER_t irq;
 		volatile uint32_t &ccm_register;
 		const uint32_t ccm_value;
+		const uint8_t xbar_out_lpuartX_trig_input;
+
+		// Pin lists
 		pin_info_t rx_pins[cnt_rx_pins];
 		pin_info_t tx_pins[cnt_tx_pins];
 		const uint8_t cts_pin;
 		const uint8_t cts_mux_val;
-		const uint16_t irq_priority;
-		const uint16_t rts_low_watermark;
-		const uint16_t rts_high_watermark;
-		const uint8_t xbar_out_lpuartX_trig_input;
 	} hardware_t;
 public:
 	constexpr HardwareSerialIMXRT(uintptr_t myport, const hardware_t *myhardware,
@@ -240,7 +245,12 @@ public:
 	// receive more data, or HIGH when the serial device should pause transmission.
 	// All digital pins are supported.
 	bool attachRts(uint8_t pin);
-	// Configure CTS flow control.  Teensy will transmit when this pin is LOw
+	// Same as attachRts except the signal levels are reversed.
+	// Configure RTS flow control.  The pin will be HIGH when Teensy is able to
+	// receive more data, or LOW when the serial device should pause transmission.
+	// All digital pins are supported.
+	bool attachRtsInverted(uint8_t pin);
+	// Configure CTS flow control.  Teensy will transmit when this pin is LOW
 	// and will pause transmission when the pin is HIGH.  Only specific pins are
 	// supported.  See https://www.pjrc.com/teensy/td_uart.html
 	bool attachCts(uint8_t pin);
@@ -327,6 +337,7 @@ private:
 
 	volatile uint32_t 	*rts_pin_baseReg_ = 0;
 	uint32_t 			rts_pin_bitmask_ = 0;
+	bool				rts_pin_invert_ = false;
 
   	inline void rts_assert();
   	inline void rts_deassert();

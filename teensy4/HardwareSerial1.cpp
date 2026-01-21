@@ -44,28 +44,35 @@ void IRQHandler_Serial1()
 	Serial1.IRQHandler();
 }
 
+// Should we allow each one to be overwritten or all of a Port...
+#ifndef SERIAL1_RX_PINS 
+#define SERIAL1_UART_ADDR IMXRT_LPUART6_ADDRESS
+#define SERIAL1_LPUART IRQ_LPUART6, CCM_CCGR3, CCM_CCGR3_LPUART6(CCM_CCGR_ON),	XBARA1_OUT_LPUART6_TRG_INPUT
+#define SERIAL1_CTS_PIN 0xff, 0 
+#if defined(ARDUINO_TEENSY41)
+#define SERIAL1_RX_PINS {{0,2, &IOMUXC_LPUART6_RX_SELECT_INPUT, 1}, {52, 2, &IOMUXC_LPUART6_RX_SELECT_INPUT, 0}}
+#define SERIAL1_TX_PINS {{1,2, &IOMUXC_LPUART6_TX_SELECT_INPUT, 1}, {53, 2, &IOMUXC_LPUART6_TX_SELECT_INPUT, 0}}
+#else
+#define SERIAL1_RX_PINS {{0,2, &IOMUXC_LPUART6_RX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}}
+#define SERIAL1_TX_PINS {{1,2, &IOMUXC_LPUART6_TX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}}
+#endif
+#endif
+
+
 
 // Serial1
 static BUFTYPE tx_buffer1[SERIAL1_TX_BUFFER_SIZE];
 static BUFTYPE rx_buffer1[SERIAL1_RX_BUFFER_SIZE];
 
-const HardwareSerialIMXRT::hardware_t UART6_Hardware = {
-	0, IRQ_LPUART6, &IRQHandler_Serial1, 
+const HardwareSerialIMXRT::hardware_t Serial1_Hardware = {
+	0, 
+	&IRQHandler_Serial1, 
 	&serialEvent1,
-	CCM_CCGR3, CCM_CCGR3_LPUART6(CCM_CCGR_ON),
-	#if defined(ARDUINO_TEENSY41)
-	{{0,2, &IOMUXC_LPUART6_RX_SELECT_INPUT, 1}, {52, 2, &IOMUXC_LPUART6_RX_SELECT_INPUT, 0}},
-	{{1,2, &IOMUXC_LPUART6_TX_SELECT_INPUT, 1}, {53, 2, &IOMUXC_LPUART6_TX_SELECT_INPUT, 0}},
-	#else
-	{{0,2, &IOMUXC_LPUART6_RX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
-	{{1,2, &IOMUXC_LPUART6_TX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
-	#endif
-	0xff, // No CTS pin
-	0, // No CTS
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
-	XBARA1_OUT_LPUART6_TRG_INPUT	// XBar Tigger 
+	// Stuff that can be overwritten easily by variant
+	SERIAL1_LPUART, SERIAL1_RX_PINS, SERIAL1_TX_PINS, SERIAL1_CTS_PIN
 };
-HardwareSerialIMXRT Serial1(IMXRT_LPUART6_ADDRESS, &UART6_Hardware, tx_buffer1,
+HardwareSerialIMXRT Serial1(SERIAL1_UART_ADDR, &Serial1_Hardware, tx_buffer1,
 	SERIAL1_TX_BUFFER_SIZE, rx_buffer1, SERIAL1_RX_BUFFER_SIZE);
 
 //void serialEvent1() __attribute__((weak));
