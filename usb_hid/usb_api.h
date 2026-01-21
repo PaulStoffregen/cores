@@ -12,7 +12,7 @@ class usb_keyboard_class : public Print
 	public:
 	void begin(void) { }
 	void end(void) { }
-	virtual size_t write(uint8_t);
+	size_t write(uint8_t) override;
 	using Print::write;
 	void write_unicode(uint16_t unicode) { write_keycode(unicode_to_keycode(unicode)); }
 	void set_modifier(uint16_t);
@@ -188,11 +188,11 @@ class usb_serial_class : public Stream
 	// standard Arduino functions
 	void begin(long);
 	void end();
-	virtual int available();
-	virtual int read();
-	virtual int peek();
-	virtual void flush();
-	virtual size_t write(uint8_t);
+	int available() override;
+	int read() override;
+	int peek() override;
+	void flush() override;
+	size_t write(uint8_t) override;
 	using Print::write;
 	operator bool();
 	// Teensy extensions

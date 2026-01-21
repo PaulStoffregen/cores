@@ -12,13 +12,13 @@ class usb_serial_class : public Stream
 public:
 	void begin(long);
 	void end();
-	virtual int available();
-	virtual int read();
-	virtual int peek();
-	virtual void flush();
+        int available() override;
+        int read() override;
+        int peek() override;
+        void flush() override;
 #if ARDUINO >= 100
-	virtual size_t write(uint8_t c)		{ return write(&c, 1); }
-	virtual size_t write(const uint8_t *buffer, uint16_t size);
+	size_t write(uint8_t c) override { return write(&c, 1); }
+	size_t write(const uint8_t *buffer, uint16_t size) override;
 	using Print::write;
 #else
 	virtual void write(uint8_t c)		{ write(&c, 1); }
@@ -48,7 +48,7 @@ class usb_keyboard_class : public Print
 	void begin(void) { }
 	void end(void) { }
 #if ARDUINO >= 100
-	virtual size_t write(uint8_t);
+	size_t write(uint8_t) override;
 #else
 	virtual void write(uint8_t);
 #endif

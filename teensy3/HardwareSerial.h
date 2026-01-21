@@ -292,21 +292,21 @@ public:
 	virtual void setTX(uint8_t pin, bool opendrain=false) { serial_set_tx(pin, opendrain); }
 	virtual bool attachRts(uint8_t pin) { return serial_set_rts(pin); }
 	virtual bool attachCts(uint8_t pin) { return serial_set_cts(pin); }
-	virtual int available(void)     { return serial_available(); }
-	virtual int peek(void)          { return serial_peek(); }
-	virtual int read(void)          { return serial_getchar(); }
-	virtual void flush(void)        { serial_flush(); }
+	int available(void) override    { return serial_available(); }
+	int peek(void) override         { return serial_peek(); }
+	int read(void) override         { return serial_getchar(); }
+	void flush(void) override       { serial_flush(); }
 	virtual void clear(void)	{ serial_clear(); }
-	virtual int availableForWrite(void) { return serial_write_buffer_free(); }
+	int availableForWrite(void) override { return serial_write_buffer_free(); }
  	virtual void addMemoryForRead(void *buffer, size_t length) {serial_add_memory_for_read(buffer, length);}
 	virtual void addMemoryForWrite(void *buffer, size_t length){serial_add_memory_for_write(buffer, length);}
 	using Print::write;
-	virtual size_t write(uint8_t c) { serial_putchar(c); return 1; }
+	size_t write(uint8_t c) override { serial_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
 	virtual size_t write(long n)            { return write((uint8_t)n); }
 	virtual size_t write(unsigned int n)    { return write((uint8_t)n); }
 	virtual size_t write(int n)             { return write((uint8_t)n); }
-	virtual size_t write(const uint8_t *buffer, size_t size)
+	size_t write(const uint8_t *buffer, size_t size) override
 					{ serial_write(buffer, size); return size; }
         virtual size_t write(const char *str)	{ size_t len = strlen(str);
 					  serial_write((const uint8_t *)str, len);
@@ -346,21 +346,21 @@ public:
 	virtual void setTX(uint8_t pin, bool opendrain=false) { serial2_set_tx(pin, opendrain); }
 	virtual bool attachRts(uint8_t pin) { return serial2_set_rts(pin); }
 	virtual bool attachCts(uint8_t pin) { return serial2_set_cts(pin); }
-	virtual int available(void)     { return serial2_available(); }
-	virtual int peek(void)          { return serial2_peek(); }
-	virtual int read(void)          { return serial2_getchar(); }
-	virtual void flush(void)        { serial2_flush(); }
+	int available(void) override    { return serial2_available(); }
+	int peek(void) override         { return serial2_peek(); }
+	int read(void) override         { return serial2_getchar(); }
+	void flush(void) override       { serial2_flush(); }
 	virtual void clear(void)	{ serial2_clear(); }
-	virtual int availableForWrite(void) { return serial2_write_buffer_free(); }
+	int availableForWrite(void) override { return serial2_write_buffer_free(); }
  	virtual void addMemoryForRead(void *buffer, size_t length) {serial2_add_memory_for_read(buffer, length);}
 	virtual void addMemoryForWrite(void *buffer, size_t length){serial2_add_memory_for_write(buffer, length);}
 	using Print::write;
-	virtual size_t write(uint8_t c) { serial2_putchar(c); return 1; }
+	size_t write(uint8_t c) override { serial2_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
 	virtual size_t write(long n)            { return write((uint8_t)n); }
 	virtual size_t write(unsigned int n)    { return write((uint8_t)n); }
 	virtual size_t write(int n)             { return write((uint8_t)n); }
-	virtual size_t write(const uint8_t *buffer, size_t size)
+	size_t write(const uint8_t *buffer, size_t size) override
 					{ serial2_write(buffer, size); return size; }
         virtual size_t write(const char *str)	{ size_t len = strlen(str);
 					  serial2_write((const uint8_t *)str, len);
@@ -385,21 +385,21 @@ public:
 	virtual void setTX(uint8_t pin, bool opendrain=false) { serial3_set_tx(pin, opendrain); }
 	virtual bool attachRts(uint8_t pin) { return serial3_set_rts(pin); }
 	virtual bool attachCts(uint8_t pin) { return serial3_set_cts(pin); }
-	virtual int available(void)     { return serial3_available(); }
-	virtual int peek(void)          { return serial3_peek(); }
-	virtual int read(void)          { return serial3_getchar(); }
-	virtual void flush(void)        { serial3_flush(); }
+	int available(void) override    { return serial3_available(); }
+	int peek(void) override         { return serial3_peek(); }
+	int read(void) override         { return serial3_getchar(); }
+	void flush(void) override       { serial3_flush(); }
 	virtual void clear(void)	{ serial3_clear(); }
-	virtual int availableForWrite(void) { return serial3_write_buffer_free(); }
+	int availableForWrite(void) override { return serial3_write_buffer_free(); }
  	virtual void addMemoryForRead(void *buffer, size_t length) {serial3_add_memory_for_read(buffer, length);}
 	virtual void addMemoryForWrite(void *buffer, size_t length){serial3_add_memory_for_write(buffer, length);}
 	using Print::write;
-	virtual size_t write(uint8_t c) { serial3_putchar(c); return 1; }
+	size_t write(uint8_t c) override { serial3_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
 	virtual size_t write(long n)            { return write((uint8_t)n); }
 	virtual size_t write(unsigned int n)    { return write((uint8_t)n); }
 	virtual size_t write(int n)             { return write((uint8_t)n); }
-	virtual size_t write(const uint8_t *buffer, size_t size)
+	size_t write(const uint8_t *buffer, size_t size) override
 					{ serial3_write(buffer, size); return size; }
         virtual size_t write(const char *str)	{ size_t len = strlen(str);
 					  serial3_write((const uint8_t *)str, len);
@@ -424,21 +424,21 @@ public:
 	virtual void setTX(uint8_t pin, bool opendrain=false) { serial4_set_tx(pin, opendrain); }
 	virtual bool attachRts(uint8_t pin) { return serial4_set_rts(pin); }
 	virtual bool attachCts(uint8_t pin) { return serial4_set_cts(pin); }
-	virtual int available(void)     { return serial4_available(); }
-	virtual int peek(void)          { return serial4_peek(); }
-	virtual int read(void)          { return serial4_getchar(); }
-	virtual void flush(void)        { serial4_flush(); }
+	int available(void) override    { return serial4_available(); }
+	int peek(void) override         { return serial4_peek(); }
+	int read(void) override         { return serial4_getchar(); }
+	void flush(void) override       { serial4_flush(); }
 	virtual void clear(void)	{ serial4_clear(); }
-	virtual int availableForWrite(void) { return serial4_write_buffer_free(); }
+	int availableForWrite(void) override { return serial4_write_buffer_free(); }
  	virtual void addMemoryForRead(void *buffer, size_t length) {serial4_add_memory_for_read(buffer, length);}
 	virtual void addMemoryForWrite(void *buffer, size_t length){serial4_add_memory_for_write(buffer, length);}
 	using Print::write;
-	virtual size_t write(uint8_t c) { serial4_putchar(c); return 1; }
+	size_t write(uint8_t c) override { serial4_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
 	virtual size_t write(long n)            { return write((uint8_t)n); }
 	virtual size_t write(unsigned int n)    { return write((uint8_t)n); }
 	virtual size_t write(int n)             { return write((uint8_t)n); }
-	virtual size_t write(const uint8_t *buffer, size_t size)
+	size_t write(const uint8_t *buffer, size_t size) override
 					{ serial4_write(buffer, size); return size; }
         virtual size_t write(const char *str)	{ size_t len = strlen(str);
 					  serial4_write((const uint8_t *)str, len);
@@ -463,21 +463,21 @@ public:
 	virtual void setTX(uint8_t pin, bool opendrain=false) { serial5_set_tx(pin, opendrain); }
 	virtual bool attachRts(uint8_t pin) { return serial5_set_rts(pin); }
 	virtual bool attachCts(uint8_t pin) { return serial5_set_cts(pin); }
-	virtual int available(void)     { return serial5_available(); }
-	virtual int peek(void)          { return serial5_peek(); }
-	virtual int read(void)          { return serial5_getchar(); }
-	virtual void flush(void)        { serial5_flush(); }
+	int available(void) override    { return serial5_available(); }
+	int peek(void) override         { return serial5_peek(); }
+	int read(void) override         { return serial5_getchar(); }
+	void flush(void) override       { serial5_flush(); }
 	virtual void clear(void)	{ serial5_clear(); }
-	virtual int availableForWrite(void) { return serial5_write_buffer_free(); }
+	int availableForWrite(void) override { return serial5_write_buffer_free(); }
  	virtual void addMemoryForRead(void *buffer, size_t length) {serial5_add_memory_for_read(buffer, length);}
 	virtual void addMemoryForWrite(void *buffer, size_t length){serial5_add_memory_for_write(buffer, length);}
 	using Print::write;
-	virtual size_t write(uint8_t c) { serial5_putchar(c); return 1; }
+	size_t write(uint8_t c) override { serial5_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
 	virtual size_t write(long n)            { return write((uint8_t)n); }
 	virtual size_t write(unsigned int n)    { return write((uint8_t)n); }
 	virtual size_t write(int n)             { return write((uint8_t)n); }
-	virtual size_t write(const uint8_t *buffer, size_t size)
+	size_t write(const uint8_t *buffer, size_t size) override
 					{ serial5_write(buffer, size); return size; }
         virtual size_t write(const char *str)	{ size_t len = strlen(str);
 					  serial5_write((const uint8_t *)str, len);
@@ -509,21 +509,21 @@ public:
 	virtual void setTX(uint8_t pin, bool opendrain=false) { serial6_set_tx(pin, opendrain); }
 	virtual bool attachRts(uint8_t pin) { return serial6_set_rts(pin); }
 	virtual bool attachCts(uint8_t pin) { return serial6_set_cts(pin); }
-	virtual int available(void)     { return serial6_available(); }
-	virtual int peek(void)          { return serial6_peek(); }
-	virtual int read(void)          { return serial6_getchar(); }
-	virtual void flush(void)        { serial6_flush(); }
+	int available(void) override    { return serial6_available(); }
+	int peek(void) override         { return serial6_peek(); }
+	int read(void) override         { return serial6_getchar(); }
+	void flush(void) override       { serial6_flush(); }
 	virtual void clear(void)	{ serial6_clear(); }
-	virtual int availableForWrite(void) { return serial6_write_buffer_free(); }
+	int availableForWrite(void) override { return serial6_write_buffer_free(); }
  	virtual void addMemoryForRead(void *buffer, size_t length) {serial6_add_memory_for_read(buffer, length);}
 	virtual void addMemoryForWrite(void *buffer, size_t length){serial6_add_memory_for_write(buffer, length);}
 	using Print::write;
-	virtual size_t write(uint8_t c) { serial6_putchar(c); return 1; }
+	size_t write(uint8_t c) override { serial6_putchar(c); return 1; }
 	virtual size_t write(unsigned long n)   { return write((uint8_t)n); }
 	virtual size_t write(long n)            { return write((uint8_t)n); }
 	virtual size_t write(unsigned int n)    { return write((uint8_t)n); }
 	virtual size_t write(int n)             { return write((uint8_t)n); }
-	virtual size_t write(const uint8_t *buffer, size_t size)
+	size_t write(const uint8_t *buffer, size_t size) override
 					{ serial6_write(buffer, size); return size; }
         virtual size_t write(const char *str)	{ size_t len = strlen(str);
 					  serial6_write((const uint8_t *)str, len);
