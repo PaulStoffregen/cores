@@ -35,10 +35,12 @@
 #include "EventResponder.h"
 
 EventResponder * EventResponder::firstYield = nullptr;
+EventResponder * EventResponder::nextYield = nullptr;
 EventResponder * EventResponder::lastYield = nullptr;
 EventResponder * EventResponder::firstInterrupt = nullptr;
 EventResponder * EventResponder::lastInterrupt = nullptr;
 bool EventResponder::runningFromYield = false;
+bool EventResponder::_processAllEvents = false;
 
 // TODO: interrupt disable/enable needed in many places!!!
 // BUGBUG: See if file name order makes difference?
@@ -46,25 +48,58 @@ extern const uint8_t _serialEvent_default __attribute__((weak)) PROGMEM = 0 ;
 extern const uint8_t _serialEventUSB1_default __attribute__((weak)) PROGMEM = 0 ;
 extern const uint8_t _serialEventUSB2_default __attribute__((weak)) PROGMEM = 0 ;
 
-void EventResponder::triggerEventNotImmediate()
+void EventResponder::triggerEventNotImmediate(bool _nextYield)
 {
 	bool irq = disableInterrupts();
 	if (_triggered == false) {
 		// not already triggered
-		if (_type == EventTypeYield) {
+		if (_type == EventTypeYield)
+		{
 			// normal type, called from yield()
-			if (firstYield == nullptr) {
+			if (firstYield == nullptr)
+			{
+				// empty list
 				_next = nullptr;
 				_prev = nullptr;
 				firstYield = this;
 				lastYield = this;
-			} else {
+
+				// if necessary, mark end of items which
+				// must be responded to on next yield()
+				if (_nextYield)
+					nextYield = this;
+			}
+			else if (_nextYield)
+			{
+				// must get response on next yield(), and
+				// at least one event is already pending
+				if (nullptr != nextYield) // this is NOT the first "nextYield" event
+				{
+					_next = nextYield->_next;
+					_prev = nextYield;
+					nextYield->_next = this; // last of the nextYield events
+					_next->_prev = this;
+				}
+				else // this IS first nextYield event, event list isn't empty
+				{
+					_next = firstYield;
+					_prev = nullptr;
+					firstYield = this; // put at front of list
+					_next->_prev = this;
+				}
+				nextYield = this; // mark end of nextYield events
+			}
+			else
+			{
+				// put in at end of list
 				_next = nullptr;
 				_prev = lastYield;
 				_prev->_next = this;
 				lastYield = this;
 			}
-		} else if (_type == EventTypeInterrupt) {
+		}
+		else if (_type == EventTypeInterrupt)
+		{
 			// interrupt, called from software interrupt
 			if (firstInterrupt == nullptr) {
 				_next = nullptr;
@@ -105,7 +140,8 @@ void EventResponder::runFromInterrupt()
 			}
 			enableInterrupts(irq);
 			first->_triggered = false;
-			(*(first->_function))(*first);
+			if (nullptr != first->_function)
+				(*(first->_function))(*first);
 		} else {
 			enableInterrupts(irq);
 			break;
@@ -119,6 +155,11 @@ bool EventResponder::clearEvent()
 	bool irq = disableInterrupts();
 	if (_triggered) {
 		if (_type == EventTypeYield) {
+			// deal with possibility we're clearing the
+			// last nextYield event
+			if (this == nextYield)
+				nextYield = _prev; // could be nullptr, that's OK
+
 			if (_prev) {
 				_prev->_next = _next;
 			} else {
@@ -153,6 +194,11 @@ void EventResponder::detachNoInterrupts()
 {
 	if (_type == EventTypeYield) {
 		if (_triggered) {
+			// deal with possibility we're detaching the
+			// last nextYield event
+			if (this == nextYield)
+				nextYield = _prev; // could be nullptr, that's OK
+
 			if (_prev) {
 				_prev->_next = _next;
 			} else {
