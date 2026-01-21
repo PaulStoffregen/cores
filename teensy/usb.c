@@ -4,6 +4,8 @@
 #include "../usb_hid/usb.c"
 #elif defined(USB_SERIAL_HID)
 #include "../usb_serial_hid/usb.c"
+#elif defined(USB_SERIAL_HID_NO_JOYSTICK)
+#include "../usb_serial_hid_no_joystick/usb.c"
 #elif defined(USB_DISK) || defined(USB_DISK_SDFLASH)
 #include "../usb_disk/usb.c"
 #elif defined(USB_MIDI)
