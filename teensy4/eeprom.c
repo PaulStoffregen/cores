@@ -243,19 +243,29 @@ static void flash_wait()
 	__enable_irq();
 }
 
-// write bytes into flash memory (which is already erased to 0xFF)
-void eepromemu_flash_write(void *addr, const void *data, uint32_t len)
+static void flash_begin()
 {
 	__disable_irq();
 	FLEXSPI_LUTKEY = FLEXSPI_LUTKEY_VALUE;
 	FLEXSPI_LUTCR = FLEXSPI_LUTCR_UNLOCK;
 	FLEXSPI_IPCR0 = 0;
-	FLEXSPI_LUT60 = LUT0(CMD_SDR, PINS1, 0x06); // 06 = write enable
+	FLEXSPI_LUT60 = LUT0(CMD_SDR, PINS1, 0xFF); // FF = disable continuous read mode
 	FLEXSPI_LUT61 = 0;
 	FLEXSPI_LUT62 = 0;
 	FLEXSPI_LUT63 = 0;
 	FLEXSPI_IPCR1 = FLEXSPI_IPCR1_ISEQID(15);
 	FLEXSPI_IPCMD = FLEXSPI_IPCMD_TRG;
+	while (!(FLEXSPI_INTR & FLEXSPI_INTR_IPCMDDONE)); // wait
+	FLEXSPI_INTR = FLEXSPI_INTR_IPCMDDONE;
+	FLEXSPI_LUT60 = LUT0(CMD_SDR, PINS1, 0x06); // 06 = write enable
+	FLEXSPI_IPCR1 = FLEXSPI_IPCR1_ISEQID(15);
+	FLEXSPI_IPCMD = FLEXSPI_IPCMD_TRG;
+}
+
+// write bytes into flash memory (which is already erased to 0xFF)
+void eepromemu_flash_write(void *addr, const void *data, uint32_t len)
+{
+	flash_begin();
 	arm_dcache_delete(addr, len); // purge old data from ARM's cache
 	while (!(FLEXSPI_INTR & FLEXSPI_INTR_IPCMDDONE)) ; // wait
 	FLEXSPI_INTR = FLEXSPI_INTR_IPCMDDONE;
@@ -286,16 +296,7 @@ void eepromemu_flash_write(void *addr, const void *data, uint32_t len)
 // erase a 4K sector
 void eepromemu_flash_erase_sector(void *addr)
 {
-	__disable_irq();
-	FLEXSPI_LUTKEY = FLEXSPI_LUTKEY_VALUE;
-	FLEXSPI_LUTCR = FLEXSPI_LUTCR_UNLOCK;
-	FLEXSPI_LUT60 = LUT0(CMD_SDR, PINS1, 0x06); // 06 = write enable
-	FLEXSPI_LUT61 = 0;
-	FLEXSPI_LUT62 = 0;
-	FLEXSPI_LUT63 = 0;
-	FLEXSPI_IPCR0 = 0;
-	FLEXSPI_IPCR1 = FLEXSPI_IPCR1_ISEQID(15);
-	FLEXSPI_IPCMD = FLEXSPI_IPCMD_TRG;
+	flash_begin();
 	arm_dcache_delete((void *)((uint32_t)addr & 0xFFFFF000), 4096); // purge data from cache
 	while (!(FLEXSPI_INTR & FLEXSPI_INTR_IPCMDDONE)) ; // wait
 	FLEXSPI_INTR = FLEXSPI_INTR_IPCMDDONE;
@@ -310,16 +311,7 @@ void eepromemu_flash_erase_sector(void *addr)
 
 void eepromemu_flash_erase_32K_block(void *addr)
 {
-	__disable_irq();
-	FLEXSPI_LUTKEY = FLEXSPI_LUTKEY_VALUE;
-	FLEXSPI_LUTCR = FLEXSPI_LUTCR_UNLOCK;
-	FLEXSPI_LUT60 = LUT0(CMD_SDR, PINS1, 0x06); // 06 = write enable
-	FLEXSPI_LUT61 = 0;
-	FLEXSPI_LUT62 = 0;
-	FLEXSPI_LUT63 = 0;
-	FLEXSPI_IPCR0 = 0;
-	FLEXSPI_IPCR1 = FLEXSPI_IPCR1_ISEQID(15);
-	FLEXSPI_IPCMD = FLEXSPI_IPCMD_TRG;
+	flash_begin();
 	arm_dcache_delete((void *)((uint32_t)addr & 0xFFFF8000), 32768); // purge data from cache
 	while (!(FLEXSPI_INTR & FLEXSPI_INTR_IPCMDDONE)) ; // wait
 	FLEXSPI_INTR = FLEXSPI_INTR_IPCMDDONE;
@@ -334,16 +326,7 @@ void eepromemu_flash_erase_32K_block(void *addr)
 
 void eepromemu_flash_erase_64K_block(void *addr)
 {
-	__disable_irq();
-	FLEXSPI_LUTKEY = FLEXSPI_LUTKEY_VALUE;
-	FLEXSPI_LUTCR = FLEXSPI_LUTCR_UNLOCK;
-	FLEXSPI_LUT60 = LUT0(CMD_SDR, PINS1, 0x06); // 06 = write enable
-	FLEXSPI_LUT61 = 0;
-	FLEXSPI_LUT62 = 0;
-	FLEXSPI_LUT63 = 0;
-	FLEXSPI_IPCR0 = 0;
-	FLEXSPI_IPCR1 = FLEXSPI_IPCR1_ISEQID(15);
-	FLEXSPI_IPCMD = FLEXSPI_IPCMD_TRG;
+	flash_begin();
 	arm_dcache_delete((void *)((uint32_t)addr & 0xFFFF0000), 65536); // purge data from cache
 	while (!(FLEXSPI_INTR & FLEXSPI_INTR_IPCMDDONE)) ; // wait
 	FLEXSPI_INTR = FLEXSPI_INTR_IPCMDDONE;
