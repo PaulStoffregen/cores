@@ -140,15 +140,17 @@ class usb_joystick_class
 	}
         inline void hat(unsigned int num, int angle) {
 		uint32_t val=15;
-		if (angle > 0 && angle < 23) val = 0;
-		else if (angle < 68) val = 1;
-		else if (angle < 113) val = 2;
-		else if (angle < 158) val = 3;
-		else if (angle < 203) val = 4;
-		else if (angle < 245) val = 5;
-		else if (angle < 293) val = 6;
-		else if (angle < 338) val = 7;
-		else if (angle < 360) val = 0;
+		if (angle >= 0) {
+			if (angle < 23) val = 0;
+			else if (angle < 68) val = 1;
+			else if (angle < 113) val = 2;
+			else if (angle < 158) val = 3;
+			else if (angle < 203) val = 4;
+			else if (angle < 245) val = 5;
+			else if (angle < 293) val = 6;
+			else if (angle < 338) val = 7;
+			else if (angle <= 360) val = 0;
+		}
 		uint32_t *p = usb_joystick_data;
 		switch(num) {
 		  case 1:
