@@ -2466,7 +2466,13 @@ static inline void delayNanoseconds(uint32_t nsec)
 	while (ARM_DWT_CYCCNT - begin < cycles) ; // wait
 }
 
-
+static inline void delayCycles(uint32_t) __attribute__((always_inline, unused));
+static inline void delayCycles(uint32_t cycles)
+{ // MIN return in 7 cycles NEAR 20 cycles it gives wait +/- 2 cycles - with sketch timing overhead
+	uint32_t begin = ARM_DWT_CYCCNT-10; // Overhead Factor for execution
+	while (ARM_DWT_CYCCNT - begin < cycles) ; // wait 
+}
+	
 unsigned long rtc_get(void);
 void rtc_set(unsigned long t);
 void rtc_compensate(int adjust);
