@@ -277,11 +277,11 @@ static void ResetHandler2(void)
 // ARM SysTick is used for most Ardiuno timing functions, delay(), millis(),
 // micros().  SysTick can run from either the ARM core clock, or from an
 // "external" clock.  NXP documents it as "24 MHz XTALOSC can be the external
-// clock source of SYSTICK" (RT1052 ref manual, rev 1, page 411).  However,
-// NXP actually hid an undocumented divide-by-240 circuit in the hardware, so
-// the external clock is really 100 kHz.  We use this clock rather than the
-// ARM clock, to allow SysTick to maintain correct timing even when we change
-// the ARM clock to run at different speeds.
+// clock source of SYSTICK" (RT1052 ref manual, rev 1, page 411).  The 24 MHz
+// clock is divided down to 100 kHz (RT1060 manual, rev 2, 12/2019, page
+// 986). We use this clock rather than the ARM clock, to allow SysTick to
+// maintain correct timing even when we change the ARM clock to run at different
+// speeds.
 #define SYSTICK_EXT_FREQ 100000
 
 extern volatile uint32_t systick_cycle_count;
