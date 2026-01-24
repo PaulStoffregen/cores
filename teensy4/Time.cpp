@@ -103,16 +103,17 @@ uint32_t makeTime(const DateTimeFields &tm)
   uint32_t seconds;
 
   // seconds from 1970 till 1 jan 00:00:00 of the given year
-  seconds = (tm.year - 70) * (SECS_PER_DAY * 365);
-  for (i = 70; i < tm.year; i++) {
-    if (LEAP_YEAR(i - 70)) {
+  int year = tm.year - 70;
+  seconds = year * (SECS_PER_DAY * 365);
+  for (i = 0; i < year; i++) {
+    if (LEAP_YEAR(i)) {
       seconds += SECS_PER_DAY;   // add extra days for leap years
     }
   }
 
   // add days for this year, months start from 1
   for (i = 0; i < tm.mon; i++) {
-    if ( (i == 1) && LEAP_YEAR(tm.year)) {
+    if ( (i == 1) && LEAP_YEAR(year)) {
       seconds += SECS_PER_DAY * 29;
     } else {
       seconds += SECS_PER_DAY * monthDays[i];

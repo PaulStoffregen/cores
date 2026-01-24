@@ -392,6 +392,7 @@ bool usb_midi_class::read(uint8_t channel)
                         return false; // unknown message, ignore it
                 }
 		msg_type = b1;
+		ch = 0;  // no channel, https://forum.pjrc.com/index.php?threads/77143/
 		goto return_message;
 	}
 	if (type1 == 0x04) {

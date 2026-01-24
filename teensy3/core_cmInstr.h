@@ -316,7 +316,7 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void __CLREX(void)
  */
 #define __SSAT(ARG1,ARG2) \
 ({                          \
-  uint32_t __RES, __ARG1 = (ARG1); \
+  int32_t __RES, __ARG1 = (ARG1); \
   __ASM ("ssat %0, %1, %2" : "=r" (__RES) :  "I" (ARG2), "r" (__ARG1) ); \
   __RES; \
  })

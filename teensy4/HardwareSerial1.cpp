@@ -1,4 +1,3 @@
-
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
  * Copyright (c) 2019 PJRC.COM, LLC.

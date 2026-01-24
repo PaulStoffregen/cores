@@ -2029,7 +2029,7 @@ static inline void digitalWriteFast(uint8_t pin, uint8_t val)
 #endif
 			}
 		}
-	} else {
+	} else if (pin < CORE_NUM_DIGITAL) {
 		if(val) *portSetRegister(pin) = digitalPinToBitMask(pin);
 		else *portClearRegister(pin) = digitalPinToBitMask(pin);
 	}
@@ -2164,8 +2164,10 @@ static inline uint8_t digitalReadFast(uint8_t pin)
 		} else {
 			return 0;
 		}
-	} else {
+	} else if (pin < CORE_NUM_DIGITAL) {
 		return (*portInputRegister(pin) & digitalPinToBitMask(pin)) ? 1 : 0;
+	} else {
+		return 0;
 	}
 }
 
@@ -2296,15 +2298,15 @@ static inline void digitalToggleFast(uint8_t pin)
 			CORE_PIN54_PORTTOGGLE = CORE_PIN54_BITMASK;
 #endif
 		}
-	} else {
-		digitalToggle(pin);
+	} else if (pin < CORE_NUM_DIGITAL) {
+		*portToggleRegister(pin) = digitalPinToBitMask(pin);
 	}
 }
 
-// Configure a digital pin.  The mode can be
-// INPUT, INPUT_PULLUP, INPUT_PULLDOWN, OUTPUT_OPENDRAIN or
-// INPUT_DISABLE.  Use INPUT_DISABLE to minimize power
-// consumption for unused pins and pins with analog voltages.
+// Configure a digital pin.  The mode can be INPUT, INPUT_PULLUP,
+// INPUT_PULLDOWN, OUTPUT, OUTPUT_OPENDRAIN or INPUT_DISABLE. Use
+// INPUT_DISABLE to minimize power consumption for unused pins
+// and pins with analog voltages.
 void pinMode(uint8_t pin, uint8_t mode);
 void init_pins(void);
 // Causes a PWM capable pin to output a pulsing waveform with specific

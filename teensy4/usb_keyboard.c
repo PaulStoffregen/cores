@@ -44,8 +44,12 @@
 // 16=right ctrl, 32=right shift, 64=right alt, 128=right gui
 uint8_t keyboard_modifier_keys=0;
 
+#if KEYBOARD_SIZE == 8
 // which keys are currently pressed, up to 6 keys may be down at once
 uint8_t keyboard_keys[6]={0,0,0,0,0,0};
+#elif KEYBOARD_SIZE == 16
+uint8_t keyboard_bitmask[15]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+#endif
 
 #ifdef KEYMEDIA_INTERFACE
 uint16_t keymedia_consumer_keys[4];
@@ -423,7 +427,7 @@ void usb_keyboard_release_keycode(uint16_t n)
 
 static void usb_keyboard_press_key(uint8_t key, uint8_t modifier)
 {
-	int i, send_required = 0;
+	int send_required = 0;
 
 	if (modifier) {
 		if ((keyboard_modifier_keys & modifier) != modifier) {
@@ -431,7 +435,9 @@ static void usb_keyboard_press_key(uint8_t key, uint8_t modifier)
 			send_required = 1;
 		}
 	}
+#if KEYBOARD_SIZE == 8
 	if (key) {
+		int i;
 		for (i=0; i < 6; i++) {
 			if (keyboard_keys[i] == key) goto end;
 		}
@@ -444,13 +450,21 @@ static void usb_keyboard_press_key(uint8_t key, uint8_t modifier)
 		}
 	}
 	end:
+#elif KEYBOARD_SIZE == 16
+	if (key > 0 && key < 120) {
+		if ((keyboard_bitmask[key >> 3] & (1 << (key & 7))) == 0) {
+			keyboard_bitmask[key >> 3] |= 1 << (key & 7);
+			send_required = 1;
+		}
+	}
+#endif
 	if (send_required) usb_keyboard_send();
 }
 
 
 static void usb_keyboard_release_key(uint8_t key, uint8_t modifier)
 {
-	int i, send_required = 0;
+	int send_required = 0;
 
 	if (modifier) {
 		if ((keyboard_modifier_keys & modifier) != 0) {
@@ -458,7 +472,9 @@ static void usb_keyboard_release_key(uint8_t key, uint8_t modifier)
 			send_required = 1;
 		}
 	}
+#if KEYBOARD_SIZE == 8
 	if (key) {
+		int i;
 		for (i=0; i < 6; i++) {
 			if (keyboard_keys[i] == key) {
 				keyboard_keys[i] = 0;
@@ -466,6 +482,14 @@ static void usb_keyboard_release_key(uint8_t key, uint8_t modifier)
 			}
 		}
 	}
+#elif KEYBOARD_SIZE == 16
+	if (key > 0 && key < 120) {
+		if ((keyboard_bitmask[key >> 3] & (1 << (key & 7))) != 0) {
+			keyboard_bitmask[key >> 3] &= ~(1 << (key & 7));
+			send_required = 1;
+		}
+	}
+#endif
 	if (send_required) usb_keyboard_send();
 }
 
@@ -475,10 +499,17 @@ void usb_keyboard_release_all(void)
 
 	anybits = keyboard_modifier_keys;
 	keyboard_modifier_keys = 0;
+#if KEYBOARD_SIZE == 8
 	for (i=0; i < 6; i++) {
 		anybits |= keyboard_keys[i];
 		keyboard_keys[i] = 0;
 	}
+#elif KEYBOARD_SIZE == 16
+	for (i=0; i < 15; i++) {
+		anybits |= keyboard_bitmask[i];
+		keyboard_bitmask[i] = 0;
+	}
+#endif
 	if (anybits) usb_keyboard_send();
 #ifdef KEYMEDIA_INTERFACE
 	anybits = 0;
@@ -499,16 +530,25 @@ int usb_keyboard_press(uint8_t key, uint8_t modifier)
 {
 	int r;
 	keyboard_modifier_keys = modifier;
+#if KEYBOARD_SIZE == 8
 	keyboard_keys[0] = key;
 	keyboard_keys[1] = 0;
 	keyboard_keys[2] = 0;
 	keyboard_keys[3] = 0;
 	keyboard_keys[4] = 0;
 	keyboard_keys[5] = 0;
+#elif KEYBOARD_SIZE == 16
+	memset(keyboard_bitmask, 0, sizeof(keyboard_bitmask));
+	if (key < 120) keyboard_bitmask[key >> 3] |= 1 << (key & 7);
+#endif
 	r = usb_keyboard_send();
 	if (r) return r;
 	keyboard_modifier_keys = 0;
+#if KEYBOARD_SIZE == 8
 	keyboard_keys[0] = 0;
+#elif KEYBOARD_SIZE == 16
+	if (key < 120) keyboard_bitmask[key >> 3] &= ~(1 << (key & 7));
+#endif
 	return usb_keyboard_send();
 }
 
@@ -561,6 +601,7 @@ int usb_keyboard_send(void)
 {
 	uint8_t buffer[KEYBOARD_SIZE];
 	buffer[0] = keyboard_modifier_keys;
+#if KEYBOARD_SIZE == 8
 	buffer[1] = 0;
 	buffer[2] = keyboard_keys[0];
 	buffer[3] = keyboard_keys[1];
@@ -568,6 +609,23 @@ int usb_keyboard_send(void)
 	buffer[5] = keyboard_keys[3];
 	buffer[6] = keyboard_keys[4];
 	buffer[7] = keyboard_keys[5];
+#elif KEYBOARD_SIZE == 16
+	buffer[1] = keyboard_bitmask[0];
+	buffer[2] = keyboard_bitmask[1];
+	buffer[3] = keyboard_bitmask[2];
+	buffer[4] = keyboard_bitmask[3];
+	buffer[5] = keyboard_bitmask[4];
+	buffer[6] = keyboard_bitmask[5];
+	buffer[7] = keyboard_bitmask[6];
+	buffer[8] = keyboard_bitmask[7];
+	buffer[9] = keyboard_bitmask[8];
+	buffer[10] = keyboard_bitmask[9];
+	buffer[11] = keyboard_bitmask[10];
+	buffer[12] = keyboard_bitmask[11];
+	buffer[13] = keyboard_bitmask[12];
+	buffer[14] = keyboard_bitmask[13];
+	buffer[15] = keyboard_bitmask[14];
+#endif
 	return usb_keyboard_transmit(KEYBOARD_ENDPOINT, buffer, KEYBOARD_SIZE);
 }
 
@@ -652,7 +710,7 @@ void usb_keymedia_release_all(void)
 	if (anybits) usb_keymedia_send();
 }
 
-// send the contents of keyboard_keys and keyboard_modifier_keys
+// send the contents of consumer and keymedia_system_keys
 static int usb_keymedia_send(void)
 {
 	uint8_t buffer[8];

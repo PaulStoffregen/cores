@@ -1,3 +1,33 @@
+/* Teensyduino Core Library
+ * http://www.pjrc.com/teensy/
+ * Copyright (c) 2019 PJRC.COM, LLC.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * 1. The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * 2. If the Software is incorporated into a build system that allows
+ * selection among a list of target devices, then similar target
+ * devices manufactured by PJRC.COM must be included in the list of
+ * target devices and selectable in the same manner.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #include <Arduino.h>
 #include <CrashReport.h>
 
@@ -68,16 +98,16 @@ size_t CrashReportClass::printTo(Print& p) const
         p.print("\t(MMARVALID) Accessed Address: 0x");
         p.print(info->mmfar, HEX);
         if (info->mmfar < 32) {
-          p.print(" (nullptr)\n\t  Check code at 0x");
+          p.print(" (nullptr)\r\n\t  Check code at 0x");
           p.print(info->ret, HEX);
-          p.print(" - very likely a bug!\n\t  Run \"addr2line -e mysketch.ino.elf 0x");
+          p.print(" - very likely a bug!\r\n\t  Run \"addr2line -e mysketch.ino.elf 0x");
           p.print(info->ret, HEX);
           p.print("\" for filename & line number.");
             // TODO: in some perfect future, maybe we'll build part of the ELF debug_line
             // section (maybe just the .ino files) into CrashReport and be able to report
             // the actual filename and line number.  Wouldn't that be awesome?!
         } else if ((info->mmfar >= (uint32_t)&_ebss) && (info->mmfar < (uint32_t)&_ebss + 32)) {
-          p.print(" (Stack problem)\n\t  Check for stack overflows, array bounds, etc.");
+          p.print(" (Stack problem)\r\n\t  Check for stack overflows, array bounds, etc.");
         }
         p.println();
       }
@@ -85,7 +115,7 @@ size_t CrashReportClass::printTo(Print& p) const
       if (((_CFSR & 0x100) >> 8) == 1) {
         p.println("\t(IBUSERR) Instruction Bus Error");
       } else  if (((_CFSR & (0x200)) >> 9) == 1) {
-        p.println("\t(PRECISERR) Data bus error(address in BFAR)");
+        p.println("\t(PRECISERR) Data bus error (address in BFAR)");
       } else if (((_CFSR & (0x400)) >> 10) == 1) {
         p.println("\t(IMPRECISERR) Data bus error but address not related to instruction");
       } else if (((_CFSR & (0x800)) >> 11) == 1) {
@@ -103,7 +133,7 @@ size_t CrashReportClass::printTo(Print& p) const
       if (((_CFSR & 0x10000) >> 16) == 1) {
         p.println("\t(UNDEFINSTR) Undefined instruction");
       } else  if (((_CFSR & (0x20000)) >> 17) == 1) {
-        p.println("\t(INVSTATE) Instruction makes illegal use of EPSR)");
+        p.println("\t(INVSTATE) Instruction makes illegal use of EPSR");
       } else if (((_CFSR & (0x40000)) >> 18) == 1) {
         p.println("\t(INVPC) Usage fault: invalid EXC_RETURN");
       } else if (((_CFSR & (0x80000)) >> 19) == 1) {
@@ -131,12 +161,12 @@ size_t CrashReportClass::printTo(Print& p) const
 
     p.print("  Temperature inside the chip was ");
     p.print(info->temp);
-    p.print(" °C\n");
+    p.println(" °C");
 
     // TODO: fault handler should read the CCM & PLL registers to log actual speed at crash
     p.print("  Startup CPU clock speed is ");
     p.print( F_CPU_ACTUAL/1000000);
-    p.print( "MHz\n");
+    p.println( "MHz");
 
 
     //p.print("  MMFAR: ");

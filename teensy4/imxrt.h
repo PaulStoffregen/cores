@@ -1,3 +1,33 @@
+/* Teensyduino Core Library
+ * http://www.pjrc.com/teensy/
+ * Copyright (c) 2019 PJRC.COM, LLC.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * 1. The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * 2. If the Software is incorporated into a build system that allows
+ * selection among a list of target devices, then similar target
+ * devices manufactured by PJRC.COM must be included in the list of
+ * target devices and selectable in the same manner.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #pragma once
 #include <stdint.h>
 
@@ -1688,7 +1718,7 @@ typedef struct {
 #define CCM_ANALOG_PLL_SYS_BYPASS		((uint32_t)(1<<16))
 #define CCM_ANALOG_PLL_SYS_ENABLE		((uint32_t)(1<<13))
 #define CCM_ANALOG_PLL_SYS_POWERDOWN		((uint32_t)(1<<12))
-#define CCM_ANALOG_PLL_SYS_DIV_SELECT		((uint32_t)(1<<1))
+#define CCM_ANALOG_PLL_SYS_DIV_SELECT		((uint32_t)(1<<0))
 #define CCM_ANALOG_PLL_AUDIO_POST_DIV_SELECT(n)	((uint32_t)(((n) & 0x03) <<19)) 
 #define CCM_ANALOG_PLL_AUDIO_BYPASS		((uint32_t)(1<<16)) 
 #define CCM_ANALOG_PLL_AUDIO_BYPASS_CLK_SRC(n)	((uint32_t)(((n) & 0x03) <<14)) 
@@ -2139,6 +2169,9 @@ typedef struct {
 #define DMA_CINT_CINT(n)                ((uint8_t)((n) & 0x1F)) // Clear Interrupt Request
 #define DMA_CINT_CAIR                   ((uint8_t)1<<6)         // Clear All Interrupt Requests
 #define DMA_CINT_NOP                    ((uint8_t)1<<7)         // NOP
+#define DMA_DCHPRI_ECP			((uint8_t)1<<7)		// Enable Preemption
+#define DMA_DCHPRI_DPA			((uint8_t)1<<6)		// Disable Preempt Ability
+#define DMA_DCHPRI_CHPRI(n)		((uint8_t)((n) & 0x0F))
 
 // Normally these Transfer Control Descriptor (TCD) registers are accessed through
 // DMAChannel instances.  See DMAChannel.h for details.  Or refer to libraries which
@@ -9403,68 +9436,104 @@ These register are used by the ROM code and should not be used by application so
 #define USBPHY_CTRL_ENOTG_ID_CHG_IRQ		((uint32_t)(1<<0))
 
 // 26.9.1.1: page 1553
-#define IMXRT_USDHC1		(*(IMXRT_REGISTER32_t *)IMXRT_USDHC1_ADDRESS)
+typedef struct {
+        volatile uint32_t DS_ADDR;                  //offset000)
+        volatile uint32_t BLK_ATT;                  //offset004)
+        volatile uint32_t CMD_ARG;                  //offset008)
+        volatile uint32_t CMD_XFR_TYP;              //offset00C)
+        volatile uint32_t CMD_RSP0;                 //offset010)
+        volatile uint32_t CMD_RSP1;                 //offset014)
+        volatile uint32_t CMD_RSP2;                 //offset018)
+        volatile uint32_t CMD_RSP3;                 //offset01C)
+        volatile uint32_t DATA_BUFF_ACC_PORT;       //offset020)
+        volatile uint32_t PRES_STATE;               //offset024)
+        volatile uint32_t PROT_CTRL;                //offset028)
+        volatile uint32_t SYS_CTRL;                 //offset02C)
+        volatile uint32_t INT_STATUS;               //offset030)
+        volatile uint32_t INT_STATUS_EN;            //offset034)
+        volatile uint32_t INT_SIGNAL_EN;            //offset038)
+        volatile uint32_t AUTOCMD12_ERR_STATUS;     //offset03C)
+        volatile uint32_t HOST_CTRL_CAP;            //offset040)
+        volatile uint32_t WTMK_LVL;                 //offset044)
+        volatile uint32_t MIX_CTRL;                 //offset048)
+        uint32_t unused1;
+        volatile uint32_t FORCE_EVENT;              //offset050)
+        volatile uint32_t ADMA_ERR_STATUS;          //offset054)
+        volatile uint32_t ADMA_SYS_ADDR;            //offset058)
+        uint32_t unused2;
+        volatile uint32_t DLL_CTRL;                 //offset060)
+        volatile uint32_t DLL_STATUS;               //offset064)
+        volatile uint32_t CLK_TUNE_CTRL_STATUS;     //offset068)
+        uint32_t unused3[21];                       //6c 70 80 90 A0 B0
+        volatile uint32_t VEND_SPEC;                //offset0C0)
+        volatile uint32_t MMC_BOOT;                 //offset0C4)
+        volatile uint32_t VEND_SPEC2;               //offset0C8)
+        volatile uint32_t TUNING_CTRL;              //offset0CC)
+} IMXRT_USDHC_t;
+
+#define IMXRT_USDHC1            (*(IMXRT_USDHC_t *)IMXRT_USDHC1_ADDRESS)
 // USDHC1 requires CCM_CCGR6_USDHC1
-#define USDHC1_DS_ADDR			(IMXRT_USDHC1.offset000)
-#define USDHC1_BLK_ATT			(IMXRT_USDHC1.offset004)
-#define USDHC1_CMD_ARG			(IMXRT_USDHC1.offset008)
-#define USDHC1_CMD_XFR_TYP		(IMXRT_USDHC1.offset00C)
-#define USDHC1_CMD_RSP0			(IMXRT_USDHC1.offset010)
-#define USDHC1_CMD_RSP1			(IMXRT_USDHC1.offset014)
-#define USDHC1_CMD_RSP2			(IMXRT_USDHC1.offset018)
-#define USDHC1_CMD_RSP3			(IMXRT_USDHC1.offset01C)
-#define USDHC1_DATA_BUFF_ACC_PORT	(IMXRT_USDHC1.offset020)
-#define USDHC1_PRES_STATE		(IMXRT_USDHC1.offset024)
-#define USDHC1_PROT_CTRL		(IMXRT_USDHC1.offset028)
-#define USDHC1_SYS_CTRL			(IMXRT_USDHC1.offset02C)
-#define USDHC1_INT_STATUS		(IMXRT_USDHC1.offset030)
-#define USDHC1_INT_STATUS_EN		(IMXRT_USDHC1.offset034)
-#define USDHC1_INT_SIGNAL_EN		(IMXRT_USDHC1.offset038)
-#define USDHC1_AUTOCMD12_ERR_STATUS	(IMXRT_USDHC1.offset03C)
-#define USDHC1_HOST_CTRL_CAP		(IMXRT_USDHC1.offset040)
-#define USDHC1_WTMK_LVL			(IMXRT_USDHC1.offset044)
-#define USDHC1_MIX_CTRL			(IMXRT_USDHC1.offset048)
-#define USDHC1_FORCE_EVENT		(IMXRT_USDHC1.offset050)
-#define USDHC1_ADMA_ERR_STATUS		(IMXRT_USDHC1.offset054)
-#define USDHC1_ADMA_SYS_ADDR		(IMXRT_USDHC1.offset058)
-#define USDHC1_DLL_CTRL			(IMXRT_USDHC1.offset060)
-#define USDHC1_DLL_STATUS		(IMXRT_USDHC1.offset064)
-#define USDHC1_CLK_TUNE_CTRL_STATUS	(IMXRT_USDHC1.offset068)
-#define USDHC1_VEND_SPEC		(IMXRT_USDHC1.offset0C0)
-#define USDHC1_MMC_BOOT			(IMXRT_USDHC1.offset0C4)
-#define USDHC1_VEND_SPEC2		(IMXRT_USDHC1.offset0C8)
-#define USDHC1_TUNING_CTRL		(IMXRT_USDHC1.offset0CC)
-#define IMXRT_USDHC2		(*(IMXRT_REGISTER32_t *)IMXRT_USDHC2_ADDRESS)
+#define USDHC1_DS_ADDR			(IMXRT_USDHC1.DS_ADDR)
+#define USDHC1_BLK_ATT			(IMXRT_USDHC1.BLK_ATT)
+#define USDHC1_CMD_ARG			(IMXRT_USDHC1.CMD_ARG)
+#define USDHC1_CMD_XFR_TYP		(IMXRT_USDHC1.CMD_XFR_TYP)
+#define USDHC1_CMD_RSP0			(IMXRT_USDHC1.CMD_RSP0)
+#define USDHC1_CMD_RSP1			(IMXRT_USDHC1.CMD_RSP1)
+#define USDHC1_CMD_RSP2			(IMXRT_USDHC1.CMD_RSP2)
+#define USDHC1_CMD_RSP3			(IMXRT_USDHC1.CMD_RSP3)
+#define USDHC1_DATA_BUFF_ACC_PORT	(IMXRT_USDHC1.DATA_BUFF_ACC_PORT)
+#define USDHC1_PRES_STATE		(IMXRT_USDHC1.PRES_STATE)
+#define USDHC1_PROT_CTRL		(IMXRT_USDHC1.PROT_CTRL)
+#define USDHC1_SYS_CTRL			(IMXRT_USDHC1.SYS_CTRL)
+#define USDHC1_INT_STATUS		(IMXRT_USDHC1.INT_STATUS)
+#define USDHC1_INT_STATUS_EN		(IMXRT_USDHC1.INT_STATUS_EN)
+#define USDHC1_INT_SIGNAL_EN		(IMXRT_USDHC1.INT_SIGNAL_EN)
+#define USDHC1_AUTOCMD12_ERR_STATUS	(IMXRT_USDHC1.AUTOCMD12_ERR_STATUS)
+#define USDHC1_HOST_CTRL_CAP		(IMXRT_USDHC1.HOST_CTRL_CAP)
+#define USDHC1_WTMK_LVL			(IMXRT_USDHC1.WTMK_LVL)
+#define USDHC1_MIX_CTRL			(IMXRT_USDHC1.MIX_CTRL)
+#define USDHC1_FORCE_EVENT		(IMXRT_USDHC1.FORCE_EVENT)
+#define USDHC1_ADMA_ERR_STATUS		(IMXRT_USDHC1.ADMA_ERR_STATUS)
+#define USDHC1_ADMA_SYS_ADDR		(IMXRT_USDHC1.ADMA_SYS_ADDR)
+#define USDHC1_DLL_CTRL			(IMXRT_USDHC1.DLL_CTRL)
+#define USDHC1_DLL_STATUS		(IMXRT_USDHC1.DLL_STATUS)
+#define USDHC1_CLK_TUNE_CTRL_STATUS	(IMXRT_USDHC1.CLK_TUNE_CTRL_STATUS)
+#define USDHC1_VEND_SPEC		(IMXRT_USDHC1.VEND_SPEC)
+#define USDHC1_MMC_BOOT			(IMXRT_USDHC1.MMC_BOOT)
+#define USDHC1_VEND_SPEC2		(IMXRT_USDHC1.VEND_SPEC2)
+#define USDHC1_TUNING_CTRL		(IMXRT_USDHC1.TUNING_CTRL)
+
+#define IMXRT_USDHC2		(*(IMXRT_USDHC_t *)IMXRT_USDHC2_ADDRESS)
 // USDHC2 requires CCM_CCGR6_USDHC2
-#define USDHC2_DS_ADDR			(IMXRT_USDHC2.offset000)
-#define USDHC2_BLK_ATT			(IMXRT_USDHC2.offset004)
-#define USDHC2_CMD_ARG			(IMXRT_USDHC2.offset008)
-#define USDHC2_CMD_XFR_TYP		(IMXRT_USDHC2.offset00C)
-#define USDHC2_CMD_RSP0			(IMXRT_USDHC2.offset010)
-#define USDHC2_CMD_RSP1			(IMXRT_USDHC2.offset014)
-#define USDHC2_CMD_RSP2			(IMXRT_USDHC2.offset018)
-#define USDHC2_CMD_RSP3			(IMXRT_USDHC2.offset01C)
-#define USDHC2_DATA_BUFF_ACC_PORT	(IMXRT_USDHC2.offset020)
-#define USDHC2_PRES_STATE		(IMXRT_USDHC2.offset024)
-#define USDHC2_PROT_CTRL		(IMXRT_USDHC2.offset028)
-#define USDHC2_SYS_CTRL			(IMXRT_USDHC2.offset02C)
-#define USDHC2_INT_STATUS		(IMXRT_USDHC2.offset030)
-#define USDHC2_INT_STATUS_EN		(IMXRT_USDHC2.offset034)
-#define USDHC2_INT_SIGNAL_EN		(IMXRT_USDHC2.offset038)
-#define USDHC2_AUTOCMD12_ERR_STATUS	(IMXRT_USDHC2.offset03C)
-#define USDHC2_HOST_CTRL_CAP		(IMXRT_USDHC2.offset040)
-#define USDHC2_WTMK_LVL			(IMXRT_USDHC2.offset044)
-#define USDHC2_MIX_CTRL			(IMXRT_USDHC2.offset048)
-#define USDHC2_FORCE_EVENT		(IMXRT_USDHC2.offset050)
-#define USDHC2_ADMA_ERR_STATUS		(IMXRT_USDHC2.offset054)
-#define USDHC2_ADMA_SYS_ADDR		(IMXRT_USDHC2.offset058)
-#define USDHC2_DLL_CTRL			(IMXRT_USDHC2.offset060)
-#define USDHC2_DLL_STATUS		(IMXRT_USDHC2.offset064)
-#define USDHC2_CLK_TUNE_CTRL_STATUS	(IMXRT_USDHC2.offset068)
-#define USDHC2_VEND_SPEC		(IMXRT_USDHC2.offset0C0)
-#define USDHC2_MMC_BOOT			(IMXRT_USDHC2.offset0C4)
-#define USDHC2_VEND_SPEC2		(IMXRT_USDHC2.offset0C8)
-#define USDHC2_TUNING_CTRL		(IMXRT_USDHC2.offset0CC)
+#define USDHC2_DS_ADDR			(IMXRT_USDHC2.DS_ADDR)
+#define USDHC2_BLK_ATT			(IMXRT_USDHC2.BLK_ATT)
+#define USDHC2_CMD_ARG			(IMXRT_USDHC2.CMD_ARG)
+#define USDHC2_CMD_XFR_TYP		(IMXRT_USDHC2.CMD_XFR_TYP)
+#define USDHC2_CMD_RSP0			(IMXRT_USDHC2.CMD_RSP0)
+#define USDHC2_CMD_RSP1			(IMXRT_USDHC2.CMD_RSP1)
+#define USDHC2_CMD_RSP2			(IMXRT_USDHC2.CMD_RSP2)
+#define USDHC2_CMD_RSP3			(IMXRT_USDHC2.CMD_RSP3)
+#define USDHC2_DATA_BUFF_ACC_PORT	(IMXRT_USDHC2.DATA_BUFF_ACC_PORT)
+#define USDHC2_PRES_STATE		(IMXRT_USDHC2.PRES_STATE)
+#define USDHC2_PROT_CTRL		(IMXRT_USDHC2.PROT_CTRL)
+#define USDHC2_SYS_CTRL			(IMXRT_USDHC2.SYS_CTRL)
+#define USDHC2_INT_STATUS		(IMXRT_USDHC2.INT_STATUS)
+#define USDHC2_INT_STATUS_EN		(IMXRT_USDHC2.INT_STATUS_EN)
+#define USDHC2_INT_SIGNAL_EN		(IMXRT_USDHC2.INT_SIGNAL_EN)
+#define USDHC2_AUTOCMD12_ERR_STATUS	(IMXRT_USDHC2.AUTOCMD12_ERR_STATUS)
+#define USDHC2_HOST_CTRL_CAP		(IMXRT_USDHC2.HOST_CTRL_CAP)
+#define USDHC2_WTMK_LVL			(IMXRT_USDHC2.WTMK_LVL)
+#define USDHC2_MIX_CTRL			(IMXRT_USDHC2.MIX_CTRL)
+#define USDHC2_FORCE_EVENT		(IMXRT_USDHC2.FORCE_EVENT)
+#define USDHC2_ADMA_ERR_STATUS		(IMXRT_USDHC2.ADMA_ERR_STATUS)
+#define USDHC2_ADMA_SYS_ADDR		(IMXRT_USDHC2.ADMA_SYS_ADDR)
+#define USDHC2_DLL_CTRL			(IMXRT_USDHC2.DLL_CTRL)
+#define USDHC2_DLL_STATUS		(IMXRT_USDHC2.DLL_STATUS)
+#define USDHC2_CLK_TUNE_CTRL_STATUS	(IMXRT_USDHC2.CLK_TUNE_CTRL_STATUS)
+#define USDHC2_VEND_SPEC		(IMXRT_USDHC2.VEND_SPEC)
+#define USDHC2_MMC_BOOT			(IMXRT_USDHC2.MMC_BOOT)
+#define USDHC2_VEND_SPEC2		(IMXRT_USDHC2.VEND_SPEC2)
+#define USDHC2_TUNING_CTRL		(IMXRT_USDHC2.TUNING_CTRL)
 
 // 57.8.1.1: page 3187
 #define IMXRT_WDOG1		(*(IMXRT_REGISTER16_t *)IMXRT_WDOG1_ADDRESS)

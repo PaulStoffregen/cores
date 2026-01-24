@@ -318,7 +318,7 @@ void HardwareSerialIMXRT::setRX(uint8_t pin)
 				//  configure the pin. 
 				*(portControlRegister(pin)) = IOMUXC_PAD_DSE(7) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS;;
 				*(portConfigRegister(pin)) = pin_to_xbar_info[i].mux_val;
-				port->MODIR |= LPUART_MODIR_TXCTSE;
+
 				if (pin_to_xbar_info[i].select_input_register) *(pin_to_xbar_info[i].select_input_register) = pin_to_xbar_info[i].select_val;
 				//Serial.printf("SerialX::begin stat:%x ctrl:%x fifo:%x water:%x\n", port->STAT, port->CTRL, port->FIFO, port->WATER );
 				//Serial.printf("  PINCFG: %x MODIR: %x\n", port->PINCFG, port->MODIR);	
@@ -724,15 +724,15 @@ const pin_to_xbar_info_t PROGMEM pin_to_xbar_info[] = {
 	{3,   7, 3, &IOMUXC_XBAR1_IN07_SELECT_INPUT, 0x0},
 	{4,   8, 3, &IOMUXC_XBAR1_IN08_SELECT_INPUT, 0x0},
 	{5,  17, 3, &IOMUXC_XBAR1_IN17_SELECT_INPUT, 0x0},
-	{7,  15, 1, nullptr, 0 },
-	{8,  14, 1, nullptr, 0},
+	{7,  15, 1, &IOMUXC_XBAR1_IN15_SELECT_INPUT, 0x1},
+	{8,  14, 1, &IOMUXC_XBAR1_IN14_SELECT_INPUT, 0x1},
 	{30, 23, 1, &IOMUXC_XBAR1_IN23_SELECT_INPUT, 0x0},
 	{31, 22, 1, &IOMUXC_XBAR1_IN22_SELECT_INPUT, 0x0},
 	{32, 10, 1, nullptr, 0},
 	{33,  9, 3, &IOMUXC_XBAR1_IN09_SELECT_INPUT, 0x0},
 
 #ifdef ARDUINO_TEENSY41
-	{36, 16, 1, nullptr, 0},
+	{36, 16, 1, &IOMUXC_XBAR1_IN16_SELECT_INPUT, 0x1},
 	{37, 17, 1, &IOMUXC_XBAR1_IN17_SELECT_INPUT, 0x3},
 	{42,  7, 3, &IOMUXC_XBAR1_IN07_SELECT_INPUT, 0x1},
 	{43,  6, 3, &IOMUXC_XBAR1_IN06_SELECT_INPUT, 0x1},
