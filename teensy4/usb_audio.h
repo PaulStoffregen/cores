@@ -34,6 +34,7 @@
 
 #ifdef AUDIO_INTERFACE
 
+#if defined(__cplusplus)
 #include "AudioStream.h"
 
 class AudioInputUSB : public AudioStream
@@ -107,4 +108,5 @@ class AudioOutputUSBOct : public AudioOutputUSB { public: AudioOutputUSBOct(void
 #endif // USB_AUDIO_NO_CHANNELS_480 >= 6
 #endif // USB_AUDIO_NO_CHANNELS_480 >= 4
 
+#endif // defined(__cplusplus)
 #endif // AUDIO_INTERFACE
