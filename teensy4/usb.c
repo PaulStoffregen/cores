@@ -40,7 +40,7 @@
 #include "usb_flightsim.h"
 #include "usb_touch.h"
 #include "usb_midi.h"
-#include "usb_audio.h"
+#include "usb_audio_interface.h"
 #include "usb_mtp.h"
 #include "core_pins.h" // for delay()
 #include "avr/pgmspace.h"
@@ -664,7 +664,6 @@ static void endpoint0_setup(uint64_t setupdata)
 		}
 		break;
 	  case 0x0A81: // GET_INTERFACE (alternate setting)
-	  	
 		if (setup.wIndex == AUDIO_INTERFACE+1) {
 			endpoint0_buffer[0] = usb_audio_transmit_setting;
 			endpoint0_transmit(endpoint0_buffer, 1, 0);

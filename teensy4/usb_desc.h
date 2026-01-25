@@ -880,7 +880,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define CDC_TX_SIZE           64
   #define KEYBOARD_INTERFACE    2	// Keyboard
   #define KEYBOARD_ENDPOINT     4
-  #define KEYBOARD_SIZE         8	// 8 = normal boot protocol, 16 = NKRO
+  #define KEYBOARD_SIZE         8
   #define KEYBOARD_INTERVAL     1
   #define MOUSE_INTERFACE       3	// Mouse
   #define MOUSE_ENDPOINT        5
