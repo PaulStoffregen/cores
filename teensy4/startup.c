@@ -231,10 +231,11 @@ static void ResetHandler2(void)
 	PIT_TCTRL3 = 0;
 
 	// initialize RTC
+	const uint32_t default_time = UINT32_C(1546300800);  // January 1, 2019 12:00:00 AM UTC
 	if (!(SNVS_LPCR & SNVS_LPCR_SRTC_ENV)) {
-		// if SRTC isn't running, start it with default Jan 1, 2019
-		SNVS_LPSRTCLR = 1546300800u << 15;
-		SNVS_LPSRTCMR = 1546300800u >> 17;
+		// if SRTC isn't running, start it with the default time
+		SNVS_LPSRTCLR = default_time << 15;
+		SNVS_LPSRTCMR = default_time >> 17;
 		SNVS_LPCR |= SNVS_LPCR_SRTC_ENV;
 	}
 	SNVS_HPCR |= SNVS_HPCR_RTC_EN | SNVS_HPCR_HP_TS;
