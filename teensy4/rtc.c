@@ -30,7 +30,7 @@
 
 #include "imxrt.h"
 #include "debug/printf.h"
-#include <sys/time.h> // for struct timeval
+#include <sys/time.h>  // for struct timeval and struct timezone
 
 unsigned long rtc_get(void)
 {
@@ -87,4 +87,61 @@ int _gettimeofday(struct timeval *tv, void *ignore __attribute__((unused)))
 		hi1 = hi2;
 		lo1 = lo2;
 	}
+}
+
+__attribute__((weak))
+int settimeofday(const struct timeval *const tv,
+                 const struct timezone *const tz __attribute__((unused))) {
+  // Notes:
+  // * The type of tv_usec is suseconds_t, range is [-1, 1000000]
+  // * There are 32768 ticks per 1,000,000 microseconds; that's where 512/15625
+  //   comes from, it's 32768/1000000 in lowest terms
+  // Refs:
+  // * https://pubs.opengroup.org/onlinepubs/007904975/basedefs/sys/time.h.html
+  // * https://pubs.opengroup.org/onlinepubs/007904975/basedefs/sys/types.h.html
+
+  if (tv == NULL) {
+    // Do nothing
+    return 0;
+  }
+
+  uint32_t sec = (uint32_t)tv->tv_sec;
+  uint32_t usec = (uint32_t)tv->tv_usec;
+  if (usec == 1000000) {
+    sec++;
+    usec = 0;
+  } else if (usec == UINT32_MAX) {
+    sec--;
+    usec = 999999;
+  }
+
+  const uint32_t hi = (sec >> 17) & 0x7fffu;
+  const uint32_t lo = (sec << 15) | (((usec << 9) / 15625u) & 0x7fffu);
+
+  // Stop the RTC
+  SNVS_HPCR &= ~(SNVS_HPCR_RTC_EN | SNVS_HPCR_HP_TS);
+  while ((SNVS_HPCR & SNVS_HPCR_RTC_EN) != 0) {
+    // Wait
+  }
+
+  // Stop the SRTC
+  SNVS_LPCR &= ~SNVS_LPCR_SRTC_ENV;
+  while ((SNVS_LPCR & SNVS_LPCR_SRTC_ENV) != 0) {
+    // Wait
+  }
+
+  // Set the SRTC
+  SNVS_LPSRTCLR = lo;
+  SNVS_LPSRTCMR = hi;
+
+  // Start the SRTC
+  SNVS_LPCR |= SNVS_LPCR_SRTC_ENV;
+  while ((SNVS_LPCR & SNVS_LPCR_SRTC_ENV) == 0) {
+    // Wait
+  }
+
+  // Start the RTC and sync it to the SRTC
+  SNVS_HPCR |= (SNVS_HPCR_RTC_EN | SNVS_HPCR_HP_TS);
+
+  return 0;
 }
