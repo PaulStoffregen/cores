@@ -85,6 +85,17 @@ CPUOPTIONS = -mcpu=cortex-m7 -mfloat-abi=hard -mfpu=fpv5-d16 -mthumb
 
 #************************************************************************
 # Location of Teensyduino utilities, Toolchain, and Arduino Libraries.
+#
+# To get all files needed, install Arduino IDE 1.8.19 and then run the
+# Teensyduno installer, available here:
+#   https://www.pjrc.com/teensy/td_download.html#installer
+#
+# Newer Arduino IDE 2.x.x has a completely different folder structure
+# which can be made to work, but the defines below assume the folders
+# used by Arduino IDE 1.8.19.  You do not need to actually run Arduino.
+# Simply installing without running gives you all the files and tools
+# in the folder structure compatible with this Makefile.
+#
 # To use this makefile without Arduino, copy the resources from these
 # locations and edit the pathnames.  The rest of Arduino is not needed.
 #************************************************************************
