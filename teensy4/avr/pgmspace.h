@@ -31,6 +31,10 @@
 #define FLASHMEM __attribute__((section(".flashmem")))
 #define EXTMEM __attribute__((section(".externalram")))
 
+#define REGISTER_EARLY_STARTUP(f) static void (* f ## _eh_ptr)(void) __attribute__ ((section(".early_hook"),used)) = f
+#define REGISTER_MIDDLE_STARTUP(f) static void (* f ## _mh_ptr)(void) __attribute__ ((section(".middle_hook"),used)) = f
+#define REGISTER_LATE_STARTUP(f) static void (* f ## _lh_ptr)(void) __attribute__ ((section(".late_hook"),used)) = f
+
 #define PGM_P  const char *
 #define PSTR(str) ({static const char data[] PROGMEM = (str); &data[0];})
 
