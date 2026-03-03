@@ -73,6 +73,7 @@
 #define MSB(n) (((n) >> 8) & 255)
 
 #ifdef CDC_IAD_DESCRIPTOR
+// DEVICE_CLASS=0xEF, DEVICE_SUBCLASS=0x02 & DEVICE_PROTOCOL=0x01 means composite device with IAD
 #ifndef DEVICE_CLASS
 #define DEVICE_CLASS 0xEF
 #endif
