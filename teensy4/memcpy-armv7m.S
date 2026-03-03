@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if defined (__ARM_ARCH_7M__) || defined (__ARM_ARCH_7EM__)
+#if (__GNUC__ < 10) && (defined (__ARM_ARCH_7M__) || defined (__ARM_ARCH_7EM__))
 /*
  * Let __ARM_FEATURE_UNALIGNED be set by the achitechture and the compiler flags:
  *   -munaligned-access
