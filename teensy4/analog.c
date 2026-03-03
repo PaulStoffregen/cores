@@ -38,7 +38,7 @@ static uint8_t analog_config_bits = 10;
 static uint8_t analog_num_average = 4;
 
 
-const uint8_t pin_to_channel[] = { // pg 482
+const uint8_t pin_to_channel[] __attribute__((weak)) = { // pg 482
 	7,	// 0/A0  AD_B1_02
 	8,	// 1/A1  AD_B1_03
 	12,	// 2/A2  AD_B1_07
