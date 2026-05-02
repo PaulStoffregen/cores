@@ -26,6 +26,9 @@
 #include "core_id.h"
 #include "WString.h"
 #include "Printable.h"
+#ifndef UINT8_MAX
+#define UINT8_MAX 255
+#endif
 
 #define DEC 10
 #define HEX 16
