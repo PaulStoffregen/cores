@@ -94,7 +94,7 @@ public:
 		sendRealTime(0xFA, cable);
 	}
 	void sendStop(uint8_t cable=0) {
-		sendRealTime(0xFB, cable);
+		sendRealTime(0xFC, cable);
 	}
 	void sendTick(uint8_t cable=0) {
 		sendRealTime(0xF9, cable);
