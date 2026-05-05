@@ -8504,6 +8504,7 @@ typedef struct {
 #define I2S_RCSR_FWDE			((uint32_t)(1<<1))	// FIFO Warning DMA Enable
 #define I2S_RCSR_FRDE			((uint32_t)(1<<0))	// FIFO Request DMA Enable
 #define I2S_TCR1_RFW(n)			((uint32_t)(n) & 0x1f)	// Receive FIFO watermark
+#define I2S_TCR1_TFW(n)			((uint32_t)(n) & 0x1f)	// Transmit FIFO watermark
 #define I2S_TCR2_DIV(n)			((uint32_t)(n) & 0xff)	// Bit clock divide by (DIV+1)*2
 #define I2S_TCR2_BCD			((uint32_t)1<<24)	// Bit clock direction
 #define I2S_TCR2_MSEL(n)		((uint32_t)((n) & 3)<<26)	// MCLK select, 0=bus clock, 1=I2S0_MCLK
