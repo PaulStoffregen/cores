@@ -8485,10 +8485,24 @@ typedef struct {
 #define I2S_RCR5_W0W(n)			((uint32_t)((n) & 0x1f)<<16)	// Word 0 Width
 #define I2S_RCR5_WNW(n)			((uint32_t)((n) & 0x1f)<<24)	// Word N Width
 #define I2S_RCR2_BCP			((uint32_t)1<<25)
-#define I2S_RCSR_RE			((uint32_t)0x80000000)	// Receiver Enable
-#define I2S_RCSR_FR			((uint32_t)0x02000000)	// FIFO Reset
-#define I2S_RCSR_FRDE			((uint32_t)0x00000001)	// FIFO Request DMA Enable
-#define I2S_RCSR_BCE			((uint32_t)0x10000000)	// Bit Clock Enable
+#define I2S_RCSR_RE			((uint32_t)(1<<31))	// Receiver Enable
+#define I2S_RCSR_STOPE			((uint32_t)(1<<30))	// Stop Enable
+#define I2S_RCSR_DBGE			((uint32_t)(1<<29))	// Debug Enable
+#define I2S_RCSR_BCE			((uint32_t)(1<<28))	// Bit Clock Enable
+#define I2S_RCSR_FR			((uint32_t)(1<<25))	// FIFO Reset
+#define I2S_RCSR_SR			((uint32_t)(1<<24))	// Software Reset
+#define I2S_RCSR_WSF			((uint32_t)(1<<20))	// Word Start Flag
+#define I2S_RCSR_SEF			((uint32_t)(1<<19))	// Sync Error Flag
+#define I2S_RCSR_FEF			((uint32_t)(1<<18))	// FIFO Error Flag
+#define I2S_RCSR_FWF			((uint32_t)(1<<17))	// FIFO Warning Flag
+#define I2S_RCSR_FRF			((uint32_t)(1<<16))	// FIFO Request Flag
+#define I2S_RCSR_WSIE			((uint32_t)(1<<12))	// Word Start Interrupt Enable
+#define I2S_RCSR_SEIE			((uint32_t)(1<<11))	// Sync Error Interrupt Enable
+#define I2S_RCSR_FEIE			((uint32_t)(1<<10))	// FIFO Error Interrupt Enable
+#define I2S_RCSR_FWIE			((uint32_t)(1<<9))	// FIFO Warning Interrupt Enable
+#define I2S_RCSR_FRIE			((uint32_t)(1<<8))	// FIFO Request Interrupt Enable
+#define I2S_RCSR_FWDE			((uint32_t)(1<<1))	// FIFO Warning DMA Enable
+#define I2S_RCSR_FRDE			((uint32_t)(1<<0))	// FIFO Request DMA Enable
 #define I2S_TCR1_RFW(n)			((uint32_t)(n) & 0x1f)	// Receive FIFO watermark
 #define I2S_TCR2_DIV(n)			((uint32_t)(n) & 0xff)	// Bit clock divide by (DIV+1)*2
 #define I2S_TCR2_BCD			((uint32_t)1<<24)	// Bit clock direction
@@ -8509,10 +8523,24 @@ typedef struct {
 #define I2S_TCR5_W0W(n)			((uint32_t)((n) & 0x1f)<<16)	// Word 0 Width
 #define I2S_TCR5_WNW(n)			((uint32_t)((n) & 0x1f)<<24)	// Word N Width
 #define I2S_TCR2_BCP			((uint32_t)1<<25)
-#define I2S_TCSR_TE			((uint32_t)0x80000000)		// Receiver Enable
-#define I2S_TCSR_BCE			((uint32_t)0x10000000)	// Bit Clock Enable
-#define I2S_TCSR_FR			((uint32_t)0x02000000)	// FIFO Reset
-#define I2S_TCSR_FRDE			((uint32_t)0x00000001)	// FIFO Request DMA Enable
+#define I2S_TCSR_TE			((uint32_t)(1<<31))	// Transmitter Enable
+#define I2S_TCSR_STOPE			((uint32_t)(1<<30))	// Stop Enable
+#define I2S_TCSR_DBGE			((uint32_t)(1<<29))	// Debug Enable
+#define I2S_TCSR_BCE			((uint32_t)(1<<28))	// Bit Clock Enable
+#define I2S_TCSR_FR			((uint32_t)(1<<25))	// FIFO Reset
+#define I2S_TCSR_SR			((uint32_t)(1<<24))	// Software Reset
+#define I2S_TCSR_WSF			((uint32_t)(1<<20))	// Word Start Flag
+#define I2S_TCSR_SEF			((uint32_t)(1<<19))	// Sync Error Flag
+#define I2S_TCSR_FEF			((uint32_t)(1<<18))	// FIFO Error Flag
+#define I2S_TCSR_FWF			((uint32_t)(1<<17))	// FIFO Warning Flag
+#define I2S_TCSR_FRF			((uint32_t)(1<<16))	// FIFO Request Flag
+#define I2S_TCSR_WSIE			((uint32_t)(1<<12))	// Word Start Interrupt Enable
+#define I2S_TCSR_SEIE			((uint32_t)(1<<11))	// Sync Error Interrupt Enable
+#define I2S_TCSR_FEIE			((uint32_t)(1<<10))	// FIFO Error Interrupt Enable
+#define I2S_TCSR_FWIE			((uint32_t)(1<<9))	// FIFO Warning Interrupt Enable
+#define I2S_TCSR_FRIE			((uint32_t)(1<<8))	// FIFO Request Interrupt Enable
+#define I2S_TCSR_FWDE			((uint32_t)(1<<1))	// FIFO Warning DMA Enable
+#define I2S_TCSR_FRDE			((uint32_t)(1<<0))	// FIFO Request DMA Enable
 
 
 
