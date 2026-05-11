@@ -2472,7 +2472,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE_12] = {
       0x09,                         // bmAttributes, 0x09 = isochronous, adaptive, 0x05 = isochronous, asynchronous
 #endif 
 	LSB(AUDIO_TX_SIZE_12), MSB(AUDIO_TX_SIZE_12),	// wMaxPacketSize
-	AUDIO_POLLING_INTERVAL_12,			 	// bInterval, 4 -> 2^(4-1)=8 -> every 8 micro-frames
+	AUDIO_POLLING_INTERVAL_12,			 	// bInterval 1...255 for full and low speed endpoints
 	// UAC2: 
       // Class-Specific AS Isochronous Audio Data Endpoint Descriptor
       // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.10.1.2, Table 4-34 page 86-87
@@ -2538,7 +2538,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE_12] = {
 	AUDIO_RX_ENDPOINT | 0x00,	// bEndpointAddress  (0x00 = 00000000 -> audio sink)
 	0x05, 				// bmAttributes = isochronous, asynchronous
 	LSB(AUDIO_RX_SIZE_12), MSB(AUDIO_RX_SIZE_12),	// wMaxPacketSize
-	AUDIO_POLLING_INTERVAL_12,			 	// bInterval, 4 -> 2^(4-1)=8 -> every 8 micro-frames
+	AUDIO_POLLING_INTERVAL_12,			 	// bInterval 1...255 for full and low speed endpoints
 	// UAC2: 
       // Class-Specific AS Isochronous Audio Data Endpoint Descriptor
       // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.10.1.2, Table 4-34 page 86-87
@@ -2557,7 +2557,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE_12] = {
 	AUDIO_SYNC_ENDPOINT | 0x80,	// bEndpointAddress, 0x80=10000000 -> IN endpoint
 	0x11, 				// bmAttributes = isochronous, feedback
 	4, 0,					// wMaxPacketSize, 4 bytes
-	AUDIO_POLLING_INTERVAL_12,	// bInterval, 4 -> 2^(4-1) = 8 -> every 8 micro-frames
+	AUDIO_POLLING_INTERVAL_12,	// bInterval 1...255 for full and low speed endpoints
 #endif
 
 #ifdef MIDI_INTERFACE

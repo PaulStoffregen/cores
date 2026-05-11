@@ -40,14 +40,15 @@ namespace {
 	
 	//variables used by USBAudioInInterface and AudioOutputUSB ==================
   #if (USB_AUDIO_NO_CHANNELS_12*AUDIO_NUM_SUBFRAMES_PER_POLLING_12) < (USB_AUDIO_NO_CHANNELS_480*AUDIO_NUM_SUBFRAMES_PER_POLLING_480)
-    #define AUDIO_TX_SIZE         AUDIO_RX_SIZE_480
+    #define AUDIO_TX_SIZE         AUDIO_TX_SIZE_480
     #define AUDIO_RX_SIZE         AUDIO_RX_SIZE_480
   #else
-    #define AUDIO_TX_SIZE         AUDIO_RX_SIZE_12
+    #define AUDIO_TX_SIZE         AUDIO_TX_SIZE_12
     #define AUDIO_RX_SIZE         AUDIO_RX_SIZE_12
   #endif
 
-	uint16_t noTransmittedChannels=0;	//depending if usb_high_speed if true this is either USB_AUDIO_MAX_NO_CHANNELS or 2 as fall-back strategy
+	uint16_t noTransmittedChannels=0;	//depending if usb_high_speed is true this is either USB_AUDIO_NO_CHANNELS_480 or USB_AUDIO_NO_CHANNELS_12
+	uint32_t maxRxTxSamples = 0;
 	float audioPollingIntervalSec=0;
 	uint16_t audioPollingIntervaluS =0;
 	uint32_t noSamplesPerPollingInterval=0;
@@ -130,10 +131,13 @@ static void rx_event(transfer_t *t)
 
 static void sync_event(transfer_t *t)
 {
-	const uint32_t noRequestedBytes = feedback_accumulator/0x1000000* USB_AUDIO_NO_CHANNELS_480 * AUDIO_SUBSLOT_SIZE; //float fs = feedback_accumulator/(audioPollingIntervalSec*0x1000000);
-	if(noRequestedBytes>AUDIO_RX_SIZE_480){
+	if(feedback_accumulator > maxRxTxSamples*0x1000000){
+		// Serial.print("usb_audio_interface: sync_event: Exceeded maximum number of requeseted Samples. Requested: ");
+		// Serial.print(((double)feedback_accumulator)/0x1000000,8);
+		// Serial.print(", buffer size: ");
+		// Serial.print(maxRxTxSamples);
 		//maximum amount
-		feedback_accumulator =AUDIO_RX_SIZE_480 *0x1000000/(USB_AUDIO_NO_CHANNELS_480 * AUDIO_SUBSLOT_SIZE);
+		feedback_accumulator =maxRxTxSamples * 0x1000000;
 	}
 	// USB 2.0 Specification, 5.12.4.2 Feedback, pages 73-75
 	//printf("sync %x\n", sync_transfer.status); // too slow, can't print this much
@@ -232,7 +236,6 @@ void USBAudioInInterface::begin(){
 	receive_flag = 0;
 	_streaming=false;
 	_lastCallUpdate.reset(blockDuration*F_CPU_ACTUAL);
-	lastCallReceiveIsr.reset(expectedIsrIntervalCycles);
 	__enable_irq();
 
 }
@@ -240,9 +243,9 @@ void USBAudioInInterface::begin(){
 
 float USBAudioInInterface::getActualBIntervalUs() const {
 	float toUS =1000000.f/F_CPU_ACTUAL;
-	NVIC_DISABLE_IRQ(IRQ_SOFTWARE);
+__disable_irq();
 	float bInterval= (float)lastCallReceiveIsr.getLastDuration()*toUS;
-	NVIC_ENABLE_IRQ(IRQ_SOFTWARE);
+__enable_irq();
 	return bInterval;
 }
 
@@ -352,11 +355,9 @@ bool USBAudioInInterface::resetBuffer(double updateCurrentSmooth){
 
 	//first we estimate when the last USB samples arrived
 	double timeSinceLastUSBPaket=0.;
-	History<7> historyIsr = lastCallReceiveIsr.getHistory();	//important: a new history is needed that is consistent with incoming_rx_bIdx
-	if(historyIsr.valid){
-		//historyUpdate.valid is always true
-		double lastIsrSmooth = lastCallReceiveIsr.getLastCall<2>(historyIsr, expectedIsrIntervalCycles);
-		timeSinceLastUSBPaket = toUInt32Range(updateCurrentSmooth - lastIsrSmooth);
+	if(lastCallReceiveIsr.isHistoryValid()){
+		double lastIsrSmooth = lastCallReceiveIsr.getLastCall<2>();
+		timeSinceLastUSBPaket = toInt32Range(updateCurrentSmooth - lastIsrSmooth);
 		timeSinceLastUSBPaket /= F_CPU_ACTUAL; //to seconds
 		if(timeSinceLastUSBPaket > 1.5f*audioPollingIntervalSec || timeSinceLastUSBPaket < -0.5f){
 			//normally this should not happen
@@ -400,8 +401,7 @@ void USBAudioInInterface::update(int16_t& bIdx, uint16_t& noChannels)
 	//update time measurement of update calls
 	uint32_t clockCount = ARM_DWT_CYCCNT;
 	_lastCallUpdate.addCall(clockCount);
-	History<50> historyUpdate = _lastCallUpdate.getHistory();
-	double updateCurrentSmooth= _lastCallUpdate.getLastCall<20>(historyUpdate, blockDuration*F_CPU_ACTUAL);	
+	double updateCurrentSmooth= _lastCallUpdate.getLastCall<20>();
 	//=======================================
 
 	//get all information related to the USB receive ISR
@@ -423,7 +423,9 @@ void USBAudioInInterface::update(int16_t& bIdx, uint16_t& noChannels)
 	if(_streaming && !f){
 		//the stream just stopped -> reset
 		_streaming=false;
-		lastCallReceiveIsr.reset(expectedIsrIntervalCycles);
+	__disable_irq();
+		lastCallReceiveIsr.resetHistory();
+	__enable_irq();
 		sumDiff = 0.;
 		feedback_accumulator = feedback_accumulator_default;
 	}
@@ -461,8 +463,8 @@ void USBAudioInInterface::update(int16_t& bIdx, uint16_t& noChannels)
 	// Important: first compute the buffered samples before the block transmission and update of transmit_rx_bIdx below!!
 	if (_streaming) {
 		//we compute the mismatch of the the targeted number of buffered samples and the actual buffered samples
-		float lastIsrSmooth = (float)lastCallReceiveIsr.getLastCall<2>(historyIsr, expectedIsrIntervalCycles);
-		float timeSinceLastIsr = (float)toUInt32Range(updateCurrentSmooth - lastIsrSmooth);			
+		float lastIsrSmooth = (float)lastCallReceiveIsr.getLastCall<2>(historyIsr);
+		float timeSinceLastIsr = (float)toInt32Range(updateCurrentSmooth - lastIsrSmooth);			
 		timeSinceLastIsr /= F_CPU_ACTUAL; //to seconds
 		
 		_bufferedSamples= getNumBufferedRxSamples(iIdx, transmit_rx_bIdx, ic);
@@ -574,7 +576,7 @@ namespace {
 			//we run out of samples -> slow transmission down
             target--;
 		}
-		else if(sign ==1){
+		else if(sign ==1 && target < maxRxTxSamples){
 			devCounter=0;
 			num_send_one_more++;
 			//we run out of buffer space -> speed transmission down
@@ -622,11 +624,12 @@ namespace {
 		static uint32_t errorAccumulator = 0;                   
 		errorAccumulator+=rem;
 		
-		if (errorAccumulator >= denominator)
+		if (errorAccumulator >= denominator && target < maxRxTxSamples)
 		{
 			errorAccumulator -= denominator;
 			target += 1;
 		}
+		
 		return target;
 	}
 	
@@ -683,7 +686,6 @@ void USBAudioOutInterface::begin(){
 		return;
 	}
 	outgoing_count = 0;
-	lastCallTransmitIsr.reset(expectedIsrIntervalCycles);		
 	_lastCallUpdate.reset(blockDuration*F_CPU_ACTUAL);
 	USBAudioOutInterface::running=true;
 	bufferedTxSamplesSmooth=0;
@@ -733,8 +735,7 @@ void USBAudioOutInterface::update(int16_t& bIdx, uint16_t& noChannels)
 	//update time measurement of update calls
 	uint32_t t = ARM_DWT_CYCCNT;
 	_lastCallUpdate.addCall(t);
-	History<50> historyUpdate = _lastCallUpdate.getHistory();	
-	_updateCurrentSmoothPending= _lastCallUpdate.getLastCall<20>(historyUpdate, blockDuration*F_CPU_ACTUAL);
+	_updateCurrentSmoothPending= _lastCallUpdate.getLastCall<20>();
 	//=======================================
 	
 	__disable_irq();
@@ -834,9 +835,8 @@ unsigned int usb_audio_transmit_callback(void)
 	float virtualSamples =0.f;
 	if(USBAudioOutInterface::updateCurrentSmooth !=-1.){
 		
-		History<7> historyIsr = lastCallTransmitIsr.getHistory();
-		float lastIsrSmooth = (float)lastCallTransmitIsr.getLastCall<2>(historyIsr, expectedIsrIntervalCycles);
-		float timeSinceLastUpdate = (float)toUInt32Range(lastIsrSmooth - USBAudioOutInterface::updateCurrentSmooth);
+		float lastIsrSmooth = (float)lastCallTransmitIsr.getLastCall<2>();
+		float timeSinceLastUpdate = (float)toInt32Range(lastIsrSmooth - USBAudioOutInterface::updateCurrentSmooth);
 		timeSinceLastUpdate /= F_CPU_ACTUAL; //to seconds
 		if (timeSinceLastUpdate > 1.5f*USBAudioOutInterface::blockDuration || timeSinceLastUpdate < -0.5f*USBAudioOutInterface::blockDuration){
 			//something really went wrong since update is normally called eveey blockDuration seconds
@@ -919,12 +919,14 @@ void usb_audio_configure(void)
 	incoming_rx_bIdx=0;
 	transmit_rx_bIdx=0;
 	if (usb_high_speed) {
+		maxRxTxSamples = AUDIO_RX_TX_SIZE_SAMPLES_480;
 		noTransmittedChannels   = USB_AUDIO_NO_CHANNELS_480;
 		audioPollingIntervalSec = AUDIO_POLLING_INTERVAL_480_SEC;
 		audioPollingIntervaluS  = AUDIO_NUM_SUBFRAMES_PER_POLLING_480 * MICROFRAME_US;
 		usb_audio_sync_nbytes   = 4;
 		usb_audio_sync_rshift   = 8;
 	} else {
+		maxRxTxSamples = AUDIO_RX_TX_SIZE_SAMPLES_12;
 		noTransmittedChannels   = USB_AUDIO_NO_CHANNELS_12;
 		audioPollingIntervalSec = AUDIO_POLLING_INTERVAL_12_SEC;
 		audioPollingIntervaluS  = AUDIO_NUM_SUBFRAMES_PER_POLLING_12 * MICROFRAME_US;
@@ -948,6 +950,7 @@ void usb_audio_configure(void)
 	tx_event(NULL);
 	expectedIsrIntervalCycles = audioPollingIntervalSec *F_CPU_ACTUAL;
 	lastCallReceiveIsr.reset(expectedIsrIntervalCycles);
+	lastCallTransmitIsr.reset(expectedIsrIntervalCycles);		
 
 	//AudioOutputUSB	==============================
 	resetStatusCounter();
