@@ -48,6 +48,9 @@ volatile uint32_t F_BUS_ACTUAL = 132000000;
 
 // Industrial temperature chips may require different parameters
 // https://forum.pjrc.com/index.php?threads/75798/#post-349215
+// Uncomment this to add boost voltage
+//#define BOOST_FOR_WIDE_TEMPERATURE_CHIPS 25
+
 
 uint32_t set_arm_clock(uint32_t frequency);
 
@@ -67,36 +70,24 @@ uint32_t set_arm_clock(uint32_t frequency)
 
 	// compute required voltage, apparently not as simple as NXP datasheet says
 	// https://forum.pjrc.com/index.php?threads/77839
-#if 1
 	uint32_t voltage; // millivolts
 	if (frequency <= 240000000) {
 		voltage = 950 + (frequency / 32000000) * 25;
-	} else if (frequency <= 456000000) {
+	} else if (frequency < 460000000) {
 		voltage = 1150;
+	} else if (frequency <= 528000000) {
+		voltage = 1175;
 	} else if (frequency <= 600000000) {
-		voltage = 1150 + ((frequency - 456000000) / 36000000) * 25;
+		voltage = 1250;
 	} else {
 		voltage = 1250 + ((frequency - 600000000) / OVERCLOCK_STEPSIZE) * 25;
 	}
+#ifdef BOOST_FOR_WIDE_TEMPERATURE_CHIPS
 	if (((HW_OCOTP_CFG3 >> 16) & 3) == 1) {
-		// wide temperature chips rated for 500 MHz may need higher voltage
-		voltage += 25;
+		voltage += BOOST_FOR_WIDE_TEMPERATURE_CHIPS;
 	}
+#endif
 	if (voltage > OVERCLOCK_MAX_VOLT) voltage = OVERCLOCK_MAX_VOLT;
-#else
-	uint32_t voltage = 1150; // default = 1.15V
-	if (frequency > 528000000) {
-		voltage = 1250; // 1.25V
-#if defined(OVERCLOCK_STEPSIZE) && defined(OVERCLOCK_MAX_VOLT)
-		if (frequency > 600000000) {
-			voltage += ((frequency - 600000000) / OVERCLOCK_STEPSIZE) * 25;
-			if (voltage > OVERCLOCK_MAX_VOLT) voltage = OVERCLOCK_MAX_VOLT;
-		}
-#endif
-	} else if (frequency <= 24000000) {
-		voltage = 950; // 0.95
-	}
-#endif
 
 	// if voltage needs to increase, do it before switch clock speed
 	CCM_CCGR6 |= CCM_CCGR6_DCDC(CCM_CCGR_ON);
