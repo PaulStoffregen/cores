@@ -14,7 +14,7 @@ class usb_keyboard_class : public Print
 	void begin(void) { }
 	void end(void) { }
 #if ARDUINO >= 100
-	virtual size_t write(uint8_t);
+	size_t write(uint8_t) override;
 #else
 	virtual void write(uint8_t);
 #endif
@@ -54,12 +54,12 @@ class usb_serial_class : public Stream
 	// standard Arduino functions
 	void begin(long);
 	void end();
-	virtual int available();
-	virtual int read();
-	virtual int peek();
-	virtual void flush();
+	int available() override;
+	int read() override;
+	int peek() override;
+	void flush() override;
 #if ARDUINO >= 100
-	virtual size_t write(uint8_t);
+	size_t write(uint8_t) override;
 #else
 	virtual void write(uint8_t);
 #endif

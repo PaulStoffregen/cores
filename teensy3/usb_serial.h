@@ -91,18 +91,18 @@ public:
 		}
 	}
         void end() { /* TODO: flush output and shut down USB port */ };
-        virtual int available() { return usb_serial_available(); }
-        virtual int read() { return usb_serial_getchar(); }
-        virtual int peek() { return usb_serial_peekchar(); }
-        virtual void flush() { usb_serial_flush_output(); }  // TODO: actually wait for data to leave USB...
+        int available() override { return usb_serial_available(); }
+        int read() override { return usb_serial_getchar(); }
+        int peek() override { return usb_serial_peekchar(); }
+        void flush() override { usb_serial_flush_output(); }  // TODO: actually wait for data to leave USB...
         virtual void clear(void) { usb_serial_flush_input(); }
-        virtual size_t write(uint8_t c) { return usb_serial_putchar(c); }
-        virtual size_t write(const uint8_t *buffer, size_t size) { return usb_serial_write(buffer, size); }
+        size_t write(uint8_t c) override { return usb_serial_putchar(c); }
+        size_t write(const uint8_t *buffer, size_t size) override { return usb_serial_write(buffer, size); }
 	size_t write(unsigned long n) { return write((uint8_t)n); }
 	size_t write(long n) { return write((uint8_t)n); }
 	size_t write(unsigned int n) { return write((uint8_t)n); }
 	size_t write(int n) { return write((uint8_t)n); }
-	virtual int availableForWrite() { return usb_serial_write_buffer_free(); }
+	int availableForWrite() override { return usb_serial_write_buffer_free(); }
 	using Print::write;
         void send_now(void) { usb_serial_flush_output(); }
         uint32_t baud(void) { return usb_cdc_line_coding[0]; }
@@ -144,18 +144,18 @@ public:
 	constexpr usb_serial_class() {}
         void begin(long) { };
         void end() { };
-        virtual int available() { return 0; }
-        virtual int read() { return -1; }
-        virtual int peek() { return -1; }
-        virtual void flush() { }
+        int available() override { return 0; }
+        int read() override { return -1; }
+        int peek() override { return -1; }
+        void flush() override { }
         virtual void clear() { }
-        virtual size_t write(uint8_t c) { return 1; }
-        virtual size_t write(const uint8_t *buffer, size_t size) { return size; }
+        size_t write(uint8_t c) override { return 1; }
+        size_t write(const uint8_t *buffer, size_t size) override { return size; }
 	size_t write(unsigned long n) { return 1; }
 	size_t write(long n) { return 1; }
 	size_t write(unsigned int n) { return 1; }
 	size_t write(int n) { return 1; }
-	virtual int availableForWrite() { return 0; }
+	int availableForWrite() override { return 0; }
 	using Print::write;
         void send_now(void) { }
         uint32_t baud(void) { return 0; }

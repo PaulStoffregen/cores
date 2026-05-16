@@ -167,7 +167,7 @@ public:
 	}
 
 	// override print version
-	virtual size_t write(const uint8_t *buf, size_t size) {
+	size_t write(const uint8_t *buf, size_t size) override {
 		return (f) ? f->write((void*)buf, size) : 0;
 	}
 
