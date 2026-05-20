@@ -81,12 +81,12 @@ public:
 	using Print::write;
 	void write_unicode(uint16_t n) { usb_keyboard_write_unicode(n); }
 	void set_modifier(uint16_t c) { keyboard_modifier_keys = (uint8_t)c; }
-	void set_key1(uint8_t c) { keyboard_keys[0] = c; }
-	void set_key2(uint8_t c) { keyboard_keys[1] = c; }
-	void set_key3(uint8_t c) { keyboard_keys[2] = c; }
-	void set_key4(uint8_t c) { keyboard_keys[3] = c; }
-	void set_key5(uint8_t c) { keyboard_keys[4] = c; }
-	void set_key6(uint8_t c) { keyboard_keys[5] = c; }
+	void set_key1(uint16_t c) { keyboard_keys[0] = (uint8_t)c; }
+	void set_key2(uint16_t c) { keyboard_keys[1] = (uint8_t)c; }
+	void set_key3(uint16_t c) { keyboard_keys[2] = (uint8_t)c; }
+	void set_key4(uint16_t c) { keyboard_keys[3] = (uint8_t)c; }
+	void set_key5(uint16_t c) { keyboard_keys[4] = (uint8_t)c; }
+	void set_key6(uint16_t c) { keyboard_keys[5] = (uint8_t)c; }
 #ifdef KEYMEDIA_INTERFACE
 	void set_media(uint16_t c) {
 		if (c == 0) {
