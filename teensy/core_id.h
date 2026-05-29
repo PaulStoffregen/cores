@@ -6,6 +6,8 @@
 #include "../usb_hid/core_id.h"
 #elif defined(USB_SERIAL_HID)
 #include "../usb_serial_hid/core_id.h"
+#elif defined(USB_SERIAL_HID_NO_JOYSTICK)
+#include "../usb_serial_hid_no_joystick/core_id.h"
 #elif defined(USB_DISK) || defined(USB_DISK_SDFLASH)
 #include "../usb_disk/core_id.h"
 #elif defined(USB_MIDI)
