@@ -44,6 +44,11 @@ uint16_t AudioInputUSB::incoming_count;
 uint8_t AudioInputUSB::receive_flag;
 
 struct usb_audio_features_struct AudioInputUSB::features = {0,0,FEATURE_MAX_VOLUME/2};
+struct usb_audio_features_struct AudioOutputUSB::features = {0,0,FEATURE_MAX_VOLUME/2};
+
+// Feature Unit IDs in usb_desc.c. Keep in sync with the AudioControl topology.
+#define USB_AUDIO_CAPTURE_FEATURE_UNIT_ID  0x30  // device -> host (Windows recording slider)
+#define USB_AUDIO_PLAYBACK_FEATURE_UNIT_ID 0x31  // host -> device (Windows speakers slider)
 
 extern volatile uint8_t usb_high_speed;
 static void rx_event(transfer_t *t);
@@ -461,19 +466,33 @@ struct setup_struct {
   };
 };
 
+// Pick the right feature struct based on which Feature Unit the host is
+// addressing. The high byte of wIndex carries the Entity ID; the low byte
+// is the AudioControl interface number.
+//   FU 0x31 -> playback path  (host -> device, AudioInputUSB pulls audio in)
+//   FU 0x30 -> capture path   (device -> host, AudioOutputUSB sends audio out)
+static struct usb_audio_features_struct *usb_audio_features_for_entity(uint8_t entity_id)
+{
+	if (entity_id == USB_AUDIO_PLAYBACK_FEATURE_UNIT_ID) return &AudioInputUSB::features;
+	if (entity_id == USB_AUDIO_CAPTURE_FEATURE_UNIT_ID)  return &AudioOutputUSB::features;
+	return 0;
+}
+
 int usb_audio_get_feature(void *stp, uint8_t *data, uint32_t *datalen)
 {
 	struct setup_struct setup = *((struct setup_struct *)stp);
 	if (setup.bmRequestType==0xA1) { // should check bRequest, bChannel, and UnitID
+			struct usb_audio_features_struct *f = usb_audio_features_for_entity(setup.bEntityId);
+			if (f == 0) return 0;
 			if (setup.bCS==0x01) { // mute
-				data[0] = AudioInputUSB::features.mute;  // 1=mute, 0=unmute
+				data[0] = f->mute;  // 1=mute, 0=unmute
 				*datalen = 1;
 				return 1;
 			}
 			else if (setup.bCS==0x02) { // volume
 				if (setup.bRequest==0x81) { // GET_CURR
-					data[0] = AudioInputUSB::features.volume & 0xFF;
-					data[1] = (AudioInputUSB::features.volume>>8) & 0xFF;
+					data[0] = f->volume & 0xFF;
+					data[1] = (f->volume>>8) & 0xFF;
 				}
 				else if (setup.bRequest==0x82) { // GET_MIN
 					//serial_print("vol get_min\n");
@@ -498,21 +517,23 @@ int usb_audio_get_feature(void *stp, uint8_t *data, uint32_t *datalen)
 	return 0;
 }
 
-int usb_audio_set_feature(void *stp, uint8_t *buf) 
+int usb_audio_set_feature(void *stp, uint8_t *buf)
 {
 	struct setup_struct setup = *((struct setup_struct *)stp);
 	if (setup.bmRequestType==0x21) { // should check bRequest, bChannel and UnitID
+			struct usb_audio_features_struct *f = usb_audio_features_for_entity(setup.bEntityId);
+			if (f == 0) return 0;
 			if (setup.bCS==0x01) { // mute
 				if (setup.bRequest==0x01) { // SET_CUR
-					AudioInputUSB::features.mute = buf[0]; // 1=mute,0=unmute
-					AudioInputUSB::features.change = 1;
+					f->mute = buf[0]; // 1=mute,0=unmute
+					f->change = 1;
 					return 1;
 				}
 			}
 			else if (setup.bCS==0x02) { // volume
 				if (setup.bRequest==0x01) { // SET_CUR
-					AudioInputUSB::features.volume = buf[0];
-					AudioInputUSB::features.change = 1;
+					f->volume = buf[0];
+					f->change = 1;
 					return 1;
 				}
 			}
