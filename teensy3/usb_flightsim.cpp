@@ -410,9 +410,13 @@ void FlightSimClass::update(void)
 			if (len < 2 || len > maxlen) break;
 			switch (p[1]) {
 			  case 0x02: // write data
-				if (len < 10) break;
-				id = p[2] | (p[3] << 8);
 				type = p[4];
+				if (type==4) {
+					if (len < 6) break;
+				} else {
+					if (len != 10) break;
+				}
+				id = p[2] | (p[3] << 8);
 				if (type == 1) {
 					FlightSimInteger *item = FlightSimInteger::find(id);
 					if (!item) break;
