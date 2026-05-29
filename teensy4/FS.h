@@ -176,13 +176,13 @@ public:
 		return (f) ? f->write(buf, size) : 0;
 	}
 	// Returns the number of bytes which may be read from a file
-	int available() {
+	int available() override {
 		return (f) ? f->available() : 0;
 	}
-	int peek() {
+	int peek() override {
 		return (f) ? f->peek() : -1;
 	}
-	void flush() {
+	void flush() override {
 		if (f) f->flush();
 	}
 	bool truncate(uint64_t size=0) {
@@ -233,13 +233,13 @@ public:
 	bool seek(uint64_t pos) {
 		return seek(pos, SeekSet);
 	}
-	int read() {
+	int read() override {
 		if (!f) return -1;
 		unsigned char b;
 		if (f->read(&b, 1) < 1) return -1;
 		return b;
 	}
-	size_t write(uint8_t b) {
+	size_t write(uint8_t b) override {
 		return (f) ? f->write(&b, 1) : 0;
 	}
 	size_t write(const char *str) {
