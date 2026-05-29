@@ -2326,7 +2326,7 @@ static inline uint32_t analogWriteResolution(uint32_t bits) { return analogWrite
 // is a floating point number, so you are not limited to integer frequency.  You can
 // have 261.63 Hz (musical note C4), if you like.  analogWriteFrequency() should
 // be called before analogWrite().  If the pin is already in PWM mode, the result is
-// unpredictagle.  Because groups of PWM pins are controlled by the same timer, changing
+// unpredictable.  Because groups of PWM pins are controlled by the same timer, changing
 // a pin may affect others in the same group.
 // See https://www.pjrc.com/teensy/td_pulse.html for details.
 void analogWriteFrequency(uint8_t pin, float frequency);
@@ -2413,7 +2413,7 @@ static inline uint8_t shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrde
 void _reboot_Teensyduino_(void) __attribute__((noreturn));
 void _restart_Teensyduino_(void) __attribute__((noreturn));
 
-// Define a set of flags to know which things yield should check when called. 
+// Define a set of flags to know which things yield should check when called.
 extern uint8_t yield_active_check_flags;
 
 #define YIELD_CHECK_USB_SERIAL      0x01  // check the USB for Serial.available()
