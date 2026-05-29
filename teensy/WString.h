@@ -196,6 +196,13 @@ protected:
 	void init(void);
 	unsigned char changeBuffer(unsigned int maxStrLen);
 	String & append(const char *cstr, unsigned int length);
+private:
+	// allow for "if (s)" without the complications of an operator bool().
+	// for more information http://www.artima.com/cppsource/safebool.html
+	typedef void (String::*StringIfHelperType)() const;
+	void StringIfHelper() const {}
+public:
+	operator StringIfHelperType() const { return buffer ? &String::StringIfHelper : 0; }
 };
 
 class StringSumHelper : public String
