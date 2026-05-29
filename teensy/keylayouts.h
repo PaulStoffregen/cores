@@ -1446,8 +1446,8 @@ extern "C"{
 
 #define SHIFT_MASK		0x0040
 #define ALTGR_MASK		0x0080
-#define KEYCODE_TYPE		uint8_t
-#define KEYCODE_MASK		0x00FF
+#define KEYCODE_TYPE		uint16_t
+#define KEYCODE_MASK		0x07FF
 #define KEY_NON_US_100		63
 
 #define ASCII_20	KEY_SPACE				// 32  
