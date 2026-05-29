@@ -1,0 +1,16 @@
+// PLEASE NOTE:  This file MUST use the specific header guard below
+// for consistency with usb_undef.h.
+
+#ifndef _usb_user_desc_h_
+#define _usb_user_desc_h_
+
+// To get started, copy this file into your project and remove the
+// .template extension.  Copy the contents from one or more
+// interface sections of usb_desc.h, such as USB_HID_TOUCHSCREEN,
+// and paste and edit them here as desired:  Please see usb_desc.h
+// for detailed editing instructions.  Finally, build your project
+// with INCLUDE_USB_USER_DESC defined at compile time.
+
+// INSERT DEFINITIONS HERE.
+
+#endif
