@@ -38,19 +38,22 @@
 #include "debug/printf.h"
 
 #ifdef RAWHID_INTERFACE // defined by usb_dev.h -> usb_desc.h
+extern volatile uint8_t usb_high_speed;
 
 #define TX_NUM   4
 static transfer_t tx_transfer[TX_NUM] __attribute__ ((used, aligned(32)));
-DMAMEM static uint8_t txbuffer[RAWHID_TX_SIZE * TX_NUM];
+DMAMEM static uint8_t txbuffer[RAWHID_TX_SIZE_480 * TX_NUM];
 static uint8_t tx_head=0;
+static uint16_t tx_packet_size=0;
 
 #define RX_NUM  4
 static transfer_t rx_transfer[RX_NUM] __attribute__ ((used, aligned(32)));
-DMAMEM static uint8_t rx_buffer[RAWHID_RX_SIZE * RX_NUM] __attribute__ ((aligned(32)));
+DMAMEM static uint8_t rx_buffer[RAWHID_RX_SIZE_480 * RX_NUM] __attribute__ ((aligned(32)));
 static volatile uint8_t rx_head;
 static volatile uint8_t rx_tail;
 static uint8_t rx_list[RX_NUM + 1];
 static volatile uint32_t rx_available;
+static uint16_t rx_packet_size=0;
 static void rx_queue_transfer(int i);
 static void rx_event(transfer_t *t);
 extern volatile uint8_t usb_configuration;
@@ -59,15 +62,32 @@ extern volatile uint8_t usb_configuration;
 void usb_rawhid_configure(void)
 {
 	printf("usb_rawhid_configure\n");
+	if (usb_high_speed) {
+		tx_packet_size = RAWHID_TX_SIZE_480;
+		rx_packet_size = RAWHID_RX_SIZE_480;
+	} else {
+		tx_packet_size = RAWHID_TX_SIZE_12;
+		rx_packet_size = RAWHID_RX_SIZE_12;
+	}
 	memset(tx_transfer, 0, sizeof(tx_transfer));
 	memset(rx_transfer, 0, sizeof(rx_transfer));
 	tx_head = 0;
 	rx_head = 0;
 	rx_tail = 0;
-	usb_config_tx(RAWHID_TX_ENDPOINT, RAWHID_TX_SIZE, 0, NULL);
-	usb_config_rx(RAWHID_RX_ENDPOINT, RAWHID_RX_SIZE, 0, rx_event);
+	usb_config_tx(RAWHID_TX_ENDPOINT, tx_packet_size, 0, NULL);
+	usb_config_rx(RAWHID_RX_ENDPOINT, rx_packet_size, 0, rx_event);
 	int i;
 	for (i=0; i < RX_NUM; i++) rx_queue_transfer(i);
+}
+
+int usb_rawhid_rxSize(void)
+{
+	return rx_packet_size;
+}
+
+int usb_rawhid_txSize(void)
+{
+	return tx_packet_size;	
 }
 
 /*************************************************************************/
@@ -76,11 +96,11 @@ void usb_rawhid_configure(void)
 
 static void rx_queue_transfer(int i)
 {
-	void *buffer = rx_buffer + i * RAWHID_RX_SIZE;
-	arm_dcache_delete(buffer, RAWHID_RX_SIZE);
-	//memset(buffer, )
 	NVIC_DISABLE_IRQ(IRQ_USB1);
-	usb_prepare_transfer(rx_transfer + i, buffer, RAWHID_RX_SIZE, i);
+	void *buffer = rx_buffer + i * RAWHID_RX_SIZE_480;
+	arm_dcache_delete(buffer, rx_packet_size);
+	//memset(buffer, )
+	usb_prepare_transfer(rx_transfer + i, buffer, rx_packet_size, i);
 	usb_receive(RAWHID_RX_ENDPOINT, rx_transfer + i);
 	NVIC_ENABLE_IRQ(IRQ_USB1);
 }
@@ -114,12 +134,12 @@ int usb_rawhid_recv(void *buffer, uint32_t timeout)
 	uint32_t i = rx_list[tail];
 	rx_tail = tail;
 
-	memcpy(buffer,  rx_buffer + i * RAWHID_RX_SIZE, RAWHID_RX_SIZE);
+	memcpy(buffer,  rx_buffer + i * RAWHID_RX_SIZE_480, rx_packet_size);
 	rx_queue_transfer(i);
 	//memset(rx_transfer, 0, sizeof(rx_transfer));
 	//usb_prepare_transfer(rx_transfer + 0, rx_buffer, RAWHID_RX_SIZE, 0);
 	//usb_receive(RAWHID_RX_ENDPOINT, rx_transfer + 0);
-	return RAWHID_RX_SIZE;
+	return rx_packet_size;
 }
 
 int usb_rawhid_send(const void *buffer, uint32_t timeout)
@@ -134,19 +154,19 @@ int usb_rawhid_send(const void *buffer, uint32_t timeout)
 		if (systick_millis_count - wait_begin_at > timeout) return 0;
 		yield();
 	}
-	uint8_t *txdata = txbuffer + (tx_head * RAWHID_TX_SIZE);
-	memcpy(txdata, buffer, RAWHID_TX_SIZE);
-	arm_dcache_flush_delete(txdata, RAWHID_TX_SIZE );
-	usb_prepare_transfer(xfer, txdata, RAWHID_TX_SIZE, 0);
+	uint8_t *txdata = txbuffer + (tx_head * RAWHID_TX_SIZE_480);
+	memcpy(txdata, buffer, tx_packet_size);
+	arm_dcache_flush_delete(txdata, tx_packet_size );
+	usb_prepare_transfer(xfer, txdata, tx_packet_size, 0);
 	usb_transmit(RAWHID_TX_ENDPOINT, xfer);
 	if (++tx_head >= TX_NUM) tx_head = 0;
-	return RAWHID_TX_SIZE;
+	return tx_packet_size;
 }
 
 int usb_rawhid_available(void)
 {
 	if (!usb_configuration) return 0;
-	if (rx_head != rx_tail) return RAWHID_RX_SIZE;
+	if (rx_head != rx_tail) return rx_packet_size;
 	//if (!(usb_transfer_status(rx_transfer) & 0x80)) return RAWHID_RX_SIZE;
 	return 0;
 }
