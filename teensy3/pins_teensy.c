@@ -404,6 +404,45 @@ int _gettimeofday(struct timeval *tv, void *ignore)
 	}
 }
 
+__attribute__((weak))
+int settimeofday(const struct timeval *const tv,
+                 const struct timezone *const tz __attribute__((unused))) {
+  // Notes:
+  // * The type of tv_usec is suseconds_t, range is at least [-1, 1000000]
+  // * There are 32768 ticks per 1,000,000 microseconds; that's where 512/15625
+  //   comes from, it's 32768/1000000 in lowest terms
+  // Refs:
+  // * https://pubs.opengroup.org/onlinepubs/007904975/basedefs/sys/time.h.html
+  // * https://pubs.opengroup.org/onlinepubs/007904975/basedefs/sys/types.h.html
+
+  if (tv == NULL) {
+    // Do nothing
+    return 0;
+  }
+
+  uint32_t sec = (uint32_t)tv->tv_sec;
+  uint32_t usec = (uint32_t)tv->tv_usec;
+  if (tv->tv_usec >= 1000000) {
+    sec += tv->tv_usec / 1000000;
+    usec = tv->tv_usec % 1000000;
+  } else if (tv->tv_usec < 0) {
+    sec += tv->tv_usec / 1000000;
+    usec = 1000000 + (tv->tv_usec % 1000000);
+  }
+
+  const uint32_t lo = ((usec << 9) / 15625u) & 0x7fffu;
+
+  // Disable time counter
+  RTC_SR = 0;
+
+  RTC_TPR = lo;
+  RTC_TSR = sec;
+
+  // Enable time counter
+  RTC_SR = RTC_SR_TCE;
+  return 0;
+}
+
 #else
 
 unsigned long rtc_get(void) { return 0; }
@@ -412,6 +451,13 @@ void rtc_compensate(int adjust) { }
 
 __attribute__((weak))
 int _gettimeofday(struct timeval *tv, void *ignore) { return -1; }
+
+__attribute__((weak))
+int settimeofday(const struct timeval *const tv __attribute__((unused)),
+                 const struct timezone *const tz __attribute__((unused))) {
+  // errno = ENOSYS;
+  return -1;
+}
 
 #endif
 
