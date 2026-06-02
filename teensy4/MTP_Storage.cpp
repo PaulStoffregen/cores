@@ -1089,8 +1089,11 @@ void MTPStorage::removeFile(uint32_t store, const char *file)
 
 	File f1 = open(store, file, 0);
 	if (f1.isDirectory()) {
-		File f2;
-		while (f2 = f1.openNextFile()) {
+		//File f2;
+		//while (f2 = f1.openNextFile()) {
+		while (1) {
+			File f2 = f1.openNextFile();
+			if (!f2) break;
 			snprintf(tname, sizeof(tname), "%s/%s", file, f2.name());
 			if (f2.isDirectory()) {
 				removeFile(store, tname);
