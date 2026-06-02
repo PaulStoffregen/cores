@@ -123,7 +123,7 @@ static const uint8_t PROGMEM config1_descriptor[CONFIG1_DESC_SIZE] = {
 	http://www.usb.org/developers/devclass_docs/midi10.pdf
 
 	Section B.3 seems to say these extra descriptors are required,
-	but when I add them, MIDI breaks on Linux (haven't tried Mac and
+	but when I add them, MIDI breaks on Linux (have not tried Mac and
 	Windows yet).  TODO: investigate these....
 	reported by "John K." on May 7, 2012, subject "USB MIDI descriptors"
 
