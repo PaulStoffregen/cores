@@ -66,6 +66,7 @@ uint8_t keyboard_idle_count=0;
 // 1=num lock, 2=caps lock, 4=scroll lock, 8=compose, 16=kana
 volatile uint8_t keyboard_leds=0;
 
+void (*led_callback)(uint8_t keyboard_leds) = NULL;
 
 
 static KEYCODE_TYPE unicode_to_keycode(uint16_t cpoint);
@@ -443,6 +444,70 @@ static void usb_keyboard_release_key(uint8_t key, uint8_t modifier)
 		}
 	}
 	if (send_required) usb_keyboard_send();
+}
+
+void usb_keyboard_press_key_raw(uint8_t key, uint8_t modifier)
+{
+	int i, send_required = 0;
+
+	if(keyboard_modifier_keys != modifier) send_required = 1;
+	keyboard_modifier_keys = modifier;
+	if (key) {
+		for (i = 0; i < 6; i++) {
+			if (keyboard_keys[i] == key) goto end;
+		}
+		send_required = 1;
+		for (i = 0; i < 6; i++) {
+			if (keyboard_keys[i] == 0) {
+				keyboard_keys[i] = key;
+				goto end;
+			}
+		}
+		// the array is full: remove oldest (i.e. first) key and preserve key order
+		for (i = 0; i < 5; i++) {
+			keyboard_keys[i] = keyboard_keys[i + 1];
+		}
+		keyboard_keys[5] = key;
+	}
+	end:
+	if (send_required) usb_keyboard_send();
+}
+
+void usb_keyboard_release_key_raw(uint8_t key, uint8_t modifier)
+{
+	int i, send_required = 0;
+	if(keyboard_modifier_keys != modifier) send_required = 1;
+	keyboard_modifier_keys = modifier;
+	if (key) {
+		for (i = 0; i < 6; i++) {
+			if (keyboard_keys[i] == key) {
+				keyboard_keys[i] = 0;
+				send_required = 1;
+			}
+		}
+	}
+	if (send_required) usb_keyboard_send();
+}
+
+void usb_keyboard_set_modifiers(uint8_t modifiers)
+{
+	if(modifiers != keyboard_modifier_keys)
+	{
+		keyboard_modifier_keys = modifiers;
+		usb_keyboard_send();
+	}
+}
+
+void usb_keyboard_send_report(const uint8_t report[8])
+{
+	keyboard_modifier_keys = report[0];
+	for(int i=2;i<8;i++) keyboard_keys[i-2]=report[i];
+	usb_keyboard_send();
+}
+
+void usb_keyboard_set_led_callback(void (*f)(uint8_t keyboard_leds))
+{
+	led_callback = f;
 }
 
 void usb_keyboard_release_all(void)
