@@ -61,6 +61,10 @@
  */
 extern "C" void systick_isr_with_timer_events(void);
 
+extern "C" void setup_systick_with_timer_events();
+
+extern "C" void event_responder_set_pend_sv();
+
 class EventResponder;
 typedef EventResponder& EventResponderRef;
 typedef void (*EventResponderFunction)(EventResponderRef);
@@ -113,9 +117,7 @@ public:
 		detachNoInterrupts();
 		_function = function;
 		_type = EventTypeInterrupt;
-		SCB_SHPR3 |= 0x00FF0000; // configure PendSV, lowest priority
-		// Make sure we are using the systic ISR that process this
-		_VectorsRam[15] = systick_isr_with_timer_events;
+		setup_systick_with_timer_events();
 		enableInterrupts(irq);
 	}
 
