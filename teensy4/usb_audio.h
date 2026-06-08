@@ -30,78 +30,83 @@
 
 #pragma once
 
-#include "usb_desc.h"
+#include "usb_audio_interface.h"
+
 #ifdef AUDIO_INTERFACE
 
-#define FEATURE_MAX_VOLUME 0xFF  // volume accepted from 0 to 0xFF
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-extern void usb_audio_configure();
-extern uint16_t usb_audio_receive_buffer[];
-extern uint16_t usb_audio_transmit_buffer[];
-extern uint32_t usb_audio_sync_feedback;
-extern uint8_t usb_audio_receive_setting;
-extern uint8_t usb_audio_transmit_setting;
-extern void usb_audio_receive_callback(unsigned int len);
-extern unsigned int usb_audio_transmit_callback(void);
-extern int usb_audio_set_feature(void *stp, uint8_t *buf);
-extern int usb_audio_get_feature(void *stp, uint8_t *data, uint32_t *datalen);
-#ifdef __cplusplus
-}
-#endif
-
-// audio features supported
-struct usb_audio_features_struct {
-  int change;  // set to 1 when any value is changed
-  int mute;    // 1=mute, 0=unmute
-  int volume;  // volume from 0 to FEATURE_MAX_VOLUME, maybe should be float from 0.0 to 1.0
-};
-
-#ifdef __cplusplus
+#if defined(__cplusplus)
 #include "AudioStream.h"
 
 class AudioInputUSB : public AudioStream
 {
 public:
-	AudioInputUSB(void) : AudioStream(0, NULL) { begin(); }
+	
+	AudioInputUSB(float kp =400.f,float ki =.2f );
 	virtual void update(void);
 	void begin(void);
-	friend void usb_audio_receive_callback(unsigned int len);
-	friend int usb_audio_set_feature(void *stp, uint8_t *buf);
-	friend int usb_audio_get_feature(void *stp, uint8_t *data, uint32_t *datalen);
-	static struct usb_audio_features_struct features;
-	float volume(void) {
-		if (features.mute) return 0.0;
-		return (float)(features.volume) * (1.0 / (float)FEATURE_MAX_VOLUME);
-	}
+	float getBufferedSamples() const;
+	float getBufferedSamplesSmooth() const;
+	float getRequestedSamplingFrequ() const;
+	float getActualBIntervalUs() const;
+	USBAudioInInterface::Status getStatus() const;
+	float volume(void);
+
 private:
-	static bool update_responsibility;
-	static audio_block_t *incoming_left;
-	static audio_block_t *incoming_right;
-	static audio_block_t *ready_left;
-	static audio_block_t *ready_right;
-	static uint16_t incoming_count;
-	static uint8_t receive_flag;
+	static void copy_to_buffers(const uint8_t *src, uint16_t bIdx, uint16_t noChannels, unsigned int count, unsigned int len);
+    static bool setBlockQuite(uint16_t bIdx, uint16_t channel);
+    static void releaseBlock(uint16_t bIdx, uint16_t channel);
+    static bool allocateBlock(uint16_t bIdx, uint16_t channel);
+    static bool areBlocksReady(uint16_t bIdx, uint16_t noChannels);
+
+    static audio_block_t* rxBuffer[USBAudioInInterface::ringRxBufferSize][USB_AUDIO_MAX_NO_CHANNELS];
+    USBAudioInInterface _usbInterface;
 };
+
+
+#if USB_AUDIO_NO_CHANNELS_480 >= 4
+class AudioInputUSBQuad : public AudioInputUSB { public: AudioInputUSBQuad(float kp =400.f,float ki =.2f) : AudioInputUSB(kp, ki) {} };
+#if USB_AUDIO_NO_CHANNELS_480 >= 6
+class AudioInputUSBHex : public AudioInputUSB { public: AudioInputUSBHex(float kp =400.f,float ki =.2f) : AudioInputUSB(kp, ki) {} };
+#if USB_AUDIO_NO_CHANNELS_480 >= 8
+class AudioInputUSBOct : public AudioInputUSB { public: AudioInputUSBOct(float kp =400.f,float ki =.2f) : AudioInputUSB(kp, ki) {} };
+#endif // USB_AUDIO_NO_CHANNELS_480 >= 8
+#endif // USB_AUDIO_NO_CHANNELS_480 >= 6
+#endif // USB_AUDIO_NO_CHANNELS_480 >= 4
+
 
 class AudioOutputUSB : public AudioStream
 {
 public:
-	AudioOutputUSB(void) : AudioStream(2, inputQueueArray) { begin(); }
+	AudioOutputUSB(void);
+	AudioOutputUSB(int nch);
 	virtual void update(void);
 	void begin(void);
-	friend unsigned int usb_audio_transmit_callback(void);
-private:
-	static bool update_responsibility;
-	static audio_block_t *left_1st;
-	static audio_block_t *left_2nd;
-	static audio_block_t *right_1st;
-	static audio_block_t *right_2nd;
-	static uint16_t offset_1st;
-	audio_block_t *inputQueueArray[2];
-};
-#endif // __cplusplus
+    
+	float getBufferedSamples() const;
+	float getBufferedSamplesSmooth() const;
+	float getActualBIntervalUs() const;
+	USBAudioOutInterface::Status getStatus() const;    
 
+private:
+
+    static void copy_from_buffers(uint8_t *dst, uint16_t bIdx, uint16_t noChannels, unsigned int count, unsigned int len);
+	static void releaseBlocks(uint16_t bIdx, uint16_t noChannels);
+    static bool isBlockReady(uint16_t bIdx, uint16_t channel);
+
+	static audio_block_t* txBuffer[USBAudioOutInterface::ringTxBufferSize][USB_AUDIO_MAX_NO_CHANNELS];
+	audio_block_t *inputQueueArray[USB_AUDIO_MAX_NO_CHANNELS];
+    USBAudioOutInterface _usbInterface;
+};
+
+#if USB_AUDIO_NO_CHANNELS_480 >= 4
+class AudioOutputUSBQuad : public AudioOutputUSB { public: AudioOutputUSBQuad(void) : AudioOutputUSB(4) {} };
+#if USB_AUDIO_NO_CHANNELS_480 >= 6
+class AudioOutputUSBHex : public AudioOutputUSB { public: AudioOutputUSBHex(void) : AudioOutputUSB(6) {} };
+#if USB_AUDIO_NO_CHANNELS_480 >= 8
+class AudioOutputUSBOct : public AudioOutputUSB { public: AudioOutputUSBOct(void) : AudioOutputUSB(8) {} };
+#endif // USB_AUDIO_NO_CHANNELS_480 >= 8
+#endif // USB_AUDIO_NO_CHANNELS_480 >= 6
+#endif // USB_AUDIO_NO_CHANNELS_480 >= 4
+
+#endif // defined(__cplusplus)
 #endif // AUDIO_INTERFACE
