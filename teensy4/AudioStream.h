@@ -160,6 +160,7 @@ protected:
 	bool active;
 	unsigned char num_inputs;
 	static audio_block_t * allocate(void);
+	static audio_block_t* allocate_silent(void);
 	static void release(audio_block_t * block);
 	void transmit(audio_block_t *block, unsigned char index = 0);
 	audio_block_t * receiveReadOnly(unsigned int index = 0);

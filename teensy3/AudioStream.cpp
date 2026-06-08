@@ -47,6 +47,7 @@
 #define NUM_MASKS  (((MAX_AUDIO_MEMORY / AUDIO_BLOCK_SAMPLES / 2) + 31) / 32)
 
 audio_block_t * AudioStream::memory_pool;
+static const audio_block_t silent_block = {0,0,0,{0}};
 uint32_t AudioStream::memory_pool_available_mask[NUM_MASKS];
 uint16_t AudioStream::memory_pool_first_mask;
 
@@ -136,12 +137,25 @@ audio_block_t * AudioStream::allocate(void)
 	return block;
 }
 
+
+// "Allocate" the silent block. The caller doesn't
+// actually own it, and must NOT write to it! However, 
+// it may be transmitted and released as usual.
+audio_block_t* AudioStream::allocate_silent(void)
+{
+	return (audio_block_t*) &silent_block;
+}
+
+
 // Release ownership of a data block.  If no
 // other streams have ownership, the block is
-// returned to the free pool
+// returned to the free pool.
+//
+// An attempt to release a nullptr or the silent
+// block is ignored.
 void AudioStream::release(audio_block_t *block)
 {
-	//if (block == NULL) return;
+	if (nullptr == block || &silent_block == block) return;
 	uint32_t mask = (0x80000000 >> (31 - (block->memory_pool_index & 0x1F)));
 	uint32_t index = block->memory_pool_index >> 5;
 
@@ -169,9 +183,15 @@ void AudioStream::transmit(audio_block_t *block, unsigned char index)
 {
 	for (AudioConnection *c = destination_list; c != NULL; c = c->next_dest) {
 		if (c->src_index == index) {
-			if (c->dst->inputQueue[c->dest_index] == NULL) {
-				c->dst->inputQueue[c->dest_index] = block;
-				block->ref_count++;
+			if (c->dst->inputQueue[c->dest_index] == NULL) 
+			{
+				if (&silent_block != block) // it's a real block
+				{
+					c->dst->inputQueue[c->dest_index] = block;
+					block->ref_count++; // only real blocks have reference counts
+				}
+				// if we "transmit" the silent block, then leave
+				// the inputQueue entry as nullptr, which means "silence"
 			}
 		}
 	}
