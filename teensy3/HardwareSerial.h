@@ -282,10 +282,7 @@ public:
 	#else //(__MK64FX512__) || defined(__MK66FX1M0__) 
 	enum {CNT_HARDWARE_SERIAL = 3};
 	#endif
-	virtual void begin(uint32_t baud);
-	virtual void begin(uint32_t baud, uint32_t format) {
-					  begin(baud);
-					  serial_format(format); }
+	virtual void begin(uint32_t baud, uint32_t format=(uint32_t)-1);
 	virtual void end(void)		{ serial_end(); }
 	virtual void transmitterEnable(uint8_t pin) { serial_set_transmit_pin(pin); }
 	virtual void setRX(uint8_t pin) { serial_set_rx(pin); }
@@ -336,10 +333,7 @@ class HardwareSerial2 : public HardwareSerial
 {
 public:
 	constexpr HardwareSerial2(void (* const se)()) : HardwareSerial(se) {}
-	virtual void begin(uint32_t baud);
-	virtual void begin(uint32_t baud, uint32_t format) {
-					  serial2_begin(BAUD2DIV2(baud));
-					  serial2_format(format); }
+	virtual void begin(uint32_t baud, uint32_t format=(uint32_t)-1);
 	virtual void end(void)		{ serial2_end(); }
 	virtual void transmitterEnable(uint8_t pin) { serial2_set_transmit_pin(pin); }
 	virtual void setRX(uint8_t pin) { serial2_set_rx(pin); }
@@ -375,10 +369,7 @@ class HardwareSerial3 : public HardwareSerial
 {
 public:
 	constexpr HardwareSerial3(void (* const se)()) : HardwareSerial(se) {}
-	virtual void begin(uint32_t baud);
-	virtual void begin(uint32_t baud, uint32_t format) {
-					  serial3_begin(BAUD2DIV3(baud));
-					  serial3_format(format); }
+	virtual void begin(uint32_t baud, uint32_t format=(uint32_t)-1);
 	virtual void end(void)          { serial3_end(); }
 	virtual void transmitterEnable(uint8_t pin) { serial3_set_transmit_pin(pin); }
 	virtual void setRX(uint8_t pin) { serial3_set_rx(pin); }
@@ -414,10 +405,7 @@ class HardwareSerial4 : public HardwareSerial
 {
 public:
 	constexpr HardwareSerial4(void (* const se)()) : HardwareSerial(se) {}
-	virtual void begin(uint32_t baud);
-	virtual void begin(uint32_t baud, uint32_t format) {
-					  serial4_begin(BAUD2DIV3(baud));
-					  serial4_format(format); }
+	virtual void begin(uint32_t baud, uint32_t format=(uint32_t)-1);
 	virtual void end(void)          { serial4_end(); }
 	virtual void transmitterEnable(uint8_t pin) { serial4_set_transmit_pin(pin); }
 	virtual void setRX(uint8_t pin) { serial4_set_rx(pin); }
@@ -453,10 +441,7 @@ class HardwareSerial5 : public HardwareSerial
 {
 public:
 	constexpr HardwareSerial5(void (* const se)()) : HardwareSerial(se) {}
-	virtual void begin(uint32_t baud);
-	virtual void begin(uint32_t baud, uint32_t format) {
-					  serial5_begin(BAUD2DIV3(baud));
-					  serial5_format(format); }
+	virtual void begin(uint32_t baud, uint32_t format=(uint32_t)-1);
 	virtual void end(void)          { serial5_end(); }
 	virtual void transmitterEnable(uint8_t pin) { serial5_set_transmit_pin(pin); }
 	virtual void setRX(uint8_t pin) { serial5_set_rx(pin); }
@@ -492,17 +477,7 @@ class HardwareSerial6 : public HardwareSerial
 {
 public:
 	constexpr HardwareSerial6(void (* const se)()) : HardwareSerial(se) {}
-#if defined(__MK66FX1M0__)	// For LPUART just pass baud straight in. 
-	virtual void begin(uint32_t baud);
-	virtual void begin(uint32_t baud, uint32_t format) {
-					  serial6_begin(baud);
-					  serial6_format(format); }
-#else
-	virtual void begin(uint32_t baud);
-	virtual void begin(uint32_t baud, uint32_t format) {
-					  serial6_begin(BAUD2DIV3(baud));
-					  serial6_format(format); }
-#endif
+	virtual void begin(uint32_t baud, uint32_t format=(uint32_t)-1);
 	virtual void end(void)          { serial6_end(); }
 	virtual void transmitterEnable(uint8_t pin) { serial6_set_transmit_pin(pin); }
 	virtual void setRX(uint8_t pin) { serial6_set_rx(pin); }

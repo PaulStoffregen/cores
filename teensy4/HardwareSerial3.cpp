@@ -44,21 +44,29 @@ void IRQHandler_Serial3()
 	Serial3.IRQHandler();
 }
 
+#ifndef SERIAL3_RX_PINS 
+#define SERIAL3_UART_ADDR IMXRT_LPUART2_ADDRESS
+#define SERIAL3_LPUART IRQ_LPUART2, CCM_CCGR0, CCM_CCGR0_LPUART2(CCM_CCGR_ON), XBARA1_OUT_LPUART2_TRG_INPUT
+#define SERIAL3_CTS_PIN 19, 2 
+#define SERIAL3_RX_PINS {{15,2, &IOMUXC_LPUART2_RX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}}
+#define SERIAL3_TX_PINS {{14,2, &IOMUXC_LPUART2_TX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}}
+#endif
+
+
+
+
 // Serial3
 static BUFTYPE tx_buffer3[SERIAL3_TX_BUFFER_SIZE];
 static BUFTYPE rx_buffer3[SERIAL3_RX_BUFFER_SIZE];
 
-static HardwareSerialIMXRT::hardware_t UART2_Hardware = {
-	2, IRQ_LPUART2, &IRQHandler_Serial3, 
+const HardwareSerialIMXRT::hardware_t SERIAL3_Hardware = {
+	2, 
+	&IRQHandler_Serial3, 
 	&serialEvent3,
-	CCM_CCGR0, CCM_CCGR0_LPUART2(CCM_CCGR_ON), 
-	{{15,2, &IOMUXC_LPUART2_RX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
-	{{14,2, &IOMUXC_LPUART2_TX_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
-	19, //IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_00, // 19
-	2, // page 473 
 	IRQ_PRIORITY, 38, 24, // IRQ, rts_low_watermark, rts_high_watermark
-	XBARA1_OUT_LPUART2_TRG_INPUT
+	// Stuff that can be overwritten easily by variant
+	SERIAL3_LPUART, SERIAL3_RX_PINS, SERIAL3_TX_PINS, SERIAL3_CTS_PIN
 };
-HardwareSerialIMXRT Serial3(IMXRT_LPUART2_ADDRESS, &UART2_Hardware, tx_buffer3,
+HardwareSerialIMXRT Serial3(SERIAL3_UART_ADDR, &SERIAL3_Hardware, tx_buffer3,
 	SERIAL3_TX_BUFFER_SIZE, rx_buffer3, SERIAL3_RX_BUFFER_SIZE);
 

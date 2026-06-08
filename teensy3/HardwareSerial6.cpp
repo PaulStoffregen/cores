@@ -37,12 +37,13 @@ HardwareSerial6 Serial6(&serialEvent6);
 
 uint8_t _serialEvent6_default __attribute__((weak)) PROGMEM = 0 ;
 
-void HardwareSerial6::begin(uint32_t baud) { 	
+void HardwareSerial6::begin(uint32_t baud, uint32_t format) { 	
 #if defined(__MK66FX1M0__)	// For LPUART just pass baud straight in. 
 	serial6_begin(baud);
 #else
 	serial6_begin(BAUD2DIV3(baud));
 #endif	
+	if (format != (uint32_t)-1)  serial6_format(format);
 	if (!_serialEvent6_default) addToSerialEventsList();
 }
 
