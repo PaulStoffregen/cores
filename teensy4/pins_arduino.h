@@ -202,7 +202,12 @@ static inline uint8_t digitalPinToTimer(uint8_t pin __attribute__((unused)))
 
 #define SerialUSB			Serial
 
+#if defined(ARDUINO_TEENSY40) || defined(ARDUINO_TEENSY41)
 #define WIRE_INTERFACES_COUNT		3
+#elif defined(ARDUINO_TEENSY_MICROMOD)
+#define WIRE_INTERFACES_COUNT		4
+#endif
+
 #define SPI_INTERFACES_COUNT		3
 
 #endif // pins_macros_for_arduino_compatibility_h

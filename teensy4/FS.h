@@ -239,7 +239,7 @@ public:
 	}
 	int read() {
 		if (!f) return -1;
-		unsigned char b;
+		unsigned char b=0;
 		if (f->read(&b, 1) < 1) return -1;
 		return b;
 	}

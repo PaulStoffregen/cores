@@ -56,3 +56,13 @@ extern "C" int main(void)
 #endif
 }
 
+// https://forum.pjrc.com/index.php?threads/75084
+// https://forum.pjrc.com/index.php?threads/77937/page-3#post-368518
+#if 1
+namespace __gnu_cxx {
+void __verbose_terminate_handler()
+{
+	while (1) asm ("WFI");
+}
+}
+#endif
