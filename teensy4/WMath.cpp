@@ -33,9 +33,9 @@ void srandom(unsigned int newseed)
 	seed = newseed;
 }
 
-int32_t random(void)
+long random(void)
 {
-	int32_t hi, lo, x;
+	long hi, lo, x;
 
 	// the algorithm used in avr-libc 1.6.4
 	x = seed;
