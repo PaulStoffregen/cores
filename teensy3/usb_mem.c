@@ -47,14 +47,18 @@ static uint32_t usb_buffer_available = 0xFFFFFFFF;
 
 usb_packet_t * usb_malloc(void)
 {
+	uint32_t irq_disabled;
 	unsigned int n, avail;
 	uint8_t *p;
 
+	__irq_status(irq_disabled);
 	__disable_irq();
 	avail = usb_buffer_available;
 	n = __builtin_clz(avail); // clz = count leading zeros
 	if (n >= NUM_USB_BUFFERS) {
-		__enable_irq();
+		if(!irq_disabled) {
+			__enable_irq();
+		}
 		return NULL;
 	}
 	//serial_print("malloc:");
@@ -62,7 +66,9 @@ usb_packet_t * usb_malloc(void)
 	//serial_print("\n");
 
 	usb_buffer_available = avail & ~(0x80000000 >> n);
-	__enable_irq();
+	if(!irq_disabled) {
+		__enable_irq();
+	}
 	p = usb_buffer_memory + (n * sizeof(usb_packet_t));
 	//serial_print("malloc:");
 	//serial_phex32((int)p);
@@ -78,6 +84,7 @@ extern void usb_rx_memory(usb_packet_t *packet);
 
 void usb_free(usb_packet_t *p)
 {
+	uint32_t irq_disabled;
 	unsigned int n, mask;
 
 	//serial_print("free:");
@@ -97,9 +104,12 @@ void usb_free(usb_packet_t *p)
 	}
 
 	mask = (0x80000000 >> n);
+	__irq_status(irq_disabled);
 	__disable_irq();
 	usb_buffer_available |= mask;
-	__enable_irq();
+	if(!irq_disabled) {
+		__enable_irq();
+	}
 
 	//serial_print("free:");
 	//serial_phex32((int)p);
