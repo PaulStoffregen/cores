@@ -1132,7 +1132,7 @@ uint32_t usb_transfer_status(const transfer_t *transfer)
 	}
 #else
 	return transfer->status;
-#endif
+#endif // MTP_INTERFACE
 }
 
 #else // defined(NUM_ENDPOINTS)

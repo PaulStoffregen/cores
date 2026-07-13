@@ -51,12 +51,14 @@ void yield(void)
 		if (Serial.available()) serialEvent();
 	}
 
-#if defined(USB_DUAL_SERIAL) || defined(USB_TRIPLE_SERIAL)
+//#if defined(USB_DUAL_SERIAL) || defined(USB_TRIPLE_SERIAL)
+#if defined(CDC2_DATA_INTERFACE) && defined(CDC2_STATUS_INTERFACE)
 	if (check_flags & YIELD_CHECK_USB_SERIALUSB1) {
 		if (SerialUSB1.available()) serialEventUSB1();
 	}
 #endif
-#ifdef USB_TRIPLE_SERIAL
+//#ifdef USB_TRIPLE_SERIAL
+#if defined(CDC3_DATA_INTERFACE) && defined(CDC3_STATUS_INTERFACE)
 	if (check_flags & YIELD_CHECK_USB_SERIALUSB2) {
 		if (SerialUSB2.available()) serialEventUSB2();
 	}
