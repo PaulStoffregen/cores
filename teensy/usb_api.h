@@ -4,6 +4,8 @@
 #include "../usb_hid/usb_api.h"
 #elif defined(USB_SERIAL_HID)
 #include "../usb_serial_hid/usb_api.h"
+#elif defined(USB_SERIAL_HID_NO_JOYSTICK)
+#include "../usb_serial_hid_no_joystick/usb_api.h"
 #elif defined(USB_DISK) || defined(USB_DISK_SDFLASH)
 #include "../usb_disk/usb_api.h"
 #elif defined(USB_MIDI)
