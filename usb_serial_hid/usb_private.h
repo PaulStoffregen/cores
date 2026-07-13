@@ -134,6 +134,7 @@ extern uint8_t transmit_previous_timeout;
 extern volatile uint8_t cdc_line_coding[7];
 extern volatile uint8_t cdc_line_rtsdtr;
 
+uint8_t keyboard_report_buffer[8];
 extern uint8_t keyboard_report_data[];
 extern uint8_t keyboard_idle_count;
 extern volatile uint8_t keyboard_leds;
