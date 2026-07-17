@@ -16,12 +16,12 @@ class usb_keyboard_class : public Print
 	using Print::write;
 	void write_unicode(uint16_t unicode) { write_keycode(unicode_to_keycode(unicode)); }
 	void set_modifier(uint16_t);
-	void set_key1(uint8_t);
-	void set_key2(uint8_t);
-	void set_key3(uint8_t);
-	void set_key4(uint8_t);
-	void set_key5(uint8_t);
-	void set_key6(uint8_t);
+	void set_key1(uint16_t);
+	void set_key2(uint16_t);
+	void set_key3(uint16_t);
+	void set_key4(uint16_t);
+	void set_key5(uint16_t);
+	void set_key6(uint16_t);
 	void set_media(uint16_t c) {
                 if (c == 0) {
                         keymedia_release_all();
