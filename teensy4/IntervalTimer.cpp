@@ -98,20 +98,41 @@ static void pit_isr()
 #if 0
 	for (int i=0; i < NUM_CHANNELS; i++) {
 		IMXRT_PIT_CHANNEL_t *channel = IMXRT_PIT_CHANNELS + i;
-		if (funct_table[0] && channel->TFLG) {
+		if (channel->TFLG) {
 			channel->TFLG = 1;
-			funct_table[i]();
-
+			if (funct_table[i]) {
+				funct_table[i]();
+			}
 		}
 	}
 #else
 	IMXRT_PIT_CHANNEL_t *channel= IMXRT_PIT_CHANNELS;
-	if (funct_table[0] != nullptr && channel->TFLG) {channel->TFLG = 1;funct_table[0]();}
+	if (channel->TFLG) {
+		channel->TFLG = 1;
+		if (funct_table[0]) {
+			funct_table[0]();
+		}
+	}
 	channel++;
-	if (funct_table[1] != nullptr && channel->TFLG) {channel->TFLG = 1;funct_table[1]();}
+	if (channel->TFLG) {
+		channel->TFLG = 1;
+		if (funct_table[1]) {
+			funct_table[1]();
+		}
+	}
 	channel++;
-	if (funct_table[2] != nullptr && channel->TFLG) {channel->TFLG = 1;funct_table[2]();}
+	if (channel->TFLG) {
+		channel->TFLG = 1;
+		if (funct_table[2]) {
+			funct_table[2]();
+		}
+	}
 	channel++;
-	if (funct_table[3] != nullptr && channel->TFLG) {channel->TFLG = 1;funct_table[3]();}
+	if (channel->TFLG) {
+		channel->TFLG = 1;
+		if (funct_table[3]) {
+			funct_table[3]();
+		}
+	}
 #endif
 }
