@@ -209,6 +209,13 @@ void HardwareSerialIMXRT::begin(uint32_t baud, uint16_t format)
 	if (format & 0x04) ctrl |= LPUART_CTRL_M;		// 9 bits (might include parity)
 	if ((format & 0x0F) == 0x04) ctrl |=  LPUART_CTRL_R9T8; // 8N2 is 9 bit with 9th bit always 1
 
+	// 7-bit support
+	if ((format & 0x0E) == 0x02) {
+		data_mask_ = 0x7f;	// Use only 7 bits of data
+	} else {
+		data_mask_ = 0x3ff;	// Use only up to 10 bits of data
+	}
+
 	// Bit 5 TXINVERT
 	if (format & 0x20) {
 		ctrl |= LPUART_CTRL_TXINV;		// tx invert
@@ -494,7 +501,7 @@ int HardwareSerialIMXRT::peek(void)
 			// Still empty Now check for stuff in FIFO Queue.
 			int c = -1;	// assume nothing to return
 			if (port->WATER & 0x7000000) {
-				c = port->DATA & 0x3ff;		// Use only up to 10 bits of data
+				c = port->DATA & data_mask_;
 				// But we don't want to throw it away...
 				// since queue is empty, just going to reset to front of queue...
 				rx_buffer_head_ = 1;
@@ -530,7 +537,7 @@ int HardwareSerialIMXRT::read(void)
 			// Still empty Now check for stuff in FIFO Queue.
 			c = -1;	// assume nothing to return
 			if (port->WATER & 0x7000000) {
-				c = port->DATA & 0x3ff;		// Use only up to 10 bits of data
+				c = port->DATA & data_mask_;
 			}
 			__enable_irq();
 			return c;
@@ -635,7 +642,7 @@ void HardwareSerialIMXRT::IRQHandler()
 			head = rx_buffer_head_;
 			tail = rx_buffer_tail_;
 			do {
-				n = port->DATA & 0x3ff;		// Use only up to 10 bits of data
+				n = port->DATA & data_mask_;
 				newhead = head + 1;
 
 				if (newhead >= rx_buffer_total_size_) newhead = 0;

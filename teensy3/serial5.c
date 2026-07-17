@@ -102,6 +102,9 @@ static volatile uint8_t rx_buffer_tail = 0;
 
 static uint8_t tx_pin_num = 33;
 
+// 7-bit mode support
+static uint8_t data_mask = 0xff;  // Use all bits by default
+
 // UART0 and UART1 are clocked by F_CPU, UART2 is clocked by F_BUS
 // UART0 has 8 byte fifo, UART1 and UART2 have 1 byte buffer
 
@@ -151,6 +154,14 @@ void serial5_format(uint32_t format)
 	c = UART4_C3 & ~0x10;
 	if (format & 0x20) c |= 0x10;		// tx invert
 	UART4_C3 = c;
+
+	// 7-bit support
+	if ((format & 0x0E) == 0x02) {
+		data_mask = 0x7f;	// Use only 7 bits of data
+	} else {
+		data_mask = 0xff;	// Use all bits
+	}
+
 #ifdef SERIAL_9BIT_SUPPORT
 	c = UART4_C4 & 0x1F;
 	if (format & 0x08) c |= 0x20;		// 9 bit mode with parity (requires 10 bits)
@@ -385,7 +396,7 @@ void uart4_status_isr(void)
 		if (use9Bits && (UART4_C3 & 0x80)) {
 			n = UART4_D | 0x100;
 		} else {
-			n = UART4_D;
+			n = UART4_D & data_mask;
 		}
 		head = rx_buffer_head + 1;
 		if (head >= rx_buffer_total_size_) head = 0;
