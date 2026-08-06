@@ -200,6 +200,40 @@ audio_block_t * AudioStream::receiveWritable(unsigned int index)
 	return in;
 }
 
+//Define the destructor for AudioStream.  
+//The contract here is that the user has already disconnected all or
+//destroyed all of the AudioConnections.  Therefore, the clean-up activities
+//that remain are to remove this instance from the update list and
+//to release any audio_block_t pointers in this instance's input queue.
+AudioStream::~AudioStream(void)
+{
+	//remove this instance from the update list
+	__disable_irq(); //make sure no update() happens while we're changing the update list
+	AudioStream *p = first_update;
+	if (p == this) {
+		first_update = this->next_update;
+	} else {
+		while (p != NULL) {
+			if (p->next_update == this) {
+				p->next_update = this->next_update; //remove the pointer to this instance and replace it with the next instance
+				break;
+			}
+			p = p->next_update; //go to next step in linked list
+		}
+	}
+	__enable_irq();
+
+	//Since AudioStream is a virtual class, the code seen in this file will only
+	//be invoked by derive classes.  All AudioStream instances have an inputQueue.
+	//There could be audio blocks assigned to the slots in the inputQueue.  The
+	//derived class should have its own destructor to release() any audio blocks
+	//in its input queue.  In the derived class's destructor, it could look like this:
+	//for (int i=0; i<num_inputs; i++) {
+	//	audio_block_t *block = inputQueue[i];
+	//	if  (block != NULL) release(block);
+	//}
+}
+
 /**************************************************************************************/
 // Constructor with no parameters: leave unconnected
 AudioConnection::AudioConnection() 
