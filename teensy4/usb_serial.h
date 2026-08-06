@@ -96,25 +96,25 @@ public:
         void end() { /* TODO: flush output and shut down USB port */ };
 	// Returns the number of bytes which have been received from your PC and
 	// can be fetched using Serial.read() or Serial.readBytes().
-        virtual int available() { return usb_serial_available(); }
+        int available() override { return usb_serial_available(); }
 	// Reads the next received byte, or returns -1 if nothing has been received
 	// from your PC.
-        virtual int read() { return usb_serial_getchar(); }
+        int read() override { return usb_serial_getchar(); }
 	// Returns the next received byte, but does not remove it from the receive
 	// buffer.  Returns -1 if nothing has been received from your PC.
-        virtual int peek() { return usb_serial_peekchar(); }
+        int peek() override { return usb_serial_peekchar(); }
 	// Wait for all data written by print() or write() to actually transmit to
 	// your PC.  On Teensy 4, this function has a known limitation where it
 	// returns early, when buffered data has been given to Teensy's USB device
 	// controller, but before your PC's USB host controller actually transfers
 	// the data across your USB cable.
-        virtual void flush() { usb_serial_flush_output(); }  // TODO: actually wait for data to leave USB...
+        void flush() override { usb_serial_flush_output(); }  // TODO: actually wait for data to leave USB...
 	// Discard all received data which has not been read.
         virtual void clear(void) { usb_serial_flush_input(); }
 	// Transmit a single byte to your PC
-        virtual size_t write(uint8_t c) { return usb_serial_putchar(c); }
+        size_t write(uint8_t c) override { return usb_serial_putchar(c); }
 	// Transmit a buffer containing any number of bytes to your PC
-        virtual size_t write(const uint8_t *buffer, size_t size) { return usb_serial_write(buffer, size); }
+        size_t write(const uint8_t *buffer, size_t size) override { return usb_serial_write(buffer, size); }
 	// Transmit a single byte to your PC
 	size_t write(unsigned long n) { return write((uint8_t)n); }
 	// Transmit a single byte to your PC
@@ -127,7 +127,7 @@ public:
 	// without waiting.  Typically programs which must maintain rapid checking
 	// and response to sensors use availableForWrite() to decide whether to
 	// transmit.
-	virtual int availableForWrite() { return usb_serial_write_buffer_free(); }
+	int availableForWrite() override { return usb_serial_write_buffer_free(); }
 	using Print::write;
 	// Cause any previously transmitted data written to buffers to be actually
 	// sent over the USB cable to your PC as soon as possible.  Normally writes
@@ -199,18 +199,18 @@ public:
     constexpr usb_serial_class() {}
         void begin(long) { };
         void end() { };
-        virtual int available() { return 0; }
-        virtual int read() { return -1; }
-        virtual int peek() { return -1; }
-        virtual void flush() { }
+        int available() override { return 0; }
+        int read() override { return -1; }
+        int peek() override { return -1; }
+        void flush() override { }
         virtual void clear() { }
-        virtual size_t write(uint8_t c) { return 1; }
-        virtual size_t write(const uint8_t *buffer, size_t size) { return size; }
+        size_t write(uint8_t c) override { return 1; }
+        size_t write(const uint8_t *buffer, size_t size) override { return size; }
     size_t write(unsigned long n) { return 1; }
     size_t write(long n) { return 1; }
     size_t write(unsigned int n) { return 1; }
     size_t write(int n) { return 1; }
-    virtual int availableForWrite() { return 0; }
+    int availableForWrite() override { return 0; }
     using Print::write;
         void send_now(void) { }
         uint32_t baud(void) { return 0; }
@@ -278,18 +278,18 @@ public:
                 //}
         }
         void end() { /* TODO: flush output and shut down USB port */ };
-        virtual int available() { return usb_serial2_available(); }
-        virtual int read() { return usb_serial2_getchar(); }
-        virtual int peek() { return usb_serial2_peekchar(); }
-        virtual void flush() { usb_serial2_flush_output(); }  // TODO: actually wait for data to leave USB...
+        int available() override { return usb_serial2_available(); }
+        int read() override { return usb_serial2_getchar(); }
+        int peek() override { return usb_serial2_peekchar(); }
+        void flush() override { usb_serial2_flush_output(); }  // TODO: actually wait for data to leave USB...
         virtual void clear(void) { usb_serial2_flush_input(); }
-        virtual size_t write(uint8_t c) { return usb_serial2_putchar(c); }
-        virtual size_t write(const uint8_t *buffer, size_t size) { return usb_serial2_write(buffer, size); }
+        size_t write(uint8_t c) override { return usb_serial2_putchar(c); }
+        size_t write(const uint8_t *buffer, size_t size) override { return usb_serial2_write(buffer, size); }
         size_t write(unsigned long n) { return write((uint8_t)n); }
         size_t write(long n) { return write((uint8_t)n); }
         size_t write(unsigned int n) { return write((uint8_t)n); }
         size_t write(int n) { return write((uint8_t)n); }
-        virtual int availableForWrite() { return usb_serial2_write_buffer_free(); }
+        int availableForWrite() override { return usb_serial2_write_buffer_free(); }
         using Print::write;
         void send_now(void) { usb_serial2_flush_output(); }
         uint32_t baud(void) { return usb_cdc2_line_coding[0]; }
@@ -368,18 +368,18 @@ public:
                 //}
         }
         void end() { /* TODO: flush output and shut down USB port */ };
-        virtual int available() { return usb_serial3_available(); }
-        virtual int read() { return usb_serial3_getchar(); }
-        virtual int peek() { return usb_serial3_peekchar(); }
-        virtual void flush() { usb_serial3_flush_output(); }  // TODO: actually wait for data to leave USB...
+        int available() override { return usb_serial3_available(); }
+        int read() override { return usb_serial3_getchar(); }
+        int peek() override { return usb_serial3_peekchar(); }
+        void flush() override { usb_serial3_flush_output(); }  // TODO: actually wait for data to leave USB...
         virtual void clear(void) { usb_serial3_flush_input(); }
-        virtual size_t write(uint8_t c) { return usb_serial3_putchar(c); }
-        virtual size_t write(const uint8_t *buffer, size_t size) { return usb_serial3_write(buffer, size); }
+        size_t write(uint8_t c) override { return usb_serial3_putchar(c); }
+        size_t write(const uint8_t *buffer, size_t size) override { return usb_serial3_write(buffer, size); }
         size_t write(unsigned long n) { return write((uint8_t)n); }
         size_t write(long n) { return write((uint8_t)n); }
         size_t write(unsigned int n) { return write((uint8_t)n); }
         size_t write(int n) { return write((uint8_t)n); }
-        virtual int availableForWrite() { return usb_serial3_write_buffer_free(); }
+        int availableForWrite() override { return usb_serial3_write_buffer_free(); }
         using Print::write;
         void send_now(void) { usb_serial3_flush_output(); }
         uint32_t baud(void) { return usb_cdc3_line_coding[0]; }

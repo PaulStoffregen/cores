@@ -13,14 +13,14 @@ public:
 	void _begin(uint16_t baud_count, uint8_t pin);
 	void end(void);
 	void transmitterEnable(uint8_t pin);
-	virtual int available(void);
-	virtual int peek(void);
-	virtual int read(void);
-	virtual void flush(void);
-	int availableForWrite(void);
+	int available(void) override;
+	int peek(void) override;
+	int read(void) override;
+	void flush(void) override;
+	int availableForWrite(void) override;
 	void clear(void);
 #if ARDUINO >= 100
-	virtual size_t write(uint8_t);
+	size_t write(uint8_t) override;
 #else
 	virtual void write(uint8_t);
 #endif
