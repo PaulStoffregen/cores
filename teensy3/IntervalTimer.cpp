@@ -40,6 +40,7 @@ static IntervalTimer::callback_t funct_table[4] = {dummy_funct, dummy_funct, dum
 #define NUM_CHANNELS 2
 static IntervalTimer::callback_t funct_table[2] = {dummy_funct, dummy_funct};
 uint8_t IntervalTimer::nvic_priorites[2] = {255, 255};
+uint32_t runningFlags;  // Tracks which PITs are running, for timer disable
 #endif
 
 
@@ -69,6 +70,9 @@ bool IntervalTimer::beginCycles(callback_t funct, uint32_t cycles)
 	NVIC_SET_PRIORITY(IRQ_PIT_CH0 + index, nvic_priority);
 	NVIC_ENABLE_IRQ(IRQ_PIT_CH0 + index);
 #elif defined(KINETISL)
+	// Track which PIT is running
+	runningFlags |= (uint32_t{1} << index);
+
 	nvic_priorites[index] = nvic_priority;
 	if (nvic_priorites[0] <= nvic_priorites[1]) {
 		NVIC_SET_PRIORITY(IRQ_PIT, nvic_priorites[0]);
@@ -97,10 +101,17 @@ void IntervalTimer::end() {
 #endif
 #if defined(KINETISL)
 		nvic_priorites[index] = 255;
-		if (nvic_priorites[0] <= nvic_priorites[1]) {
-			NVIC_SET_PRIORITY(IRQ_PIT, nvic_priorites[0]);
+
+		// Disable IRQ if no instances are running
+		runningFlags &= ~(uint32_t{1} << index);
+		if (runningFlags == 0) {
+			NVIC_DISABLE_IRQ(IRQ_PIT);
 		} else {
-			NVIC_SET_PRIORITY(IRQ_PIT, nvic_priorites[1]);
+			if (nvic_priorites[0] <= nvic_priorites[1]) {
+				NVIC_SET_PRIORITY(IRQ_PIT, nvic_priorites[0]);
+			} else {
+				NVIC_SET_PRIORITY(IRQ_PIT, nvic_priorites[1]);
+			}
 		}
 #endif
 		channel = 0;
@@ -146,4 +157,3 @@ void pit_isr() {
 static void dummy_funct(void)
 {
 }
-
