@@ -36,8 +36,9 @@ uint8_t _serialEvent1_default __attribute__((weak)) PROGMEM = 0 ;
 
 HardwareSerial Serial1(&serialEvent1);
 
-void HardwareSerial::begin(uint32_t baud) { 
+void HardwareSerial::begin(uint32_t baud, uint32_t format) { 
 	serial_begin(BAUD2DIV(baud)); 
+	if (format != (uint32_t)-1)  serial_format(format);
 	if (!_serialEvent1_default) addToSerialEventsList();
 }
 

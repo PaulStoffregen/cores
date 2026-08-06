@@ -50,7 +50,7 @@ extern const struct digital_pin_bitband_and_config_table_struct digital_pin_to_i
 #define digitalPinToPortReg(pin) (portOutputRegister(pin))
 */
 
-const struct digital_pin_bitband_and_config_table_struct digital_pin_to_info_PGM[] = {
+const struct digital_pin_bitband_and_config_table_struct digital_pin_to_info_PGM[]  __attribute__((weak)) = {
 	{&CORE_PIN0_PORTREG, &CORE_PIN0_CONFIG, &CORE_PIN0_PADCONFIG, CORE_PIN0_BITMASK},
 	{&CORE_PIN1_PORTREG, &CORE_PIN1_CONFIG, &CORE_PIN1_PADCONFIG, CORE_PIN1_BITMASK},
 	{&CORE_PIN2_PORTREG, &CORE_PIN2_CONFIG, &CORE_PIN2_PADCONFIG, CORE_PIN2_BITMASK},
