@@ -51,7 +51,7 @@ void (*usb_midi_handleControlChange)(uint8_t ch, uint8_t control, uint8_t value)
 void (*usb_midi_handleProgramChange)(uint8_t ch, uint8_t program) = NULL;
 void (*usb_midi_handleAfterTouch)(uint8_t ch, uint8_t pressure) = NULL;
 void (*usb_midi_handlePitchChange)(uint8_t ch, int pitch) = NULL;
-void (*usb_midi_handleSysExPartial)(const uint8_t *data, uint16_t length, uint8_t complete) = NULL;
+void (*usb_midi_handleSysExPartial)(const uint8_t *data, uint16_t length, _Bool complete) = NULL;
 void (*usb_midi_handleSysExComplete)(uint8_t *data, unsigned int size) = NULL;
 void (*usb_midi_handleTimeCodeQuarterFrame)(uint8_t data) = NULL;
 void (*usb_midi_handleSongPosition)(uint16_t beats) = NULL;
