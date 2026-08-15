@@ -584,6 +584,155 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
   #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
 
+#elif defined(USB_MIDI2)
+  #define VENDOR_ID		0x16C0
+  #define PRODUCT_ID		0x0485
+  #define BCD_DEVICE		0x0220
+  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
+  #define MANUFACTURER_NAME_LEN	11
+  #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','M','I','D','I',' ','2','.','0'}
+  #define PRODUCT_NAME_LEN	15
+  #define EP0_SIZE		64
+  #define NUM_ENDPOINTS         4
+  #define NUM_INTERFACE		2
+  #define SEREMU_INTERFACE      1	// Serial emulation
+  #define SEREMU_TX_ENDPOINT    2
+  #define SEREMU_TX_SIZE        64
+  #define SEREMU_TX_INTERVAL    1
+  #define SEREMU_RX_ENDPOINT    2
+  #define SEREMU_RX_SIZE        32
+  #define SEREMU_RX_INTERVAL    2
+  // MIDI 2.0 shares the MIDI interface and endpoints with the MIDI 1.0
+  // path; Alternate Setting 0 carries MIDI 1.0 byte stream and
+  // Alternate Setting 1 carries UMP. Group Terminal Block descriptor
+  // (see usb_desc.c) is served via GET_DESCRIPTOR.
+  #define MIDI_INTERFACE        0	// MIDI
+  #define MIDI_NUM_CABLES       1
+  #define MIDI2_NUM_GROUPS      1
+  #define MIDI2_HAS_DESCRIPTORS 1
+  #define MIDI_TX_ENDPOINT      3
+  #define MIDI2_TX_ENDPOINT     3
+  #define MIDI_TX_SIZE_12       64
+  #define MIDI_TX_SIZE_480      512
+  #define MIDI2_TX_SIZE_480     512
+  #define MIDI_RX_ENDPOINT      3
+  #define MIDI2_RX_ENDPOINT     3
+  #define MIDI_RX_SIZE_12       64
+  #define MIDI_RX_SIZE_480      512
+  #define MIDI2_RX_SIZE_480     512
+  #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_INTERRUPT + ENDPOINT_TRANSMIT_INTERRUPT
+  #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
+
+#elif defined(USB_MIDI2_SERIAL)
+  #define VENDOR_ID		0x16C0
+  #define PRODUCT_ID		0x0489
+  #define BCD_DEVICE		0x0230
+  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
+  #define MANUFACTURER_NAME_LEN	11
+  #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','M','I','D','I',' ','2','.','0'}
+  #define PRODUCT_NAME_LEN	15
+  #define EP0_SIZE		64
+  #define NUM_ENDPOINTS         4
+  #define NUM_INTERFACE		3
+  #define CDC_IAD_DESCRIPTOR	1
+  #define CDC_STATUS_INTERFACE	0
+  #define CDC_DATA_INTERFACE	1	// Serial
+  #define CDC_ACM_ENDPOINT	2
+  #define CDC_RX_ENDPOINT       3
+  #define CDC_TX_ENDPOINT       3
+  #define CDC_ACM_SIZE          16
+  #define CDC_RX_SIZE_480       512
+  #define CDC_TX_SIZE_480       512
+  #define CDC_RX_SIZE_12        64
+  #define CDC_TX_SIZE_12        64
+  #define MIDI_INTERFACE        2	// MIDI
+  #define MIDI_NUM_CABLES       1
+  #define MIDI2_NUM_GROUPS      1
+  #define MIDI2_HAS_DESCRIPTORS 1
+  #define MIDI_TX_ENDPOINT      4
+  #define MIDI2_TX_ENDPOINT     4
+  #define MIDI_TX_SIZE_12       64
+  #define MIDI_TX_SIZE_480      512
+  #define MIDI2_TX_SIZE_480     512
+  #define MIDI_RX_ENDPOINT      4
+  #define MIDI2_RX_ENDPOINT     4
+  #define MIDI_RX_SIZE_12       64
+  #define MIDI_RX_SIZE_480      512
+  #define MIDI2_RX_SIZE_480     512
+  #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
+  #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
+  #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
+
+#elif defined(USB_MIDI2_4)
+  #define VENDOR_ID		0x16C0
+  #define PRODUCT_ID		0x0485
+  #define BCD_DEVICE		0x0221
+  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
+  #define MANUFACTURER_NAME_LEN	11
+  #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','M','I','D','I',' ','2','.','0',' ','x','4'}
+  #define PRODUCT_NAME_LEN	18
+  #define EP0_SIZE		64
+  #define NUM_ENDPOINTS         4
+  #define NUM_INTERFACE		2
+  #define SEREMU_INTERFACE      1
+  #define SEREMU_TX_ENDPOINT    2
+  #define SEREMU_TX_SIZE        64
+  #define SEREMU_TX_INTERVAL    1
+  #define SEREMU_RX_ENDPOINT    2
+  #define SEREMU_RX_SIZE        32
+  #define SEREMU_RX_INTERVAL    2
+  #define MIDI_INTERFACE        0
+  #define MIDI_NUM_CABLES       4
+  #define MIDI2_NUM_GROUPS      4
+  #define MIDI2_HAS_DESCRIPTORS 1
+  #define MIDI_TX_ENDPOINT      3
+  #define MIDI2_TX_ENDPOINT     3
+  #define MIDI_TX_SIZE_12       64
+  #define MIDI_TX_SIZE_480      512
+  #define MIDI2_TX_SIZE_480     512
+  #define MIDI_RX_ENDPOINT      3
+  #define MIDI2_RX_ENDPOINT     3
+  #define MIDI_RX_SIZE_12       64
+  #define MIDI_RX_SIZE_480      512
+  #define MIDI2_RX_SIZE_480     512
+  #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_INTERRUPT + ENDPOINT_TRANSMIT_INTERRUPT
+  #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
+
+#elif defined(USB_MIDI2_16)
+  #define VENDOR_ID		0x16C0
+  #define PRODUCT_ID		0x0485
+  #define BCD_DEVICE		0x0222
+  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
+  #define MANUFACTURER_NAME_LEN	11
+  #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','M','I','D','I',' ','2','.','0',' ','x','1','6'}
+  #define PRODUCT_NAME_LEN	19
+  #define EP0_SIZE		64
+  #define NUM_ENDPOINTS         4
+  #define NUM_INTERFACE		2
+  #define SEREMU_INTERFACE      1
+  #define SEREMU_TX_ENDPOINT    2
+  #define SEREMU_TX_SIZE        64
+  #define SEREMU_TX_INTERVAL    1
+  #define SEREMU_RX_ENDPOINT    2
+  #define SEREMU_RX_SIZE        32
+  #define SEREMU_RX_INTERVAL    2
+  #define MIDI_INTERFACE        0
+  #define MIDI_NUM_CABLES       16
+  #define MIDI2_NUM_GROUPS      16
+  #define MIDI2_HAS_DESCRIPTORS 1
+  #define MIDI_TX_ENDPOINT      3
+  #define MIDI2_TX_ENDPOINT     3
+  #define MIDI_TX_SIZE_12       64
+  #define MIDI_TX_SIZE_480      512
+  #define MIDI2_TX_SIZE_480     512
+  #define MIDI_RX_ENDPOINT      3
+  #define MIDI2_RX_ENDPOINT     3
+  #define MIDI_RX_SIZE_12       64
+  #define MIDI_RX_SIZE_480      512
+  #define MIDI2_RX_SIZE_480     512
+  #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_INTERRUPT + ENDPOINT_TRANSMIT_INTERRUPT
+  #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
+
 #elif defined(USB_RAWHID)
   #define VENDOR_ID		0x16C0
   #define PRODUCT_ID		0x0486

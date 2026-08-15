@@ -179,6 +179,75 @@ void usb_midi_write_packed(uint32_t n)
 	tx_noautoflush = 0;
 }
 
+// Write a whole UMP message (1-4 words) or nothing.  The per-word path can
+// stop mid-message once the TX timeout trips, which leaves a fragment of a
+// multi-word UMP on the wire; here the message is only copied after a packet
+// buffer with room for all of it is secured, so a host that stopped reading
+// costs whole messages, never framing.  Returns the words written: count, or
+// 0 when the buffer never freed within the timeout.
+int usb_midi_write_packed_n(const uint32_t *words, uint8_t count)
+{
+	if (!usb_configuration) return 0;
+	if (count == 0 || count > 4) return 0;
+	tx_noautoflush = 1;
+	uint32_t head = tx_head;
+	transfer_t *xfer = tx_transfer + head;
+	// Not enough room in the current packet buffer: send it as-is so the
+	// next buffer starts empty (same transmit path as usb_midi_flush_output).
+	if (tx_available > 0 && tx_available < (uint32_t)count * 4) {
+		uint8_t *txbuf = txbuffer + (head * TX_SIZE);
+		uint32_t len = tx_packet_size - tx_available;
+		usb_prepare_transfer(xfer, txbuf, len, 0);
+		arm_dcache_flush_delete(txbuf, TX_SIZE);
+		usb_transmit(MIDI_TX_ENDPOINT, xfer);
+		if (++head >= TX_NUM) head = 0;
+		tx_head = head;
+		tx_available = 0;
+		xfer = tx_transfer + head;
+	}
+	uint32_t wait_begin_at = systick_millis_count;
+	while (!tx_available) {
+		uint32_t status = usb_transfer_status(xfer);
+		if (!(status & 0x80)) {
+			if (status & 0x68) {
+				// TODO: what if status has errors???
+			}
+			tx_available = tx_packet_size;
+			transmit_previous_timeout = 0;
+			break;
+		}
+		if (systick_millis_count - wait_begin_at > TX_TIMEOUT_MSEC) {
+			transmit_previous_timeout = 1;
+		}
+		if (transmit_previous_timeout) {
+			tx_noautoflush = 0;
+			return 0;
+		}
+		if (!usb_configuration) {
+			tx_noautoflush = 0;
+			return 0;
+		}
+		yield();
+	}
+	uint32_t *txdata = (uint32_t *)(txbuffer + (tx_head * TX_SIZE) + (tx_packet_size - tx_available));
+	uint8_t i;
+	for (i = 0; i < count; i++) txdata[i] = words[i];
+	tx_available -= (uint32_t)count * 4;
+	if (tx_available == 0) {
+		uint8_t *txbuf = txbuffer + (tx_head * TX_SIZE);
+		usb_prepare_transfer(xfer, txbuf, tx_packet_size, 0);
+		arm_dcache_flush_delete(txbuf, TX_SIZE);
+		usb_transmit(MIDI_TX_ENDPOINT, xfer);
+		if (++head >= TX_NUM) head = 0;
+		tx_head = head;
+		usb_stop_sof_interrupts(MIDI_INTERFACE);
+	} else {
+		usb_start_sof_interrupts(MIDI_INTERFACE);
+	}
+	tx_noautoflush = 0;
+	return count;
+}
+
 void usb_midi_flush_output(void)
 {
 	//printf("usb_midi_flush_output\n");
