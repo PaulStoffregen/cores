@@ -74,7 +74,7 @@ public:
 	}
 	bool begin(callback_t funct, float microseconds) {
 		if (microseconds <= 0 || microseconds > MAX_PERIOD) return false;
-		uint32_t cycles = (float)(F_BUS / 1000000) * microseconds - 0.5;
+		uint32_t cycles = (float)(F_BUS / 1000000) * microseconds - 0.5F;
 		if (cycles < 36) return false;
 		return beginCycles(funct, cycles);
 	}
@@ -99,7 +99,7 @@ public:
 	}
 	void update(float microseconds) {
 		if (microseconds <= 0 || microseconds > MAX_PERIOD) return;
-		uint32_t cycles = (float)(F_BUS / 1000000) * microseconds - 0.5;
+		uint32_t cycles = (float)(F_BUS / 1000000) * microseconds - 0.5F;
 		if (cycles < 36) return;
 		if (channel) channel->LDVAL = cycles;
 	}
