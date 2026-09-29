@@ -1,0 +1,137 @@
+# https://www.pjrc.com/teensy/td_download.html
+# https://arduino.github.io/arduino-cli/latest/platform-specification/
+# https://arduino.github.io/arduino-cli/0.30/platform-specification/
+
+name=Teensyduino
+version=1.8.5
+rewriting=disabled
+
+# Teensyduino Installer
+compiler.path={runtime.hardware.path}/../tools/
+teensytools.path={runtime.hardware.path}/../tools/
+
+# Arduino Boards Manager
+#compiler.path={runtime.tools.teensy-compile.path}/
+#teensytools.path={runtime.tools.teensy-tools.path}/
+
+build.flags.audioblocksize=128
+build.flags.audiorate=44100.0f
+build.flags.audiorateInt=44100
+build.flags.USBchannelcount=2
+
+build.flags.audio=-DAUDIO_BLOCK_SAMPLES={build.flags.audioblocksize} -DAUDIO_SAMPLE_RATE_EXACT={build.flags.audiorate} -DAUDIO_SAMPLE_RATE_I={build.flags.audiorateInt} -DAUDIO_USB_CHANNEL_COUNT={build.flags.USBchannelcount}
+
+## Debugger - Experimental
+#debug.executable={build.path}/{build.project_name}.elf
+#debug.toolchain=gcc
+#debug.toolchain.path={compiler.path}{build.toolchain}
+#debug.toolchain.prefix=arm-none-eabi-
+#debug.server=openocd
+#debug.server.openocd.path={teensytools.path}tdebug
+#debug.server.openocd.scripts_dir=unused
+#debug.server.openocd.script=toolspath:{teensytools.path}:buildpath:{build.path}:name:{build.project_name}:board:{build.board}
+
+## EEPROM Data
+compiler.objcopy.eep.flags=-O ihex -j .eeprom --set-section-flags=.eeprom=alloc,load --no-change-warnings --change-section-lma .eeprom=0
+compiler.elf2hex.flags=-O ihex -R .eeprom
+
+## Preprocessor Includes
+recipe.preproc.includes="{compiler.path}{build.toolchain}{build.command.g++}" -M -MG -MP -x c++ -w {build.flags.cpp} {build.flags.cpu} {build.flags.defs} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DF_CPU={build.fcpu} -D{build.usbtype} -DLAYOUT_{build.keylayout} {includes} "{source_file}"
+
+## Preprocessor Macros
+recipe.preproc.macros="{compiler.path}{build.toolchain}{build.command.g++}" -E -CC -x c++ -w {compiler.cpp.flags} {build.flags.common} {build.flags.cpp} {build.flags.cpu} {build.flags.defs} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DF_CPU={build.fcpu} -D{build.usbtype} -DLAYOUT_{build.keylayout} {includes} "{source_file}" -o "{preprocessed_file_path}"
+
+## New Preprocessor for Arduino 1.9
+tools.arduino-preprocessor.path={runtime.tools.arduino-preprocessor.path}
+tools.arduino-preprocessor.cmd.path={path}/arduino-preprocessor
+tools.arduino-preprocessor.pattern="{cmd.path}" "{source_file}" "{codecomplete}" -- -std=gnu++14
+
+## Precompile Arduino.h header
+recipe.hooks.sketch.prebuild.1.pattern="{teensytools.path}precompile_helper" "{runtime.platform.path}/cores/{build.core}" "{build.path}" "{compiler.path}{build.toolchain}{build.command.g++}" -x c++-header {build.flags.optimize} {build.flags.common} {build.flags.dep} {build.flags.cpp} {build.flags.cpu} {build.flags.defs} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DF_CPU={build.fcpu} -D{build.usbtype} -DLAYOUT_{build.keylayout} "-I{runtime.platform.path}/cores/{build.core}" "{build.path}/pch/Arduino.h" -o "{build.path}/pch/Arduino.h.gch"
+
+## Compile c++ files
+recipe.cpp.o.pattern="{compiler.path}{build.toolchain}{build.command.g++}" -c {build.flags.audio} {build.flags.optimize} {build.flags.common} {build.flags.dep} {build.flags.cpp} {build.flags.cpu} {build.flags.defs} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DF_CPU={build.fcpu} -D{build.usbtype} -DLAYOUT_{build.keylayout} "-I{build.path}/pch" {includes} "{source_file}" -o "{object_file}"
+
+## Compile c files
+recipe.c.o.pattern="{compiler.path}{build.toolchain}{build.command.gcc}" -c {build.flags.audio} {build.flags.optimize} {build.flags.common} {build.flags.dep} {build.flags.c} {build.flags.cpu} {build.flags.defs} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DF_CPU={build.fcpu} -D{build.usbtype} -DLAYOUT_{build.keylayout} {includes} "{source_file}" -o "{object_file}"
+
+## Compile S files
+recipe.S.o.pattern="{compiler.path}{build.toolchain}{build.command.gcc}" -c {build.flags.audio} {build.flags.optimize} {build.flags.common} {build.flags.dep} {build.flags.S} {build.flags.cpu} {build.flags.defs} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DF_CPU={build.fcpu} -D{build.usbtype} -DLAYOUT_{build.keylayout} {includes} "{source_file}" -o "{object_file}"
+
+## Create archives
+recipe.ar.pattern="{compiler.path}{build.toolchain}{build.command.ar}" rcs "{archive_file_path}" "{object_file}"
+
+## Link
+recipe.c.combine.pattern="{compiler.path}{build.toolchain}{build.command.linker}" {build.flags.optimize} {build.flags.ld} {build.flags.ldspecs} {build.flags.cpu} -o "{build.path}/{build.project_name}.elf" {object_files} "{build.path}/{archive_file}" "-L{build.path}" {build.flags.libs}
+
+## Patch ELF - TODO: not supported by modern Arduino...  :(
+recipe.elfpatch.pattern="{teensytools.path}/{build.elfpatch}" -mmcu={build.mcu} "{build.path}/{build.project_name}.elf" "{sketch_path}/disk"
+
+## Create eeprom
+recipe.objcopy.eep.pattern="{compiler.path}{build.toolchain}{build.command.objcopy}" {compiler.objcopy.eep.flags} "{build.path}/{build.project_name}.elf" "{build.path}/{build.project_name}.eep"
+
+## Create hex
+recipe.objcopy.hex.pattern="{compiler.path}{build.toolchain}{build.command.objcopy}" {compiler.elf2hex.flags} "{build.path}/{build.project_name}.elf" "{build.path}/{build.project_name}.hex"
+
+## EHEX file - for Teensy 4.x secure mode
+recipe.hooks.objcopy.postobjcopy.1.pattern="{teensytools.path}teensy_secure" encrypthex {build.board} "{build.path}/{build.project_name}.hex"
+
+
+## Post Build - inform Teensy Loader of new file
+recipe.hooks.postbuild.1.pattern="{teensytools.path}teensy_post_compile" "-file={build.project_name}" "-path={build.path}" "-tools={teensytools.path}" "-board={build.board}"
+recipe.hooks.postbuild.2.pattern="{teensytools.path}stdout_redirect" "{build.path}/{build.project_name}.sym" "{compiler.path}{build.toolchain}{build.command.objdump}" -t -C "{build.path}/{build.project_name}.elf"
+recipe.hooks.postbuild.3.pattern="{teensytools.path}teensy_size" "{build.path}/{build.project_name}.elf"
+#
+# objdump to create .lst file is VERY SLOW for huge files
+# https://forum.pjrc.com/threads/68121?p=288306&viewfull=1#post288306
+#
+# recipe.hooks.postbuild.4.pattern="{teensytools.path}stdout_redirect" "{build.path}/{build.project_name}.lst" "{compiler.path}{build.toolchain}{build.command.objdump}" -d -S -C "{build.path}/{build.project_name}.elf"
+
+
+## Compute size
+recipe.size.pattern="{compiler.path}{build.toolchain}{build.command.size}" -A "{build.path}/{build.project_name}.elf"
+recipe.size.regex=^(?:\.text|\.text\.progmem|\.text\.itcm|\.data|\.text\.csf)\s+([0-9]+).*
+recipe.size.regex.data=^(?:\.usbdescriptortable|\.dmabuffers|\.usbbuffers|\.data|\.bss|\.noinit|\.text\.itcm|\.text\.itcm\.padding)\s+([0-9]+).*
+recipe.size.regex.eeprom=^(?:\.eeprom)\s+([0-9]+).*
+
+## Teensy Ports Discovery
+##  Arduino 1.8.9 requires pathPrefs patch
+##  discovery patters have only limited support for substitution macros,
+##  so we can not use {teensytools.path} or {compiler.path} here
+
+# Teensyduino Installer
+discovery.teensy.pattern="{runtime.hardware.path}/../tools/teensy_ports" -J2
+
+# Arduino Boards Manager
+#discovery.teensy.pattern="{runtime.tools.teensy-tools.path}/teensy_ports" -J2
+#pluggable_discovery.required=teensy:teensy-discovery
+#pluggable_monitor.required.teensy=teensy:teensy-monitor
+
+
+## Teensy Loader
+
+# Teensyduino Installer
+tools.teensyloader.cmd.path={runtime.hardware.path}/../tools
+
+# Arduino Boards Manager
+#tools.teensyloader.cmd.path={runtime.tools.teensy-tools.path}
+
+tools.teensyloader.upload.params.quiet=
+tools.teensyloader.upload.params.verbose=-verbose
+tools.teensyloader.upload.pattern="{cmd.path}/teensy_post_compile" "-file={build.project_name}" "-path={build.path}" "-tools={cmd.path}" "-board={build.board}" -reboot "-port={serial.port}" "-portlabel={serial.port.label}" "-portprotocol={serial.port.protocol}"
+
+
+
+
+## Export hex
+recipe.output.tmp_file={build.project_name}.hex
+recipe.output.save_file={build.project_name}.{build.board}.hex
+recipe.hooks.savehex.postsavehex.1.pattern="{teensytools.path}teensy_secure" encrypthex {build.board} "{sketch_path}/{build.project_name}.{build.board}.hex"
+
+# TODO: missing patch in 1.6.6...
+recipe.output.tmp_file2={build.project_name}.elf
+recipe.output.save_file2={build.project_name}.elf
+
+
+# documentation on this file's format
+# https://arduino.github.io/arduino-cli/latest/platform-specification/

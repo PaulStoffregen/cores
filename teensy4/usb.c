@@ -47,6 +47,9 @@
 #include <string.h>
 #include "debug/printf.h"
 
+#define LSB(n) ((n) & 255)
+#define MSB(n) (((n) >> 8) & 255)
+
 //#define LOG_SIZE  20
 //uint32_t transfer_log_head=0;
 //uint32_t transfer_log_count=0;
@@ -120,7 +123,7 @@ static uint32_t endpointN_notify_mask=0;
 //static int reset_count=0;
 volatile uint8_t usb_configuration = 0; // non-zero when USB host as configured device
 volatile uint8_t usb_high_speed = 0;    // non-zero if running at 480 Mbit/sec speed
-static uint8_t endpoint0_buffer[8];
+static uint8_t endpoint0_buffer[14];
 static uint8_t sof_usage = 0;
 static uint8_t usb_reboot_timer = 0;
 
@@ -444,7 +447,7 @@ static void endpoint0_setup(uint64_t setupdata)
 	setup_t setup;
 	uint32_t endpoint, dir, ctrl;
 	const usb_descriptor_list_t *list;
-
+	//printf("wRequestAndType= %x, word1=%x, wIndex=%d\n", setup.wRequestAndType, setup.word1, setup.wIndex);
 	setup.bothwords = setupdata;
 	switch (setup.wRequestAndType) {
 	  case 0x0500: // SET_ADDRESS
@@ -579,7 +582,7 @@ static void endpoint0_setup(uint64_t setupdata)
 					datalen = list->length;
 				}
 				if (datalen > setup.wLength) datalen = setup.wLength;
-
+				printf("datalength: %x", datalen);
 				// copy the descriptor, from PROGMEM to DMAMEM
 				if (setup.wValue == 0x200) {
 					// config descriptor needs to adapt to speed
@@ -647,6 +650,7 @@ static void endpoint0_setup(uint64_t setupdata)
 #if defined(AUDIO_INTERFACE)
 	  case 0x0B01: // SET_INTERFACE (alternate setting)
 		if (setup.wIndex == AUDIO_INTERFACE+1) {
+	  		printf("case 0x0B01, word1=%x, wIndex=%d\n", setup.word1, setup.wIndex);
 			usb_audio_transmit_setting = setup.wValue;
 			if (usb_audio_transmit_setting > 0) {
 				// TODO: set up AUDIO_TX_ENDPOINT to transmit
@@ -670,39 +674,93 @@ static void endpoint0_setup(uint64_t setupdata)
 			return;
 		}
 		break;
-	  case 0x0121: // SET FEATURE
-	  case 0x0221:
-	  case 0x0321:
-	  case 0x0421:
-		//printf("set_feature, word1=%x, len=%d\n", setup.word1, setup.wLength);
+	  
+	  //Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section A.14, Table A-14 page 134-135:
+	  //The only four audio class specific request are: 0x00 (UNDEFINED), 0x01 (CUR), 0x02 (RANGE), 0x03 (MEM)
+	  // Therefore the audio specific cases are:
+	  // 0x0121, 0x0221,  0x0321, 
+	  // 0x0122, 0x0222,  0x0322, 
+	  // 0x01A1, 0x02A1,  0x03A1, 
+	  // 0x01A2, 0x02A2,  0x03A2, 
+	  //all cases that end on '21': SET FEATURE directed to an interface (AudioControl or AudioStreaming)(Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 5.2.2, Table 5-1 page 90-91)
+	  //all cases that end on '22': SET FEATURE directed to isochronous endpoint of an AudioStreaming interface (Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 5.2.2, Table 5-1 page 90-91)
+	  case 0x0121: //-> set CUR request
+	  case 0x0221: //-> set RANGE request
+	  case 0x0321: //-> set MEM request
+	  
 		if (setup.wLength <= sizeof(endpoint0_buffer)) {
 			endpoint0_setupdata.bothwords = setupdata;
 			endpoint0_receive(endpoint0_buffer, setup.wLength, 1);
 			return; // handle these after ACK
 		}
 		break;
-	  case 0x81A1: // GET FEATURE
-	  case 0x82A1:
-	  case 0x83A1:
-	  case 0x84A1:
-		if (setup.wLength <= sizeof(endpoint0_buffer)) {
+	  //all cases that end on 'A1': GET FEATURE directed to an interface (AudioControl or AudioStreaming)(Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 5.2.2, Table 5-1 page 90-91)
+	  //all cases that end on 'A2': GET FEATURE directed to isochronous endpoint of an AudioStreaming interface (Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 5.2.2, Table 5-1 page 90-91)
+
+	  case 0x01A1: //-> get CUR request
+	  	if(	LSB(setup.wIndex) == AUDIO_INTERFACE &&
+			MSB(setup.wIndex) == 0x3a		//0x3a is the bClockID	
+			){
+				if(setup.wValue == 0x0100){
+					//0x01...CS_SAM_FREQ_CONTROL 0x00... channel must be set to 0
+					endpoint0_buffer[0] = ((uint32_t)AUDIO_SAMPLE_RATE) & 255;
+					endpoint0_buffer[1] = (((uint32_t)AUDIO_SAMPLE_RATE) >> 8) & 255;
+					endpoint0_buffer[2] = (((uint32_t)AUDIO_SAMPLE_RATE) >> 16) & 255;
+					endpoint0_buffer[3] = 0;
+					uint32_t l = setup.wLength < 4 ? setup.wLength : 4;
+					endpoint0_transmit(endpoint0_buffer, l, 0);
+					return;
+				}
+				if(setup.wValue == 0x0200){
+					//0x02...CS_CLOCK_VALID_CONTROL 0x00... channel must be set to 0
+					endpoint0_buffer[0] = 1; //always valid
+					uint32_t l = setup.wLength < 1 ? setup.wLength : 1;
+					endpoint0_transmit(endpoint0_buffer, l, 0);
+					return;
+				}						
+			}
+	  case 0x02A1: //-> get RANGE request 
+	  	if(	LSB(setup.wIndex) == AUDIO_INTERFACE &&
+			MSB(setup.wIndex) == 0x3a &&	//0x3a is the bClockID	
+			setup.wValue == 0x0100			//range of clock
+			){
+				
+			endpoint0_buffer[0] = 1; //only one sub-range (LSB of 2 bytes)
+			endpoint0_buffer[1] = 0; //only one sub-range (MSB of 2 bytes)
+			//min value of range
+			endpoint0_buffer[2] = ((uint32_t)AUDIO_SAMPLE_RATE) & 255;
+			endpoint0_buffer[3] = (((uint32_t)AUDIO_SAMPLE_RATE) >> 8) & 255;
+			endpoint0_buffer[4] = (((uint32_t)AUDIO_SAMPLE_RATE) >> 16) & 255;
+			endpoint0_buffer[5] = 0;
+			//max value of range (=min value)
+			endpoint0_buffer[6]= endpoint0_buffer[2];
+			endpoint0_buffer[7]= endpoint0_buffer[3];
+			endpoint0_buffer[8]= endpoint0_buffer[4];
+			endpoint0_buffer[9]= endpoint0_buffer[5];
+			//resolution
+			endpoint0_buffer[10]= 0;
+			endpoint0_buffer[11]= 0;
+			endpoint0_buffer[12]= 0;
+			endpoint0_buffer[13]= 0;
+			uint32_t l = setup.wLength < 14 ? setup.wLength : 14;
+			endpoint0_transmit(endpoint0_buffer, l, 0);
+			return;
+						
+		}
+	  case 0x03A1: //-> get MEM request 
+		if(	LSB(setup.wIndex) == AUDIO_INTERFACE &&	
+			MSB(setup.wIndex) == 0x31		//0x31 is the bUnitID of the volume control	
+			){
 			uint32_t len;
 			if (usb_audio_get_feature(&setup, endpoint0_buffer, &len)) {
 				//printf("GET feature, len=%d\n", len);
-				endpoint0_transmit(endpoint0_buffer, len, 0);
+				uint32_t l = setup.wLength < len ? setup.wLength : len;
+				endpoint0_transmit(endpoint0_buffer, l, 0);
 				return;
 			}
+			break;			
 		}
-		break;
-	  case 0x81A2: // GET_CUR (wValue=0, wIndex=interface, wLength=len)
-		if (setup.wLength >= 3) {
-			endpoint0_buffer[0] = 44100 & 255;
-			endpoint0_buffer[1] = 44100 >> 8;
-			endpoint0_buffer[2] = 0;
-			endpoint0_transmit(endpoint0_buffer, 3, 0);
-			return;
-		}
-		break;
+		
 #endif
 #if defined(MULTITOUCH_INTERFACE)
 	  case 0x01A1:
@@ -742,7 +800,8 @@ static void endpoint0_setup(uint64_t setupdata)
 		break;
 #endif
 	}
-	printf("endpoint 0 stall\n");
+	//printf("endpoint 0 stall\n");
+	
 	USB1_ENDPTCTRL0 = 0x000010001; // stall
 }
 
@@ -884,7 +943,10 @@ static void endpoint0_complete(void)
 	}
 #endif
 #ifdef AUDIO_INTERFACE
-	if (setup.word1 == 0x02010121 || setup.word1 == 0x01000121 /* TODO: check setup.word2 */) {
+		if( setup.wRequestAndType == 0x0121 && // set CUR
+			LSB(setup.wIndex) == AUDIO_INTERFACE &&	
+			MSB(setup.wIndex) == 0x31		//0x31 is the bUnitID of the volume control	
+			){
 		usb_audio_set_feature(&endpoint0_setupdata, endpoint0_buffer);
 	}
 #endif
