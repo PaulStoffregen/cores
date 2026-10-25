@@ -121,10 +121,15 @@ String::String(unsigned long long value, unsigned char base)
 
 String::String(float num, unsigned char digits)
 {
+	char buf[50];
+	unsigned int digits_before, digits_after;
 	init();
-	char format[8], buf[40];
-	snprintf(format, sizeof(format), "%%.%uf", digits);
-	snprintf(buf, sizeof(buf), format, num);
+	float L10 = log10f(fabsf(num));
+	digits_before = (L10 > 1.0f) ? ceilf(L10) : 1;
+	digits_after = sizeof(buf) - digits_before - 2;
+	if (num < 0.0f) digits_after--;
+	if (digits > digits_after) digits = digits_after;
+	dtostrf(num, digits + digits_before + 1, digits, buf);
 	*this = buf;
 }
 
