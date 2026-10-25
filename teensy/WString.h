@@ -64,7 +64,7 @@ public:
 	String(long, unsigned char base=10);
 	String(unsigned long, unsigned char base=10);
 	String(float num, unsigned char digits=2);
-	String(double num, unsigned char digits=2);
+	String(double num, unsigned char digits=2) : String((float)num, digits) {}
 	~String(void);
 
 	// memory management

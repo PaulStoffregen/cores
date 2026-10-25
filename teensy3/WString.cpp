@@ -122,8 +122,10 @@ String::String(unsigned long long value, unsigned char base)
 String::String(float num, unsigned char digits)
 {
 	init();
-	char buf[40];
-	*this = dtostrf(num, digits + 2, digits, buf);
+	char format[8], buf[40];
+	snprintf(format, sizeof(format), "%%.%uf", digits);
+	snprintf(buf, sizeof(buf), format, num);
+	*this = buf;
 }
 
 String::~String()

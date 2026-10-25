@@ -20,6 +20,7 @@
 */
 
 #include "WString.h"
+#include "math.h"
 
 
 /*********************************************/
@@ -105,16 +106,23 @@ String::String(unsigned long value, unsigned char base)
 
 String::String(float num, unsigned char digits)
 {
+	char buf[50];
+	unsigned char digits_before, digits_after;
 	init();
-	char buf[40];
-	*this = dtostrf(num, digits + 2, digits, buf);
-}
-
-String::String(double num, unsigned char digits)
-{
-	init();
-	char buf[40];
-	*this = dtostrf(num, digits + 2, digits, buf);
+	if (num > 1e38) {
+		num = __builtin_inf(); // avr-libc bug above 1e38, print INF
+		digits = 0;
+		digits_before = 2;
+		digits_after = 0;
+	} else {
+		float L10 = log10f(fabsf(num));
+		digits_before = (L10 > 1.0f) ? ceilf(L10) : 1;
+		digits_after = sizeof(buf) - digits_before - 2;
+		if (num < 0.0f) digits_after--;
+	}
+	if (digits > digits_after) digits = digits_after;
+	dtostrf(num, digits + digits_before + 1, digits, buf);
+	*this = buf;
 }
 
 String::~String()
