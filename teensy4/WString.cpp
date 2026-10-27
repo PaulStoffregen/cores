@@ -126,6 +126,7 @@ String::String(float num, unsigned char digits)
 	init();
 	float L10 = log10f(fabsf(num));
 	digits_before = (L10 > 1.0f) ? ceilf(L10) : 1;
+	digits_before++; // safety for limited log10f precision
 	digits_after = sizeof(buf) - digits_before - 2;
 	if (num < 0.0f) digits_after--;
 	if (digits > digits_after) digits = digits_after;
