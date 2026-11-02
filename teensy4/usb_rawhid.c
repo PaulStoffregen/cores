@@ -114,6 +114,9 @@ int usb_rawhid_recv(void *buffer, uint32_t timeout)
 	uint32_t i = rx_list[tail];
 	rx_tail = tail;
 
+	// The DMA has written this slot, but the CPU may have cached its old contents since rx_queue_transfer()
+	// invalidated it (e.g. a speculative read past the end of the previous slot's memcpy), so invalidate again
+	arm_dcache_delete(rx_buffer + i * RAWHID_RX_SIZE, RAWHID_RX_SIZE);
 	memcpy(buffer,  rx_buffer + i * RAWHID_RX_SIZE, RAWHID_RX_SIZE);
 	rx_queue_transfer(i);
 	//memset(rx_transfer, 0, sizeof(rx_transfer));
