@@ -273,6 +273,7 @@ static void configure_systick(void)
 #define SIZE_4M		(SCB_MPU_RASR_SIZE(21) | SCB_MPU_RASR_ENABLE)
 #define SIZE_8M		(SCB_MPU_RASR_SIZE(22) | SCB_MPU_RASR_ENABLE)
 #define SIZE_16M	(SCB_MPU_RASR_SIZE(23) | SCB_MPU_RASR_ENABLE)
+#define SIZE_24M	(SCB_MPU_RASR_SIZE(24) | SCB_MPU_RASR_SRD(0xC0) | SCB_MPU_RASR_ENABLE)
 #define SIZE_32M	(SCB_MPU_RASR_SIZE(24) | SCB_MPU_RASR_ENABLE)
 #define SIZE_64M	(SCB_MPU_RASR_SIZE(25) | SCB_MPU_RASR_ENABLE)
 #define SIZE_128M	(SCB_MPU_RASR_SIZE(26) | SCB_MPU_RASR_ENABLE)
@@ -292,52 +293,47 @@ FLASHMEM void configure_cache(void)
 
 	SCB_MPU_CTRL = 0; // turn off MPU
 
-	uint32_t i = 0;
-	SCB_MPU_RBAR = 0x00000000 | REGION(i++); //https://developer.arm.com/docs/146793866/10/why-does-the-cortex-m7-initiate-axim-read-accesses-to-memory-addresses-that-do-not-fall-under-a-defined-mpu-region
+	//uint32_t i = 0;
+	SCB_MPU_RBAR = 0x00000000 | REGION(0); //https://developer.arm.com/docs/146793866/10/why-does-the-cortex-m7-initiate-axim-read-accesses-to-memory-addresses-that-do-not-fall-under-a-defined-mpu-region
 	SCB_MPU_RASR = SCB_MPU_RASR_TEX(0) | NOACCESS | NOEXEC | SIZE_4G;
 	
-	SCB_MPU_RBAR = 0x00000000 | REGION(i++); // ITCM
+	SCB_MPU_RBAR = 0x00000000 | REGION(1); // ITCM
 	SCB_MPU_RASR = MEM_NOCACHE | READONLY | SIZE_512K;
 
 	// TODO: trap regions should be created last, because the hardware gives
 	//  priority to the higher number ones.
-	SCB_MPU_RBAR = 0x00000000 | REGION(i++); // trap NULL pointer deref
+	SCB_MPU_RBAR = 0x00000000 | REGION(2); // trap NULL pointer deref
 	SCB_MPU_RASR =  DEV_NOCACHE | NOACCESS | SIZE_32B;
 
-	SCB_MPU_RBAR = 0x00200000 | REGION(i++); // Boot ROM
+	SCB_MPU_RBAR = 0x00200000 | REGION(3); // Boot ROM
 	SCB_MPU_RASR = MEM_CACHE_WT | READONLY | SIZE_128K;
 
-	SCB_MPU_RBAR = 0x20000000 | REGION(i++); // DTCM
+	SCB_MPU_RBAR = 0x20000000 | REGION(4); // DTCM
 	SCB_MPU_RASR = MEM_NOCACHE | READWRITE | NOEXEC | SIZE_512K;
 	
-	SCB_MPU_RBAR = ((uint32_t)&_ebss) | REGION(i++); // trap stack overflow
+	SCB_MPU_RBAR = ((uint32_t)&_ebss) | REGION(5); // trap stack overflow
 	SCB_MPU_RASR = SCB_MPU_RASR_TEX(0) | NOACCESS | NOEXEC | SIZE_32B;
 
-	SCB_MPU_RBAR = 0x20200000 | REGION(i++); // RAM (AXI bus)
+	SCB_MPU_RBAR = 0x20200000 | REGION(6); // RAM (AXI bus)
 	SCB_MPU_RASR = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_1M;
 
-	SCB_MPU_RBAR = 0x40000000 | REGION(i++); // Peripherals
+	SCB_MPU_RBAR = 0x40000000 | REGION(7); // Peripherals
 	SCB_MPU_RASR = DEV_NOCACHE | READWRITE | NOEXEC | SIZE_64M;
 
-	SCB_MPU_RBAR = 0x60000000 | REGION(i++); // QSPI Flash
+	SCB_MPU_RBAR = 0x60000000 | REGION(8); // QSPI Flash
 	SCB_MPU_RASR = MEM_CACHE_WBWA | READONLY | SIZE_16M;
 
-	SCB_MPU_RBAR = 0x70000000 | REGION(i++); // FlexSPI2
+	SCB_MPU_RBAR = 0x70000000 | REGION(9); // FlexSPI2
 	SCB_MPU_RASR = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_32M;
 	// We default RAM meant for data to NOEXEC as a proactive security measure.
 	// If you wish to dynamically load code into RAM and execute it, start here:
 	// https://forum.pjrc.com/index.php?threads/75610/#post-347791
 
-	SCB_MPU_RBAR = 0x80000000 | REGION(i++); // SEMC: SDRAM, NAND, SRAM, etc
+	SCB_MPU_RBAR = 0x80000000 | REGION(10); // SEMC: SDRAM, NAND, SRAM, etc
 	SCB_MPU_RASR = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_1G;
 	// hardware: https://forum.pjrc.com/index.php?threads/73898/#post-334041
 	// software: https://github.com/mjs513/SDRAM_t4
 
-	asm("nop"); // allow a few cycles for bus writes before enable MPU
-	asm("nop");
-	asm("nop");
-	asm("nop");
-	asm("nop");
 	SCB_MPU_CTRL = SCB_MPU_CTRL_ENABLE;
 
 	// cache enable, ARM DDI0403E, pg 628
@@ -542,8 +538,16 @@ FLASHMEM void configure_external_ram()
 		uint8_t size2 = flexspi2_psram_size(size1 << 20);
 		external_psram_size = size1 + size2;
 		if (size2 > 0) {
-			FLEXSPI2_FLSHA2CR0 = size2 << 10;
+			// Configure last required FLSH*CR0 for 32MB, in
+			// case of speculative fetches.  MPU is supposed
+			// to avoid it, but backup plan hopefully prevents
+			// bus stall if speculative access happens.
+			// https://forum.pjrc.com/index.php?threads/78171/
+			FLEXSPI2_FLSHA2CR0 = 32 << 10;
 			flexspi2_command(4, size1 << 20);  // enter QPI mode
+		} else {
+			FLEXSPI2_FLSHA1CR0 = 32 << 10;
+			FLEXSPI2_FLSHA2CR0 = 16 << 10;
 		}
 		// TODO: zero uninitialized EXTMEM variables
 		// TODO: copy from flash to initialize EXTMEM variables
@@ -554,8 +558,26 @@ FLASHMEM void configure_external_ram()
 	} else {
 		// No PSRAM
 		external_psram_size = 0;
+		FLEXSPI2_FLSHA1CR0 = 16 << 10;
+		FLEXSPI2_FLSHA2CR0 = 16 << 10;
 		memset(&extmem_smalloc_pool, 0, sizeof(extmem_smalloc_pool));
 	}
+	// Reduce MPU setting to detected size, avoid bus stall issue
+	// https://forum.pjrc.com/index.php?threads/78171/
+	uint32_t rasr;
+	switch (external_psram_size) {
+	  case 32: rasr = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_32M; break;
+	  case 24: rasr = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_24M; break;
+	  case 16: rasr = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_16M; break;
+	  case  8: rasr = MEM_CACHE_WBWA | READWRITE | NOEXEC | SIZE_8M; break;
+	  default: rasr = MEM_NOCACHE | NOACCESS | NOEXEC;
+	}
+	asm("dsb");
+	SCB_MPU_CTRL = 0;
+	SCB_MPU_RBAR = 0x70000000 | REGION(9); // FlexSPI2
+	SCB_MPU_RASR = rasr;
+	SCB_MPU_CTRL = SCB_MPU_CTRL_ENABLE;
+	asm("dsb");
 }
 
 #endif // ARDUINO_TEENSY41
