@@ -32,7 +32,6 @@
 #include "MTP_Teensy.h"
 #include "MTP_Const.h"
 #undef USB_DESC_LIST_DEFINE
-#include "usb_desc.h"
 
 #if defined(__IMXRT1062__)
 // following only while usb_mtp is not included in cores

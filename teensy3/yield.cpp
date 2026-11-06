@@ -31,12 +31,12 @@
 #include <Arduino.h>
 #include "EventResponder.h"
 
-#ifdef USB_TRIPLE_SERIAL
+#if defined(CDC3_DATA_INTERFACE) && defined(CDC3_STATUS_INTERFACE)
 uint8_t yield_active_check_flags = YIELD_CHECK_USB_SERIAL | YIELD_CHECK_USB_SERIALUSB1 | YIELD_CHECK_USB_SERIALUSB2; // default to check USB.
 extern const uint8_t _serialEventUSB2_default;	
 extern const uint8_t _serialEventUSB1_default;	
 
-#elif defined(USB_DUAL_SERIAL)
+#elif defined(CDC2_DATA_INTERFACE) && defined(CDC2_STATUS_INTERFACE)
 uint8_t yield_active_check_flags = YIELD_CHECK_USB_SERIAL | YIELD_CHECK_USB_SERIALUSB1; // default to check USB.
 extern const uint8_t _serialEventUSB1_default;	
 
@@ -62,13 +62,13 @@ void yield(void)
 	}
 	// Current workaround until integrate with EventResponder.
 
-#if defined(USB_DUAL_SERIAL) || defined(USB_TRIPLE_SERIAL)
+#if defined(CDC2_DATA_INTERFACE) && defined(CDC2_STATUS_INTERFACE)
 	if (yield_active_check_flags & YIELD_CHECK_USB_SERIALUSB1) {
 		if (SerialUSB1.available()) serialEventUSB1();
 		if (_serialEventUSB1_default) yield_active_check_flags &= ~YIELD_CHECK_USB_SERIALUSB1;
 	}
 #endif
-#ifdef USB_TRIPLE_SERIAL
+#if defined(CDC3_DATA_INTERFACE) && defined(CDC3_STATUS_INTERFACE)
 	if (yield_active_check_flags & YIELD_CHECK_USB_SERIALUSB2) {
 		if (SerialUSB2.available()) serialEventUSB2();
 		if (_serialEventUSB2_default) yield_active_check_flags &= ~YIELD_CHECK_USB_SERIALUSB2;
