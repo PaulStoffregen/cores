@@ -76,6 +76,7 @@ public:
 		if (features.mute) return 0.0;
 		return (float)(features.volume) * (1.0 / (float)FEATURE_MAX_VOLUME);
 	}
+	bool mute(void) { return features.mute != 0; }
 private:
 	static bool update_responsibility;
 	static audio_block_t *incoming_left;
@@ -93,6 +94,19 @@ public:
 	virtual void update(void);
 	void begin(void);
 	friend unsigned int usb_audio_transmit_callback(void);
+	friend int usb_audio_set_feature(void *stp, uint8_t *buf);
+	friend int usb_audio_get_feature(void *stp, uint8_t *data, uint32_t *datalen);
+	// Capture-side feature unit (USB FU 0x30) controls. The host writes
+	// these via SET_CUR on the AudioControl interface — e.g. the Windows
+	// recording-device volume slider — and the sketch reads them here to
+	// scale the audio it sends to the host (typical use: a listenback /
+	// monitor mix where Windows still owns the level).
+	static struct usb_audio_features_struct features;
+	float volume(void) {
+		if (features.mute) return 0.0;
+		return (float)(features.volume) * (1.0 / (float)FEATURE_MAX_VOLUME);
+	}
+	bool mute(void) { return features.mute != 0; }
 private:
 	static bool update_responsibility;
 	static audio_block_t *left_1st;

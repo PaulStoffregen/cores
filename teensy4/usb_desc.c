@@ -649,7 +649,7 @@ static uint8_t microsoft_os_compatible_id_desc[] = {
 
 #define AUDIO_INTERFACE_DESC_POS	KEYMEDIA_INTERFACE_DESC_POS+KEYMEDIA_INTERFACE_DESC_SIZE
 #ifdef  AUDIO_INTERFACE
-#define AUDIO_INTERFACE_DESC_SIZE	8 + 9+10+12+9+12+10+9 + 9+9+7+11+9+7 + 9+9+7+11+9+7+9
+#define AUDIO_INTERFACE_DESC_SIZE	8 + 9+10+12+10+9+12+10+9 + 9+9+7+11+9+7 + 9+9+7+11+9+7+9
 #else
 #define AUDIO_INTERFACE_DESC_SIZE	0
 #endif
@@ -1443,7 +1443,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 	0x24,					// bDescriptorType, 0x24 = CS_INTERFACE
 	0x01,					// bDescriptorSubtype, 1 = HEADER
 	0x00, 0x01,				// bcdADC (version 1.0)
-	LSB(62), MSB(62),			// wTotalLength
+	LSB(72), MSB(72),			// wTotalLength
 	2,					// bInCollection
 	AUDIO_INTERFACE+1,			// baInterfaceNr(1) - Transmit to PC
 	AUDIO_INTERFACE+2,			// baInterfaceNr(2) - Receive from PC
@@ -1461,6 +1461,19 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 	0x03, 0x00,				// wChannelConfig, 0x0003 = Left & Right Front
 	0,					// iChannelNames
 	0, 					// iTerminal
+	// Volume feature descriptor (capture path: IT1 -> FU 0x30 -> OT2)
+	// Lets the host (e.g. Windows recording-device slider) control mute/volume
+	// applied to audio sent from the device to the host.
+	10,					// bLength
+	0x24, 				// bDescriptorType = CS_INTERFACE
+	0x06, 				// bDescriptorSubType = FEATURE_UNIT
+	0x30, 				// bUnitID
+	0x01, 				// bSourceID (Input Terminal, ID=1)
+	0x01, 				// bControlSize (each channel is 1 byte, 3 channels)
+	0x01, 				// bmaControls(0) Master: Mute
+	0x02, 				// bmaControls(1) Left: Volume
+	0x02, 				// bmaControls(2) Right: Volume
+	0x00,				// iFeature
 	// Output Terminal Descriptor
 	// USB DCD for Audio Devices 1.0, Table 4-4, page 40
 	9,					// bLength
@@ -1469,7 +1482,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 	2,					// bTerminalID
 	0x01, 0x01,				// wTerminalType, 0x0101 = USB_STREAMING
 	0,					// bAssocTerminal, 0 = unidirectional
-	1,					// bCSourceID, connected to input terminal, ID=1
+	0x30,					// bCSourceID, connected to capture feature unit, ID=0x30
 	0,					// iTerminal
 	// Input Terminal Descriptor
 	// USB DCD for Audio Devices 1.0, Table 4-3, page 39
@@ -1483,12 +1496,12 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 	0x03, 0x00,				// wChannelConfig, 0x0003 = Left & Right Front
 	0,					// iChannelNames
 	0, 					// iTerminal
-	// Volume feature descriptor
+	// Volume feature descriptor (playback path: IT3 -> FU 0x31 -> OT4)
 	10,					// bLength
 	0x24, 				// bDescriptorType = CS_INTERFACE
 	0x06, 				// bDescriptorSubType = FEATURE_UNIT
 	0x31, 				// bUnitID
-	0x03, 				// bSourceID (Input Terminal)
+	0x03, 				// bSourceID (Input Terminal, ID=3)
 	0x01, 				// bControlSize (each channel is 1 byte, 3 channels)
 	0x01, 				// bmaControls(0) Master: Mute
 	0x02, 				// bmaControls(1) Left: Volume
@@ -2457,7 +2470,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 	0x24,					// bDescriptorType, 0x24 = CS_INTERFACE
 	0x01,					// bDescriptorSubtype, 1 = HEADER
 	0x00, 0x01,				// bcdADC (version 1.0)
-	LSB(62), MSB(62),			// wTotalLength
+	LSB(72), MSB(72),			// wTotalLength
 	2,					// bInCollection
 	AUDIO_INTERFACE+1,			// baInterfaceNr(1) - Transmit to PC
 	AUDIO_INTERFACE+2,			// baInterfaceNr(2) - Receive from PC
@@ -2475,6 +2488,19 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 	0x03, 0x00,				// wChannelConfig, 0x0003 = Left & Right Front
 	0,					// iChannelNames
 	0, 					// iTerminal
+	// Volume feature descriptor (capture path: IT1 -> FU 0x30 -> OT2)
+	// Lets the host (e.g. Windows recording-device slider) control mute/volume
+	// applied to audio sent from the device to the host.
+	10,					// bLength
+	0x24, 				// bDescriptorType = CS_INTERFACE
+	0x06, 				// bDescriptorSubType = FEATURE_UNIT
+	0x30, 				// bUnitID
+	0x01, 				// bSourceID (Input Terminal, ID=1)
+	0x01, 				// bControlSize (each channel is 1 byte, 3 channels)
+	0x01, 				// bmaControls(0) Master: Mute
+	0x02, 				// bmaControls(1) Left: Volume
+	0x02, 				// bmaControls(2) Right: Volume
+	0x00,				// iFeature
 	// Output Terminal Descriptor
 	// USB DCD for Audio Devices 1.0, Table 4-4, page 40
 	9,					// bLength
@@ -2483,7 +2509,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 	2,					// bTerminalID
 	0x01, 0x01,				// wTerminalType, 0x0101 = USB_STREAMING
 	0,					// bAssocTerminal, 0 = unidirectional
-	1,					// bCSourceID, connected to input terminal, ID=1
+	0x30,					// bCSourceID, connected to capture feature unit, ID=0x30
 	0,					// iTerminal
 	// Input Terminal Descriptor
 	// USB DCD for Audio Devices 1.0, Table 4-3, page 39
@@ -2497,12 +2523,12 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 	0x03, 0x00,				// wChannelConfig, 0x0003 = Left & Right Front
 	0,					// iChannelNames
 	0, 					// iTerminal
-	// Volume feature descriptor
+	// Volume feature descriptor (playback path: IT3 -> FU 0x31 -> OT4)
 	10,					// bLength
 	0x24, 				// bDescriptorType = CS_INTERFACE
 	0x06, 				// bDescriptorSubType = FEATURE_UNIT
 	0x31, 				// bUnitID
-	0x03, 				// bSourceID (Input Terminal)
+	0x03, 				// bSourceID (Input Terminal, ID=3)
 	0x01, 				// bControlSize (each channel is 1 byte, 3 channels)
 	0x01, 				// bmaControls(0) Master: Mute
 	0x02, 				// bmaControls(1) Left: Volume
