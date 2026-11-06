@@ -649,12 +649,30 @@ static uint8_t microsoft_os_compatible_id_desc[] = {
 
 #define AUDIO_INTERFACE_DESC_POS	KEYMEDIA_INTERFACE_DESC_POS+KEYMEDIA_INTERFACE_DESC_SIZE
 #ifdef  AUDIO_INTERFACE
-#define AUDIO_INTERFACE_DESC_SIZE	8 + 9+10+12+9+12+10+9 + 9+9+7+11+9+7 + 9+9+7+11+9+7+9
+
+#if USB_AUDIO_NO_CHANNELS_480 > 8
+      //we restrict the volume controlled number of channels to 8 (there is still the master volume for all channels)
+      #define FEATURE_UNIT_DESC_SIZE_480 (6 + (1+8)*4)
 #else
-#define AUDIO_INTERFACE_DESC_SIZE	0
+      #define FEATURE_UNIT_DESC_SIZE_480 (6 + (1+USB_AUDIO_NO_CHANNELS_480)*4)
 #endif
 
-#define MULTITOUCH_INTERFACE_DESC_POS	AUDIO_INTERFACE_DESC_POS+AUDIO_INTERFACE_DESC_SIZE
+#if USB_AUDIO_NO_CHANNELS_12 > 8
+      //we restrict the volume controlled number of channels to 8 (there is still the master volume for all channels)
+      #define FEATURE_UNIT_DESC_SIZE_12 (6 + (1+8)*4)
+#else
+      #define FEATURE_UNIT_DESC_SIZE_12 (6 + (1+USB_AUDIO_NO_CHANNELS_12)*4)
+#endif
+
+#define AUDIO_INTERFACE_DESC_SIZE_480	8 + 9+9+8+17+12+17+FEATURE_UNIT_DESC_SIZE_480+12 + 9+9+16+6+7+8 + 9+9+16+6+7+8+7
+#define AUDIO_INTERFACE_DESC_SIZE_12  8 + 9+9+8+17+12+17+FEATURE_UNIT_DESC_SIZE_12+12 + 9+9+16+6+7+8 + 9+9+16+6+7+8+7
+#else
+#define AUDIO_INTERFACE_DESC_SIZE_12	0
+#define AUDIO_INTERFACE_DESC_SIZE_480	0
+#endif
+
+#define MULTITOUCH_INTERFACE_DESC_POS_12	AUDIO_INTERFACE_DESC_POS+AUDIO_INTERFACE_DESC_SIZE_12
+#define MULTITOUCH_INTERFACE_DESC_POS_480	AUDIO_INTERFACE_DESC_POS+AUDIO_INTERFACE_DESC_SIZE_480
 #ifdef  MULTITOUCH_INTERFACE
 #define MULTITOUCH_INTERFACE_DESC_SIZE	9+9+7
 #define MULTITOUCH_HID_DESC_OFFSET	MULTITOUCH_INTERFACE_DESC_POS+9
@@ -662,7 +680,8 @@ static uint8_t microsoft_os_compatible_id_desc[] = {
 #define MULTITOUCH_INTERFACE_DESC_SIZE	0
 #endif
 
-#define EXPERIMENTAL_INTERFACE_DESC_POS	MULTITOUCH_INTERFACE_DESC_POS+MULTITOUCH_INTERFACE_DESC_SIZE
+#define EXPERIMENTAL_INTERFACE_DESC_POS_12	MULTITOUCH_INTERFACE_DESC_POS_12+MULTITOUCH_INTERFACE_DESC_SIZE
+#define EXPERIMENTAL_INTERFACE_DESC_POS_480	MULTITOUCH_INTERFACE_DESC_POS_480+MULTITOUCH_INTERFACE_DESC_SIZE
 #ifdef  EXPERIMENTAL_INTERFACE
 #define EXPERIMENTAL_INTERFACE_DESC_SIZE 9+7+7
 #define EXPERIMENTAL_HID_DESC_OFFSET	MULTITOUCH_INTERFACE_DESC_POS+9
@@ -670,7 +689,8 @@ static uint8_t microsoft_os_compatible_id_desc[] = {
 #define EXPERIMENTAL_INTERFACE_DESC_SIZE 0
 #endif
 
-#define CONFIG_DESC_SIZE		EXPERIMENTAL_INTERFACE_DESC_POS+EXPERIMENTAL_INTERFACE_DESC_SIZE
+#define CONFIG_DESC_SIZE_12		EXPERIMENTAL_INTERFACE_DESC_POS_12+EXPERIMENTAL_INTERFACE_DESC_SIZE
+#define CONFIG_DESC_SIZE_480		EXPERIMENTAL_INTERFACE_DESC_POS_480+EXPERIMENTAL_INTERFACE_DESC_SIZE
 
 
 
@@ -681,12 +701,12 @@ static uint8_t microsoft_os_compatible_id_desc[] = {
 // USB Configuration Descriptor.  This huge descriptor tells all
 // of the devices capabilities.
 
-PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
+PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE_480] = {
         // configuration descriptor, USB spec 9.6.3, page 264-266, Table 9-10
         9,                                      // bLength;
         2,                                      // bDescriptorType;
-        LSB(CONFIG_DESC_SIZE),                 // wTotalLength
-        MSB(CONFIG_DESC_SIZE),
+        LSB(CONFIG_DESC_SIZE_480),                 // wTotalLength
+        MSB(CONFIG_DESC_SIZE_480),
         NUM_INTERFACE,                          // bNumInterfaces
         1,                                      // bConfigurationValue
         0,                                      // iConfiguration
@@ -923,231 +943,6 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
         LSB(CDC_TX_SIZE_480),MSB(CDC_TX_SIZE_480),// wMaxPacketSize
         0,                                      // bInterval
 #endif // CDC3_DATA_INTERFACE
-
-#ifdef MIDI_INTERFACE
-	// configuration for 480 Mbit/sec speed
-        // Standard MS Interface Descriptor,
-        9,                                      // bLength
-        4,                                      // bDescriptorType
-        MIDI_INTERFACE,                         // bInterfaceNumber
-        0,                                      // bAlternateSetting
-        2,                                      // bNumEndpoints
-        0x01,                                   // bInterfaceClass (0x01 = Audio)
-        0x03,                                   // bInterfaceSubClass (0x03 = MIDI)
-        0x00,                                   // bInterfaceProtocol (unused for MIDI)
-        0,                                      // iInterface
-        // MIDI MS Interface Header, USB MIDI 6.1.2.1, page 21, Table 6-2
-        7,                                      // bLength
-        0x24,                                   // bDescriptorType = CS_INTERFACE
-        0x01,                                   // bDescriptorSubtype = MS_HEADER
-        0x00, 0x01,                             // bcdMSC = revision 01.00
-	LSB(7+(6+6+9+9)*MIDI_NUM_CABLES),       // wTotalLength
-	MSB(7+(6+6+9+9)*MIDI_NUM_CABLES),
-        // MIDI IN Jack Descriptor, B.4.3, Table B-7 (embedded), page 40
-        6,                                      // bLength
-        0x24,                                   // bDescriptorType = CS_INTERFACE
-        0x02,                                   // bDescriptorSubtype = MIDI_IN_JACK
-        0x01,                                   // bJackType = EMBEDDED
-        1,                                      // bJackID, ID = 1
-        0,                                      // iJack
-        // MIDI IN Jack Descriptor, B.4.3, Table B-8 (external), page 40
-        6,                                      // bLength
-        0x24,                                   // bDescriptorType = CS_INTERFACE
-        0x02,                                   // bDescriptorSubtype = MIDI_IN_JACK
-        0x02,                                   // bJackType = EXTERNAL
-        2,                                      // bJackID, ID = 2
-        0,                                      // iJack
-        // MIDI OUT Jack Descriptor, B.4.4, Table B-9, page 41
-        9,
-        0x24,                                   // bDescriptorType = CS_INTERFACE
-        0x03,                                   // bDescriptorSubtype = MIDI_OUT_JACK
-        0x01,                                   // bJackType = EMBEDDED
-        3,                                      // bJackID, ID = 3
-        1,                                      // bNrInputPins = 1 pin
-        2,                                      // BaSourceID(1) = 2
-        1,                                      // BaSourcePin(1) = first pin
-        0,                                      // iJack
-        // MIDI OUT Jack Descriptor, B.4.4, Table B-10, page 41
-        9,
-        0x24,                                   // bDescriptorType = CS_INTERFACE
-        0x03,                                   // bDescriptorSubtype = MIDI_OUT_JACK
-        0x02,                                   // bJackType = EXTERNAL
-        4,                                      // bJackID, ID = 4
-        1,                                      // bNrInputPins = 1 pin
-        1,                                      // BaSourceID(1) = 1
-        1,                                      // BaSourcePin(1) = first pin
-        0,                                      // iJack
-  #if MIDI_NUM_CABLES >= 2
-	#define MIDI_INTERFACE_JACK_PAIR(a, b, c, d) \
-		6, 0x24, 0x02, 0x01, (a), 0, \
-		6, 0x24, 0x02, 0x02, (b), 0, \
-		9, 0x24, 0x03, 0x01, (c), 1, (b), 1, 0, \
-		9, 0x24, 0x03, 0x02, (d), 1, (a), 1, 0,
-	MIDI_INTERFACE_JACK_PAIR(5, 6, 7, 8)
-  #endif
-  #if MIDI_NUM_CABLES >= 3
-	MIDI_INTERFACE_JACK_PAIR(9, 10, 11, 12)
-  #endif
-  #if MIDI_NUM_CABLES >= 4
-	MIDI_INTERFACE_JACK_PAIR(13, 14, 15, 16)
-  #endif
-  #if MIDI_NUM_CABLES >= 5
-	MIDI_INTERFACE_JACK_PAIR(17, 18, 19, 20)
-  #endif
-  #if MIDI_NUM_CABLES >= 6
-	MIDI_INTERFACE_JACK_PAIR(21, 22, 23, 24)
-  #endif
-  #if MIDI_NUM_CABLES >= 7
-	MIDI_INTERFACE_JACK_PAIR(25, 26, 27, 28)
-  #endif
-  #if MIDI_NUM_CABLES >= 8
-	MIDI_INTERFACE_JACK_PAIR(29, 30, 31, 32)
-  #endif
-  #if MIDI_NUM_CABLES >= 9
-	MIDI_INTERFACE_JACK_PAIR(33, 34, 35, 36)
-  #endif
-  #if MIDI_NUM_CABLES >= 10
-	MIDI_INTERFACE_JACK_PAIR(37, 38, 39, 40)
-  #endif
-  #if MIDI_NUM_CABLES >= 11
-	MIDI_INTERFACE_JACK_PAIR(41, 42, 43, 44)
-  #endif
-  #if MIDI_NUM_CABLES >= 12
-	MIDI_INTERFACE_JACK_PAIR(45, 46, 47, 48)
-  #endif
-  #if MIDI_NUM_CABLES >= 13
-	MIDI_INTERFACE_JACK_PAIR(49, 50, 51, 52)
-  #endif
-  #if MIDI_NUM_CABLES >= 14
-	MIDI_INTERFACE_JACK_PAIR(53, 54, 55, 56)
-  #endif
-  #if MIDI_NUM_CABLES >= 15
-	MIDI_INTERFACE_JACK_PAIR(57, 58, 59, 60)
-  #endif
-  #if MIDI_NUM_CABLES >= 16
-	MIDI_INTERFACE_JACK_PAIR(61, 62, 63, 64)
-  #endif
-        // Standard Bulk OUT Endpoint Descriptor, B.5.1, Table B-11, pae 42
-        9,                                      // bLength
-        5,                                      // bDescriptorType = ENDPOINT
-        MIDI_RX_ENDPOINT,                       // bEndpointAddress
-        0x02,                                   // bmAttributes (0x02=bulk)
-        LSB(MIDI_RX_SIZE_480),MSB(MIDI_RX_SIZE_480),// wMaxPacketSize
-        0,                                      // bInterval
-        0,                                      // bRefresh
-        0,                                      // bSynchAddress
-        // Class-specific MS Bulk OUT Endpoint Descriptor, B.5.2, Table B-12, page 42
-        4+MIDI_NUM_CABLES,                      // bLength
-        0x25,                                   // bDescriptorSubtype = CS_ENDPOINT
-        0x01,                                   // bJackType = MS_GENERAL
-        MIDI_NUM_CABLES,                        // bNumEmbMIDIJack = number of jacks
-        1,                                      // BaAssocJackID(1) = jack ID #1
-  #if MIDI_NUM_CABLES >= 2
-        5,
-  #endif
-  #if MIDI_NUM_CABLES >= 3
-        9,
-  #endif
-  #if MIDI_NUM_CABLES >= 4
-        13,
-  #endif
-  #if MIDI_NUM_CABLES >= 5
-        17,
-  #endif
-  #if MIDI_NUM_CABLES >= 6
-        21,
-  #endif
-  #if MIDI_NUM_CABLES >= 7
-        25,
-  #endif
-  #if MIDI_NUM_CABLES >= 8
-        29,
-  #endif
-  #if MIDI_NUM_CABLES >= 9
-        33,
-  #endif
-  #if MIDI_NUM_CABLES >= 10
-        37,
-  #endif
-  #if MIDI_NUM_CABLES >= 11
-        41,
-  #endif
-  #if MIDI_NUM_CABLES >= 12
-        45,
-  #endif
-  #if MIDI_NUM_CABLES >= 13
-        49,
-  #endif
-  #if MIDI_NUM_CABLES >= 14
-        53,
-  #endif
-  #if MIDI_NUM_CABLES >= 15
-        57,
-  #endif
-  #if MIDI_NUM_CABLES >= 16
-        61,
-  #endif
-        // Standard Bulk IN Endpoint Descriptor, B.5.1, Table B-11, pae 42
-        9,                                      // bLength
-        5,                                      // bDescriptorType = ENDPOINT
-        MIDI_TX_ENDPOINT | 0x80,                // bEndpointAddress
-        0x02,                                   // bmAttributes (0x02=bulk)
-        LSB(MIDI_TX_SIZE_480),MSB(MIDI_TX_SIZE_480),// wMaxPacketSize
-        0,                                      // bInterval
-        0,                                      // bRefresh
-        0,                                      // bSynchAddress
-        // Class-specific MS Bulk IN Endpoint Descriptor, B.5.2, Table B-12, page 42
-        4+MIDI_NUM_CABLES,                      // bLength
-        0x25,                                   // bDescriptorSubtype = CS_ENDPOINT
-        0x01,                                   // bJackType = MS_GENERAL
-        MIDI_NUM_CABLES,                        // bNumEmbMIDIJack = number of jacks
-        3,                                      // BaAssocJackID(1) = jack ID #3
-  #if MIDI_NUM_CABLES >= 2
-        7,
-  #endif
-  #if MIDI_NUM_CABLES >= 3
-        11,
-  #endif
-  #if MIDI_NUM_CABLES >= 4
-        15,
-  #endif
-  #if MIDI_NUM_CABLES >= 5
-        19,
-  #endif
-  #if MIDI_NUM_CABLES >= 6
-        23,
-  #endif
-  #if MIDI_NUM_CABLES >= 7
-        27,
-  #endif
-  #if MIDI_NUM_CABLES >= 8
-        31,
-  #endif
-  #if MIDI_NUM_CABLES >= 9
-        35,
-  #endif
-  #if MIDI_NUM_CABLES >= 10
-        39,
-  #endif
-  #if MIDI_NUM_CABLES >= 11
-        43,
-  #endif
-  #if MIDI_NUM_CABLES >= 12
-        47,
-  #endif
-  #if MIDI_NUM_CABLES >= 13
-        51,
-  #endif
-  #if MIDI_NUM_CABLES >= 14
-        55,
-  #endif
-  #if MIDI_NUM_CABLES >= 15
-        59,
-  #endif
-  #if MIDI_NUM_CABLES >= 16
-        63,
-  #endif
-#endif // MIDI_INTERFACE
 
 #ifdef KEYBOARD_INTERFACE
 	// configuration for 480 Mbit/sec speed
@@ -1416,98 +1211,140 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 #endif // KEYMEDIA_INTERFACE
 
 #ifdef AUDIO_INTERFACE
-	// configuration for 480 Mbit/sec speed
-        // interface association descriptor, USB ECN, Table 9-Z
+      // UAC2: 
+      // Standard Interface Association Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.6, Table 4-3 page 46
         8,                                      // bLength
         11,                                     // bDescriptorType
         AUDIO_INTERFACE,                        // bFirstInterface
         3,                                      // bInterfaceCount
         0x01,                                   // bFunctionClass
-        0x01,                                   // bFunctionSubClass
-        0x00,                                   // bFunctionProtocol
+        0x00,                                   // bFunctionSubClass, 0x00 = FUNCTION_SUBCLASS_UNDEFINED
+        0x20,                                   // bFunctionProtocol 0x20 = IP_VERSION_02_00 = AF_VERSION_02_00
         0,                                      // iFunction
-	// Standard AudioControl (AC) Interface Descriptor
-	// USB DCD for Audio Devices 1.0, Table 4-1, page 36
-	9,					// bLength
+	// UAC2:: 
+      // Standard AudioControl (AC) Interface Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.7.1, Table 4-4 page 47
+      9,					// bLength
 	4,					// bDescriptorType, 4 = INTERFACE
 	AUDIO_INTERFACE,			// bInterfaceNumber
 	0,					// bAlternateSetting
 	0,					// bNumEndpoints
 	1,					// bInterfaceClass, 1 = AUDIO
 	1,					// bInterfaceSubclass, 1 = AUDIO_CONTROL
-	0,					// bInterfaceProtocol
+	0x20,					// bInterfaceProtocol, IP_VERSION_02_00==0x20
 	0,					// iInterface
-	// Class-specific AC Interface Header Descriptor
-	// USB DCD for Audio Devices 1.0, Table 4-2, page 37-38
-	10,					// bLength
+	// UAC2: 
+      // Input Terminal Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.7.2, Table 4-5 page 48-49
+      9,					// bLength
 	0x24,					// bDescriptorType, 0x24 = CS_INTERFACE
 	0x01,					// bDescriptorSubtype, 1 = HEADER
-	0x00, 0x01,				// bcdADC (version 1.0)
-	LSB(62), MSB(62),			// wTotalLength
-	2,					// bInCollection
-	AUDIO_INTERFACE+1,			// baInterfaceNr(1) - Transmit to PC
-	AUDIO_INTERFACE+2,			// baInterfaceNr(2) - Receive from PC
-	// Input Terminal Descriptor
-	// USB DCD for Audio Devices 1.0, Table 4-3, page 39
-	12,					// bLength
+	0x00, 0x02,				// bcdADC (version 2.0)
+      0xff,                         // bCategory 0xff = other
+      LSB(75+FEATURE_UNIT_DESC_SIZE_480), MSB(75+FEATURE_UNIT_DESC_SIZE_480),// wTotalLength: size of this descriptor + all input and output and feature unit descriptors + clock sources
+      0,                            // bmControls
+	// UAC2: 
+      // Clock Source Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.7.2.1, Table 4-9 page 49-50
+      8,					// bLength
 	0x24,					// bDescriptorType, 0x24 = CS_INTERFACE
-	0x02,					// bDescriptorSubType, 2 = INPUT_TERMINAL
+	0x0a,					// bDescriptorSubType, 2 = CLOCK_SOURCE
+	0x3a,					// bClockID
+	0x01, 				// Internal fixed clock, not synchronized to SOF
+	1 | 4,			      // bmControls: 1: clock frequency control is read only, 4 clock validity control is read only 
+	0,                            // bAssocTerminal
+      0,		                  // iClockSource
+	// UAC2: 
+      // Input Terminal Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.7.2.4, Table 4-9 page 52-53
+      17,					// bLength
+	0x24,					// bDescriptorType, 0x24 = CS_INTERFACE
+	2,					// bDescriptorSubType, 2 = INPUT_TERMINAL
 	1,					// bTerminalID
-	//0x01, 0x02,				// wTerminalType, 0x0201 = MICROPHONE
-	//0x03, 0x06,				// wTerminalType, 0x0603 = Line Connector
 	0x02, 0x06,				// wTerminalType, 0x0602 = Digital Audio
 	0,					// bAssocTerminal, 0 = unidirectional
-	2,					// bNrChannels
-	0x03, 0x00,				// wChannelConfig, 0x0003 = Left & Right Front
-	0,					// iChannelNames
+	0x3a,                         // bCSourceID
+      USB_AUDIO_NO_CHANNELS_480,		// bNrChannels
+      LSB(CHANNEL_CONFIG_480),             // bmChannelConfig
+      MSB(CHANNEL_CONFIG_480),             // bmChannelConfig
+      (((CHANNEL_CONFIG_480) >> 16) & 255),// bmChannelConfig
+      (((CHANNEL_CONFIG_480) >> 24) & 255),// bmChannelConfig
+	0x00,                         // iChannelNames
+      0x00, 0x00,				// bmControls e.g. copy protect readable and writeable
 	0, 					// iTerminal
-	// Output Terminal Descriptor
-	// USB DCD for Audio Devices 1.0, Table 4-4, page 40
-	9,					// bLength
+	// UAC2: 
+      // Output Terminal Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.7.2.5, Table 4-10 page 53
+      12,					// bLength
 	0x24,					// bDescriptorType, 0x24 = CS_INTERFACE
 	3,					// bDescriptorSubtype, 3 = OUTPUT_TERMINAL
 	2,					// bTerminalID
 	0x01, 0x01,				// wTerminalType, 0x0101 = USB_STREAMING
 	0,					// bAssocTerminal, 0 = unidirectional
-	1,					// bCSourceID, connected to input terminal, ID=1
-	0,					// iTerminal
-	// Input Terminal Descriptor
-	// USB DCD for Audio Devices 1.0, Table 4-3, page 39
-	12,					// bLength
+	1,				      // bSourceID, connected to feature, ID=1
+	0x3a,					// bCSourceID
+      0,0,					// bmControls
+      0,					// iTerminal
+      // UAC2: 
+      // Input Terminal Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.7.2.4, Table 4-9 page 52-53
+      17,					// bLength
 	0x24,					// bDescriptorType, 0x24 = CS_INTERFACE
 	2,					// bDescriptorSubType, 2 = INPUT_TERMINAL
 	3,					// bTerminalID
 	0x01, 0x01,				// wTerminalType, 0x0101 = USB_STREAMING
 	0,					// bAssocTerminal, 0 = unidirectional
-	2,					// bNrChannels
-	0x03, 0x00,				// wChannelConfig, 0x0003 = Left & Right Front
-	0,					// iChannelNames
+	0x3a,                           // bCSourceID
+      USB_AUDIO_NO_CHANNELS_480,		// bNrChannels
+      LSB(CHANNEL_CONFIG_480),             // bmChannelConfig
+      MSB(CHANNEL_CONFIG_480),             // bmChannelConfig
+      (((CHANNEL_CONFIG_480) >> 16) & 255),// bmChannelConfig
+      (((CHANNEL_CONFIG_480) >> 24) & 255),// bmChannelConfig
+	0x00,                         // iChannelNames
+      0x00, 0x00,				// bmControls e.g.: copy protect readable and writeable
 	0, 					// iTerminal
-	// Volume feature descriptor
-	10,					// bLength
+	// UAC2: 
+      // Feature Unit Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.7.2.8, Table 4-13 page 58-59
+	FEATURE_UNIT_DESC_SIZE_480,	// bLength
 	0x24, 				// bDescriptorType = CS_INTERFACE
 	0x06, 				// bDescriptorSubType = FEATURE_UNIT
 	0x31, 				// bUnitID
 	0x03, 				// bSourceID (Input Terminal)
-	0x01, 				// bControlSize (each channel is 1 byte, 3 channels)
-	0x01, 				// bmaControls(0) Master: Mute
-	0x02, 				// bmaControls(1) Left: Volume
-	0x02, 				// bmaControls(2) Right: Volume
-	0x00,				// iFeature
-	// Output Terminal Descriptor
-	// USB DCD for Audio Devices 1.0, Table 4-4, page 40
-	9,					// bLength
+	15,0x00,0x00,0x00,		// bmaControls(0) Master: Mute   bit 0 and 1 + bit 2 + 3 (reading and writing master volume)
+	12,0x00,0x00,0x00,		// bmaControls(1) Left: Volume   bit 2 and 3   
+	12,0x00,0x00,0x00,		// bmaControls(2) Right: Volume  bit 2 and 3
+#if USB_AUDIO_NO_CHANNELS_480 > 2
+	12,0x00,0x00,0x00,		// bmaControls(1) channel 3: Volume   bit 2 and 3   
+	12,0x00,0x00,0x00,		// bmaControls(2) channel 4: Volume  bit 2 and 3
+#endif
+#if USB_AUDIO_NO_CHANNELS_480 > 4
+	12,0x00,0x00,0x00,		// bmaControls(1) channel 5: Volume   bit 2 and 3   
+	12,0x00,0x00,0x00,		// bmaControls(2) channel 6: Volume  bit 2 and 3
+#endif
+#if USB_AUDIO_NO_CHANNELS_480 > 6
+	12,0x00,0x00,0x00,		// bmaControls(1) channel 7: Volume   bit 2 and 3   
+	12,0x00,0x00,0x00,		// bmaControls(2) channel 8: Volume  bit 2 and 3
+#endif
+      0x00,				      // iFeature
+	// UAC2: 
+      // Output Terminal Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.7.2.5, Table 4-10 page 53
+      12,					// bLength
 	0x24,					// bDescriptorType, 0x24 = CS_INTERFACE
 	3,					// bDescriptorSubtype, 3 = OUTPUT_TERMINAL
 	4,					// bTerminalID
-	//0x02, 0x03,				// wTerminalType, 0x0302 = Headphones
-	0x02, 0x06,				// wTerminalType, 0x0602 = Digital Audio
+	0x02, 0x06,				// wTerminalType, 0x0602 = Digital Audio 
 	0,					// bAssocTerminal, 0 = unidirectional
-	0x31,				// bCSourceID, connected to feature, ID=31
-	0,					// iTerminal
-	// Standard AS Interface Descriptor
-	// USB DCD for Audio Devices 1.0, Section 4.5.1, Table 4-18, page 59
-	// Alternate 0: default setting, disabled zero bandwidth
+	0x31,				      // bSourceID, connected to feature, ID=31
+	0x3a,					// bCSourceID
+      0,0,					// bmControls
+      0,					// iTerminal
+	// UAC2: 
+      // Standard AS Interface Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.9.1, Table 4-26 page 75
+      // Alternate 0: default setting, disabled zero bandwidth
 	9,					// bLenght
 	4,					// bDescriptorType = INTERFACE
 	AUDIO_INTERFACE+1,			// bInterfaceNumber
@@ -1515,58 +1352,69 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 	0,					// bNumEndpoints
 	1,					// bInterfaceClass, 1 = AUDIO
 	2,					// bInterfaceSubclass, 2 = AUDIO_STREAMING
-	0,					// bInterfaceProtocol
+	0x20,					// bInterfaceProtocol IP_VERSION_02_00==0x20
 	0,					// iInterface
 	// Alternate 1: streaming data
 	9,					// bLenght
 	4,					// bDescriptorType = INTERFACE
-	AUDIO_INTERFACE+1,			// bInterfaceNumber
+	AUDIO_INTERFACE+1,		// bInterfaceNumber
 	1,					// bAlternateSetting
 	1,					// bNumEndpoints
 	1,					// bInterfaceClass, 1 = AUDIO
 	2,					// bInterfaceSubclass, 2 = AUDIO_STREAMING
-	0,					// bInterfaceProtocol
+	0x20,					// bInterfaceProtocol IP_VERSION_02_00==0x20
 	0,					// iInterface
-	// Class-Specific AS Interface Descriptor
-	// USB DCD for Audio Devices 1.0, Section 4.5.2, Table 4-19, page 60
-	7, 					// bLength
+	// UAC2: 
+      // Class-Specific AS Interface Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.9.2, Table 4-27 page 75-77
+      16, 					// bLength
 	0x24,					// bDescriptorType = CS_INTERFACE
 	1,					// bDescriptorSubtype, 1 = AS_GENERAL
 	2,					// bTerminalLink: Terminal ID = 2
-	3,					// bDelay (approx 3ms delay, audio lib updates)
-	0x01, 0x00,				// wFormatTag, 0x0001 = PCM
-	// Type I Format Descriptor
-	// USB DCD for Audio Data Formats 1.0, Section 2.2.5, Table 2-1, page 10
-	11,					// bLength
+	0,                            // bmControls
+      1,                            // bFormatType 1=FORMAT_TYPE_I
+      0x01, 0x00, 0x00, 0x00,       // bmFormats first bit: PCM
+      USB_AUDIO_NO_CHANNELS_480,           // bNrChannels
+      LSB(CHANNEL_CONFIG_480),             // bmChannelConfig
+      MSB(CHANNEL_CONFIG_480),             // bmChannelConfig
+      (((CHANNEL_CONFIG_480) >> 16) & 255),// bmChannelConfig
+      (((CHANNEL_CONFIG_480) >> 24) & 255),// bmChannelConfig
+      0,                            //iChannelNames   index of string descriptor at the bottom of the file
+      // UAC2: 
+      // Univeral Serial Bus Device Class Definition for Audio Data Formats 2.0, Section 2.3.1.6, Table 2-2, page 15-16
+      6,					// bLength
 	0x24,					// bDescriptorType = CS_INTERFACE
 	2,					// bDescriptorSubtype = FORMAT_TYPE
 	1,					// bFormatType = FORMAT_TYPE_I
-	2,					// bNrChannels = 2
-	2,					// bSubFrameSize = 2 byte
-	16,					// bBitResolution = 16 bits
-	1,					// bSamFreqType = 1 frequency
-	LSB(44100), MSB(44100), 0,		// tSamFreq
+	AUDIO_SUBSLOT_SIZE,		// bSubSlotSize = size of a single sample in bytes (e.g. 2 bytes for 16bit audio)
+	AUDIO_BITRESOLUTION,		// bBitResolution = 16 bits
+	// UAC2: 
 	// Standard AS Isochronous Audio Data Endpoint Descriptor
-	// USB DCD for Audio Devices 1.0, Section 4.6.1.1, Table 4-20, page 61-62
-	9, 					// bLength
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.10.1.1, Table 4-33 page 85-86
+	7, 					// bLength
 	5, 					// bDescriptorType, 5 = ENDPOINT_DESCRIPTOR
-	AUDIO_TX_ENDPOINT | 0x80,		// bEndpointAddress
-	0x09, 					// bmAttributes = isochronous, adaptive
-	LSB(AUDIO_TX_SIZE), MSB(AUDIO_TX_SIZE),	// wMaxPacketSize
-	4,			 		// bInterval, 4 = every 8 micro-frames
-	0,					// bRefresh
-	0,					// bSynchAddress
-	// Class-Specific AS Isochronous Audio Data Endpoint Descriptor
-	// USB DCD for Audio Devices 1.0, Section 4.6.1.2, Table 4-21, page 62-63
-	7,  					// bLength
+	AUDIO_TX_ENDPOINT | 0x80,			// bEndpointAddress (0x80 = 10000000 -> audio source)
+#ifdef ASYNC_TX_ENDPOINT
+	0x05, 				// bmAttributes, 0x09 = isochronous, adaptive, 0x05 = isochronous, asynchronous
+#elif
+      0x09,                         // bmAttributes, 0x09 = isochronous, adaptive, 0x05 = isochronous, asynchronous
+#endif
+	LSB(AUDIO_TX_SIZE_480), MSB(AUDIO_TX_SIZE_480),	// wMaxPacketSize
+	AUDIO_POLLING_INTERVAL_480,			 	// bInterval, 4 -> 2^(4-1)=8 -> every 8 micro-frames
+      // UAC2: 
+      // Class-Specific AS Isochronous Audio Data Endpoint Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.10.1.2, Table 4-34 page 86-87
+      8,  					// bLength
 	0x25,  					// bDescriptorType, 0x25 = CS_ENDPOINT
 	1,  					// bDescriptorSubtype, 1 = EP_GENERAL
 	0x00,  					// bmAttributes
+	0x00,  					// bmControls
 	0,  					// bLockDelayUnits, 1 = ms
 	0x00, 0x00,  				// wLockDelay
-	// Standard AS Interface Descriptor
-	// USB DCD for Audio Devices 1.0, Section 4.5.1, Table 4-18, page 59
-	// Alternate 0: default setting, disabled zero bandwidth
+	// UAC2: 
+      // Standard AS Interface Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.9.1, Table 4-26 page 75
+      // Alternate 0: default setting, disabled zero bandwidth
 	9,					// bLenght
 	4,					// bDescriptorType = INTERFACE
 	AUDIO_INTERFACE+2,			// bInterfaceNumber
@@ -1574,7 +1422,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 	0,					// bNumEndpoints
 	1,					// bInterfaceClass, 1 = AUDIO
 	2,					// bInterfaceSubclass, 2 = AUDIO_STREAMING
-	0,					// bInterfaceProtocol
+	0x20,					// bInterfaceProtocol IP_VERSION_02_00==0x20
 	0,					// iInterface
 	// Alternate 1: streaming data
 	9,					// bLenght
@@ -1584,56 +1432,286 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 	2,					// bNumEndpoints
 	1,					// bInterfaceClass, 1 = AUDIO
 	2,					// bInterfaceSubclass, 2 = AUDIO_STREAMING
-	0,					// bInterfaceProtocol
+	0x20,					// bInterfaceProtocol IP_VERSION_02_00==0x20
 	0,					// iInterface
-	// Class-Specific AS Interface Descriptor
-	// USB DCD for Audio Devices 1.0, Section 4.5.2, Table 4-19, page 60
-	7, 					// bLength
+	// UAC2: 
+      // Class-Specific AS Interface Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.9.2, Table 4-27 page 75-77
+      16, 					// bLength
 	0x24,					// bDescriptorType = CS_INTERFACE
 	1,					// bDescriptorSubtype, 1 = AS_GENERAL
 	3,					// bTerminalLink: Terminal ID = 3
-	3,					// bDelay (approx 3ms delay, audio lib updates)
-	0x01, 0x00,				// wFormatTag, 0x0001 = PCM
-	// Type I Format Descriptor
-	// USB DCD for Audio Data Formats 1.0, Section 2.2.5, Table 2-1, page 10
-	11,					// bLength
+	0,                            //bmControls
+      1,                            //bFormatType 1=FORMAT_TYPE_I
+      0x01, 0x00, 0x00, 0x00,       //bmFormats first bit: PCM
+ 	USB_AUDIO_NO_CHANNELS_480,           // bNrChannels
+      LSB(CHANNEL_CONFIG_480),             // bmChannelConfig
+      MSB(CHANNEL_CONFIG_480),             // bmChannelConfig
+      (((CHANNEL_CONFIG_480) >> 16) & 255),// bmChannelConfig
+      (((CHANNEL_CONFIG_480) >> 24) & 255),// bmChannelConfig
+      0,                                   //iChannelNames   index of string descriptor at the bottom of the file
+	// UAC2: 
+      // Univeral Serial Bus Device Class Definition for Audio Data Formats 2.0, Section 2.3.1.6, Table 2-2, page 15-16
+      6,					// bLength
 	0x24,					// bDescriptorType = CS_INTERFACE
 	2,					// bDescriptorSubtype = FORMAT_TYPE
 	1,					// bFormatType = FORMAT_TYPE_I
-	2,					// bNrChannels = 2
-	2,					// bSubFrameSize = 2 byte
-	16,					// bBitResolution = 16 bits
-	1,					// bSamFreqType = 1 frequency
-	LSB(44100), MSB(44100), 0,		// tSamFreq
-	// Standard AS Isochronous Audio Data Endpoint Descriptor
-	// USB DCD for Audio Devices 1.0, Section 4.6.1.1, Table 4-20, page 61-62
-	9, 					// bLength
+	AUDIO_SUBSLOT_SIZE,		// bSubSlotSize = size of a single sample in bytes (e.g. 2 bytes for 16bit audio)
+	AUDIO_BITRESOLUTION,		// bBitResolution = 16 bits
+	// UAC2: 
+      // Standard AS Isochronous Audio Data Endpoint Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.10.1.1, Table 4-33 page 85-86
+	7, 					// bLength
 	5, 					// bDescriptorType, 5 = ENDPOINT_DESCRIPTOR
-	AUDIO_RX_ENDPOINT,			// bEndpointAddress
+	AUDIO_RX_ENDPOINT | 0x00,		// bEndpointAddress  (0x00 = 00000000 -> audio sink)
 	0x05, 					// bmAttributes = isochronous, asynchronous
-	LSB(AUDIO_RX_SIZE), MSB(AUDIO_RX_SIZE),	// wMaxPacketSize
-	4,			 		// bInterval, 4 = every 8 micro-frames
-	0,					// bRefresh
-	AUDIO_SYNC_ENDPOINT | 0x80,		// bSynchAddress
-	// Class-Specific AS Isochronous Audio Data Endpoint Descriptor
-	// USB DCD for Audio Devices 1.0, Section 4.6.1.2, Table 4-21, page 62-63
-	7,  					// bLength
-	0x25,  					// bDescriptorType, 0x25 = CS_ENDPOINT
+	LSB(AUDIO_RX_SIZE_480), MSB(AUDIO_RX_SIZE_480),	// wMaxPacketSize
+	AUDIO_POLLING_INTERVAL_480,			 	// bInterval, 4 -> 2^(4-1)=8 -> every 8 micro-frames
+	// UAC2: 
+      // Class-Specific AS Isochronous Audio Data Endpoint Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.10.1.2, Table 4-34 page 86-87
+      8,  					// bLength
+	0x25,  				// bDescriptorType, 0x25 = CS_ENDPOINT
 	1,  					// bDescriptorSubtype, 1 = EP_GENERAL
-	0x00,  					// bmAttributes
+	0x00,  				// bmAttributes
+	0x00,  				// bmControls
 	0,  					// bLockDelayUnits, 1 = ms
-	0x00, 0x00,  				// wLockDelay
-	// Standard AS Isochronous Audio Synch Endpoint Descriptor
-	// USB DCD for Audio Devices 1.0, Section 4.6.2.1, Table 4-22, page 63-64
-	9, 					// bLength
+	0x00, 0x00,  			// wLockDelay
+	// UAC2: 
+      // Standard AS Isochronous Feedback Endpoint Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.10.2.1, Table 4-35 page 87-88
+      7, 					// bLength
 	5, 					// bDescriptorType, 5 = ENDPOINT_DESCRIPTOR
-	AUDIO_SYNC_ENDPOINT | 0x80,		// bEndpointAddress
+	AUDIO_SYNC_ENDPOINT | 0x80,		// bEndpointAddress, 0x80=10000000 -> IN endpoint
 	0x11, 					// bmAttributes = isochronous, feedback
 	4, 0,					// wMaxPacketSize, 4 bytes
-	4,			 		// bInterval, 4 = 4 = every 8 micro-frames
-	7,					// bRefresh,
-	0,					// bSynchAddress
+	AUDIO_POLLING_INTERVAL_480,		// bInterval, 4 -> 2^(4-1) = 8 -> every 8 micro-frames
 #endif
+
+#ifdef MIDI_INTERFACE
+	// configuration for 480 Mbit/sec speed
+        // Standard MS Interface Descriptor,
+        9,                                      // bLength
+        4,                                      // bDescriptorType
+        MIDI_INTERFACE,                         // bInterfaceNumber
+        0,                                      // bAlternateSetting
+        2,                                      // bNumEndpoints
+        0x01,                                   // bInterfaceClass (0x01 = Audio)
+        0x03,                                   // bInterfaceSubClass (0x03 = MIDI)
+        0x00,                                   // bInterfaceProtocol (unused for MIDI)
+        0,                                      // iInterface
+        // MIDI MS Interface Header, USB MIDI 6.1.2.1, page 21, Table 6-2
+        7,                                      // bLength
+        0x24,                                   // bDescriptorType = CS_INTERFACE
+        0x01,                                   // bDescriptorSubtype = MS_HEADER
+        0x00, 0x01,                             // bcdMSC = revision 01.00
+	LSB(7+(6+6+9+9)*MIDI_NUM_CABLES),       // wTotalLength
+	MSB(7+(6+6+9+9)*MIDI_NUM_CABLES),
+        // MIDI IN Jack Descriptor, B.4.3, Table B-7 (embedded), page 40
+        6,                                      // bLength
+        0x24,                                   // bDescriptorType = CS_INTERFACE
+        0x02,                                   // bDescriptorSubtype = MIDI_IN_JACK
+        0x01,                                   // bJackType = EMBEDDED
+        1,                                      // bJackID, ID = 1
+        0,                                      // iJack
+        // MIDI IN Jack Descriptor, B.4.3, Table B-8 (external), page 40
+        6,                                      // bLength
+        0x24,                                   // bDescriptorType = CS_INTERFACE
+        0x02,                                   // bDescriptorSubtype = MIDI_IN_JACK
+        0x02,                                   // bJackType = EXTERNAL
+        2,                                      // bJackID, ID = 2
+        0,                                      // iJack
+        // MIDI OUT Jack Descriptor, B.4.4, Table B-9, page 41
+        9,
+        0x24,                                   // bDescriptorType = CS_INTERFACE
+        0x03,                                   // bDescriptorSubtype = MIDI_OUT_JACK
+        0x01,                                   // bJackType = EMBEDDED
+        3,                                      // bJackID, ID = 3
+        1,                                      // bNrInputPins = 1 pin
+        2,                                      // BaSourceID(1) = 2
+        1,                                      // BaSourcePin(1) = first pin
+        0,                                      // iJack
+        // MIDI OUT Jack Descriptor, B.4.4, Table B-10, page 41
+        9,
+        0x24,                                   // bDescriptorType = CS_INTERFACE
+        0x03,                                   // bDescriptorSubtype = MIDI_OUT_JACK
+        0x02,                                   // bJackType = EXTERNAL
+        4,                                      // bJackID, ID = 4
+        1,                                      // bNrInputPins = 1 pin
+        1,                                      // BaSourceID(1) = 1
+        1,                                      // BaSourcePin(1) = first pin
+        0,                                      // iJack
+  #if MIDI_NUM_CABLES >= 2
+	#define MIDI_INTERFACE_JACK_PAIR(a, b, c, d) \
+		6, 0x24, 0x02, 0x01, (a), 0, \
+		6, 0x24, 0x02, 0x02, (b), 0, \
+		9, 0x24, 0x03, 0x01, (c), 1, (b), 1, 0, \
+		9, 0x24, 0x03, 0x02, (d), 1, (a), 1, 0,
+	MIDI_INTERFACE_JACK_PAIR(5, 6, 7, 8)
+  #endif
+  #if MIDI_NUM_CABLES >= 3
+	MIDI_INTERFACE_JACK_PAIR(9, 10, 11, 12)
+  #endif
+  #if MIDI_NUM_CABLES >= 4
+	MIDI_INTERFACE_JACK_PAIR(13, 14, 15, 16)
+  #endif
+  #if MIDI_NUM_CABLES >= 5
+	MIDI_INTERFACE_JACK_PAIR(17, 18, 19, 20)
+  #endif
+  #if MIDI_NUM_CABLES >= 6
+	MIDI_INTERFACE_JACK_PAIR(21, 22, 23, 24)
+  #endif
+  #if MIDI_NUM_CABLES >= 7
+	MIDI_INTERFACE_JACK_PAIR(25, 26, 27, 28)
+  #endif
+  #if MIDI_NUM_CABLES >= 8
+	MIDI_INTERFACE_JACK_PAIR(29, 30, 31, 32)
+  #endif
+  #if MIDI_NUM_CABLES >= 9
+	MIDI_INTERFACE_JACK_PAIR(33, 34, 35, 36)
+  #endif
+  #if MIDI_NUM_CABLES >= 10
+	MIDI_INTERFACE_JACK_PAIR(37, 38, 39, 40)
+  #endif
+  #if MIDI_NUM_CABLES >= 11
+	MIDI_INTERFACE_JACK_PAIR(41, 42, 43, 44)
+  #endif
+  #if MIDI_NUM_CABLES >= 12
+	MIDI_INTERFACE_JACK_PAIR(45, 46, 47, 48)
+  #endif
+  #if MIDI_NUM_CABLES >= 13
+	MIDI_INTERFACE_JACK_PAIR(49, 50, 51, 52)
+  #endif
+  #if MIDI_NUM_CABLES >= 14
+	MIDI_INTERFACE_JACK_PAIR(53, 54, 55, 56)
+  #endif
+  #if MIDI_NUM_CABLES >= 15
+	MIDI_INTERFACE_JACK_PAIR(57, 58, 59, 60)
+  #endif
+  #if MIDI_NUM_CABLES >= 16
+	MIDI_INTERFACE_JACK_PAIR(61, 62, 63, 64)
+  #endif
+        // Standard Bulk OUT Endpoint Descriptor, B.5.1, Table B-11, pae 42
+        9,                                      // bLength
+        5,                                      // bDescriptorType = ENDPOINT
+        MIDI_RX_ENDPOINT,                       // bEndpointAddress
+        0x02,                                   // bmAttributes (0x02=bulk)
+        LSB(MIDI_RX_SIZE_480),MSB(MIDI_RX_SIZE_480),// wMaxPacketSize
+        0,                                      // bInterval
+        0,                                      // bRefresh
+        0,                                      // bSynchAddress
+        // Class-specific MS Bulk OUT Endpoint Descriptor, B.5.2, Table B-12, page 42
+        4+MIDI_NUM_CABLES,                      // bLength
+        0x25,                                   // bDescriptorSubtype = CS_ENDPOINT
+        0x01,                                   // bJackType = MS_GENERAL
+        MIDI_NUM_CABLES,                        // bNumEmbMIDIJack = number of jacks
+        1,                                      // BaAssocJackID(1) = jack ID #1
+  #if MIDI_NUM_CABLES >= 2
+        5,
+  #endif
+  #if MIDI_NUM_CABLES >= 3
+        9,
+  #endif
+  #if MIDI_NUM_CABLES >= 4
+        13,
+  #endif
+  #if MIDI_NUM_CABLES >= 5
+        17,
+  #endif
+  #if MIDI_NUM_CABLES >= 6
+        21,
+  #endif
+  #if MIDI_NUM_CABLES >= 7
+        25,
+  #endif
+  #if MIDI_NUM_CABLES >= 8
+        29,
+  #endif
+  #if MIDI_NUM_CABLES >= 9
+        33,
+  #endif
+  #if MIDI_NUM_CABLES >= 10
+        37,
+  #endif
+  #if MIDI_NUM_CABLES >= 11
+        41,
+  #endif
+  #if MIDI_NUM_CABLES >= 12
+        45,
+  #endif
+  #if MIDI_NUM_CABLES >= 13
+        49,
+  #endif
+  #if MIDI_NUM_CABLES >= 14
+        53,
+  #endif
+  #if MIDI_NUM_CABLES >= 15
+        57,
+  #endif
+  #if MIDI_NUM_CABLES >= 16
+        61,
+  #endif
+        // Standard Bulk IN Endpoint Descriptor, B.5.1, Table B-11, pae 42
+        9,                                      // bLength
+        5,                                      // bDescriptorType = ENDPOINT
+        MIDI_TX_ENDPOINT | 0x80,                // bEndpointAddress
+        0x02,                                   // bmAttributes (0x02=bulk)
+        LSB(MIDI_TX_SIZE_480),MSB(MIDI_TX_SIZE_480),// wMaxPacketSize
+        0,                                      // bInterval
+        0,                                      // bRefresh
+        0,                                      // bSynchAddress
+        // Class-specific MS Bulk IN Endpoint Descriptor, B.5.2, Table B-12, page 42
+        4+MIDI_NUM_CABLES,                      // bLength
+        0x25,                                   // bDescriptorSubtype = CS_ENDPOINT
+        0x01,                                   // bJackType = MS_GENERAL
+        MIDI_NUM_CABLES,                        // bNumEmbMIDIJack = number of jacks
+        3,                                      // BaAssocJackID(1) = jack ID #3
+  #if MIDI_NUM_CABLES >= 2
+        7,
+  #endif
+  #if MIDI_NUM_CABLES >= 3
+        11,
+  #endif
+  #if MIDI_NUM_CABLES >= 4
+        15,
+  #endif
+  #if MIDI_NUM_CABLES >= 5
+        19,
+  #endif
+  #if MIDI_NUM_CABLES >= 6
+        23,
+  #endif
+  #if MIDI_NUM_CABLES >= 7
+        27,
+  #endif
+  #if MIDI_NUM_CABLES >= 8
+        31,
+  #endif
+  #if MIDI_NUM_CABLES >= 9
+        35,
+  #endif
+  #if MIDI_NUM_CABLES >= 10
+        39,
+  #endif
+  #if MIDI_NUM_CABLES >= 11
+        43,
+  #endif
+  #if MIDI_NUM_CABLES >= 12
+        47,
+  #endif
+  #if MIDI_NUM_CABLES >= 13
+        51,
+  #endif
+  #if MIDI_NUM_CABLES >= 14
+        55,
+  #endif
+  #if MIDI_NUM_CABLES >= 15
+        59,
+  #endif
+  #if MIDI_NUM_CABLES >= 16
+        63,
+  #endif
+#endif // MIDI_INTERFACE
 
 #ifdef MULTITOUCH_INTERFACE
 	// configuration for 480 Mbit/sec speed
@@ -1695,12 +1773,12 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
 };
 
 
-PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
+PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE_12] = {
         // configuration descriptor, USB spec 9.6.3, page 264-266, Table 9-10
         9,                                      // bLength;
         2,                                      // bDescriptorType;
-        LSB(CONFIG_DESC_SIZE),                 // wTotalLength
-        MSB(CONFIG_DESC_SIZE),
+        LSB(CONFIG_DESC_SIZE_12),                 // wTotalLength
+        MSB(CONFIG_DESC_SIZE_12),
         NUM_INTERFACE,                          // bNumInterfaces
         1,                                      // bConfigurationValue
         0,                                      // iConfiguration
@@ -1937,231 +2015,6 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
         CDC_TX_SIZE_12, 0,                      // wMaxPacketSize
         0,                                      // bInterval
 #endif // CDC3_DATA_INTERFACE
-
-#ifdef MIDI_INTERFACE
-	// configuration for 12 Mbit/sec speed
-        // Standard MS Interface Descriptor,
-        9,                                      // bLength
-        4,                                      // bDescriptorType
-        MIDI_INTERFACE,                         // bInterfaceNumber
-        0,                                      // bAlternateSetting
-        2,                                      // bNumEndpoints
-        0x01,                                   // bInterfaceClass (0x01 = Audio)
-        0x03,                                   // bInterfaceSubClass (0x03 = MIDI)
-        0x00,                                   // bInterfaceProtocol (unused for MIDI)
-        0,                                      // iInterface
-        // MIDI MS Interface Header, USB MIDI 6.1.2.1, page 21, Table 6-2
-        7,                                      // bLength
-        0x24,                                   // bDescriptorType = CS_INTERFACE
-        0x01,                                   // bDescriptorSubtype = MS_HEADER
-        0x00, 0x01,                             // bcdMSC = revision 01.00
-	LSB(7+(6+6+9+9)*MIDI_NUM_CABLES),       // wTotalLength
-	MSB(7+(6+6+9+9)*MIDI_NUM_CABLES),
-        // MIDI IN Jack Descriptor, B.4.3, Table B-7 (embedded), page 40
-        6,                                      // bLength
-        0x24,                                   // bDescriptorType = CS_INTERFACE
-        0x02,                                   // bDescriptorSubtype = MIDI_IN_JACK
-        0x01,                                   // bJackType = EMBEDDED
-        1,                                      // bJackID, ID = 1
-        0,                                      // iJack
-        // MIDI IN Jack Descriptor, B.4.3, Table B-8 (external), page 40
-        6,                                      // bLength
-        0x24,                                   // bDescriptorType = CS_INTERFACE
-        0x02,                                   // bDescriptorSubtype = MIDI_IN_JACK
-        0x02,                                   // bJackType = EXTERNAL
-        2,                                      // bJackID, ID = 2
-        0,                                      // iJack
-        // MIDI OUT Jack Descriptor, B.4.4, Table B-9, page 41
-        9,
-        0x24,                                   // bDescriptorType = CS_INTERFACE
-        0x03,                                   // bDescriptorSubtype = MIDI_OUT_JACK
-        0x01,                                   // bJackType = EMBEDDED
-        3,                                      // bJackID, ID = 3
-        1,                                      // bNrInputPins = 1 pin
-        2,                                      // BaSourceID(1) = 2
-        1,                                      // BaSourcePin(1) = first pin
-        0,                                      // iJack
-        // MIDI OUT Jack Descriptor, B.4.4, Table B-10, page 41
-        9,
-        0x24,                                   // bDescriptorType = CS_INTERFACE
-        0x03,                                   // bDescriptorSubtype = MIDI_OUT_JACK
-        0x02,                                   // bJackType = EXTERNAL
-        4,                                      // bJackID, ID = 4
-        1,                                      // bNrInputPins = 1 pin
-        1,                                      // BaSourceID(1) = 1
-        1,                                      // BaSourcePin(1) = first pin
-        0,                                      // iJack
-  #if MIDI_NUM_CABLES >= 2
-	#define MIDI_INTERFACE_JACK_PAIR(a, b, c, d) \
-		6, 0x24, 0x02, 0x01, (a), 0, \
-		6, 0x24, 0x02, 0x02, (b), 0, \
-		9, 0x24, 0x03, 0x01, (c), 1, (b), 1, 0, \
-		9, 0x24, 0x03, 0x02, (d), 1, (a), 1, 0,
-	MIDI_INTERFACE_JACK_PAIR(5, 6, 7, 8)
-  #endif
-  #if MIDI_NUM_CABLES >= 3
-	MIDI_INTERFACE_JACK_PAIR(9, 10, 11, 12)
-  #endif
-  #if MIDI_NUM_CABLES >= 4
-	MIDI_INTERFACE_JACK_PAIR(13, 14, 15, 16)
-  #endif
-  #if MIDI_NUM_CABLES >= 5
-	MIDI_INTERFACE_JACK_PAIR(17, 18, 19, 20)
-  #endif
-  #if MIDI_NUM_CABLES >= 6
-	MIDI_INTERFACE_JACK_PAIR(21, 22, 23, 24)
-  #endif
-  #if MIDI_NUM_CABLES >= 7
-	MIDI_INTERFACE_JACK_PAIR(25, 26, 27, 28)
-  #endif
-  #if MIDI_NUM_CABLES >= 8
-	MIDI_INTERFACE_JACK_PAIR(29, 30, 31, 32)
-  #endif
-  #if MIDI_NUM_CABLES >= 9
-	MIDI_INTERFACE_JACK_PAIR(33, 34, 35, 36)
-  #endif
-  #if MIDI_NUM_CABLES >= 10
-	MIDI_INTERFACE_JACK_PAIR(37, 38, 39, 40)
-  #endif
-  #if MIDI_NUM_CABLES >= 11
-	MIDI_INTERFACE_JACK_PAIR(41, 42, 43, 44)
-  #endif
-  #if MIDI_NUM_CABLES >= 12
-	MIDI_INTERFACE_JACK_PAIR(45, 46, 47, 48)
-  #endif
-  #if MIDI_NUM_CABLES >= 13
-	MIDI_INTERFACE_JACK_PAIR(49, 50, 51, 52)
-  #endif
-  #if MIDI_NUM_CABLES >= 14
-	MIDI_INTERFACE_JACK_PAIR(53, 54, 55, 56)
-  #endif
-  #if MIDI_NUM_CABLES >= 15
-	MIDI_INTERFACE_JACK_PAIR(57, 58, 59, 60)
-  #endif
-  #if MIDI_NUM_CABLES >= 16
-	MIDI_INTERFACE_JACK_PAIR(61, 62, 63, 64)
-  #endif
-        // Standard Bulk OUT Endpoint Descriptor, B.5.1, Table B-11, pae 42
-        9,                                      // bLength
-        5,                                      // bDescriptorType = ENDPOINT
-        MIDI_RX_ENDPOINT,                       // bEndpointAddress
-        0x02,                                   // bmAttributes (0x02=bulk)
-        LSB(MIDI_RX_SIZE_12),MSB(MIDI_RX_SIZE_12),// wMaxPacketSize
-        0,                                      // bInterval
-        0,                                      // bRefresh
-        0,                                      // bSynchAddress
-        // Class-specific MS Bulk OUT Endpoint Descriptor, B.5.2, Table B-12, page 42
-        4+MIDI_NUM_CABLES,                      // bLength
-        0x25,                                   // bDescriptorSubtype = CS_ENDPOINT
-        0x01,                                   // bJackType = MS_GENERAL
-        MIDI_NUM_CABLES,                        // bNumEmbMIDIJack = number of jacks
-        1,                                      // BaAssocJackID(1) = jack ID #1
-  #if MIDI_NUM_CABLES >= 2
-        5,
-  #endif
-  #if MIDI_NUM_CABLES >= 3
-        9,
-  #endif
-  #if MIDI_NUM_CABLES >= 4
-        13,
-  #endif
-  #if MIDI_NUM_CABLES >= 5
-        17,
-  #endif
-  #if MIDI_NUM_CABLES >= 6
-        21,
-  #endif
-  #if MIDI_NUM_CABLES >= 7
-        25,
-  #endif
-  #if MIDI_NUM_CABLES >= 8
-        29,
-  #endif
-  #if MIDI_NUM_CABLES >= 9
-        33,
-  #endif
-  #if MIDI_NUM_CABLES >= 10
-        37,
-  #endif
-  #if MIDI_NUM_CABLES >= 11
-        41,
-  #endif
-  #if MIDI_NUM_CABLES >= 12
-        45,
-  #endif
-  #if MIDI_NUM_CABLES >= 13
-        49,
-  #endif
-  #if MIDI_NUM_CABLES >= 14
-        53,
-  #endif
-  #if MIDI_NUM_CABLES >= 15
-        57,
-  #endif
-  #if MIDI_NUM_CABLES >= 16
-        61,
-  #endif
-        // Standard Bulk IN Endpoint Descriptor, B.5.1, Table B-11, pae 42
-        9,                                      // bLength
-        5,                                      // bDescriptorType = ENDPOINT
-        MIDI_TX_ENDPOINT | 0x80,                // bEndpointAddress
-        0x02,                                   // bmAttributes (0x02=bulk)
-        LSB(MIDI_TX_SIZE_12),MSB(MIDI_TX_SIZE_12),// wMaxPacketSize
-        0,                                      // bInterval
-        0,                                      // bRefresh
-        0,                                      // bSynchAddress
-        // Class-specific MS Bulk IN Endpoint Descriptor, B.5.2, Table B-12, page 42
-        4+MIDI_NUM_CABLES,                      // bLength
-        0x25,                                   // bDescriptorSubtype = CS_ENDPOINT
-        0x01,                                   // bJackType = MS_GENERAL
-        MIDI_NUM_CABLES,                        // bNumEmbMIDIJack = number of jacks
-        3,                                      // BaAssocJackID(1) = jack ID #3
-  #if MIDI_NUM_CABLES >= 2
-        7,
-  #endif
-  #if MIDI_NUM_CABLES >= 3
-        11,
-  #endif
-  #if MIDI_NUM_CABLES >= 4
-        15,
-  #endif
-  #if MIDI_NUM_CABLES >= 5
-        19,
-  #endif
-  #if MIDI_NUM_CABLES >= 6
-        23,
-  #endif
-  #if MIDI_NUM_CABLES >= 7
-        27,
-  #endif
-  #if MIDI_NUM_CABLES >= 8
-        31,
-  #endif
-  #if MIDI_NUM_CABLES >= 9
-        35,
-  #endif
-  #if MIDI_NUM_CABLES >= 10
-        39,
-  #endif
-  #if MIDI_NUM_CABLES >= 11
-        43,
-  #endif
-  #if MIDI_NUM_CABLES >= 12
-        47,
-  #endif
-  #if MIDI_NUM_CABLES >= 13
-        51,
-  #endif
-  #if MIDI_NUM_CABLES >= 14
-        55,
-  #endif
-  #if MIDI_NUM_CABLES >= 15
-        59,
-  #endif
-  #if MIDI_NUM_CABLES >= 16
-        63,
-  #endif
-#endif // MIDI_INTERFACE
 
 #ifdef KEYBOARD_INTERFACE
 	// configuration for 12 Mbit/sec speed
@@ -2430,98 +2283,140 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 #endif // KEYMEDIA_INTERFACE
 
 #ifdef AUDIO_INTERFACE
-	// configuration for 12 Mbit/sec speed
-        // interface association descriptor, USB ECN, Table 9-Z
+	// UAC2: 
+      // Standard Interface Association Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.6, Table 4-3 page 46
         8,                                      // bLength
         11,                                     // bDescriptorType
         AUDIO_INTERFACE,                        // bFirstInterface
         3,                                      // bInterfaceCount
         0x01,                                   // bFunctionClass
-        0x01,                                   // bFunctionSubClass
-        0x00,                                   // bFunctionProtocol
+        0x00,                                   // bFunctionSubClass, 0x00 = FUNCTION_SUBCLASS_UNDEFINED
+        0x20,                                   // bFunctionProtocol 0x20 = IP_VERSION_02_00 = AF_VERSION_02_00
         0,                                      // iFunction
-	// Standard AudioControl (AC) Interface Descriptor
-	// USB DCD for Audio Devices 1.0, Table 4-1, page 36
-	9,					// bLength
+	// UAC2: 
+      // Standard AudioControl (AC) Interface Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.7.1, Table 4-4 page 47
+      9,					// bLength
 	4,					// bDescriptorType, 4 = INTERFACE
 	AUDIO_INTERFACE,			// bInterfaceNumber
 	0,					// bAlternateSetting
 	0,					// bNumEndpoints
 	1,					// bInterfaceClass, 1 = AUDIO
 	1,					// bInterfaceSubclass, 1 = AUDIO_CONTROL
-	0,					// bInterfaceProtocol
+	0x20,					// bInterfaceProtocol, IP_VERSION_02_00==0x20
 	0,					// iInterface
-	// Class-specific AC Interface Header Descriptor
-	// USB DCD for Audio Devices 1.0, Table 4-2, page 37-38
-	10,					// bLength
+	// UAC2: 
+      // Input Terminal Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.7.2, Table 4-5 page 48-49
+      9,					// bLength
 	0x24,					// bDescriptorType, 0x24 = CS_INTERFACE
 	0x01,					// bDescriptorSubtype, 1 = HEADER
-	0x00, 0x01,				// bcdADC (version 1.0)
-	LSB(62), MSB(62),			// wTotalLength
-	2,					// bInCollection
-	AUDIO_INTERFACE+1,			// baInterfaceNr(1) - Transmit to PC
-	AUDIO_INTERFACE+2,			// baInterfaceNr(2) - Receive from PC
-	// Input Terminal Descriptor
-	// USB DCD for Audio Devices 1.0, Table 4-3, page 39
-	12,					// bLength
+	0x00, 0x02,				// bcdADC (version 2.0)
+      0xff,                         // bCategory 0xff = other
+      LSB(75+FEATURE_UNIT_DESC_SIZE_12), MSB(75+FEATURE_UNIT_DESC_SIZE_12),// wTotalLength: size of this descriptor + all input and output and feature unit descriptors + clock sources
+      0,                            // bmControls
+	// UAC2: 
+      // Clock Source Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.7.2.1, Table 4-9 page 49-50
+      8,					// bLength
 	0x24,					// bDescriptorType, 0x24 = CS_INTERFACE
-	0x02,					// bDescriptorSubType, 2 = INPUT_TERMINAL
+	0x0a,					// bDescriptorSubType, 2 = CLOCK_SOURCE
+	0x3a,					// bClockID
+	0x01, 				// Internal fixed clock, not synchronized to SOF
+	1 | 4,			      // bmControls: 1: clock frequency control is read only, 4 clock validity control is read only 
+	0,                            // bAssocTerminal
+      0,		                  // iClockSource
+	// UAC2: 
+	// Input Terminal Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.7.2.4, Table 4-9 page 52-53
+      17,					// bLength
+	0x24,					// bDescriptorType, 0x24 = CS_INTERFACE
+	2,					// bDescriptorSubType, 2 = INPUT_TERMINAL
 	1,					// bTerminalID
-	//0x01, 0x02,				// wTerminalType, 0x0201 = MICROPHONE
-	//0x03, 0x06,				// wTerminalType, 0x0603 = Line Connector
 	0x02, 0x06,				// wTerminalType, 0x0602 = Digital Audio
 	0,					// bAssocTerminal, 0 = unidirectional
-	2,					// bNrChannels
-	0x03, 0x00,				// wChannelConfig, 0x0003 = Left & Right Front
-	0,					// iChannelNames
+	0x3a,                            // bCSourceID
+      USB_AUDIO_NO_CHANNELS_12,		// bNrChannels
+      LSB(CHANNEL_CONFIG_12),             // bmChannelConfig
+      MSB(CHANNEL_CONFIG_12),             // bmChannelConfig
+      (((CHANNEL_CONFIG_12) >> 16) & 255),// bmChannelConfig
+      (((CHANNEL_CONFIG_12) >> 24) & 255),// bmChannelConfig
+	0x00,                         // iChannelNames
+      0x00, 0x00,				// bmControls     //Todo: do we need to set copy protect
 	0, 					// iTerminal
-	// Output Terminal Descriptor
-	// USB DCD for Audio Devices 1.0, Table 4-4, page 40
-	9,					// bLength
+	// UAC2: 
+      // Output Terminal Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.7.2.5, Table 4-10 page 53
+      12,					// bLength
 	0x24,					// bDescriptorType, 0x24 = CS_INTERFACE
 	3,					// bDescriptorSubtype, 3 = OUTPUT_TERMINAL
 	2,					// bTerminalID
 	0x01, 0x01,				// wTerminalType, 0x0101 = USB_STREAMING
 	0,					// bAssocTerminal, 0 = unidirectional
-	1,					// bCSourceID, connected to input terminal, ID=1
-	0,					// iTerminal
-	// Input Terminal Descriptor
-	// USB DCD for Audio Devices 1.0, Table 4-3, page 39
-	12,					// bLength
+	1,				      // bSourceID, connected to feature, ID=31
+	0x3a,					// bCSourceID
+      0,0,					// bmControls
+      0,					// iTerminal
+	// UAC2: 
+      // Input Terminal Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.7.2.4, Table 4-9 page 52-53
+      17,					// bLength
 	0x24,					// bDescriptorType, 0x24 = CS_INTERFACE
 	2,					// bDescriptorSubType, 2 = INPUT_TERMINAL
 	3,					// bTerminalID
 	0x01, 0x01,				// wTerminalType, 0x0101 = USB_STREAMING
 	0,					// bAssocTerminal, 0 = unidirectional
-	2,					// bNrChannels
-	0x03, 0x00,				// wChannelConfig, 0x0003 = Left & Right Front
-	0,					// iChannelNames
+	0x3a,                         // bCSourceID
+      USB_AUDIO_NO_CHANNELS_12,		// bNrChannels
+      LSB(CHANNEL_CONFIG_12),             // bmChannelConfig
+      MSB(CHANNEL_CONFIG_12),             // bmChannelConfig
+      (((CHANNEL_CONFIG_12) >> 16) & 255),// bmChannelConfig
+      (((CHANNEL_CONFIG_12) >> 24) & 255),// bmChannelConfig
+	0x00,                         // iChannelNames
+      0x00, 0x00,				// bmControls
 	0, 					// iTerminal
-	// Volume feature descriptor
-	10,					// bLength
+	// UAC2: 
+      // Feature Unit Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.7.2.8, Table 4-13 page 58-59
+	FEATURE_UNIT_DESC_SIZE_12,	// bLength
 	0x24, 				// bDescriptorType = CS_INTERFACE
 	0x06, 				// bDescriptorSubType = FEATURE_UNIT
 	0x31, 				// bUnitID
 	0x03, 				// bSourceID (Input Terminal)
-	0x01, 				// bControlSize (each channel is 1 byte, 3 channels)
-	0x01, 				// bmaControls(0) Master: Mute
-	0x02, 				// bmaControls(1) Left: Volume
-	0x02, 				// bmaControls(2) Right: Volume
-	0x00,				// iFeature
-	// Output Terminal Descriptor
-	// USB DCD for Audio Devices 1.0, Table 4-4, page 40
-	9,					// bLength
+      15,0x00,0x00,0x00,		// bmaControls(0) Master: Mute   bit 0 and 1 + bit 2 + 3 (reading and writing master volume)
+	12,0x00,0x00,0x00,		// bmaControls(1) Left: Volume   bit 2 and 3   
+	12,0x00,0x00,0x00,		// bmaControls(2) Right: Volume  bit 2 and 3
+      #if USB_AUDIO_NO_CHANNELS_12 > 2
+            12,0x00,0x00,0x00,		// bmaControls(1) channel 3: Volume   bit 2 and 3   
+            12,0x00,0x00,0x00,		// bmaControls(2) channel 4: Volume  bit 2 and 3
+      #endif
+      #if USB_AUDIO_NO_CHANNELS_12 > 4
+            12,0x00,0x00,0x00,		// bmaControls(1) channel 5: Volume   bit 2 and 3   
+            12,0x00,0x00,0x00,		// bmaControls(2) channel 6: Volume  bit 2 and 3
+      #endif
+      #if USB_AUDIO_NO_CHANNELS_12 > 6
+            12,0x00,0x00,0x00,		// bmaControls(1) channel 7: Volume   bit 2 and 3   
+            12,0x00,0x00,0x00,		// bmaControls(2) channel 8: Volume  bit 2 and 3
+      #endif
+      0x00,				      // iFeature
+	// UAC2: 
+      // Output Terminal Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.7.2.5, Table 4-10 page 53
+      12,					// bLength
 	0x24,					// bDescriptorType, 0x24 = CS_INTERFACE
 	3,					// bDescriptorSubtype, 3 = OUTPUT_TERMINAL
 	4,					// bTerminalID
-	//0x02, 0x03,				// wTerminalType, 0x0302 = Headphones
 	0x02, 0x06,				// wTerminalType, 0x0602 = Digital Audio
 	0,					// bAssocTerminal, 0 = unidirectional
-	0x31,				// bCSourceID, connected to feature, ID=31
-	0,					// iTerminal
-	// Standard AS Interface Descriptor
-	// USB DCD for Audio Devices 1.0, Section 4.5.1, Table 4-18, page 59
-	// Alternate 0: default setting, disabled zero bandwidth
+	0x31,				      // bSourceID, connected to feature, ID=31
+	0x3a,					// bCSourceID
+      0,0,					// bmControls
+      0,					// iTerminal
+	// UAC2: 
+      // Standard AS Interface Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.9.1, Table 4-26 page 75
+      // Alternate 0: default setting, disabled zero bandwidth
 	9,					// bLenght
 	4,					// bDescriptorType = INTERFACE
 	AUDIO_INTERFACE+1,			// bInterfaceNumber
@@ -2529,7 +2424,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 	0,					// bNumEndpoints
 	1,					// bInterfaceClass, 1 = AUDIO
 	2,					// bInterfaceSubclass, 2 = AUDIO_STREAMING
-	0,					// bInterfaceProtocol
+	0x20,					// bInterfaceProtocol IP_VERSION_02_00==0x20
 	0,					// iInterface
 	// Alternate 1: streaming data
 	9,					// bLenght
@@ -2539,48 +2434,59 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 	1,					// bNumEndpoints
 	1,					// bInterfaceClass, 1 = AUDIO
 	2,					// bInterfaceSubclass, 2 = AUDIO_STREAMING
-	0,					// bInterfaceProtocol
+	0x20,					// bInterfaceProtocol IP_VERSION_02_00==0x20
 	0,					// iInterface
+	// UAC2: 
 	// Class-Specific AS Interface Descriptor
-	// USB DCD for Audio Devices 1.0, Section 4.5.2, Table 4-19, page 60
-	7, 					// bLength
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.9.2, Table 4-27 page 75-77
+      16, 					// bLength
 	0x24,					// bDescriptorType = CS_INTERFACE
 	1,					// bDescriptorSubtype, 1 = AS_GENERAL
 	2,					// bTerminalLink: Terminal ID = 2
-	3,					// bDelay (approx 3ms delay, audio lib updates)
-	0x01, 0x00,				// wFormatTag, 0x0001 = PCM
-	// Type I Format Descriptor
-	// USB DCD for Audio Data Formats 1.0, Section 2.2.5, Table 2-1, page 10
-	11,					// bLength
+	0,                            //bmControls
+      1,                            //bFormatType 1=FORMAT_TYPE_I
+      0x01, 0x00, 0x00, 0x00,       //bmFormats first bit: PCM
+ 	USB_AUDIO_NO_CHANNELS_12,           // bNrChannels
+      LSB(CHANNEL_CONFIG_12),             // bmChannelConfig
+      MSB(CHANNEL_CONFIG_12),             // bmChannelConfig
+      (((CHANNEL_CONFIG_12) >> 16) & 255),// bmChannelConfig
+      (((CHANNEL_CONFIG_12) >> 24) & 255),// bmChannelConfig
+      0,                                  // iChannelNames   index of string descriptor at the bottom of the file
+	// UAC2: 
+      // Univeral Serial Bus Device Class Definition for Audio Data Formats 2.0, Section 2.3.1.6, Table 2-2, page 15-16
+      6,					// bLength
 	0x24,					// bDescriptorType = CS_INTERFACE
 	2,					// bDescriptorSubtype = FORMAT_TYPE
 	1,					// bFormatType = FORMAT_TYPE_I
-	2,					// bNrChannels = 2
-	2,					// bSubFrameSize = 2 byte
-	16,					// bBitResolution = 16 bits
-	1,					// bSamFreqType = 1 frequency
-	LSB(44100), MSB(44100), 0,		// tSamFreq
+	AUDIO_SUBSLOT_SIZE,		// bSubSlotSize = size of a single sample in bytes (e.g. 2 bytes for 16bit audio)
+	AUDIO_BITRESOLUTION,		// bBitResolution = 16 bits
+	// UAC2: 
 	// Standard AS Isochronous Audio Data Endpoint Descriptor
-	// USB DCD for Audio Devices 1.0, Section 4.6.1.1, Table 4-20, page 61-62
-	9, 					// bLength
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.10.1.1, Table 4-33 page 85-86
+	7, 					// bLength
 	5, 					// bDescriptorType, 5 = ENDPOINT_DESCRIPTOR
-	AUDIO_TX_ENDPOINT | 0x80,		// bEndpointAddress
-	0x09, 					// bmAttributes = isochronous, adaptive
-	LSB(AUDIO_TX_SIZE), MSB(AUDIO_TX_SIZE),	// wMaxPacketSize
-	1,			 		// bInterval, 1 = every frame
-	0,					// bRefresh
-	0,					// bSynchAddress
-	// Class-Specific AS Isochronous Audio Data Endpoint Descriptor
-	// USB DCD for Audio Devices 1.0, Section 4.6.1.2, Table 4-21, page 62-63
-	7,  					// bLength
-	0x25,  					// bDescriptorType, 0x25 = CS_ENDPOINT
+	AUDIO_TX_ENDPOINT | 0x80,	// bEndpointAddress (0x80 = 10000000 -> audio source)
+#ifdef ASYNC_TX_ENDPOINT
+	0x05, 				// bmAttributes, 0x09 = isochronous, adaptive, 0x05 = isochronous, asynchronous
+#elif
+      0x09,                         // bmAttributes, 0x09 = isochronous, adaptive, 0x05 = isochronous, asynchronous
+#endif 
+	LSB(AUDIO_TX_SIZE_12), MSB(AUDIO_TX_SIZE_12),	// wMaxPacketSize
+	AUDIO_POLLING_INTERVAL_12,			 	// bInterval 1...255 for full and low speed endpoints
+	// UAC2: 
+      // Class-Specific AS Isochronous Audio Data Endpoint Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.10.1.2, Table 4-34 page 86-87
+      8,  					// bLength
+	0x25,  				// bDescriptorType, 0x25 = CS_ENDPOINT
 	1,  					// bDescriptorSubtype, 1 = EP_GENERAL
-	0x00,  					// bmAttributes
+	0x00,  				// bmAttributes
+	0x00,  				// bmControls
 	0,  					// bLockDelayUnits, 1 = ms
-	0x00, 0x00,  				// wLockDelay
-	// Standard AS Interface Descriptor
-	// USB DCD for Audio Devices 1.0, Section 4.5.1, Table 4-18, page 59
-	// Alternate 0: default setting, disabled zero bandwidth
+	0x00, 0x00,  			// wLockDelay
+	// UAC2: 
+      // Standard AS Interface Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.9.1, Table 4-26 page 75
+      // Alternate 0: default setting, disabled zero bandwidth
 	9,					// bLenght
 	4,					// bDescriptorType = INTERFACE
 	AUDIO_INTERFACE+2,			// bInterfaceNumber
@@ -2588,7 +2494,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 	0,					// bNumEndpoints
 	1,					// bInterfaceClass, 1 = AUDIO
 	2,					// bInterfaceSubclass, 2 = AUDIO_STREAMING
-	0,					// bInterfaceProtocol
+	0x20,					// bInterfaceProtocol IP_VERSION_02_00==0x20
 	0,					// iInterface
 	// Alternate 1: streaming data
 	9,					// bLenght
@@ -2598,57 +2504,286 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 	2,					// bNumEndpoints
 	1,					// bInterfaceClass, 1 = AUDIO
 	2,					// bInterfaceSubclass, 2 = AUDIO_STREAMING
-	0,					// bInterfaceProtocol
+	0x20,					// bInterfaceProtocol IP_VERSION_02_00==0x20
 	0,					// iInterface
-	// Class-Specific AS Interface Descriptor
-	// USB DCD for Audio Devices 1.0, Section 4.5.2, Table 4-19, page 60
-	7, 					// bLength
+	// UAC2: 
+      // Class-Specific AS Interface Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.9.2, Table 4-27 page 75-77
+      16, 					// bLength
 	0x24,					// bDescriptorType = CS_INTERFACE
 	1,					// bDescriptorSubtype, 1 = AS_GENERAL
 	3,					// bTerminalLink: Terminal ID = 3
-	3,					// bDelay (approx 3ms delay, audio lib updates)
-	0x01, 0x00,				// wFormatTag, 0x0001 = PCM
-	// Type I Format Descriptor
-	// USB DCD for Audio Data Formats 1.0, Section 2.2.5, Table 2-1, page 10
-	11,					// bLength
+	0,                            //bmControls
+      1,                            //bFormatType 1=FORMAT_TYPE_I
+      0x01, 0x00, 0x00, 0x00,       //bmFormats first bit: PCM
+ 	USB_AUDIO_NO_CHANNELS_12,           // bNrChannels
+      LSB(CHANNEL_CONFIG_12),             // bmChannelConfig
+      MSB(CHANNEL_CONFIG_12),             // bmChannelConfig
+      (((CHANNEL_CONFIG_12) >> 16) & 255),// bmChannelConfig
+      (((CHANNEL_CONFIG_12) >> 24) & 255),// bmChannelConfig
+      0,                                  //iChannelNames   index of string descriptor at the bottom of the file
+	// UAC2: 
+      // Univeral Serial Bus Device Class Definition for Audio Data Formats 2.0, Section 2.3.1.6, Table 2-2, page 15-16
+      6,					// bLength
 	0x24,					// bDescriptorType = CS_INTERFACE
 	2,					// bDescriptorSubtype = FORMAT_TYPE
 	1,					// bFormatType = FORMAT_TYPE_I
-	2,					// bNrChannels = 2
-	2,					// bSubFrameSize = 2 byte
-	16,					// bBitResolution = 16 bits
-	1,					// bSamFreqType = 1 frequency
-	LSB(44100), MSB(44100), 0,		// tSamFreq
+	AUDIO_SUBSLOT_SIZE,		// bSubSlotSize = size of a single sample in bytes (e.g. 2 bytes for 16bit audio)
+	AUDIO_BITRESOLUTION,		// bBitResolution = 16 bits
+	// UAC2: 
 	// Standard AS Isochronous Audio Data Endpoint Descriptor
-	// USB DCD for Audio Devices 1.0, Section 4.6.1.1, Table 4-20, page 61-62
-	9, 					// bLength
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.10.1.1, Table 4-33 page 85-86
+	7, 					// bLength
 	5, 					// bDescriptorType, 5 = ENDPOINT_DESCRIPTOR
-	AUDIO_RX_ENDPOINT,			// bEndpointAddress
-	0x05, 					// bmAttributes = isochronous, asynchronous
-	LSB(AUDIO_RX_SIZE), MSB(AUDIO_RX_SIZE),	// wMaxPacketSize
-	1,			 		// bInterval, 1 = every frame
-	0,					// bRefresh
-	AUDIO_SYNC_ENDPOINT | 0x80,		// bSynchAddress
-	// Class-Specific AS Isochronous Audio Data Endpoint Descriptor
-	// USB DCD for Audio Devices 1.0, Section 4.6.1.2, Table 4-21, page 62-63
-	7,  					// bLength
-	0x25,  					// bDescriptorType, 0x25 = CS_ENDPOINT
+	AUDIO_RX_ENDPOINT | 0x00,	// bEndpointAddress  (0x00 = 00000000 -> audio sink)
+	0x05, 				// bmAttributes = isochronous, asynchronous
+	LSB(AUDIO_RX_SIZE_12), MSB(AUDIO_RX_SIZE_12),	// wMaxPacketSize
+	AUDIO_POLLING_INTERVAL_12,			 	// bInterval 1...255 for full and low speed endpoints
+	// UAC2: 
+      // Class-Specific AS Isochronous Audio Data Endpoint Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.10.1.2, Table 4-34 page 86-87
+      8,  					// bLength
+	0x25,  				// bDescriptorType, 0x25 = CS_ENDPOINT
 	1,  					// bDescriptorSubtype, 1 = EP_GENERAL
-	0x00,  					// bmAttributes
+	0x00,  				// bmAttributes
+	0x00,  				// bmControls
 	0,  					// bLockDelayUnits, 1 = ms
-	0x00, 0x00,  				// wLockDelay
-	// Standard AS Isochronous Audio Synch Endpoint Descriptor
-	// USB DCD for Audio Devices 1.0, Section 4.6.2.1, Table 4-22, page 63-64
-	9, 					// bLength
+	0x00, 0x00,  			// wLockDelay
+	// UAC2: 
+      // Standard AS Isochronous Feedback Endpoint Descriptor
+      // Universal Serial Bus Device Class Definition for Audio Devices 2.0, Section 4.10.2.1, Table 4-35 page 87-88
+      7, 					// bLength
 	5, 					// bDescriptorType, 5 = ENDPOINT_DESCRIPTOR
-	AUDIO_SYNC_ENDPOINT | 0x80,		// bEndpointAddress
-	0x11, 					// bmAttributes = isochronous, feedback
-	3, 0,					// wMaxPacketSize, 3 bytes
-	1,			 		// bInterval, 1 = every frame
-	5,					// bRefresh, 5 = 32ms
-	0,					// bSynchAddress
+	AUDIO_SYNC_ENDPOINT | 0x80,	// bEndpointAddress, 0x80=10000000 -> IN endpoint
+	0x11, 				// bmAttributes = isochronous, feedback
+	4, 0,					// wMaxPacketSize, 4 bytes
+	AUDIO_POLLING_INTERVAL_12,	// bInterval 1...255 for full and low speed endpoints
 #endif
 
+#ifdef MIDI_INTERFACE
+	// configuration for 12 Mbit/sec speed
+        // Standard MS Interface Descriptor,
+        9,                                      // bLength
+        4,                                      // bDescriptorType
+        MIDI_INTERFACE,                         // bInterfaceNumber
+        0,                                      // bAlternateSetting
+        2,                                      // bNumEndpoints
+        0x01,                                   // bInterfaceClass (0x01 = Audio)
+        0x03,                                   // bInterfaceSubClass (0x03 = MIDI)
+        0x00,                                   // bInterfaceProtocol (unused for MIDI)
+        0,                                      // iInterface
+        // MIDI MS Interface Header, USB MIDI 6.1.2.1, page 21, Table 6-2
+        7,                                      // bLength
+        0x24,                                   // bDescriptorType = CS_INTERFACE
+        0x01,                                   // bDescriptorSubtype = MS_HEADER
+        0x00, 0x01,                             // bcdMSC = revision 01.00
+	LSB(7+(6+6+9+9)*MIDI_NUM_CABLES),       // wTotalLength
+	MSB(7+(6+6+9+9)*MIDI_NUM_CABLES),
+        // MIDI IN Jack Descriptor, B.4.3, Table B-7 (embedded), page 40
+        6,                                      // bLength
+        0x24,                                   // bDescriptorType = CS_INTERFACE
+        0x02,                                   // bDescriptorSubtype = MIDI_IN_JACK
+        0x01,                                   // bJackType = EMBEDDED
+        1,                                      // bJackID, ID = 1
+        0,                                      // iJack
+        // MIDI IN Jack Descriptor, B.4.3, Table B-8 (external), page 40
+        6,                                      // bLength
+        0x24,                                   // bDescriptorType = CS_INTERFACE
+        0x02,                                   // bDescriptorSubtype = MIDI_IN_JACK
+        0x02,                                   // bJackType = EXTERNAL
+        2,                                      // bJackID, ID = 2
+        0,                                      // iJack
+        // MIDI OUT Jack Descriptor, B.4.4, Table B-9, page 41
+        9,
+        0x24,                                   // bDescriptorType = CS_INTERFACE
+        0x03,                                   // bDescriptorSubtype = MIDI_OUT_JACK
+        0x01,                                   // bJackType = EMBEDDED
+        3,                                      // bJackID, ID = 3
+        1,                                      // bNrInputPins = 1 pin
+        2,                                      // BaSourceID(1) = 2
+        1,                                      // BaSourcePin(1) = first pin
+        0,                                      // iJack
+        // MIDI OUT Jack Descriptor, B.4.4, Table B-10, page 41
+        9,
+        0x24,                                   // bDescriptorType = CS_INTERFACE
+        0x03,                                   // bDescriptorSubtype = MIDI_OUT_JACK
+        0x02,                                   // bJackType = EXTERNAL
+        4,                                      // bJackID, ID = 4
+        1,                                      // bNrInputPins = 1 pin
+        1,                                      // BaSourceID(1) = 1
+        1,                                      // BaSourcePin(1) = first pin
+        0,                                      // iJack
+  #if MIDI_NUM_CABLES >= 2
+	#define MIDI_INTERFACE_JACK_PAIR(a, b, c, d) \
+		6, 0x24, 0x02, 0x01, (a), 0, \
+		6, 0x24, 0x02, 0x02, (b), 0, \
+		9, 0x24, 0x03, 0x01, (c), 1, (b), 1, 0, \
+		9, 0x24, 0x03, 0x02, (d), 1, (a), 1, 0,
+	MIDI_INTERFACE_JACK_PAIR(5, 6, 7, 8)
+  #endif
+  #if MIDI_NUM_CABLES >= 3
+	MIDI_INTERFACE_JACK_PAIR(9, 10, 11, 12)
+  #endif
+  #if MIDI_NUM_CABLES >= 4
+	MIDI_INTERFACE_JACK_PAIR(13, 14, 15, 16)
+  #endif
+  #if MIDI_NUM_CABLES >= 5
+	MIDI_INTERFACE_JACK_PAIR(17, 18, 19, 20)
+  #endif
+  #if MIDI_NUM_CABLES >= 6
+	MIDI_INTERFACE_JACK_PAIR(21, 22, 23, 24)
+  #endif
+  #if MIDI_NUM_CABLES >= 7
+	MIDI_INTERFACE_JACK_PAIR(25, 26, 27, 28)
+  #endif
+  #if MIDI_NUM_CABLES >= 8
+	MIDI_INTERFACE_JACK_PAIR(29, 30, 31, 32)
+  #endif
+  #if MIDI_NUM_CABLES >= 9
+	MIDI_INTERFACE_JACK_PAIR(33, 34, 35, 36)
+  #endif
+  #if MIDI_NUM_CABLES >= 10
+	MIDI_INTERFACE_JACK_PAIR(37, 38, 39, 40)
+  #endif
+  #if MIDI_NUM_CABLES >= 11
+	MIDI_INTERFACE_JACK_PAIR(41, 42, 43, 44)
+  #endif
+  #if MIDI_NUM_CABLES >= 12
+	MIDI_INTERFACE_JACK_PAIR(45, 46, 47, 48)
+  #endif
+  #if MIDI_NUM_CABLES >= 13
+	MIDI_INTERFACE_JACK_PAIR(49, 50, 51, 52)
+  #endif
+  #if MIDI_NUM_CABLES >= 14
+	MIDI_INTERFACE_JACK_PAIR(53, 54, 55, 56)
+  #endif
+  #if MIDI_NUM_CABLES >= 15
+	MIDI_INTERFACE_JACK_PAIR(57, 58, 59, 60)
+  #endif
+  #if MIDI_NUM_CABLES >= 16
+	MIDI_INTERFACE_JACK_PAIR(61, 62, 63, 64)
+  #endif
+        // Standard Bulk OUT Endpoint Descriptor, B.5.1, Table B-11, pae 42
+        9,                                      // bLength
+        5,                                      // bDescriptorType = ENDPOINT
+        MIDI_RX_ENDPOINT,                       // bEndpointAddress
+        0x02,                                   // bmAttributes (0x02=bulk)
+        LSB(MIDI_RX_SIZE_12),MSB(MIDI_RX_SIZE_12),// wMaxPacketSize
+        0,                                      // bInterval
+        0,                                      // bRefresh
+        0,                                      // bSynchAddress
+        // Class-specific MS Bulk OUT Endpoint Descriptor, B.5.2, Table B-12, page 42
+        4+MIDI_NUM_CABLES,                      // bLength
+        0x25,                                   // bDescriptorSubtype = CS_ENDPOINT
+        0x01,                                   // bJackType = MS_GENERAL
+        MIDI_NUM_CABLES,                        // bNumEmbMIDIJack = number of jacks
+        1,                                      // BaAssocJackID(1) = jack ID #1
+  #if MIDI_NUM_CABLES >= 2
+        5,
+  #endif
+  #if MIDI_NUM_CABLES >= 3
+        9,
+  #endif
+  #if MIDI_NUM_CABLES >= 4
+        13,
+  #endif
+  #if MIDI_NUM_CABLES >= 5
+        17,
+  #endif
+  #if MIDI_NUM_CABLES >= 6
+        21,
+  #endif
+  #if MIDI_NUM_CABLES >= 7
+        25,
+  #endif
+  #if MIDI_NUM_CABLES >= 8
+        29,
+  #endif
+  #if MIDI_NUM_CABLES >= 9
+        33,
+  #endif
+  #if MIDI_NUM_CABLES >= 10
+        37,
+  #endif
+  #if MIDI_NUM_CABLES >= 11
+        41,
+  #endif
+  #if MIDI_NUM_CABLES >= 12
+        45,
+  #endif
+  #if MIDI_NUM_CABLES >= 13
+        49,
+  #endif
+  #if MIDI_NUM_CABLES >= 14
+        53,
+  #endif
+  #if MIDI_NUM_CABLES >= 15
+        57,
+  #endif
+  #if MIDI_NUM_CABLES >= 16
+        61,
+  #endif
+        // Standard Bulk IN Endpoint Descriptor, B.5.1, Table B-11, pae 42
+        9,                                      // bLength
+        5,                                      // bDescriptorType = ENDPOINT
+        MIDI_TX_ENDPOINT | 0x80,                // bEndpointAddress
+        0x02,                                   // bmAttributes (0x02=bulk)
+        LSB(MIDI_TX_SIZE_12),MSB(MIDI_TX_SIZE_12),// wMaxPacketSize
+        0,                                      // bInterval
+        0,                                      // bRefresh
+        0,                                      // bSynchAddress
+        // Class-specific MS Bulk IN Endpoint Descriptor, B.5.2, Table B-12, page 42
+        4+MIDI_NUM_CABLES,                      // bLength
+        0x25,                                   // bDescriptorSubtype = CS_ENDPOINT
+        0x01,                                   // bJackType = MS_GENERAL
+        MIDI_NUM_CABLES,                        // bNumEmbMIDIJack = number of jacks
+        3,                                      // BaAssocJackID(1) = jack ID #3
+  #if MIDI_NUM_CABLES >= 2
+        7,
+  #endif
+  #if MIDI_NUM_CABLES >= 3
+        11,
+  #endif
+  #if MIDI_NUM_CABLES >= 4
+        15,
+  #endif
+  #if MIDI_NUM_CABLES >= 5
+        19,
+  #endif
+  #if MIDI_NUM_CABLES >= 6
+        23,
+  #endif
+  #if MIDI_NUM_CABLES >= 7
+        27,
+  #endif
+  #if MIDI_NUM_CABLES >= 8
+        31,
+  #endif
+  #if MIDI_NUM_CABLES >= 9
+        35,
+  #endif
+  #if MIDI_NUM_CABLES >= 10
+        39,
+  #endif
+  #if MIDI_NUM_CABLES >= 11
+        43,
+  #endif
+  #if MIDI_NUM_CABLES >= 12
+        47,
+  #endif
+  #if MIDI_NUM_CABLES >= 13
+        51,
+  #endif
+  #if MIDI_NUM_CABLES >= 14
+        55,
+  #endif
+  #if MIDI_NUM_CABLES >= 15
+        59,
+  #endif
+  #if MIDI_NUM_CABLES >= 16
+        63,
+  #endif
+#endif // MIDI_INTERFACE
 #ifdef MULTITOUCH_INTERFACE
 	// configuration for 12 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
@@ -2708,12 +2843,13 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
 #endif // EXPERIMENTAL_INTERFACE
 };
 
-
-__attribute__ ((section(".dmabuffers"), aligned(32)))
-uint8_t usb_descriptor_buffer[CONFIG_DESC_SIZE];
-
-
-
+#if CONFIG_DESC_SIZE_480 > CONFIG_DESC_SIZE_12
+      __attribute__ ((section(".dmabuffers"), aligned(32)))
+      uint8_t usb_descriptor_buffer[CONFIG_DESC_SIZE_480];
+#else
+      __attribute__ ((section(".dmabuffers"), aligned(32)))
+      uint8_t usb_descriptor_buffer[CONFIG_DESC_SIZE_12];
+#endif
 
 
 // **************************************************************
@@ -2755,6 +2891,7 @@ PROGMEM const struct usb_string_descriptor_struct usb_string_product_name_defaul
         3,
         PRODUCT_NAME
 };
+
 struct usb_string_descriptor_struct usb_string_serial_number_default = {
         12,
         3,
@@ -2796,8 +2933,8 @@ const usb_descriptor_list_t usb_descriptor_list[] = {
 	//wValue, wIndex, address,          length
 	{0x0100, 0x0000, device_descriptor, sizeof(device_descriptor)},
 	{0x0600, 0x0000, qualifier_descriptor, sizeof(qualifier_descriptor)},
-	{0x0200, 0x0000, usb_config_descriptor_480, CONFIG_DESC_SIZE},
-	{0x0700, 0x0000, usb_config_descriptor_12, CONFIG_DESC_SIZE},
+	{0x0200, 0x0000, usb_config_descriptor_480, CONFIG_DESC_SIZE_480},
+	{0x0700, 0x0000, usb_config_descriptor_12, CONFIG_DESC_SIZE_12},
 #ifdef SEREMU_INTERFACE
 	{0x2200, SEREMU_INTERFACE, seremu_report_desc, sizeof(seremu_report_desc)},
 	{0x2100, SEREMU_INTERFACE, usb_config_descriptor_480+SEREMU_HID_DESC_OFFSET, 9},
