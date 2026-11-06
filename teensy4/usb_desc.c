@@ -579,9 +579,16 @@ static uint8_t microsoft_os_compatible_id_desc[] = {
   #if !defined(MIDI_NUM_CABLES) || MIDI_NUM_CABLES < 1 || MIDI_NUM_CABLES > 16
   #error "MIDI_NUM_CABLES must be defined between 1 to 16"
   #endif
-#define MIDI_INTERFACE_DESC_SIZE	9+7+((6+6+9+9)*MIDI_NUM_CABLES)+(9+4+MIDI_NUM_CABLES)*2
+#ifdef MIDI2_HAS_DESCRIPTORS
+  #define MIDI2_AS1_DESC_SIZE	(9+7+(7+4+MIDI2_NUM_GROUPS)*2)
+  #define MIDI_INTERFACE_DESC_SIZE	9+7+((6+6+9+9)*MIDI_NUM_CABLES)+(9+4+MIDI_NUM_CABLES)*2+MIDI2_AS1_DESC_SIZE
+#else
+  #define MIDI2_AS1_DESC_SIZE	0
+  #define MIDI_INTERFACE_DESC_SIZE	9+7+((6+6+9+9)*MIDI_NUM_CABLES)+(9+4+MIDI_NUM_CABLES)*2
+#endif
 #else
 #define MIDI_INTERFACE_DESC_SIZE	0
+#define MIDI2_AS1_DESC_SIZE	0
 #endif
 
 #define KEYBOARD_INTERFACE_DESC_POS	MIDI_INTERFACE_DESC_POS+MIDI_INTERFACE_DESC_SIZE
@@ -1147,6 +1154,145 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE] = {
   #if MIDI_NUM_CABLES >= 16
         63,
   #endif
+#ifdef MIDI2_HAS_DESCRIPTORS
+	// MIDI 2.0 Alternate Setting 1: UMP native
+	// (USB MIDI 2.0 spec, section 3.1.1: alt 0 = MIDI 1.0 for legacy
+	// hosts, alt 1 = UMP, host picks via SET_INTERFACE)
+	// Interface descriptor (same interface number, alt=1)
+	9,					// bLength
+	4,					// bDescriptorType
+	MIDI_INTERFACE,				// bInterfaceNumber
+	1,					// bAlternateSetting
+	2,					// bNumEndpoints
+	0x01,					// bInterfaceClass (Audio)
+	0x03,					// bInterfaceSubClass (MIDI Streaming)
+	0x00,					// bInterfaceProtocol
+	0,					// iInterface
+	// MS Header CS Interface, bcdMSC = 0x0200 (section 5.2.2.1)
+	7,					// bLength
+	0x24,					// bDescriptorType = CS_INTERFACE
+	0x01,					// bDescriptorSubtype = MS_HEADER
+	0x00, 0x02,				// bcdMSC = revision 02.00
+	LSB(7+(7+4+MIDI2_NUM_GROUPS)*2),	// wTotalLength
+	MSB(7+(7+4+MIDI2_NUM_GROUPS)*2),
+	// Bulk OUT Endpoint, standard 7-byte form, not Audio 9-byte
+	// (section 5.3.1)
+	7,					// bLength
+	5,					// bDescriptorType = ENDPOINT
+	MIDI2_RX_ENDPOINT,			// bEndpointAddress
+	0x02,					// bmAttributes (bulk)
+	LSB(MIDI2_RX_SIZE_480), MSB(MIDI2_RX_SIZE_480), // wMaxPacketSize
+	0,					// bInterval
+	// CS Endpoint General 2.0 (section 5.3.2)
+	4+MIDI2_NUM_GROUPS,			// bLength
+	0x25,					// bDescriptorType = CS_ENDPOINT
+	0x02,					// bDescriptorSubtype = General 2.0
+	MIDI2_NUM_GROUPS,			// bNumGrpTrmBlock
+	1,					// baAssoGrpTrmBlkID[0]
+  #if MIDI2_NUM_GROUPS >= 2
+	2,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 3
+	3,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 4
+	4,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 5
+	5,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 6
+	6,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 7
+	7,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 8
+	8,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 9
+	9,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 10
+	10,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 11
+	11,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 12
+	12,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 13
+	13,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 14
+	14,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 15
+	15,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 16
+	16,
+  #endif
+	// Bulk IN Endpoint, standard 7-byte form (section 5.3.1)
+	7,					// bLength
+	5,					// bDescriptorType = ENDPOINT
+	MIDI2_TX_ENDPOINT | 0x80,		// bEndpointAddress
+	0x02,					// bmAttributes (bulk)
+	LSB(MIDI2_TX_SIZE_480), MSB(MIDI2_TX_SIZE_480), // wMaxPacketSize
+	0,					// bInterval
+	// CS Endpoint General 2.0 (section 5.3.2)
+	4+MIDI2_NUM_GROUPS,			// bLength
+	0x25,					// bDescriptorType = CS_ENDPOINT
+	0x02,					// bDescriptorSubtype = General 2.0
+	MIDI2_NUM_GROUPS,			// bNumGrpTrmBlock
+	1,					// baAssoGrpTrmBlkID[0]
+  #if MIDI2_NUM_GROUPS >= 2
+	2,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 3
+	3,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 4
+	4,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 5
+	5,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 6
+	6,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 7
+	7,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 8
+	8,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 9
+	9,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 10
+	10,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 11
+	11,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 12
+	12,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 13
+	13,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 14
+	14,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 15
+	15,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 16
+	16,
+  #endif
+#endif // MIDI2_HAS_DESCRIPTORS
 #endif // MIDI_INTERFACE
 
 #ifdef KEYBOARD_INTERFACE
@@ -2161,6 +2307,58 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE] = {
   #if MIDI_NUM_CABLES >= 16
         63,
   #endif
+#ifdef MIDI2_HAS_DESCRIPTORS
+	// MIDI 2.0 Alternate Setting 1 (12 Mbit/sec), same layout as the
+	// 480 Mbit/sec block above, full-speed packet sizes
+	9, 4, MIDI_INTERFACE, 1, 2, 0x01, 0x03, 0x00, 0,
+	7, 0x24, 0x01, 0x00, 0x02,
+	LSB(7+(7+4+MIDI2_NUM_GROUPS)*2),
+	MSB(7+(7+4+MIDI2_NUM_GROUPS)*2),
+	7, 5, MIDI2_RX_ENDPOINT, 0x02,
+	LSB(MIDI_RX_SIZE_12), MSB(MIDI_RX_SIZE_12), 0,
+	4+MIDI2_NUM_GROUPS, 0x25, 0x02, MIDI2_NUM_GROUPS,
+	1,
+  #if MIDI2_NUM_GROUPS >= 2
+	2,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 3
+	3,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 4
+	4,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 5
+	5, 6, 7, 8,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 9
+	9, 10, 11, 12,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 13
+	13, 14, 15, 16,
+  #endif
+	7, 5, MIDI2_TX_ENDPOINT | 0x80, 0x02,
+	LSB(MIDI_TX_SIZE_12), MSB(MIDI_TX_SIZE_12), 0,
+	4+MIDI2_NUM_GROUPS, 0x25, 0x02, MIDI2_NUM_GROUPS,
+	1,
+  #if MIDI2_NUM_GROUPS >= 2
+	2,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 3
+	3,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 4
+	4,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 5
+	5, 6, 7, 8,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 9
+	9, 10, 11, 12,
+  #endif
+  #if MIDI2_NUM_GROUPS >= 13
+	13, 14, 15, 16,
+  #endif
+#endif // MIDI2_HAS_DESCRIPTORS
 #endif // MIDI_INTERFACE
 
 #ifdef KEYBOARD_INTERFACE
@@ -2750,6 +2948,13 @@ PROGMEM const struct usb_string_descriptor_struct usb_string_manufacturer_name_d
         3,
         MANUFACTURER_NAME
 };
+PROGMEM const struct usb_string_descriptor_struct usb_string_midi2_gtb_name_default = {
+	2 + 4 * 2,
+	3,
+	{'M','a','i','n'}
+};
+extern struct usb_string_descriptor_struct usb_string_midi2_gtb_name
+        __attribute__ ((weak, alias("usb_string_midi2_gtb_name_default")));
 PROGMEM const struct usb_string_descriptor_struct usb_string_product_name_default = {
 	2 + PRODUCT_NAME_LEN * 2,
         3,
@@ -2789,6 +2994,71 @@ void usb_init_serialnumber(void)
 // **************************************************************
 //   Descriptors List
 // **************************************************************
+
+// MIDI 2.0 Group Terminal Block descriptor (served via GET_DESCRIPTOR)
+// USB MIDI 2.0 spec, section 5.4.  One 13-byte block per group:
+// bLength, CS_GR_TRM_BLOCK, GR_TRM_BLOCK, bGrpTrmBlkID, bidirectional,
+// first group, 1 group, no string, bMIDIProtocol 0x00 = unknown
+// (negotiated at runtime via MIDI-CI / UMP Stream), bandwidth unknown.
+#ifdef MIDI2_HAS_DESCRIPTORS
+#define MIDI2_GTB_ENTRY(id, grp, stridx) \
+	13, 0x26, 0x02, (id), 0x00, (grp), 1, (stridx), 0x00, 0, 0, 0, 0,
+
+PROGMEM const uint8_t midi2_gtb_descriptor[] = {
+	// GTB Header (section 5.4.1)
+	5, 0x26, 0x01,
+	LSB(5 + 13 * MIDI2_NUM_GROUPS),
+	MSB(5 + 13 * MIDI2_NUM_GROUPS),
+	// GTB Entries (section 5.4.2), one per group.  Block 1 carries the
+	// block name string (iBlockItem = 5, usb_string_midi2_gtb_name).
+	MIDI2_GTB_ENTRY(1, 0, 5)
+  #if MIDI2_NUM_GROUPS >= 2
+	MIDI2_GTB_ENTRY(2, 1, 0)
+  #endif
+  #if MIDI2_NUM_GROUPS >= 3
+	MIDI2_GTB_ENTRY(3, 2, 0)
+  #endif
+  #if MIDI2_NUM_GROUPS >= 4
+	MIDI2_GTB_ENTRY(4, 3, 0)
+  #endif
+  #if MIDI2_NUM_GROUPS >= 5
+	MIDI2_GTB_ENTRY(5, 4, 0)
+  #endif
+  #if MIDI2_NUM_GROUPS >= 6
+	MIDI2_GTB_ENTRY(6, 5, 0)
+  #endif
+  #if MIDI2_NUM_GROUPS >= 7
+	MIDI2_GTB_ENTRY(7, 6, 0)
+  #endif
+  #if MIDI2_NUM_GROUPS >= 8
+	MIDI2_GTB_ENTRY(8, 7, 0)
+  #endif
+  #if MIDI2_NUM_GROUPS >= 9
+	MIDI2_GTB_ENTRY(9, 8, 0)
+  #endif
+  #if MIDI2_NUM_GROUPS >= 10
+	MIDI2_GTB_ENTRY(10, 9, 0)
+  #endif
+  #if MIDI2_NUM_GROUPS >= 11
+	MIDI2_GTB_ENTRY(11, 10, 0)
+  #endif
+  #if MIDI2_NUM_GROUPS >= 12
+	MIDI2_GTB_ENTRY(12, 11, 0)
+  #endif
+  #if MIDI2_NUM_GROUPS >= 13
+	MIDI2_GTB_ENTRY(13, 12, 0)
+  #endif
+  #if MIDI2_NUM_GROUPS >= 14
+	MIDI2_GTB_ENTRY(14, 13, 0)
+  #endif
+  #if MIDI2_NUM_GROUPS >= 15
+	MIDI2_GTB_ENTRY(15, 14, 0)
+  #endif
+  #if MIDI2_NUM_GROUPS >= 16
+	MIDI2_GTB_ENTRY(16, 15, 0)
+  #endif
+};
+#endif // MIDI2_HAS_DESCRIPTORS
 
 // This table provides access to all the descriptor data above.
 
@@ -2836,6 +3106,9 @@ const usb_descriptor_list_t usb_descriptor_list[] = {
 #ifdef EXPERIMENTAL_INTERFACE
 	{0x03EE, 0x0000, microsoft_os_string_desc, 18},
 	{0x0000, 0xEE04, microsoft_os_compatible_id_desc, 40},
+#endif
+#ifdef MIDI2_HAS_DESCRIPTORS
+	{0x0305, 0x0409, (const uint8_t *)&usb_string_midi2_gtb_name, 0},
 #endif
         {0x0300, 0x0000, (const uint8_t *)&string0, 0},
         {0x0301, 0x0409, (const uint8_t *)&usb_string_manufacturer_name, 0},

@@ -49,6 +49,7 @@ struct usb_string_descriptor_struct {
 extern struct usb_string_descriptor_struct usb_string_manufacturer_name;
 extern struct usb_string_descriptor_struct usb_string_product_name;
 extern struct usb_string_descriptor_struct usb_string_serial_number;
+extern struct usb_string_descriptor_struct usb_string_midi2_gtb_name;
 
 #ifdef __cplusplus
 }

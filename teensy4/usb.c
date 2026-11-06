@@ -568,6 +568,18 @@ static void endpoint0_setup(uint64_t setupdata)
 #endif
 	  case 0x0680: // GET_DESCRIPTOR
 	  case 0x0681:
+#ifdef MIDI2_HAS_DESCRIPTORS
+		// MIDI 2.0 Group Terminal Block descriptor
+		if ((setup.wValue >> 8) == 0x26 && setup.wIndex == MIDI_INTERFACE) {
+			extern const uint8_t midi2_gtb_descriptor[];
+			uint32_t datalen = 5 + 13 * MIDI2_NUM_GROUPS;
+			if (datalen > setup.wLength) datalen = setup.wLength;
+			memcpy(usb_descriptor_buffer, midi2_gtb_descriptor, datalen);
+			arm_dcache_flush_delete(usb_descriptor_buffer, datalen);
+			endpoint0_transmit(usb_descriptor_buffer, datalen, 0);
+			return;
+		}
+#endif
 		for (list = usb_descriptor_list; list->addr != NULL; list++) {
 			if (setup.wValue == list->wValue && setup.wIndex == list->wIndex) {
 				uint32_t datalen;
@@ -640,6 +652,30 @@ static void endpoint0_setup(uint64_t setupdata)
 			endpoint0_setupdata.bothwords = setup.bothwords;
 			endpoint0_buffer[0] = 0xE9;
 			endpoint0_receive(endpoint0_buffer, setup.wLength, 1);
+			return;
+		}
+		break;
+#endif
+#if defined(MIDI2_HAS_DESCRIPTORS)
+	  case 0x0B01: // SET_INTERFACE (alternate setting)
+		if (setup.wIndex == MIDI_INTERFACE) {
+			// Only alt 0 (MIDI 1.0 byte stream) and alt 1 (MIDI 2.0
+			// UMP) are defined; any other value stalls (USB 2.0
+			// spec, section 9.4.10).
+			if (setup.wValue > 1) break;
+			extern uint8_t usb_midi2_alt_setting;
+			extern void usb_midi_flush_output(void);
+			usb_midi2_alt_setting = setup.wValue;
+			usb_midi_flush_output();
+			endpoint0_receive(NULL, 0, 0);
+			return;
+		}
+		break;
+	  case 0x0A81: // GET_INTERFACE (alternate setting)
+		if (setup.wIndex == MIDI_INTERFACE) {
+			extern uint8_t usb_midi2_alt_setting;
+			endpoint0_buffer[0] = usb_midi2_alt_setting;
+			endpoint0_transmit(endpoint0_buffer, 1, 0);
 			return;
 		}
 		break;

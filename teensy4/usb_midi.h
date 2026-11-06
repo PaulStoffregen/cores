@@ -46,6 +46,7 @@ extern "C" {
 #endif
 void usb_midi_configure(void);
 void usb_midi_write_packed(uint32_t n);
+int usb_midi_write_packed_n(const uint32_t *words, uint8_t count);
 void usb_midi_send_sysex_buffer_has_term(const uint8_t *data, uint32_t length, uint8_t cable);
 void usb_midi_send_sysex_add_term_bytes(const uint8_t *data, uint32_t length, uint8_t cable);
 void usb_midi_flush_output(void);
